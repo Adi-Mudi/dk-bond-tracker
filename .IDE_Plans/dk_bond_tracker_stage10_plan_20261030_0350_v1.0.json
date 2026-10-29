@@ -1,0 +1,43 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage10_plan_20261030_0350",
+  "kind": "normal_plan",
+  "title": "Stage 10 — final design + UI wireframe (Div-3 exit, initiative design target)",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 10,
+  "model_assignment": {"executor_lane_a": "worker-9 (final design doc, MiMo-V2.6-Flash/cline-pass)", "executor_lane_b": "worker-10 (UI wireframe excalidraw)", "reviewer": "reviewer-1 (read-only)"},
+  "worktree": "base checkout; wireframe drafts in .IDE_Plans/design_drafts/ (D119)",
+  "Documents": {
+    "Truth": ["locked architecture + all stage docs (PRD v2, SRS, feasibility, atomic functions, pseudocode, test plan, development order)"],
+    "References": ["PRD user stories US-01..US-05 (grid/dashboard/export views)"],
+    "Targets": ["docs/Final_Design_DK_Bond_Tracker_v1.json (CREATE, kind=final_design)", ".IDE_Plans/design_drafts/dk_bond_tracker_ui_wireframe_design_v1.excalidraw.json (CREATE)"],
+    "Dependencies": ["valid D121 refs now include test_cases TC-01..TC-58 + plan_items + doc ids + requirements + decisions"],
+    "Tests": ["self-checks both files; D121 refs resolve (design-refs gate); D119 lock; review batch 10; Div-3 exit: --record-review 10 AGREED + green test + --advance 10"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Draft both artifacts (parallel lanes)",
+      "mode": "PARALLEL",
+      "tasks": [
+        {"id": "T10.1", "action": "CREATE", "file": "docs/Final_Design_DK_Bond_Tracker_v1.json", "from": "(new)", "to": "final design: pinned source list (all prior doc versions), final architecture summary, AF->file->wave->TC traceability table (37 AFs), UI decisions from wireframe, holds L1/L2 restated, acceptance matrix (42 requirements x TCs), implementation readiness checklist (what Stage 11 executor needs: exact files, commands, gates), open points", "reason": "D28 stage-10 final design; implementation-ready target", "status": "PENDING"},
+        {"id": "T10.2", "action": "CREATE", "file": ".IDE_Plans/design_drafts/dk_bond_tracker_ui_wireframe_design_v1.excalidraw.json", "from": "(new)", "to": "UI wireframe excalidraw: screens (dashboard view, bond month-grid view with status colors legend, payment edit flow, import/launch screen, CSV export affordance, home plan, watch list, error/empty states) as labeled boxes + flow arrows; meaningful boxes carry customData.ref [{id,rel}] to valid ids (requirements FRs, decisions D1/D10, test_cases TCs for verified behaviors)", "reason": "Rule 5 design type (a); feeds future HTML conversion", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "python self-checks: JSON parse; final design covers 37 AFs + 42 reqs; wireframe refs in valid namespaces; screens >=7", "remote": "none"},
+      "reviewer_check": "final design completeness vs all prior docs; wireframe covers US-01/02/04/05 flows; refs semantic; L1/L2 honest"
+    },
+    {
+      "id": "P2",
+      "name": "Gate: review batch 10 + LOCK + Div-3 exit + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T10.3", "action": "RUN", "file": "reviewer-1", "from": "(not run)", "to": "batch 10 findings + dispositions", "reason": "Rule 15", "status": "PENDING"},
+        {"id": "T10.4", "action": "RUN", "file": "(PM)", "from": "drafts", "to": "LOCK wireframe into design/ + catalog entry; final design doc moves to design/ (locked design artifact); gates PASS; checklists locked; --record-review 10 AGREED; green test; --advance 10", "reason": "D119 + D107 Div-3 exit", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify (design gates); record-test green; store-gates --advance 10", "remote": "none"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only)", "close": "commit locked artifacts; this is the initiative's STOP POINT per D7 (stages 11-12 deferred)"}
+}
