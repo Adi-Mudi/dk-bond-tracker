@@ -1,0 +1,43 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage8_plan_20261030_0310",
+  "kind": "normal_plan",
+  "title": "Stage 8 — test plan (D29) + Div-2 exit evidence",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 8,
+  "model_assignment": {"executor": "worker-8 subagent (MiMo-V2.6-Flash/cline-pass)", "reviewer": "reviewer-1 (read-only)"},
+  "worktree": "base checkout (doc-only stage)",
+  "Documents": {
+    "Truth": ["docs/SRS_DK_Bond_Tracker_v1.json (42 requirements, 68 ACs)", "docs/Atomic_Functions_DK_Bond_Tracker_v1.json (37 AFs)", "docs/Pseudocode_DK_Bond_Tracker_v1.json"],
+    "References": ["architecture test strategy (ADR/pytest), L1 open state"],
+    "Targets": ["docs/Test_Plan_DK_Bond_Tracker_v1.json (CREATE, kind=test_plan)"],
+    "Dependencies": ["rtm lane contract: top-level test_cases[] {id,title,type,steps,expected,level,status}; traces via test_bindings[] rows {requirement_id, test_case_id, covers} — requirement + tc aliases per lane; type enum unit|integration|e2e|gate|performance|security|uat|regression; level LOCAL|REMOTE"],
+    "Tests": ["post-extract: test_cases > 0; links requirement->test_case cover 42/42 requirements (coverage gate); zero orphan drops; record-test suite test-plan-extraction green (Div-2 exit evidence)"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Author test plan + extract + coverage proof",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T8.1", "action": "CREATE", "file": "docs/Test_Plan_DK_Bond_Tracker_v1.json", "from": "(new)", "to": "flat JSON (id=Test_Plan_DK_Bond_Tracker_v1, kind=test_plan, version=v1.0, project=01_excel_dashboard) with: strategy (pytest, LOCAL gates; REMOTE = none, no CI), test_cases[] (~40-60 TCs: TC-01.. sequential) each {id,title,type,steps,expected,level,status:'planned'}, test_bindings[] one row per (requirement, test_case): EXACTLY 42 distinct requirement_ids covered (FR-01..24 + NFR-1..13 + DATA-01..05), covers full|partial; sections: scope, approach by level (unit/integration/e2e/gate/performance), entry/exit criteria, L1 caveat (reconciliation acceptance test stays RED until owner re-baselines — test defined but marked expected-fail/pending-baseline), traceability note (computed RTM)", "reason": "D29 unit test plan at detailed design", "status": "PENDING"},
+        {"id": "T8.2", "action": "RUN", "file": "(store)", "from": "test_cases=0, coverage=0", "to": "test_cases extracted; 42/42 requirements linked; coverage gate green; record-test green", "reason": "Div-2 exit evidence", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "projection extract counts + coverage query assertion + store-gates --coverage", "remote": "none (no CI configured)"},
+      "reviewer_check": "TC quality (real steps/expected), every requirement covered exactly as declared, L1 test honestly pending (not green), type/level enums valid, no orphan refs"
+    },
+    {
+      "id": "P2",
+      "name": "Gate: review batch 8 + Div-2 exit + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T8.3", "action": "RUN", "file": "reviewer-1", "from": "(not run)", "to": "batch 8 findings + dispositions", "reason": "Rule 15", "status": "PENDING"},
+        {"id": "T8.4", "action": "RUN", "file": "store tools", "from": "stage 8 RUNNING", "to": "checklist locked; --record-review 8 AGREED; --record-test green; --advance 8 (D107: verdict+test required)", "reason": "D106/D107", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify; store-gates --coverage --stage-status --strict; store-gates --advance 8", "remote": "none"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only)", "close": "commit; report Div-2 exit honestly (name remaining red tiers)"}
+}
