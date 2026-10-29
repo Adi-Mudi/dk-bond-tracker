@@ -1,0 +1,42 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage3_plan_20261030_0155",
+  "kind": "normal_plan",
+  "title": "Stage 3 — SRS+RTM merged artifact (one doc; RTM computed)",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 3,
+  "model_assignment": {"executor": "worker-2 subagent (MiMo-V2.6-Flash via cline-pass)", "reviewer": "reviewer-1 (read-only)"},
+  "worktree": "base checkout (doc-only stage)",
+  "Documents": {
+    "Truth": ["docs/PRD_DK_Bond_Tracker_v2.json (prd_items FR-01..24 + NFR-1..13 + DATA-01..05)", "docs/RTM.json (legacy R1-R15 VBA mapping, reference)"],
+    "References": ["brainstorm D3/D5", "vba_dump.txt"],
+    "Targets": ["docs/SRS_DK_Bond_Tracker_v1.json (CREATE)"],
+    "Dependencies": ["srs extract lane: requirement id MUST equal an existing prd_item id (FK fr_id NOT NULL); check_method defaults 'unspecified'; per-requirement acceptance_criteria dicts {given,when,then}"],
+    "Tests": ["post-extract: requirements=42 (24 FR + 13 NFR + 5 DATA), zero FK orphans, acceptance_criteria >= 42, derived links intact; record-test suite srs-extraction green"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Author SRS+RTM artifact",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T3.1", "action": "CREATE", "file": "docs/SRS_DK_Bond_Tracker_v1.json", "from": "(new file)", "to": "flat JSON doc (kind=srs, id=SRS_DK_Bond_Tracker_v1, version=v1.0, project=01_excel_dashboard) with top-level requirements[] covering EVERY prd_item (id == prd_item id: FR-01..FR-24 functional, NFR-1..13 nfr, DATA-01..05 functional/constraint), each {text, category, check_method, status:'draft', acceptance_criteria:[{given,when,then} x >=1]}, plus a rtm section (markdown body): computed-RTM derivation rule (requirements.fr_id -> prd_items, decisions derived_from, acceptance -> future test bindings at Stage 8), legacy R1-R15 -> FR/SR mapping table, ISO 26262 note (D15: RTM computed, not authored)", "reason": "D28 stage-3 merged artifact", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --project --extract; python assertion script: counts + FK integrity + AC>=42; --record-test", "remote": "none"},
+      "reviewer_check": "every prd_item has exactly one requirement; categories correct; ACs meaningful (given/when/then real); RTM section maps all legacy R1-R15; no FK-unreachable ids"
+    },
+    {
+      "id": "P2",
+      "name": "Gate: review batch 3 + division exit + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T3.2", "action": "RUN", "file": "(reviewer-1)", "from": "(not run)", "to": "batch 3 findings + disposition in review log", "reason": "Rule 15 gate", "status": "PENDING"},
+        {"id": "T3.3", "action": "RUN", "file": "(store tools)", "from": "stage 3 RUNNING", "to": "checklists locked (SRS doc + any stage-3 evidence kinds REFUSED names); --record-review 3 AGREED; --advance 3 (Div-1 exit: verdict + green test required)", "reason": "D106/D107", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify; store-gates --stage-status --strict; store-gates --advance 3", "remote": "none (no CI configured)"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only)", "close": "commit; report division-1 exit honestly (name any red content tiers)"}
+}
