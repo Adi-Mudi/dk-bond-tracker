@@ -17,8 +17,8 @@
       ".IDE_Plans/dk_bond_tracker_brainstorm_20261030.json (decisions D1-D13)"
     ],
     "References": [
-      "Doc/requirements/PRD_DK_Bond_Tracker.md (legacy PRD, migrates at Stage 2)",
-      "docs/RTM.md (legacy RTM, migrates at Stage 3)",
+      "docs/PRD_DK_Bond_Tracker.json (legacy PRD body, migrated in F0 at 501d419; Stage 2 revises it into structured born-JSON)",
+      "docs/RTM.json (legacy RTM body, migrated in F0; Stage 3 supersedes with the computed RTM)",
       ".IDE_Plans/velpari/runs/2026-09-27T13-04--currently-the-data-is-stored-in/ (scout evidence)"
     ],
     "Targets": [
@@ -47,7 +47,7 @@
   "2_scope": {
     "IN": [
       "D120 store init (db-store worktree + store symlink, project 01_excel_dashboard)",
-      "D12 migration of 7 legacy .md docs: convert -> verify -> freeze -> DELETE (user-authorized set)",
+      "Store-migration procedure (global migrate skill D12, distinct from brainstorm D12) of 7 legacy .md docs: convert -> verify -> freeze -> DELETE (user-authorized set)",
       "Stages 1-10 of the 12-stage machine (brainstorm, PRD, SRS+RTM, feasibility+spikes, architecture, atomic functions, pseudocode, test plan, dev order, final design)",
       "Two locked design artifacts: architecture (Excalidraw) + UI wireframe (Excalidraw), D121 element refs",
       "D11 deferred MCP entry sqlite-excel-dashboard",
@@ -78,9 +78,9 @@
     {"stage": "12 close+report", "cites": ["D7"], "note": "product closeout deferred; initiative closeout report only"}
   ],
   "4_stages_table": [
-    {"stage": "F0 foundation", "wave": "pre", "lanes": "PM inline", "plan_link": "embedded in master (no separate plan; tasks listed in F0_tasks)", "status": "RUNNING"},
+    {"stage": "F0 foundation", "wave": "pre", "lanes": "PM inline", "plan_link": "embedded in master (no separate plan; tasks listed in F0_tasks)", "status": "DONE (all 8 tasks DONE; evidence in F0_tasks)"},
     {"stage": "1 brainstorm", "wave": "W1", "lanes": "PM inline", "plan_link": ".IDE_Plans/dk_bond_tracker_stage1_plan_20261030_0110_v1.0.json", "status": "WAITING"},
-    {"stage": "2 PRD", "wave": "W2", "lanes": "1 worker (migration+revision)", "plan_link": ".IDE_Plans/dk_bond_tracker_stage2_plan_20261030_v1.0.json", "status": "WAITING"},
+    {"stage": "2 PRD", "wave": "W2", "lanes": "1 worker (structured born-JSON PRD revision)", "plan_link": ".IDE_Plans/dk_bond_tracker_stage2_plan_20261030_0130_v1.0.json", "status": "WAITING"},
     {"stage": "3 SRS+RTM", "wave": "W3", "lanes": "2 workers (SRS draft | RTM computed)", "plan_link": ".IDE_Plans/dk_bond_tracker_stage3_plan_20261030_v1.0.json", "status": "WAITING"},
     {"stage": "4 feasibility+spikes", "wave": "W4", "lanes": "1 worker (parser spike in worktree stage4-feasibility)", "plan_link": ".IDE_Plans/dk_bond_tracker_stage4_plan_20261030_v1.0.json", "status": "WAITING"},
     {"stage": "5 architecture", "wave": "W5", "lanes": "2 workers (architecture doc | architecture design artifact)", "plan_link": ".IDE_Plans/dk_bond_tracker_stage5_plan_20261030_v1.0.json", "status": "WAITING"},
@@ -93,14 +93,14 @@
     {"stage": "12 close+report", "wave": "-", "lanes": "-", "plan_link": "-", "status": "DEFERRED (D7: product closeout out; initiative closeout = report doc at end)"}
   ],
   "F0_tasks": [
-    {"id": "F0-1", "task": "Update .gitignore: stop ignoring .IDE_Plans/ (plans+brainstorm are committed truth); add /store, /db-store/, *.db, *.db-wal, *.db-shm", "status": "PENDING"},
-    {"id": "F0-2", "task": "Commit foundation state on dev (brainstorm + master + gitignore)", "status": "PENDING"},
-    {"id": "F0-3", "task": "D120 store init: git branch db-store main; git worktree add db-store db-store; ln -s db-store/store store; prove with git worktree list + store-projector --verify", "status": "PENDING"},
-    {"id": "F0-4", "task": "store-gates --seed-stages (12 canonical stage rows)", "status": "PENDING"},
-    {"id": "F0-5", "task": "D12 migration: inventory 7 legacy .md -> convert to born-JSON under docs/ (project=01_excel_dashboard) -> verify counts+sha256 -> freeze read-only", "status": "PENDING"},
-    {"id": "F0-6", "task": "D11: add deferred MCP entry sqlite-excel-dashboard to ~/.kimi-code/mcp.json (DB_URL -> project store db path)", "status": "PENDING"},
-    {"id": "F0-7", "task": "D12 CLI readiness check (kimi + pi), read-only, write readiness report doc", "status": "PENDING"},
-    {"id": "F0-8", "task": "Delete the 7 legacy .md files (user-authorized set per D6/OP2) AFTER F0-5 verification; commit", "status": "PENDING"}
+    {"id": "F0-1", "task": "Update .gitignore: stop ignoring .IDE_Plans/ (plans+brainstorm are committed truth); add /store, /db-store/, *.db, *.db-wal, *.db-shm", "status": "DONE", "evidence": "7f504eb"},
+    {"id": "F0-2", "task": "Commit foundation state on dev (brainstorm + master + gitignore)", "status": "DONE", "evidence": "7f504eb"},
+    {"id": "F0-3", "task": "D120 store init: git branch db-store main; git worktree add db-store db-store; ln -s db-store/store store; prove with git worktree list + store-projector --verify", "status": "DONE", "evidence": "worktree list folder==branch; verify PASS db-worktree-anchor; DB 01_excel_dashboard_store.db 26 tables"},
+    {"id": "F0-4", "task": "store-gates --seed-stages (12 canonical stage rows)", "status": "DONE", "evidence": "seeded=12/12"},
+    {"id": "F0-5", "task": "Store-migration procedure (global migrate skill D12 — NOT brainstorm D12): inventory 7 legacy .md -> convert to born-JSON under docs/ (project=01_excel_dashboard) -> verify counts+sha256 -> freeze read-only", "status": "DONE", "evidence": "501d419; verify 7/7 sha256; FREEZE x7"},
+    {"id": "F0-6", "task": "D11: add deferred MCP entry sqlite-excel-dashboard to ~/.kimi-code/mcp.json (DB_URL -> project store db path)", "status": "DONE", "evidence": "mcp.json validates; 4 servers listed; outside-repo file, not committed"},
+    {"id": "F0-7", "task": "D12 CLI readiness check (kimi + pi), read-only, write readiness report doc", "status": "DONE", "evidence": "725b61c; .IDE_Plans/cli_readiness_report_20261030.json"},
+    {"id": "F0-8", "task": "Delete the 7 legacy .md files (user-authorized set per D6/OP2) AFTER F0-5 verification; commit", "status": "DONE", "evidence": "334c0ff"}
   ],
   "5_execution_model": {
     "base_branch": "dev",
@@ -157,6 +157,7 @@
     "note": "filled at close"
   },
   "history": [
-    {"version": "v1.0", "date": "2026-10-30T01:07", "note": "Initial master plan (full-auto per D13)."}
+    {"version": "v1.0", "date": "2026-10-30T01:07", "note": "Initial master plan (full-auto per D13)."},
+    {"version": "v1.0", "date": "2026-10-30T01:25", "note": "Review batch 1 fixes (F1-F5): References timing corrected (migrated in F0); F0-5 procedure reference disambiguated from brainstorm D12; F0 task statuses refreshed to DONE with evidence; stage-2 lane/link updated; stage plan links gain HHMM per Rule 5 as each plan is authored."}
   ]
 }

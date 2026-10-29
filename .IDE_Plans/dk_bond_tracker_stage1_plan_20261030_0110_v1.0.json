@@ -1,0 +1,43 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage1_plan_20261030_0110",
+  "kind": "normal_plan",
+  "title": "Stage 1 — brainstorm gate (review + lock evidence + advance)",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 1,
+  "model_assignment": {"executor": "PM inline", "reviewer": "reviewer subagent (read-only, MiMo-V2.6-Flash via cline-pass)"},
+  "worktree": "base checkout (doc-only stage; no worktree)",
+  "Documents": {
+    "Truth": [".IDE_Plans/dk_bond_tracker_brainstorm_20261030.json v1.2.0", ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json"],
+    "References": ["docs/PRD_DK_Bond_Tracker.json (migrated legacy PRD)"],
+    "Targets": [".IDE_Plans/dk_bond_tracker_review_log.jsonl (new, append-only)", ".IDE_Plans/ stage checklist states via store-projector --checklist"],
+    "Dependencies": ["store-projector / store-gates"],
+    "Tests": ["store-projector --verify; store-gates --stage-status --strict; --advance 1"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Reviewer gate (Rule 15 gate 1: brainstorm + master review)",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T1.1", "action": "ADD", "file": ".IDE_Plans/dk_bond_tracker_review_log.jsonl", "from": "(new file)", "to": "batch 1 record: reviewers=[reviewer-1], version under review=brainstorm v1.2.0 + master v1.0", "reason": "review history of truth", "status": "PENDING"},
+        {"id": "T1.2", "action": "DISPATCH", "file": "(reviewer subagent)", "from": "(not run)", "to": "reviewer reads brainstorm + master + migrated PRD; checks: user directives Q1-Q4 + D11-D13 fully captured; Rule 5 format compliance; stage table vs decision references; internal contradictions; migration/deletion set exactly the 7 files", "reason": "gate 1 review", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "review report arrives with numbered findings + verdict", "reviewer_check": "findings cite evidence (doc section/field); no CRITICAL/MAJOR expected for AGREED"}
+    },
+    {
+      "id": "P2",
+      "name": "Gate close: findings disposition + checklist + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T2.1", "action": "EDIT", "file": "review log + docs", "from": "(pending findings)", "to": "FIXED (with proof) or DISMISSED (with reason) per finding", "reason": "harvest loop", "status": "PENDING"},
+        {"id": "T2.2", "action": "RUN", "file": "(store tools)", "from": "checklist created", "to": "checklist reviewed -> approved -> locked for brainstorm + master docs; --record-review 1 AGREED reviewer-1", "reason": "D27 lifecycle + D107 evidence", "status": "PENDING"},
+        {"id": "T2.3", "action": "RUN", "file": "(store tools)", "from": "stage 1 WAITING", "to": "stage 1 DONE (via --advance 1)", "reason": "D106 strict advance", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify && store-gates --stage-status --strict && store-gates --advance 1", "remote": "none (no CI configured)"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only, base checkout)", "close": "commit review log + any fixes; report gate result"}
+}
