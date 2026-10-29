@@ -1,0 +1,207 @@
+{
+  "id": "Development_Order_DK_Bond_Tracker_v1",
+  "kind": "development_order",
+  "title": "Development Order — DK Bond Tracker (implementation sequencing of AF-01..AF-37)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "purpose": "Sequence the 37 atomic functions into implementation waves for the post-design build (Stage 11 territory). Topological rule: every depends_on AF lands in an EARLIER or SAME wave. One wave completes and merges before the next begins. Each wave carries local pytest gates; no CI exists (honest).",
+  "sequence_rules": [
+    "Topological: dep AF in earlier or same wave (verified by self-check against the AF graph)",
+    "SERIES execution: wave N fully green before wave N+1 starts",
+    "Per-wave gate: wave's pytest subset GREEN + store gates green locally; no remote tier configured",
+    "Error surfacing (AF-30) and schema decoupling (AF-29) are foundational: no code ships that swallows errors or keys off header text/position",
+    "Holds block only their acceptance, not their build: AF-08 is built in W1 but its reconciliation acceptance stays pending (L1); AF-37 is built in W7 but P&L acceptance stays pending (L2)"
+  ],
+  "waves": [
+    {
+      "id": "W0",
+      "name": "Foundation",
+      "afs": [
+        "AF-01",
+        "AF-02",
+        "AF-29",
+        "AF-30"
+      ],
+      "entry_criteria": "repo layout per architecture building_blocks (src/, tests/), .venv with openpyxl + flask + pytest, empty SQLite DB created by AF-01 schema init",
+      "exit_criteria": "AF-01 creates bonds/payment_ledger/home_plan schema; AF-02 opens + normalizes workbook (sheet-name trim, header-keyword detection); AF-29 header/position decoupling rules enforced; AF-30 error-surfacing wrapper raises named errors (no silent swallow)",
+      "test_gates": [
+        "TC-49",
+        "TC-50",
+        "TC-47",
+        "TC-19",
+        "TC-20"
+      ],
+      "rationale": "Roots of the AF graph (no deps); everything else builds on schema + reader + error discipline"
+    },
+    {
+      "id": "W1",
+      "name": "Import pipeline",
+      "afs": [
+        "AF-03",
+        "AF-04",
+        "AF-05",
+        "AF-06",
+        "AF-07",
+        "AF-08",
+        "AF-09",
+        "AF-28"
+      ],
+      "entry_criteria": "W0 green",
+      "exit_criteria": "bond master / payment grid / home plan / watch list extracted from the REAL XLSM with runtime-derived 83-month header grid; validation (dup ISIN full set, AF-28) runs; AF-08 reconcile REPORTS against baseline and flags L1 mismatch (never force-matches); AF-09 commits a full import atomically; reconciliation acceptance explicitly PENDING L1",
+      "test_gates": [
+        "TC-24",
+        "TC-08",
+        "TC-09",
+        "TC-26",
+        "TC-25"
+      ],
+      "hold": "L1: TC-26 stays pending_baseline until the owner re-baselines the exit figures (56227.88/-1165738.34 vs 111638.57/-925503.44); wave exit requires all gates EXCEPT TC-26 (documented)",
+      "rationale": "Critical path AF-02->AF-03->AF-07->AF-09; import is the sole data source for everything downstream"
+    },
+    {
+      "id": "W2",
+      "name": "Ledger + status engine",
+      "afs": [
+        "AF-10",
+        "AF-11",
+        "AF-12",
+        "AF-13",
+        "AF-14",
+        "AF-15",
+        "AF-16"
+      ],
+      "entry_criteria": "W1 green (or W1 import committed; AF-01 from W0 strictly required)",
+      "exit_criteria": "ledger CRUD + portfolio totals as queries; D5 status rules exact (Danger = ANY unpaid past month, not just previous month; Completed overrides when months paid >= tenure; zero = unpaid; derived never stored); recompute-after-change and recompute-all pass the status matrix",
+      "test_gates": [
+        "TC-01",
+        "TC-02",
+        "TC-03",
+        "TC-04",
+        "TC-05",
+        "TC-07",
+        "TC-15",
+        "TC-21"
+      ],
+      "rationale": "Core domain logic; deps (AF-01/10/11/14) all satisfied; feeds dashboard + grid + reinvestment"
+    },
+    {
+      "id": "W3",
+      "name": "Dashboard queries + route",
+      "afs": [
+        "AF-17",
+        "AF-18",
+        "AF-19",
+        "AF-20",
+        "AF-21",
+        "AF-22"
+      ],
+      "entry_criteria": "W2 green (status engine + totals live)",
+      "exit_criteria": "five dashboard query modules + server-rendered route; live figures on every request (no snapshot); this-month dynamic; 83-month history with current month highlighted; status overview ordered Danger -> On-going -> Completed with colors; unresolvable-month shows explicit message (never blank)",
+      "test_gates": [
+        "TC-39",
+        "TC-27",
+        "TC-42"
+      ],
+      "rationale": "All deps (AF-10/13/14) in W2; pure query layer before UI binding"
+    },
+    {
+      "id": "W4",
+      "name": "Grid UI + launch + payment flow",
+      "afs": [
+        "AF-23",
+        "AF-24",
+        "AF-25"
+      ],
+      "entry_criteria": "W3 green (dashboard serves) — AF-23 itself only needs AF-01, but is grouped here as the user-visible slice",
+      "exit_criteria": "one-command launch serves the app; month grid renders from payment_ledger with row colors (paid green / due light red); payment POST inserts or corrects + recompute status + redirect; full launch->grid->edit->dashboard loop green",
+      "test_gates": [
+        "TC-14",
+        "TC-18",
+        "TC-36",
+        "TC-28",
+        "TC-35"
+      ],
+      "rationale": "deps AF-12/14/10/15 all in W2; completes the MVP loop (FR-02/03/04/18/19/20/24)"
+    },
+    {
+      "id": "W5",
+      "name": "CSV export",
+      "afs": [
+        "AF-26",
+        "AF-27"
+      ],
+      "entry_criteria": "W4 green (same rows displayed as exported)",
+      "exit_criteria": "current-view + full-ledger CSV export; RFC-4180 quoting, UTF-8, matches displayed rows exactly",
+      "test_gates": [
+        "TC-29",
+        "TC-30"
+      ],
+      "rationale": "deps AF-01 only; deliberately after the grid so exported rows equal rendered rows"
+    },
+    {
+      "id": "W6",
+      "name": "Phase 3 features",
+      "afs": [
+        "AF-31",
+        "AF-32",
+        "AF-33"
+      ],
+      "entry_criteria": "W1 green (AF-05/AF-06 extracted data) + W2 green (status for free-up)",
+      "exit_criteria": "home plan schedule reproduces incl. irregular savings; watch list analytics formulas match Excel outputs; reinvestment free-up: Completed bonds release principal (duplicate-deduction only for On-going/Danger)",
+      "test_gates": [
+        "TC-33",
+        "TC-13",
+        "TC-51",
+        "TC-52"
+      ],
+      "rationale": "PRD Phase 3 scope (FR-11/FR-12) plus AF-33 (FR-17 reinvestment free-up) which the PRD assigns to Phase 1 - delivered here because its dependency AF-14 only lands in W2; not a phase-order violation"
+    },
+    {
+      "id": "W7",
+      "name": "Phase 4 features",
+      "afs": [
+        "AF-34",
+        "AF-35",
+        "AF-36",
+        "AF-37"
+      ],
+      "entry_criteria": "W2 green (ledger) + W6 preferred complete",
+      "exit_criteria": "discount calc, TDS deduction, quarterly/yearly payout cycles, dashboard P&L/ongoing TL value; performance check NFR-11 <2s @ 150x96",
+      "test_gates": [
+        "TC-16",
+        "TC-10",
+        "TC-11",
+        "TC-12",
+        "TC-48",
+        "TC-40",
+        "TC-53",
+        "TC-54"
+      ],
+      "hold": "L2: AF-37 P&L acceptance stays pending until the owner confirms the definition (Stage-7 proposal: Till Return - Investment; alternative: maturity - investment); build may proceed, acceptance may not",
+      "rationale": "PRD Phase 4 scope; payout-cycle changes touch ledger/status — regression TCs (TC-53/54) run here"
+    }
+  ],
+  "holds": [
+    {
+      "id": "L1",
+      "af": "AF-08",
+      "tc": "TC-26",
+      "issue": "Import reconciliation acceptance cannot go green until the owner re-baselines the PRD exit figures (workbook 56227.88 / -1165738.34 vs PRD 111638.57 / -925503.44) and settles the Balance definition (L=K-J vs Investment-TillReturn)",
+      "status": "OPEN - owner decision"
+    },
+    {
+      "id": "L2",
+      "af": "AF-37",
+      "tc": "TC-40",
+      "issue": "P&L definition proposed in Stage 7 (Till Return - Investment) awaits owner confirmation before Phase 4 acceptance; TC-40 (FR-16, full) is the holding test",
+      "status": "OPEN - owner decision"
+    }
+  ],
+  "verification": {
+    "per_wave": "pytest tests/ -k <wave scope> locally + store-projector --verify + store-gates --all --strict at each wave close",
+    "remote": "none - no CI configured (honest)",
+    "full_regression": "after W4 (MVP loop) and after W7 (final): complete TC suite locally; TC-26 (L1) and TC-40 (L2) remain pending until L1/L2 settle; TC-52 stays a normal planned Phase-3 UAT"
+  },
+  "done_criteria": "All waves W0..W7 green except held acceptances L1/L2; coverage stays 42/42; every AF implemented exactly once in its wave; final regression runs with honest reds only on the two held TCs (or zero reds once L1/L2 settle)"
+}
