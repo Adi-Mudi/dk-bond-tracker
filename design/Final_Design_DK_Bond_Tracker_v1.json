@@ -1,0 +1,1100 @@
+{
+  "id": "Final_Design_DK_Bond_Tracker_v1",
+  "kind": "final_design",
+  "title": "Final Design — DK Bond Tracker (implementation-ready consolidation of PRD v2, SRS, feasibility, architecture, atomic functions, pseudocode, test plan and development order)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "stage": 10,
+  "author": "worker-9",
+  "created": "2026-10-30",
+  "purpose": "Single implementation-ready consolidation so a fresh Stage-11 executor can build the MVP without reading any prior conversation: pinned source versions, final tech decisions, 37-AF traceability (file + wave + requirements + tests), the UI contract, the 42-requirement acceptance matrix, implementation readiness checklist, honest L1/L2 holds and open points.",
+  "pinned_sources": [
+    {
+      "doc": "PRD_DK_Bond_Tracker_v2",
+      "version": "v2.0"
+    },
+    {
+      "doc": "SRS_DK_Bond_Tracker_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "Feasibility_XLSM_Parser_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "architecture_dk_bond_tracker_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "Atomic_Functions_DK_Bond_Tracker_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "Pseudocode_DK_Bond_Tracker_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "Test_Plan_DK_Bond_Tracker_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "Development_Order_DK_Bond_Tracker_v1",
+      "version": "v1.0"
+    },
+    {
+      "doc": "dk_bond_tracker_brainstorm_20261030",
+      "version": "v1.2.0"
+    },
+    {
+      "doc": "dk_bond_tracker_master_20261030_0107",
+      "version": "v1.0"
+    }
+  ],
+  "architecture_summary": {
+    "runtime": "Python 3.14 in the project .venv; the only other prerequisites are a desktop browser and (for one-time import only) the source XLSM file",
+    "frontend": "Flask + Jinja2 server-rendered HTML on every request — no client framework, no JavaScript build, no snapshots cached between requests (ADR-01, ADR-07, ADR-08; D1)",
+    "persistence": "SQLite via Python stdlib sqlite3 — one local DB file per user with bonds / payment_ledger / home_plan tables; row-per-payment model, never per-month columns; Till Return, Balance and status are query-derived, never stored (ADR-03, ADR-06; D3)",
+    "import": "One-time openpyxl pipeline (data_only double-load) that reads the XLSM read-only, normalizes sheets/headers by keyword, recomputes K/L formula columns, reconciles against a baseline and commits atomically; Excel remains a read-only backup (ADR-02; D2)",
+    "export": "UTF-8 RFC-4180 CSV replaces the legacy xlsx export; any displayed dataset is serializable (ADR-04; D4)",
+    "status_engine": "Fixed D5 rules — Danger = ANY unpaid past month (not just the previous month); Completed overrides when months paid >= tenure; zero-value counts as unpaid; no scan-window limit, derived on every view (ADR-05; D5)",
+    "testing": "pytest unit + integration + e2e with seeded fixture portfolios and Flask test client; 58 TCs bound 94 ways across all 42 requirements",
+    "ci": "No CI configured — local gates only (pytest + store-projector --verify + store-gates --all --strict); stated honestly, never implied remote",
+    "constraints": "Offline-only, single-user, localhost 127.0.0.1 bind, zero secrets, no accounts, no cloud, no build step (ADR-01, ADR-09, ADR-10; D10)",
+    "quirk_policy": "Known Excel/VBA defects (hardcoded month headers, Jan-2031 scan limit, single-month Danger check, On Error Resume Next) are fixed, not reproduced (ADR-09)",
+    "l1_policy": "PRD exit figures must be re-baselined by the owner BEFORE L1 acceptance tests can go green; until then TC-26 stays pending_baseline and the import reports computed-vs-baseline side by side, never force-matches (ADR-10)"
+  },
+  "traceability": [
+    {
+      "af": "AF-01",
+      "name": "Initialize SQLite schema",
+      "file": "src/db.py",
+      "wave": "W0",
+      "requirements": [
+        "FR-01"
+      ],
+      "key_tests": [
+        "TC-19",
+        "TC-20"
+      ]
+    },
+    {
+      "af": "AF-02",
+      "name": "Open and normalize workbook",
+      "file": "src/import_xlsm.py",
+      "wave": "W0",
+      "requirements": [
+        "FR-08",
+        "FR-23"
+      ],
+      "key_tests": [
+        "TC-49",
+        "TC-50",
+        "TC-47",
+        "TC-19",
+        "TC-20"
+      ]
+    },
+    {
+      "af": "AF-03",
+      "name": "Extract bond master records",
+      "file": "src/import_xlsm.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-10",
+        "FR-23"
+      ],
+      "key_tests": [
+        "TC-24",
+        "TC-08",
+        "TC-09",
+        "TC-26",
+        "TC-25"
+      ]
+    },
+    {
+      "af": "AF-04",
+      "name": "Extract payment grid rows",
+      "file": "src/import_xlsm.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-08"
+      ],
+      "key_tests": [
+        "TC-24",
+        "TC-25"
+      ]
+    },
+    {
+      "af": "AF-05",
+      "name": "Extract home plan schedule rows",
+      "file": "src/import_xlsm.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-12"
+      ],
+      "key_tests": [
+        "TC-24",
+        "TC-08",
+        "TC-09",
+        "TC-26",
+        "TC-25"
+      ]
+    },
+    {
+      "af": "AF-06",
+      "name": "Extract watch list analytics inputs",
+      "file": "src/import_xlsm.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-11"
+      ],
+      "key_tests": [
+        "TC-24",
+        "TC-08",
+        "TC-09",
+        "TC-26",
+        "TC-25"
+      ]
+    },
+    {
+      "af": "AF-07",
+      "name": "Validate extracted import data",
+      "file": "src/validators.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-22",
+        "FR-21"
+      ],
+      "key_tests": [
+        "TC-08",
+        "TC-09",
+        "TC-25"
+      ]
+    },
+    {
+      "af": "AF-08",
+      "name": "Reconcile imported figures against baseline",
+      "file": "src/validators.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-09",
+        "FR-08"
+      ],
+      "key_tests": [
+        "TC-24",
+        "TC-25",
+        "TC-26"
+      ]
+    },
+    {
+      "af": "AF-09",
+      "name": "Commit import records to database",
+      "file": "src/import_xlsm.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-01",
+        "FR-08",
+        "FR-10",
+        "FR-12"
+      ],
+      "key_tests": [
+        "TC-24",
+        "TC-25"
+      ]
+    },
+    {
+      "af": "AF-10",
+      "name": "Insert payment ledger row",
+      "file": "src/db.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-03"
+      ],
+      "key_tests": [
+        "TC-21"
+      ]
+    },
+    {
+      "af": "AF-11",
+      "name": "Void or correct a payment row",
+      "file": "src/db.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-03",
+        "FR-24"
+      ],
+      "key_tests": [
+        "TC-15",
+        "TC-21"
+      ]
+    },
+    {
+      "af": "AF-12",
+      "name": "Compute per-bond month totals",
+      "file": "src/db.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-09"
+      ],
+      "key_tests": [
+        "TC-04",
+        "TC-07"
+      ]
+    },
+    {
+      "af": "AF-13",
+      "name": "Compute portfolio totals",
+      "file": "src/db.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-09",
+        "FR-05"
+      ],
+      "key_tests": [
+        "TC-04",
+        "TC-07"
+      ]
+    },
+    {
+      "af": "AF-14",
+      "name": "Compute single-bond status",
+      "file": "src/status.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-06",
+        "FR-19",
+        "FR-24"
+      ],
+      "key_tests": [
+        "TC-01",
+        "TC-02",
+        "TC-03",
+        "TC-04",
+        "TC-15"
+      ]
+    },
+    {
+      "af": "AF-15",
+      "name": "Recompute status after payment change",
+      "file": "src/status.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-24",
+        "FR-20"
+      ],
+      "key_tests": [
+        "TC-15"
+      ]
+    },
+    {
+      "af": "AF-16",
+      "name": "Recompute all bond statuses",
+      "file": "src/status.py",
+      "wave": "W2",
+      "requirements": [
+        "FR-06",
+        "FR-24"
+      ],
+      "key_tests": [
+        "TC-01",
+        "TC-02",
+        "TC-03",
+        "TC-04",
+        "TC-15"
+      ]
+    },
+    {
+      "af": "AF-17",
+      "name": "Query portfolio summary counts",
+      "file": "src/queries.py",
+      "wave": "W3",
+      "requirements": [
+        "FR-05"
+      ],
+      "key_tests": [
+        "TC-27"
+      ]
+    },
+    {
+      "af": "AF-18",
+      "name": "Query portfolio summary amounts",
+      "file": "src/queries.py",
+      "wave": "W3",
+      "requirements": [
+        "FR-05",
+        "FR-09"
+      ],
+      "key_tests": [
+        "TC-27"
+      ]
+    },
+    {
+      "af": "AF-19",
+      "name": "Query this-month returns",
+      "file": "src/queries.py",
+      "wave": "W3",
+      "requirements": [
+        "FR-05",
+        "FR-20"
+      ],
+      "key_tests": [
+        "TC-27",
+        "TC-42"
+      ]
+    },
+    {
+      "af": "AF-20",
+      "name": "Aggregate monthly history table",
+      "file": "src/queries.py",
+      "wave": "W3",
+      "requirements": [
+        "FR-05",
+        "FR-18"
+      ],
+      "key_tests": [
+        "TC-27"
+      ]
+    },
+    {
+      "af": "AF-21",
+      "name": "Produce bonds status overview",
+      "file": "src/queries.py",
+      "wave": "W3",
+      "requirements": [
+        "FR-05",
+        "FR-06",
+        "FR-04"
+      ],
+      "key_tests": [
+        "TC-27",
+        "TC-42"
+      ]
+    },
+    {
+      "af": "AF-22",
+      "name": "Serve dashboard page from live queries",
+      "file": "src/app.py",
+      "wave": "W3",
+      "requirements": [
+        "FR-05",
+        "FR-20"
+      ],
+      "key_tests": [
+        "TC-27",
+        "TC-42"
+      ]
+    },
+    {
+      "af": "AF-23",
+      "name": "Launch local Flask application",
+      "file": "src/app.py",
+      "wave": "W4",
+      "requirements": [
+        "FR-02"
+      ],
+      "key_tests": [
+        "TC-14",
+        "TC-18",
+        "TC-36",
+        "TC-28",
+        "TC-35"
+      ]
+    },
+    {
+      "af": "AF-24",
+      "name": "Render month grid",
+      "file": "src/templates/",
+      "wave": "W4",
+      "requirements": [
+        "FR-04",
+        "FR-18",
+        "FR-19"
+      ],
+      "key_tests": [
+        "TC-14",
+        "TC-18",
+        "TC-36",
+        "TC-35"
+      ]
+    },
+    {
+      "af": "AF-25",
+      "name": "Handle payment cell edit",
+      "file": "src/app.py",
+      "wave": "W4",
+      "requirements": [
+        "FR-03",
+        "FR-24",
+        "FR-20"
+      ],
+      "key_tests": [
+        "TC-28"
+      ]
+    },
+    {
+      "af": "AF-26",
+      "name": "Export current view as UTF-8 CSV",
+      "file": "src/export_csv.py",
+      "wave": "W5",
+      "requirements": [
+        "FR-07"
+      ],
+      "key_tests": [
+        "TC-29",
+        "TC-30"
+      ]
+    },
+    {
+      "af": "AF-27",
+      "name": "Export full payment ledger as UTF-8 CSV",
+      "file": "src/export_csv.py",
+      "wave": "W5",
+      "requirements": [
+        "FR-07"
+      ],
+      "key_tests": [
+        "TC-29",
+        "TC-30"
+      ]
+    },
+    {
+      "af": "AF-28",
+      "name": "Check duplicate ISIN across full bond set",
+      "file": "src/validators.py",
+      "wave": "W1",
+      "requirements": [
+        "FR-22"
+      ],
+      "key_tests": [
+        "TC-08",
+        "TC-09"
+      ]
+    },
+    {
+      "af": "AF-29",
+      "name": "Enforce stable schema-key access",
+      "file": "src/validators.py",
+      "wave": "W0",
+      "requirements": [
+        "FR-23"
+      ],
+      "key_tests": [
+        "TC-49",
+        "TC-50",
+        "TC-47",
+        "TC-19",
+        "TC-20"
+      ]
+    },
+    {
+      "af": "AF-30",
+      "name": "Surface operation errors visibly",
+      "file": "src/validators.py",
+      "wave": "W0",
+      "requirements": [
+        "FR-21"
+      ],
+      "key_tests": [
+        "TC-49",
+        "TC-50",
+        "TC-47",
+        "TC-19",
+        "TC-20"
+      ]
+    },
+    {
+      "af": "AF-31",
+      "name": "Render Home Plan schedule view",
+      "file": "src/app.py",
+      "wave": "W6",
+      "requirements": [
+        "FR-12"
+      ],
+      "key_tests": [
+        "TC-33",
+        "TC-13",
+        "TC-51",
+        "TC-52"
+      ]
+    },
+    {
+      "af": "AF-32",
+      "name": "Compute watch list analytics",
+      "file": "src/queries.py",
+      "wave": "W6",
+      "requirements": [
+        "FR-11"
+      ],
+      "key_tests": [
+        "TC-52"
+      ]
+    },
+    {
+      "af": "AF-33",
+      "name": "Compute reinvestment free-up",
+      "file": "src/queries.py",
+      "wave": "W6",
+      "requirements": [
+        "FR-17"
+      ],
+      "key_tests": [
+        "TC-13",
+        "TC-51"
+      ]
+    },
+    {
+      "af": "AF-34",
+      "name": "Compute bond discount amount",
+      "file": "src/queries.py",
+      "wave": "W7",
+      "requirements": [
+        "FR-13"
+      ],
+      "key_tests": [
+        "TC-16"
+      ]
+    },
+    {
+      "af": "AF-35",
+      "name": "Compute TDS deduction on payout",
+      "file": "src/queries.py",
+      "wave": "W7",
+      "requirements": [
+        "FR-14"
+      ],
+      "key_tests": [
+        "TC-10",
+        "TC-11"
+      ]
+    },
+    {
+      "af": "AF-36",
+      "name": "Generate payout due dates by cycle",
+      "file": "src/queries.py",
+      "wave": "W7",
+      "requirements": [
+        "FR-15"
+      ],
+      "key_tests": [
+        "TC-12"
+      ]
+    },
+    {
+      "af": "AF-37",
+      "name": "Compute dashboard P&L and ongoing TL",
+      "file": "src/queries.py",
+      "wave": "W7",
+      "requirements": [
+        "FR-16"
+      ],
+      "key_tests": [
+        "TC-40"
+      ]
+    }
+  ],
+  "traceability_notes": {
+    "file_source": "AF element mapped to the architecture building_blocks layout path: ledger_repository->src/db.py, status_engine->src/status.py, dashboard_query_module->src/queries.py, route_handlers->src/app.py, xlsx_reader and import_pipeline->src/import_xlsm.py, validators->src/validators.py, csv_exporter->src/export_csv.py, month_grid_renderer->src/templates/",
+    "wave_source": "Development_Order waves W0..W7; every depends_on AF lands in an earlier or same wave",
+    "key_tests_rule": "Wave test_gates intersected with the AF's fr_refs via Test_Plan test_bindings; where the intersection is empty (AF-02, AF-03, AF-05, AF-06, AF-23, AF-29, AF-30, AF-31) the full wave gate list is used as instructed; AF-08 additionally carries TC-26 because the Development_Order L1 hold names AF-08<->TC-26 explicitly even though TC-26 binds NFR-10",
+    "pseudocode_coverage": "Pseudocode_DK_Bond_Tracker_v1 carries exactly one entry per AF (37/37) with 132 edge cases total"
+  },
+  "ui_decisions": {
+    "pages": [
+      "Dashboard — portfolio summary counts (Total/Danger/On-going/Completed), amounts (Total Investment, Till Return, Balance), this-month returns, full monthly history with current month highlighted, bonds status overview ordered Danger -> On-going -> Completed, P&L and ongoing TL (Phase 4), reinvestment free-up line, export affordance",
+      "Bond month-grid view — Excel-like months-across grid rendered per bond from payment_ledger rows with dynamic month headers, payment cell edit, status cell",
+      "Import/launch surface — one documented launch command binds Flask on 127.0.0.1; the one-time XLSM import is a CLI step whose reconciliation report (computed vs baseline, L1 flag when mismatched) is shown to the operator",
+      "Home Plan view — 84-month schedule with irregular savings, rate, per-year interest, countdown, remaining interest (Phase 3)",
+      "Watch list view — analytics computed on view from extracted inputs, reproducing Excel formulas (Phase 3)",
+      "CSV export affordance — every displayed dataset (dashboard tables, month grid, Home Plan, watch list, bond detail) offers UTF-8 CSV download; export matches displayed rows exactly (D4)"
+    ],
+    "colors": {
+      "payment_cell_paid": "green",
+      "payment_cell_due": "light red",
+      "status_danger": "red",
+      "status_on_going": "orange",
+      "status_completed": "green"
+    },
+    "dynamic_month_headers": "Month columns derived at render time from each bond's start month + tenure — no hardcoded Sep-2025..Feb-2027 headers, no Jan-2031 limit; a Feb-2031+ bond renders its full grid with D5 status and no dropped months (FR-04, FR-18, FR-19, NFR-9; ADR-09)",
+    "error_surfaces": "Flask error handlers render an explicit error page/message for unexpected route exceptions; import failures abort with a named error and never a partial success; unresolvable current month shows an explicit message, never a silent 0; duplicate ISIN flagged across the full bond set; no silent fallback zeros presented as success (FR-21, NFR-6)",
+    "offline_localhost_constraints": "Server binds 127.0.0.1 only; zero outbound network in any code path; no accounts, sessions or auth layer; single local SQLite file is the sole persistence artifact; sharing means copying the folder (D1, D10; NFR-1, NFR-2, NFR-13)"
+  },
+  "acceptance_matrix": [
+    {
+      "requirement": "DATA-01",
+      "covered_by_tests": [
+        "TC-19",
+        "TC-23"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "DATA-02",
+      "covered_by_tests": [
+        "TC-20",
+        "TC-21",
+        "TC-22"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "DATA-03",
+      "covered_by_tests": [
+        "TC-17",
+        "TC-32",
+        "TC-33"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "DATA-04",
+      "covered_by_tests": [
+        "TC-31"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "DATA-05",
+      "covered_by_tests": [
+        "TC-07"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-01",
+      "covered_by_tests": [
+        "TC-19",
+        "TC-20"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-02",
+      "covered_by_tests": [
+        "TC-34",
+        "TC-43"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-03",
+      "covered_by_tests": [
+        "TC-21",
+        "TC-22"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-04",
+      "covered_by_tests": [
+        "TC-35",
+        "TC-36",
+        "TC-37",
+        "TC-38"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-05",
+      "covered_by_tests": [
+        "TC-27",
+        "TC-34"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-06",
+      "covered_by_tests": [
+        "TC-01",
+        "TC-02",
+        "TC-03",
+        "TC-04",
+        "TC-15",
+        "TC-42"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-07",
+      "covered_by_tests": [
+        "TC-29",
+        "TC-30",
+        "TC-53"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-08",
+      "covered_by_tests": [
+        "TC-23",
+        "TC-24",
+        "TC-25"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-09",
+      "covered_by_tests": [
+        "TC-04",
+        "TC-07"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-10",
+      "covered_by_tests": [
+        "TC-23"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-11",
+      "covered_by_tests": [
+        "TC-31",
+        "TC-52"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-12",
+      "covered_by_tests": [
+        "TC-32"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-13",
+      "covered_by_tests": [
+        "TC-16",
+        "TC-41"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-14",
+      "covered_by_tests": [
+        "TC-10",
+        "TC-11"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-15",
+      "covered_by_tests": [
+        "TC-12"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-16",
+      "covered_by_tests": [
+        "TC-40"
+      ],
+      "status": "pending_confirmation"
+    },
+    {
+      "requirement": "FR-17",
+      "covered_by_tests": [
+        "TC-13",
+        "TC-51"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-18",
+      "covered_by_tests": [
+        "TC-14",
+        "TC-18",
+        "TC-36",
+        "TC-58"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-19",
+      "covered_by_tests": [
+        "TC-06",
+        "TC-37",
+        "TC-42"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-20",
+      "covered_by_tests": [
+        "TC-34",
+        "TC-42",
+        "TC-54"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-21",
+      "covered_by_tests": [
+        "TC-11",
+        "TC-25",
+        "TC-30",
+        "TC-39",
+        "TC-46",
+        "TC-58"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-22",
+      "covered_by_tests": [
+        "TC-08",
+        "TC-09"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-23",
+      "covered_by_tests": [
+        "TC-44",
+        "TC-45"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "FR-24",
+      "covered_by_tests": [
+        "TC-15",
+        "TC-28",
+        "TC-38"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-1",
+      "covered_by_tests": [
+        "TC-50"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-2",
+      "covered_by_tests": [
+        "TC-49",
+        "TC-50"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-3",
+      "covered_by_tests": [
+        "TC-55"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-4",
+      "covered_by_tests": [
+        "TC-43"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-5",
+      "covered_by_tests": [
+        "TC-44",
+        "TC-45"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-6",
+      "covered_by_tests": [
+        "TC-39",
+        "TC-46"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-7",
+      "covered_by_tests": [
+        "TC-27"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-8",
+      "covered_by_tests": [
+        "TC-01",
+        "TC-04",
+        "TC-15"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-9",
+      "covered_by_tests": [
+        "TC-06",
+        "TC-14",
+        "TC-18",
+        "TC-44"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-10",
+      "covered_by_tests": [
+        "TC-26",
+        "TC-57"
+      ],
+      "status": "pending_baseline"
+    },
+    {
+      "requirement": "NFR-11",
+      "covered_by_tests": [
+        "TC-48"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-12",
+      "covered_by_tests": [
+        "TC-29",
+        "TC-30"
+      ],
+      "status": "ready"
+    },
+    {
+      "requirement": "NFR-13",
+      "covered_by_tests": [
+        "TC-56"
+      ],
+      "status": "ready"
+    }
+  ],
+  "implementation_readiness": {
+    "entry_point": "wave W0 per Development_Order",
+    "commands": [
+      "python -m pytest tests/ -q",
+      "store-projector --verify",
+      "store-gates --all --strict"
+    ],
+    "files_to_create": [
+      "src/app.py",
+      "src/db.py",
+      "src/status.py",
+      "src/queries.py",
+      "src/import_xlsm.py",
+      "src/export_csv.py",
+      "src/validators.py",
+      "src/templates/",
+      "tests/"
+    ],
+    "definition_of_done": "All waves W0..W7 green except held acceptances L1/L2; coverage stays 42/42; every AF implemented exactly once in its wave; final regression runs with honest reds only on the two held TCs (or zero reds once L1/L2 settle)",
+    "no_ci_note": "no CI configured - local gates only (honest)",
+    "wave_order": "W0 Foundation (AF-01, AF-02, AF-29, AF-30) -> W1 Import pipeline (AF-03..AF-09, AF-28) -> W2 Ledger + status engine (AF-10..AF-16) -> W3 Dashboard queries + route (AF-17..AF-22) -> W4 Grid UI + launch + payment flow (AF-23..AF-25) -> W5 CSV export (AF-26, AF-27) -> W6 Phase 3 features (AF-31..AF-33) -> W7 Phase 4 features (AF-34..AF-37); SERIES execution, wave N fully green before wave N+1 starts",
+    "verification_note": "Per wave: pytest wave subset locally + store-projector --verify + store-gates --all --strict at each wave close; full local regression after W4 and after W7; remote tier: none",
+    "test_gates_by_wave": {
+      "W0": [
+        "TC-49",
+        "TC-50",
+        "TC-47",
+        "TC-19",
+        "TC-20"
+      ],
+      "W1": [
+        "TC-24",
+        "TC-08",
+        "TC-09",
+        "TC-26",
+        "TC-25"
+      ],
+      "W2": [
+        "TC-01",
+        "TC-02",
+        "TC-03",
+        "TC-04",
+        "TC-05",
+        "TC-07",
+        "TC-15",
+        "TC-21"
+      ],
+      "W3": [
+        "TC-39",
+        "TC-27",
+        "TC-42"
+      ],
+      "W4": [
+        "TC-14",
+        "TC-18",
+        "TC-36",
+        "TC-28",
+        "TC-35"
+      ],
+      "W5": [
+        "TC-29",
+        "TC-30"
+      ],
+      "W6": [
+        "TC-33",
+        "TC-13",
+        "TC-51",
+        "TC-52"
+      ],
+      "W7": [
+        "TC-16",
+        "TC-10",
+        "TC-11",
+        "TC-12",
+        "TC-48",
+        "TC-40",
+        "TC-53",
+        "TC-54"
+      ]
+    },
+    "test_gates_rule": "EXACT Development_Order wave test_gates (copied verbatim); W1 exit excludes held TC-26; W7 exit excludes held TC-40 until L2 settles"
+  },
+  "holds": [
+    {
+      "id": "L1",
+      "af": "AF-08",
+      "tc": "TC-26",
+      "requirement": "NFR-10",
+      "issue": "Import reconciliation acceptance cannot go green until the owner re-baselines the PRD exit figures (workbook 56227.88 / -1165738.34 vs PRD 111638.57 / -925503.44) and settles the Balance definition (L=K-J vs Investment-TillReturn)",
+      "figures": {
+        "workbook_total_till_return": 56227.88,
+        "workbook_total_balance": -1165738.34,
+        "prd_total_till_return": 111638.57,
+        "prd_total_balance": -925503.44,
+        "bond_count_and_investment_agree": "15 bonds; Total Investment 1037142.01 equal on both sides",
+        "balance_definition_contested": "workbook L = K - J maturity amount vs PRD Till Return - Total Investment"
+      },
+      "policy": "TC-26 stays pending_baseline until the owner re-baselines the exit figures; wave exit requires all gates EXCEPT TC-26 (documented); the test reports computed-vs-baseline side by side, raises the L1 flag and holds the import — never force-matched, skipped or marked passing (ADR-10; test_plan l1_caveat)",
+      "status": "OPEN - owner decision"
+    },
+    {
+      "id": "L2",
+      "af": "AF-37",
+      "tc": "TC-40",
+      "requirement": "FR-16",
+      "issue": "P&L definition proposed in Stage 7 (Till Return - Investment) awaits owner confirmation before Phase 4 acceptance; TC-40 (FR-16, full) is the holding test",
+      "policy": "AF-37 is built in W7 but its P&L acceptance stays pending until the owner confirms the definition (Stage-7 proposal: Till Return - Investment; alternative: maturity - investment); build may proceed, acceptance may not",
+      "status": "OPEN - owner decision"
+    }
+  ],
+  "open_points": [
+    {
+      "id": "L1",
+      "topic": "Owner re-baseline of import reconciliation exit figures",
+      "detail": "Same as holds[0]: owner must re-baseline 56227.88/-1165738.34 vs 111638.57/-925503.44 and settle the Balance definition before TC-26 / NFR-10 can go green.",
+      "status": "OPEN"
+    },
+    {
+      "id": "L2",
+      "topic": "Owner confirmation of the P&L definition",
+      "detail": "Same as holds[1]: Stage-7 proposal Till Return - Investment (alternative maturity - investment) awaits confirmation before TC-40 / FR-16 acceptance.",
+      "status": "OPEN"
+    },
+    {
+      "id": "OP-brainstorm",
+      "topic": "Brainstorm formal LOCK timing (brainstorm OP1 / D36)",
+      "detail": "Per D36 the brainstorm doc dk_bond_tracker_brainstorm_20261030 may LOCK only once the design-stage artifacts (this final design + the UI wireframe) are confirmed and locked; until then it stays content-approved with status open. Stage-10 design lock is the explicit unlock event.",
+      "status": "OPEN"
+    }
+  ]
+}
