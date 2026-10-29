@@ -1,0 +1,42 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage6_plan_20261030_0240",
+  "kind": "normal_plan",
+  "title": "Stage 6 — atomic functions decomposition",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 6,
+  "model_assignment": {"executor": "worker-6 subagent (MiMo-V2.6-Flash/cline-pass)", "reviewer": "reviewer-1 (read-only)"},
+  "worktree": "base checkout (doc-only stage)",
+  "Documents": {
+    "Truth": ["design/architecture_dk_bond_tracker_v1.json (locked, components + fr_mapping)", "SRS v1 (42 requirements + 68 ACs)", "PRD v2"],
+    "References": ["design/dk_bond_tracker_architecture_design_v1.excalidraw.json", "feasibility risks (L1)"],
+    "Targets": ["docs/Atomic_Functions_DK_Bond_Tracker_v1.json (CREATE, kind=atomic_function)"],
+    "Dependencies": ["extract lane: atomic_function docs are not typed-extracted (documents index only)"],
+    "Tests": ["self-check: AF ids unique, every FR-01..24 mapped to >=1 AF, inputs/outputs non-empty; reviewer completeness check; --advance 6"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Author atomic functions doc",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T6.1", "action": "CREATE", "file": "docs/Atomic_Functions_DK_Bond_Tracker_v1.json", "from": "(new)", "to": "flat JSON (id=Atomic_Functions_DK_Bond_Tracker_v1, kind=atomic_function, version=v1.0, project=01_excel_dashboard) with atomic_functions[]: AF-01..AF-nn each {id, name, purpose, inputs, outputs, triggers, preconditions, postconditions, fr_refs (FR ids), element (architecture component id), depends_on (AF ids), check_method}; cover: import pipeline, ledger CRUD, status engine (row + portfolio recompute per D5), dashboard queries (summary/amounts/this-month/history/status-overview), grid render, CSV export, validators (dup ISIN), error surfacing, home plan, watch list analytics, reinvestment free-up, payout-cycle/discount/TDS functions (Phase 3/4 scope), NFR cross-cutters (perf, offline); plus coverage_map {FR-xx: [AF ids]} for ALL 24 FRs and an af_dependencies graph summary", "reason": "D28 stage-6 decomposition", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "python self-check (unique AF ids, full FR coverage, no empty in/out)", "remote": "none"},
+      "reviewer_check": "atomicity (each AF does ONE thing), D5 rules decomposed correctly, every AF maps to an existing architecture element, no FR uncovered, no invented FR"
+    },
+    {
+      "id": "P2",
+      "name": "Gate: review batch 6 + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T6.2", "action": "RUN", "file": "reviewer-1", "from": "(not run)", "to": "batch 6 findings + dispositions", "reason": "Rule 15", "status": "PENDING"},
+        {"id": "T6.3", "action": "RUN", "file": "store tools", "from": "stage 6 RUNNING", "to": "checklist locked; --record-review 6 AGREED; --advance 6", "reason": "D106", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify; store-gates --advance 6", "remote": "none"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only)", "close": "commit; report"}
+}
