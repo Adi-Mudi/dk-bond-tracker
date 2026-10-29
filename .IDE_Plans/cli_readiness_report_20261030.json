@@ -1,0 +1,22 @@
+{
+  "schema": "report/v1",
+  "id": "cli_readiness_report_20261030",
+  "kind": "report",
+  "title": "CLI readiness check — kimi CLI + pi CLI for 01_excel_dashboard",
+  "topic": "D12 readiness check (read-only, no config changes)",
+  "version": "v1.0",
+  "status": "complete",
+  "date": "2026-10-30",
+  "author": "PM (Kimi CLI)",
+  "overall_status": "READY_WITH_FINDINGS",
+  "items": [
+    {"id": "RR-01", "item": "kimi CLI session context", "status": "DONE", "reason": "This PM session runs on Kimi CLI; global rules v22.5.10 loaded from ~/.kimi-code/AGENTS.md + ~/.agents/AGENTS.md; project skills visible; tools functional.", "evidence": "session start rule blocks"},
+    {"id": "RR-02", "item": "pi CLI installed", "status": "DONE", "reason": "pi 1.4.0 at ~/.npm-global/bin/pi; global rules v22.5.10 present at ~/.pi/agent/AGENTS.md (same compressed edition).", "evidence": "pi --version; head of ~/.pi/agent/AGENTS.md"},
+    {"id": "RR-03", "item": "Store tools on PATH for both CLIs", "status": "DONE", "reason": "store-projector + store-gates at ~/.local/bin (PATH-global; any CLI session sees them).", "evidence": "which store-projector store-gates"},
+    {"id": "RR-04", "item": "SQLite MCP entry (D11)", "status": "DONE", "reason": "sqlite-excel-dashboard added to ~/.kimi-code/mcp.json (deferred, uvx mcp-alchemy, DB_URL -> db-store/store/01_excel_dashboard_store.db); JSON validates; uvx present. Activates on demand in kimi sessions.", "evidence": "python json.load of mcp.json; which uvx"},
+    {"id": "RR-05", "item": "Python venv", "status": "DONE", "reason": ".venv Python 3.14.4 works; oletools 0.60.2 installed (VBA extraction ready for Stage 4 spike).", "evidence": ".venv/bin/python --version; site-packages listing"},
+    {"id": "RR-06", "item": "Project AGENTS.md at repo root", "status": "FAILED", "reason": "No AGENTS.md at project root — both CLIs fall back to global rules only; project-local loader (Rule 17 static home) is missing. NOT fixed per user choice 'readiness check only'.", "evidence": "ls of repo root (no AGENTS.md)"},
+    {"id": "RR-07", "item": "openpyxl in venv", "status": "PENDING", "reason": "Not installed; needed at Stage 4 spike (XLSM cell parsing). oletools alone cannot read sheet cell values. Install requires Rule 7 approval — flagged for the Stage 4 boundary; scoped to the project .venv only.", "evidence": "site-packages grep (openpyxl absent)"},
+    {"id": "RR-08", "item": "Flask in venv", "status": "PENDING", "reason": "Not installed; product runtime dependency (Phase 0 of the build, NOT needed for stages 1-10 documentation pipeline). No action in this initiative.", "evidence": "site-packages grep (flask absent)"}
+  ]
+}
