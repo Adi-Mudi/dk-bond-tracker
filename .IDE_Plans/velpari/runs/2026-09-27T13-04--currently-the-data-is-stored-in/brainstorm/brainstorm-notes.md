@@ -1,14 +1,3 @@
----
-artifact: brainstorm
-project: currently-the-data-is-stored-in-an-xlsm-workbook-i-am-considerin
-version: 1.0.0
-status: published
-stage: brainstorming
-run: 2026-09-27T13-04--currently-the-data-is-stored-in
-created: 2026-09-27T14:22:31.123Z
-updated: 2026-09-27T14:22:31.123Z
----
-
 # Brainstorm Notes — XLSM → SQLite + lightweight front end migration
 
 ## Mission

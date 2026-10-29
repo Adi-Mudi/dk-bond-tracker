@@ -1,0 +1,109 @@
+{
+  "nfrs": [
+    {
+      "id": "NFR-1",
+      "category": "offline",
+      "requirement": "The system SHALL operate entirely offline; all listed features (view, edit, dashboard, export) SHALL work when the host machine has no network connection.",
+      "source": "Interview answer 2: \"Offline only.\"",
+      "phase": "implementation",
+      "verification": "Run the app with network disabled; execute all core user flows and confirm they succeed."
+    },
+    {
+      "id": "NFR-2",
+      "category": "security/privacy",
+      "requirement": "The system SHALL store all data only in a local SQLite file on the user's machine and SHALL NOT require cloud services, user accounts, or any outbound data transmission.",
+      "source": "Interview answer 2: \"each user keeps data on their own local system — no cloud, no accounts\"; Decision Summary: \"Flask local web UI (browser-based, cross-platform, offline per-user data)\".",
+      "phase": "design",
+      "verification": "Code review of network calls (expect none beyond localhost binding); confirm data path resolves to a local file; no auth/account module present."
+    },
+    {
+      "id": "NFR-3",
+      "category": "portability",
+      "requirement": "The system SHALL run on any desktop OS (Windows, Linux, macOS) using only a Python runtime and a web browser, with no OS-specific builds and no front-end build step.",
+      "source": "Q1 (Agreed): \"Flask + simple HTML pages (tiny, no build step, runs on any OS, easy for friends to run)\"; Interview answer 1: worried about \"separate Android/Linux/desktop builds\".",
+      "phase": "implementation",
+      "verification": "Smoke-test app startup and all main pages on each target OS (or verify no platform-specific dependencies in requirements)."
+    },
+    {
+      "id": "NFR-4",
+      "category": "usability",
+      "requirement": "The system SHALL be lightweight: a friend with Python installed SHALL be able to launch it with a single documented command and reach the dashboard within one minute, without compiling or installing native components.",
+      "source": "Interview answer 1: \"wants it very lightweight\"; Q1: \"easy for friends to run\"; Mission: \"simple to work with in the future\".",
+      "phase": "delivery",
+      "verification": "Follow the README on a clean machine; time-to-first-dashboard measured against the 1-minute target."
+    },
+    {
+      "id": "NFR-5",
+      "category": "maintainability",
+      "requirement": "The system SHALL keep business logic (status rules, dashboard totals) in centralized, single-location code (SQL views/queries or one Python module) rather than scattered per-page logic, so each rule is defined in exactly one place.",
+      "source": "Mission: \"easy to maintain\"; doc-code finding: \"header-text coupling... renaming a header silently changes behavior\" (coupling must not be recreated).",
+      "phase": "design",
+      "verification": "Code review: status and dashboard calculations exist in one module/one set of SQL views; no duplicated formula logic across templates."
+    },
+    {
+      "id": "NFR-6",
+      "category": "maintainability",
+      "requirement": "The system SHALL surface errors to the user (message on page) and SHALL NOT silently swallow failures; no behavior equivalent to Excel's \"On Error Resume Next\" SHALL exist.",
+      "source": "Doc-code findings in brainstorm: \"On Error Resume Next silences failures\" (quirks to fix in migration).",
+      "phase": "implementation",
+      "verification": "Fault-injection test (e.g. corrupt DB file, bad import file) produces a visible error message; code review finds no bare swallowed exceptions."
+    },
+    {
+      "id": "NFR-7",
+      "category": "reliability",
+      "requirement": "When any payment, tenure, or bond record changes, the dashboard and status values SHALL be recomputed on next view (live query), so displayed totals SHALL NEVER be a stale snapshot.",
+      "source": "Doc-code findings: \"dashboard stale between saves\"; Q3: \"totals/status become live queries... fixes ... stale dashboard\".",
+      "phase": "implementation",
+      "verification": "Edit a payment, reload dashboard without restart; totals and status reflect the change immediately."
+    },
+    {
+      "id": "NFR-8",
+      "category": "data-integrity",
+      "requirement": "Status logic SHALL mark a bond as Danger when ANY past scheduled month is unpaid (not only the previous calendar month), Completed SHALL override Danger when months paid >= tenure, and a zero-value entry SHALL count as unpaid.",
+      "source": "Decision Summary update-fr: \"Danger = any unpaid past month (not just previous month), Completed overrides, zero-value = unpaid preserved\"; doc-code quirk: \"Danger checks only previous month\".",
+      "phase": "implementation",
+      "verification": "Unit tests: bond missing a payment 3+ months ago => Danger; fully paid bond => Completed even with historical gaps; zero entry => unpaid."
+    },
+    {
+      "id": "NFR-9",
+      "category": "reliability",
+      "requirement": "The system SHALL support any bond whose payment schedule falls within the data (payment grid Sep-2025 to Jul-2032 and beyond); no hardcoded date headers or scan-window limits SHALL restrict supported months.",
+      "source": "Doc-code findings: \"headers hardcoded Sep-2025..Feb-2027; month scan stops Jan-2031\"; Q3: \"fixes hardcoded headers, Jan-2031 scan limit\".",
+      "phase": "implementation",
+      "verification": "Test a bond starting Feb-2031 and one beyond Jul-2032; grid renders and status computes correctly."
+    },
+    {
+      "id": "NFR-10",
+      "category": "data-integrity",
+      "requirement": "The one-time XLSM import SHALL reproduce the full source dataset (15 bonds, payment ledger, Home Plan rows) and resulting totals SHALL reconcile exactly with the workbook's Dashboard values (Total Investment 1037142.01, Total Till Return 111638.57, 15 bonds).",
+      "source": "Q2 (Agreed): \"One-time Python script imports the .xlsm into SQLite\"; doc-code findings: numbers reconcile across sheets; Decision Summary new-fr: \"one-time XLSM import script\".",
+      "phase": "testing",
+      "verification": "Run import on v5.5_40L_Project_Tracker.xlsm; row counts and dashboard sums match source workbook byte-for-byte values (exact numeric match)."
+    },
+    {
+      "id": "NFR-11",
+      "category": "scalability",
+      "requirement": "The system SHALL remain responsive as data grows: dashboard and list pages SHALL render in under 2 seconds with at least 10 years of history and 10x current bond count (150 bonds), with no change in schema or code.",
+      "source": "Mission: \"scalable as the data grows\"; Q3: row-per-payment ledger so totals become live queries.",
+      "phase": "testing",
+      "verification": "Seed DB with 150 bonds x 96 months of payments; measure dashboard page load against the 2-second target."
+    },
+    {
+      "id": "NFR-12",
+      "category": "usability",
+      "requirement": "The system SHALL provide CSV export of any displayed dataset so users can share and print data without Excel being the front end.",
+      "source": "Q4 (Agreed): \"CSV export for sharing/printing\"; Decision Summary new-fr: \"CSV export\".",
+      "phase": "implementation",
+      "verification": "Export each main view; open CSV in a spreadsheet and confirm rows/values match the on-screen data."
+    },
+    {
+      "id": "NFR-13",
+      "category": "portability",
+      "requirement": "Data files SHALL be transferable between users' machines by simple file copy: the SQLite database file SHALL be the sole persistence artifact, requiring no installation or server configuration.",
+      "source": "Interview answer 2: \"Shareable with friends; each user keeps data on their own local system\".",
+      "phase": "design",
+      "verification": "Copy the DB file to another machine, open the app, confirm all data present and functional."
+    }
+  ],
+  "notes": "13 NFRs, all traced verbatim to brainstorm statements (interview answers, agreed Q1-Q4, Decision Summary, or the embedded doc-code findings section which is part of the brainstorm notes). RFC 2119 SHALL wording, one rule per row. Categories used: offline, security/privacy, portability, usability, maintainability, reliability, data-integrity, scalability (task-specific extension of the standard list). No cloud/accounts requirement captured as security/privacy (NFR-2); Excel quirks captured as compensating reliability/data-integrity NFRs (NFR-6..NFR-9) since the brainstorm explicitly lists them as 'quirks to fix in migration'. Metrics for NFR-11 (2s / 150 bonds) are suggested targets derived from 'scalable as the data grows' — confirm with user if exact numbers matter."
+}

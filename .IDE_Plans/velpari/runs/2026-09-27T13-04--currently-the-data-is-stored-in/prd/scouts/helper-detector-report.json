@@ -1,0 +1,225 @@
+{
+  "helpers": [
+    {
+      "id": "HF-01",
+      "name": "computeBondStatus",
+      "purpose": "Compute a bond's status (Danger / On-going / Completed) from its payment months, tenure and maturity amount, with the fixed Danger rule (any unpaid past month, not just the previous calendar month); Completed overrides Danger.",
+      "sourceRequirements": [
+        "brainstorm: 'status rules migrate from VBA with fixes — Danger = any unpaid past month (not just previous month), Completed overrides, zero-value = unpaid preserved'",
+        "brainstorm DOC-CODE-ANALYST: 'Status engine (col A): Danger = previous calendar month cell empty (single-month check only); Completed = months paid >= tenure (overrides Danger); else On-going'",
+        "doc-code section 4.4: 'Danger only if the PREVIOUS calendar month cell is empty/0 (single month); older missed payments stay invisible. Completed (paymentsMade >= tenure) overrides Danger. Zero-value entry counts as unpaid.'",
+        "doc-code section 7(d): 'status rules (fixing the single-month Danger quirk)'"
+      ],
+      "inputs": [
+        "payments: list of {month: 'YYYY-MM', amount: number, paid: boolean} for one bond",
+        "tenureMonths: int (Tenure (Months), Monthly Returns col H)",
+        "asOfMonth: 'YYYY-MM' (current month reference)"
+      ],
+      "outputs": [
+        "status: 'Danger' | 'On-going' | 'Completed'",
+        "paymentsMade: int (count of paid months)",
+        "unpaidPastMonths: list of 'YYYY-MM' (for Danger diagnosis)"
+      ],
+      "errors": [
+        "throws/returns error when payments list is empty",
+        "throws/returns error when asOfMonth is not a valid 'YYYY-MM' month",
+        "throws/returns error when tenureMonths <= 0"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-02",
+      "name": "computeTillReturnAndBalance",
+      "purpose": "Compute a bond's Till Return amount (sum of all received month amounts) and Balance amount (Till Return minus Maturity Amount), reproducing Excel formulas K = SUM(months received) and L = K - J.",
+      "sourceRequirements": [
+        "brainstorm DOC-CODE-ANALYST: 'K = SUM(months received), L = K - J (Maturity Amount)'",
+        "doc-code section 2.3: 'K = SUM(N:XFD) injected by VBA ... L = K-J injected by VBA, J/Maturity Amount is a static typed value'",
+        "doc-code section 5.3: 'L = Balance Amount = Dashboard Total Balance (negative = still to receive)'",
+        "doc-code section 7(c): 'derived totals as queries'"
+      ],
+      "inputs": [
+        "paidAmounts: list of number (received month amounts for one bond)",
+        "maturityAmount: number (Monthly Returns col J)"
+      ],
+      "outputs": [
+        "tillReturnAmount: number (sum of paidAmounts)",
+        "balanceAmount: number (tillReturnAmount - maturityAmount; negative = still to receive)"
+      ],
+      "errors": [
+        "throws/returns error when maturityAmount is not a number",
+        "throws/returns error when paidAmounts contains a negative or non-numeric value"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-03",
+      "name": "computeThisMonthReturns",
+      "purpose": "Compute the total of all bond payments received in the current calendar month (reproduces Dashboard E6 = SUM(current month column)), without the Excel fallback-to-static-0 quirk.",
+      "sourceRequirements": [
+        "brainstorm DOC-CODE-ANALYST: 'E6 = SUM(current month column)'",
+        "doc-code section 2.4: 'E6=SUM(Z)=1394.62 \"This Month Returns (Sep-26)\" (dynamic, Z = Sep-26)'",
+        "doc-code section 4.7: 'E6 This Month Returns falls back to static 0 when current month header not found'",
+        "brainstorm Decision Summary: dashboard as live queries includes 'this-month returns'"
+      ],
+      "inputs": [
+        "payments: list of {bondId: string, month: 'YYYY-MM', amount: number, paid: boolean}",
+        "asOfMonth: 'YYYY-MM'"
+      ],
+      "outputs": [
+        "total: number (sum of paid amounts for asOfMonth)"
+      ],
+      "errors": [
+        "throws/returns error when asOfMonth is not a valid 'YYYY-MM' month"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-04",
+      "name": "aggregateMonthlyHistory",
+      "purpose": "Aggregate the full project history table: for each month in the plan window (Sep-2025..Jul-2032), compute total received, with future months as 0 — reproducing the Dashboard history table L5:M87 (83 months).",
+      "sourceRequirements": [
+        "brainstorm DOC-CODE-ANALYST: 'History table L5:M87 = 83 months (Sep-25..Jul-32), Sep-26 row (r17) yellow-highlighted, future months = 0'",
+        "doc-code section 2.4: 'History table L5:M87 = 83 months (Sep-25..Jul-32), future months = 0'",
+        "brainstorm Decision Summary: dashboard as live queries includes '83-month history'",
+        "doc-code section 4.2 (quirk fixed): 'FindStartingMonthColumn scans cols 14..78 (through Jan-2031)' — history must cover the whole window, not stop at Jan-2031"
+      ],
+      "inputs": [
+        "payments: list of {month: 'YYYY-MM', amount: number, paid: boolean}",
+        "windowStart: 'YYYY-MM' (= 2025-09)",
+        "windowEnd: 'YYYY-MM' (= 2032-07)",
+        "asOfMonth: 'YYYY-MM'"
+      ],
+      "outputs": [
+        "rows: list of {month: 'YYYY-MM', totalReceived: number, isFuture: boolean} — one row per month, future months totalReceived = 0"
+      ],
+      "errors": [
+        "throws/returns error when windowEnd < windowStart",
+        "throws/returns error when a payment month lies outside [windowStart, windowEnd]"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-05",
+      "name": "parseXlsmImport",
+      "purpose": "Parse v5.5_40L_Project_Tracker.xlsm (Bond - Watch list, Monthly Returns, Home Plan sheets) into normalized records (bond master, payment ledger, home plan rows) for one-time import into SQLite, tolerating verbatim header typos.",
+      "sourceRequirements": [
+        "brainstorm Decision Summary / Agreed Q2: 'One-time Python script imports the .xlsm into SQLite; Excel kept as read-only backup'",
+        "brainstorm: 'Migration must reproduce: bond master, payment ledger, derived totals as queries, status rules, dashboard views, watch-list analytics, Home Plan schedule'",
+        "doc-code section 5.2: 'Header typos (verbatim): Staus, Yeild, ISN, Till Rerun Amount , Payment type Type, Quartely, Totall, Intrest'",
+        "doc-code section 7: 'A SQLite migration must reproduce: (a) bond master table, (b) monthly payment ledger, (c) derived totals as queries'"
+      ],
+      "inputs": [
+        "xlsmPath: str (path to v5.5_40L_Project_Tracker.xlsm)"
+      ],
+      "outputs": [
+        "bonds: list of bond master records (ISN, company, rating, face value, principle, tenure, maturity date/amount, start month, payment type)",
+        "payments: list of ledger records {bond isn, month, amount, paid}",
+        "homePlan: list of {monthIndex, saving, rate, interest, countdown, monthlyInterest}",
+        "warnings: list of str (rows/columns skipped or ambiguous)"
+      ],
+      "errors": [
+        "throws when file missing or not a valid .xlsm zip",
+        "throws when required sheets ('Bond - Watch list ', 'Monthly Returns', 'Home Plan') are absent",
+        "throws when a required header column cannot be located; row-level issues go to warnings instead of failing the whole import"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-06",
+      "name": "exportCsv",
+      "purpose": "Export a given dataset (dashboard summary, bond list, payment history, monthly history) to CSV for sharing/printing, replacing Excel as the export front end.",
+      "sourceRequirements": [
+        "brainstorm Decision Summary: 'CSV export' in new-fr list",
+        "brainstorm Agreed Q4: 'Is CSV/Excel export needed once Excel is no longer the front end? A: Yes, CSV export for sharing/printing'",
+        "doc-code section 4.12: 'any xlsx/CSV/DB export loses all behavior ... unless reimplemented'"
+      ],
+      "inputs": [
+        "rows: list of dict records",
+        "columns: list of str (column order / display names)",
+        "destinationPath: str"
+      ],
+      "outputs": [
+        "written file at destinationPath; returns row count written"
+      ],
+      "errors": [
+        "throws when destinationPath is not writable",
+        "throws when rows is empty or a row lacks a key from columns",
+        "throws on encoding failure (file must be written UTF-8)"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-07",
+      "name": "computeMonthWindow",
+      "purpose": "Compute the full payment-grid month window (start month through end month, e.g. Sep-2025..Jul-2032 = 96 columns) and locate any month's column index, replacing the hardcoded Sep-2025..Feb-2027 header generation and the Jan-2031 scan limit.",
+      "sourceRequirements": [
+        "brainstorm DOC-CODE-ANALYST: 'payment grid Sep-2025 -> Jul-2032 (96 month columns)'; 'Quirks to fix in migration: headers hardcoded Sep-2025..Feb-2027; month scan stops Jan-2031'",
+        "doc-code section 4.1: 'RegenerateMonthlyHeaders writes Sep-2025..Feb-2027 (cols 14-31) only'",
+        "doc-code section 4.2: 'FindStartingMonthColumn scans cols 14..78 (through Jan-2031) — a bond starting Feb-2031+ silently gets no formatting/status'",
+        "brainstorm Agreed Q3: 'Excel-like month-grid rendered by the UI; totals/status become live queries; fixes hardcoded headers, Jan-2031 scan limit'"
+      ],
+      "inputs": [
+        "gridStart: 'YYYY-MM' (= 2025-09)",
+        "gridEnd: 'YYYY-MM' (= 2032-07)",
+        "targetMonth: 'YYYY-MM' (optional, for index lookup)"
+      ],
+      "outputs": [
+        "months: list of 'YYYY-MM' covering the whole window (derived, never hardcoded)",
+        "monthIndex: int (0-based index of targetMonth within months) when targetMonth given"
+      ],
+      "errors": [
+        "throws when gridEnd < gridStart",
+        "throws when targetMonth is outside [gridStart, gridEnd]"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-08",
+      "name": "computeTenureWindow",
+      "purpose": "Given a bond's interest starting month and tenure, compute the payment months due (start..start+tenure-1) and the maturity month/date, driving ledger generation, status checks and grid rendering.",
+      "sourceRequirements": [
+        "brainstorm DOC-CODE-ANALYST: 'Monthly Returns ... M (start month)'; 'Tenure (Months) col H, Maturity Date col I'",
+        "doc-code section 3.2: 'Worksheet_Change fires FormatRowPaymentTracking when column H (tenure), M (start month) or >=14 (month cells) change'",
+        "doc-code section 4.4: 'Completed (paymentsMade >= tenure)'",
+        "doc-code section 7: 'monthly payment ledger' must span the bond's months"
+      ],
+      "inputs": [
+        "startMonth: 'YYYY-MM' (Interest Starting Month, col M)",
+        "tenureMonths: int (col H)"
+      ],
+      "outputs": [
+        "dueMonths: list of 'YYYY-MM' (exactly tenureMonths entries)",
+        "maturityMonth: 'YYYY-MM' (last due month)"
+      ],
+      "errors": [
+        "throws when startMonth is not a valid 'YYYY-MM'",
+        "throws when tenureMonths <= 0"
+      ],
+      "testable": "yes"
+    },
+    {
+      "id": "HF-09",
+      "name": "mapPaymentStatusStyle",
+      "purpose": "Map a payment cell state (paid / due / unpaid-past) and a bond status to its display colors: green paid, light red due; status colors red (Danger) / orange (On-going) / green (Completed), replacing Excel conditional formatting.",
+      "sourceRequirements": [
+        "brainstorm DOC-CODE-ANALYST: 'Colors: green paid / light red due; status colors via CF (red/orange/green)'",
+        "doc-code section 2.3: 'CF: A-column cellIs rules for Danger/Completed/On-going colors'",
+        "doc-code section 4.9: 'CF duplicate-ISIN highlight only covers D7 and D14:D16 ... partial' (migration must apply coloring uniformly)",
+        "doc-code section 4.12: 'any xlsx/CSV/DB export loses all behavior (dashboard, status, coloring) unless reimplemented'"
+      ],
+      "inputs": [
+        "cellState: 'paid' | 'due' | 'unpaid-past' | 'future' (per month cell)",
+        "status: 'Danger' | 'On-going' | 'Completed' (per bond row)"
+      ],
+      "outputs": [
+        "cellColor: str (e.g. '#green') for the month cell",
+        "statusColor: str (red/orange/green) for the status label"
+      ],
+      "errors": [
+        "throws when cellState or status is not one of the allowed values"
+      ],
+      "testable": "yes"
+    }
+  ],
+  "notes": "All 9 helpers trace to explicit statements in the brainstorm notes or doc-code analysis (zero-hallucination, FR-22); each sourceRequirements entry quotes the originating text. The fr-extractor report was not present under prd/ at run time, so FR-N ids are not attached yet — a later pass can map HF-NN to FR-Ns once fr-extractor's JSON exists. Helpers excluded as queries/views rather than shared functions: dashboard summary counts/totals (brainstorm: 'dashboard as live queries') and duplicate-ISIN flag (single consumer = import validation, inside HF-05). All helpers are pure/testable with no I/O except HF-05 and HF-06."
+}
