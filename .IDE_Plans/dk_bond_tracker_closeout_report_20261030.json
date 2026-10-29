@@ -1,0 +1,40 @@
+{
+  "schema": "report/v1",
+  "id": "dk_bond_tracker_closeout_report_20261030",
+  "kind": "report",
+  "title": "DK Bond Tracker initiative closeout — documentation migration through Design Stage",
+  "topic": "initiative closeout (stages 1-10 of 12; D7 stop point)",
+  "version": "v1.0",
+  "status": "complete",
+  "date": "2026-10-30",
+  "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
+  "overall_status": "DONE_WITH_OPEN_OWNER_DECISIONS",
+  "items": [
+    {"id": "C-01", "item": "F0 foundation: D120 store init + gitignore + MCP entry (D11) + CLI readiness check (D12)", "status": "DONE", "reason": "db-store worktree + symlink + 26-table DB; MCP sqlite-excel-dashboard deferred entry valid; kimi+pi readiness READY_WITH_FINDINGS (report .IDE_Plans/cli_readiness_report_20261030.json)", "evidence": "commits 7f504eb, 501d419, 334c0ff, 725b61c"},
+    {"id": "C-02", "item": "D12 migration of 7 legacy .md docs (migrate -> verify -> freeze -> DELETE)", "status": "DONE", "reason": "7/7 sha256 verified, sources frozen then deleted per user-authorized set; full bodies live in docs/*.json; originals recoverable from git history", "evidence": "501d419, 334c0ff"},
+    {"id": "C-03", "item": "Stage 1 brainstorm gate", "status": "DONE", "reason": "review batch 1 AGREED after F1-F5+F2b fixes; store rebuilt clean after JSONL incident", "evidence": "c05e236"},
+    {"id": "C-04", "item": "Stage 2 PRD revision (structured born-JSON)", "status": "DONE", "reason": "PRD_DK_Bond_Tracker_v2: 24 FRs, 14 decision links, sections carried from legacy; batch 2 AGREED (F9 fixed)", "evidence": "e308847"},
+    {"id": "C-05", "item": "Stage 3 SRS+RTM merged artifact + Div-1 exit", "status": "DONE", "reason": "42 requirements + 68 ACs, all 20 legacy RTM rows mapped, computed RTM rule stated; batch 3 AGREED (F17 fixed); record-review 1 + srs-extraction test green", "evidence": "860c279"},
+    {"id": "C-06", "item": "Stage 4 feasibility spike (G1)", "status": "DONE", "reason": "G1 CONFIRMED: openpyxl parses everything (15 bonds, 83-month grid, dashboard cached); spike merged via stage4-feasibility worktree; batch 4 AGREED (F19 fixed); reconciliation 2/4 exact -> ledger L1", "evidence": "merge 5f567ee, docs/Feasibility_XLSM_Parser_v1.json"},
+    {"id": "C-07", "item": "Stage 5 architecture (D30) + architecture design artifact (D119/D121)", "status": "DONE", "reason": "C4 L1-L3 + 10 ADRs + arc42 cross-cutting + 24-FR mapping; excalidraw 38 elements, 32/32 refs; batch 5 AGREED (F25/F26 fixed); catalog 1/1 at lock", "evidence": "0f5cfcc, design/ pair"},
+    {"id": "C-08", "item": "Stage 6 atomic functions", "status": "DONE", "reason": "37 AFs, 24 FRs covered, deps acyclic; batch 6 BLOCKED->AGREED (F32 coverage/fr_ref mismatch + F33 fixed, re-verified exact 60-pair match)", "evidence": "docs/Atomic_Functions_DK_Bond_Tracker_v1.json"},
+    {"id": "C-09", "item": "Stage 7 pseudocode", "status": "DONE", "reason": "37 entries, 131 edge cases, D5 verbatim in status AFs, zero error swallowing; batch 7 AGREED (F38 P&L proposal flagged -> ledger L2)", "evidence": "docs/Pseudocode_DK_Bond_Tracker_v1.json"},
+    {"id": "C-10", "item": "Stage 8 test plan + Div-2 exit", "status": "DONE", "reason": "58 TCs, 94 bindings, coverage 42/42 (100%), TC-26 pending_baseline (L1 honest); batch 8 AGREED all-PASS; record-review 8 + record-test green", "evidence": "docs/Test_Plan_DK_Bond_Tracker_v1.json, coverage gate SATISFIED"},
+    {"id": "C-11", "item": "Stage 9 development order", "status": "DONE", "reason": "8 waves W0-W7, 37 AFs topo-clean, 40 gated TCs; batch 9 BLOCKED->AGREED (F48 gate placement + F49 L2 TC repoint to TC-40 + F50 fixed, re-verified)", "evidence": "docs/Development_Order_DK_Bond_Tracker_v1.json"},
+    {"id": "C-12", "item": "Stage 10 final design + UI wireframe + Div-3 exit (initiative target)", "status": "DONE", "reason": "final design: 37-AF traceability + 42-row acceptance matrix + per-wave gates; wireframe: 119 elements, 8 screens, 24/24 refs; batch 10 BLOCKED->AGREED (F57/F58/F59 fixed, F60 LGTM-note); both D119-locked in design/; catalog 2/2; record-review 10 + design-stage-final test green", "evidence": "e59101c, design/ (4 artifacts)"},
+    {"id": "C-13", "item": "Brainstorm D36 lock", "status": "DONE", "reason": "design artifacts locked -> OP1 CLOSED, brainstorm status locked at v1.3.0; no CONFIRMED text rewritten", "evidence": "brainstorm v1.3.0"},
+    {"id": "C-14", "item": "Final store battery", "status": "DONE", "reason": "store-projector --verify 10/10 PASS; store-gates --all --strict SATISFIED failures=0 (population 50 docs/42 reqs/58 TCs, coverage 100%, freshness clean, stage-consistency clean)", "evidence": "run 2026-10-30 post e59101c"},
+    {"id": "C-15", "item": "Ledger L1 — PRD exit figures vs workbook (NFR-10 acceptance)", "status": "PENDING", "reason": "OWNER DECISION: re-baseline PRD to workbook figures (Till Return 56227.88, Balance -1165738.34, L=K-J maturity) OR confirm PRD figures/definition (111638.57 / -925503.44, Investment-TillReturn) with a corrected source; TC-26 stays pending until settled", "evidence": "ADR-10, TC-26, feasibility reconciliation"},
+    {"id": "C-16", "item": "Ledger L2 — P&L definition (FR-16, Phase 4)", "status": "PENDING", "reason": "OWNER DECISION: confirm Stage-7 proposal (Till Return - Investment) or choose alternative (maturity - investment); TC-40 acceptance waits", "evidence": "ADR note, AF-37, TC-40"},
+    {"id": "C-17", "item": "RR-06 — no project AGENTS.md at repo root", "status": "PENDING", "reason": "finding from readiness check (read-only scope, not fixed); both CLIs fall back to global rules; decide whether to add a project loader", "evidence": ".IDE_Plans/cli_readiness_report_20261030.json RR-06"},
+    {"id": "C-18", "item": "Stage 11 execute + Stage 12 close (product build)", "status": "PENDING", "reason": "DEFERRED by D7 (user stop point: through Div 3 final design). Note: stages row 11 shows RUNNING as an --advance artifact; no execute work was or will be done in this initiative. Stage 12 product closeout also deferred; this report is the initiative closeout.", "evidence": "master D7, stages table"},
+    {"id": "C-19", "item": "db-store snapshot commit", "status": "PENDING", "reason": "store-snapshot.sh tool not installed on this machine (only store-projector/store-gates on PATH); DB not committed to db-store branch this run; DB is fully rebuildable from streams so risk is low - install tool or handover decision", "evidence": "which store-snapshot -> absent"}
+  ],
+  "handover": {
+    "base_branch": "dev @ e59101c (plus closeout commit), no remote configured (no push possible)",
+    "rollback_points": "each stage close is a commit: 7f504eb, 501d419, 334c0ff, 725b61c, c05e236, e308847, 860c279, 5f567ee (merge), 0f5cfcc, stage6/7/8/9/10 commits (see git log), stage4-feasibility branch merged",
+    "worktrees": "db-store (live, never merged), stage4-feasibility (merged, removable after user confirmation per Rule 13 lifecycle)",
+    "open_points": "L1, L2, RR-06, stages 11-12 deferred, snapshot tool absent",
+    "next_step": "Stage 11 (execute/W0 start) whenever the user wants the build: entry point = Development_Order W0, files list in Final_Design implementation_readiness"
+  }
+}

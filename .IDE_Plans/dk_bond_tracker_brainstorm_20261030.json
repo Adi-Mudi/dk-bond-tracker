@@ -4,8 +4,8 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "1.2.0",
-  "status": "open",
+  "version": "1.3.0",
+  "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
   "updated": "2026-10-30",
@@ -13,7 +13,7 @@
   "routing": "PM Coordinator",
   "routing_note": "User delegated full PM ownership (Q3); routing = PM Coordinator per lifecycle default, no separate routing question needed.",
   "confidence": 90,
-  "header_note": "Formal LOCK of this document is deferred per D36 until the design-stage artifact is confirmed and locked; the design artifact lock is carried as explicit open point OP1. Content below is user-approved material carried forward from the legacy markdown brainstorm plus the new directives from 2026-10-30.",
+  "header_note": "LOCKED per D36 on 2026-10-30 after both design artifacts locked at stage 10 (architecture v1 excalidraw at stage 5; UI wireframe v1 excalidraw at stage 10; catalog entries present). OP1 resolved. Content below is user-approved material carried forward from the legacy markdown brainstorm plus the new directives from 2026-10-30.",
   "Documents": {
     "Truth": [
       "v5.5_40L_Project_Tracker.xlsm (source of truth for current behavior; RTM.md was written after the fact)"
@@ -47,7 +47,11 @@
     {
       "id": "D1",
       "topic": "Frontend framework for the local web app",
-      "options": ["Flask + simple HTML pages (no build step)", "Static SPA (e.g. Vue/React)", "Desktop toolkit (Tkinter/Qt)"],
+      "options": [
+        "Flask + simple HTML pages (no build step)",
+        "Static SPA (e.g. Vue/React)",
+        "Desktop toolkit (Tkinter/Qt)"
+      ],
       "choice": "Flask + simple HTML pages",
       "WHY": "Tiny, no build step, runs on any OS with one command, easiest for friends to run offline. User explicitly wanted very lightweight (legacy Q1).",
       "Status": "CONFIRMED",
@@ -56,7 +60,11 @@
     {
       "id": "D2",
       "topic": "How existing XLSM data migrates into SQLite",
-      "options": ["One-time Python import script", "Manual re-entry", "Excel as live backend"],
+      "options": [
+        "One-time Python import script",
+        "Manual re-entry",
+        "Excel as live backend"
+      ],
       "choice": "One-time Python import script; XLSM kept as read-only backup",
       "WHY": "Full rebuild agreed: data + Dashboard + status logic all leave Excel; XLSM retired as working tool (legacy Q3).",
       "Status": "CONFIRMED",
@@ -65,7 +73,10 @@
     {
       "id": "D3",
       "topic": "Monthly payment storage model",
-      "options": ["Row-per-payment ledger (bond, month, amount, paid) with UI-rendered month grid", "One column per month (Excel-style) in SQLite"],
+      "options": [
+        "Row-per-payment ledger (bond, month, amount, paid) with UI-rendered month grid",
+        "One column per month (Excel-style) in SQLite"
+      ],
       "choice": "Row-per-payment ledger; totals/status become live queries",
       "WHY": "Fixes hardcoded headers (Sep-2025..Feb-2027), Jan-2031 scan limit, and stale dashboard. Scales as portfolio grows.",
       "Status": "CONFIRMED",
@@ -74,7 +85,11 @@
     {
       "id": "D4",
       "topic": "CSV/Excel export once Excel is no longer the front end",
-      "options": ["CSV export", "No export", "xlsx export"],
+      "options": [
+        "CSV export",
+        "No export",
+        "xlsx export"
+      ],
       "choice": "CSV export for sharing/printing",
       "WHY": "Legacy Q4 agreement; covers the spreadsheet/CSV consumer actor.",
       "Status": "CONFIRMED",
@@ -83,7 +98,10 @@
     {
       "id": "D5",
       "topic": "Status engine rules in the rebuild",
-      "options": ["Keep VBA rules verbatim", "Fix rules during migration"],
+      "options": [
+        "Keep VBA rules verbatim",
+        "Fix rules during migration"
+      ],
       "choice": "Fixed rules: Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved",
       "WHY": "VBA quirk: single-month Danger check hides older misses. Owner-visible correctness win, already agreed in legacy decision summary.",
       "Status": "CONFIRMED",
@@ -92,7 +110,10 @@
     {
       "id": "D6",
       "topic": "Document format and storage for all project documentation",
-      "options": ["born-JSON docs in .IDE_Plans/docs projected into the SQLite store", "Keep markdown files as truth"],
+      "options": [
+        "born-JSON docs in .IDE_Plans/docs projected into the SQLite store",
+        "Keep markdown files as truth"
+      ],
       "choice": "born-JSON + database-driven store for every sequence document (PRD, SRS+RTM, plans, designs, reports); legacy markdown migrated per the D12 eight-step procedure, verified, frozen, then deleted (user-authorized set: the 7 legacy .md docs)",
       "WHY": "User directives Q1 + Q4: no old document format; everything migrated and maintained in the database up to the Design Stage; old files removed after verified migration.",
       "Status": "CONFIRMED",
@@ -101,7 +122,11 @@
     {
       "id": "D7",
       "topic": "Workflow sequence and stopping point",
-      "options": ["12-stage machine through Div 3 final design", "Stop after Div 2 architecture", "Run through Div 4 execute"],
+      "options": [
+        "12-stage machine through Div 3 final design",
+        "Stop after Div 2 architecture",
+        "Run through Div 4 execute"
+      ],
       "choice": "Strict 12-stage machine; execute stages 1-10 (Div 1 requirements, Div 2 architecture+decomposition, Div 3 dev order + final design); stop before Div 4 execute+CI",
       "WHY": "User directive Q2 + explicit choice 'Through Div 3 final design': at least one complete, highly detailed, implementation-ready design must exist when we stop.",
       "Status": "CONFIRMED",
@@ -110,7 +135,11 @@
     {
       "id": "D8",
       "topic": "Fleet configuration (captains/workers)",
-      "options": ["PM + 2 Workers, flat topology, all MiMo-V2.6-Flash on Kimi CLI via cline-pass", "Multi-CLI herdr fleet", "Solo PM (no workers)"],
+      "options": [
+        "PM + 2 Workers, flat topology, all MiMo-V2.6-Flash on Kimi CLI via cline-pass",
+        "Multi-CLI herdr fleet",
+        "Solo PM (no workers)"
+      ],
       "choice": "PM (Kimi CLI session, coordinator) + up to 2 Workers per wave (same CLI, same model, same access method); flat PM-to-worker topology; fleet size determined by stage needs (docs-heavy stages run 2 workers, code spikes may run 1)",
       "WHY": "User directive Q3: all Captains and Workers use Model MiMo-V2.6-Flash, CLI Kimi CLI, Access Method cline-pass, configured locally. Flat topology because single CLI family; PM coordinates directly (no separate captain hop needed).",
       "Status": "CONFIRMED",
@@ -119,7 +148,10 @@
     {
       "id": "D9",
       "topic": "Store layout initialization for this project",
-      "options": ["D120 init: db-store worktree + store symlink on branch dev", "Ad-hoc DB file in repo root"],
+      "options": [
+        "D120 init: db-store worktree + store symlink on branch dev",
+        "Ad-hoc DB file in repo root"
+      ],
       "choice": "D120 init: db-store branch/worktree (folder = branch) + store -> db-store/store symlink; project name 01_excel_dashboard per D50 (repo folder basename); DB file 01_excel_dashboard_store.db",
       "WHY": "Required by the store layer for projection, gates, and stage machine; repo basename rule D50 fixes the DB name. Base branch for the initiative is the current dev branch (no remote exists, so no push).",
       "Status": "CONFIRMED",
@@ -128,7 +160,10 @@
     {
       "id": "D10",
       "topic": "Product scope constraints carried into all stages",
-      "options": ["Offline-only, per-user local data, no cloud/accounts", "Cloud-synced multi-user"],
+      "options": [
+        "Offline-only, per-user local data, no cloud/accounts",
+        "Cloud-synced multi-user"
+      ],
       "choice": "Offline-only: each user runs the app locally with their own SQLite file; shareable by copying the folder; no accounts, no network mode",
       "WHY": "Legacy interview answers 2 + PRD out-of-scope list; unchanged constraint.",
       "Status": "CONFIRMED",
@@ -137,7 +172,11 @@
     {
       "id": "D11",
       "topic": "SQLite MCP server for detailed store inspection",
-      "options": ["Deferred MCP entry for this project's store DB in ~/.kimi-code/mcp.json (uvx mcp-alchemy pattern)", "Repurpose the existing sqlite-jsonviewer entry", "MCP entry + separate web viewer page"],
+      "options": [
+        "Deferred MCP entry for this project's store DB in ~/.kimi-code/mcp.json (uvx mcp-alchemy pattern)",
+        "Repurpose the existing sqlite-jsonviewer entry",
+        "MCP entry + separate web viewer page"
+      ],
       "choice": "Add a deferred MCP server entry (name: sqlite-excel-dashboard) in ~/.kimi-code/mcp.json using uvx mcp-alchemy with DB_URL pointing at db-store/store/01_excel_dashboard_store.db (project store per D9/D50). Deferred so it activates only when needed; agents gain SQL detail-check tools against the store.",
       "WHY": "User directive Q1 (2026-10-30): wants MCP-based detailed checks of the database content (beyond the 2-item surface view). Follows the proven sqlite-jsonviewer pattern. Note: ~/.kimi-code/mcp.json is OUTSIDE the project root — the edit is explicitly user-authorized by Q1 and touches only the mcpServers block (no keys read or re-written beyond the new entry).",
       "Status": "CONFIRMED",
@@ -146,7 +185,11 @@
     {
       "id": "D12",
       "topic": "kimi CLI + pi CLI readiness check for this local project",
-      "options": ["Readiness check only (read-only verification + report)", "Check + fix config gaps", "Live smoke test in both CLIs"],
+      "options": [
+        "Readiness check only (read-only verification + report)",
+        "Check + fix config gaps",
+        "Live smoke test in both CLIs"
+      ],
       "choice": "Readiness check only: verify both CLIs see this project correctly (AGENTS.md rules loading, skills present, store tools on PATH, venv, MCP entry valid) and report — no config changes from the check itself",
       "WHY": "User directive Q2 (2026-10-30) with explicit choice 'Readiness check only'. pi CLI 1.4.0 confirmed installed; kimi CLI is this session's CLI.",
       "Status": "CONFIRMED",
@@ -155,7 +198,10 @@
     {
       "id": "D13",
       "topic": "Approval gating mode for the initiative",
-      "options": ["Per-gate user approvals", "Full-auto: single standing approval covering all gates"],
+      "options": [
+        "Per-gate user approvals",
+        "Full-auto: single standing approval covering all gates"
+      ],
       "choice": "FULL-AUTO: the user's standing approval covers brainstorm/master/stage-plan gates, worker questions, scope confirms, commits, merges into the base branch, and the user-authorized 7-file legacy deletion. PM still reports every gate result (Rule 5 report-everything); destructive actions outside the authorized set still escalate.",
       "WHY": "User statement 2026-10-30: 'I have already given the task and you can act as the PM coordinator. no need to ask approval.' Matches the lifecycle's full-auto mode definition.",
       "Status": "CONFIRMED",
@@ -175,8 +221,8 @@
     {
       "id": "OP1",
       "topic": "Brainstorm formal LOCK timing",
-      "detail": "Per D36 the LOCK may only happen once the design-stage artifact is confirmed and locked. Until then this doc is content-approved but status stays open; the design artifact lock is the explicit open point.",
-      "Status": "OPEN"
+      "detail": "Per D36 the LOCK may only happen once the design-stage artifact is confirmed and locked. Until then this doc is content-approved but status stays open; the design artifact lock is the explicit open point. | RESOLVED 2026-10-30: design artifacts locked (stage 10 DONE, catalog 2/2, refs 56/56); brainstorm content-freeze active.",
+      "Status": "CLOSED"
     },
     {
       "id": "OP2",
@@ -196,10 +242,34 @@
   "model_assignment": {
     "note": "All roles use one standardized local configuration per user directive Q3. Probed with a tiny message before first big dispatch (lifecycle model-assignment gate).",
     "roles": [
-      {"role": "PM / Coordinator", "cli": "Kimi CLI", "primary": "MiMo-V2.6-Flash (cline-pass)", "fallback": "none (escalate to user)", "cost": "session-local"},
-      {"role": "Worker (docs)", "cli": "Kimi CLI", "primary": "MiMo-V2.6-Flash (cline-pass)", "fallback": "PM executes inline", "cost": "subagent dispatch"},
-      {"role": "Worker (code/spike)", "cli": "Kimi CLI", "primary": "MiMo-V2.6-Flash (cline-pass)", "fallback": "PM executes inline", "cost": "subagent dispatch"},
-      {"role": "Reviewer (read-only)", "cli": "Kimi CLI", "primary": "MiMo-V2.6-Flash (cline-pass)", "fallback": "PM self-review with explicit note", "cost": "subagent dispatch"}
+      {
+        "role": "PM / Coordinator",
+        "cli": "Kimi CLI",
+        "primary": "MiMo-V2.6-Flash (cline-pass)",
+        "fallback": "none (escalate to user)",
+        "cost": "session-local"
+      },
+      {
+        "role": "Worker (docs)",
+        "cli": "Kimi CLI",
+        "primary": "MiMo-V2.6-Flash (cline-pass)",
+        "fallback": "PM executes inline",
+        "cost": "subagent dispatch"
+      },
+      {
+        "role": "Worker (code/spike)",
+        "cli": "Kimi CLI",
+        "primary": "MiMo-V2.6-Flash (cline-pass)",
+        "fallback": "PM executes inline",
+        "cost": "subagent dispatch"
+      },
+      {
+        "role": "Reviewer (read-only)",
+        "cli": "Kimi CLI",
+        "primary": "MiMo-V2.6-Flash (cline-pass)",
+        "fallback": "PM self-review with explicit note",
+        "cost": "subagent dispatch"
+      }
     ]
   },
   "agreed_summary": [
@@ -213,24 +283,91 @@
   "not_wanted": [
     "Cloud sync, accounts, networked multi-user mode, mobile apps (PRD out-of-scope, unchanged)"
   ],
-  "completion_log": [],
+  "completion_log": [
+    {
+      "date": "2026-10-30",
+      "event": "Design stage complete: stages 1-10 DONE through Div 3 final design; brainstorm LOCK per D36 executed (status->locked, OP1 CLOSED). Full store battery SATISFIED; holds L1+L2 remain OPEN owner decisions."
+    }
+  ],
   "supersede_protocol": "CONFIRMED decision text is never rewritten. A change adds a NEW D-item that supersedes; the old item's Status notes the supersession. Legacy markdown brainstorm content is carried forward verbatim into D1-D5/D10 decisions; after verified migration the markdown source is deleted per D6.",
   "change_log": [
-    {"version": "1.0.0", "date": "2026-10-30", "note": "Initial born-JSON brainstorm: legacy decisions carried forward as D1-D5/D10; new directives as D6-D9; OP1 records the D36 deferred lock."},
-    {"version": "1.1.0", "date": "2026-10-30", "note": "User Q1/Q2 added as D11 (SQLite MCP entry for this project's store DB) and D12 (kimi+pi CLI readiness check, read-only)."},
-    {"version": "1.2.0", "date": "2026-10-30", "note": "User standing approval recorded as D13 (full-auto mode: PM proceeds through all gates without per-gate approvals; reporting stays mandatory)."}
+    {
+      "version": "1.0.0",
+      "date": "2026-10-30",
+      "note": "Initial born-JSON brainstorm: legacy decisions carried forward as D1-D5/D10; new directives as D6-D9; OP1 records the D36 deferred lock."
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-10-30",
+      "note": "User Q1/Q2 added as D11 (SQLite MCP entry for this project's store DB) and D12 (kimi+pi CLI readiness check, read-only)."
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-10-30",
+      "note": "User standing approval recorded as D13 (full-auto mode: PM proceeds through all gates without per-gate approvals; reporting stays mandatory)."
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-10-30",
+      "note": "D36 lock executed at design-stage completion: status open -> locked, OP1 -> CLOSED, completion log entry added. No CONFIRMED decision text rewritten."
+    }
   ],
   "decision_log": [
-    {"date": "2026-10-30", "item": "routing", "decision": "PM Coordinator (user delegated PM ownership in Q3)"},
-    {"date": "2026-10-30", "item": "depth", "decision": "Through Div 3 final design (user choice)"},
-    {"date": "2026-10-30", "item": "deletion set", "decision": "7 legacy .md docs (user choice)"},
-    {"date": "2026-10-30", "item": "sqlite MCP", "decision": "Deferred MCP entry sqlite-excel-dashboard for this project's store DB (user Q1)"},
-    {"date": "2026-10-30", "item": "CLI check", "decision": "Readiness check only for kimi + pi CLIs, no config changes (user Q2)"},
-    {"date": "2026-10-30", "item": "gating", "decision": "FULL-AUTO standing approval; no per-gate waits (user explicit)"}
+    {
+      "date": "2026-10-30",
+      "item": "routing",
+      "decision": "PM Coordinator (user delegated PM ownership in Q3)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "depth",
+      "decision": "Through Div 3 final design (user choice)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "deletion set",
+      "decision": "7 legacy .md docs (user choice)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "sqlite MCP",
+      "decision": "Deferred MCP entry sqlite-excel-dashboard for this project's store DB (user Q1)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "CLI check",
+      "decision": "Readiness check only for kimi + pi CLIs, no config changes (user Q2)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "gating",
+      "decision": "FULL-AUTO standing approval; no per-gate waits (user explicit)"
+    }
   ],
   "revision_history": [
-    {"version": "1.0.0", "date": "2026-10-30", "author": "PM", "note": "Created."},
-    {"version": "1.1.0", "date": "2026-10-30", "author": "PM", "note": "Extended with user decisions D11 + D12."},
-    {"version": "1.2.0", "date": "2026-10-30", "author": "PM", "note": "Extended with D13 full-auto standing approval."}
+    {
+      "version": "1.0.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Created."
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Extended with user decisions D11 + D12."
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Extended with D13 full-auto standing approval."
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Locked at design-stage completion per D36."
+    }
   ]
 }
