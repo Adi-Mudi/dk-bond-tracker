@@ -1,0 +1,568 @@
+{
+  "id": "architecture_dk_bond_tracker_v1",
+  "kind": "design",
+  "title": "Architecture — DK Bond Tracker (Flask + SQLite rebuild of the XLSM bond tracker)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "c4": {
+    "level1_context": {
+      "purpose": "Replace the macro-enabled workbook v5.5_40L_Project_Tracker.xlsm with a local, offline mini-application: a per-user SQLite database plus a Flask server-rendered web UI that reproduces the payment ledger, live dashboard, status engine and CSV export, while fixing the Excel/VBA quirks (hardcoded month headers, Jan-2031 scan limit, single-month Danger check, On Error Resume Next swallowing).",
+      "actors": [
+        {
+          "id": "owner",
+          "name": "Owner (Divakaran)",
+          "role": "primary",
+          "description": "Tracks 15 bonds, records monthly payments in the month grid, reads the live dashboard, exports CSV. Sole daily operator of the app on his own machine."
+        },
+        {
+          "id": "friends",
+          "name": "Friends as local peers",
+          "role": "secondary",
+          "description": "Receive a copy of the project folder and run it on their own machines with their own local SQLite file. No cloud, no accounts, no shared server — each friend is an isolated single-user installation (D10)."
+        },
+        {
+          "id": "csv_consumers",
+          "name": "Spreadsheet/CSV consumers",
+          "role": "tertiary",
+          "description": "People who receive exported CSV files for sharing or printing. Read-only, outside the system boundary; the CSV is the interchange format replacing the old xlsx export (D4)."
+        }
+      ],
+      "external_dependencies": [
+        {
+          "id": "python",
+          "name": "Python 3.14",
+          "role": "Runtime",
+          "notes": "Already present as the project .venv (with oletools/openpyxl for the import spike). Only runtime a friend needs besides a browser."
+        },
+        {
+          "id": "flask",
+          "name": "Flask",
+          "role": "Web framework",
+          "notes": "Serves server-rendered HTML on localhost. Chosen for tininess and zero build step (D1)."
+        },
+        {
+          "id": "sqlite",
+          "name": "SQLite via Python stdlib sqlite3",
+          "role": "Persistence",
+          "notes": "Single local DB file per user; no server process, no external service. stdlib driver — no third-party DB dependency."
+        },
+        {
+          "id": "openpyxl",
+          "name": "openpyxl",
+          "role": "One-time XLSM import only",
+          "notes": "Proven by the Stage-4 feasibility spike (spikes/spike_xlsm_parse.py): both data_only=True and data_only=False passes work on the real workbook; oletools not needed for cell-level import."
+        },
+        {
+          "id": "browser",
+          "name": "Browser",
+          "role": "UI surface",
+          "notes": "Any desktop browser. The UI is plain server-rendered HTML/CSS; no client-side framework, no JavaScript build."
+        }
+      ],
+      "constraints": {
+        "offline_only": "No network/cloud/accounts anywhere in the product (D10). The app binds to 127.0.0.1 only; there is no outbound transmission, no credential store, no auth layer.",
+        "no_multi_user": "Networked multi-user mode is out of scope; sharing means copying the folder (and optionally the DB file), never connecting to a peer.",
+        "excel_readonly": "The original XLSM stays a read-only backup; the tool never writes to it (D2, FR-08).",
+        "desktop_only": "Desktop OS with Python + browser; no mobile or native builds."
+      },
+      "key_flows": [
+        "Owner launches the app, opens the dashboard — figures computed live from SQLite (FR-05, FR-20).",
+        "Owner records a payment — one ledger row inserted, status recomputed under D5 (FR-03, FR-24).",
+        "Friend copies the folder, runs one launch command, optionally imports the XLSM once (FR-02, FR-08).",
+        "Owner exports any displayed dataset to UTF-8 CSV for the CSV-consumer actor (FR-07, D4)."
+      ]
+    },
+    "level2_containers": [
+      {
+        "id": "flask_web_app",
+        "name": "Flask web app",
+        "type": "web application",
+        "technology": "Flask + Jinja2 templates, Python 3.14, bound to localhost",
+        "responsibility": "All interactive surfaces: dashboard, month grid, bond detail, Home Plan, watch list, payment entry forms, export triggers. Server-renders HTML on every request; never holds a cached snapshot between requests.",
+        "data_stores": ["reads/writes SQLite store via ledger repository"],
+        "fr_refs": ["FR-02", "FR-04", "FR-05", "FR-16", "FR-17", "FR-18", "FR-20", "FR-21"],
+        "decisions": ["D1", "D3", "D5"]
+      },
+      {
+        "id": "sqlite_store",
+        "name": "SQLite store",
+        "type": "database (single local file)",
+        "technology": "SQLite via stdlib sqlite3; one file per user",
+        "responsibility": "Sole persistence artifact: bonds, payment_ledger, home_plan tables plus SQL views for derived totals (Till Return, Balance). Transferable by plain file copy (NFR-13).",
+        "tables": ["bonds", "payment_ledger", "home_plan"],
+        "fr_refs": ["FR-01", "FR-03", "FR-09", "FR-12"],
+        "decisions": ["D3", "D10"]
+      },
+      {
+        "id": "import_pipeline",
+        "name": "One-time import pipeline",
+        "type": "offline batch script (CLI)",
+        "technology": "Python + openpyxl (data_only and formula passes)",
+        "responsibility": "Reads the source XLSM exactly once, normalizes sheets/headers, recomputes formula columns, populates the SQLite tables, runs reconciliation and duplicate-ISIN validation, and reports failures explicitly. Never writes back to the XLSM.",
+        "fr_refs": ["FR-08", "FR-10", "FR-11", "FR-12", "FR-22", "FR-23"],
+        "decisions": ["D2"]
+      },
+      {
+        "id": "csv_exporter",
+        "name": "CSV exporter",
+        "type": "export service used by the web app",
+        "technology": "Python csv module, UTF-8",
+        "responsibility": "Serializes any displayed dataset (dashboard tables, month grid, Home Plan, watch list, bond detail) to UTF-8 CSV for download. Replaces the old xlsx export entirely.",
+        "fr_refs": ["FR-07", "NFR-12"],
+        "decisions": ["D4"]
+      }
+    ],
+    "level3_components": [
+      {
+        "id": "route_handlers",
+        "name": "Route handlers",
+        "container": "flask_web_app",
+        "responsibility": "HTTP routes for dashboard, grid, bond detail, payment POST, import trigger, export download. Validate request input, call query/status modules, render Jinja templates, and map exceptions to visible error pages/messages (FR-21).",
+        "fr_refs": ["FR-02", "FR-04", "FR-20", "FR-21"]
+      },
+      {
+        "id": "status_engine",
+        "name": "Status engine",
+        "container": "flask_web_app",
+        "responsibility": "Computes Danger/On-going/Completed per bond from ledger rows under decision D5, on every view — never stored. No scan-window limit: a bond starting Feb-2031 or later is evaluated by the same rules. Zero-value rows count as unpaid.",
+        "fr_refs": ["FR-06", "FR-19", "FR-24", "NFR-8"],
+        "decisions": ["D5"]
+      },
+      {
+        "id": "dashboard_query_module",
+        "name": "Dashboard query module",
+        "container": "flask_web_app",
+        "responsibility": "Live queries/views for portfolio summary counts and amounts, this-month returns (explicit message when the current month cannot be resolved — no silent 0), full monthly history, bonds status overview, reinvestment free-up (FR-17), and later P&L/ongoing TL (FR-16). Till Return and Balance are computed here, never stored.",
+        "fr_refs": ["FR-05", "FR-09", "FR-16", "FR-17", "FR-20"],
+        "decisions": ["D3"]
+      },
+      {
+        "id": "month_grid_renderer",
+        "name": "Month-grid renderer",
+        "container": "flask_web_app",
+        "responsibility": "Derives the month window at render time from bond start month + tenure (no hardcoded Sep-2025..Feb-2027 headers, no Jan-2031 limit), builds the Excel-like months-across grid from ledger rows, and applies cell colors: green paid, light red due, status cells red/orange/green.",
+        "fr_refs": ["FR-04", "FR-18", "FR-19", "NFR-9"],
+        "decisions": ["D1", "D5"]
+      },
+      {
+        "id": "ledger_repository",
+        "name": "Ledger repository",
+        "container": "flask_web_app",
+        "responsibility": "Single data-access layer over payment_ledger and bonds: insert one payment row, fetch ledger rows per bond, feed the status engine and dashboard queries. Centralizes SQL so business logic stays in one module plus views (NFR-5) and field access uses stable schema keys only (FR-23).",
+        "fr_refs": ["FR-01", "FR-03", "FR-23", "FR-24"]
+      },
+      {
+        "id": "xlsx_reader",
+        "name": "XLSM reader (openpyxl)",
+        "container": "import_pipeline",
+        "responsibility": "Loads the workbook twice (cached values + formulas), normalizes sheet names (trailing space on 'Bond - Watch list '), detects bond columns by header keyword with names from column E, derives the 83-month header grid at runtime (2025-09..2032-07), and recomputes K = SUM(month row) and L = K - J because those columns are formulas, not stored numbers.",
+        "fr_refs": ["FR-08", "FR-10", "FR-23"],
+        "decisions": ["D2"]
+      },
+      {
+        "id": "validators",
+        "name": "Validators",
+        "container": "flask_web_app + import_pipeline",
+        "responsibility": "Duplicate-ISIN check across the entire bond set (not a partial row range), payment input validation, import reconciliation assertion (bond count and totals), and explicit failure reporting for unreadable XLSM. Shared by the web forms and the import script.",
+        "fr_refs": ["FR-21", "FR-22"],
+        "decisions": []
+      }
+    ]
+  },
+  "runtime_views": [
+    {
+      "id": "rv-dashboard-load",
+      "name": "(a) Dashboard page load — query-based, no open/save events",
+      "trigger": "Browser GET /dashboard (or page reload) on localhost",
+      "requirements": ["FR-05", "FR-09", "FR-20", "NFR-7", "NFR-11"],
+      "decisions": ["D3", "D5"],
+      "steps": [
+        "1. Browser requests the dashboard URL; Flask route handler in route_handlers accepts the request (no authentication — single trusted local user, D10).",
+        "2. Handler opens a connection to the local SQLite file through ledger_repository (db layer).",
+        "3. dashboard_query_module executes live queries: portfolio summary counts (Total/Danger/On-going/Completed), portfolio amounts (Total Investment, Till Return = SUM of paid ledger rows, Balance = Till Return - Maturity Amount), this-month returns, full monthly history across the derived window, and the bonds status overview.",
+        "4. Status overview calls the status_engine per bond, which scans every past month in the bond's due window under D5 — no snapshot table is read and no open/save event exists to wait for.",
+        "5. If the current calendar month cannot be resolved for this-month returns, the handler renders an explicit message instead of a silent 0 (ERR-03).",
+        "6. dashboard_query_module returns plain result sets; Jinja template server-renders the HTML with figures and styling.",
+        "7. Response is returned; every figure equals the query result over current data. Next reload after any edit reflects the change immediately (FR-20). Target: under 2 seconds at 150 bonds × 96 months (NFR-11)."
+      ],
+      "notes": "Replaces the VBA rebuild-on-open/rebuild-on-save model (legacy RTM R2/R3): there are no workbook events at all — freshness is a property of querying on every request."
+    },
+    {
+      "id": "rv-record-payment",
+      "name": "(b) Record payment → ledger insert → row status recompute",
+      "trigger": "POST payment form from the month grid (bond, month, amount)",
+      "requirements": ["FR-03", "FR-04", "FR-06", "FR-24", "NFR-8"],
+      "decisions": ["D3", "D5"],
+      "steps": [
+        "1. route_handlers receives the payment POST and runs validators (bond exists, month parseable, amount numeric).",
+        "2. ledger_repository inserts exactly one payment_ledger row: bond_id, month (YYYY-MM), amount, paid flag. No column is added anywhere — the schema is month-row based, never month-column based (FR-03).",
+        "3. route_handlers asks status_engine to recompute that bond's status from its ledger rows: evaluate every past month in the due window; ANY unpaid past month (no row, paid flag false, or amount 0) → Danger; if months paid >= tenure → Completed, overriding Danger; otherwise On-going (D5 quoted in ADR-05).",
+        "4. Response redirects back to the month grid; the inserted cell renders green, and the status cell shows red/orange/green per the recomputed status (FR-04).",
+        "5. The next dashboard load reads the same ledger — status and totals are already updated with no open/save/restart event (FR-24, FR-20)."
+      ],
+      "notes": "Zero-value payments are stored as rows with amount 0 and count as unpaid everywhere (ERR-02 / D5)."
+    },
+    {
+      "id": "rv-xlsm-import",
+      "name": "(c) One-time XLSM import with reconciliation",
+      "trigger": "Operator runs the import script once against v5.5_40L_Project_Tracker.xlsm (fresh install or first migration)",
+      "requirements": ["FR-08", "FR-10", "FR-22", "FR-23", "NFR-10"],
+      "decisions": ["D2"],
+      "steps": [
+        "1. import_pipeline starts; validators record the source file SHA-256 and mtime to prove the XLSM is never modified (read-only backup, FR-08).",
+        "2. xlsx_reader loads the workbook twice with openpyxl: data_only=True for cached values, data_only=False for formulas. Sheet lookup normalizes names (trailing space on 'Bond - Watch list ').",
+        "3. On Monthly Returns, bond rows are detected by header keyword with company names taken from column E (col A is Status, col B is Purchase Date) — never by fixed column position (FR-23).",
+        "4. The month grid extent is derived from row-1 headers at runtime: 83 headers, 2025-09..2032-07 — no hardcoded window (quirk fix, FR-18).",
+        "5. Formula columns are recomputed, not trusted: K (Till Return) = SUM of the month-grid row, L (Balance) = K - J (maturity amount), matching the workbook's own formulas.",
+        "6. Records are written: bonds (15 rows, all master fields verbatim), payment_ledger (one row per paid/due month cell), home_plan (84 rows; static inputs preserved verbatim, formula cells taken from cached values — ERR-06).",
+        "7. validators run duplicate-ISIN detection across the full bond set (FR-22) and the reconciliation assertion: bond count 15, Total Investment 1037142.01 must match; Total Till Return and Total Balance are compared against the PRD exit figures and any mismatch is REPORTED — see ADR-10: the L1 figures (workbook computes 56227.88 / -1165738.34 vs PRD 111638.57 / -925503.44) are flagged for re-baselining before acceptance tests, never silently reconciled or silently passed.",
+        "8. Any failure (unreadable file, missing sheet, reconciliation break) aborts with an explicit error naming the operation — no partial silent import (ERR-05, FR-21). Success output lists imported counts and the reconciliation report."
+      ],
+      "notes": "Dashboard cell caches are treated as parse evidence only, not truth (NFR-7 requires live recompute anyway). oletools/VBA extraction is separate, unproven work and out of this pipeline's scope."
+    },
+    {
+      "id": "rv-csv-export",
+      "name": "(d) CSV export",
+      "trigger": "User clicks export on any displayed dataset (dashboard table, month grid, Home Plan, watch list, bond detail)",
+      "requirements": ["FR-07", "NFR-12"],
+      "decisions": ["D4"],
+      "steps": [
+        "1. Browser GET /export?view=<dataset> hits route_handlers.",
+        "2. Handler fetches the same rows the view displays (dashboard_query_module or grid renderer output) — export never reads a different source than the screen.",
+        "3. csv_exporter serializes headers + rows to UTF-8 CSV (Python csv module; rupee amounts included as plain values).",
+        "4. Response streams as a download; the CSV consumer opens it in any spreadsheet application with correct columns and no encoding errors (FR-07 acceptance)."
+      ],
+      "notes": "CSV replaces xlsx export entirely (D4); no Excel dependency remains in any daily flow."
+    }
+  ],
+  "deployment_view": {
+    "distribution": "The product is one project folder. A friend receives it by copying the folder (zip, USB drive, local share) to their machine — no installer, no registry, no container.",
+    "prerequisites": "Python 3.14 (the folder ships its dependency list; .venv may be recreated with pip install -r requirements.txt) and any desktop browser. No Node, no bundler, no build step (D1, NFR-3).",
+    "launch": "One documented launch command from the folder root starts the Flask server bound to 127.0.0.1 and opens/points the browser at the dashboard. Target: working dashboard within 60 seconds on a clean machine (NFR-4).",
+    "data_location": "A per-user local SQLite file inside the project folder (created on first launch or first import). It is the sole persistence artifact — no second database, no cache file, no external service (NFR-13). Copying the folder plus this file moves the entire portfolio to another machine.",
+    "network": "Fully offline. The server listens on localhost only; no outbound connections, no cloud, no accounts (D10, NFR-1, NFR-2). Airplane-mode operation is the normal case.",
+    "excel": "The original XLSM is optional at runtime (needed only when running the one-time import) and remains a read-only backup the tool never writes.",
+    "upgrade": "Replace code files in the folder; the DB file persists. Schema changes ship as explicit migration steps in db.py — never silent alters.",
+    "multi_instance": "Each user/machine runs an isolated instance with its own DB. Two instances never share state; concurrent multi-user access to one DB file is out of scope (D10)."
+  },
+  "building_blocks": {
+    "layout": [
+      {
+        "path": "src/app.py",
+        "role": "Flask app factory, route handlers, launch entry point (python src/app.py binds localhost)",
+        "fr_refs": ["FR-02", "FR-20", "FR-21"]
+      },
+      {
+        "path": "src/db.py",
+        "role": "SQLite connection helper, schema creation (bonds / payment_ledger / home_plan), stable schema keys, migration steps",
+        "fr_refs": ["FR-01", "FR-03", "FR-23"]
+      },
+      {
+        "path": "src/status.py",
+        "role": "Status engine: D5 rules (Danger = ANY unpaid past month; Completed overrides when months paid >= tenure; zero = unpaid); no scan-window limit",
+        "fr_refs": ["FR-06", "FR-19", "FR-24"]
+      },
+      {
+        "path": "src/queries.py",
+        "role": "Dashboard query module: summary counts/amounts, this-month returns, monthly history, status overview, reinvestment free-up, Till Return/Balance views, month-window derivation",
+        "fr_refs": ["FR-05", "FR-09", "FR-16", "FR-17", "FR-18", "FR-20"]
+      },
+      {
+        "path": "src/import_xlsm.py",
+        "role": "One-time import pipeline: openpyxl double-load, sheet normalization, header-keyword column detection, K/L recomputation, reconciliation report",
+        "fr_refs": ["FR-08", "FR-10", "FR-11", "FR-12", "FR-22"]
+      },
+      {
+        "path": "src/export_csv.py",
+        "role": "UTF-8 CSV serializer for any displayed dataset",
+        "fr_refs": ["FR-07"]
+      },
+      {
+        "path": "src/validators.py",
+        "role": "Duplicate-ISIN full-set check, payment input validation, reconciliation assertions, explicit error types",
+        "fr_refs": ["FR-21", "FR-22"]
+      },
+      {
+        "path": "src/templates/",
+        "role": "Jinja2 templates: dashboard, month grid (dynamic columns), bond detail, Home Plan, watch list, error pages — server-rendered, no build step",
+        "fr_refs": ["FR-04", "FR-18", "FR-23"]
+      },
+      {
+        "path": "tests/",
+        "role": "pytest suite: unit tests for status engine and month window, integration tests for import reconciliation and ledger writes, negative tests for error surfacing, seeded fixture portfolios for D5 rules",
+        "fr_refs": ["FR-06", "FR-09", "FR-21", "FR-24", "NFR-8", "NFR-10"]
+      }
+    ],
+    "mapping_notes": "Every module talks to SQLite only through src/db.py and the query/status functions — no route handler writes SQL inline (NFR-5 centralization). Field access is by stable schema key, never by workbook header text or column index (FR-23). Phase-3/4 features (Home Plan view, watch list analytics, discount/TDS/payout cycles, P&L) extend queries.py and templates without schema rewrites."
+  },
+  "cross_cutting": {
+    "data_model": {
+      "file": "single local SQLite file per user (NFR-13)",
+      "tables": [
+        {
+          "name": "bonds",
+          "key_columns": ["id PK", "isin UNIQUE (ISN legacy label is display-only)", "company", "rating", "principle_tl", "tenure_months", "maturity_date", "maturity_amount", "purchase_date", "broker", "interest_start_month", "payment_type", "discount (Phase 4)", "status_reference (import fidelity only — live status is computed, never stored)"],
+          "fr_refs": ["FR-01", "FR-10", "FR-13"]
+        },
+        {
+          "name": "payment_ledger",
+          "key_columns": ["id PK", "bond_id FK -> bonds.id", "month (YYYY-MM)", "amount", "paid (flag)"],
+          "indexes": ["UNIQUE(bond_id, month) for upsert-safe payment entry", "index on bond_id for per-bond status scans", "index on month for this-month and history queries"],
+          "fr_refs": ["FR-01", "FR-03", "DATA-02"]
+        },
+        {
+          "name": "home_plan",
+          "key_columns": ["id PK", "month_index (1..84)", "saving (incl. irregular 39588, 10063, 0)", "rate", "per_year_interest", "countdown", "remaining_interest", "schedule totals"],
+          "fr_refs": ["FR-01", "FR-12", "DATA-03"]
+        }
+      ],
+      "derived_never_stored": ["Till Return (SUM of paid ledger rows)", "Balance (Till Return - Maturity Amount)", "Danger/On-going/Completed status", "watch-list analytics (DATA-04) — computed on view in Phase 3"],
+      "fr_refs": ["FR-01", "FR-05", "FR-09", "DATA-05"]
+    },
+    "security": {
+      "model": "Local-only single-user trust model (D10). The app assumes the operator owns the machine; there is no authentication layer because there is nothing to authenticate against — no accounts, no sessions, no roles.",
+      "network": "Flask binds to 127.0.0.1 only; no outbound requests in any code path (NFR-1, NFR-2). Verified by running the full workflow with networking disabled.",
+      "secrets": "Zero secrets in code or config — no API keys, no passwords, no tokens exist to leak. Nothing to rotate, nothing to commit.",
+      "data": "All data in one local file with normal filesystem permissions. Sharing is an explicit user action (folder/DB copy), never an implicit sync.",
+      "out_of_scope": ["cloud sync", "accounts/authentication", "networked multi-user", "encryption-at-rest beyond OS file permissions"]
+    },
+    "error_surfacing": {
+      "replaces": "VBA 'On Error Resume Next', which silently swallowed failures and let the dashboard show stale or default-zero values.",
+      "policy": "Every failure is visible to the user and names the failed operation; no silent fallback (default zeros, empty success) may be presented as a completed operation (FR-21, NFR-6).",
+      "mechanisms": [
+        "Flask error handlers render an explicit error page/message for unexpected exceptions in routes.",
+        "Import failures (unreadable XLSM, missing sheet, reconciliation break) abort with a named error — never a partial import reported as success (ERR-05).",
+        "Unresolvable current month for this-month returns shows an explicit message, not a silent 0 (ERR-03).",
+        "Duplicate ISIN is flagged across the entire bond set (ERR-04).",
+        "Bonds beyond any legacy window are still rendered and statused — never silently skipped (ERR-01).",
+        "pytest negative tests induce each failure class and assert the visible message."
+      ],
+      "fr_refs": ["FR-21", "NFR-6"]
+    },
+    "performance": {
+      "target": "Dashboard renders in under 2 seconds with 150 bonds × 96 months of ledger data, with no schema change from the 15-bond layout (NFR-11).",
+      "approach": [
+        "All figures are aggregate SQL (SUM/COUNT/GROUP BY) over indexed payment_ledger — no per-row Python loops over the full grid for totals.",
+        "Status computation scans only each bond's past due window (start..min(current, start+tenure-1)), not the full 96-month range.",
+        "Month window derived once per render from bond metadata; grid HTML built server-side with no client-side recomputation.",
+        "Single-user workload: one connection per request is sufficient; no connection pool needed."
+      ],
+      "verification": "Seeded performance test (150 bonds × 96 months) timing the dashboard request; gate at 2s.",
+      "fr_refs": ["NFR-11", "FR-05"]
+    },
+    "build_and_test": {
+      "build": "No build step (D1): no npm, no bundler, no transpile. Jinja templates render at request time; Python runs as-is from the folder.",
+      "test_framework": "pytest.",
+      "test_layers": [
+        "Unit: status engine (D5 fixtures — seeded gaps, zero amounts, Completed override), month-window derivation (Feb-2027+/Feb-2031+ boundaries), Till Return/Balance queries, duplicate-ISIN validator.",
+        "Integration: import reconciliation against the real XLSM, ledger insert → status recompute round-trip, CSV export contents.",
+        "Negative/gate: induced import failure surfaces a message; clean-machine launch < 60s; dashboard < 2s at scale; network-disabled full workflow."
+      ],
+      "coverage_note": "Every FR carries a verification method in the SRS; Stage 8 (test_plan) binds acceptance criteria to concrete pytest cases.",
+      "fr_refs": ["FR-06", "FR-09", "FR-21", "NFR-4", "NFR-11"]
+    }
+  },
+  "adrs": [
+    {
+      "id": "ADR-01",
+      "title": "Flask server-rendered frontend (D1)",
+      "status": "accepted",
+      "context": "The rebuild needs a UI that runs offline on any desktop OS with minimal setup for friends. Options were Flask + simple HTML pages (no build step), a static SPA (Vue/React), or a desktop toolkit (Tkinter/Qt).",
+      "decision": "Use Flask serving server-rendered Jinja2 HTML on localhost, requiring only Python and a browser — no build step, no npm, no bundler (D1, CONFIRMED).",
+      "consequences": "Tiny dependency footprint and one launch command satisfy NFR-3/NFR-4. Rendering on every request is what makes the dashboard always live (FR-20). Trade-off: no rich client interactivity — acceptable because the UI is forms and tables. Desktop toolkits rejected as heavier to ship; SPAs rejected for introducing a build step."
+    },
+    {
+      "id": "ADR-02",
+      "title": "One-time XLSM import; Excel stays read-only backup (D2)",
+      "status": "accepted",
+      "context": "All existing data (15 bonds, ledger grid, Home Plan, watch list) lives in v5.5_40L_Project_Tracker.xlsm. Options: one-time Python import script, manual re-entry, or Excel as live backend.",
+      "decision": "Run a one-time Python import script (openpyxl) that populates SQLite; the XLSM is never written again and remains a read-only backup (D2, CONFIRMED). Excel-as-backend rejected — it would keep the VBA quirks and open/save coupling the rebuild exists to remove.",
+      "consequences": "Import must be trustworthy: sheet-name normalization, header-keyword column detection, runtime-derived month headers, and explicit reconciliation (ADR-09, ADR-10). After import, no daily flow touches Excel (FR-08, FR-10). Re-import is a manual operator action against a fresh DB, not a sync."
+    },
+    {
+      "id": "ADR-03",
+      "title": "Row-per-payment ledger storage model (D3)",
+      "status": "accepted",
+      "context": "The Excel sheet stores one column per month (Sep-2025..Feb-2027 headers) with formulas in K/L. Options: row-per-payment ledger (bond, month, amount, paid) with a UI-rendered grid, or one column per month inside SQLite.",
+      "decision": "Store one row per payment in payment_ledger; totals, statuses and the month grid become live queries over those rows (D3, CONFIRMED). No per-month columns ever exist in the schema (FR-01, FR-03).",
+      "consequences": "Fixes hardcoded headers, the Jan-2031 scan limit and stale snapshots in one move; scales to any portfolio/window without schema change (FR-18, NFR-9, NFR-11). The month grid becomes a rendering concern (month_grid_renderer), and K/L formulas become queries (Till Return = SUM paid, Balance = Till Return - maturity). Trade-off: grid reads need aggregation instead of direct cell reads — mitigated by indexes on (bond_id, month)."
+    },
+    {
+      "id": "ADR-04",
+      "title": "CSV export replaces xlsx export (D4)",
+      "status": "accepted",
+      "context": "Once Excel is no longer the front end, the owner still needs to share/print data (user story US-04) for the CSV-consumer actor. Options: CSV export, no export, or xlsx export.",
+      "decision": "Provide UTF-8 CSV export of any displayed dataset (D4, CONFIRMED). No xlsx export is produced.",
+      "consequences": "Zero Excel dependencies in the export path; CSV opens in any spreadsheet app (FR-07, NFR-12). Trade-off: formulas and cell colors are lost in export — acceptable because exports are for sharing/printing, while colors live in the app's grid (FR-04)."
+    },
+    {
+      "id": "ADR-05",
+      "title": "Fixed status rules — D5 status engine",
+      "status": "accepted",
+      "context": "The VBA engine flags Danger only when the immediately previous month is unpaid, hiding older misses; it also has a Jan-2031 scan cutoff. The owner approved fixing the rules during migration rather than keeping VBA behavior verbatim (D5, CONFIRMED).",
+      "decision": "Status engine rules per D5, quoted exactly: \"Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved\". Status is recomputed from the ledger on every view — never stored, never waiting for an open/save event (FR-06, FR-24, NFR-8).",
+      "consequences": "A bond with an old miss but a paid previous month now reads Danger (correctness win; behavior change must be communicated to users). Completed bonds with historical gaps read Completed. Zero-amount rows count as unpaid. No scan-window limit — Feb-2031+ bonds get real statuses (FR-19). Unit tests with seeded fixture portfolios are the gate (HF-01)."
+    },
+    {
+      "id": "ADR-06",
+      "title": "SQLite via Python stdlib sqlite3",
+      "status": "accepted",
+      "context": "Persistence must be one local file per user, offline, portable by file copy, with no server process. The store could be SQLite (stdlib or a driver package), another embedded engine, or a client/server DB.",
+      "decision": "Use SQLite through Python's stdlib sqlite3 module as the only database engine (D10 scope: per-user local file; PRD constraint 2).",
+      "consequences": "Zero extra dependencies beyond Flask/openpyxl; the DB file is the sole persistence artifact (NFR-13) and moves by copy. Single-user localhost access means concurrency is a non-issue (see risks). No ORM — SQL lives in db.py/queries.py behind the ledger repository, keeping business logic centralized (NFR-5)."
+    },
+    {
+      "id": "ADR-07",
+      "title": "Dashboard as live queries — no stored snapshots",
+      "status": "accepted",
+      "context": "The old workbook rebuilds the Dashboard on open/save (blocking MsgBox) and is stale between saves. Excel caches and any design that precomputes totals into tables would reintroduce staleness.",
+      "decision": "Every dashboard figure is computed by SQL queries/views at request time; Till Return, Balance and status are never stored as columns (DATA-05). Cached workbook values are treated as import evidence only (FR-05, FR-09, FR-20, NFR-7).",
+      "consequences": "Edit → reload always shows current data with zero event plumbing. Acceptance is trivial to test (figure == query result). Trade-off: queries run on every page view — covered by the NFR-11 performance gate and ledger indexes."
+    },
+    {
+      "id": "ADR-08",
+      "title": "No-build Jinja templates",
+      "status": "accepted",
+      "context": "Server-rendered UI needs a template strategy. Alternatives: Jinja templates in the Flask app, hand-built HTML string concatenation, or a frontend toolchain.",
+      "decision": "All pages are Jinja2 templates under src/templates/, rendered per request with no compilation, no asset pipeline, no client-side framework (extends D1's no-build rule).",
+      "consequences": "A friend's machine needs only Python — NFR-3/NFR-4 stay satisfiable in under a minute. Grid columns and borders are generated dynamically inside templates from the derived month window (FR-18). Styling (paid green, due light red, status red/orange/green) is plain CSS classes driven by status/ledger values (FR-04)."
+    },
+    {
+      "id": "ADR-09",
+      "title": "Quirk-fix policy for known Excel/VBA defects",
+      "status": "accepted",
+      "context": "The workbook has documented quirks: hardcoded month headers (Sep-2025..Feb-2027), month scan stopping at Jan-2031, sheet name 'Bond - Watch list ' with a trailing space, bond names in column E, K/L as formulas, and On Error Resume Next swallowing failures. The rebuild could copy or fix them.",
+      "decision": "Fix all of them: (1) month headers/grid columns derived dynamically at runtime — no hardcoded Feb-2027 window; (2) no Jan-2031 scan limit — status and grid cover any start month; (3) sheet names normalized (trim) before lookup; (4) column detection by header keyword with names from column E, never fixed positions; (5) K/L recomputed (K = SUM of month row, L = K - J) rather than read as static; (6) all errors surfaced visibly instead of swallowed (FR-18, FR-19, FR-21, FR-23, NFR-6, NFR-9).",
+      "consequences": "New behavior intentionally diverges from the old workbook (changelog item for users). Import tests assert the fixed behaviors explicitly (SM-04 boundary fixtures). The quirk list is the regression checklist for the import pipeline."
+    },
+    {
+      "id": "ADR-10",
+      "title": "L1 handling — PRD exit figures re-baselined BEFORE acceptance tests (decision needed, flagged)",
+      "status": "accepted",
+      "context": "Feasibility Stage 4 proved the parse path works but found the PRD/SRS exit figures are not reproducible from the workbook snapshot: SUM K = 56227.88 vs PRD Total Till Return 111638.57 (delta 55410.69); SUM L = -1165738.34 vs PRD Total Balance -925503.44 (delta -240234.90). A full-workbook scan found no cell within 0.02 of 111638.57. Additionally the PRD pair is internally consistent only under Balance = Till Return - Total Investment, while the workbook formula is L = K - J (maturity amount) — a definition conflict. The PRD itself declares the workbook the source of truth.",
+      "decision": "The reconciliation baseline for FR-09 / NFR-10 / SM-01 must be re-baselined against the actual workbook BEFORE any acceptance test is run or passed. The mismatch is flagged here and in the import report — it is not silently reconciled, and no test may be green-washed against the stale PRD numbers. Two sub-decisions remain OPEN for the owner and must be settled explicitly: (a) target figures = workbook-derived (15 bonds, 1037142.01 investment, 56227.88 till return, -1165738.34 balance), and (b) Balance definition = Till Return - Maturity Amount (workbook L = K - J) vs Till Return - Total Investment (PRD arithmetic). This ADR records the handling process as accepted; the numeric baseline awaits owner confirmation — flagged, not silently resolved.",
+      "consequences": "Import parity tests are written against the re-baselined figures once the owner confirms (sub-decision a/b above). Until then NFR-10/SM-01 cannot honestly pass — the gate stays red rather than faked. The definition choice (b) affects FR-09 wording and the dashboard Balance display, so SRS/PRD would need a superseding entry after the owner decides. Risk of confusion is reduced by printing both the computed and PRD figures side by side in the import reconciliation report."
+    }
+  ],
+  "risks": [
+    {
+      "id": "R-01",
+      "source": "feasibility",
+      "title": "L1 — Total Till Return not reproducible",
+      "detail": "SUM K actual 56227.88 vs PRD/SRS exit figure 111638.57 (delta 55410.69). The month grid itself sums to exactly 56227.88, and no cell in the workbook is within 0.02 of 111638.57. Snapshot drift or an undocumented derivation.",
+      "handling": "ADR-10: re-baseline FR-09/NFR-10/SM-01 against the workbook before acceptance tests; owner must confirm the target figures. Never silently pass."
+    },
+    {
+      "id": "R-02",
+      "source": "feasibility",
+      "title": "L1 — Total Balance mismatch and definition conflict",
+      "detail": "SUM L actual -1165738.34 vs PRD -925503.44 (delta -240234.90). Workbook L = K - J (maturity; SUM J = 1221966.22). The PRD pair only holds under Balance = Till Return - Total Investment (111638.57 - 1037142.01 = -925503.44). Definition conflict between PRD exit math and workbook formula.",
+      "handling": "ADR-10 sub-decision (b): owner picks the Balance definition before import parity can pass; PRD/SRS superseded accordingly."
+    },
+    {
+      "id": "R-03",
+      "source": "feasibility",
+      "title": "K and L are formulas, not stored numbers",
+      "detail": "An importer with no formula engine must recompute K as the sum of the month-grid row and L as K - J; reading K/L as static or trusting pre-baked values risks silent wrongness. Dashboard caches agree with data_only sums but reflect the same drifted snapshot.",
+      "handling": "import_xlsm.py always recomputes K/L; unit test asserts K = SUM(month row) and L = K - J per bond. Caches used as parse evidence only."
+    },
+    {
+      "id": "R-04",
+      "source": "feasibility",
+      "title": "Trailing-space sheet name",
+      "detail": "Sheet is 'Bond - Watch list ' with a trailing space; exact-string lookup fails.",
+      "handling": "Sheet lookup trims/normalizes names (ADR-09). Covered by import test over the real workbook."
+    },
+    {
+      "id": "R-05",
+      "source": "feasibility",
+      "title": "Bond names in column E, not A/B",
+      "detail": "Col A is Status, col B is Purchase Date; company names live in column E. Column-by-position detection would import garbage.",
+      "handling": "Header-keyword detection with E as the name column (ADR-09, FR-23). Field-by-field comparison test over 15 bonds (FR-10)."
+    },
+    {
+      "id": "R-06",
+      "source": "feasibility",
+      "title": "Month grid is 83 headers, not ~96",
+      "detail": "Row 1 cols 14..96 hold 83 headers 2025-09..2032-07, then 4 empty header cells before the sheet dimension ends. The spike brief's ~96-month assumption was wrong.",
+      "handling": "Grid extent derived from headers at runtime, never hardcoded (FR-18/NFR-9). Import test asserts first=2025-09, last=2032-07, count=83."
+    },
+    {
+      "id": "R-07",
+      "source": "feasibility",
+      "title": "Home Plan formula/static mix (184/444)",
+      "detail": "Derived columns E and G hold formulas; date, month index, saving, rate, countdown and summary rows are static. Confirms ERR-06.",
+      "handling": "Import preserves static inputs verbatim and takes cached values for formula cells; comparison test against stored Excel values (FR-12)."
+    },
+    {
+      "id": "R-08",
+      "source": "feasibility",
+      "title": "Dashboard caches invite naive importers",
+      "detail": "All 8 Dashboard COUNTA/COUNTIF/SUM cells have cached values, so a naive importer could trust them — but NFR-7 requires live recompute anyway, and caches reflect the drifted snapshot.",
+      "handling": "Caches are parse evidence only; dashboard figures are always queries (ADR-07). Reconciliation compares against recomputed ledger sums, not caches."
+    },
+    {
+      "id": "R-09",
+      "source": "feasibility",
+      "title": "VBA behavior extraction unproven",
+      "detail": "oletools was not needed for cell-level import (openpyxl alone parsed every sheet). Extracting VBA behavior (status engine, open/save rebuild, MsgBox quirks) is separate, unproven work outside the spike.",
+      "handling": "Not required: status rules come from decision D5 (fixed rules), not from decompiling VBA. Legacy RTM rows are mapped to covering FRs in the SRS instead."
+    },
+    {
+      "id": "AR-01",
+      "source": "architecture",
+      "title": "SQLite concurrency — acceptable for single-user",
+      "detail": "SQLite allows one writer at a time. The product is explicitly single-user per file (D10); two instances sharing one DB file could contend on locks.",
+      "handling": "No mitigation needed for scope: each user runs their own file; Flask handles one operator's requests sequentially on localhost. WAL mode and pooling are deliberately omitted as unnecessary complexity. Documented as a non-goal if multi-user ever appears (it is out of scope)."
+    },
+    {
+      "id": "AR-02",
+      "source": "architecture",
+      "title": "Formula recomputation parity (K = SUM(months), L = K - J)",
+      "detail": "The rebuild must reproduce the workbook's own formula semantics when recomputing Till Return and Balance; any drift (e.g. summing only paid rows vs all rows, or using investment instead of maturity in L) silently changes dashboard figures.",
+      "handling": "Unit test per bond: K = SUM over the full month-grid row (matching =SUM(Nn:XFDn)), L = K - J. Cross-check against the spike's column sums (G=1037142.01, K=56227.88, L=-1165738.34) until ADR-10 re-baselines the PRD figures. Note: the FR-09 wording says 'sum of paid ledger rows' — the re-baseline decision must also confirm whether K sums paid rows or all due-month rows."
+    },
+    {
+      "id": "AR-03",
+      "source": "architecture",
+      "title": "Performance headroom at NFR-11 scale",
+      "detail": "150 bonds × 96 months ≈ 14,400 ledger rows; naive per-row Python status scans plus unindexed history aggregation could exceed the 2-second dashboard gate.",
+      "handling": "Aggregate SQL with indexes on payment_ledger(bond_id) and (bond_id, month); status scans bounded to each bond's past due window; seeded 150×96 performance test is a hard gate (NFR-11)."
+    }
+  ],
+  "glossary": {
+    "bond": "A fixed-income investment record held in the bonds table: ISIN, company, rating, principal TL amount, tenure in months, maturity date/amount, purchase date, broker, interest start and payment type. 15 bonds after importing the real workbook.",
+    "tenure": "The bond's payment duration in months, counted from the interest start month. Drives the due-window (start .. start+tenure-1), the Completed rule (months paid >= tenure) and the ledger rows to expect.",
+    "isin": "The bond identifier column from the workbook (legacy header spelling 'ISN' is a display label only; the schema key is stable per FR-23). Uniqueness is enforced/flagged across the entire bond set (FR-22).",
+    "danger_ongoing_completed": "The three status-engine states, recomputed from the ledger on every view and never stored. Danger = ANY unpaid past month (not just previous month); On-going = no unpaid past month and tenure not yet fully paid; Completed = months paid >= tenure, and Completed overrides Danger. Zero-value payments count as unpaid (D5).",
+    "ledger": "payment_ledger — one row per payment (bond_id, month, amount, paid flag). The single payment storage model (D3); all totals, statuses and grids derive from it by live query. No month columns ever exist in the schema.",
+    "month_grid": "The Excel-like view with months across columns, rendered from ledger rows at request time (not stored columns). Cell colors: green paid, light red due, status cells red/orange/green. The column window is derived from bond start month + tenure with no hardcoded headers and no scan limit."
+  },
+  "fr_mapping": [
+    {"fr": "FR-01", "elements": ["payment_ledger table", "bonds table", "home_plan table", "src/db.py schema init", "sqlite_store container"]},
+    {"fr": "FR-02", "elements": ["flask_web_app container", "route_handlers", "src/app.py launch entry", "deployment one-command launch"]},
+    {"fr": "FR-03", "elements": ["payment_ledger table (row per payment)", "ledger_repository insert", "src/db.py"]},
+    {"fr": "FR-04", "elements": ["month_grid_renderer", "src/templates/ grid template + CSS", "status_engine status colors", "route_handlers grid route"]},
+    {"fr": "FR-05", "elements": ["dashboard_query_module", "src/queries.py", "route_handlers dashboard route"]},
+    {"fr": "FR-06", "elements": ["status_engine", "src/status.py (D5 rules)", "tests D5 fixture suite"]},
+    {"fr": "FR-07", "elements": ["csv_exporter container", "src/export_csv.py", "route_handlers export route"]},
+    {"fr": "FR-08", "elements": ["import_pipeline container", "xlsx_reader", "src/import_xlsm.py (read-only XLSM handling)"]},
+    {"fr": "FR-09", "elements": ["dashboard_query_module Till Return/Balance queries", "src/queries.py", "sqlite_store derived views (never stored)"]},
+    {"fr": "FR-10", "elements": ["import_pipeline", "xlsx_reader bond-master mapping (col E + header detection)", "bonds table"]},
+    {"fr": "FR-11", "elements": ["watch list view (route_handlers + dashboard_query_module analytics)", "src/queries.py Phase-3 formulas", "src/templates/ watch list"]},
+    {"fr": "FR-12", "elements": ["home_plan table", "import_pipeline Home Plan verbatim preservation", "src/templates/ Home Plan view"]},
+    {"fr": "FR-13", "elements": ["bonds table discount column (Phase 4)", "route_handlers bond detail", "src/queries.py"]},
+    {"fr": "FR-14", "elements": ["payout computation in dashboard_query_module (Phase 4)", "src/queries.py TDS functions"]},
+    {"fr": "FR-15", "elements": ["due-date generation by payment_type cycle (Phase 4)", "src/queries.py schedule generator", "payment_ledger rows on cycle months"]},
+    {"fr": "FR-16", "elements": ["dashboard_query_module P&L and ongoing TL queries (Phase 4)", "route_handlers dashboard", "src/templates/ dashboard"]},
+    {"fr": "FR-17", "elements": ["dashboard_query_module reinvestment free-up query", "status_engine Completed states", "src/queries.py"]},
+    {"fr": "FR-18", "elements": ["month_grid_renderer dynamic columns", "src/queries.py month-window derivation", "src/templates/ grid", "no-build Jinja rendering (ADR-08)"]},
+    {"fr": "FR-19", "elements": ["status_engine no-scan-limit evaluation", "src/status.py", "month_grid_renderer late-start rows"]},
+    {"fr": "FR-20", "elements": ["dashboard_query_module live recompute per request", "route_handlers dashboard reload", "ADR-07 live queries"]},
+    {"fr": "FR-21", "elements": ["route_handlers Flask error handlers", "import_pipeline explicit abort (ERR-05)", "validators explicit errors", "error_surfacing cross-cutting policy"]},
+    {"fr": "FR-22", "elements": ["validators duplicate-ISIN full-set check", "import_pipeline validation step", "src/validators.py"]},
+    {"fr": "FR-23", "elements": ["src/db.py stable schema keys", "xlsx_reader header-keyword detection (no position coupling)", "ledger_repository schema-key access", "src/templates/ display labels decoupled from logic"]},
+    {"fr": "FR-24", "elements": ["status_engine recompute on every view", "ledger_repository post-insert recompute", "src/status.py", "rv-record-payment runtime flow"]}
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage5_plan_20261030_0215",
+  "kind": "normal_plan",
+  "title": "Stage 5 — architecture doc (D30) + architecture design artifact (D119/D121)",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 5,
+  "model_assignment": {"executor_lane_a": "worker-4 (architecture doc, MiMo-V2.6-Flash/cline-pass)", "executor_lane_b": "worker-5 (excalidraw artifact)", "reviewer": "reviewer-1 (read-only)"},
+  "worktree": "base checkout; drafts ONLY in .IDE_Plans/design_drafts/ (D119 — SKIP_DIRS, never projected pre-lock)",
+  "Documents": {
+    "Truth": ["PRD v2, SRS v1, Feasibility v1 (spike findings + 9 import risks incl. ledger L1)", "brainstorm D1/D3/D5/D10"],
+    "References": ["vba_dump.txt", "docs/RTM.json"],
+    "Targets": [".IDE_Plans/design_drafts/architecture_dk_bond_tracker_v1.json (CREATE, kind=design)", ".IDE_Plans/design_drafts/dk_bond_tracker_architecture_design_v1.excalidraw.json (CREATE)", "later at LOCK: design/ + docs/design_catalog.json"],
+    "Dependencies": ["valid D121 ref ids: FR-01..24, NFR-1..13, DATA-01..05 (requirements), D1..D13 (decisions, bare suffix resolves), document ids; NO test ids exist yet"],
+    "Tests": ["D30 completeness gate (C4 L1-L3 + ADR records + arc42 cross-cutting) via reviewer; design-refs gate unresolved=0; design-catalog gate at lock"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Draft both artifacts in design_drafts (parallel lanes)",
+      "mode": "PARALLEL",
+      "tasks": [
+        {"id": "T5.1", "action": "CREATE", "file": ".IDE_Plans/design_drafts/architecture_dk_bond_tracker_v1.json", "from": "(new)", "to": "born-JSON architecture doc (envelope kind=design, version v1.0) with: C4 L1 context, L2 containers, L3 components, runtime views (dashboard load, payment record + status recompute, import, CSV export), deployment (local folder + one command + per-user SQLite), building blocks (src layout), cross-cutting (data model, offline/no-auth D10, error surfacing FR-21, performance NFR), ADR-01..ADR-10 (one per major decision incl. D1/D2/D3/D4/D5 + storage + dashboard-as-queries + template strategy + quirk-fix policy + L1 handling), risks (incl. L1), glossary, FR->element mapping table (all 24 FRs)", "reason": "D30 architecture completeness", "status": "PENDING"},
+        {"id": "T5.2", "action": "CREATE", "file": ".IDE_Plans/design_drafts/dk_bond_tracker_architecture_design_v1.excalidraw.json", "from": "(new)", "to": "valid excalidraw v2 JSON: containers/components/edges boxes (Owner, Flask Web UI, Service layer: status engine + dashboard queries, import pipeline, CSV exporter, SQLite: bonds/payment_ledger/home_plan); every meaningful box carries customData.ref [{id,rel}] resolving ONLY to valid ids; zero unresolved after projection", "reason": "D121 element refs", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "python self-checks: JSON parse both; all ref ids in valid namespaces; D30 section presence checklist", "remote": "none"},
+      "reviewer_check": "D30: every C4 level + >=8 ADRs + arc42 cross-cutting sections present and substantive; FR mapping covers 24 FRs; refs resolvable; feasibility risks carried; no invented technology"
+    },
+    {
+      "id": "P2",
+      "name": "Gate: review batch 5 + LOCK (D119) + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T5.3", "action": "RUN", "file": "reviewer-1", "from": "(not run)", "to": "batch 5 findings + dispositions", "reason": "Rule 15", "status": "PENDING"},
+        {"id": "T5.4", "action": "RUN", "file": "(PM)", "from": "drafts in design_drafts", "to": "LOCK: mv both into design/; create docs/design_catalog.json entry for the excalidraw (stage locked, stage_evidence, parent dk_bond_tracker); project; design-catalog + design-refs gates PASS; checklists locked; --record-review 5 AGREED; --advance 5", "reason": "D119 lifecycle", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify (design-catalog + design-refs PASS); store-gates --advance 5", "remote": "none"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only)", "close": "commit locked design/ + catalog + review log; report D30 gate result"}
+}
