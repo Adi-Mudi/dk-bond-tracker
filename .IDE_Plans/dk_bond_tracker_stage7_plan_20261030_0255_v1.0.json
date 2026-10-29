@@ -1,0 +1,42 @@
+{
+  "schema": "normal_plan/v1",
+  "id": "dk_bond_tracker_stage7_plan_20261030_0255",
+  "kind": "normal_plan",
+  "title": "Stage 7 — pseudocode for atomic functions",
+  "version": "v1.0",
+  "status": "active",
+  "master": ".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json",
+  "stage": 7,
+  "model_assignment": {"executor": "worker-7 subagent (MiMo-V2.6-Flash/cline-pass)", "reviewer": "reviewer-1 (read-only)"},
+  "worktree": "base checkout (doc-only stage)",
+  "Documents": {
+    "Truth": ["docs/Atomic_Functions_DK_Bond_Tracker_v1.json (37 AFs, locked at stage 6)", "design/architecture_dk_bond_tracker_v1.json"],
+    "References": ["SRS ACs", "feasibility findings (import specifics)"],
+    "Targets": ["docs/Pseudocode_DK_Bond_Tracker_v1.json (CREATE, kind=pseudocode)"],
+    "Dependencies": ["AF ids AF-01..AF-37 are the fixed spine"],
+    "Tests": ["self-check: every AF has exactly one pseudocode entry, all AF ids covered, D5 rule appears in status pseudocode; reviewer; --advance 7"]
+  },
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Author pseudocode doc",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T7.1", "action": "CREATE", "file": "docs/Pseudocode_DK_Bond_Tracker_v1.json", "from": "(new)", "to": "flat JSON (id=Pseudocode_DK_Bond_Tracker_v1, kind=pseudocode, version=v1.0, project=01_excel_dashboard) with entries[]: one per AF id AF-01..AF-37, each {af_id, function_name, language_flavor: 'python-like', pseudocode: '<structured indented steps with INPUT/OUTPUT/ERROR HANDLING>', complexity_note, edge_cases[]}; status-engine entries implement D5 exactly; import entries reflect feasibility specifics (sheet trim, col E, runtime 83-month grid, K/L recompute, L1-flagged reconciliation); dashboard entries are query-based (no snapshots)", "reason": "D28 stage-7", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "python self-check (37 entries, AF set equal, D5 quote present in status entries)", "remote": "none"},
+      "reviewer_check": "pseudocode matches its AF contract (inputs/outputs), D5 exact, no real code (structured prose steps), edge cases meaningful, L1 honest"
+    },
+    {
+      "id": "P2",
+      "name": "Gate: review batch 7 + advance",
+      "mode": "SERIES",
+      "tasks": [
+        {"id": "T7.2", "action": "RUN", "file": "reviewer-1", "from": "(not run)", "to": "batch 7 findings + dispositions", "reason": "Rule 15", "status": "PENDING"},
+        {"id": "T7.3", "action": "RUN", "file": "store tools", "from": "stage 7 RUNNING", "to": "checklist locked; --record-review 7 AGREED; --advance 7", "reason": "D106", "status": "PENDING"}
+      ],
+      "test": {"type": "LOCAL", "command": "store-projector --verify; store-gates --advance 7", "remote": "none"}
+    }
+  ],
+  "merge_and_close": {"merge": "none (doc-only)", "close": "commit; report"}
+}
