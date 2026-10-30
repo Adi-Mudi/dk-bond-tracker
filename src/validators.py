@@ -84,3 +84,21 @@ def legacy_position(start_value, tenure_value):
     end = add_months(start, tenure)
     credit = min(start.day, 28)
     return start, end, tenure, credit
+
+
+def active_position_lock(conn, company, isin):
+    company_key = str(company).strip().lower() if company is not None else ""
+    isin_key = str(isin).strip().upper() if isin is not None else ""
+    rows = conn.execute("SELECT company, isin, status FROM bonds").fetchall()
+    for row in rows:
+        if row["status"] == "Completed":
+            continue
+        stored_company = str(row["company"] or "").strip().lower()
+        stored_isin = str(row["isin"] or "").strip().upper()
+        name_match = bool(company_key) and stored_company == company_key
+        isin_match = bool(isin_key) and stored_isin == isin_key
+        if name_match or isin_match:
+            raise AppError(
+                "ERR-active-position",
+                f"Cannot add position: {row['company']} has an active position ({row['status']})",
+            )
