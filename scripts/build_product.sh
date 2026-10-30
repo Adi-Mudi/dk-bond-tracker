@@ -37,6 +37,9 @@ cat > "${PRODUCT_DIR}/run.sh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
+if [ "${1:-}" = "--empty" ]; then
+  exec .venv/bin/python src/app.py --db data/bonds.db
+fi
 if [ ! -f data/bonds.db ] && [ -f "v5.5_40L_Project_Tracker.xlsm" ]; then
   .venv/bin/python src/app.py --import "v5.5_40L_Project_Tracker.xlsm" --db data/bonds.db
 fi
@@ -46,6 +49,11 @@ EOF
 cat > "${PRODUCT_DIR}/run.bat" <<'EOF'
 @echo off
 cd /d "%~dp0"
+if "%1"=="--empty" (
+  .venv\Scripts\python src\app.py --db data\bonds.db
+  pause
+  exit /b
+)
 if not exist data\bonds.db if exist "v5.5_40L_Project_Tracker.xlsm" (
   .venv\Scripts\python src\app.py --import "v5.5_40L_Project_Tracker.xlsm" --db data\bonds.db
 )
@@ -76,6 +84,8 @@ Offline bond-tracking dashboard. No accounts, no internet needed after install. 
 4. Open http://127.0.0.1:5000 in your browser.
 
 On first run the app imports v5.5_40L_Project_Tracker.xlsm into data/bonds.db automatically.
+
+Start EMPTY instead (fresh database, no data imported - add companies yourself from Watch List): ./run.sh --empty  (Windows: run.bat --empty)
 
 ## Email alerts (optional)
 
