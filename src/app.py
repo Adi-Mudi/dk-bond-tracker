@@ -14,6 +14,7 @@ from flask import Flask, Response, flash, redirect, render_template, request, ur
 from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
+from src.analytics import watch_model
 from src.db import get_conn, init_db
 from src.export_csv import (
     LEDGER_HEADERS,
@@ -21,6 +22,7 @@ from src.export_csv import (
     current_view_rows,
     full_ledger_csv,
 )
+from src.goals import add_goal, delete_goal, list_goals, update_goal
 from src.import_xlsm import import_workbook
 from src.mailer import send_alert_email
 from src.notifications import (
@@ -386,13 +388,89 @@ def create_app(db_path=None):
         flash(f"Position added: {company}", "success")
         return redirect(url_for("watch_list"))
 
+    @app.route("/goals", methods=["GET", "POST"])
+    def goals_page():
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        if request.method == "POST":
+            try:
+                with get_conn(db_file) as conn:
+                    add_goal(
+                        conn,
+                        request.form.get("name", ""),
+                        request.form.get("target_amount", ""),
+                        request.form.get("target_end_date", ""),
+                        request.form.get("note", ""),
+                        request.form.get("saved_amount", ""),
+                    )
+            except AppError as exc:
+                return _goals_error_page(db_file, exc, request.form)
+            flash("Goal added", "success")
+            return redirect(url_for("goals_page"))
+        try:
+            with get_conn(db_file) as conn:
+                goals = list_goals(conn, date.today())
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Financial Goals failed", 500)
+        return render_template(
+            "goals.html", goals=goals, error=None, error_code=None, form={}
+        )
+
+    @app.route("/goals/<int:goal_id>/edit", methods=["POST"])
+    def goals_edit(goal_id):
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        try:
+            with get_conn(db_file) as conn:
+                update_goal(
+                    conn,
+                    goal_id,
+                    request.form.get("name", ""),
+                    request.form.get("target_amount", ""),
+                    request.form.get("target_end_date", ""),
+                    request.form.get("saved_amount", ""),
+                )
+        except AppError as exc:
+            return _goals_error_page(db_file, exc, request.form)
+        flash(f"Goal updated: {goal_id}", "success")
+        return redirect(url_for("goals_page"))
+
+    @app.route("/goals/<int:goal_id>/delete", methods=["POST"])
+    def goals_delete(goal_id):
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        try:
+            with get_conn(db_file) as conn:
+                delete_goal(conn, goal_id)
+        except AppError as exc:
+            return _goals_error_page(db_file, exc, request.form)
+        flash(f"Goal deleted: {goal_id}", "success")
+        return redirect(url_for("goals_page"))
+
+    def _goals_error_page(db_file, exc, form):
+        try:
+            with get_conn(db_file) as conn:
+                goals = list_goals(conn, date.today())
+        except AppError:
+            goals = []
+        return (
+            render_template(
+                "goals.html",
+                goals=goals,
+                error=exc.message,
+                error_code=exc.code,
+                form=form,
+            ),
+            400,
+        )
+
     @app.route("/watch")
     def watch_list():
         db_file = Path(app.config["DB_PATH"])
         _ensure_db(db_file)
         try:
             with get_conn(db_file) as conn:
-                entries = status_overview(conn, date.today())
+                model = watch_model(conn, date.today())
         except AppError as exc:
             return (
                 render_template(
@@ -403,7 +481,9 @@ def create_app(db_path=None):
                 ),
                 500,
             )
-        return render_template("watch.html", entries=entries)
+        return render_template(
+            "watch.html", entries=model["entries"], freeup=model["freeup"]
+        )
 
     @app.route("/notifications")
     def notifications_page():

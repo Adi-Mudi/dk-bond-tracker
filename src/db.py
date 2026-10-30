@@ -73,6 +73,13 @@ def _ensure_columns(conn):
     bond_columns = {row[1] for row in conn.execute("PRAGMA table_info(bonds)")}
     if "maturity" not in bond_columns:
         conn.execute("ALTER TABLE bonds ADD COLUMN maturity REAL")
+    for column in ("face_value REAL", "tlp_amount REAL", "payment_type TEXT", "interest_payout REAL", "qty REAL", "watch_investment REAL"):
+        name = column.split()[0]
+        if name not in bond_columns:
+            conn.execute(f"ALTER TABLE bonds ADD COLUMN {column}")
+    goal_columns = {row[1] for row in conn.execute("PRAGMA table_info(financial_goals)")}
+    if "saved_amount" not in goal_columns:
+        conn.execute("ALTER TABLE financial_goals ADD COLUMN saved_amount REAL DEFAULT 0")
 
 
 def init_db(path):

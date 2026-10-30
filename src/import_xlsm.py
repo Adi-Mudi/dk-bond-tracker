@@ -35,6 +35,7 @@ WATCH_DETAIL_FIELDS = (
     "discount_amount",
     "interest_payout",
     "total_amount",
+    "qty",
 )
 DEFAULT_BASELINE = {
     "prd": {"investment": 1037142.01, "till_return": 111638.57, "balance": -925503.44},
@@ -342,6 +343,8 @@ def detect_watch_columns(header):
             columns.setdefault("interest_payout", index)
         elif "total" in key and "amount" in key:
             columns.setdefault("total_amount", index)
+        elif key in ("qty", "quantity") or key.startswith("qty"):
+            columns.setdefault("qty", index)
     return columns
 
 
@@ -393,6 +396,19 @@ def validate_watch_vs_master(watch, bonds):
             f"watch-list ISIN set differs from master: missing={missing} extra={extra}",
         )
     return {"matched": len(watch_isins)}
+
+
+def validate_watch_analytics_inputs(watch):
+    required = ("face_value", "interest_payout", "investment")
+    for record in watch:
+        missing = [field for field in required if is_blank(record.get(field))]
+        if missing:
+            raise AppError(
+                "ERR-watch-analytics",
+                f"bond {record.get('isin') or record.get('company')!r} "
+                f"row {record.get('row')}: missing watch input {', '.join(missing)}",
+            )
+    return {"checked": len(watch)}
 
 
 def recompute_kl(row_cells, maturity_j):
@@ -483,9 +499,39 @@ def reconcile(bonds, k_values, baseline):
     }
 
 
-def commit_import(db_path, bonds, grid, home_plan=()):
+def _watch_number(record, field):
+    value = record.get(field)
+    if is_blank(value):
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        text = value.strip().replace(",", "").replace("₹", "")
+        if text:
+            try:
+                return float(text)
+            except ValueError:
+                return None
+    return None
+
+
+def _watch_text(record, field):
+    value = record.get(field)
+    if is_blank(value):
+        return None
+    return str(value).strip()
+
+
+def commit_import(db_path, bonds, grid, home_plan=(), watch=()):
     if len(bonds) != len(grid):
         raise AppError("ERR-commit-import", f"bond rows {len(bonds)} != grid rows {len(grid)}")
+    watch_by_isin = {}
+    for record in watch:
+        raw = record.get("isin")
+        if not is_blank(raw):
+            watch_by_isin[str(raw).strip().upper()] = record
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     init_db(db_path)
     ledger_rows = 0
@@ -497,9 +543,11 @@ def commit_import(db_path, bonds, grid, home_plan=()):
                 start, end, tenure, credit = legacy_position(
                     bond["start_month"], bond["tenure_months"]
                 )
+                watch_record = watch_by_isin.get(str(bond["isin"]).strip().upper(), {})
                 cursor = conn.execute(
                     "INSERT INTO bonds (company, isin, name, amount, maturity, start_date, end_date, "
-                    "tenure_months, credit_day, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "tenure_months, credit_day, status, face_value, tlp_amount, payment_type, "
+                    "interest_payout, qty, watch_investment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         bond["company"],
                         bond["isin"],
@@ -511,6 +559,12 @@ def commit_import(db_path, bonds, grid, home_plan=()):
                         tenure,
                         credit,
                         bond["status"],
+                        _watch_number(watch_record, "face_value"),
+                        _watch_number(watch_record, "tlp_amount"),
+                        _watch_text(watch_record, "payment_type"),
+                        _watch_number(watch_record, "interest_payout"),
+                        _watch_number(watch_record, "qty"),
+                        _watch_number(watch_record, "investment"),
                     ),
                 )
                 bond_id = cursor.lastrowid
@@ -552,11 +606,12 @@ def import_workbook(path, db_path):
         home_plan = extract_home_plan(workbook.values[home_values_sheet])
         watch_rows = extract_watch_list(workbook.values[watch_values_sheet])
         validate_watch_vs_master(watch_rows, bonds)
+        validate_watch_analytics_inputs(watch_rows)
         k_values = [
             recompute_kl(cells, bond["maturity"])[0] for bond, cells in zip(bonds, grid)
         ]
         report = reconcile(bonds, k_values, DEFAULT_BASELINE)
-        counts = commit_import(db_path, bonds, grid, home_plan)
+        counts = commit_import(db_path, bonds, grid, home_plan, watch_rows)
     finally:
         workbook.values.close()
         workbook.formulas.close()
