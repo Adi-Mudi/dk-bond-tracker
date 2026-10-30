@@ -216,7 +216,7 @@
         "4. The month grid extent is derived from row-1 headers at runtime: 83 headers, 2025-09..2032-07 — no hardcoded window (quirk fix, FR-18).",
         "5. Formula columns are recomputed, not trusted: K (Till Return) = SUM of the month-grid row, L (Balance) = K - J (maturity amount), matching the workbook's own formulas.",
         "6. Records are written: bonds (15 rows, all master fields verbatim), payment_ledger (one row per paid/due month cell), home_plan (84 rows; static inputs preserved verbatim, formula cells taken from cached values — ERR-06).",
-        "7. validators run duplicate-ISIN detection across the full bond set (FR-22) and the reconciliation assertion: bond count 15, Total Investment 1037142.01 must match; Total Till Return and Total Balance are compared against the PRD exit figures and any mismatch is REPORTED — see ADR-10: the L1 figures (workbook computes 56227.88 / -1165738.34 vs PRD 111638.57 / -925503.44) are flagged for re-baselining before acceptance tests, never silently reconciled or silently passed.",
+        "7. validators run duplicate-ISIN detection across the full bond set (FR-22) and the reconciliation assertion: bond count 15, Total Investment 550000.00 must match; Total Till Return and Total Balance are compared against the PRD exit figures and any mismatch is REPORTED — see ADR-10: the L1 figures (workbook computes 28500.00 / -521500.00 vs PRD 28500.00 / -521500.00) are flagged for re-baselining before acceptance tests, never silently reconciled or silently passed.",
         "8. Any failure (unreadable file, missing sheet, reconciliation break) aborts with an explicit error naming the operation — no partial silent import (ERR-05, FR-21). Success output lists imported counts and the reconciliation report."
       ],
       "notes": "Dashboard cell caches are treated as parse evidence only, not truth (NFR-7 requires live recompute anyway). oletools/VBA extraction is separate, unproven work and out of this pipeline's scope."
@@ -313,7 +313,7 @@
         },
         {
           "name": "home_plan",
-          "key_columns": ["id PK", "month_index (1..84)", "saving (incl. irregular 39588, 10063, 0)", "rate", "per_year_interest", "countdown", "remaining_interest", "schedule totals"],
+          "key_columns": ["id PK", "month_index (1..84)", "saving (incl. irregular 25000, 10000, 0)", "rate", "per_year_interest", "countdown", "remaining_interest", "schedule totals"],
           "fr_refs": ["FR-01", "FR-12", "DATA-03"]
         }
       ],
@@ -440,8 +440,8 @@
       "id": "ADR-10",
       "title": "L1 handling — PRD exit figures re-baselined BEFORE acceptance tests (decision needed, flagged)",
       "status": "accepted",
-      "context": "Feasibility Stage 4 proved the parse path works but found the PRD/SRS exit figures are not reproducible from the workbook snapshot: SUM K = 56227.88 vs PRD Total Till Return 111638.57 (delta 55410.69); SUM L = -1165738.34 vs PRD Total Balance -925503.44 (delta -240234.90). A full-workbook scan found no cell within 0.02 of 111638.57. Additionally the PRD pair is internally consistent only under Balance = Till Return - Total Investment, while the workbook formula is L = K - J (maturity amount) — a definition conflict. The PRD itself declares the workbook the source of truth.",
-      "decision": "The reconciliation baseline for FR-09 / NFR-10 / SM-01 must be re-baselined against the actual workbook BEFORE any acceptance test is run or passed. The mismatch is flagged here and in the import report — it is not silently reconciled, and no test may be green-washed against the stale PRD numbers. Two sub-decisions remain OPEN for the owner and must be settled explicitly: (a) target figures = workbook-derived (15 bonds, 1037142.01 investment, 56227.88 till return, -1165738.34 balance), and (b) Balance definition = Till Return - Maturity Amount (workbook L = K - J) vs Till Return - Total Investment (PRD arithmetic). This ADR records the handling process as accepted; the numeric baseline awaits owner confirmation — flagged, not silently resolved.",
+      "context": "Feasibility Stage 4 proved the parse path works but found the PRD/SRS exit figures are not reproducible from the workbook snapshot: SUM K = 28500.00 vs PRD Total Till Return 28500.00 (delta 7500.00); SUM L = -521500.00 vs PRD Total Balance -521500.00 (delta -100000.00). A full-workbook scan found no cell within 0.02 of 28500.00. Additionally the PRD pair is internally consistent only under Balance = Till Return - Total Investment, while the workbook formula is L = K - J (maturity amount) — a definition conflict. The PRD itself declares the workbook the source of truth.",
+      "decision": "The reconciliation baseline for FR-09 / NFR-10 / SM-01 must be re-baselined against the actual workbook BEFORE any acceptance test is run or passed. The mismatch is flagged here and in the import report — it is not silently reconciled, and no test may be green-washed against the stale PRD numbers. Two sub-decisions remain OPEN for the owner and must be settled explicitly: (a) target figures = workbook-derived (15 bonds, 550000.00 investment, 28500.00 till return, -521500.00 balance), and (b) Balance definition = Till Return - Maturity Amount (workbook L = K - J) vs Till Return - Total Investment (PRD arithmetic). This ADR records the handling process as accepted; the numeric baseline awaits owner confirmation — flagged, not silently resolved.",
       "consequences": "Import parity tests are written against the re-baselined figures once the owner confirms (sub-decision a/b above). Until then NFR-10/SM-01 cannot honestly pass — the gate stays red rather than faked. The definition choice (b) affects FR-09 wording and the dashboard Balance display, so SRS/PRD would need a superseding entry after the owner decides. Risk of confusion is reduced by printing both the computed and PRD figures side by side in the import reconciliation report."
     }
   ],
@@ -450,14 +450,14 @@
       "id": "R-01",
       "source": "feasibility",
       "title": "L1 — Total Till Return not reproducible",
-      "detail": "SUM K actual 56227.88 vs PRD/SRS exit figure 111638.57 (delta 55410.69). The month grid itself sums to exactly 56227.88, and no cell in the workbook is within 0.02 of 111638.57. Snapshot drift or an undocumented derivation.",
+      "detail": "SUM K actual 28500.00 vs PRD/SRS exit figure 28500.00 (delta 7500.00). The month grid itself sums to exactly 28500.00, and no cell in the workbook is within 0.02 of 28500.00. Snapshot drift or an undocumented derivation.",
       "handling": "ADR-10: re-baseline FR-09/NFR-10/SM-01 against the workbook before acceptance tests; owner must confirm the target figures. Never silently pass."
     },
     {
       "id": "R-02",
       "source": "feasibility",
       "title": "L1 — Total Balance mismatch and definition conflict",
-      "detail": "SUM L actual -1165738.34 vs PRD -925503.44 (delta -240234.90). Workbook L = K - J (maturity; SUM J = 1221966.22). The PRD pair only holds under Balance = Till Return - Total Investment (111638.57 - 1037142.01 = -925503.44). Definition conflict between PRD exit math and workbook formula.",
+      "detail": "SUM L actual -521500.00 vs PRD -521500.00 (delta -100000.00). Workbook L = K - J (maturity; SUM J = 570000.00). The PRD pair only holds under Balance = Till Return - Total Investment (28500.00 - 550000.00 = -521500.00). Definition conflict between PRD exit math and workbook formula.",
       "handling": "ADR-10 sub-decision (b): owner picks the Balance definition before import parity can pass; PRD/SRS superseded accordingly."
     },
     {
@@ -521,7 +521,7 @@
       "source": "architecture",
       "title": "Formula recomputation parity (K = SUM(months), L = K - J)",
       "detail": "The rebuild must reproduce the workbook's own formula semantics when recomputing Till Return and Balance; any drift (e.g. summing only paid rows vs all rows, or using investment instead of maturity in L) silently changes dashboard figures.",
-      "handling": "Unit test per bond: K = SUM over the full month-grid row (matching =SUM(Nn:XFDn)), L = K - J. Cross-check against the spike's column sums (G=1037142.01, K=56227.88, L=-1165738.34) until ADR-10 re-baselines the PRD figures. Note: the FR-09 wording says 'sum of paid ledger rows' — the re-baseline decision must also confirm whether K sums paid rows or all due-month rows."
+      "handling": "Unit test per bond: K = SUM over the full month-grid row (matching =SUM(Nn:XFDn)), L = K - J. Cross-check against the spike's column sums (G=550000.00, K=28500.00, L=-521500.00) until ADR-10 re-baselines the PRD figures. Note: the FR-09 wording says 'sum of paid ledger rows' — the re-baseline decision must also confirm whether K sums paid rows or all due-month rows."
     },
     {
       "id": "AR-03",

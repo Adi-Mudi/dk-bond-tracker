@@ -21,7 +21,7 @@
     },
     {
       "heading": "Data model deltas (documentation of deltas, not SQL)",
-      "body": "Wave-2 extends the established tables as follows. bonds: + start_date (exact date, replaces free-form start month for new adds), + end_date (exact date), + credit_day (integer, day-of-month 1-28); tenure becomes derived from start_date/end_date on new adds (legacy imports keep the imported tenure mapped per FR-36). financial_goals: + target_amount, + target_end_date; the goals surface is renamed Financial Goals (legacy irregular savings rows 39588/10063/0 import as goals). alert_prefs: new — per-position/global preference for before-due / day-of / overdue cadence, Gmail SMTP setup flag, channel set (in-app + email only). notifications: new — alert history rows (position ref, alert type, channel, timestamp, delivery status) retained in-app for audit. share_config: new — last-used per-section checkbox selections (totals, per-bond list, monthly history, amounts visibility) for the snapshot generator. These are documentation of intended deltas for downstream design/build; this document does not define SQL DDL."
+      "body": "Wave-2 extends the established tables as follows. bonds: + start_date (exact date, replaces free-form start month for new adds), + end_date (exact date), + credit_day (integer, day-of-month 1-28); tenure becomes derived from start_date/end_date on new adds (legacy imports keep the imported tenure mapped per FR-36). financial_goals: + target_amount, + target_end_date; the goals surface is renamed Financial Goals (legacy irregular savings rows 25000/10000/0 import as goals). alert_prefs: new — per-position/global preference for before-due / day-of / overdue cadence, Gmail SMTP setup flag, channel set (in-app + email only). notifications: new — alert history rows (position ref, alert type, channel, timestamp, delivery status) retained in-app for audit. share_config: new — last-used per-section checkbox selections (totals, per-bond list, monthly history, amounts visibility) for the snapshot generator. These are documentation of intended deltas for downstream design/build; this document does not define SQL DDL."
     }
   ],
   "requirements": [
@@ -33,7 +33,7 @@
       "status": "draft",
       "acceptance_criteria": [
         {
-          "given": "an active position 'Muthoottu' (On-going, ISIN IN1234567890) and a user attempting to add a duplicate '  MUTHOOTTU  ' (same name key) via the Watch List add form",
+          "given": "an active position 'Beta Finance' (On-going, ISIN IN1234567890) and a user attempting to add a duplicate '  BETA FINANCE  ' (same name key) via the Watch List add form",
           "when": "the form is submitted and the D15 lock blocks the add with a named error",
           "then": "no bonds row is created and the monthly grid, dashboard and watch list show NO trace of the blocked position — the grid is unchanged (nothing entered the system)"
         },
@@ -46,7 +46,7 @@
     },
     {
       "id": "FR-28",
-      "text": "When the goals feature is rendered, the system SHALL label it 'Financial Goals' (renamed from 'Home Plan', tab label included) and each goal SHALL carry a target amount and a target end date so multi-year (e.g. 10-year) savings plans are first-class; legacy irregular savings rows (39588/10063/0) SHALL import as goals (D17).",
+      "text": "When the goals feature is rendered, the system SHALL label it 'Financial Goals' (renamed from 'Home Plan', tab label included) and each goal SHALL carry a target amount and a target end date so multi-year (e.g. 10-year) savings plans are first-class; legacy irregular savings rows (25000/10000/0) SHALL import as goals (D17).",
       "category": "functional",
       "check_method": "integration",
       "status": "draft",
@@ -62,7 +62,7 @@
           "then": "the form accepts a target amount and a target end date (e.g. end date 2036-10-30) and stores both on the goal row"
         },
         {
-          "given": "the legacy workbook's irregular savings rows (39588/10063/0)",
+          "given": "the legacy workbook's irregular savings rows (25000/10000/0)",
           "when": "the legacy import runs",
           "then": "each row appears as a goal in Financial Goals (imported values preserved), not as a bond position"
         }

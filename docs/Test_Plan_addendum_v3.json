@@ -1,0 +1,304 @@
+{
+  "id": "Test_Plan_addendum_v3",
+  "kind": "test_plan",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Test_Plan_addendum_v2",
+  "test_cases": [
+    {
+      "id": "TC-85",
+      "title": "Standalone shell renders chrome, sidebar with real Settings destination and status-bar row counts equal to visible table rows",
+      "type": "e2e",
+      "steps": "1. Seed 15 holdings and 4 watching positions with mixed statuses. 2. Load the application. 3. Inspect the window chrome (titlebar, menu strip, minimize/maximize/close glyphs), the left sidebar nav items and the bottom status bar. 4. Activate Settings in the sidebar. 5. Apply a filter reducing the Holdings table to 9 visible rows and read the status-bar counts. 6. Compare the tab counts against the two-view payload counts.",
+      "expected": "Chrome, sidebar (Dashboard, Month Grid, Watchlist, Financial Goals, Alerts, Reports/Print, Settings) and status bar all render — the surface reads as an app window, not a browser page; activating Settings navigates to the real Settings screen; the status bar row count equals the visible table rows (9) and the holdings/watching tab counts match the payload from the same request (FR-38 AC1, AC2; FR-49 count clause).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-86",
+      "title": "Tab switch preserves active filters; Move to Holdings converts a candidate, updates both tab counts and lands in grid and dashboard",
+      "type": "e2e",
+      "steps": "1. Seed 4 Watching candidates including 'Epsilon Ltd 2031' and holdings with a 'Rating: AA' filter applied. 2. Switch to the Watching tab, then back to Holdings. 3. On the Watching tab activate Move to Holdings on 'Epsilon Ltd 2031'. 4. Read both tab counts, the Holdings table, the monthly grid and the dashboard.",
+      "expected": "The Rating: AA filter is still applied after the tab round-trip; the moved row appears in the My Holdings table, in the monthly grid and on the dashboard; the Watching count decreases by one and the Holdings count increases by one (FR-39 AC1, AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-87",
+      "title": "D15 active-position lock blocks Move to Holdings with ERR-move-watching naming the blocker and zero writes",
+      "type": "integration",
+      "steps": "1. Seed Watching candidate 'Alpha Securities Ltd' (ISIN INE9000A01001) with valid mandatory holding fields. 2. Seed an active On-going holding 'ALPHA SECURITIES LTD' (normalized-name match) and, in a second run, an ISIN-match-only active holding with a different name. 3. POST /watch/<id>/move for the candidate in both runs. 4. Read the candidate's bonds row, the surfaced error and the tab counts.",
+      "expected": "Both the normalized-name match and the ISIN match HARD BLOCK the move with ERR-move-watching naming the blocking position and its status; the candidate's watch_state stays 'watching' (zero rows updated); the error is surfaced visibly — never a silent no-op and never a redirect-as-success (FR-39 move clause; D15 one-active-position-per-company applied across the watch_state boundary).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-88",
+      "title": "FR-40 field set persists per position across reload and Yield % carries the manual-entry indicator in table and drawer",
+      "type": "integration",
+      "steps": "1. Through the position form enter rating 'AA-' with agency 'CRISIL', coupon 10.00, expected yield 10.40, payout Quarterly, issuer NCD, secured Yes, face value ₹10L for 'Alpha Securities Ltd'. 2. Save and reload the application. 3. Read the eight fields from the bonds row and from the watchlist table render. 4. Open the drawer and read the same fields. 5. Inspect the Yield % column affordance and the drawer's expected-yield area for the manual-entry indicator.",
+      "expected": "All eight fields persist on that position's row and render in the table and drawer exactly as entered; the yield value carries a manual-entry indicator/offline note on both surfaces making clear it is entered manually with no live feed (FR-40 AC1, AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-89",
+      "title": "Watchlist filters AND-combine with exact-rating match, sort whitelist orders rows, removable chips clear filters and density persists",
+      "type": "e2e",
+      "steps": "1. Seed rows rated AA-, AA and A+ with mixed payout cycles, issuer types and statuses. 2. Apply the Rating AA chip. 3. Add a payout-cycle chip and a text search. 4. Remove one active-filter chip. 5. Sort by Maturity ascending, then attempt an unknown sort key. 6. Switch density to Compact and reload. 7. Examine money columns and status borders.",
+      "expected": "Only exact 'AA' rows render under the rating chip ('AA+' and 'AA-' excluded); chips AND-combine with the search; removing a chip restores the excluded rows; Maturity ascending orders earliest-first; an unknown sort key raises a named error naming the key; Compact persists across reload and is shared with the Settings General radio; money columns are right-aligned in Indian format with colored status left borders (FR-41 AC1, AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-90",
+      "title": "Drawer payload carries the full facts grid, per-month schedule states, yield box and the per-tab action set",
+      "type": "e2e",
+      "steps": "1. Seed 'Alpha Securities Ltd' (Danger, credit_day 26) with paid, unpaid-past and future ledger months. 2. Select the row from the Holdings tab and read the drawer. 3. From the Watching tab open a candidate's drawer. 4. Request an unknown id via GET /watch/999999.",
+      "expected": "The drawer shows ISIN INE9000A01001, face value, secured, issuer type, AA- CRISIL, start/end dates and credit day with payout cycle; the schedule lists every tenure month as received (paid, amount > 0), overdue (in-window, unpaid, past) or upcoming; the yield box shows invested, returned, coupon and expected yield with the offline manual-rating note; the Holdings drawer offers Edit, Record Payment (primary) and Mark as Watching, the Watching drawer offers Move to Holdings instead; the unknown id raises a named not-found error — never an empty or fabricated payload (FR-42 AC1, AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-91",
+      "title": "Alerts feed merges overdue/due-soon/maturity cards in severity order with dedupe keys suppressing same-day duplicates",
+      "type": "integration",
+      "steps": "1. Seed a credit_day 26 position unpaid on day 27 (overdue), a next-unpaid month inside the reminder lead window (due-soon), and bonds with end_date exactly 30, 7 and 1 days ahead with all horizons enabled. 2. Run the daily trigger twice for the same day. 3. Read the panel cards, their dedupe keys, the alerts-today count and the bell badge. 4. Seed a bond 40 days out as a control.",
+      "expected": "Exactly the in-horizon cards render — overdue (red), due-soon (amber), maturity (accent) — sorted severity-first then timestamp desc; every card carries its documented key (danger:{bond_id}:{YYYY-MM-DD}, due:{bond_id}:{YYYY-MM}, dayof:{bond_id}:{YYYY-MM}, maturity:{bond_id}:{days}); the second same-day run yields no duplicate card; the 40-day control yields no maturity card; the alerts-today count feeds the status bar from the same request (FR-43 AC1).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-92",
+      "title": "Dismissing an alert card removes only the card — notification history row, timestamp and dedupe marker survive",
+      "type": "integration",
+      "steps": "1. After the sweep in TC-91, dismiss one overdue card from the panel. 2. Re-read the panel, the notifications history and alert_prefs. 3. Re-run the same-day sweep. 4. Open the bell history.",
+      "expected": "The card is gone from the panel only; the notification history still contains the corresponding row with its original timestamp; the dedupe marker is retained and the same event does not re-fire into a new history row after dismissal; the bell badge recomputes from unread rows (FR-43 AC2; FR-34 audit retention).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-93",
+      "title": "SMTP App Password is masked write-once and environment variables override stored values at send time",
+      "type": "integration",
+      "steps": "1. Save SMTP settings including an App Password via Settings > Email Alerts. 2. Reopen the screen and inspect the password field. 3. Re-save the section with a blank password input. 4. Read the alert_prefs smtp_app_password row. 5. With stored username 'you@gmail.com', set env SMTP_USER='other@gmail.com' and trigger a send. 6. Grep rendered templates and notification rows for the stored secret.",
+      "expected": "The password field shows only the mask after save — the stored password is never re-displayed anywhere in the UI; the blank re-save keeps the stored value unchanged (write-once: blank keeps, never clears); the env username overrides the stored one at send time — the message goes out as 'other@gmail.com'; the stored App Password appears in no template, log or notification (FR-44 AC1, AC3; security note).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-94",
+      "title": "Test Email with SMTP unconfigured raises the named ERR-smtp-unconfigured banner without crashing",
+      "type": "integration",
+      "steps": "1. With no SMTP stored and no env vars set, POST /settings/test-email. 2. Inspect the response status and body. 3. Save stored credentials missing the App Password and repeat. 4. Confirm no notifications row and no dedupe marker was created.",
+      "expected": "Both cases render an inline named error banner (ERR-smtp-unconfigured naming the missing item) — no HTTP 500 page, no stack trace, no crash; the send is blocked before any connection attempt; the synthetic event pollutes neither the notification history nor the dedupe registry (FR-44 AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-95",
+      "title": "Alert Preferences toggles persist and drive the sweep; the in-app bell renders locked always-on",
+      "type": "unit",
+      "steps": "1. Open Settings > Alert Preferences with defaults. 2. Enumerate the toggles, the sweep-time select and the bell control. 3. Disable the maturity 1-day toggle, save and reload. 4. Seed a bond maturing exactly tomorrow and run the daily scan. 5. Re-enable the toggle and re-run the scan.",
+      "expected": "Toggles for payout reminder (3 days before), overdue (credit day+1) and maturity alerts at 30, 7 and 1 days exist with the 00:00-23:00 sweep-time select; the in-app bell toggle is ON, disabled and annotated as always on; the disabled maturity horizon suppresses its scan hit and the preference persists as disabled; re-enabling restores the card (FR-45 AC1, AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-96",
+      "title": "General defaults validate credit day 1-28, privacy-on-startup defaults OFF and density is one shared setting",
+      "type": "unit",
+      "steps": "1. On Settings > General submit default credit day values 0, 29 and a non-integer, then a valid 10. 2. Check the privacy-on-startup default, then enable it and restart the app. 3. Select Comfortable on the density radio and read the watchlist table. 4. Switch the watchlist density control and re-read the General radio.",
+      "expected": "0, 29 and the non-integer are each rejected with a validation error naming the field and nothing is written; 10 is stored and pre-fills the credit day on the Add Position form; privacy-on-startup defaults to OFF and, when enabled, privacy mode is active on next startup; the General radio and the watchlist density switch share one persisted setting reflected immediately on both (FR-46 AC1, AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-98",
+      "title": "Export backup streams the real .db file and Reset rejects any wrong confirmation word server-side before deleting",
+      "type": "e2e",
+      "steps": "1. Seed positions, ledger rows and alert_prefs keys. 2. Click Export backup (.db) and save the download. 3. Click Reset local database and confirm with 'reset', then 'Reset', then ' RESET ', then an empty word. 4. After each attempt read every table. 5. Confirm with the exact literal 'RESET' and re-read the schema. 6. Attempt a reset with the backup step forced to fail.",
+      "expected": "The download is a non-empty .db file containing the seeded rows; every wrong word raises ERR-reset-db server-side and deletes nothing (the client-side dialog alone is never sufficient); the exact 'RESET' proceeds with backup-before-wipe and re-initializes all six tables empty with watch_state defaulting to 'holding'; a failed backup aborts the wipe leaving the database fully intact (FR-47 AC1, AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-99",
+      "title": "Settings About shows version, build notes and the offline badge; Open local data folder reveals the data directory (owner-manual)",
+      "type": "e2e",
+      "steps": "1. Open Settings > About. 2. Verify the version string, the build-notes line and the '100% offline — no accounts, no cloud' badge. 3. Activate 'Open local data folder'. REMOTE justification: the OS file-manager reveal cannot be asserted from a LOCAL DOM check — the owner activates the action on their real desktop and confirms the revealed directory contains the database, matching SRS FR-48 check_method 'manual review' (same pattern as TC-84).",
+      "expected": "The version string, build-notes line and the offline/no-accounts badge are all visible; activating the action opens the operating system's file manager at the local data folder containing the database (FR-48 AC1, AC2).",
+      "level": "REMOTE",
+      "status": "planned"
+    },
+    {
+      "id": "TC-100",
+      "title": "Privacy Mode masks every monetary cell on the watchlist and all Settings tabs while names and non-money stay visible",
+      "type": "e2e",
+      "steps": "1. Toggle Privacy Mode ON from the sidebar. 2. Inspect the Holdings table money columns, the summary tiles, the drawer and the Watching cards. 3. Visit each Settings tab and inspect every monetary display. 4. Check names, ISINs, statuses, ratings and non-money numbers across both surfaces. 5. Toggle Privacy Mode OFF and re-view.",
+      "expected": "Every monetary cell renders as the '••••' mask on the watchlist and Settings surfaces while company names, ISINs, statuses, ratings and non-money numbers remain visible; toggling OFF restores all real numbers with no residual masks (FR-49 privacy clause).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-101",
+      "title": "Status-bar email indicator flips from not-configured to the active-rules message and never leaks a credential value",
+      "type": "integration",
+      "steps": "1. With SMTP unconfigured, read the status-bar email indicator. 2. Save complete SMTP settings and read it again. 3. Override the recipient via environment and re-read. 4. Grep the served shell HTML for the username, App Password and recipient values.",
+      "expected": "Unconfigured shows 'Email: not configured' in muted/red; after configuration it reads 'Settings: N email alert rules active'; the indicator is derived from effective-config presence only — no username, no App Password and no recipient value is ever rendered (FR-49 indicator clause; FR-44 security note).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-102",
+      "title": "Maturity scan emits exactly the 30/7/1-day cards with per-horizon dedupe and leaves bond status untouched",
+      "type": "integration",
+      "steps": "1. Seed bonds maturing at today+30, +7 and +1, plus controls at +29, +6 and +2. 2. Run the daily maturity scan. 3. Re-run the scan the same day. 4. Disable the 30-day horizon and run the scan against a fresh +30 bond. 5. Read each bond's status and the notifications rows.",
+      "expected": "Only the exact-horizon bonds get maturity cards with keys maturity:{bond_id}:{30|7|1}; the same-day re-run adds no duplicate row; the disabled horizon suppresses its hit while the 7- and 1-day horizons still fire; control bonds get nothing; no bond status changes and no email flows from the scan itself (FR-43 maturity clause; FR-45 horizon toggles).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-103",
+      "title": "watchlist_query returns a 150x96 portfolio in under 0.5s with the single-pass composition",
+      "type": "gate",
+      "steps": "1. Seed 150 positions x 96 ledger months. 2. Time GET /watch with no filters, then with combined filters (rating + payout + status + search), then with each sort-whitelist key. 3. Take the median of 3 runs per variant. 4. Inspect the query path for per-filter round trips.",
+      "expected": "Every variant returns in under 0.5s median LOCAL; one parameterized query per request with all filters composed into a single WHERE clause — no per-filter round trips and no client-side filtering (FR-41 single-pass query clause).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-104",
+      "title": "End-to-end chain add -> watch -> move -> pay -> alert completes with zero external network requests",
+      "type": "e2e",
+      "steps": "1. Start the Flask test client with a request log recording. 2. Add position 'Omega Papers Ltd' through the sole entry point. 3. Verify it appears on the watchlist Holdings view. 4. Move a seeded Watching candidate to Holdings. 5. Record a payment through the drawer's Record Payment action. 6. Run the daily trigger and read the alerts panel. 7. Audit the full request log for any host other than the local app origin.",
+      "expected": "The chain completes at every step — the add lands exactly one bonds row, the watchlist renders it, the move flips watch_state and updates both counts, the payment updates the ledger and recomputes status, and the sweep raises the overdue/due card in the panel; the request log shows ZERO external hosts — no new network import ships with the redesign (FR-39, FR-42, FR-43 chain; offline constraint).",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "FR-38",
+      "test_case_id": "TC-85",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-39",
+      "test_case_id": "TC-86",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-39",
+      "test_case_id": "TC-87",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-39",
+      "test_case_id": "TC-104",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-40",
+      "test_case_id": "TC-88",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-41",
+      "test_case_id": "TC-89",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-41",
+      "test_case_id": "TC-103",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-42",
+      "test_case_id": "TC-90",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-43",
+      "test_case_id": "TC-91",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-43",
+      "test_case_id": "TC-92",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-43",
+      "test_case_id": "TC-102",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-43",
+      "test_case_id": "TC-104",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-44",
+      "test_case_id": "TC-93",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-44",
+      "test_case_id": "TC-94",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-44",
+      "test_case_id": "TC-101",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-45",
+      "test_case_id": "TC-95",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-45",
+      "test_case_id": "TC-102",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-46",
+      "test_case_id": "TC-96",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-47",
+      "test_case_id": "TC-98",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-48",
+      "test_case_id": "TC-99",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-49",
+      "test_case_id": "TC-85",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-49",
+      "test_case_id": "TC-100",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-49",
+      "test_case_id": "TC-101",
+      "covers": "partial"
+    }
+  ],
+  "change_record": "Addendum v3.0 after owner decisions D33 (standalone watchlist redesign) and D34 (Settings screen) of 2026-10-30: adds FR-38..FR-49 as TC-85..TC-104 excluding TC-97 (removed, D37: import retired) (20 cases, sequential from TC-84); the combined suite (v1 TC-01..TC-58, addendum v1 TC-59..TC-66, addendum v2 TC-67..TC-84, this addendum TC-85..TC-104 excluding TC-97 (removed, D37: import retired)) covers 67 requirements (42 legacy + FR-25/FR-26 + FR-27..FR-37 + FR-38..FR-49); no legacy test case or binding is altered. Nineteen cases are LOCAL; TC-99 is the single REMOTE case because the About screen's 'Open local data folder' action must be verified by the owner on a real desktop (the OS file-manager reveal is not LOCAL-assertable) — matching SRS FR-48 check_method 'manual review', the same pattern as TC-84. Scenario split per brief 05: shell chrome + status-bar row counts (TC-85); tab switch + Move-to-Holdings conversion (TC-86) with the D15-lock move conflict as its own case (TC-87); field persistence + yield manual label (TC-88); filter/sort/density (TC-89); drawer payload (TC-90); alerts feed dedupe (TC-91) with dismissal-keeps-history as its own case (TC-92); SMTP masked write-once + env override precedence (TC-93); test-email unconfigured named error (TC-94); alert-pref toggles (TC-95); general prefs with default credit-day 1-28 validation (TC-96); Excel import new-field mapping (TC-97); backup download + case-sensitive typed-RESET wrong-word rejection (TC-98); About screen (TC-99); privacy mask on watchlist + Settings (TC-100); status-bar email indicator (TC-101); maturity 30/7/1 scan + dedupe (TC-102); performance watchlist_query 150x96 < 0.5s LOCAL (TC-103); end-to-end add -> watch -> move -> pay -> alert chain with the zero-external-network offline gate folded into the same case (TC-104). Types are drawn from the addendum-v2 enum (unit, integration, e2e, gate); every level is LOCAL except TC-99. TC-97 (legacy import mapping) REMOVED per D37 and retirement register R-TC-import.",
+  "strategy": {
+    "framework": "pytest",
+    "local": "All 19 LOCAL addendum TCs (TC-85..TC-98, TC-100..TC-104) run as pytest from the project root: unit cases on alert-pref toggles, general-pref validation and startup defaults against pure functions with temp SQLite fixtures; integration/e2e cases via the Flask test client against seeded databases for the shell render and status-bar counts, tab/move/lock flows, field persistence, filter/sort/density composition, drawer payload, alerts feed dedupe and dismissal retention, SMTP save write-once and env override, test-email error banner, import field mapping, backup/reset and the add -> watch -> move -> pay -> alert chain; TC-103 times the composed query against a 150x96 seeded portfolio with medians over 3 runs; TC-104 audits the recorded request log for zero external hosts across the full chain (offline gate).",
+    "remote": "TC-99 only — owner-manual About screen review: the 'Open local data folder' action reveals the OS file manager at the local data directory, which cannot be asserted from a LOCAL DOM check; justified by SRS FR-48 check_method 'manual review' (same owner-manual pattern as TC-84). No CI configured (honest)."
+  }
+}
