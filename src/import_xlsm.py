@@ -498,13 +498,14 @@ def commit_import(db_path, bonds, grid, home_plan=()):
                     bond["start_month"], bond["tenure_months"]
                 )
                 cursor = conn.execute(
-                    "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "
-                    "tenure_months, credit_day, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO bonds (company, isin, name, amount, maturity, start_date, end_date, "
+                    "tenure_months, credit_day, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         bond["company"],
                         bond["isin"],
                         bond["company"],
                         float(bond["investment"]),
+                        float(bond["maturity"]),
                         start.isoformat(),
                         end.isoformat(),
                         tenure,

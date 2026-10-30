@@ -11,6 +11,7 @@ SCHEMA_STATEMENTS = (
         isin TEXT UNIQUE,
         name TEXT,
         amount REAL,
+        maturity REAL,
         start_date TEXT,
         end_date TEXT,
         tenure_months INTEGER,
@@ -68,12 +69,19 @@ def get_conn(db_path):
         conn.close()
 
 
+def _ensure_columns(conn):
+    bond_columns = {row[1] for row in conn.execute("PRAGMA table_info(bonds)")}
+    if "maturity" not in bond_columns:
+        conn.execute("ALTER TABLE bonds ADD COLUMN maturity REAL")
+
+
 def init_db(path):
     db_path = str(Path(path))
     try:
         with get_conn(db_path) as conn:
             for statement in SCHEMA_STATEMENTS:
                 conn.execute(statement)
+            _ensure_columns(conn)
     except AppError:
         raise
     except sqlite3.Error as exc:
