@@ -144,7 +144,9 @@ def to_float(value, field, row_number):
             try:
                 return float(text)
             except ValueError:
-                pass
+                raise AppError(
+                    "ERR-extract-masters", f"row {row_number}: unparseable {field}: {value!r}"
+                ) from None
     raise AppError("ERR-extract-masters", f"row {row_number}: unparseable {field}: {value!r}")
 
 
