@@ -1,0 +1,278 @@
+{
+  "id": "Test_Plan_addendum_v2",
+  "kind": "test_plan",
+  "title": "DK Bond Tracker Test Plan Addendum v2 — Wave-2 Features (Entry Lock, Goals, Sharing, Privacy, Sorting, Charts, Day-wise Alerts, History, Date Model, Print — FR-27..FR-37)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Test_Plan_addendum_v1",
+  "sources": [
+    "docs/PRD_DK_Bond_Tracker_addendum_v2.json",
+    "docs/SRS_DK_Bond_Tracker_addendum_v2.json",
+    "docs/Test_Plan_addendum_v1.json",
+    "docs/Test_Plan_DK_Bond_Tracker_v1.json"
+  ],
+  "change_record": "Addendum v2.0 after owner decisions D16-D26 (2026-10-30): adds FR-27..FR-37 as TC-67..TC-84 (18 cases, sequential from TC-66); the combined suite (v1 TC-01..TC-58, addendum v1 TC-59..TC-66, this addendum TC-67..TC-84) covers 55 requirements (42 legacy + FR-25/FR-26 + FR-27..FR-37); no legacy test case or binding is altered. Seventeen cases are LOCAL; TC-84 is the single REMOTE case because verifying an A4 print-optimized layout end-to-end requires the owner's real browser print preview / physical print — a genuinely owner-manual check (SRS check_method for FR-37 is 'manual review').",
+  "scope": "Verification of FR-27..FR-37 only, as added by the PRD/SRS addendum v2 after D16-D26. In scope: sole entry point with entry-time lock (FR-27); Financial Goals rename plus target amount/end-date 10-year plans and legacy irregular-savings import (FR-28); customizable share snapshot with per-section checkboxes and privacy masking (FR-29); global Privacy Mode masking with persistence (FR-30); monthly grid auto-sort (FR-31); dashboard charts trio as offline inline SVG (FR-32); day-wise credit-day status sweep preserving D5 Completed (FR-33); two-channel alerts with in-app history and no SMS/push (FR-34); monthly history window with auto-append (FR-35); Add Position exact dates, tenure auto-calc, credit-day validation and legacy date mapping (FR-36); A4 privacy-aware monthly print (FR-37). Out of scope: anything owned by Test_Plan_DK_Bond_Tracker_v1 (TC-01..TC-58, FR-01..FR-24, NFR, DATA) and Test_Plan_addendum_v1 (TC-59..TC-66, FR-25/FR-26).",
+  "strategy": {
+    "framework": "pytest",
+    "local": "All LOCAL addendum TCs (TC-67..TC-83) run as pytest from the project root: unit cases on privacy masking, tenure/credit-day validation, day-wise sweep logic and history-window computation against pure functions with temp SQLite fixtures; integration/e2e cases via the Flask test client against seeded databases for the sole-entry lock flow, goals rename/import, share snapshot generation, grid re-sort, alert dual-channel dispatch and chart page structure; the FR-32 offline gate inspects the served dashboard HTML plus the recorded request log for zero external hosts; browser-storage persistence (FR-30) is exercised through the client with a simulated reload.",
+    "remote": "TC-84 only — owner-manual A4 print preview/physical print review of the Monthly Print view (five sections fit A4, privacy-aware masking); justified because print pagination and paper fit cannot be asserted from a LOCAL DOM check. No CI configured (honest)."
+  },
+  "test_cases": [
+    {
+      "id": "TC-67",
+      "title": "Blocked-at-form add leaves grid, dashboard and watch list empty of the blocked position",
+      "type": "e2e",
+      "steps": "1. Seed active position 'Muthoottu' (On-going, ISIN IN1234567890) in the bonds master. 2. Open the Watch List add form and submit '  MUTHOOTTU  ' (same normalized name key) via the sole entry point. 3. Capture the response and the named FR-26 lock error. 4. Count bonds master rows. 5. Render the monthly grid, the dashboard and the watch list and search each for any trace of the blocked duplicate (name, ISIN, row).",
+      "expected": "The D15 lock HARD BLOCKS the submit with a named error; no bonds row is created; the monthly grid, dashboard and watch list show NO trace of the blocked position — the grid stays exactly as before, nothing entered the system (FR-27 AC1).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-68",
+      "title": "No alternate add route: grid and dashboard expose no add-position control",
+      "type": "integration",
+      "steps": "1. Open the monthly grid surface and enumerate every interactive control (buttons, links, forms). 2. Repeat for the dashboard surface. 3. Attempt any hidden/parameterized add path against the grid and dashboard routes. 4. Confirm the only add path is the Watch List add form by successful add through it.",
+      "expected": "No add-position control exists on the monthly grid or the dashboard; no alternate add route is reachable on either surface; the only add path in the app is the Watch List add form (FR-27 AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-69",
+      "title": "Goals renamed Financial Goals: tab label and heading renamed, 'Home Plan' string gone",
+      "type": "integration",
+      "steps": "1. Open the app after the wave-2 rename. 2. Inspect the goals tab label and the goals page heading. 3. Grep the goals UI HTML/JS bundle for the string 'Home Plan'.",
+      "expected": "The tab label and page heading read 'Financial Goals'; the string 'Home Plan' appears nowhere in the goals UI (FR-28 AC1).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-70",
+      "title": "Goal accepts target amount and target end date for a 10-year plan",
+      "type": "integration",
+      "steps": "1. Open the Financial Goals surface. 2. Create a goal with a target amount and a target end date ten years out (e.g. end date 2036-10-30). 3. Save, then re-read the goal row from storage and the rendered form. 4. Edit the goal and re-verify both fields round-trip.",
+      "expected": "The form accepts a target amount and a target end date and stores both on the financial_goals row; both values render back on the goal card — multi-year (10-year) savings plans are first-class (FR-28 AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-71",
+      "title": "Legacy irregular savings rows (39588/10063/0) import as goals, not bonds",
+      "type": "integration",
+      "steps": "1. Seed the legacy workbook rows: irregular savings 39588, 10063, 0. 2. Run the legacy import. 3. Query financial_goals and bonds tables. 4. Render Financial Goals and the bond surfaces.",
+      "expected": "Each irregular-savings row appears as a goal in Financial Goals with its imported value preserved; none of the three rows appears as a bond position in bonds, the grid, or the watch list (FR-28 AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-72",
+      "title": "Share panel section checkboxes exclude non-selected sections; amounts visibility toggles amounts",
+      "type": "e2e",
+      "steps": "1. Seed a portfolio with positions and a monthly history. 2. Open the Share panel with Privacy Mode OFF. 3. Uncheck 'monthly history', leave totals and per-bond list checked, export the HTML snapshot. 4. Inspect the generated HTML for the totals section, per-bond list section and monthly-history section. 5. Toggle the 'amounts visibility' checkbox off and re-export; compare amounts presence.",
+      "expected": "The generated HTML contains the totals and per-bond list sections and contains NO monthly-history section; toggling amounts visibility includes/excludes amounts in the snapshot accordingly; generation requires no network access (FR-29 AC1 and AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-73",
+      "title": "Share snapshot respects Privacy Mode: HTML and CSV both mask every amount",
+      "type": "e2e",
+      "steps": "1. Enable Privacy Mode (eye icon). 2. Open the Share panel with all sections checked. 3. Export the print-styled HTML snapshot and inspect every monetary field. 4. Export the CSV option and scan the file contents. 5. Confirm no server call or account is involved in either export.",
+      "expected": "Monetary values in both the HTML snapshot and the CSV render as the '••••' mask (or the CSV's masked equivalent) — no raw amount appears in either artifact; the export is fully offline with no server and no accounts (FR-29 AC2, privacy clause).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-74",
+      "title": "Privacy Mode masks every monetary value across all surfaces and persists across reload",
+      "type": "unit",
+      "steps": "1. Toggle Privacy Mode ON via the header eye icon. 2. View the dashboard, monthly grid, watch list, Financial Goals, a share snapshot and the Monthly Print view. 3. Check every monetary field (invested, received, balance, goal target) and every non-monetary field (company names, ISINs, statuses, month/tenure numbers). 4. Reload the browser page. 5. Toggle OFF and re-view the same surfaces. 6. Inspect local browser storage for the persisted flag at each step.",
+      "expected": "With Privacy Mode ON every monetary value renders as '••••' on all six surfaces while names, ISINs, statuses and numbers stay visible; the state persists in local browser storage and survives reload (still ON, still masked); toggling OFF restores all real numbers with no residual masks (FR-30 AC1, AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-75",
+      "title": "Grid auto-sorts Danger, On-going, Completed and re-sorts automatically on status change",
+      "type": "unit",
+      "steps": "1. Seed Alpha (On-going), Beta (Danger), Gamma (Completed) and render the monthly grid. 2. Drive Alpha to Completed via months paid >= tenure (D5) and re-render without any user sort action. 3. Reset to all-On-going and run the day-wise sweep so one position flips to Danger; re-render.",
+      "expected": "Initial order is exactly Beta (Danger), Alpha (On-going), Gamma (Completed); after Alpha completes the order recomputes to Beta, Gamma, Alpha (Completed) with Alpha sunk to the bottom with no user action; after the Danger flip the new Danger row is immediately the top row (FR-31 AC1, AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-76",
+      "title": "Charts trio renders as inline SVG with ZERO network requests to any external host",
+      "type": "gate",
+      "steps": "1. Seed a portfolio with at least two positions and a negative cumulative balance. 2. Load the dashboard with the browser/client network monitor recording. 3. Confirm three charts in the served page: grouped bars (invested vs received per bond), cumulative returns line, status donut. 4. Inspect each chart's markup for inline SVG. 5. Audit the recorded request log for any host other than the local app origin (no cdn.jsdelivr, no charts.googleapis, no external chart script src). 6. Inspect the cumulative line color where balance is negative.",
+      "expected": "All three charts exist as inline SVG markup in the served page; the negative-balance portion of the cumulative line is drawn in red; the network log shows ZERO requests to any chart CDN or third-party host — the app remains fully offline (FR-32 AC1, AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-77",
+      "title": "Status donut reflects the Danger/On-going/Completed split from live position data",
+      "type": "unit",
+      "steps": "1. Seed 2 Danger, 3 On-going, 1 Completed positions. 2. Render the dashboard donut. 3. Read the segment values/labels from the SVG. 4. Flip one On-going to Danger via the sweep and re-render.",
+      "expected": "The donut shows the exact Danger/On-going/Completed split (initially 2/3/1) as inline SVG driven by live position statuses; after the flip it recomputes to 3/2/1 with no external chart dependency (FR-32 donut clause, partial).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-78",
+      "title": "Credit-day-5 unpaid on day-6 flips to Danger same day; paid month stays On-going; Completed unchanged",
+      "type": "unit",
+      "steps": "1. Seed a position with credit_day=5, On-going, current month payment unpaid. 2. Run the daily sweep with today=day 6. 3. Record the status. 4. Reset, credit the payment on day 5, run the sweep on days 6 through month-end. 5. Seed a position with months paid >= tenure (D5 Completed) and run the sweep on and after its credit day with no payment due. 6. Confirm no month-end timing is involved in step 2.",
+      "expected": "Step 2 flips the position to Danger on day 6 itself — same day as the sweep, not at month-end; the paid month stays On-going across days 6-month-end; the Completed position remains Completed — D5 Completed logic is unchanged and overrides the day-wise Danger evaluation (FR-33 AC1, AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-79",
+      "title": "Every alert fires both channels (in-app bell + Gmail SMTP email) and lands in the alert history",
+      "type": "integration",
+      "steps": "1. Configure a position with credit_day=5 and cadence before-due/day-of/overdue. 2. Drive the sweep to day 3 (before-due), day 5 (day-of), then day 8 with payment unpaid (overdue). 3. After each event capture the in-app bell notification and the outbound email via the owner's Gmail SMTP (App Password). 4. Open the in-app alert history after all three events.",
+      "expected": "Each of the three cadence events produces BOTH an in-app bell notification AND an email through the owner's Gmail SMTP (personal-to-personal, App Password); each appears in the in-app alert history list with its timestamp and channel/delivery info (FR-34 AC1, partial AC2).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-80",
+      "title": "Alert history is auditable and no SMS/WhatsApp/push channel is shipped",
+      "type": "integration",
+      "steps": "1. After several triggered alerts, open the alert history list. 2. Verify past alerts remain listed with timestamps and channel/delivery status (not cleared). 3. Inspect the shipped build's alert settings, channel enumeration and UI for any SMS, WhatsApp or web/mobile push channel or setting. 4. Grep the codebase for SMS/WhatsApp/push delivery code paths.",
+      "expected": "All past alerts are retained with timestamps and delivery info (auditable); only in-app bell and email channels exist — NO SMS, NO WhatsApp and NO push-notification channel or setting is shipped (deferred per D24) (FR-34 AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-81",
+      "title": "Monthly history stops at current month and auto-appends each new month from the ledger",
+      "type": "unit",
+      "steps": "1. With today in Oct 2026, seed positions started Sep 2025 and render the Monthly History table. 2. Enumerate every column header. 3. Advance the clock to Nov 2026 and re-render. 4. Enumerate headers again. 5. Compare against the legacy Excel pattern that showed futuristic year columns.",
+      "expected": "Columns run Sep 2025 through Oct 2026 with NO Nov-2026-or-later column; after the clock advance a Nov 2026 column has auto-appended from the ledger (no stored header row) as the new current month and later months remain never rendered; the table contains zero future columns (FR-35 AC1, AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-82",
+      "title": "Add Position tenure auto-calculates from exact date range with no manual tenure field",
+      "type": "unit",
+      "steps": "1. Open the Add Position form. 2. Confirm start date and end date are date pickers. 3. Confirm no manual tenure input exists. 4. Enter start 2025-09-03 and end 2026-12-02. 5. Read the computed tenure. 6. Change the end date and re-read tenure.",
+      "expected": "Tenure auto-calculates to 15 months from the 2025-09-03..2026-12-02 range; no manual tenure entry is available; tenure recomputes on date change (FR-36 AC1).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-83",
+      "title": "Credit day validated to 1-28 and legacy import maps start month/tenure to exact dates with default credit day",
+      "type": "unit",
+      "steps": "1. On the Add Position form, attempt credit day values 0, 29, 30, 31 and a non-integer. 2. Submit a valid value 1-28. 3. Seed a legacy row start_month='2025-09', tenure=15 and run the legacy import. 4. Read the imported position's start date, end date and credit_day from storage.",
+      "expected": "Values 0/29/30/31/non-integer are each rejected with a validation error; only 1-28 is accepted and stored as the position's credit day; the legacy row imports with start date derived from start_month, end date computed from tenure, and credit_day defaulted to the start date's day (FR-36 AC2, AC3).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-84",
+      "title": "Monthly Print renders A4 five-section layout and is privacy-aware (owner-manual print review)",
+      "type": "e2e",
+      "steps": "1. With Privacy Mode OFF, open the Monthly Print view and open the browser print preview set to A4. 2. Verify the five sections: month header, portfolio summary, this-month payment table, status list, alerts footer; verify real monetary values and complete names/statuses/dates. 3. Enable Privacy Mode ON and re-preview. 4. Print to A4 (or physical print) and review the sheet. REMOTE justification: paper fit and pagination are verified by the owner in a real browser print preview/physical print — genuinely owner-manual, matching SRS FR-37 check_method 'manual review'.",
+      "expected": "The A4 layout shows exactly the five sections fitting one A4 page; with Privacy Mode ON every monetary value in summary, payment table and footer is masked '••••' on the printed sheet with no real amounts; with Privacy Mode OFF real amounts and complete names/statuses/dates appear (FR-37 AC1, AC2, AC3).",
+      "level": "REMOTE",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "FR-27",
+      "test_case_id": "TC-67",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-27",
+      "test_case_id": "TC-68",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-28",
+      "test_case_id": "TC-69",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-28",
+      "test_case_id": "TC-70",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-28",
+      "test_case_id": "TC-71",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-29",
+      "test_case_id": "TC-72",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-29",
+      "test_case_id": "TC-73",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-30",
+      "test_case_id": "TC-74",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-31",
+      "test_case_id": "TC-75",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-32",
+      "test_case_id": "TC-76",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-32",
+      "test_case_id": "TC-77",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-33",
+      "test_case_id": "TC-78",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-34",
+      "test_case_id": "TC-79",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-34",
+      "test_case_id": "TC-80",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-35",
+      "test_case_id": "TC-81",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-36",
+      "test_case_id": "TC-82",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-36",
+      "test_case_id": "TC-83",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-37",
+      "test_case_id": "TC-84",
+      "covers": "full"
+    }
+  ]
+}
