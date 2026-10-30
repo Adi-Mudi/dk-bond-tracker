@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DK Bond Tracker — UI Frontend Design v2</title>
+<style>
+  :root {
+    --border: #1e1e1e;
+    --text: #1e1e1e;
+    --page-bg: #f8f9fa;
+    --card-bg: #f1f3f5;
+    --white: #ffffff;
+    --blue: #4dabf7;
+    --blue-light: #d0ebff;
+    --paid: #d3f9d8;
+    --due: #ffc9c9;
+    --danger: #ff8787;
+    --ongoing: #ff922b;
+    --completed: #69db7c;
+    --current-month: #fff3bf;
+    --header-row: #e9ecef;
+    --muted: #495057;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    background: var(--page-bg);
+    line-height: 1.45;
+  }
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  /* ---------- Approval header ---------- */
+  .approval-header {
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
+    padding: 28px 32px 22px;
+  }
+  .approval-header .badge-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .badge-approval { background: var(--blue-light); }
+  .badge-static { background: var(--card-bg); }
+  .approval-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .approval-meta { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 6px; }
+  .approval-meta strong { color: var(--text); }
+  .flow-ribbon {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 4px;
+    font-size: 12px;
+  }
+  .flow-step {
+    background: var(--blue-light);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: 600;
+  }
+  .flow-arrow { color: var(--muted); font-weight: 700; padding: 0 2px; }
+
+  /* ---------- Sticky nav ---------- */
+  .sticky-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--blue);
+    border-bottom: 2px solid var(--border);
+    padding: 0 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: stretch;
+  }
+  .sticky-nav a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 12px;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  .sticky-nav a:hover { border-bottom-color: var(--white); background: rgba(255,255,255,0.12); }
+
+  /* ---------- Sections & screen chrome ---------- */
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; }
+  section.screen { margin-bottom: 40px; scroll-margin-top: 64px; }
+  .screen-title {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 14px; margin-bottom: 12px;
+  }
+  .screen-title h2 { font-size: 18px; font-weight: 700; }
+  .screen-title .refs { font-size: 12px; color: var(--muted); }
+  .screen-frame {
+    background: var(--page-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(30,30,30,0.08);
+  }
+  .title-bar {
+    background: var(--blue);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .title-bar .tabs { font-weight: 600; font-size: 12px; opacity: 0.95; }
+  .screen-body { padding: 18px; }
+
+  /* ---------- Tabs strip ---------- */
+  .app-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .app-tab {
+    padding: 6px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .app-tab.active { background: var(--blue-light); }
+
+  /* ---------- Cards ---------- */
+  .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .cards-row.amounts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .card {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(30,30,30,0.06);
+  }
+  .card .label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .card .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .card.danger-card { background: var(--due); }
+  .card.ongoing-card { background: #ffe8cc; }
+  .card.completed-card { background: var(--paid); }
+  .card.this-month {
+    background: var(--blue-light);
+    width: 100%;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  .card.this-month .value { margin: 0; }
+  .card.export-btn-card {
+    background: var(--blue-light);
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: default; font-weight: 700;
+  }
+  .btn {
+    display: inline-block;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--blue-light);
+    color: var(--text);
+    text-decoration: none;
+    cursor: default;
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; border: 1.5px solid var(--border); border-radius: 8px; background: var(--white); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  thead th {
+    background: var(--header-row);
+    border-bottom: 2px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tbody td { padding: 7px 10px; border-bottom: 1px solid #dee2e6; white-space: nowrap; }
+  tbody tr:nth-child(even) { background: #f8f9fa; }
+  tbody tr:last-child td { border-bottom: none; }
+  tr.current-month { background: var(--current-month) !important; }
+  tr.current-month td { font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .table-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* ---------- Chips & cells ---------- */
+  .chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .chip-danger { background: var(--danger); }
+  .chip-ongoing { background: var(--ongoing); color: var(--white); }
+  .chip-completed { background: var(--completed); }
+  .cell-paid { background: var(--paid); }
+  .cell-due { background: var(--due); font-weight: 700; }
+  .cell-future { color: #adb5bd; }
+  .grid-table td.cell { text-align: center; min-width: 64px; }
+  .grid-table td.cell-paid::after { content: "paid"; }
+  .grid-table td.cell-due::after { content: "due"; }
+  .grid-table td.cell-future::after { content: "\00a0"; }
+  .grid-table th.month-col { text-align: center; }
+  .grid-table th.month-col.now { background: var(--current-month); }
+
+  /* ---------- Banner / notes ---------- */
+  .banner {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .banner-error { background: var(--due); }
+  .banner-error .banner-title { font-weight: 800; margin-bottom: 4px; }
+  .banner-l1 { background: var(--due); }
+  .banner-l1 .banner-title { font-weight: 800; letter-spacing: 0.02em; margin-bottom: 6px; }
+  .banner-l1 .figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px 16px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .note-line { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .cmd-box {
+    display: inline-block;
+    background: #212529;
+    color: #d3f9d8;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .import-report {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    box-shadow: 0 1px 3px rgba(30,30,30,0.06);
+  }
+  .import-report h4 { font-size: 14px; margin-bottom: 8px; }
+  .import-report ul { list-style: none; font-size: 13px; }
+  .import-report li { padding: 3px 0; }
+  .import-report li strong { display: inline-block; min-width: 150px; }
+
+  /* ---------- Payment edit ---------- */
+  .payment-edit-card {
+    max-width: 480px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 4px rgba(30,30,30,0.08);
+  }
+  .payment-edit-card h4 { font-size: 14px; margin-bottom: 4px; }
+  .payment-edit-card .ctx { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .field-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .field input[type="text"] {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 14px;
+    width: 160px;
+    background: var(--white);
+    color: var(--text);
+  }
+  .field .checkbox-line { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding-top: 18px; }
+  .field input[type="checkbox"] { width: 16px; height: 16px; accent-color: #4dabf7; }
+
+  /* ---------- Legend ---------- */
+  .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .swatch {
+    width: 26px; height: 26px; flex-shrink: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+  }
+  .swatch-paid { background: var(--paid); }
+  .swatch-due { background: var(--due); }
+  .swatch-danger { background: var(--danger); }
+  .swatch-ongoing { background: var(--ongoing); }
+  .swatch-completed { background: var(--completed); }
+  .d5-rule {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .d5-rule strong { display: block; margin-bottom: 4px; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 2px solid var(--border);
+    background: var(--white);
+    padding: 22px 32px 32px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  footer h3 { font-size: 14px; color: var(--text); margin-bottom: 8px; }
+  footer ul { margin: 0 0 14px 18px; }
+  footer li { margin-bottom: 4px; }
+  footer .disclaimer {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<header class="approval-header">
+  <div class="badge-row">
+    <span class="badge badge-approval">v2 — adds Add-Position screen + active-position lock (D14/D15), approved v1 base preserved</span>
+    <span class="badge badge-approval">For final approval</span>
+    <span class="badge badge-static">Static design mockup — no backend</span>
+  </div>
+  <h1>DK Bond Tracker — UI Frontend Design v2 (HTML conversion of locked wireframe dk_bond_tracker_ui_wireframe_design_v1; adds D14/D15)</h1>
+  <div class="approval-meta">
+    <span><strong>Date:</strong> 2026-10-30</span>
+    <span><strong>Source wireframe:</strong> design/dk_bond_tracker_ui_wireframe_design_v1.excalidraw.json (LOCKED, Stage 10 Lane B)</span>
+    <span><strong>v1 wireframe sha256:</strong> fa234c05f654a2a858cfb9b1420af1208e04c66fff1d8cf93cb334453671ece8</span>
+    <span><strong>v2 wireframe draft:</strong> .IDE_Plans/design_drafts/dk_bond_tracker_ui_wireframe_design_v2.excalidraw.json (supersedes v1)</span>
+    <span><strong>Source design:</strong> design/Final_Design_DK_Bond_Tracker_v1.json (ui_decisions, holds)</span>
+    <span><strong>Source SRS:</strong> docs/SRS_DK_Bond_Tracker_v1.json (Status Engine Rules D5)</span>
+    <span><strong>Sample data:</strong> docs/Feasibility_XLSM_Parser_v1.json (15 bonds, months 2025-09..2032-07)</span>
+  </div>
+  <div class="flow-ribbon" aria-label="Navigation flows from locked wireframe arrows">
+    <span class="flow-step">Import &amp; Launch</span>
+    <span class="flow-arrow">→</span><span class="flow-step">launch + import complete</span>
+    <span class="flow-arrow">→</span><span class="flow-step">Dashboard</span>
+    <span class="flow-arrow">→</span><span class="flow-step">tab nav</span>
+    <span class="flow-step">Month Grid</span>
+    <span class="flow-arrow">→</span><span class="flow-step">click cell</span>
+    <span class="flow-step">Payment Edit</span>
+    <span class="flow-arrow">→</span><span class="flow-step">save → recompute</span>
+    <span class="flow-step">Month Grid</span>
+    <span class="flow-arrow">→</span><span class="flow-step">CSV export</span>
+    <span class="flow-step">Export</span>
+  </div>
+</header>
+
+<nav class="sticky-nav" aria-label="Screen sections">
+  <a href="#screen_import_launch">1. Import &amp; Launch</a>
+  <a href="#screen_dashboard">2. Dashboard</a>
+  <a href="#screen_month_grid">3. Month Grid</a>
+  <a href="#screen_payment_edit">4. Payment Edit</a>
+  <a href="#screen_home_plan">5. Home Plan</a>
+  <a href="#screen_watch_list">6. Watch List</a>
+  <a href="#screen_error_state">7. Error State</a>
+  <a href="#screen_export">8. CSV Export</a>
+  <a href="#legend_status_colors">9. Legend</a>
+  <a href="#screen_add_position">10. Add Position</a>
+</nav>
+
+<main>
+
+<!-- ============ 1. IMPORT & LAUNCH ============ -->
+<section class="screen" id="screen_import_launch">
+  <div class="screen-title">
+    <h2>1. Import &amp; Launch</h2>
+    <span class="refs">wireframe: screen_import_launch · refs FR-08, FR-10, D2, FR-21, TC-14</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Import &amp; Launch</span><span class="tabs">one-time CLI import → Flask UI</span></div>
+    <div class="screen-body">
+      <p class="note-line" style="margin-top:0;margin-bottom:10px;">One command starts Flask UI — no build step:</p>
+      <span class="cmd-box mono">python src/app.py</span>
+      <p class="note-line">Binds 127.0.0.1 only. The one-time XLSM import is a separate CLI step before first launch.</p>
+
+      <div class="import-report">
+        <h4>Import status</h4>
+        <ul>
+          <li><strong>Bonds imported:</strong> 15 / 15</li>
+          <li><strong>Reconciliation report:</strong> computed vs baseline shown side by side</li>
+          <li><strong>Source XLSM:</strong> kept as read-only backup</li>
+        </ul>
+      </div>
+
+      <div class="banner banner-l1">
+        <div class="banner-title">L1 PENDING BASELINE</div>
+        <div>Import reconciliation cannot accept the PRD exit figures. The workbook and PRD disagree; the import reports both and raises the L1 flag — it is never force-matched (ADR-10; hold L1 / TC-26 / NFR-10).</div>
+        <div class="figs">
+          <span><strong>Workbook Till Return:</strong> 56227.88</span>
+          <span><strong>Workbook Balance:</strong> -1165738.34</span>
+          <span><strong>PRD Till Return:</strong> 111638.57</span>
+          <span><strong>PRD Balance:</strong> -925503.44</span>
+          <span><strong>Agreeing:</strong> 15 bonds; Total Investment 1037142.01 equal on both sides</span>
+          <span><strong>Contested:</strong> Balance definition (workbook L = K − J vs PRD Till Return − Total Investment)</span>
+        </div>
+      </div>
+
+      <p class="note-line">Source XLSM kept as read-only backup. Owner must re-baseline before L1 acceptance can go green.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. DASHBOARD ============ -->
+<section class="screen" id="screen_dashboard">
+  <div class="screen-title">
+    <h2>2. Dashboard</h2>
+    <span class="refs">wireframe: screen_dashboard · refs FR-05, FR-20, D1, TC-27</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar">
+      <span>DK Bond Tracker — Dashboard</span>
+      <span class="tabs">Dashboard | Month Grid | Home Plan | Watch List</span>
+    </div>
+    <div class="screen-body">
+      <div class="app-tabs">
+        <span class="app-tab active">Dashboard</span>
+        <span class="app-tab">Month Grid</span>
+        <span class="app-tab">Home Plan</span>
+        <span class="app-tab">Watch List</span>
+      </div>
+
+      <div class="cards-row">
+        <div class="card danger-card">
+          <div class="label">Danger</div>
+          <div class="value">bonds: 1</div>
+        </div>
+        <div class="card ongoing-card">
+          <div class="label">On-going</div>
+          <div class="value">bonds: 13</div>
+        </div>
+        <div class="card completed-card">
+          <div class="label">Completed</div>
+          <div class="value">bonds: 1</div>
+        </div>
+      </div>
+
+      <div class="cards-row amounts">
+        <div class="card">
+          <div class="label">Total Investment</div>
+          <div class="value">₹10,37,142.01</div>
+        </div>
+        <div class="card">
+          <div class="label">Till Return</div>
+          <div class="value">₹56,227.88</div>
+          <div class="sub">computed from paid ledger rows</div>
+        </div>
+        <div class="card">
+          <div class="label">Balance</div>
+          <div class="value">−₹11,65,738.34</div>
+          <div class="sub">definition contested — see hold L1</div>
+        </div>
+      </div>
+
+      <div class="card this-month" style="margin-bottom:14px;">
+        <span class="label" style="margin:0;">This Month Returns (Oct-2026)</span>
+        <span class="value">₹29,850.00</span>
+      </div>
+
+      <h4 style="font-size:14px;margin-bottom:8px;">Monthly History (83 months, Sep-2025 .. Jul-2032)</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Month</th><th class="num">Received (INR)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Sep-2025</td><td class="num">₹18,400.00</td><td>paid</td></tr>
+            <tr><td>Oct-2025</td><td class="num">₹18,400.00</td><td>paid</td></tr>
+            <tr><td>Nov-2025</td><td class="num">₹22,050.00</td><td>paid</td></tr>
+            <tr><td>Dec-2025</td><td class="num">₹24,600.00</td><td>paid</td></tr>
+            <tr><td>Jan-2026</td><td class="num">₹24,600.00</td><td>paid</td></tr>
+            <tr><td>Feb-2026</td><td class="num">₹26,100.00</td><td>paid</td></tr>
+            <tr><td>Mar-2026</td><td class="num">₹26,100.00</td><td>paid</td></tr>
+            <tr><td>Apr-2026</td><td class="num">₹27,800.00</td><td>paid</td></tr>
+            <tr><td>May-2026</td><td class="num">₹27,800.00</td><td>paid</td></tr>
+            <tr><td>Jun-2026</td><td class="num">₹29,100.00</td><td>paid</td></tr>
+            <tr><td>Jul-2026</td><td class="num">₹29,100.00</td><td>paid</td></tr>
+            <tr><td>Aug-2026</td><td class="num">₹31,200.00</td><td>paid</td></tr>
+            <tr><td>Sep-2026</td><td class="num">₹31,200.00</td><td>paid</td></tr>
+            <tr class="current-month"><td>Oct-2026 (current)</td><td class="num">₹29,850.00</td><td>current</td></tr>
+            <tr><td>…</td><td class="num">…</td><td>…</td></tr>
+            <tr><td>Jul-2032</td><td class="num">—</td><td>future</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Full table renders all 83 months; current month row highlighted. Amounts are live queries — never stored.</p>
+
+      <h4 style="font-size:14px;margin:16px 0 8px;">Bonds Status Overview (Danger first — colored status column)</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Bond</th><th>ISIN</th><th>Tenure (mo)</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Muthoottu Mini Financiers Ltd</td><td class="mono">INE101Q07BS1</td><td>26</td><td><span class="chip chip-danger">Danger</span></td></tr>
+            <tr><td>Paisalo</td><td class="mono">INE420C07130</td><td>18</td><td><span class="chip chip-completed">Completed</span></td></tr>
+            <tr><td>Navi Finserv Ltd</td><td class="mono">INE342T07569</td><td>17</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>INDEL MONEY LIMITED</td><td class="mono">INE0BUS07CE3</td><td>22</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>KRAZYBEE SERVICES LIMITED</td><td class="mono">INE07HK07866</td><td>22</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>AKARA CAPITAL ADVISORS PRIVATE LIMITED</td><td class="mono">INE08XP07431</td><td>16</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>ARMAN FINANCIAL SERVICES LIMITED</td><td class="mono">INE109C07139</td><td>27</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>UNIFINZ CAPITAL INDIA LIMITED</td><td class="mono">INE926R07019</td><td>14</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>BEST CAPITAL SERVICES LIMITED</td><td class="mono">INE04UP07162</td><td>35</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>KEERTANA FINSERV PRIVATE LIMITED</td><td class="mono">INE0NES07329</td><td>16</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>SPANDANA SPHOORTY</td><td class="mono">INE572J07810</td><td>11</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>KANAKADURGA FINANCE LTD</td><td class="mono">INE104W07245</td><td>20</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>IFL Finance Limited</td><td class="mono">INE01XO07066</td><td>23</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>DAR CREDIT &amp; CAPITAL LTD</td><td class="mono">INE04Q907199</td><td>29</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td>Monedo Financial Services Private Limited</td><td class="mono">INE0I5X07042</td><td>14</td><td><span class="chip chip-ongoing">On-going</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Statuses recomputed from the ledger on every view (D5). Sort order: Danger → On-going → Completed.</p>
+
+      <div style="margin-top:14px;">
+        <span class="btn">Export CSV</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. MONTH GRID ============ -->
+<section class="screen" id="screen_month_grid">
+  <div class="screen-title">
+    <h2>3. Month Grid</h2>
+    <span class="refs">wireframe: screen_month_grid · refs FR-04, FR-18, FR-19, TC-35</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Month Grid</span><span class="tabs">months across · dynamic headers</span></div>
+    <div class="screen-body">
+      <div class="app-tabs">
+        <span class="app-tab">Dashboard</span>
+        <span class="app-tab active">Month Grid</span>
+        <span class="app-tab">Home Plan</span>
+        <span class="app-tab">Watch List</span>
+      </div>
+      <p class="note-line" style="margin-top:0;">Months across, dynamic headers from Sep-2025 (no hardcoded window). Click any cell → edit payment (amount, paid flag). Scroll continues to Jul-2032.</p>
+
+      <div class="table-wrap" style="margin-top:10px;">
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th>Bond</th>
+              <th>ISIN</th>
+              <th>Status</th>
+              <th class="month-col">Sep-2025</th>
+              <th class="month-col">Oct-2025</th>
+              <th class="month-col">Nov-2025</th>
+              <th class="month-col">Dec-2025</th>
+              <th class="month-col">Jan-2026</th>
+              <th class="month-col">Feb-2026</th>
+              <th class="month-col">Mar-2026</th>
+              <th class="month-col">Apr-2026</th>
+              <th class="month-col">May-2026</th>
+              <th class="month-col">Jun-2026</th>
+              <th class="month-col">Jul-2026</th>
+              <th class="month-col">Aug-2026</th>
+              <th class="month-col now">Sep-2026</th>
+              <th class="month-col now">Oct-2026</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Paisalo</td><td class="mono">INE420C07130</td><td><span class="chip chip-completed">Completed</span></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>Muthoottu Mini Financiers Ltd</td><td class="mono">INE101Q07BS1</td><td><span class="chip chip-danger">Danger</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-due"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>Navi Finserv Ltd</td><td class="mono">INE342T07569</td><td><span class="chip chip-ongoing">On-going</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>INDEL MONEY LIMITED</td><td class="mono">INE0BUS07CE3</td><td><span class="chip chip-ongoing">On-going</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>KRAZYBEE SERVICES LIMITED</td><td class="mono">INE07HK07866</td><td><span class="chip chip-ongoing">On-going</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>AKARA CAPITAL ADVISORS PRIVATE LIMITED</td><td class="mono">INE08XP07431</td><td><span class="chip chip-ongoing">On-going</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>ARMAN FINANCIAL SERVICES LIMITED</td><td class="mono">INE109C07139</td><td><span class="chip chip-ongoing">On-going</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-future"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+            <tr>
+              <td>UNIFINZ CAPITAL INDIA LIMITED</td><td class="mono">INE926R07019</td><td><span class="chip chip-ongoing">On-going</span></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td>
+              <td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-future"></td><td class="cell cell-paid"></td>
+              <td class="cell cell-paid"></td><td class="cell cell-paid"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Showing 8 of 15 bonds × Sep-2025..Oct-2026 — the live grid renders all 15 bonds and scrolls through dynamic month headers to Jul-2032 (no hardcoded window, no Jan-2031 limit). Green = paid, light red = due (see Legend). Future months outside the due window stay blank.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. PAYMENT EDIT ============ -->
+<section class="screen" id="screen_payment_edit">
+  <div class="screen-title">
+    <h2>4. Payment Edit (inline)</h2>
+    <span class="refs">wireframe: screen_payment_edit · refs FR-03, FR-24, D3</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Payment Edit</span><span class="tabs">inline card opened from a grid cell</span></div>
+    <div class="screen-body">
+      <p class="note-line" style="margin-top:0;margin-bottom:12px;">Opened by clicking any cell in the Month Grid.</p>
+      <div class="payment-edit-card">
+        <h4>Muthoottu Mini Financiers Ltd — Sep-2026</h4>
+        <div class="ctx mono">INE101Q07BS1 · currently due (unpaid past month)</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="pay-amount">Amount (INR)</label>
+            <input type="text" id="pay-amount" value="9,200.00" readonly>
+          </div>
+          <div class="field">
+            <div class="checkbox-line">
+              <input type="checkbox" id="pay-paid"> <label for="pay-paid" style="margin:0;">Paid</label>
+            </div>
+          </div>
+        </div>
+        <span class="btn">Save</span>
+      </div>
+      <p class="note-line">Save → recompute row + bond status (live query, no open/save event). Save recomputes row status per D5.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. HOME PLAN ============ -->
+<section class="screen" id="screen_home_plan">
+  <div class="screen-title">
+    <h2>5. Home Plan</h2>
+    <span class="refs">wireframe: screen_home_plan · ref FR-12</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Home Plan</span><span class="tabs">84-month savings schedule</span></div>
+    <div class="screen-body">
+      <div class="app-tabs">
+        <span class="app-tab">Dashboard</span>
+        <span class="app-tab">Month Grid</span>
+        <span class="app-tab active">Home Plan</span>
+        <span class="app-tab">Watch List</span>
+      </div>
+      <p class="note-line" style="margin-top:0;">Savings schedule rows (84 months), irregular amounts, columns: month | amount | paid. Reproduces Excel Home Plan sheet.</p>
+      <div class="table-wrap" style="margin-top:10px;">
+        <table>
+          <thead>
+            <tr><th>Month #</th><th>Month</th><th class="num">Amount (INR)</th><th>Paid</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Sep-2025</td><td class="num">₹39,588.00</td><td><span class="chip chip-completed">✓ paid</span></td></tr>
+            <tr><td>2</td><td>Oct-2025</td><td class="num">₹10,063.00</td><td><span class="chip chip-completed">✓ paid</span></td></tr>
+            <tr><td>3</td><td>Nov-2025</td><td class="num">₹39,588.00</td><td><span class="chip chip-completed">✓ paid</span></td></tr>
+            <tr><td>4</td><td>Dec-2025</td><td class="num">₹0.00</td><td><span class="chip chip-danger">unpaid</span></td></tr>
+            <tr><td>5</td><td>Jan-2026</td><td class="num">₹10,063.00</td><td><span class="chip chip-completed">✓ paid</span></td></tr>
+            <tr><td>6</td><td>Feb-2026</td><td class="num">₹39,588.00</td><td><span class="chip chip-completed">✓ paid</span></td></tr>
+            <tr><td>7</td><td>Mar-2026</td><td class="num">₹0.00</td><td><span class="chip chip-danger">unpaid</span></td></tr>
+            <tr><td>8</td><td>Apr-2026</td><td class="num">₹39,588.00</td><td><span class="chip chip-completed">✓ paid</span></td></tr>
+            <tr><td>…</td><td>…</td><td class="num">…</td><td>…</td></tr>
+            <tr class="current-month"><td>14</td><td>Oct-2026 (current)</td><td class="num">₹10,063.00</td><td>current</td></tr>
+            <tr><td>…</td><td>…</td><td class="num">…</td><td>…</td></tr>
+            <tr><td>84</td><td>Aug-2032</td><td class="num">₹39,588.00</td><td>future</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Sample window of the 84-month schedule — irregular amounts (39588, 10063, 0) come straight from the source workbook Home Plan sheet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. WATCH LIST ============ -->
+<section class="screen" id="screen_watch_list">
+  <div class="screen-title">
+    <h2>6. Watch List</h2>
+    <span class="refs">wireframe: screen_watch_list · ref FR-11</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Watch List</span><span class="tabs">analytics computed on view</span></div>
+    <div class="screen-body">
+      <div class="app-tabs">
+        <span class="app-tab">Dashboard</span>
+        <span class="app-tab">Month Grid</span>
+        <span class="app-tab">Home Plan</span>
+        <span class="app-tab active">Watch List</span>
+      </div>
+      <p class="note-line" style="margin-top:0;">Analytics columns: Discount | TDS | Per-month | Qty TL — with 12-month totals row. Formulas reproduced from source workbook.</p>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+        <a class="btn" href="#screen_add_position">Add position</a>
+        <span class="note-line" style="margin-top:0;">single entry point — the same row appears in Month Grid, Dashboard, and Watch List (no double entry)</span>
+      </div>
+      <div class="table-wrap" style="margin-top:10px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Bond</th>
+              <th class="num">Discount</th>
+              <th class="num">TDS</th>
+              <th class="num">Per-month</th>
+              <th class="num">Qty TL</th>
+              <th class="num">12-mo total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Paisalo</td>
+              <td class="num">₹2,400.00</td><td class="num">₹1,180.00</td><td class="num">₹6,598.00</td><td class="num">₹1,18,764.00</td><td class="num">₹79,176.00</td>
+            </tr>
+            <tr>
+              <td>Muthoottu Mini Financiers Ltd</td>
+              <td class="num">₹1,950.00</td><td class="num">₹940.00</td><td class="num">₹4,832.00</td><td class="num">₹1,25,632.00</td><td class="num">₹57,984.00</td>
+            </tr>
+            <tr>
+              <td>Navi Finserv Ltd</td>
+              <td class="num">₹1,780.00</td><td class="num">₹865.00</td><td class="num">₹5,140.00</td><td class="num">₹87,380.00</td><td class="num">₹61,680.00</td>
+            </tr>
+            <tr>
+              <td>INDEL MONEY LIMITED</td>
+              <td class="num">₹2,120.00</td><td class="num">₹1,025.00</td><td class="num">₹4,955.00</td><td class="num">₹1,09,010.00</td><td class="num">₹59,460.00</td>
+            </tr>
+            <tr>
+              <td>KRAZYBEE SERVICES LIMITED</td>
+              <td class="num">₹1,640.00</td><td class="num">₹792.00</td><td class="num">₹4,710.00</td><td class="num">₹1,03,620.00</td><td class="num">₹56,520.00</td>
+            </tr>
+            <tr>
+              <td>… (10 more bonds)</td>
+              <td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td><td class="num">…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Sample rows only — live view computes all 15 bonds on render from extracted workbook inputs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. ERROR STATE ============ -->
+<section class="screen" id="screen_error_state">
+  <div class="screen-title">
+    <h2>7. Error State</h2>
+    <span class="refs">wireframe: screen_error_state · ref FR-21</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Error State</span><span class="tabs">visible surface for named errors</span></div>
+    <div class="screen-body">
+      <div class="banner banner-error">
+        <div class="banner-title">Error: named errors surface here — silent swallow forbidden (FR-21)</div>
+        <div>Example: <span class="mono">DuplicateISINError</span> — duplicate ISIN INE420C07130 found across bond rows 2 and 14. Import aborted; no partial success committed.</div>
+      </div>
+      <p class="note-line">No silent swallow — every failure surfaces on the page that triggered it. Flask error handlers render an explicit error page/message for unexpected route exceptions; import failures abort with a named error; an unresolvable current month shows an explicit message, never a silent 0.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. CSV EXPORT ============ -->
+<section class="screen" id="screen_export">
+  <div class="screen-title">
+    <h2>8. CSV Export</h2>
+    <span class="refs">wireframe: screen_export · ref FR-07, D4</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>CSV Export</span><span class="tabs">UTF-8 · RFC-4180</span></div>
+    <div class="screen-body">
+      <p class="note-line" style="margin-top:0;margin-bottom:12px;">Confirm download scope:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <span class="btn">Current view CSV</span>
+        <span class="btn">Full ledger CSV</span>
+      </div>
+      <p class="note-line">UTF-8 CSV download (RFC-4180). Export matches the displayed rows exactly (D4). Every displayed dataset — dashboard tables, month grid, Home Plan, watch list, bond detail — offers the same UTF-8 CSV download.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. LEGEND ============ -->
+<section class="screen" id="legend_status_colors">
+  <div class="screen-title">
+    <h2>9. Legend — status &amp; cell colors</h2>
+    <span class="refs">wireframe: legend_status_colors · SRS D5</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Legend — status &amp; cell colors</span></div>
+    <div class="screen-body">
+      <div class="legend-grid">
+        <div class="legend-item"><span class="swatch swatch-paid"></span> paid cell (green) — #d3f9d8</div>
+        <div class="legend-item"><span class="swatch swatch-due"></span> due cell (light red) — #ffc9c9</div>
+        <div class="legend-item"><span class="swatch swatch-danger"></span> Danger (red) — #ff8787</div>
+        <div class="legend-item"><span class="swatch swatch-ongoing"></span> On-going (orange) — #ff922b</div>
+        <div class="legend-item"><span class="swatch swatch-completed"></span> Completed (green) — #69db7c</div>
+      </div>
+      <div class="d5-rule">
+        <strong>Status rules per D5 (verbatim from SRS):</strong>
+        Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid &gt;= tenure; zero-value = unpaid preserved
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. ADD POSITION (v2, D14/D15) ============ -->
+<section class="screen" id="screen_add_position">
+  <div class="screen-title">
+    <h2>10. Add Position (Watch List add form)</h2>
+    <span class="refs">wireframe: screen_add_position · refs FR-25, D14 · new in v2</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>Add Position</span><span class="tabs">entered once → one bonds master row</span></div>
+    <div class="screen-body">
+      <p class="note-line" style="margin-top:0;margin-bottom:12px;">New in v2 (D14 / FR-25): add each company/position exactly ONCE through this Watch List add form. The submission stores ONE bonds master row — the monthly grid, dashboard, and watch list all render from that same row; details are never entered twice.</p>
+      <div class="payment-edit-card" style="max-width:680px;">
+        <h4>Watch List — Add position</h4>
+        <div class="ctx">Fields: company · ISIN · amount ₹ · tenure months · start month</div>
+        <div class="field-row">
+          <div class="field">
+            <label for="add-company">Company</label>
+            <input type="text" id="add-company" placeholder="e.g. Muthoottu Mini Financiers Ltd">
+          </div>
+          <div class="field">
+            <label for="add-isin">ISIN</label>
+            <input type="text" id="add-isin" placeholder="INE101Q07BS1">
+          </div>
+          <div class="field">
+            <label for="add-amount">Amount ₹</label>
+            <input type="text" id="add-amount" placeholder="0.00">
+          </div>
+          <div class="field">
+            <label for="add-tenure">Tenure months</label>
+            <input type="text" id="add-tenure" placeholder="24">
+          </div>
+          <div class="field">
+            <label for="add-start">Start month</label>
+            <input type="text" id="add-start" placeholder="Sep-2026">
+          </div>
+        </div>
+        <span class="btn">Add</span>
+      </div>
+
+      <div class="banner banner-error" style="margin-top:16px;">
+        <div class="banner-title">Blocked — active-position lock (D15 / FR-26)</div>
+        <div class="mono">Cannot add position: Muthoottu has an active position (On-going) — no override</div>
+        <div>Match key: normalized company name (trim/case-insensitive) OR ISIN — a duplicate is blocked while the existing position is On-going or Danger. Hard block with named error (FR-21): no override, no force.</div>
+      </div>
+      <div class="banner" style="background:var(--paid);border-color:#2f9e44;">
+        <div class="banner-title" style="font-weight:800;margin-bottom:4px;">Released when Completed</div>
+        <div>The lock releases only when the existing position reaches Completed (D5: months paid &gt;= tenure). A new position bought after Completed starts On-going and re-locks the company until it too completes.</div>
+      </div>
+      <p class="note-line">No override anywhere — the same named error also surfaces on the Error State screen (FR-21).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEW IN v2 ============ -->
+<section class="screen" id="new_in_v2">
+  <div class="screen-title">
+    <h2>New in v2</h2>
+    <span class="refs">change wave 2026-10-30 — brainstorm D14/D15 + PRD addendum FR-25/FR-26</span>
+  </div>
+  <div class="screen-frame">
+    <div class="title-bar"><span>New in v2</span><span class="tabs">D14 / D15 additions</span></div>
+    <div class="screen-body">
+      <div class="import-report" style="margin-top:0;">
+        <h4>D14 / FR-25 — add position once (single master)</h4>
+        <ul>
+          <li><strong>Add form:</strong> new Add Position screen reached from the Watch List — fields company, ISIN, amount, tenure, start month.</li>
+          <li><strong>One row:</strong> submission stores ONE bonds master row; Month Grid, Dashboard, and Watch List all render it (no double entry).</li>
+        </ul>
+        <h4 style="margin-top:10px;">D15 / FR-26 — strict active-position lock</h4>
+        <ul>
+          <li><strong>Hard block:</strong> at most ONE active (On-going/Danger) position per company — match on normalized company name OR ISIN.</li>
+          <li><strong>Named error, no override:</strong> "Cannot add position: &lt;company&gt; has an active position (&lt;status&gt;) — no override".</li>
+          <li><strong>Release:</strong> only when the position reaches Completed (D5); a re-buy after Completed starts On-going and re-locks the company.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <h3>Holds &amp; constraints (from Final_Design_DK_Bond_Tracker_v1)</h3>
+  <ul>
+    <li><strong>Hold L1 (OPEN — owner decision):</strong> import reconciliation acceptance waits on the owner re-baselining the PRD exit figures (workbook 56227.88 / -1165738.34 vs PRD 111638.57 / -925503.44) and settling the Balance definition (L = K − J vs Investment − Till Return). TC-26 stays pending_baseline; never force-matched.</li>
+    <li><strong>Hold L2 (OPEN — owner decision):</strong> P&amp;L definition (Stage-7 proposal: Till Return − Investment; alternative: maturity − investment) awaits owner confirmation before FR-16 / TC-40 acceptance.</li>
+  </ul>
+  <h3>Offline / no-account note (D10)</h3>
+  <ul>
+    <li>Server binds 127.0.0.1 only; zero outbound network in any code path.</li>
+    <li>No accounts, sessions or auth layer; single local SQLite file is the sole persistence artifact.</li>
+    <li>Sharing means copying the folder — no cloud, no build step.</li>
+  </ul>
+  <p class="disclaimer">Static design mockup — no backend. This HTML file is a visual conversion of the locked wireframe for owner approval; it is not the running application.</p>
+</footer>
+
+</body>
+</html>

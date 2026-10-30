@@ -1,0 +1,51 @@
+{
+  "id": "Pseudocode_addendum_v1",
+  "kind": "pseudocode",
+  "title": "Pseudocode Addendum — Add-Position Flow and Active-Position Lock (AF-38/AF-39)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Pseudocode_DK_Bond_Tracker_v1",
+  "sources": [
+    "docs/Atomic_Functions_addendum_v1.json (spine: AF-38, AF-39)",
+    "docs/Pseudocode_DK_Bond_Tracker_v1.json (entry shape: INPUT/OUTPUT/ERRORS + numbered steps; D5 rule)",
+    "docs/SRS_DK_Bond_Tracker_addendum_v1.json (FR-25/FR-26 acceptance criteria)",
+    "docs/PRD_DK_Bond_Tracker_addendum_v1.json (decisions D14/D15)"
+  ],
+  "d5_rule": "Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved",
+  "entries": [
+    {
+      "af_id": "AF-38",
+      "function_name": "add_position",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: POST add-position form (company, ISIN, amount, tenure, start month)\nOUTPUT: one new bonds master row; success flash naming the added company; redirect to the watch list — the monthly grid, dashboard and watch list all render that same stored row\nERRORS: invalid form fields, active-position lock blocked (named error from AF-39), or INSERT failure -> visible named error naming the failed operation via AF-30; never accept a blocked or invalid add silently and never redirect a failure as success (FR-21)\n1. Validate the form fields: company non-empty after trim, ISIN present, amount numeric and non-negative, tenure a positive integer, start month parseable to YYYY-MM; on any failure respond with a visible named error and write nothing.\n2. Run the active-position lock validator AF-39 with the submitted company and ISIN; if it raises its named hard-block error, surface that error via AF-30 and abort — no override, no force-accept, no partial write.\n3. INSERT exactly ONE bonds master row with the submitted fields (company, ISIN, amount, tenure, start month) in a single statement; a constraint violation (e.g. duplicate ISIN) raises a named error and aborts.\n4. Confirm exactly one row was written; a write count of 0 or greater than 1 raises the named error instead of reporting success.\n5. On success, set the flash message naming the added company and redirect to the watch list view.\n6. The monthly grid, dashboard and watch list all render from that same stored bonds row — the company/position details are never entered a second time on any surface (D14, FR-25).\n7. Any failure at any step surfaces visibly via AF-30 with the operation name; a blocked or failed add never redirects as success.",
+      "complexity_note": "form validation plus one lock-consult query plus a single row insert",
+      "edge_cases": [
+        "duplicate active company name in a different case or with extra whitespace -> blocked by AF-39 name normalization, no row written",
+        "ISIN matching an active position under a different company name -> blocked by AF-39 ISIN key, no row written",
+        "existing position Completed -> lock released by AF-39, insert proceeds; the new position starts On-going and re-locks the company",
+        "INSERT constraint violation (duplicate ISIN against any stored row) -> named error, transaction aborted, no partial write",
+        "blank company, non-numeric amount or unparseable start month -> visible validation error, nothing written",
+        "double-submit of the same form -> second submission hits the active-position lock (the first insert is On-going), named hard-block instead of a duplicate row"
+      ]
+    },
+    {
+      "af_id": "AF-39",
+      "function_name": "active_position_lock_validator",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: candidate company name, candidate ISIN, bonds table, current D5 statuses (AF-14)\nOUTPUT: pass verdict when no active position matches by either key; otherwise a named hard-block error naming the blocking position and its status\nERRORS: bond metadata or ledger query failure -> raise named error ERR-position-lock naming the operation via AF-30; a matched duplicate raises the named hard-block error — never a soft warning, never an override path\n1. Normalize the candidate: company_key = company name trimmed and lowercased; isin_key = ISIN trimmed with case-insensitive comparison.\n2. Load every bond with its live D5 status (AF-14); the ACTIVE set is bonds whose status is On-going or Danger — Completed is excluded exactly per D5 (this validator stores and reads no status column of its own).\n3. For each active position compare keys: a name match is trim + case-insensitive (the stored position's company name trimmed and lowercased equals company_key); an ISIN match is trim + case-insensitive against isin_key.\n4. If EITHER key matches an active position, HARD BLOCK: raise the named error whose message names the blocking position and its status, e.g. \"Cannot add position: Muthoottu has an active position (On-going)\". There is no override branch and no force-accept anywhere in this function.\n5. If no active position matches by either key, return the pass verdict and allow the add.\n6. The lock releases only when the existing position reaches Completed (months paid >= tenure per D5): Completed positions never appear in the active set, so the same company/ISIN passes once the old position completes.\n7. A new position bought after Completed starts On-going and re-locks the company: the next add for that company or ISIN is blocked again by the same steps.",
+      "complexity_note": "one full-portfolio status load plus O(bonds) key comparison",
+      "edge_cases": [
+        "candidate ' muthoottu ' vs stored 'Muthoottu' -> trim + lower normalizes both to the same key, name match blocks",
+        "case-insensitive name: 'MUTHOOTTU' vs 'Muthoottu' -> blocked",
+        "candidate company 'MMF Investments' carrying an active Muthoottu ISIN -> ISIN-only match blocks even though the names differ",
+        "ISIN case variants (in1234567890 vs IN1234567890) -> case-insensitive comparison matches, blocked",
+        "existing position Completed (months paid >= tenure) -> excluded from the active set, add allowed (lock released only on Completed)",
+        "re-buy after Completed: the new position starts On-going -> a further add is blocked again (re-locked)",
+        "a Danger position is active -> blocks like On-going (active means On-going OR Danger)",
+        "empty bonds table -> empty active set, pass verdict (legitimate empty result, not an error)"
+      ]
+    }
+  ],
+  "coverage_note": "2/2 addendum atomic functions covered: exactly one pseudocode entry for AF-38 and AF-39 in Atomic_Functions_addendum_v1.json; AF-01..AF-37 entries remain owned by Pseudocode_DK_Bond_Tracker_v1."
+}
