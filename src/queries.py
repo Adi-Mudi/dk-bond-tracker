@@ -1,8 +1,8 @@
 import re
 from datetime import date
 
-from .status import compute_row_status, tenure_month_map
-from .validators import AppError
+from .status import compute_row_status, month_key, tenure_month_map
+from .validators import AppError, add_months, parse_date_value
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green"}
@@ -148,3 +148,221 @@ def status_overview(conn, today=None):
         )
     )
     return entries
+
+
+HISTORY_MONTH_CAP = 120
+
+
+def _resolve_today(today):
+    if today is None:
+        try:
+            return date.today()
+        except Exception:
+            return None
+    return today
+
+
+def _month_keys_span(start_key, end_key):
+    year, mon = map(int, start_key.split("-"))
+    end_year, end_mon = map(int, end_key.split("-"))
+    total = (end_year - year) * 12 + (end_mon - mon)
+    if total < 0:
+        return []
+    return [
+        f"{year + (mon - 1 + offset) // 12:04d}-{(mon - 1 + offset) % 12 + 1:02d}"
+        for offset in range(total + 1)
+    ]
+
+
+def summary_counts(conn, today=None):
+    try:
+        overview = status_overview(conn, today)
+    except AppError as exc:
+        raise AppError("ERR-query-counts", f"status computation failed: {exc.message}") from exc
+    except Exception as exc:
+        raise AppError("ERR-query-counts", f"status computation failed: {exc}") from exc
+    counts = {"danger": 0, "ongoing": 0, "completed": 0, "total": len(overview)}
+    for entry in overview:
+        status = entry["status"]
+        if status == "Danger":
+            counts["danger"] += 1
+        elif status == "On-going":
+            counts["ongoing"] += 1
+        elif status == "Completed":
+            counts["completed"] += 1
+        else:
+            raise AppError("ERR-query-counts", f"unknown status for bond {entry['id']}: {status!r}")
+    if counts["danger"] + counts["ongoing"] + counts["completed"] != counts["total"]:
+        raise AppError("ERR-query-counts", "status counts do not sum to total bond count")
+    return counts
+
+
+def summary_amounts(conn, today=None):
+    try:
+        totals = portfolio_totals(conn)
+    except AppError as exc:
+        raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc.message}") from exc
+    except Exception as exc:
+        raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc}") from exc
+    today_value = _resolve_today(today)
+    if today_value is None:
+        return {
+            "total_investment": totals["total_investment"],
+            "till_return": totals["till_return"],
+            "balance": totals["balance"],
+            "month": None,
+            "month_message": "current month could not be resolved",
+        }
+    return {
+        "total_investment": totals["total_investment"],
+        "till_return": totals["till_return"],
+        "balance": totals["balance"],
+        "month": month_key(today_value),
+        "month_message": None,
+    }
+
+
+def this_month_returns(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        return {"month": None, "total": None, "message": "current month could not be resolved"}
+    key = month_key(today_value)
+    try:
+        row = conn.execute(
+            "SELECT COALESCE(SUM(amount), 0) AS total FROM payment_ledger "
+            "WHERE month = ? AND paid = 1 AND amount > 0",
+            (key,),
+        ).fetchone()
+    except Exception as exc:
+        raise AppError("ERR-query-month-returns", f"this-month query failed: {exc}") from exc
+    return {"month": key, "total": float(row["total"]), "message": None}
+
+
+def active_bonds_in_month(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-query-month-returns", "current month could not be resolved")
+    current = month_key(today_value)
+    try:
+        rows = conn.execute(
+            "SELECT id, company, start_date, tenure_months FROM bonds"
+        ).fetchall()
+    except Exception as exc:
+        raise AppError("ERR-query-month-returns", f"active-bond scan failed: {exc}") from exc
+    active = []
+    for row in rows:
+        try:
+            start = parse_date_value(row["start_date"], "start_date")
+            tenure = int(row["tenure_months"])
+        except (AppError, TypeError, ValueError):
+            continue
+        if tenure < 1:
+            continue
+        first = month_key(start)
+        last = month_key(add_months(start, tenure - 1))
+        if first <= current <= last:
+            active.append({"id": row["id"], "company": row["company"]})
+    return active
+
+
+def _history_window(conn, current):
+    candidates = []
+    try:
+        ledger_row = conn.execute("SELECT MIN(month) AS earliest FROM payment_ledger").fetchone()
+        if ledger_row is not None and ledger_row["earliest"]:
+            candidates.append(str(ledger_row["earliest"]).strip())
+        for row in conn.execute("SELECT start_date FROM bonds").fetchall():
+            candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
+    except AppError as exc:
+        raise AppError("ERR-query-history", f"window derivation failed: {exc.message}") from exc
+    except Exception as exc:
+        raise AppError("ERR-query-history", f"window derivation failed: {exc}") from exc
+    if not candidates:
+        return []
+    start = min(candidates)
+    if start > current:
+        start = current
+    keys = _month_keys_span(start, current)
+    if len(keys) > HISTORY_MONTH_CAP:
+        keys = keys[-HISTORY_MONTH_CAP:]
+    return keys
+
+
+def monthly_history(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-query-history", "current month could not be resolved")
+    current = month_key(today_value)
+    try:
+        window = _history_window(conn, current)
+        rows = conn.execute(
+            "SELECT month, SUM(amount) AS total FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY month"
+        ).fetchall()
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError("ERR-query-history", f"monthly history aggregation failed: {exc}") from exc
+    totals = {row["month"]: float(row["total"] or 0) for row in rows}
+    return [{"month": m, "total": totals.get(m, 0.0)} for m in window]
+
+
+def chart_data(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-chart-data", "current month could not be resolved")
+    try:
+        counts = summary_counts(conn, today_value)
+        current = month_key(today_value)
+        window = _history_window(conn, current)
+        ledger_rows = conn.execute(
+            "SELECT bond_id, month, amount FROM payment_ledger WHERE paid = 1 AND amount > 0"
+        ).fetchall()
+        bond_rows = conn.execute(
+            "SELECT id, company, name, amount, start_date FROM bonds"
+        ).fetchall()
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError("ERR-chart-data", f"chart series query failed: {exc}") from exc
+    received_by_bond = {}
+    received_by_month = {}
+    for row in ledger_rows:
+        received_by_bond[row["bond_id"]] = received_by_bond.get(row["bond_id"], 0.0) + float(row["amount"])
+        received_by_month[row["month"]] = received_by_month.get(row["month"], 0.0) + float(row["amount"])
+    bars = []
+    invested_by_month = {}
+    for row in bond_rows:
+        label = row["company"] or row["name"] or f"Bond {row['id']}"
+        invested = float(row["amount"] or 0)
+        bars.append(
+            {
+                "bond": label,
+                "invested": invested,
+                "received": received_by_bond.get(row["id"], 0.0),
+            }
+        )
+        try:
+            start_key = month_key(parse_date_value(row["start_date"], "start_date"))
+        except AppError as exc:
+            raise AppError("ERR-chart-data", f"bond {row['id']}: unparseable start_date {row['start_date']!r}") from exc
+        invested_by_month[start_key] = invested_by_month.get(start_key, 0.0) + invested
+    cumulative = []
+    if window:
+        running_invested = sum(
+            amount for key, amount in invested_by_month.items() if key <= window[0]
+        )
+        running_received = 0.0
+        for index, month in enumerate(window):
+            if index > 0:
+                running_invested += invested_by_month.get(month, 0.0)
+            running_received += received_by_month.get(month, 0.0)
+            balance = running_received - running_invested
+            cumulative.append(
+                {
+                    "month": month,
+                    "cumulative_till_return": running_received,
+                    "balance_flag_negative": balance < 0,
+                }
+            )
+    return {"bars": bars, "cumulative": cumulative, "donut": counts}

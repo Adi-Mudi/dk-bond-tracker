@@ -3,8 +3,83 @@
 <head>
   <meta charset="utf-8">
   <title>DK Bond Tracker</title>
+  <style>
+    :root {
+      --border: #1e1e1e;
+      --text: #1e1e1e;
+      --page-bg: #f8f9fa;
+      --card-bg: #f1f3f5;
+      --white: #ffffff;
+      --blue: #4dabf7;
+      --blue-light: #d0ebff;
+      --paid: #d3f9d8;
+      --due: #ffc9c9;
+      --danger: #ff8787;
+      --ongoing: #ff922b;
+      --completed: #69db7c;
+      --current-month: #fff3bf;
+      --header-row: #e9ecef;
+      --muted: #495057;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--page-bg);
+      line-height: 1.45;
+    }
+    .app-header-bar {
+      background: var(--blue);
+      border-bottom: 2px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      align-items: center;
+    }
+    .app-header-bar .brand {
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 800;
+      padding: 12px 4px;
+    }
+    .app-header-bar nav { display: flex; flex-wrap: wrap; gap: 2px; }
+    .app-header-bar nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 12px 12px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+    .app-header-bar nav a:hover { border-bottom-color: var(--white); background: rgba(255,255,255,0.12); }
+    main.page { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+    .banner {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+    .banner-error { background: var(--due); }
+    .banner-error .banner-title { font-weight: 800; margin-bottom: 4px; }
+    .banner-info { background: var(--blue-light); }
+  </style>
+  {% block head %}{% endblock %}
 </head>
 <body>
-  {% block content %}DK Bond Tracker — foundation OK{% endblock %}
+  <header class="app-header-bar">
+    <span class="brand">DK Bond Tracker</span>
+    <nav aria-label="Primary">
+      <a href="/">Dashboard</a>
+      <a href="#">Month Grid</a>
+      <a href="#">Financial Goals</a>
+      <a href="#">Watch List</a>
+    </nav>
+  </header>
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>
