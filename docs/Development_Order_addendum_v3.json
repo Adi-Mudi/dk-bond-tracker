@@ -1,0 +1,91 @@
+{
+  "id": "Development_Order_addendum_v3",
+  "kind": "development_order",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Development_Order_addendum_v2",
+  "wave_insertions": [
+    {
+      "wave": "W3",
+      "add_afs": [
+        "AF-52",
+        "AF-53"
+      ],
+      "add_test_gates": [
+        "TC-89",
+        "TC-103"
+      ],
+      "test_gate_map": {
+        "TC-89": "Watchlist filters AND-combine with exact-rating match, sort whitelist orders rows, removable chips clear filters and density persists",
+        "TC-103": "watchlist_query returns a 150x96 portfolio in under 0.5s with the single-pass composition"
+      },
+      "rationale": "AF-52 joins the dashboard-query wave: its only dep AF-01 is W0 (strictly earlier); AF-53 deps AF-52 same-wave with intra-wave order AF-52 before AF-53 (tiles derive from the query's row set). Both land in W3 so the two-view read model, the FR-40 display fields and the summary tiles exist before every W4 UI surface consumes them. Gates: the pure-query scenarios — filter/sort/density composition (TC-89, exact-rating match, AND-combine, whitelist sort, removable chips, density persistence) and the single-pass performance check (TC-103, 150x96 under 0.5s) — both exercise AF-52 directly with no UI dependency."
+    },
+    {
+      "wave": "W4",
+      "add_afs": [
+        "AF-54",
+        "AF-55",
+        "AF-56",
+        "AF-57",
+        "AF-58",
+        "AF-59"
+      ],
+      "add_test_gates": [
+        "TC-85",
+        "TC-86",
+        "TC-87",
+        "TC-88",
+        "TC-90",
+        "TC-91",
+        "TC-92",
+        "TC-93",
+        "TC-94",
+        "TC-95",
+        "TC-96",
+        "TC-97",
+        "TC-99",
+        "TC-100",
+        "TC-101",
+        "TC-102",
+        "TC-104"
+      ],
+      "test_gate_map": {
+        "TC-85": "Standalone shell renders chrome, sidebar with real Settings destination and status-bar row counts equal to visible table rows",
+        "TC-86": "Tab switch preserves active filters; Move to Holdings converts a candidate, updates both tab counts and lands in grid and dashboard",
+        "TC-87": "D15 active-position lock blocks Move to Holdings with ERR-move-watching naming the blocker and zero writes",
+        "TC-88": "FR-40 field set persists per position across reload and Yield % carries the manual-entry indicator in table and drawer",
+        "TC-90": "Drawer payload carries the full facts grid, per-month schedule states, yield box and the per-tab action set",
+        "TC-91": "Alerts feed merges overdue/due-soon/maturity cards in severity order with dedupe keys suppressing same-day duplicates",
+        "TC-92": "Dismissing an alert card removes only the card — notification history row, timestamp and dedupe marker survive",
+        "TC-93": "SMTP App Password is masked write-once and environment variables override stored values at send time",
+        "TC-94": "Test Email with SMTP unconfigured raises the named ERR-smtp-unconfigured banner without crashing",
+        "TC-95": "Alert Preferences toggles persist and drive the sweep; the in-app bell renders locked always-on",
+        "TC-96": "General defaults validate credit day 1-28, privacy-on-startup defaults OFF and density is one shared setting",
+        "TC-97": "Excel import maps the new watch-sheet fields exactly: rating split, Yeild column, payment type normalization and safe defaults",
+        "TC-99": "Settings About shows version, build notes and the offline badge; Open local data folder reveals the data directory (owner-manual)",
+        "TC-100": "Privacy Mode masks every monetary cell on the watchlist and all Settings tabs while names and non-money stay visible",
+        "TC-101": "Status-bar email indicator flips from not-configured to the active-rules message and never leaks a credential value",
+        "TC-102": "Maturity scan emits exactly the 30/7/1-day cards with per-horizon dedupe and leaves bond status untouched",
+        "TC-104": "End-to-end chain add -> watch -> move -> pay -> alert completes with zero external network requests"
+      },
+      "rationale": "The user-visible UI + settings delivery wave. AF-54 deps AF-52 (W3, earlier). AF-55 deps AF-39 (W2, addendum v1) and AF-52 (W3) — both strictly earlier, so the lock validator and the two-view refresh exist before the move handler. AF-56 deps AF-46 (W2, addendum v2) and AF-47 (W4 same-wave) — intra-wave order: the notification builder is green before the feed composes its cards. AF-57 deps AF-01 (W0). AF-58 deps AF-57 (W4 same-wave; load before save). AF-59 deps AF-58 (W4 same-wave) and AF-48 (W4, addendum v2) — intra-wave order: settings-save and the email sender both green before the test-email send path. TC placement by scenario: move conversion + lock conflict (TC-86, TC-87) with AF-55; field persistence + drawer payload (TC-88, TC-90) with AF-54 over the W3 query; alerts feed dedupe, dismissal retention and maturity scan (TC-91, TC-92, TC-102) with AF-56; settings save/load surfaces (TC-93, TC-95, TC-96, TC-99, TC-101) with AF-57/AF-58; test-email banner (TC-94) with AF-59; the import new-field mapping (TC-97) once the W3 schema columns and the W1 import pipeline are both green; shell + privacy (TC-85, TC-100) once the Settings destination (AF-57) is a real screen; the end-to-end chain (TC-104, with the zero-external-network offline gate folded in) runs last as the wave's composite gate."
+    },
+    {
+      "wave": "W5",
+      "add_afs": [
+        "AF-60"
+      ],
+      "add_test_gates": [
+        "TC-98"
+      ],
+      "test_gate_map": {
+        "TC-98": "Export backup streams the real .db file and Reset rejects any wrong confirmation word server-side before deleting"
+      },
+      "rationale": "AF-60 deps AF-01 (W0, strictly earlier); it lands in W5 so the destructive Data pair ships after the W4 settings container that hosts its buttons and after the W5 CSV exporter conventions (AF-26 base) are in the wave. Gate: backup download + case-sensitive typed-RESET rejection + backup-before-wipe (TC-98) with AF-60."
+    }
+  ],
+  "topology_note": "TOPOT check against v1 + addendum v1 + addendum v2 wave assignments, every edge stated explicitly. AF-52 (W3): dep AF-01 is W0 -> W0 < W3. AF-53 (W3): dep AF-52 is W3 (this addendum) -> same-wave W3 = W3 (intra-wave order: AF-52 implemented and green before AF-53, whose tiles derive from the AF-52 row set). AF-54 (W4): dep AF-52 is W3 (this addendum) -> W3 < W4. AF-55 (W4): dep AF-39 is W2 (addendum v1) -> W2 < W4; dep AF-52 is W3 (this addendum) -> W3 < W4. AF-56 (W4): dep AF-46 is W2 (addendum v2) -> W2 < W4; dep AF-47 is W4 (addendum v2) -> same-wave W4 = W4 (intra-wave order: AF-47 notification builder green before AF-56 consumes its rows). AF-57 (W4): dep AF-01 is W0 -> W0 < W4. AF-58 (W4): dep AF-57 is W4 (this addendum) -> same-wave W4 = W4 (intra-wave order: AF-57 before AF-58). AF-59 (W4): dep AF-58 is W4 (this addendum) -> same-wave W4 = W4; dep AF-48 is W4 (addendum v2) -> same-wave W4 = W4 (intra-wave order: AF-58 settings-save and AF-48 email sender both green before AF-59's test send calls them). AF-60 (W5): dep AF-01 is W0 -> W0 < W5. Cross-wave ordering also holds: the W3 two-view query (AF-52/AF-53) lands before every W4 consumer (AF-54 drawer, AF-55 move refresh, AF-56 panel counts/status-bar); the W2 credit-day sweep (AF-46) and the W2 lock validator (AF-39) land before their W4 consumers (AF-56, AF-55); the W4 settings container (AF-57/AF-58) lands before the W5 data pair (AF-60) its Data tab hosts. The brief's suggested placement (AF-52/53 in W3, AF-54..AF-59 in W4, AF-60 in W5) verified correct against the AF depends_on graph — no adjustment needed. No cross-wave back-edge is introduced; every v1, addendum-v1 and addendum-v2 AF->wave assignment and test gate is unchanged.",
+  "change_record": "addendum v3.0 extends Development_Order_addendum_v2 after owner decisions D33 (standalone watchlist redesign) and D34 (Settings screen) of 2026-10-30; inserts AF-52+AF-53 into W3, AF-54+AF-55+AF-56+AF-57+AF-58+AF-59 into W4, AF-60 into W5 — no change to any existing wave's AF list or TC gates. TC-85..TC-104 come from docs/Test_Plan_addendum_v3.json; titles in test_gate_map are aligned to that document verbatim and the scenario split is: query TCs (TC-89 filter/sort/density, TC-103 performance 150x96 < 0.5s) gate W3 with AF-52/AF-53; the UI/settings slice (TC-85 shell+status-bar counts, TC-86 tab+move, TC-87 D15 lock on move, TC-88 fields+yield label, TC-90 drawer, TC-91 alerts dedupe, TC-92 dismissal keeps history, TC-93 SMTP write-once+env precedence, TC-94 test-email named error, TC-95 alert-pref toggles, TC-96 general prefs, TC-97 import mapping, TC-99 About — the suite's single REMOTE owner-manual case, TC-100 privacy mask, TC-101 email indicator, TC-102 maturity scan, TC-104 end-to-end chain + offline gate) gates W4 with AF-54..AF-59; the data pair TC (TC-98 backup + typed-RESET rejection) gates W5 with AF-60. All 20 TCs placed exactly once, disjoint, range TC-85..TC-104 (W3: 2, W4: 17, W5: 1)."
+}
