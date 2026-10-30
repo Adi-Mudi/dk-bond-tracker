@@ -1,0 +1,181 @@
+{
+  "id": "Pseudocode_addendum_v2",
+  "kind": "pseudocode",
+  "title": "Pseudocode Addendum v2 — Wave-2 Feature Set (AF-40..AF-51)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Pseudocode_addendum_v1",
+  "sources": [
+    "docs/Atomic_Functions_addendum_v2.json (spine: AF-40..AF-51)",
+    "docs/Pseudocode_DK_Bond_Tracker_v1.json (entry shape: INPUT/OUTPUT/ERRORS + numbered steps; D5 rule)",
+    "docs/Pseudocode_addendum_v1.json (addendum entry shape, AF-38/AF-39)",
+    "docs/SRS_DK_Bond_Tracker_addendum_v2.json (acceptance criteria FR-27..FR-37; data model deltas)",
+    "docs/PRD_DK_Bond_Tracker_addendum_v2.json (decisions D16-D26)"
+  ],
+  "d5_rule": "Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved",
+  "entries": [
+    {
+      "af_id": "AF-40",
+      "function_name": "sole_entry_guard",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: incoming HTTP POST targeting any add-position-like route; request origin surface (watch_list | grid | dashboard | other)\nOUTPUT: origin watch_list -> delegated to AF-38 (AF-39 lock enforced before INSERT); any other origin -> rejected response with a named error and zero DB writes\nERRORS: a non-Watch-List add POST, or a Watch List add blocked by AF-39 -> visible named error naming the rejected operation via AF-30; never accept, never write, never redirect a rejection as success (FR-21)\n1. Inspect the POST target and origin surface; classify the request as watch_list add, or non-Watch-List add attempt.\n2. If origin is watch_list and the route is the add form: delegate the submission to AF-38 unchanged — the D15 lock (AF-39) still runs there before any INSERT; the guard itself performs no write.\n3. If the POST attempts to create a position on the monthly grid route, the dashboard route, or ANY other route: reject immediately with the named error (e.g. ERR-entry-guard: 'Add position is only allowed from the Watch List form') and write nothing.\n4. A rejected add produces no bonds row, so the monthly grid, dashboard and watch list can never display a bypassed company (D16, FR-27).\n5. Grid and dashboard templates never emit an add-position control; the guard is the server-side backstop for hand-crafted requests, not the only defense.\n6. Surface every rejection visibly via AF-30 naming the operation; a blocked or rejected add never redirects as success.",
+      "complexity_note": "route classification plus delegation; one branch, no queries of its own",
+      "edge_cases": [
+        "hand-crafted POST to the grid payment route with add-position fields -> rejected by the guard, nothing written",
+        "Watch List submit blocked by AF-39 named error -> error surfaces, zero rows inserted, no redirect-as-success",
+        "GET requests to grid/dashboard -> unaffected; the guard only classifies add-position POSTs",
+        "double-submit of the Watch List form -> second submit hits AF-39's active lock (first row is On-going), not a duplicate row"
+      ]
+    },
+    {
+      "af_id": "AF-41",
+      "function_name": "financial_goals_manage",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: financial_goals rows (legacy home_plan schedule rows plus new goal records); POST goal create/update/delete form (name, target_amount, target_end_date); accumulated savings per goal\nOUTPUT: Financial Goals page (tab label + heading 'Financial Goals', goal list with target amount, target end date, accumulated amount, progress); created/updated/deleted goal rows; success or named-error flash\nERRORS: missing schema, invalid target amount/date, zero-row update/delete, or query failure -> raise named error ERR-goals-op naming the operation via AF-30; never swallow, never report success on a failed mutation (FR-21)\n1. Preconditions: schema exists (AF-01); the surface is labelled 'Financial Goals' in the tab and heading — the string 'Home Plan' appears nowhere in the goals UI (FR-28).\n2. READ all financial_goals rows plus their schedule contributions; compute progress per goal = accumulated savings vs target_amount (live query, no stored progress column).\n3. CREATE: validate name non-empty, target_amount numeric and non-negative, target_end_date parseable; INSERT one row; a constraint/validation failure raises the named error and writes nothing.\n4. UPDATE: resolve the goal by id; if absent raise the named not-found error; apply new target_amount / target_end_date / name in place; a change count of 0 raises instead of succeeding silently.\n5. DELETE: resolve by id; remove the single goal row (and keep its schedule history consistent per data-model rules); zero-row delete raises the named error.\n6. Legacy import path: irregular savings rows 39588, 10063 and 0 arrive as goals with values and original month positions preserved — imported as goals, never as bond positions (FR-28).\n7. Render the list ordered by target_end_date; every amount on the page flows through the privacy masking path (AF-43) before display.",
+      "complexity_note": "CRUD over one table plus per-goal progress aggregation",
+      "edge_cases": [
+        "goal with target_amount 0 -> accepted as a real value; progress division guarded (no ZeroDivisionError presented as a crash)",
+        "target_end_date in the past -> stored as-is; progress view still renders (no silent auto-close)",
+        "legacy row value 0 -> preserved as a goal with amount 0, not dropped",
+        "edit targeting a deleted goal id -> named not-found error, not a silent no-op"
+      ]
+    },
+    {
+      "af_id": "AF-42",
+      "function_name": "share_snapshot_build",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: checkbox selections (include_totals, include_per_bond, include_monthly_history, show_amounts); portfolio aggregates (AF-13); per-bond rows; monthly history rows (AF-20/AF-49); privacy mode state (AF-43)\nOUTPUT: print-styled HTML snapshot file containing only the checked sections; CSV export of the same checked sections (RFC-4180, UTF-8 per AF-26/AF-27 conventions); live preview data for checkbox toggles\nERRORS: unreadable source data, unwritable export path, or section-build failure -> raise named error ERR-share-export naming the section/operation via AF-30; a partial snapshot is never presented as complete (FR-21)\n1. Read the checkbox set; default all sections on and amounts visibility on.\n2. Load the data only for checked sections: totals -> AF-13 aggregates; per-bond list -> bonds + Till Return; monthly history -> AF-49 window rows. Unchecked sections are neither queried nor rendered.\n3. Determine amount visibility: amounts render real ONLY when show_amounts is checked AND Privacy Mode (AF-43) is OFF; otherwise every monetary value is masked ('••••' in HTML; the masked equivalent in CSV) — Privacy Mode overrides the checkbox (FR-29, FR-30).\n4. Build the HTML artifact: print-styled document with one section block per checked section; no external CSS/JS/network references (offline).\n5. Build the CSV artifact on the same checked-section filter using the AF-26/AF-27 quoting conventions (RFC-4180, UTF-8).\n6. Write both artifacts to the local export path; confirm each file was written (size > 0) — a zero-byte write raises the named error.\n7. Preview toggles re-run steps 2-3 client-side from already-loaded data: no server round-trip per checkbox click.\n8. No server beyond the local app, no accounts, no telemetry (FR-29).",
+      "complexity_note": "section-filtered aggregation plus local file writes; O(bonds x elapsed months) for the history section",
+      "edge_cases": [
+        "all sections unchecked -> empty snapshot refused with a named validation error, not an empty file",
+        "Privacy Mode ON but 'show amounts' checked -> masked anyway; the privacy flag overrides the share checkbox",
+        "show_amounts unchecked with Privacy Mode OFF -> amounts excluded/masked per the checkbox",
+        "history section checked on a brand-new portfolio -> header-only section with zero month rows is valid, not an error"
+      ]
+    },
+    {
+      "af_id": "AF-43",
+      "function_name": "privacy_mode_toggle",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: toggle action from the header eye icon; current privacy state from browser localStorage; monetary values rendered by any template\nOUTPUT: privacy state (on|off) applied to every page render; monetary values masked as '••••' when on and real when off; localStorage entry persisting the preference\nERRORS: template rendering with an unreadable privacy flag -> treat as OFF only after a named warning via AF-30; a template that would leak an unmasked amount while the flag is ON aborts that value's render with the mask (fail-closed for money)\n1. On page load the header partial reads the privacy flag from browser localStorage (key stable, e.g. dk_privacy_mode); absent key means OFF.\n2. The eye icon reflects the state and toggles it: click flips the flag and writes it back to localStorage (survives reload — FR-30).\n3. Template money-helper: for every monetary value (invested, received, balance, goal target amount, payment amounts, export figures) the helper emits the literal mask '••••' when the flag is ON, else the real formatted number.\n4. Apply the helper on EVERY surface: dashboard, monthly grid, watch list, Financial Goals, share snapshot (AF-42), monthly print (AF-51) — no surface may bypass it (FR-30).\n5. Never mask non-monetary data: company names, ISINs, statuses, dates, tenure numbers and credit day stay visible (FR-30).\n6. Toggling OFF re-renders real numbers with no residual masks; no cached masked HTML is stored server-side.\n7. Share and print inherit the same flag at render/export time — neither may leak an amount while the flag is ON (FR-29, FR-37).",
+      "complexity_note": "one localStorage read per page plus a constant-time mask decision per monetary value",
+      "edge_cases": [
+        "first visit, no localStorage key -> OFF (amounts visible) until the user toggles",
+        "localStorage cleared by the browser -> flag resets to OFF; no server-side residue exists to leak",
+        "flag ON while exporting share/print -> masked artifacts regardless of per-export checkboxes",
+        "template renders a money field without the helper -> treated as a review finding; the helper is the single money path"
+      ]
+    },
+    {
+      "af_id": "AF-44",
+      "function_name": "grid_auto_sort",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: grid row set (bonds with live D5 statuses from AF-14); status-change events (AF-15 recompute results)\nOUTPUT: grid rows ordered Danger -> On-going -> Completed; re-sorted order immediately after any status flip with no user action\nERRORS: status engine failure for a row -> raise named error ERR-grid-sort naming the bond via AF-30; a row with an unknown status is never silently dropped (ERR-01)\n1. On every monthly grid render, fetch each bond's live D5 status via AF-14 (no stored status column).\n2. Map status to a rank: Danger = 0, On-going = 1, Completed = 2.\n3. Sort rows by (rank, original company-name order) — within a band, relative order is stable; the sort never scrambles peers.\n4. Render the sorted rows.\n5. On any status change (payment insert AF-10, correction/void AF-11 -> recompute AF-15, or day-wise flip AF-46) the next render re-runs steps 1-3: a newly Completed row sinks to the bottom, a newly Danger row rises to the top — no user sort action, no stale order (FR-31).\n6. Never persist a sort key or order column; ordering is derived live each render.",
+      "complexity_note": "O(bonds log bonds) sort over an in-memory row set",
+      "edge_cases": [
+        "three rows Alpha On-going / Beta Danger / Gamma Completed -> renders Beta, Alpha, Gamma",
+        "Alpha flips to Completed -> next render is Beta, Gamma, Alpha (Completed sinks below On-going and peer Completed by stable name order)",
+        "day-wise sweep flips a row to Danger (AF-46) -> it becomes the top row on the next render",
+        "all-On-going portfolio -> stable name order, ranks all equal"
+      ]
+    },
+    {
+      "af_id": "AF-45",
+      "function_name": "chart_data_queries",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: bonds table (principle_tl, maturity_amount); payment_ledger rows (amount, paid flag); live D5 statuses (AF-14)\nOUTPUT: grouped-bar series per bond (company, invested, received); cumulative returns series (month, cumulative_received, cumulative_invested, balance, negative_flag); status counts (Danger, On-going, Completed)\nERRORS: any aggregate query failure -> raise named error ERR-chart-data naming the series via AF-30; never return a silent zero-filled series on failure (FR-21)\n1. Grouped bars: for each bond, invested = principle_tl; received = SUM(amount) over rows with paid flag true AND amount > 0 (zero = unpaid per D5); emit (company, invested, received).\n2. Cumulative series: walk elapsed months in order (use the AF-49 window, current month included); at each month m, cumulative_received(m) = received to date, cumulative_invested(m) = SUM(principle_tl) of positions started on/before m, balance(m) = cumulative_received - cumulative_invested.\n3. Negative flag: for each point set negative_flag = (balance < 0); the dashboard draws negative-flagged segments of the line in red (FR-32).\n4. Status counts: run AF-14 over every bond; count Danger, On-going, Completed into a triple (FR-32).\n5. Return the three datasets as plain data structures; the dashboard template renders them as inline SVG with no external chart CDN and no network dependency (FR-32).\n6. No chart snapshot table is stored — every dashboard request recomputes (DATA-05, live figures).",
+      "complexity_note": "three aggregate passes: O(bonds) bars, O(elapsed months) cumulative, O(bonds x tenure) statuses",
+      "edge_cases": [
+        "bond with all-zero ledger -> received 0 (zero = unpaid), still listed in grouped bars",
+        "portfolio balance negative from month k -> points from k onward carry negative_flag true; earlier points false",
+        "empty portfolio -> three empty series/zero triple returned as a legitimate empty result (query succeeded)",
+        "Feb-2031+ starter -> included in bars and status counts; cumulative invested adds at its start month"
+      ]
+    },
+    {
+      "af_id": "AF-46",
+      "function_name": "credit_day_sweep",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: today's date (day-of-month); per-position credit_day (1-28); per-position current-month ledger row (paid flag, amount); tenure and months paid (AF-14 inputs)\nINPUT ASSERTION (D5 applied exactly, verbatim rule): Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved\nOUTPUT: per-position verdict (keep status | flip to Danger | stay Completed); portfolio status map feeding AF-44 re-sort and AF-47 alerts\nERRORS: missing credit_day, unparseable dates, or ledger query failure -> raise named error ERR-credit-sweep naming the bond via AF-30; a bond is never silently skipped (ERR-01)\n1. today_day = today.day-of-month (1..31); run the sweep for every position; triggers are the daily schedule and an application-startup catch-up.\n2. For each position, compute the D5 base status with AF-14 (months paid over the due window; zero-amount rows count unpaid).\n3. COMPLETED GUARD FIRST: if months_paid >= tenure, the position is Completed and the sweep leaves it Completed — D5 Completed overrides any day-wise Danger evaluation; no further day comparison runs for this position (FR-33).\n4. DAY-OF-MONTH COMPARISON: else compare today_day against credit_day:\n   4a. If today_day <= credit_day: no day-wise flip (on or before the credit day is still the due window; the day-of alert fires via AF-47/AF-48 but status is unchanged).\n   4b. If today_day > credit_day: load the current month's ledger row; unpaid means no row, paid flag false, OR amount 0 (zero = unpaid preserved).\n   4c. today_day > credit_day AND current month unpaid -> flip to Danger immediately (same day as the sweep, not at month-end) (FR-33).\n   4d. today_day > credit_day AND current month paid (row, flag true, amount > 0) -> keep the D5 base status; no Danger flip for a paid month.\n5. The D5 base scan itself is unchanged: ANY unpaid past month already yields Danger via AF-14 — the sweep only adds the earlier same-month trigger; it never weakens D5.\n6. Emit the updated portfolio status map; AF-44 re-sorts the grid and AF-47 builds notifications from the before-due/day-of/overdue cadence.\n7. Never write a status column; all results are in-memory/view-time (DATA-05).",
+      "complexity_note": "O(bonds) day comparisons plus one O(tenure) D5 scan per non-Completed bond",
+      "edge_cases": [
+        "credit_day 5, today day 6, current month unpaid, On-going -> flips to Danger on day 6 itself",
+        "credit_day 5, payment credited on day 5, sweep on days 6..month-end -> stays On-going",
+        "months_paid >= tenure with unpaid current month (no longer due) -> stays Completed (guard precedes comparison)",
+        "credit_day 5, today day 5, unpaid -> no flip yet (due day itself); flip occurs from day 6",
+        "position missing credit_day -> named error naming the bond; never treated as day 1 silently",
+        "row with amount 0 in the current month -> counts unpaid, triggers the flip when past credit day"
+      ]
+    },
+    {
+      "af_id": "AF-47",
+      "function_name": "notification_builder",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: alert conditions from sweep/cadence evaluation (position ref, alert type before_due | day_of | overdue, severity); notifications table\nOUTPUT: one notifications row per alert event (position ref, alert type, channel in_app, severity, timestamp, delivery status); bell list payload (unread count + recent items)\nERRORS: insert failure, duplicate-alert suppression bug, or query failure -> raise named error ERR-notify-build naming the alert event via AF-30; an alert is never logged-and-swallowed (FR-21)\n1. Cadence evaluation per active position using credit_day (D22/D24): before_due when today_day == credit_day - N (N from alert_prefs, default 2); day_of when today_day == credit_day; overdue when today_day > credit_day AND the current month is unpaid (same unpaid test as AF-46 step 4b).\n2. For each firing condition, INSERT exactly one notifications row: position ref, alert type, channel='in_app', severity (info for before_due, warning for day_of, danger for overdue), timestamp = now, delivery status = delivered.\n3. Deduplicate per (position, alert type, calendar day): a re-run of the same day's sweep must not stack duplicate rows for the same event.\n4. The bell list renders from notifications ordered by timestamp desc; unread state is per-row — opening the bell marks rows read without deleting them (FR-34).\n5. Alert history is retained indefinitely in-app; nothing in the app clears the table (FR-34).\n6. Only the in_app channel is written here; email delivery is AF-48's responsibility for the same event. No SMS, WhatsApp or push channel exists anywhere (D24 deferred, FR-34).",
+      "complexity_note": "cadence comparison plus one insert per firing event; one query for the bell list",
+      "edge_cases": [
+        "credit_day 5 with default N=2: day 3 -> before_due, day 5 -> day_of, day 8 unpaid -> overdue",
+        "same-day sweep re-run -> dedupe suppresses a second row for the same (position, type, day)",
+        "position Completed -> no cadence alerts fire (no payment due)",
+        "insert failure mid-batch -> named error raised; earlier rows remain (each insert is independent), never a silent partial report"
+      ]
+    },
+    {
+      "af_id": "AF-48",
+      "function_name": "email_sender",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: alert events with cadence type (before_due | day_of | overdue) and position details; Gmail SMTP settings from environment (host, port, sender address, Gmail App Password); recipient address from environment/local config\nOUTPUT: one email sent per alert event (subject names position, cadence type and credit day); delivery status (sent | failed with error text) recorded on the notification path; visible failure surface on send errors\nERRORS: missing SMTP environment variables, authentication failure, connection failure, or SMTP send error -> raise/surface named ERR-email-send via AF-30 (or record an explicit failed row visible in the bell list); failures are never silently swallowed (FR-21). No hardcoded credentials anywhere.\n1. Read configuration FROM ENVIRONMENT ONLY: SMTP_HOST (default smtp.gmail.com), SMTP_PORT (default 587, STARTTLS), SMTP_USER (sender Gmail address), SMTP_APP_PASSWORD (Gmail App Password from environment — one-time user setup, NEVER hardcoded in code, templates or DB), ALERT_RECIPIENT (owner address).\n2. If any required variable is absent, raise the named setup error naming the missing variable (e.g. ERR-email-send: SMTP_APP_PASSWORD is not set) — never fall back to a silent no-op and never default a credential.\n3. For each alert event from AF-47's cadence (before_due on the lead day, day_of on the credit day, overdue after the credit day while unpaid): compose subject '<cadence>: <company> payment <month>' and a plain-text body with company, ISIN, amount due, credit day and current status.\n4. Connect to SMTP_HOST:SMTP_PORT with SMTP_USER / SMTP_APP_PASSWORD; issue STARTTLS; authenticate.\n5. Send one email (From SMTP_USER, To ALERT_RECIPIENT) via sendmail; close the session.\n6. On success record delivery status 'sent' on the notification row.\n7. On ANY failure (auth, connection, send) catch the exception, record delivery status 'failed' with the error text on the notification row, AND surface a named error/visible failure via AF-30 — the user sees the failure; nothing is swallowed (FR-34, FR-21).\n8. Personal-to-personal only: no marketing APIs, no cloud push services, no third-party mail SaaS (offline rule, D24).",
+      "complexity_note": "one SMTP session per sweep batch; one message per firing alert event",
+      "edge_cases": [
+        "SMTP_APP_PASSWORD unset -> named setup error at step 2; no send attempted, failure visible",
+        "wrong App Password -> SMTPAuthenticationError captured, delivery status 'failed' recorded, named error surfaced",
+        "network down / connection refused -> same failure path; the in-app bell row still exists (AF-47 wrote it first)",
+        "duplicate day_of event suppressed by AF-47 dedupe -> no second email for the same day",
+        "recipient equals sender (typical personal-to-personal setup) -> allowed"
+      ]
+    },
+    {
+      "af_id": "AF-49",
+      "function_name": "history_window_filter",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: current month (YYYY-MM from the system clock); earliest interest_start_month across positions; payment_ledger rows\nOUTPUT: month keys from earliest start through current month inclusive; history rows (bond x elapsed month) for the Monthly History table; current-month column flagged for highlight\nERRORS: clock read failure, unparseable month keys, or ledger query failure -> raise named error ERR-history-window naming the operation via AF-30; an empty result is returned only when data is genuinely empty (FR-21)\n1. current = today's YYYY-MM; start = MIN(interest_start_month) over bonds.\n2. Build the month key list: every month from start through current INCLUSIVE (auto-append: the current month is always present because it derives from the clock, not from stored headers) (FR-35).\n3. Explicitly EXCLUDE any month after current — future columns are never rendered (FR-35).\n4. Query payment_ledger for all bonds across the month list; shape rows as bond x month (paid/amount per cell).\n5. Flag the current column for highlight in the render.\n6. No header row is stored anywhere (D3): each month's column appears because the clock advanced and the ledger is queried — unlike the legacy Excel grid's futuristic year columns (FR-35).\n7. Extend AF-20's aggregation with this window filter; AF-20 remains the base history aggregator.",
+      "complexity_note": "window construction O(months) plus one ledger range query O(bonds x elapsed months)",
+      "edge_cases": [
+        "today Oct 2026, earliest start Sep 2025 -> columns Sep 2025..Oct 2026; no Nov 2026+ column",
+        "clock advances to Nov 2026 -> Nov 2026 auto-appends on next render; later months still excluded",
+        "bond started later than earliest start -> its early cells render as empty/unpaid per ledger absence, columns still portfolio-wide",
+        "single bond started this month -> one column (current month only) is a valid table"
+      ]
+    },
+    {
+      "af_id": "AF-50",
+      "function_name": "date_range_tenure",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: exact start date (date picker); exact end date (date picker); payment credit day (integer); legacy alternative: start_month (YYYY-MM) + tenure_months\nOUTPUT: computed tenure_months; validated credit_day (1-28); validated (start_date, end_date, tenure_months, credit_day) tuple; legacy-mapped tuple\nERRORS: end before start, unparseable dates, credit day outside 1-28 or non-integer -> raise named error ERR-date-range naming the failing field via AF-30; never coerce silently (FR-21)\n1. Parse start_date and end_date from the picker values; unparseable input raises the named error.\n2. If end_date <= start_date (same day or inverted), raise the named range error — a non-positive span is invalid.\n3. TENURE CALCULATION (calendar arithmetic): tenure_months = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month).\n   IMPLEMENTATION NOTE (day-shy): when end_date.day < start_date.day the final month is only partially covered; the shipped formula remains the plain year*12+month delta (SRS AC example: start 2025-09-03, end 2026-12-02 -> (2026-2025)*12 + (12-9) = 15 months). The day-shy nuance is documented for implementers and is NOT applied as a decrement.\n4. CREDIT DAY VALIDATION: credit_day must be an integer in 1..28 inclusive; 0, 29, 30, 31, negatives and non-integers raise the named validation error before any write (FR-36). The 1-28 cap guarantees every month can host the credit day without short-month edge cases.\n5. No manual tenure field exists: the form accepts dates only; tenure is always derived (step 3).\n6. LEGACY MAPPING (import path): start_month 'YYYY-MM' -> start_date = first day of that month; end_date = the date tenure_months later (calendar add from the imported tenure); credit_day defaults to start_date.day (clamped to 28 if the start day is 29-31) (FR-36).\n7. Return the validated tuple for the bonds row (start_date, end_date, tenure_months, credit_day); downstream AF-46 consumes credit_day and AF-14 consumes tenure_months.",
+      "complexity_note": "constant-time date arithmetic and range checks",
+      "edge_cases": [
+        "start 2025-09-03, end 2026-12-02 -> tenure 15 (plain month delta, per SRS AC)",
+        "credit_day 0 / 29 / 30 / 31 / 'abc' -> rejected with named validation error, nothing written",
+        "end_date == start_date -> named range error (zero-month tenure invalid)",
+        "legacy start_month '2025-09', tenure 15 -> start_date 2025-09-01, end_date computed +15 months, credit_day defaults to 1",
+        "legacy start day 31 -> credit_day clamped to 28 on mapping, never stored as 31"
+      ]
+    },
+    {
+      "af_id": "AF-51",
+      "function_name": "print_statement_view",
+      "language_flavor": "python-like",
+      "pseudocode": "INPUT: target month (default current); portfolio summary figures (AF-13); this-month payment rows; live D5 status list (AF-14); alert history rows (AF-47); privacy mode state (AF-43)\nOUTPUT: A4 print-optimized HTML page with exactly five sections — month header, portfolio summary, this-month payment table, status list, alerts footer; masked monetary values when Privacy Mode is active\nERRORS: query failure for any section or template render failure -> raise named error ERR-print-statement naming the section via AF-30; a partial statement is never presented as complete (FR-21)\n1. Resolve the target month (default: current month from the clock).\n2. Load section data: summary = AF-13 totals; payment table = ledger rows for the target month; status list = AF-14 per bond; alerts = AF-47 notification rows relevant to the target month.\n3. PRIVACY GATE: read the Privacy Mode flag (AF-43); when ON, run every monetary value in all sections through the mask helper -> '••••' before layout; when OFF, real numbers render (FR-37, FR-30).\n4. Render the print template with EXACTLY these five sections in order: (1) month header, (2) portfolio summary, (3) this-month payment table, (4) status list, (5) alerts footer (FR-37).\n5. Apply A4 print CSS: page size A4, print-optimized margins, no interactive controls, no screen-only chrome — the browser print preview shows a single coherent statement.\n6. Figures are computed live at render time; no stored snapshot is read or written (DATA-05).\n7. Statuses/names/dates in the statement are never masked — only monetary values (FR-30 privacy scope).",
+      "complexity_note": "five section queries plus one template render",
+      "edge_cases": [
+        "Privacy Mode ON -> summary, payment table and footer amounts all masked; names/statuses/dates complete",
+        "Privacy Mode OFF -> real amounts; layout identical",
+        "month with zero payments -> empty payment table section with an explicit 'no payments this month' row, not a missing section",
+        "alerts footer with no alerts -> explicit 'no alerts' line, section still present",
+        "target month in the future -> named validation error; the statement is for elapsed/current months only"
+      ]
+    }
+  ],
+  "coverage_note": "12/12 addendum atomic functions covered: exactly one pseudocode entry for each of AF-40..AF-51 in Atomic_Functions_addendum_v2.json, in id order; AF-01..AF-39 entries remain owned by Pseudocode_DK_Bond_Tracker_v1 and Pseudocode_addendum_v1."
+}

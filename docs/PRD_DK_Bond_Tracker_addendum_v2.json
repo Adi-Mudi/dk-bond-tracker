@@ -1,0 +1,145 @@
+{
+  "id": "PRD_DK_Bond_Tracker_addendum_v2",
+  "kind": "prd",
+  "title": "PRD Addendum v2 — Wave-2 Feature Set: Entry Lock, Goals, Sharing, Privacy, Sorting, Charts, Day-wise Alerts, History, Date Model, Print (D16-D26)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "PRD_DK_Bond_Tracker_addendum_v1",
+  "sections": [
+    {
+      "heading": "Change Record",
+      "body": "markdown: addendum v2.0 extends addendum v1 (which extends PRD_DK_Bond_Tracker_v2) after owner decisions D16-D26 (2026-10-30); adds FR-27..FR-37; no legacy FR altered — FR-01..FR-24 remain owned by PRD_DK_Bond_Tracker_v2 and FR-25/FR-26 remain owned by PRD_DK_Bond_Tracker_addendum_v1. Wave 2 scope covers: sole entry point with entry-time lock (D16), Financial Goals rename with target amount/end date (D17), customizable share snapshot (D18), global Privacy Mode (D19), monthly grid auto-sort (D20), dashboard charts trio (D21), day-wise status sweep + email alerts (D22), dashboard monthly history window (D23), alert channel stack (D24), monthly printable statement (D25), and Add Position exact-dates + credit-day upgrade (D26)."
+    },
+    {
+      "heading": "Sole Entry Flow (D16)",
+      "body": "Positions are created ONLY through the Watch List add form. The D15 active-position lock (FR-26) fires at that submit; if blocked, nothing enters the system, so the monthly grid and dashboard can never show a bypassed company. The monthly grid is payment entry + render only — no alternate add route exists anywhere in the app (no add button in grid, dashboard, or any other surface)."
+    },
+    {
+      "heading": "Financial Goals (D17)",
+      "body": "'Home Plan' is renamed to 'Financial Goals'; the tab label reads 'Financial Goals'. Goal entries gain target amount and target end date so 10-year futuristic savings plans are first-class. Legacy irregular savings rows (39588/10063/0) import as goals."
+    },
+    {
+      "heading": "Customizable Share Snapshot (D18)",
+      "body": "A Share panel offers per-section checkboxes (totals, per-bond list, monthly history, amounts visibility) and generates an offline shareable snapshot: print-styled HTML file plus a CSV option. It respects Privacy Mode (amounts masked when hidden). No server, no accounts."
+    },
+    {
+      "heading": "Privacy Mode (D19)",
+      "body": "A global 'Privacy Mode' toggle (eye icon in header) masks EVERY monetary value across dashboard, grid, watch list, goals, share snapshot and print as '••••' until toggled back; state is persisted locally in browser storage. Numbers, statuses and names stay visible (Zerodha Kite pattern)."
+    },
+    {
+      "heading": "Monthly Grid Auto-Sort (D20)",
+      "body": "Monthly grid rows always sort Danger first, then On-going, then Completed last; ordering recomputes automatically whenever a status changes (a position reaching Completed sinks to the bottom without user action)."
+    },
+    {
+      "heading": "Charts Trio (D21)",
+      "body": "The dashboard gains a charts row: (1) grouped bars — invested vs received per bond; (2) cumulative returns line — turns red when the overall balance goes negative; (3) status donut — Danger / On-going / Completed split. All charts render as inline SVG with no external chart CDN (offline)."
+    },
+    {
+      "heading": "Day-wise Status and Alerts (D22 + D24)",
+      "body": "Status upgrades from month-end to DAY-WISE: each position carries a credit day (day-of-month, per D26); a daily sweep checks that day's payment — unpaid after the credit day flips the position to Danger immediately (not at month-end). Completed logic (D5: months paid >= tenure) is unchanged. Alerting ships with in-app notification bell + email sent personal-to-personal via the owner's Gmail SMTP (App Password, one-time user setup); reminder cadence is before-due / day-of / overdue per community best practice. Alert history is retained in-app (list + timestamps) so the alert mechanism is auditable. SMS / WhatsApp / push are documented as deferred and are NOT shipped (offline rule; cloud push needs a server, SMS/WhatsApp are paid cloud)."
+    },
+    {
+      "heading": "Monthly History Window (D23)",
+      "body": "The Monthly History table shows ONLY elapsed months up to and including the current month; future columns are never rendered; each new month auto-appends its column from the ledger (no headers stored, no future window) — unlike the legacy Excel grid which showed futuristic years."
+    },
+    {
+      "heading": "Date Model — Add Position Upgrade (D26)",
+      "body": "The Add Position form upgrades to exact START DATE and END DATE (date pickers) with tenure months auto-calculated from the range (no manual tenure entry). A separate 'Payment credit day' field (day-of-month 1-28) is stored per position — this is the date the day-wise sweep (D22) and all alert timing use. Legacy import maps start_month -> start date, tenure -> computed end date, default credit day = start date's day."
+    },
+    {
+      "heading": "Monthly Printable Statement (D25)",
+      "body": "A dedicated 'Monthly Print' frontend design: A4 print-optimized HTML showing month header, portfolio summary, this-month payment table, status list, alerts footer; privacy-mode aware (masks if active); approved like the other HTML designs."
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "FR-27",
+      "area": "data entry / locking",
+      "statement": "When a position is created, the system SHALL accept it ONLY through the Watch List add form — the sole entry point in the app; the D15 active-position lock (FR-26) SHALL be enforced at that submit, and if the add is blocked NOTHING shall be written or appear in the monthly grid, dashboard, or any other surface; the monthly grid SHALL remain payment entry + render only with no alternate add route anywhere (D16).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D16"
+    },
+    {
+      "id": "FR-28",
+      "area": "goals",
+      "statement": "When the goals feature is surfaced, the system SHALL label it 'Financial Goals' (renamed from 'Home Plan', including the tab label) and SHALL support target amount and target end date per goal so 10-year futuristic savings plans are first-class; legacy irregular savings rows (39588/10063/0) SHALL import as goals (D17).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D17"
+    },
+    {
+      "id": "FR-29",
+      "area": "sharing",
+      "statement": "When a user opens the Share panel, the system SHALL offer per-section checkboxes (totals, per-bond list, monthly history, amounts visibility) and SHALL generate an offline shareable snapshot as a print-styled HTML file plus a CSV option, with no server and no accounts; the snapshot SHALL respect Privacy Mode by masking amounts when amounts are hidden (D18).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D18"
+    },
+    {
+      "id": "FR-30",
+      "area": "privacy",
+      "statement": "When Privacy Mode is active, the system SHALL mask EVERY monetary value as '••••' across dashboard, monthly grid, watch list, goals, share snapshot and print (Zerodha Kite pattern), while numbers, statuses and names stay visible; the toggle (eye icon in header) SHALL persist its state locally in browser storage so the preference survives reload (D19).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D19"
+    },
+    {
+      "id": "FR-31",
+      "area": "status / rendering",
+      "statement": "When the monthly grid renders, the system SHALL order rows Danger first, then On-going, then Completed last, and SHALL recompute that ordering automatically whenever any position's status changes (a position reaching Completed sinks to the bottom with no user action) (D20).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D20"
+    },
+    {
+      "id": "FR-32",
+      "area": "dashboard / visualization",
+      "statement": "When the dashboard renders, the system SHALL display a charts row of: (1) grouped bars comparing invested vs received per bond, (2) a cumulative returns line that turns red when the overall balance goes negative, and (3) a status donut showing the Danger/On-going/Completed split; all charts SHALL render as inline SVG with no external chart CDN or network dependency (offline) (D21).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D21"
+    },
+    {
+      "id": "FR-33",
+      "area": "status / scheduling",
+      "statement": "When evaluating payment status day-wise, the system SHALL check each position's payment on its credit day (day-of-month per D26) via a daily sweep and SHALL flip the position to Danger immediately (same day) if that month's payment is still unpaid after the credit day — not at month-end; the D5 Completed logic (months paid >= tenure, Completed overriding Danger) SHALL remain unchanged (D22).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D22"
+    },
+    {
+      "id": "FR-34",
+      "area": "alerts",
+      "statement": "When an alert condition fires (before-due / day-of / overdue on a position's credit day), the system SHALL deliver it via the two shipped channels — an in-app notification bell and an email sent personal-to-personal through the owner's Gmail SMTP with an App Password (one-time user setup) — SHALL retain alert history in-app with timestamps for audit, and SHALL NOT ship SMS, WhatsApp, or push (documented as deferred) (D24, cadence per D22).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D24"
+    },
+    {
+      "id": "FR-35",
+      "area": "dashboard / history",
+      "statement": "When the Monthly History table renders, the system SHALL show ONLY elapsed months up to and including the current month, SHALL never render future month columns, and SHALL auto-append a new month's column from the ledger as each month begins (no stored headers, no future window) (D23).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D23"
+    },
+    {
+      "id": "FR-36",
+      "area": "data entry / dates",
+      "statement": "When a user adds a position, the Add Position form SHALL accept an exact START DATE and END DATE via date pickers and SHALL auto-calculate tenure months from that range (no manual tenure entry), plus a separate 'Payment credit day' field validated to day-of-month 1-28 and stored per position for the day-wise sweep and alert timing; legacy import SHALL map start_month -> start date, tenure -> computed end date, and default credit day = start date's day (D26).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D26"
+    },
+    {
+      "id": "FR-37",
+      "area": "print",
+      "statement": "When the user requests a monthly printable statement, the system SHALL render a dedicated A4 print-optimized HTML 'Monthly Print' view showing the month header, portfolio summary, this-month payment table, status list, and alerts footer; the view SHALL be privacy-mode aware and mask monetary values when Privacy Mode is active (D25).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D25"
+    }
+  ]
+}

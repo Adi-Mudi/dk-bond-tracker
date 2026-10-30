@@ -4,7 +4,7 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
@@ -231,6 +231,144 @@
       "WHY": "User requirement 2026-10-30 Q2: 'same company cannot buy two times while ongoing and in the danger. But if it was completed then it can buy another... very strict locking mechanism.' Pairs with FR-17 reinvestment (Completed frees both capital AND the slot). User chose both company+ISIN keying and hard block over the alternatives.",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 Q2 + AskUser answers"
+    },
+    {
+      "id": "D16",
+      "topic": "Sole entry point + entry-time lock enforcement",
+      "options": [
+        "Watch List add form is the ONLY position entry; D15 lock checked at that submit; grid/dashboard have no add path",
+        "Allow add from multiple surfaces"
+      ],
+      "choice": "Positions are created ONLY through the Watch List add form. The D15 active-position lock fires at that submit; if blocked, nothing enters the system, so the monthly grid/dashboard can never show a bypassed company. Grid = payment entry + render only; no alternate add route anywhere.",
+      "WHY": "User 2026-10-30 Q1: block everything from the watch list itself so nobody can 'easily add in the monthly grid'.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1"
+    },
+    {
+      "id": "D17",
+      "topic": "Rename 'Home Plan' + long-horizon goals",
+      "options": [
+        "Savings Goals",
+        "Future Savings Plan",
+        "Financial Goals",
+        "Wealth Plan"
+      ],
+      "choice": "Rename 'Home Plan' to 'Financial Goals'. Goal entries gain target amount + target end date so 10-year futuristic savings plans are first-class; legacy irregular savings rows (39588/10063/0) import as goals. Tab label: 'Financial Goals'.",
+      "WHY": "User Q2 asked for community-checked naming. Research (Savi/Qapital/Mint/OnePay/NerdWallet) shows 'Savings Goal' is the standard term; user explicitly chose 'Financial Goals' from the offered list as the broader umbrella.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q2 + AskUser"
+    },
+    {
+      "id": "D18",
+      "topic": "Customizable share snapshot",
+      "options": [
+        "Checkbox-selected offline snapshot (HTML + CSV)",
+        "CSV toggles only",
+        "Cloud share link"
+      ],
+      "choice": "Share panel with per-section checkboxes (totals, per-bond list, monthly history, amounts visibility) generating an offline shareable snapshot: print-styled HTML file + CSV option. Respects privacy mode (amounts masked when hidden). No server, no accounts.",
+      "WHY": "User Q3: share investment plan with friends, customizable what to include. User chose customizable snapshot; cloud link rejected as offline-breaking.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q3 + AskUser"
+    },
+    {
+      "id": "D19",
+      "topic": "Privacy mode (hide amounts) - Zerodha pattern",
+      "options": [
+        "Global toggle masking all monetary values",
+        "Per-page masks",
+        "PIN-protected mode"
+      ],
+      "choice": "Global 'Privacy Mode' toggle (eye icon in header): masks EVERY monetary value across dashboard, grid, watch list, goals, share snapshot and print as '••••' until toggled back; state persisted locally (browser storage). Numbers, statuses, names stay visible.",
+      "WHY": "User Q4: money app must not show amounts on open. Community check: Zerodha 'Privacy Mode' (Kite, Aug 2024) does exactly this - one toggle hides dashboard/holdings/positions/funds values, for focus + showing screens to others. Pattern copied directly.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q4 + community (Zerodha Z-Connect)"
+    },
+    {
+      "id": "D20",
+      "topic": "Monthly grid automatic row ordering",
+      "options": [
+        "Danger -> On-going -> Completed auto-sort",
+        "Manual sort"
+      ],
+      "choice": "Monthly grid rows always sort: Danger first, then On-going, then Completed last; ordering recomputes automatically whenever a status changes (Completed sinks to bottom without user action).",
+      "WHY": "User Q5 explicit.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q5"
+    },
+    {
+      "id": "D21",
+      "topic": "Portfolio visualization graphs",
+      "options": [
+        "Full trio",
+        "Minimal pair",
+        "Everything incl. advanced"
+      ],
+      "choice": "Dashboard gains a charts row: (1) grouped bars - invested vs received per bond; (2) cumulative returns line - turns red if overall balance goes negative; (3) status donut - Danger/On-going/Completed split. Rendered as inline SVG (no external chart CDN, offline).",
+      "WHY": "User Q6 asked for invest/return/negative visualization + community check. Research: line = trend gold standard; grouped columns = invested-vs-received comparison; red/green negative convention (Syncfusion/finance-alliance). User chose full trio.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q6 + AskUser"
+    },
+    {
+      "id": "D22",
+      "topic": "Day-wise status sweep + email alerts",
+      "options": [
+        "Credit-day daily sweep + Gmail SMTP personal-to-personal",
+        "Month-end only",
+        "Email via cloud service"
+      ],
+      "choice": "Status upgrade from month-end to DAY-WISE: each position carries a credit day (day-of-month, from D26); a daily sweep checks that day's payment - unpaid after the credit day -> position flips to Danger immediately. Alerting: in-app notification bell + email sent personal-to-personal via the owner's Gmail SMTP (App Password), one-time user setup; reminder cadence before-due/day-of/overdue per community best practice. Completed logic (D5) unchanged.",
+      "WHY": "User Q7 explicit. Research: scheduled daily reminder automation + Python smtplib Gmail App Password is the standard personal-mail path; cloud push/SMS rejected (offline rule, see D24).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q7 + community (reminder automation best practices)"
+    },
+    {
+      "id": "D23",
+      "topic": "Dashboard monthly history window",
+      "options": [
+        "Elapsed months + current month only (auto-append)",
+        "Full future grid like Excel"
+      ],
+      "choice": "Monthly History table shows ONLY elapsed months up to and including the current month; future columns are never rendered; each new month auto-appends its column from the ledger (no headers stored, no future window).",
+      "WHY": "User Q8: Excel showed futuristic years; application should not. Auto-append current month each month.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q8"
+    },
+    {
+      "id": "D24",
+      "topic": "Alert stack channels (Q9 community check)",
+      "options": [
+        "In-app + email now; SMS/WhatsApp/push documented as future",
+        "All channels now"
+      ],
+      "choice": "Ship with in-app notification bell + email (per D22). Community-checked alternatives recorded and DEFERRED: SMS/WhatsApp (~98% open but paid cloud), web/mobile push (needs server - breaks offline). Alert history retained in-app (list + timestamps) so the 'strict alert mechanism' is auditable.",
+      "WHY": "User Q9: strict alert mechanism + community check other channels. Research (CleverTap/OneSignal/Route Mobile): channels ranked; offline rule decides in-app+email now.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q9 + community (fintech channel comparison)"
+    },
+    {
+      "id": "D25",
+      "topic": "Monthly printable statement design",
+      "options": [
+        "Full detailed print HTML design",
+        "Reuse dashboard print CSS"
+      ],
+      "choice": "Deliver a dedicated 'Monthly Print' frontend design: A4 print-optimized HTML showing month header, portfolio summary, this-month payment table, status list, alerts footer; privacy-mode aware (masks if active); approved like the other HTML designs.",
+      "WHY": "User Q10 wants to SEE how the monthly print looks before build.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q10"
+    },
+    {
+      "id": "D26",
+      "topic": "Add Position upgrade: exact dates + credit day",
+      "options": [
+        "Start date + end date (exact) + credit day",
+        "Tenure in months only (legacy)"
+      ],
+      "choice": "Add Position form upgraded: exact START DATE and END DATE (date pickers) -> tenure months auto-calculated from the range (no manual tenure). PLUS separate 'Payment credit day' field (day-of-month 1-28) stored per position - this is the date used by the day-wise sweep (D22) and all alert timing (D34). Legacy import maps start_month -> start date, tenure -> computed end date, default credit day = start date's day.",
+      "WHY": "User Q11 explicit: exact dates, auto tenure, credit day drives alerts.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q11"
     }
   ],
   "gaps": [
@@ -240,6 +378,13 @@
       "question": "Can openpyxl/oletools reliably read the mixed formula/static cells in the real workbook (Home Plan especially) for the one-time import?",
       "Status": "OPEN",
       "resolution_path": "Stage 4 feasibility+spikes (parser spike against the real XLSM)."
+    },
+    {
+      "id": "G2",
+      "topic": "Community research for change wave 2",
+      "question": "Naming, privacy-mode pattern, viz best practices, alert channels, reminder cadence - what does the community do?",
+      "Status": "CLOSED",
+      "resolution_path": "Tavily research 2026-10-30: Zerodha Privacy Mode (Z-Connect), savings-goal naming (Savi/Mint/OnePay/NerdWallet), viz guidance (Syncfusion/finance-alliance), reminder cadence (LeanPay/Paidnice/Jobber), fintech channels (CleverTap/OneSignal/Route Mobile). Sources recorded in D17/D19/D21/D22/D24 WHY fields."
     }
   ],
   "open_points": [
@@ -262,7 +407,8 @@
     "2026-09-27: velpari brainstorm run analyzed the XLSM itself (olevba + sheet XML, SHA-256 verified); 15 bonds, 5 sheets, payment grid Sep-2025..~2032; quirks catalogued; PRD_DK_Bond_Tracker.md drafted with FR-01..FR-24 in 4 phases.",
     "2026-10-30: user updated global rules/skills/scripts; issued Q1-Q4 (migrate all docs to DB up to Design Stage, follow strict stage sequence, PM ownership with MiMo-V2.6-Flash/Kimi CLI/cline-pass fleet, remove old-format files after verified migration).",
     "2026-10-30: PM interview closed with 2 answers: depth = through Div 3 final design; deletion set = 7 legacy .md docs. This brainstorm doc created as born-JSON (D6).",
-    "2026-10-30: user extended with Q1 (SQLite MCP entry for this project's store DB → D11) and Q2 (kimi+pi CLI readiness check, read-only → D12); brainstorm bumped to v1.1.0."
+    "2026-10-30: user extended with Q1 (SQLite MCP entry for this project's store DB → D11) and Q2 (kimi+pi CLI readiness check, read-only → D12); brainstorm bumped to v1.1.0.",
+    "2026-10-30 (wave 2): user issued Q1-Q11 (Q12 empty); community research run on 5 threads; decisions D16-D26 recorded with research sources; user choices: Financial Goals, In-app+Email, customizable share snapshot, full graph trio."
   ],
   "model_assignment": {
     "note": "All roles use one standardized local configuration per user directive Q3. Probed with a tiny message before first big dispatch (lifecycle model-assignment gate).",
@@ -340,6 +486,11 @@
       "version": "1.4.0",
       "date": "2026-10-30",
       "note": "New user decisions D14 (add-position single-master flow) + D15 (strict active-position lock: company-name OR ISIN key, hard block, releases on Completed) - additive extension by new user decisions per frozen-doc rule; no CONFIRMED text rewritten."
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-10-30",
+      "note": "Change wave 2: D16-D26 added (sole entry, Financial Goals rename, share snapshot, privacy mode, grid sort, charts, day-wise+email alerts, history window, alert stack, monthly print, dates+credit day); G2 research gap opened+closed."
     }
   ],
   "decision_log": [
@@ -392,6 +543,26 @@
       "date": "2026-10-30",
       "item": "landing path",
       "decision": "full change wave before build - user choice"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "rename",
+      "decision": "Home Plan -> Financial Goals (user choice from researched list)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "alert stack",
+      "decision": "In-app + Email (Gmail SMTP) - user choice"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "share",
+      "decision": "Customizable share snapshot - user choice"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "graphs",
+      "decision": "Full trio - user choice"
     }
   ],
   "revision_history": [
@@ -424,6 +595,12 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "Extended with user decisions D14 + D15 (add-position flow, active-position lock)."
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Extended with D16-D26 (change wave 2, research-backed)."
     }
   ]
 }
