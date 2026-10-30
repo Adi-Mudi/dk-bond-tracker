@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DK Bond Tracker — Watchlist Standalone Mockup v2</title>
+<style>
+:root{
+  --bg:#0f1115;
+  --panel:#171a21;
+  --elev:#1d2129;
+  --border:#2a2f3a;
+  --accent:#34d399;
+  --accent-dim:rgba(52,211,153,.12);
+  --text:#e6e9ef;
+  --muted:#9aa3b2;
+  --danger:#ff8787;
+  --danger-tint:rgba(255,135,135,.12);
+  --ongoing:#ff922b;
+  --ongoing-tint:rgba(255,146,43,.12);
+  --completed:#69db7c;
+  --completed-tint:rgba(105,219,124,.12);
+  --paid:#2f9e6e;
+  --paid-tint:rgba(47,158,110,.16);
+  --due:#7a3b3b;
+  --due-tint:rgba(122,59,59,.38);
+  --amber:#ffd43b;
+  --radius:10px;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font);
+  background:#0a0b0e;
+  color:var(--text);
+  font-size:13px;
+  line-height:1.45;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit}
+
+.window{
+  width:100%;
+  max-width:1640px;
+  height:calc(100vh - 32px);
+  min-height:860px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.02);
+}
+
+.titlebar{
+  height:48px;
+  flex:0 0 48px;
+  background:linear-gradient(180deg,#1a1e26,#151820);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  gap:14px;
+  user-select:none;
+}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.app-icon{
+  width:26px;height:26px;border-radius:7px;
+  background:linear-gradient(135deg,#34d399,#0d9463);
+  color:#06281c;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+  flex:0 0 auto;
+}
+.brand-name{font-weight:650;font-size:13.5px;letter-spacing:.2px;white-space:nowrap}
+.menu{display:flex;gap:2px;margin-left:10px}
+.menu button{
+  padding:4px 10px;border-radius:6px;color:var(--muted);font-size:12.5px;
+}
+.menu button:hover{background:var(--elev);color:var(--text)}
+.titlebar .spacer{flex:1}
+.win-btns{display:flex;gap:8px;align-items:center}
+.win-btn{
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:#0f1115;font-weight:700;
+}
+.win-min{background:#f5c542}
+.win-max{background:#3ddc84}
+.win-close{background:#ff6b6b}
+.win-btn:hover{filter:brightness(1.1)}
+
+.ribbon{
+  flex:0 0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 16px;
+  background:#12151b;
+  border-bottom:1px solid var(--border);
+  font-size:11.5px;
+  color:var(--muted);
+  letter-spacing:.3px;
+}
+.ribbon .ribbon-main{color:#b7c0cf}
+.ribbon .ribbon-main b{color:var(--accent);font-weight:650}
+.ribbon .ribbon-note{font-style:italic;opacity:.75}
+
+.shell{
+  flex:1;
+  display:grid;
+  grid-template-columns:240px 1fr;
+  min-height:0;
+}
+
+.sidebar{
+  background:#12151b;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:12px 10px 10px;
+  min-height:0;
+}
+.side-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+  color:#5d6675;padding:6px 10px 6px;font-weight:600;
+}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:8px;
+  color:var(--muted);text-decoration:none;font-size:13px;
+  border:1px solid transparent;
+}
+.nav a:hover{background:var(--elev);color:var(--text)}
+.nav a.active{
+  background:var(--accent-dim);
+  color:var(--accent);
+  border-color:rgba(52,211,153,.35);
+  font-weight:600;
+  box-shadow:inset 3px 0 0 var(--accent);
+}
+.nav a.ready{border-color:rgba(52,211,153,.18)}
+.nav a.ready:hover{border-color:rgba(52,211,153,.45)}
+.nav a.ready.active{border-color:rgba(52,211,153,.35)}
+.nav .rpill{
+  margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.04em;
+  color:var(--accent);background:var(--accent-dim);
+  border:1px solid rgba(52,211,153,.35);border-radius:8px;padding:1px 6px;
+}
+.nav .badge{
+  margin-left:auto;background:var(--danger);color:#2b0b0b;
+  font-size:10px;font-weight:700;border-radius:9px;
+  padding:1px 7px;min-width:18px;text-align:center;
+}
+.ic{width:16px;height:16px;flex:0 0 16px;position:relative;opacity:.9}
+.ic-dash{border:1.5px solid currentColor;border-radius:3px}
+.ic-dash::before,.ic-dash::after{content:"";position:absolute;background:currentColor}
+.ic-dash::before{left:50%;top:1px;bottom:1px;width:1.5px;margin-left:-.75px}
+.ic-dash::after{top:50%;left:1px;right:1px;height:1.5px;margin-top:-.75px}
+.ic-cal{border:1.5px solid currentColor;border-radius:3px}
+.ic-cal::before{content:"";position:absolute;left:1px;right:1px;top:3.5px;height:1.5px;background:currentColor}
+.ic-cal::after{content:"";position:absolute;left:3px;top:7px;width:3px;height:3px;background:currentColor;box-shadow:5px 0 0 currentColor,0 5px 0 currentColor,5px 5px 0 currentColor}
+.ic-star{background:currentColor;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.ic-goal{border:1.5px solid currentColor;border-radius:50%}
+.ic-goal::before{content:"";position:absolute;inset:3px;border:1.5px solid currentColor;border-radius:50%}
+.ic-goal::after{content:"";position:absolute;inset:6.5px;background:currentColor;border-radius:50%}
+.ic-alert{border:1.5px solid currentColor;border-radius:8px 8px 4px 4px;clip-path:polygon(50% 0%,100% 100%,0% 100%)}
+.ic-doc{border:1.5px solid currentColor;border-radius:2px}
+.ic-doc::before{content:"";position:absolute;left:3px;right:3px;top:4px;height:1.5px;background:currentColor;box-shadow:0 3px 0 currentColor,0 6px 0 currentColor}
+.ic-gear{border:1.5px solid currentColor;border-radius:50%}
+.ic-gear::before{content:"";position:absolute;inset:3.5px;border:1.5px solid currentColor;border-radius:50%}
+.ic-gear::after{content:"";position:absolute;left:50%;top:-1px;bottom:-1px;width:1.5px;margin-left:-.75px;background:currentColor;box-shadow:0 0 0 0 currentColor}
+
+.side-bottom{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.privacy-row{display:flex;align-items:center;gap:8px;padding:6px 10px}
+.privacy-row .lbl{font-size:12.5px;color:var(--text);font-weight:600}
+.toggle{
+  margin-left:auto;width:36px;height:20px;border-radius:10px;
+  background:#2a2f3a;border:1px solid var(--border);position:relative;flex:0 0 36px;
+  cursor:pointer;
+}
+.toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:#8b93a3;transition:left .15s;
+}
+.toggle.on{background:var(--accent-dim);border-color:rgba(52,211,153,.5)}
+.toggle.on::after{left:18px;background:var(--accent)}
+.toggle.locked{opacity:.55;cursor:not-allowed}
+.privacy-hint{padding:0 10px;font-size:11px;color:#6b7383;line-height:1.4}
+.masked-sample{color:var(--muted);font-weight:600;letter-spacing:.5px}
+.conn{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 10px;border-radius:8px;background:#0e1116;border:1px solid var(--border);
+  font-size:11.5px;color:var(--muted);
+}
+.conn .dot{color:var(--ongoing);font-size:14px;line-height:1}
+
+.main{
+  display:flex;flex-direction:column;min-width:0;min-height:0;
+  overflow:auto;
+}
+.main::-webkit-scrollbar{width:10px;height:10px}
+.main::-webkit-scrollbar-thumb{background:#2a2f3a;border-radius:6px}
+.main::-webkit-scrollbar-track{background:transparent}
+
+.screen{display:flex;flex-direction:column;min-width:0}
+.screen[hidden]{display:none}
+
+.page-head{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:16px 20px 12px;
+  position:sticky;top:0;z-index:30;
+  background:linear-gradient(180deg,rgba(15,17,21,.98),rgba(15,17,21,.92));
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid transparent;
+}
+.page-title{font-size:20px;font-weight:700;letter-spacing:.2px}
+.page-sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+.page-sub .hi{color:var(--ongoing);font-weight:600}
+.head-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:600;
+  border:1px solid var(--border);background:var(--elev);color:var(--text);
+}
+.btn:hover{border-color:#3a4150;background:#22262f}
+.btn-primary{
+  background:var(--accent);color:#06281c;border-color:transparent;font-weight:700;
+}
+.btn-primary:hover{background:#4adeb0;filter:none}
+.btn-danger{border-color:rgba(255,135,135,.55);color:var(--danger);background:transparent}
+.btn-danger:hover{background:var(--danger-tint);border-color:var(--danger)}
+.btn-icon{width:34px;height:34px;padding:0;justify-content:center;border-radius:8px}
+.btn-icon .g{font-size:14px;color:var(--muted)}
+.btn-icon:hover .g{color:var(--text)}
+
+.viewtabs{
+  margin:0 20px 14px;
+  display:inline-flex;gap:4px;padding:4px;
+  background:var(--panel);border:1px solid var(--border);border-radius:999px;
+  align-self:flex-start;
+}
+.viewtab{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 16px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted);
+}
+.viewtab:hover{color:var(--text)}
+.viewtab.active{background:var(--accent);color:#06281c}
+.viewtab .cnt{
+  font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;
+  background:rgba(0,0,0,.25);color:inherit;
+}
+.viewtab:not(.active) .cnt{background:var(--elev);color:var(--muted);border:1px solid var(--border)}
+
+.summary{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  padding:0 20px 14px;
+}
+.tile{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 14px;
+}
+.tile .k{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.tile .v{font-size:18px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.tile .n{font-size:11px;color:#6b7383;margin-top:3px}
+.tile.accent{border-color:rgba(255,146,43,.45);background:linear-gradient(180deg,rgba(255,146,43,.08),var(--panel))}
+.tile.accent .v{color:var(--ongoing)}
+.tile.green .v{color:var(--accent)}
+
+.filters{
+  margin:0 20px 12px;
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+}
+.search{
+  flex:1 1 220px;min-width:200px;position:relative;
+}
+.search input{
+  width:100%;padding:8px 12px 8px 32px;border-radius:8px;
+  background:#0e1116;border:1px solid var(--border);color:var(--text);font-size:12.5px;
+  outline:none;
+}
+.search input::placeholder{color:#5d6675}
+.search input:focus{border-color:rgba(52,211,153,.55)}
+.search .mag{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:11px;height:11px;border:1.5px solid #5d6675;border-radius:50%;
+}
+.search .mag::after{content:"";position:absolute;right:-4px;bottom:-3px;width:5px;height:1.5px;background:#5d6675;transform:rotate(45deg)}
+.fchip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;border-radius:8px;font-size:12px;
+  background:var(--elev);border:1px solid var(--border);color:var(--muted);
+}
+.fchip b{color:var(--text);font-weight:600}
+.fchip.sel{border-color:rgba(52,211,153,.5);background:var(--accent-dim);color:var(--accent)}
+.fchip.sel b{color:var(--accent)}
+.fchip .car{font-size:9px;opacity:.8}
+.fchip.active-chip{
+  background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.4);color:var(--accent);font-weight:600;
+}
+.fchip.active-chip .x{font-size:13px;opacity:.85;cursor:pointer;padding:0 2px}
+.fchip.active-chip .x:hover{opacity:1}
+.density{display:inline-flex;background:#0e1116;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-left:auto}
+.density button{padding:6px 10px;font-size:11.5px;color:var(--muted)}
+.density button.on{background:var(--elev);color:var(--text);font-weight:600}
+.sortsel{
+  padding:6px 10px;border-radius:8px;font-size:12px;background:var(--elev);
+  border:1px solid var(--border);color:var(--text);
+}
+
+.content-split{
+  display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:14px;
+  padding:0 20px 16px;align-items:start;
+}
+
+.table-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;min-width:0;
+}
+.table-scroll{overflow-x:auto}
+.table-scroll::-webkit-scrollbar{height:8px}
+.table-scroll::-webkit-scrollbar-thumb{background:#2a2f3a;border-radius:4px}
+table.wl{
+  width:100%;border-collapse:separate;border-spacing:0;
+  min-width:1240px;font-size:12.5px;
+}
+table.wl thead th{
+  position:sticky;top:0;z-index:10;
+  background:#141821;
+  color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  text-align:left;padding:9px 10px;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+table.wl thead th.num{text-align:right}
+table.wl thead th .sort{color:var(--accent);font-size:9px;margin-left:3px}
+table.wl thead th .info{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:13px;height:13px;border-radius:50%;border:1px solid #5d6675;color:#8b93a3;
+  font-size:9px;font-style:normal;margin-left:4px;cursor:help;vertical-align:middle;
+}
+table.wl tbody td{
+  padding:7px 10px;border-bottom:1px solid #20242d;vertical-align:middle;
+  height:40px;
+}
+table.wl tbody tr{background:var(--panel)}
+table.wl tbody tr:hover{background:#1a1f28}
+table.wl tbody tr.sel{
+  background:linear-gradient(90deg,rgba(52,211,153,.09),rgba(52,211,153,.02) 60%,transparent);
+  box-shadow:inset 0 0 0 1px rgba(52,211,153,.28);
+}
+table.wl tbody tr.danger-row td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
+table.wl tbody tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+table.wl tbody tr.danger-row.sel td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
+table.wl tbody tr.done-row{opacity:.92}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.co{font-weight:650;font-size:12.5px;white-space:nowrap}
+.isin{font-size:11px;color:#6b7383;font-variant-numeric:tabular-nums;letter-spacing:.03em;margin-top:1px}
+.cbx{
+  width:14px;height:14px;border-radius:3.5px;border:1.5px solid #3a4150;background:#0e1116;display:inline-block;vertical-align:middle;
+}
+.cbx.on{background:var(--accent);border-color:var(--accent);position:relative}
+.cbx.on::after{content:"";position:absolute;left:3.5px;top:1px;width:4px;height:7px;border:solid #06281c;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.tag{
+  display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;
+  background:var(--elev);border:1px solid var(--border);color:var(--muted);letter-spacing:.03em;
+}
+.tag.ncd{color:#a5b4fc;border-color:#3b4260;background:rgba(99,102,241,.1)}
+.tag.sdi{color:#7dd3fc;border-color:#2f4f63;background:rgba(56,189,248,.08)}
+.tag.corp{color:#c4b5fd;border-color:#4a3f66;background:rgba(167,139,250,.08)}
+.rbadge{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;
+  font-size:11px;font-weight:700;letter-spacing:.02em;
+}
+.rbadge.aaa{background:rgba(105,219,124,.14);color:var(--completed);border:1px solid rgba(105,219,124,.35)}
+.rbadge.aa{background:rgba(255,212,59,.1);color:var(--amber);border:1px solid rgba(255,212,59,.3)}
+.rbadge.a{background:rgba(255,146,43,.12);color:var(--ongoing);border:1px solid rgba(255,146,43,.35)}
+.rbadge.bbb{background:rgba(255,135,135,.1);color:#ffa07a;border:1px solid rgba(255,135,135,.35)}
+.rbadge .ag{font-weight:500;opacity:.75;font-size:10px}
+.ptag{
+  display:inline-block;width:18px;height:18px;line-height:16px;text-align:center;border-radius:5px;
+  font-size:10.5px;font-weight:800;background:var(--elev);border:1px solid var(--border);color:var(--muted);
+}
+.ret-pos{color:var(--completed);font-weight:650}
+.due-red{color:var(--danger);font-weight:700}
+.due-amt{color:var(--muted);font-size:11px;margin-top:1px}
+.cdown{
+  display:inline-block;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;margin-top:2px;
+}
+.cdown.soon{background:var(--ongoing-tint);color:var(--ongoing);border:1px solid rgba(255,146,43,.35)}
+.cdown.mid{background:rgba(154,163,178,.1);color:var(--muted);border:1px solid var(--border)}
+.cdown.done{background:var(--completed-tint);color:var(--completed);border:1px solid rgba(105,219,124,.35)}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+  font-size:11px;font-weight:700;white-space:nowrap;
+}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.danger{background:var(--danger-tint);color:var(--danger);border:1px solid rgba(255,135,135,.4)}
+.chip.ongoing{background:var(--ongoing-tint);color:var(--ongoing);border:1px solid rgba(255,146,43,.4)}
+.chip.completed{background:var(--completed-tint);color:var(--completed);border:1px solid rgba(105,219,124,.4)}
+.chip.watching{background:rgba(154,163,178,.1);color:var(--muted);border:1px solid var(--border)}
+.alertdot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);
+  box-shadow:0 0 0 3px rgba(255,135,135,.18);vertical-align:middle;
+}
+.alertdot.amber{background:var(--ongoing);box-shadow:0 0 0 3px rgba(255,146,43,.15)}
+.alertdot.none{background:transparent;box-shadow:none;width:8px;height:8px}
+.dots{color:var(--muted);font-size:15px;letter-spacing:1px;cursor:pointer;padding:2px 6px;border-radius:6px}
+.dots:hover{background:var(--elev);color:var(--text)}
+.tfoot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;border-top:1px solid var(--border);background:#141821;
+  font-size:11px;color:var(--muted);
+}
+
+.rail{display:flex;flex-direction:column;gap:14px;min-width:0;position:sticky;top:76px}
+.drawer{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;
+}
+.drawer-head{
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,#1b2029,#171a21);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.drawer-head h3{font-size:14px;font-weight:700;line-height:1.3}
+.drawer-head .sub{font-size:11px;color:var(--muted);margin-top:2px}
+.drawer-body{padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fact{
+  background:#12151b;border:1px solid var(--border);border-radius:8px;padding:7px 9px;
+}
+.fact .fk{font-size:10px;color:#6b7383;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.fact .fv{font-size:12px;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums}
+.fact.full{grid-column:1 / -1}
+.dsec{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sched{display:flex;flex-direction:column;gap:5px}
+.srow{
+  display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:7px;
+  background:#12151b;border:1px solid var(--border);font-size:12px;
+}
+.srow .m{width:34px;font-weight:700;color:var(--muted)}
+.srow .st{margin-left:auto;font-weight:700;font-size:11px}
+.srow.ok{border-color:rgba(105,219,124,.3)}
+.srow.ok .st{color:var(--completed)}
+.srow.bad{border-color:rgba(255,135,135,.4);background:rgba(122,59,59,.25)}
+.srow.bad .st{color:var(--danger)}
+.srow.soon .st{color:var(--muted)}
+.srow .amt{color:var(--text);font-variant-numeric:tabular-nums}
+.summary-box{
+  background:#12151b;border:1px solid var(--border);border-radius:8px;padding:9px 10px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:11.5px;
+}
+.summary-box .sk{color:var(--muted)}
+.summary-box .sv{text-align:right;font-weight:650;font-variant-numeric:tabular-nums}
+.drawer-actions{display:flex;flex-direction:column;gap:7px}
+.drawer-actions .btn{width:100%;justify-content:center}
+.offline-note{
+  font-size:10.5px;color:#6b7383;line-height:1.45;padding-top:2px;
+  border-top:1px dashed var(--border);padding-top:8px;
+}
+
+.alerts-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 12px 10px;
+}
+.alerts-card h4{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.alerts-card h4 .n{background:var(--danger);color:#2b0b0b;font-size:10px;border-radius:8px;padding:0 6px;font-weight:800}
+.acard{
+  display:flex;gap:9px;align-items:flex-start;
+  padding:9px 10px;border-radius:8px;margin-bottom:7px;
+  border:1px solid var(--border);background:#12151b;font-size:12px;line-height:1.4;
+}
+.acard .bar{width:3px;align-self:stretch;border-radius:2px;flex:0 0 3px}
+.acard.red{border-color:rgba(255,135,135,.35);background:rgba(122,59,59,.18)}
+.acard.red .bar{background:var(--danger)}
+.acard.amber{border-color:rgba(255,146,43,.35);background:rgba(255,146,43,.07)}
+.acard.amber .bar{background:var(--ongoing)}
+.acard.acc{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07)}
+.acard.acc .bar{background:var(--accent)}
+.acard .t{font-weight:650}
+.acard .d{color:var(--muted);font-size:11.5px;margin-top:1px}
+.acard .dismiss{margin-left:auto;color:#5d6675;font-size:13px;padding:0 2px;line-height:1}
+.acard .dismiss:hover{color:var(--text)}
+
+.watching-sec{padding:0 20px 18px}
+.watching-sec .whead{
+  display:flex;align-items:baseline;gap:10px;margin-bottom:10px;
+}
+.watching-sec .whead h3{font-size:14px;font-weight:700}
+.watching-sec .whead span{font-size:11.5px;color:var(--muted)}
+.wcards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.wcard{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 13px;display:flex;flex-direction:column;gap:8px;
+}
+.wcard:hover{border-color:#3a4150}
+.wcard .wn{font-weight:700;font-size:13px}
+.wcard .wi{font-size:11px;color:#6b7383;letter-spacing:.03em}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;font-size:11.5px}
+.wgrid .wk{color:var(--muted)}
+.wgrid .wv{text-align:right;font-weight:650;font-variant-numeric:tabular-nums}
+.wcard .btn{margin-top:auto;justify-content:center;font-size:12px}
+
+.design-notes{
+  margin:0 20px 20px;
+  border:1px dashed var(--border);border-radius:var(--radius);
+  background:#12151b;
+}
+.design-notes summary{
+  padding:10px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-weight:600;
+  list-style:none;
+}
+.design-notes summary::before{content:"▸ ";color:var(--accent)}
+.design-notes[open] summary::before{content:"▾ "}
+.design-notes .dn-body{padding:0 14px 12px;font-size:12px;color:var(--muted);line-height:1.6}
+.design-notes .dn-body li{margin-left:18px}
+
+.settings-wrap{padding:0 20px 20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.settabs{
+  display:inline-flex;gap:4px;padding:4px;align-self:flex-start;
+  background:var(--panel);border:1px solid var(--border);border-radius:999px;
+}
+.settab{
+  padding:7px 15px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted);
+}
+.settab:hover{color:var(--text)}
+.settab.active{background:var(--accent);color:#06281c}
+.setpanel{display:none;flex-direction:column;gap:14px;min-width:0}
+.setpanel.active{display:flex}
+.set-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 16px;
+}
+.set-card h3{font-size:13.5px;font-weight:700}
+.set-card .sc-sub{font-size:11.5px;color:var(--muted);margin:2px 0 12px}
+.badge-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.sbadge{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;
+  font-size:11px;font-weight:700;
+}
+.sbadge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.sbadge.notcfg{background:var(--danger-tint);color:var(--danger);border:1px solid rgba(255,135,135,.4)}
+.sbadge.cfg{background:var(--completed-tint);color:var(--completed);border:1px solid rgba(105,219,124,.4)}
+.sbadge.example{opacity:.75;font-weight:600}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld.full{grid-column:1 / -1}
+.fld label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.03em}
+.fld input,.fld select{
+  padding:8px 10px;border-radius:8px;background:#0e1116;border:1px solid var(--border);
+  color:var(--text);font-size:12.5px;outline:none;width:100%;
+}
+.fld input:focus,.fld select:focus{border-color:rgba(52,211,153,.55)}
+.fld .fn{font-size:10.5px;color:#6b7383;line-height:1.4}
+.set-actions{display:flex;gap:8px;align-items:center;margin-top:12px}
+.note-line{
+  font-size:11px;color:#6b7383;line-height:1.5;margin-top:12px;
+  border-top:1px dashed var(--border);padding-top:9px;
+}
+.srow-set{
+  display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;
+  background:#12151b;border:1px solid var(--border);margin-bottom:8px;
+}
+.srow-set:last-child{margin-bottom:0}
+.srow-set .st-lbl{font-size:12.5px;font-weight:600}
+.srow-set .st-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.srow-set .st-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.srow-set select{
+  padding:6px 10px;border-radius:8px;background:#0e1116;border:1px solid var(--border);
+  color:var(--text);font-size:12px;outline:none;
+}
+.radio-row{
+  display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;
+  background:#12151b;border:1px solid var(--border);font-size:12.5px;margin-bottom:8px;
+}
+.radio-row:last-child{margin-bottom:0}
+.radio-row .rr{
+  width:14px;height:14px;border-radius:50%;border:1.5px solid #3a4150;position:relative;flex:0 0 14px;
+}
+.radio-row.on .rr{border-color:var(--accent)}
+.radio-row.on .rr::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--accent)}
+.radio-row .rright{margin-left:auto;font-size:11px;color:var(--muted)}
+.radio-row.dim{opacity:.55}
+.radio-row.dim .rr{cursor:not-allowed}
+.data-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.data-row .fn{font-size:11px;color:#6b7383}
+.danger-zone{
+  margin-top:12px;border:1px dashed rgba(255,135,135,.45);border-radius:var(--radius);
+  padding:12px 14px;background:rgba(122,59,59,.12);
+}
+.danger-zone .dz-t{font-size:12px;font-weight:700;color:var(--danger);letter-spacing:.03em;text-transform:uppercase}
+.danger-zone .dz-h{font-size:11px;color:var(--muted);margin:4px 0 10px;line-height:1.45}
+.about-badge{
+  display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+  background:var(--accent-dim);border:1px solid rgba(52,211,153,.4);color:var(--accent);
+  font-size:12px;font-weight:700;
+}
+.about-line{font-size:12px;color:var(--muted);line-height:1.6}
+.about-line b{color:var(--text)}
+.linkish{
+  color:var(--accent);font-size:12px;font-weight:600;
+  text-decoration:none;border-bottom:1px dashed rgba(52,211,153,.5);cursor:pointer;
+}
+
+.statusbar{
+  flex:0 0 28px;height:28px;
+  background:#12151b;border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;gap:12px;
+  font-size:11px;color:var(--muted);
+}
+.statusbar .left{font-weight:600}
+.statusbar .center{margin:0 auto;display:flex;align-items:center;gap:6px}
+.statusbar .schip{
+  background:var(--elev);border:1px solid var(--border);border-radius:6px;padding:2px 8px;color:var(--text);
+}
+.statusbar .schip .x{color:#5d6675;margin-left:4px}
+.statusbar .right{display:flex;gap:10px;font-variant-numeric:tabular-nums;align-items:center}
+.statusbar .right b{color:var(--text);font-weight:600}
+.statusbar .mail-state{color:var(--danger);opacity:.9;font-weight:600}
+
+@media (max-width:1200px){
+  .content-split{grid-template-columns:1fr}
+  .rail{position:static}
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .wcards{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .wcards{grid-template-columns:1fr}
+  .settabs{flex-wrap:wrap;border-radius:var(--radius)}
+}
+</style>
+</head>
+<body>
+<div class="window" role="application" aria-label="DK Bond Tracker standalone window">
+
+  <header class="titlebar">
+    <div class="brand">
+      <div class="app-icon" aria-hidden="true">₹</div>
+      <span class="brand-name">DK Bond Tracker</span>
+    </div>
+    <nav class="menu" aria-label="Application menu">
+      <button type="button">File</button>
+      <button type="button">Edit</button>
+      <button type="button">View</button>
+      <button type="button">Help</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="win-btns" aria-hidden="true">
+      <span class="win-btn win-min" title="Minimize">—</span>
+      <span class="win-btn win-max" title="Maximize">□</span>
+      <span class="win-btn win-close" title="Close">✕</span>
+    </div>
+  </header>
+
+  <div class="ribbon">
+    <div class="ribbon-main"><b>Watchlist Redesign</b> — Mockup v2 (+ Settings) — for approval</div>
+    <div class="ribbon-note">mimics a native desktop window · screen-only proposal</div>
+  </div>
+
+  <div class="shell">
+
+    <aside class="sidebar">
+      <div class="side-label">Sections</div>
+      <nav class="nav">
+        <a href="#"><span class="ic ic-dash"></span>Dashboard</a>
+        <a href="#"><span class="ic ic-cal"></span>Month Grid</a>
+        <a href="#" data-screen="watchlist" id="navWatchlist" class="active" aria-current="page"><span class="ic ic-star"></span>Watchlist</a>
+        <a href="#"><span class="ic ic-goal"></span>Financial Goals</a>
+        <a href="#"><span class="ic ic-alert"></span>Alerts<span class="badge">3</span></a>
+        <a href="#"><span class="ic ic-doc"></span>Reports / Print</a>
+        <a href="#" data-screen="settings" class="ready" id="navSettings"><span class="ic ic-gear"></span>Settings<span class="rpill">v2</span></a>
+      </nav>
+
+      <div class="side-bottom">
+        <div class="side-label">Privacy</div>
+        <div class="privacy-row">
+          <span class="lbl">Privacy Mode</span>
+          <span class="toggle" title="Privacy Mode OFF (mock)" aria-label="Privacy Mode toggle OFF"></span>
+        </div>
+        <div class="privacy-hint">
+          OFF — full amounts visible. Turn ON to mask money as <span class="masked-sample">₹••••?</span> on this device.
+        </div>
+        <div class="conn"><span class="dot">●</span> Offline — local database</div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <section class="screen" id="screen_watchlist">
+
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">Watchlist</h1>
+            <div class="page-sub">8 positions • <span class="hi">4 watching</span> • updated today</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn btn-primary" type="button">+ Add Position</button>
+            <button class="btn btn-icon" type="button" title="Refresh"><span class="g">⟳</span></button>
+            <button class="btn btn-icon" type="button" title="Export CSV"><span class="g">⤓</span></button>
+            <button class="btn btn-icon" type="button" title="Settings" id="gearBtn"><span class="g">⚙</span></button>
+          </div>
+        </div>
+
+        <div class="viewtabs" role="tablist" aria-label="Watchlist views">
+          <button class="viewtab active" role="tab" aria-selected="true" data-target="holdings" type="button">My Holdings <span class="cnt">8</span></button>
+          <button class="viewtab" role="tab" aria-selected="false" data-target="watching" type="button">Watching <span class="cnt">4</span></button>
+        </div>
+
+        <section class="summary" aria-label="Summary">
+          <div class="tile green">
+            <div class="k">Total Invested</div>
+            <div class="v">₹5,50,000.00</div>
+            <div class="n">all 8 positions visible</div>
+          </div>
+          <div class="tile">
+            <div class="k">Current Returns</div>
+            <div class="v">₹28,500.00</div>
+            <div class="n">ledger-computed, offline</div>
+          </div>
+          <div class="tile">
+            <div class="k">Next Payout This Month</div>
+            <div class="v">₹22,000.00</div>
+            <div class="n">3 due</div>
+          </div>
+          <div class="tile accent">
+            <div class="k">Maturing in 90 Days</div>
+            <div class="v">2 bonds</div>
+            <div class="n">review before auto-close</div>
+          </div>
+        </section>
+
+        <section class="filters" aria-label="Filters">
+          <div class="search">
+            <span class="mag" aria-hidden="true"></span>
+            <input type="search" placeholder="Search company or ISIN…" aria-label="Search company or ISIN">
+          </div>
+          <span class="fchip sel">Rating <b>AA</b> <span class="car">▾</span></span>
+          <span class="fchip">Payout <b>Monthly / Quarterly / Annual</b> <span class="car">▾</span></span>
+          <span class="fchip">Issuer <b>Corporate Bond / NCD / SDI / Govt</b> <span class="car">▾</span></span>
+          <span class="fchip">Status <b>Danger / On-going / Completed / Watching</b> <span class="car">▾</span></span>
+          <span class="fchip active-chip">Rating: AA <span class="x" title="Remove">✕</span></span>
+          <span class="fchip active-chip">Payout: Monthly <span class="x" title="Remove">✕</span></span>
+          <span class="sortsel">Sort: Maturity ▾</span>
+          <div class="density" role="group" aria-label="Row density">
+            <button class="on" type="button">Compact</button>
+            <button type="button">Comfortable</button>
+          </div>
+        </section>
+
+        <div class="content-split" id="panel-holdings">
+
+          <section class="table-card" aria-label="Holdings table">
+            <div class="table-scroll">
+              <table class="wl">
+                <thead>
+                  <tr>
+                    <th style="width:30px"><span class="cbx" aria-hidden="true"></span></th>
+                    <th>Company / ISIN</th>
+                    <th>Type</th>
+                    <th>Rating <span class="sort">▲</span></th>
+                    <th class="num">Coupon %</th>
+                    <th class="num">Yield %<span class="info" title="expected yield — entered manually, offline">i</span></th>
+                    <th>Payout</th>
+                    <th class="num">Invested ₹</th>
+                    <th class="num">Returned ₹</th>
+                    <th>Next Payout</th>
+                    <th>Maturity <span class="sort">▲</span></th>
+                    <th>Status</th>
+                    <th title="Alerts">🔔</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="done-row">
+                    <td><span class="cbx on"></span></td>
+                    <td>
+                      <div class="co">Alpha Securities Ltd</div>
+                      <div class="isin">INE9000A01001</div>
+                    </td>
+                    <td><span class="tag corp">Corp</span></td>
+                    <td><span class="rbadge aa">AA- <span class="ag">CARE</span></span></td>
+                    <td class="num">9.25</td>
+                    <td class="num">9.80</td>
+                    <td><span class="ptag">M</span></td>
+                    <td class="num">₹2,00,000.00</td>
+                    <td class="num ret-pos">₹7,500.00</td>
+                    <td>
+                      <div>15-Nov-2026</div>
+                      <div class="due-amt">₹15,417</div>
+                    </td>
+                    <td>
+                      <div>03-Dec-2026</div>
+                      <span class="cdown soon">in 34d</span>
+                    </td>
+                    <td><span class="chip completed">Completed</span></td>
+                    <td><span class="alertdot none"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr class="danger-row sel">
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Beta Finance Ltd</div>
+                      <div class="isin">INE9000A01002</div>
+                    </td>
+                    <td><span class="tag ncd">NCD</span></td>
+                    <td><span class="rbadge aa">AA- <span class="ag">CRISIL</span></span></td>
+                    <td class="num">10.00</td>
+                    <td class="num">10.40</td>
+                    <td><span class="ptag">Q</span></td>
+                    <td class="num">₹1,50,000.00</td>
+                    <td class="num ret-pos">₹12,000.00</td>
+                    <td>
+                      <div class="due-red">26-Oct-2026 · OVERDUE</div>
+                      <div class="due-red" style="font-size:11px">₹4,500.00</div>
+                    </td>
+                    <td>
+                      <div>26-Jan-2027</div>
+                      <span class="cdown mid">in 88d</span>
+                    </td>
+                    <td><span class="chip danger">Danger</span></td>
+                    <td><span class="alertdot" title="Alert: payout overdue"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Gamma NBFC Ltd</div>
+                      <div class="isin">INE9000A01003</div>
+                    </td>
+                    <td><span class="tag corp">Corp</span></td>
+                    <td><span class="rbadge aa">AA <span class="ag">CARE</span></span></td>
+                    <td class="num">8.75</td>
+                    <td class="num">9.10</td>
+                    <td><span class="ptag">M</span></td>
+                    <td class="num">₹1,00,000.00</td>
+                    <td class="num ret-pos">₹7,500.00</td>
+                    <td>
+                      <div>02-Nov-2026</div>
+                      <div class="due-amt">₹3,200 · in 3d</div>
+                    </td>
+                    <td>
+                      <div>12-Aug-2027</div>
+                      <span class="cdown mid">in 286d</span>
+                    </td>
+                    <td><span class="chip ongoing">On-going</span></td>
+                    <td><span class="alertdot" title="Alert: payout due in 3 days"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Delta Capital Ltd</div>
+                      <div class="isin">INE9000A01004</div>
+                    </td>
+                    <td><span class="tag ncd">NCD</span></td>
+                    <td><span class="rbadge a">A+ <span class="ag">ICRA</span></span></td>
+                    <td class="num">11.00</td>
+                    <td class="num">11.50</td>
+                    <td><span class="ptag">Q</span></td>
+                    <td class="num">₹1,50,000.00</td>
+                    <td class="num ret-pos">₹12,000.00</td>
+                    <td>
+                      <div>12-Nov-2026</div>
+                      <div class="due-amt">₹4,125</div>
+                    </td>
+                    <td>
+                      <div>12-May-2028</div>
+                      <span class="cdown mid">in 560d</span>
+                    </td>
+                    <td><span class="chip ongoing">On-going</span></td>
+                    <td><span class="alertdot none"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Epsilon Housing Ltd</div>
+                      <div class="isin">INE9000A01005</div>
+                    </td>
+                    <td><span class="tag corp">Corp</span></td>
+                    <td><span class="rbadge a">A <span class="ag">CARE</span></span></td>
+                    <td class="num">9.80</td>
+                    <td class="num">10.20</td>
+                    <td><span class="ptag">M</span></td>
+                    <td class="num">₹1,00,000.00</td>
+                    <td class="num ret-pos">₹7,500.00</td>
+                    <td>
+                      <div>05-Nov-2026</div>
+                      <div class="due-amt">₹1,021</div>
+                    </td>
+                    <td>
+                      <div>05-Mar-2029</div>
+                      <span class="cdown mid">in 857d</span>
+                    </td>
+                    <td><span class="chip ongoing">On-going</span></td>
+                    <td><span class="alertdot none"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Zeta Infra Ltd</div>
+                      <div class="isin">INE9000A01006</div>
+                    </td>
+                    <td><span class="tag ncd">NCD</span></td>
+                    <td><span class="rbadge aa">AA- <span class="ag">CRISIL</span></span></td>
+                    <td class="num">10.50</td>
+                    <td class="num">10.90</td>
+                    <td><span class="ptag">Q</span></td>
+                    <td class="num">₹2,00,000.00</td>
+                    <td class="num ret-pos">₹12,000.00</td>
+                    <td>
+                      <div>20-Nov-2026</div>
+                      <div class="due-amt">₹5,250</div>
+                    </td>
+                    <td>
+                      <div>20-Sep-2027</div>
+                      <span class="cdown mid">in 325d</span>
+                    </td>
+                    <td><span class="chip ongoing">On-going</span></td>
+                    <td><span class="alertdot none"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Eta Retail Ltd</div>
+                      <div class="isin">INE9000A01007</div>
+                    </td>
+                    <td><span class="tag corp">Corp</span></td>
+                    <td><span class="rbadge aa">AA <span class="ag">CARE</span></span></td>
+                    <td class="num">8.90</td>
+                    <td class="num">9.35</td>
+                    <td><span class="ptag">M</span></td>
+                    <td class="num">₹1,50,000.00</td>
+                    <td class="num ret-pos">₹7,500.00</td>
+                    <td>
+                      <div>28-Nov-2026</div>
+                      <div class="due-amt">₹1,301</div>
+                    </td>
+                    <td>
+                      <div>28-Jun-2028</div>
+                      <span class="cdown mid">in 607d</span>
+                    </td>
+                    <td><span class="chip ongoing">On-going</span></td>
+                    <td><span class="alertdot none"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="cbx"></span></td>
+                    <td>
+                      <div class="co">Theta Motors Ltd</div>
+                      <div class="isin">INE9000A01008</div>
+                    </td>
+                    <td><span class="tag sdi">SDI</span></td>
+                    <td><span class="rbadge a">A+ <span class="ag">ICRA</span></span></td>
+                    <td class="num">9.40</td>
+                    <td class="num">9.85</td>
+                    <td><span class="ptag">Q</span></td>
+                    <td class="num">₹1,00,000.00</td>
+                    <td class="num ret-pos">₹12,000.00</td>
+                    <td>
+                      <div>15-Nov-2026</div>
+                      <div class="due-amt">₹3,222</div>
+                    </td>
+                    <td>
+                      <div>15-Apr-2028</div>
+                      <span class="cdown mid">in 532d</span>
+                    </td>
+                    <td><span class="chip ongoing">On-going</span></td>
+                    <td><span class="alertdot none"></span></td>
+                    <td><span class="dots">⋯</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tfoot">
+              <span>Showing 8 of 8 positions · overdue row tinted · selected row = drawer</span>
+              <span>Rows: Compact · 40px</span>
+            </div>
+          </section>
+
+          <div class="rail">
+
+            <section class="drawer" aria-label="Position detail">
+              <div class="drawer-head">
+                <div>
+                  <h3>Beta Finance Ltd</h3>
+                  <div class="sub">NCD · selected position</div>
+                </div>
+                <span class="chip danger" style="margin-left:auto">Danger</span>
+              </div>
+              <div class="drawer-body">
+                <div class="facts">
+                  <div class="fact full">
+                    <div class="fk">ISIN</div>
+                    <div class="fv">INE9000A01002</div>
+                  </div>
+                  <div class="fact">
+                    <div class="fk">Face Value</div>
+                    <div class="fv">₹1,00,000</div>
+                  </div>
+                  <div class="fact">
+                    <div class="fk">Secured</div>
+                    <div class="fv">Yes</div>
+                  </div>
+                  <div class="fact">
+                    <div class="fk">Issuer Type</div>
+                    <div class="fv">NCD</div>
+                  </div>
+                  <div class="fact">
+                    <div class="fk">Credit Rating</div>
+                    <div class="fv">AA- (CRISIL)</div>
+                  </div>
+                  <div class="fact">
+                    <div class="fk">Start Date</div>
+                    <div class="fv">26-Jan-2024</div>
+                  </div>
+                  <div class="fact">
+                    <div class="fk">End Date</div>
+                    <div class="fv">26-Jan-2027</div>
+                  </div>
+                  <div class="fact full">
+                    <div class="fk">Credit Day</div>
+                    <div class="fv">26th of month · quarterly cycle</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="dsec">Payment schedule</div>
+                  <div class="sched">
+                    <div class="srow ok"><span class="m">Sep</span><span class="amt">₹4,500.00</span><span class="st">✓ received</span></div>
+                    <div class="srow bad"><span class="m">Oct</span><span class="amt">₹4,500.00</span><span class="st">✕ overdue</span></div>
+                    <div class="srow soon"><span class="m">Nov</span><span class="amt">₹4,500.00</span><span class="st">upcoming</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="dsec">Yield / investment</div>
+                  <div class="summary-box">
+                    <span class="sk">Invested</span><span class="sv">₹1,50,000.00</span>
+                    <span class="sk">Returned</span><span class="sv" style="color:var(--completed)">₹12,000.00</span>
+                    <span class="sk">Coupon</span><span class="sv">10.00%</span>
+                    <span class="sk">Expected yield</span><span class="sv">10.40%</span>
+                  </div>
+                </div>
+
+                <div class="drawer-actions">
+                  <button class="btn" type="button">Edit Position</button>
+                  <button class="btn" type="button">Mark as Watching ⇄</button>
+                  <button class="btn btn-primary" type="button">Record Payment</button>
+                </div>
+
+                <div class="offline-note">Ratings/prices are entered offline — no live feed (standalone).</div>
+              </div>
+            </section>
+
+            <section class="alerts-card" aria-label="Alerts">
+              <h4>Alerts <span class="n">3</span></h4>
+              <div class="acard red">
+                <span class="bar"></span>
+                <div>
+                  <div class="t">Payout overdue — Beta Finance</div>
+                  <div class="d">₹4,500.00 was due 26-Oct</div>
+                </div>
+                <button class="dismiss" type="button" title="Dismiss">✕</button>
+              </div>
+              <div class="acard amber">
+                <span class="bar"></span>
+                <div>
+                  <div class="t">Payout due in 3 days — Gamma NBFC</div>
+                  <div class="d">₹3,200.00 on 02-Nov</div>
+                </div>
+                <button class="dismiss" type="button" title="Dismiss">✕</button>
+              </div>
+              <div class="acard acc">
+                <span class="bar"></span>
+                <div>
+                  <div class="t">Maturity approaching — Alpha Securities completes in 34d</div>
+                  <div class="d">03-Dec-2026 · mark Completed when settled</div>
+                </div>
+                <button class="dismiss" type="button" title="Dismiss">✕</button>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        <section class="watching-sec" id="panel-watching" aria-label="Watching candidates">
+          <div class="whead">
+            <h3>Watching — candidates you are evaluating</h3>
+            <span>not owned · research only · move into Holdings when you buy</span>
+          </div>
+          <div class="wcards">
+            <div class="wcard">
+              <div>
+                <div class="wn">Kappa Power Ltd</div>
+                <div class="wi">INE9000B02001</div>
+              </div>
+              <span class="rbadge aa">AA+ <span class="ag">CARE</span></span>
+              <div class="wgrid">
+                <span class="wk">Coupon</span><span class="wv">7.40%</span>
+                <span class="wk">Yield</span><span class="wv">7.62%</span>
+                <span class="wk">Payout</span><span class="wv">Annual</span>
+                <span class="wk">Status</span><span class="wv"><span class="chip watching">Watching</span></span>
+              </div>
+              <button class="btn" type="button">Move to Holdings →</button>
+            </div>
+            <div class="wcard">
+              <div>
+                <div class="wn">Lambda Infra Ltd</div>
+                <div class="wi">INE9000B02002</div>
+              </div>
+              <span class="rbadge aa">AA+ <span class="ag">IND</span></span>
+              <div class="wgrid">
+                <span class="wk">Coupon</span><span class="wv">7.10%</span>
+                <span class="wk">Yield</span><span class="wv">7.35%</span>
+                <span class="wk">Payout</span><span class="wv">Quarterly</span>
+                <span class="wk">Status</span><span class="wv"><span class="chip watching">Watching</span></span>
+              </div>
+              <button class="btn" type="button">Move to Holdings →</button>
+            </div>
+            <div class="wcard">
+              <div>
+                <div class="wn">Mu Finance Ltd</div>
+                <div class="wi">INE9000B02003</div>
+              </div>
+              <span class="rbadge aaa">AAA <span class="ag">CARE</span></span>
+              <div class="wgrid">
+                <span class="wk">Coupon</span><span class="wv">7.05%</span>
+                <span class="wk">Yield</span><span class="wv">7.18%</span>
+                <span class="wk">Payout</span><span class="wv">Annual</span>
+                <span class="wk">Status</span><span class="wv"><span class="chip watching">Watching</span></span>
+              </div>
+              <button class="btn" type="button">Move to Holdings →</button>
+            </div>
+            <div class="wcard">
+              <div>
+                <div class="wn">Nu Gold Ltd</div>
+                <div class="wi">INE9000B02004</div>
+              </div>
+              <span class="rbadge aaa">AAA <span class="ag">ICRA</span></span>
+              <div class="wgrid">
+                <span class="wk">Coupon</span><span class="wv">7.25%</span>
+                <span class="wk">Yield</span><span class="wv">7.44%</span>
+                <span class="wk">Payout</span><span class="wv">Annual</span>
+                <span class="wk">Status</span><span class="wv"><span class="chip watching">Watching</span></span>
+              </div>
+              <button class="btn" type="button">Move to Holdings →</button>
+            </div>
+          </div>
+        </section>
+
+        <details class="design-notes">
+          <summary>Design notes (mockup v2 — screen-only)</summary>
+          <div class="dn-body">
+            <ul>
+              <li>Standalone shell: fake native window chrome (titlebar, menu, window buttons), collapsible-look sidebar, bottom status bar — app, not website.</li>
+              <li>2-view watchlist: My Holdings (owned, 8) and Watching (candidates, 4) via segmented pill switcher.</li>
+              <li>New fields surfaced in table: Credit Rating badge (with agency), expected Yield %, Payout cycle tag, Next Payout amount, maturity countdown chips.</li>
+              <li>Alerts rail: overdue, due-soon and maturity-approaching cards, dismissible; red dots on affected table rows.</li>
+              <li>Settings: SMTP + alert prefs + general + data + about; credentials local-only, masked.</li>
+              <li>Offline honesty: ratings/yields/prices are entered manually; no live feed; connection chip shows Offline — local database; returns are ledger-computed.</li>
+              <li>Dark fintech theme, dense 40px rows, sticky header, right-aligned Indian-format money, status token colors preserved (Danger / On-going / Completed).</li>
+            </ul>
+          </div>
+        </details>
+
+      </section>
+
+      <section class="screen" id="screen_settings" hidden>
+
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">Settings</h1>
+            <div class="page-sub">Local configuration — stored on this machine only · never synced</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn" type="button" id="backToWatchlist">← Back to Watchlist</button>
+          </div>
+        </div>
+
+        <div class="settings-wrap">
+
+          <div class="settabs" role="tablist" aria-label="Settings sections">
+            <button class="settab active" role="tab" aria-selected="true" data-panel="email" type="button">Email Alerts</button>
+            <button class="settab" role="tab" aria-selected="false" data-panel="prefs" type="button">Alert Preferences</button>
+            <button class="settab" role="tab" aria-selected="false" data-panel="general" type="button">General</button>
+            <button class="settab" role="tab" aria-selected="false" data-panel="data" type="button">Data</button>
+            <button class="settab" role="tab" aria-selected="false" data-panel="about" type="button">About</button>
+          </div>
+
+          <div class="setpanel active" id="setpanel-email" role="tabpanel">
+            <section class="set-card">
+              <h3>Email Alerts</h3>
+              <div class="sc-sub">SMTP delivery for payout / overdue / maturity alerts</div>
+              <div class="badge-row">
+                <span class="sbadge notcfg">Not configured</span>
+                <span class="sbadge cfg example">Configured (example badge)</span>
+              </div>
+              <div class="fgrid">
+                <div class="fld">
+                  <label for="smtpHost">SMTP host</label>
+                  <input id="smtpHost" type="text" value="smtp.gmail.com">
+                </div>
+                <div class="fld">
+                  <label for="smtpPort">Port</label>
+                  <select id="smtpPort">
+                    <option selected>465 — SSL</option>
+                    <option>587 — STARTTLS</option>
+                  </select>
+                </div>
+                <div class="fld">
+                  <label for="smtpUser">Username</label>
+                  <input id="smtpUser" type="text" value="you@gmail.com">
+                </div>
+                <div class="fld">
+                  <label for="smtpPass">App Password</label>
+                  <input id="smtpPass" type="password" value="appsecret00" readonly aria-readonly="true">
+                  <div class="fn">stored locally, never shown again — masked ••••••••••••</div>
+                </div>
+                <div class="fld">
+                  <label for="smtpTo">Recipient (alert email)</label>
+                  <input id="smtpTo" type="text" placeholder="alerts@yourdomain.in">
+                </div>
+                <div class="fld">
+                  <label for="smtpFrom">From name</label>
+                  <input id="smtpFrom" type="text" value="DK Bond Tracker">
+                </div>
+              </div>
+              <div class="set-actions">
+                <button class="btn btn-primary" type="button">Test Email</button>
+                <button class="btn" type="button">Save</button>
+              </div>
+              <div class="note-line">credentials stay on this machine (local DB); env vars SMTP_USER/SMTP_APP_PASSWORD still override</div>
+            </section>
+          </div>
+
+          <div class="setpanel" id="setpanel-prefs" role="tabpanel">
+            <section class="set-card">
+              <h3>Alert Preferences</h3>
+              <div class="sc-sub">which events raise an alert, and when</div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Payout reminder</div>
+                  <div class="st-sub">3 days before the credit day</div>
+                </div>
+                <div class="st-right"><span class="toggle on" role="switch" aria-checked="true" aria-label="Payout reminder toggle"></span></div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Overdue alert</div>
+                  <div class="st-sub">on credit day +1 if payment not recorded</div>
+                </div>
+                <div class="st-right"><span class="toggle on" role="switch" aria-checked="true" aria-label="Overdue alert toggle"></span></div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Maturity alerts — 30 days before</div>
+                  <div class="st-sub">review before auto-close</div>
+                </div>
+                <div class="st-right"><span class="toggle on" role="switch" aria-checked="true" aria-label="Maturity 30 days toggle"></span></div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Maturity alerts — 7 days before</div>
+                  <div class="st-sub">final week reminder</div>
+                </div>
+                <div class="st-right"><span class="toggle on" role="switch" aria-checked="true" aria-label="Maturity 7 days toggle"></span></div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Maturity alerts — 1 day before</div>
+                  <div class="st-sub">day-before notice</div>
+                </div>
+                <div class="st-right"><span class="toggle" role="switch" aria-checked="false" aria-label="Maturity 1 day toggle"></span></div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Daily status sweep</div>
+                  <div class="st-sub">run the full overdue / due-soon / maturity scan at</div>
+                </div>
+                <div class="st-right">
+                  <select aria-label="Daily sweep time">
+                    <option>00:00</option><option>01:00</option><option>02:00</option><option>03:00</option>
+                    <option>04:00</option><option>05:00</option><option>06:00</option><option>07:00</option>
+                    <option selected>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option>
+                    <option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option>
+                    <option>16:00</option><option>17:00</option><option>18:00</option><option>19:00</option>
+                    <option>20:00</option><option>21:00</option><option>22:00</option><option>23:00</option>
+                  </select>
+                </div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">In-app bell</div>
+                  <div class="st-sub">always on — locked (hint: in-app notifications cannot be disabled)</div>
+                </div>
+                <div class="st-right"><span class="toggle on locked" role="switch" aria-checked="true" aria-disabled="true" aria-label="In-app bell locked on"></span></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="setpanel" id="setpanel-general" role="tabpanel">
+            <section class="set-card">
+              <h3>General</h3>
+              <div class="sc-sub">defaults for new positions and display</div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Default credit day for new positions</div>
+                  <div class="st-sub">1–28 (safe for all months)</div>
+                </div>
+                <div class="st-right">
+                  <select aria-label="Default credit day">
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option selected>5</option><option>6</option><option>7</option><option>8</option>
+                    <option>9</option><option>10</option><option>11</option><option>12</option>
+                    <option>13</option><option>14</option><option>15</option><option>16</option>
+                    <option>17</option><option>18</option><option>19</option><option>20</option>
+                    <option>21</option><option>22</option><option>23</option><option>24</option>
+                    <option>25</option><option>26</option><option>27</option><option>28</option>
+                  </select>
+                </div>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Privacy mode on startup</div>
+                  <div class="st-sub">mask money amounts when the app opens</div>
+                </div>
+                <div class="st-right"><span class="toggle" role="switch" aria-checked="false" aria-label="Privacy mode on startup toggle"></span></div>
+              </div>
+              <div style="margin-top:12px">
+                <div class="dsec">Currency format</div>
+                <div class="radio-row on"><span class="rr"></span>Indian ₹ 5,50,000.00 <span class="rright">fixed</span></div>
+              </div>
+              <div style="margin-top:12px">
+                <div class="dsec">Table density</div>
+                <div class="radio-row on"><span class="rr"></span>Compact <span class="rright">matches watchlist</span></div>
+                <div class="radio-row"><span class="rr"></span>Comfortable</div>
+              </div>
+              <div style="margin-top:12px">
+                <div class="dsec">Theme</div>
+                <div class="radio-row on"><span class="rr"></span>Dark <span class="rright">selected</span></div>
+                <div class="radio-row dim"><span class="rr"></span>Light <span class="rright">coming later</span></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="setpanel" id="setpanel-data" role="tabpanel">
+            <section class="set-card">
+              <h3>Data</h3>
+              <div class="sc-sub">import, backup and CSV behaviour — all offline</div>
+              <div class="data-row">
+                <button class="btn" type="button">Import from Excel...</button>
+                <span class="fn">accepts .xlsm / .xlsx — parsed offline on this machine</span>
+              </div>
+              <div class="data-row">
+                <button class="btn" type="button">Export backup (.db)</button>
+                <span class="fn">full local database snapshot</span>
+              </div>
+              <div class="srow-set">
+                <div>
+                  <div class="st-lbl">Default CSV scope</div>
+                  <div class="st-sub">what the export button covers</div>
+                </div>
+                <div class="st-right">
+                  <select aria-label="Default CSV scope">
+                    <option selected>Current view</option>
+                    <option>Full ledger</option>
+                  </select>
+                </div>
+              </div>
+              <div class="danger-zone">
+                <div class="dz-t">Danger zone</div>
+                <div class="dz-h">[Reset local database] permanently wipes all positions, ledger rows and settings on this machine — typed confirmation required.</div>
+                <button class="btn btn-danger" type="button">Reset local database</button>
+              </div>
+            </section>
+          </div>
+
+          <div class="setpanel" id="setpanel-about" role="tabpanel">
+            <section class="set-card">
+              <h3>About</h3>
+              <div class="sc-sub">build information</div>
+              <div class="about-line">
+                <b>Version v1.0</b> — watchlist redesign preview<br>
+                build notes: standalone mockup build · local SQLite store · no network calls compiled in
+              </div>
+              <div style="margin-top:12px">
+                <span class="about-badge">100% offline — no accounts, no cloud</span>
+              </div>
+              <div style="margin-top:12px">
+                <a class="linkish" href="#">Open local data folder</a>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="statusbar">
+    <div class="left">Watchlist — 12 rows • 2 alerts today</div>
+    <div class="center">
+      <span>Filters:</span>
+      <span class="schip">Rating AAA</span>
+      <span class="schip">Payout Monthly <span class="x">✕</span></span>
+    </div>
+    <div class="right">
+      <span class="mail-state">Settings: email not configured</span>
+      <span>Privacy: <b>OFF</b></span>
+      <span>DB: <b>local</b></span>
+      <span><b>v1.0-wl</b></span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.viewtab');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      var target = tab.getAttribute('data-target');
+      var el = document.getElementById(target === 'watching' ? 'panel-watching' : 'panel-holdings');
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+  var dens = document.querySelectorAll('.density button');
+  dens.forEach(function(b){
+    b.addEventListener('click', function(){
+      dens.forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+    });
+  });
+  var screens = {
+    watchlist: document.getElementById('screen_watchlist'),
+    settings: document.getElementById('screen_settings')
+  };
+  var navLinks = document.querySelectorAll('.nav a[data-screen]');
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){
+      if (screens[k]) screens[k].hidden = (k !== name);
+    });
+    var wl = document.getElementById('navWatchlist');
+    var st = document.getElementById('navSettings');
+    if (wl){
+      wl.classList.toggle('active', name === 'watchlist');
+      wl.setAttribute('aria-current', name === 'watchlist' ? 'page' : 'false');
+    }
+    if (st){
+      st.classList.toggle('active', name === 'settings');
+      st.setAttribute('aria-current', name === 'settings' ? 'page' : 'false');
+    }
+    var main = document.querySelector('.main');
+    if (main) main.scrollTop = 0;
+  }
+  navLinks.forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      showScreen(a.getAttribute('data-screen'));
+    });
+  });
+  var gear = document.getElementById('gearBtn');
+  if (gear) gear.addEventListener('click', function(){ showScreen('settings'); });
+  var back = document.getElementById('backToWatchlist');
+  if (back) back.addEventListener('click', function(){ showScreen('watchlist'); });
+  var setTabs = document.querySelectorAll('.settab');
+  setTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      setTabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      document.querySelectorAll('.setpanel').forEach(function(p){ p.classList.remove('active'); });
+      var panel = document.getElementById('setpanel-' + tab.getAttribute('data-panel'));
+      if (panel) panel.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.toggle:not(.locked)').forEach(function(t){
+    t.addEventListener('click', function(){
+      t.classList.toggle('on');
+      t.setAttribute('aria-checked', t.classList.contains('on') ? 'true' : 'false');
+    });
+  });
+})();
+</script>
+</body>
+</html>
