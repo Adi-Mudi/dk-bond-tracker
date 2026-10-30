@@ -4,7 +4,7 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
@@ -206,6 +206,31 @@
       "WHY": "User statement 2026-10-30: 'I have already given the task and you can act as the PM coordinator. no need to ask approval.' Matches the lifecycle's full-auto mode definition.",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 standing approval"
+    },
+    {
+      "id": "D14",
+      "topic": "Add-position flow (single company master)",
+      "options": [
+        "Add company once in Watch List (single bonds master), auto-appears in grid/dashboard",
+        "Separate entry per sheet like the legacy workbook"
+      ],
+      "choice": "ONE bonds master row per position: user adds the company/position once via the Watch List add form (fields: company, ISIN, amount, tenure, start month); the monthly grid, dashboard, and watch list all render from that same row - details are never entered twice.",
+      "WHY": "User requirement 2026-10-30 Q1: 'no need to add two times about the companies and company details'. Closes the gap that no FR covered an add-company flow (legacy XLSM duplicated the same 15 bonds across two sheets; DATA-01 single master kills that).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1"
+    },
+    {
+      "id": "D15",
+      "topic": "Strict active-position lock (same company cannot be bought twice while active)",
+      "options": [
+        "Hard block: key = normalized company name OR ISIN, no override",
+        "Soft warn with force-accept",
+        "ISIN-only match"
+      ],
+      "choice": "At most ONE active (On-going or Danger) position per company. Match key: normalized company name (trim/case-insensitive) OR ISIN - a duplicate is blocked if EITHER matches. Enforcement: HARD BLOCK with a named error naming the active position and its status (FR-21 error surfacing) - no override, no force. The lock releases ONLY when the existing position reaches Completed (D5: months paid >= tenure). A new position bought after Completed starts On-going and re-locks the company until it too completes.",
+      "WHY": "User requirement 2026-10-30 Q2: 'same company cannot buy two times while ongoing and in the danger. But if it was completed then it can buy another... very strict locking mechanism.' Pairs with FR-17 reinvestment (Completed frees both capital AND the slot). User chose both company+ISIN keying and hard block over the alternatives.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q2 + AskUser answers"
     }
   ],
   "gaps": [
@@ -310,6 +335,11 @@
       "version": "1.3.0",
       "date": "2026-10-30",
       "note": "D36 lock executed at design-stage completion: status open -> locked, OP1 -> CLOSED, completion log entry added. No CONFIRMED decision text rewritten."
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-10-30",
+      "note": "New user decisions D14 (add-position single-master flow) + D15 (strict active-position lock: company-name OR ISIN key, hard block, releases on Completed) - additive extension by new user decisions per frozen-doc rule; no CONFIRMED text rewritten."
     }
   ],
   "decision_log": [
@@ -342,6 +372,26 @@
       "date": "2026-10-30",
       "item": "gating",
       "decision": "FULL-AUTO standing approval; no per-gate waits (user explicit)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "D14 add flow",
+      "decision": "single bonds master; add once in Watch List; auto-appears everywhere (user Q1)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "D15 lock key",
+      "decision": "company name OR ISIN (both) - user choice"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "D15 block style",
+      "decision": "hard block, no override - user choice"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "landing path",
+      "decision": "full change wave before build - user choice"
     }
   ],
   "revision_history": [
@@ -368,6 +418,12 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "Locked at design-stage completion per D36."
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Extended with user decisions D14 + D15 (add-position flow, active-position lock)."
     }
   ]
 }

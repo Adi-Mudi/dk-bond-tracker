@@ -1,0 +1,64 @@
+{
+  "id": "SRS_DK_Bond_Tracker_addendum_v1",
+  "kind": "srs",
+  "title": "SRS Addendum — Add-Position Flow and Active-Position Lock (FR-25/FR-26)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "SRS_DK_Bond_Tracker_v1",
+  "sections": [
+    {
+      "heading": "Purpose",
+      "body": "This addendum extends SRS_DK_Bond_Tracker_v1 with the two requirements added after owner decisions D14 and D15 (2026-10-30): FR-25 (single add-position flow over one bonds master row) and FR-26 (strict active-position lock keyed on normalized company name OR ISIN). Requirement ids match the PRD addendum prd_items exactly (hard FK to docs/PRD_DK_Bond_Tracker_addendum_v1.json). No requirement of SRS v1 (FR-01..FR-24, NFR-1..NFR-13, DATA-01..DATA-05) is altered by this document."
+    },
+    {
+      "heading": "Status Engine interplay",
+      "body": "FR-26's lock decision reuses the D5 status engine states — it never stores its own status column. \"Active\" means the computed status is On-going or Danger; \"Completed\" is detected exactly as D5 defines it (months paid >= tenure, Completed overriding Danger). The lock therefore releases automatically the moment status recompute reports Completed for the existing position, and the add form evaluates the lock at submit time against freshly computed statuses. FR-25's single master row is the same bonds master row (DATA-01) that the status engine and ledger queries already consume — the add form writes once, every view reads."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "FR-25",
+      "text": "When a user adds a company/position, the system SHALL create exactly ONE bonds master row from a single Watch List add-form submission (fields: company, ISIN, amount, tenure, start month), and the monthly grid, dashboard, and watch list SHALL all render that position from the same row — details are never entered twice (D14).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "an empty portfolio and the Watch List add form",
+          "when": "the user submits company, ISIN, amount, tenure and start month once",
+          "then": "exactly one new bonds master row exists and the monthly grid, dashboard, and watch list all display that position from the same row with the submitted values"
+        },
+        {
+          "given": "a position added once via the Watch List add form",
+          "when": "the user inspects the monthly grid, the dashboard, and the watch list",
+          "then": "no surface prompts for or stores a second copy of the company/position details — the total bond count increases by exactly 1"
+        }
+      ]
+    },
+    {
+      "id": "FR-26",
+      "text": "When a new position is added, the system SHALL allow at most one active (On-going or Danger) position per company: the add SHALL be HARD BLOCKED with a named error (no override, no force) if EITHER the normalized company name (trimmed, case-insensitive) OR the ISIN matches an existing active position; the lock SHALL release only when the existing position reaches Completed (D5: months paid >= tenure), and a new position added after Completed starts On-going and re-locks the company (D15).",
+      "category": "functional",
+      "check_method": "unit",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "an active position 'Muthoottu' (On-going, ISIN IN1234567890) exists and the user submits company '  MUTHOOTTU  ' with a DIFFERENT ISIN (IN9999999999)",
+          "when": "the add-position form is submitted",
+          "then": "the add is blocked by the NAME key alone (normalized ' muthoottu ' == 'muthoottu' after trim+lowercase) with the named error 'Cannot add position: Muthoottu has an active position (On-going)', even though the ISIN differs"
+        },
+        {
+          "given": "an active position for company 'Muthoottu' (On-going) with ISIN IN1234567890",
+          "when": "adding a differently named company 'MMF Investments' with ISIN 'in1234567890'",
+          "then": "the add is blocked with a named error naming the active Muthoottu position and its status, because the ISIN match blocks even though the company names differ"
+        },
+        {
+          "given": "the previously blocking position 'Muthoottu' reaching Completed (months paid >= tenure)",
+          "when": "a new Muthoottu position is added, starts On-going, and then another add is attempted",
+          "then": "the first add is allowed (lock released by Completed) and the second add is blocked with a named error (re-locked by the new On-going position)"
+        }
+      ]
+    }
+  ]
+}
