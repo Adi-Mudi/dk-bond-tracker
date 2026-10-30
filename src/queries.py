@@ -542,3 +542,40 @@ def insert_position(conn, company, isin, amount, start_date, end_date, tenure_mo
             f"position insert for {company} affected {cursor.rowcount} rows",
         )
     return cursor.lastrowid
+
+
+def free_up_report(conn, today=None):
+    try:
+        overview = status_overview(conn, today)
+    except AppError as exc:
+        raise AppError("ERR-reinvestment", f"status computation failed: {exc.message}") from exc
+    except Exception as exc:
+        raise AppError("ERR-reinvestment", f"status computation failed: {exc}") from exc
+    by_status = {"Completed": 0.0, "On-going": 0.0, "Danger": 0.0}
+    counts = {"Completed": 0, "On-going": 0, "Danger": 0}
+    per_bond = {}
+    for entry in overview:
+        status = entry["status"]
+        if status not in by_status:
+            raise AppError("ERR-reinvestment", f"unknown status for bond {entry['id']}: {status!r}")
+        amount = float(entry["amount"] or 0)
+        by_status[status] += amount
+        counts[status] += 1
+        per_bond[entry["id"]] = {
+            "freed": status == "Completed",
+            "freed_amount": amount if status == "Completed" else None,
+        }
+    principal_freed = by_status["Completed"]
+    active_locked = by_status["On-going"] + by_status["Danger"]
+    return {
+        "principal_freed_by_completed": principal_freed,
+        "active_locked": active_locked,
+        "deduction_breakdown": {
+            "On-going": by_status["On-going"],
+            "Danger": by_status["Danger"],
+        },
+        "by_status": by_status,
+        "counts": counts,
+        "per_bond": per_bond,
+        "total_investment": sum(by_status.values()),
+    }
