@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .goal-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .btn {
+    display: inline-block;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--blue-light);
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .goal-form-card {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    padding: 12px 14px;
+    margin: 12px 0;
+  }
+  .goal-form-card h3 { font-size: 14px; margin-bottom: 8px; }
+  .goal-form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .goal-field { display: flex; flex-direction: column; gap: 3px; }
+  .goal-field label { font-size: 11px; font-weight: 700; color: var(--muted); }
+  .goal-field input {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+    background: var(--white);
+  }
+  .progress-track {
+    display: inline-block;
+    width: 120px;
+    height: 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--header-row);
+    overflow: hidden;
+    vertical-align: middle;
+  }
+  .progress-fill { height: 100%; background: var(--completed); }
+  .legacy-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--header-row);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .inline-form { display: inline; }
+  .mini-btn {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: var(--blue-light);
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .mini-btn-danger { background: var(--due); }
+  .edit-row-input {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 12px;
+    width: 110px;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:18px;margin-bottom:12px;">Financial Goals</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if error %}
+<div class="banner banner-error" id="goals-error">
+  <div class="banner-title">Error: {{ error_code }}</div>
+  <div id="goals-error-message">{{ error }}</div>
+</div>
+{% endif %}
+
+<div class="goal-form-card">
+  <h3>Add goal</h3>
+  <form method="post" action="/goals" id="add-goal-form">
+    <div class="goal-form-row">
+      <div class="goal-field">
+        <label for="goal-name">Name</label>
+        <input type="text" id="goal-name" name="name" value="{{ form.get('name', '') }}">
+      </div>
+      <div class="goal-field">
+        <label for="goal-target">Target amount (INR)</label>
+        <input type="text" id="goal-target" name="target_amount" value="{{ form.get('target_amount', '') }}">
+      </div>
+      <div class="goal-field">
+        <label for="goal-end">Target end date</label>
+        <input type="date" id="goal-end" name="target_end_date" value="{{ form.get('target_end_date', '') }}">
+      </div>
+      <div class="goal-field">
+        <label for="goal-saved">Saved so far (INR)</label>
+        <input type="text" id="goal-saved" name="saved_amount" value="{{ form.get('saved_amount', '') }}">
+      </div>
+      <div class="goal-field">
+        <label for="goal-note">Note</label>
+        <input type="text" id="goal-note" name="note" value="{{ form.get('note', '') }}">
+      </div>
+      <button class="btn" type="submit" id="add-goal-submit">Add goal</button>
+    </div>
+  </form>
+</div>
+
+<div class="table-wrap">
+  <table id="goals-list">
+    <thead>
+      <tr>
+        <th>Goal</th>
+        <th class="num">Target amount (INR)</th>
+        <th>Target end date</th>
+        <th class="num">Months remaining</th>
+        <th class="num">Saved so far (INR)</th>
+        <th>Progress</th>
+        <th>Note</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for goal in goals %}
+      <tr>
+        <td>{{ goal.name }}</td>
+        <td class="num"><span class="money" data-amount="{{ "%.2f"|format(goal.target_amount or 0) }}">&#8377;{{ "%.2f"|format(goal.target_amount or 0) }}</span></td>
+        <td>
+          {% if goal.is_legacy %}
+          <span class="legacy-badge" id="legacy-{{ goal.id }}">legacy schedule</span>
+          {% else %}
+          {{ goal.target_end_date }}
+          {% endif %}
+        </td>
+        <td class="num">
+          {% if goal.months_remaining is none %}
+          &mdash;
+          {% else %}
+          <span id="months-remaining-{{ goal.id }}">{{ goal.months_remaining }}</span>
+          {% endif %}
+        </td>
+        <td class="num"><span class="money" data-amount="{{ "%.2f"|format(goal.saved_amount) }}">&#8377;{{ "%.2f"|format(goal.saved_amount) }}</span></td>
+        <td>
+          {% if goal.progress_pct is not none %}
+          <span class="progress-track"><span class="progress-fill" style="width: {{ [goal.progress_pct, 100]|min }}%;"></span></span>
+          <span id="progress-{{ goal.id }}">{{ goal.progress_pct }}%</span>
+          {% else %}
+          &mdash;
+          {% endif %}
+        </td>
+        <td>{{ goal.note or "" }}</td>
+        <td>
+          <form class="inline-form" method="post" action="/goals/{{ goal.id }}/edit">
+            <input class="edit-row-input" type="text" name="name" value="{{ goal.name }}" title="name">
+            <input class="edit-row-input" type="text" name="target_amount" value="{{ "%.2f"|format(goal.target_amount or 0) }}" title="target amount">
+            <input class="edit-row-input" type="date" name="target_end_date" value="{{ goal.target_end_date or '' }}" title="target end date">
+            <input class="edit-row-input" type="text" name="saved_amount" value="{{ "%.2f"|format(goal.saved_amount) }}" title="saved so far">
+            <button class="mini-btn" type="submit" id="edit-goal-{{ goal.id }}">Save</button>
+          </form>
+          <form class="inline-form" method="post" action="/goals/{{ goal.id }}/delete">
+            <button class="mini-btn mini-btn-danger" type="submit" id="delete-goal-{{ goal.id }}">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8" class="empty-note" id="goals-empty">no goals yet &#8212; add the first one above</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="table-note">Every goal carries a target amount and a target end date (10-year plans are first-class). Legacy schedule rows import as goals with the legacy schedule badge. Progress = saved so far ÷ target (live query). Amounts honour Privacy Mode.</p>
+{% endblock %}
