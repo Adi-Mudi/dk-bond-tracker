@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DK Bond Tracker — Monthly Statement</title>
+<style>
+  :root {
+    --border: #1e1e1e;
+    --text: #1e1e1e;
+    --muted: #495057;
+    --header-row: #e9ecef;
+    --due: #ffc9c9;
+    --danger: #ff8787;
+    --ongoing: #ff922b;
+    --ongoing-light: #ffe8cc;
+    --completed: #69db7c;
+    --completed-light: #d3f9d8;
+    --blue-light: #d0ebff;
+    --page-bg: #f8f9fa;
+    --white: #ffffff;
+    --card-bg: #f1f3f5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, "Noto Sans", sans-serif;
+    background: #6c757d;
+    color: var(--text);
+    padding: 28px 16px 60px;
+  }
+
+  .screen-chrome {
+    max-width: 860px;
+    margin: 0 auto 18px;
+    background: #fff;
+    border: 2px solid #1e1e1e;
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .screen-chrome h1 { font-size: 18px; margin-bottom: 6px; }
+  .screen-chrome p { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.45; }
+  .chrome-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .print-btn {
+    font-family: inherit;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 18px;
+    background: var(--blue-light);
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .privacy-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+    background: #fff3bf;
+  }
+  .privacy-badge.on { background: var(--ongoing-light); }
+
+  .a4 {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 12px;
+    padding: 14mm 14mm 12mm;
+    background: var(--white);
+    border: 1px solid #adb5bd;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--text);
+    page-break-after: always;
+  }
+  .a4:last-of-type { page-break-after: auto; }
+
+  .st-title-block {
+    border-bottom: 2.5px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  .st-app { font-size: 19px; font-weight: 800; letter-spacing: 0.02em; }
+  .st-doc { font-size: 13.5px; font-weight: 700; margin-top: 1px; }
+  .st-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .st-meta span strong { color: var(--text); }
+
+  .sec { margin-bottom: 10px; }
+  .sec-head {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1.5px solid var(--border);
+    padding-bottom: 2px;
+    margin-bottom: 6px;
+  }
+  .sec-num { color: var(--muted); }
+
+  .cards { display: flex; gap: 7px; }
+  .card {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--card-bg);
+    padding: 7px 8px;
+    min-height: 58px;
+  }
+  .card .k {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+  .card .v { font-size: 13.5px; font-weight: 800; margin-top: 3px; }
+  .card .note { font-size: 9px; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+  .card.received { background: var(--completed-light); }
+  .card.danger-side { background: var(--due); }
+
+  table.payments { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+  table.payments th {
+    background: var(--header-row);
+    border: 1.5px solid var(--border);
+    padding: 5px 6px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  table.payments td { border: 1px solid var(--border); padding: 4px 6px; vertical-align: top; }
+  table.payments td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.payments td.day { text-align: center; white-space: nowrap; }
+  tr.row-danger td { background: var(--due); }
+  tr.row-completed td { background: var(--completed-light); }
+  tr.row-ongoing td:nth-child(6) { background: var(--ongoing-light); }
+  .mark { font-weight: 800; display: inline-block; min-width: 16px; }
+  .legend-line { font-size: 9.5px; color: var(--muted); margin-top: 4px; }
+  .legend-line b { color: var(--text); }
+
+  .status-groups { display: flex; gap: 8px; }
+  .status-box {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 8px;
+  }
+  .status-box.danger { background: var(--due); }
+  .status-box.ongoing { background: var(--ongoing-light); }
+  .status-box.completed { background: var(--completed-light); }
+  .status-box h4 { font-size: 10.5px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+  .status-box ul { list-style: none; font-size: 9.5px; line-height: 1.35; }
+  .status-box li { padding: 1px 0; border-bottom: 1px dotted rgba(30,30,30,0.25); word-break: break-word; }
+  .status-box li:last-child { border-bottom: none; }
+
+  .st-footer {
+    border-top: 2px solid var(--border);
+    padding-top: 8px;
+    margin-top: 4px;
+    font-size: 10px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .st-footer .alert-line { font-weight: 800; color: var(--text); font-size: 11px; margin-bottom: 4px; }
+  .st-footer .rule-line {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 4px 6px;
+    margin: 5px 0;
+    color: var(--text);
+  }
+  .st-footer .disc { font-style: italic; margin-top: 4px; }
+  .privacy-footnote { font-weight: 700; color: var(--text); }
+
+  .money { white-space: nowrap; }
+  .privacy-on .money { font-size: 0; }
+  .privacy-on .money::after { content: "••••"; font-size: 14px; letter-spacing: 0.14em; font-weight: 800; }
+  .privacy-on .money-input { color: transparent; }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .screen-chrome { display: none !important; }
+    .a4 {
+      width: auto;
+      min-height: auto;
+      margin: 0;
+      padding: 0;
+      border: none;
+      box-shadow: none;
+      page-break-after: auto;
+      page-break-inside: avoid;
+    }
+    .card, .status-box, table.payments th, table.payments td {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .sec { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body{% if privacy %} class="privacy-on"{% endif %}>
+{% macro money(value) -%}
+{%- if privacy -%}
+<span class="money">••••</span>
+{%- else -%}
+<span class="money" data-amount="{{ "%.2f"|format(value) }}">₹{{ "%.2f"|format(value) }}</span>
+{%- endif -%}
+{%- endmacro %}
+<div class="screen-chrome">
+  <h1>Monthly Print — A4 statement</h1>
+  <p>Dedicated print-optimized statement (D25 / FR-37): month header, portfolio summary, this-month payment table, status list, alerts footer. Figures computed live at render time.</p>
+  <div class="chrome-row">
+    <button type="button" class="print-btn" onclick="window.print()">Print</button>
+    <span class="privacy-badge{% if privacy %} on{% endif %}">{% if privacy %}Privacy ON — amounts masked{% else %}Privacy OFF — amounts visible{% endif %}</span>
+  </div>
+</div>
+
+<section class="a4" aria-label="Monthly statement">
+
+  <header class="st-title-block" id="print-header">
+    <div class="st-app">DK Bond Tracker</div>
+    <div class="st-doc">Monthly Statement — {{ header.month_label }}</div>
+    <div class="st-meta">
+      <span><strong>Month:</strong> {{ header.month_label }} ({{ header.range }})</span>
+      <span><strong>Generated:</strong> {{ header.generated }}</span>
+      <span><strong>Mode:</strong> {% if privacy %}Privacy ON — amounts masked{% else %}Privacy OFF — real amounts shown{% endif %}</span>
+    </div>
+  </header>
+
+  <div class="sec" id="print-summary">
+    <div class="sec-head"><span class="sec-num">2.</span> Portfolio summary</div>
+    <div class="cards">
+      <div class="card">
+        <div class="k">Total bonds</div>
+        <div class="v">{{ summary.total_bonds }}</div>
+        <div class="note">Positions on ledger</div>
+      </div>
+      <div class="card">
+        <div class="k">Total investment</div>
+        <div class="v">{{ money(summary.total_investment) }}</div>
+        <div class="note">Sum of principal</div>
+      </div>
+      <div class="card">
+        <div class="k">Till return</div>
+        <div class="v">{{ money(summary.till_return) }}</div>
+        <div class="note">Sum of paid ledger rows</div>
+      </div>
+      <div class="card danger-side">
+        <div class="k">Balance</div>
+        <div class="v">{{ money(summary.balance) }}</div>
+        <div class="note">Till return − maturity total</div>
+      </div>
+      <div class="card received">
+        <div class="k">This-month received</div>
+        <div class="v">{{ money(summary.this_month) }}</div>
+        <div class="note">Paid credits, {{ header.month_label }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="print-payments">
+    <div class="sec-head"><span class="sec-num">3.</span> This-month payments — {{ header.month_label }}</div>
+    <table class="payments">
+      <thead>
+        <tr>
+          <th style="width:32%">Bond</th>
+          <th style="width:14%">ISIN</th>
+          <th style="width:9%">Credit day</th>
+          <th style="width:12%">Due date</th>
+          <th style="width:14%; text-align:right">Amount</th>
+          <th style="width:19%">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set notes = {"Danger": "unpaid after credit day", "On-going": "paid", "Completed": "tenure paid, no due"} %}
+        {% for row in rows %}
+        <tr class="row-{{ row.status|lower|replace(' ', '') }}">
+          <td>{{ row.company }}</td>
+          <td>{{ row.isin }}</td>
+          <td class="day">{{ row.credit_day }}</td>
+          <td>{{ row.due_date }}</td>
+          <td class="num">{{ money(row.amount) }}</td>
+          <td><span class="mark">{{ row.mark }}</span> {{ row.status }} — {{ notes[row.status] }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6">no payments this month</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="legend-line">
+      Legend (B&amp;W-safe markers, not color alone): <b>● D</b> Danger ·
+      <b>○ O</b> On-going · <b>● C</b> Completed. Light row shading is a print-safe
+      duplicate of the marker. Statuses recomputed from the ledger on every view (D5).
+    </p>
+  </div>
+
+  <div class="sec" id="print-status">
+    <div class="sec-head"><span class="sec-num">4.</span> Status list — Danger → On-going → Completed</div>
+    <div class="status-groups">
+      {% for group in status_groups %}
+      <div class="status-box {{ group.key }}" id="status-group-{{ group.key }}">
+        <h4>{{ group.mark }} {{ group.status }} — {{ group.count }}</h4>
+        <ul>
+          {% for member in group.members %}
+          <li>{{ member }}</li>
+          {% else %}
+          <li>none</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <footer class="st-footer" id="print-alerts">
+    <div class="sec-head" style="border:none;padding:0;margin-bottom:4px;"><span class="sec-num">5.</span> Alerts footer</div>
+    <div class="alert-line">
+      {% if alerts_footer.count %}
+      {{ alerts_footer.count }} alert{% if alerts_footer.count != 1 %}s{% endif %} this month
+      &mdash;
+      {% for message in alerts_footer.messages %}({{ loop.index }}) {{ message }}{% if not loop.last %}; {% endif %}{% endfor %}
+      &middot; last sweep {{ alerts_footer.last_sweep }}
+      {% else %}
+      no alerts this month &middot; last sweep {{ alerts_footer.last_sweep }}
+      {% endif %}
+    </div>
+    <div class="rule-line">
+      D5 rule: Danger = ANY unpaid past month (not just previous month); Completed
+      overrides Danger when months paid ≥ tenure; zero-value = unpaid preserved.
+    </div>
+    <div class="privacy-footnote">{% if privacy %}privacy mode: ON masks amounts — every monetary value on this sheet is •••• per D19/FR-37; names, statuses and dates stay visible.{% else %}privacy mode: OFF — this copy shows real amounts; add ?privacy=1 to mask them.{% endif %}</div>
+    <div class="disc">generated offline by DK Bond Tracker — no network, personal use statement; not a tax or audit document.</div>
+  </footer>
+
+</section>
+</body>
+</html>
