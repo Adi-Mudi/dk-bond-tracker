@@ -35,7 +35,7 @@ def seed_donut_portfolio(conn, today):
 
 
 def test_tc77_donut_counts_equal_summary_counts(db_path):
-    today = date(2026, 10, 30)
+    today = date(2026, 10, 3)
     with get_conn(db_path) as conn:
         seed_donut_portfolio(conn, today)
         data = chart_data(conn, today)
@@ -45,7 +45,7 @@ def test_tc77_donut_counts_equal_summary_counts(db_path):
 
 
 def test_tc77_donut_recomputes_after_flip(db_path):
-    today = date(2026, 10, 30)
+    today = date(2026, 10, 3)
     with get_conn(db_path) as conn:
         flip_id, void_month, _ = seed_donut_portfolio(conn, today)
         before = chart_data(conn, today)["donut"]
@@ -70,7 +70,7 @@ def test_tc77_rendered_donut_labels_match_counts(client, db_path):
 
 
 def test_tc77_empty_portfolio_donut_zeros(db_path):
-    today = date(2026, 10, 30)
+    today = date(2026, 10, 3)
     with get_conn(db_path) as conn:
         data = chart_data(conn, today)
     assert data["donut"] == {"danger": 0, "ongoing": 0, "completed": 0, "total": 0}

@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from flask import Flask, flash, redirect, render_template, request, url_for
+from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
 from src.db import get_conn, init_db
@@ -94,6 +95,30 @@ def create_app(db_path=None):
     _ensure_db(db_file)
     _startup_alerts(db_file, date.today())
 
+    def render_unexpected(error_text):
+        endpoint = request.endpoint or "unknown"
+        message = error_text or "unexpected failure"
+        print(f"ERR-unexpected {endpoint}: {message}", file=sys.stderr)
+        return (
+            render_template(
+                "error.html",
+                code="ERR-unexpected",
+                message=message,
+                title=f"Unexpected error ({endpoint})",
+            ),
+            500,
+        )
+
+    @app.errorhandler(500)
+    def handle_internal_error(_error):
+        return render_unexpected("internal server error")
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_error(error):
+        if isinstance(error, HTTPException):
+            return error
+        return render_unexpected(str(error))
+
     def entry_guard():
         return (
             render_template(
@@ -127,10 +152,10 @@ def create_app(db_path=None):
             with get_conn(db_file) as conn:
                 today = date.today()
                 context = {
+                    "active_bonds": active_bonds_in_month(conn, today),
                     "counts": summary_counts(conn, today),
                     "amounts": summary_amounts(conn, today),
                     "this_month": this_month_returns(conn, today),
-                    "active_bonds": active_bonds_in_month(conn, today),
                     "history": monthly_history(conn, today),
                     "overview": status_overview(conn, today),
                     "charts": chart_data(conn, today),
