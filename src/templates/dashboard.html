@@ -16,6 +16,30 @@
   .card.danger-card { background: var(--due); }
   .card.ongoing-card { background: #ffe8cc; }
   .card.completed-card { background: var(--paid); }
+  .l2-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--current-month);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    vertical-align: middle;
+  }
+  .phase4-summary {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--white);
+    padding: 10px 14px;
+    margin: 10px 0 14px;
+    font-size: 13px;
+  }
+  .phase4-summary .label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .phase4-summary .line { margin-top: 6px; }
+  .phase4-summary a { color: var(--text); font-weight: 700; }
   .card.this-month {
     background: var(--blue-light);
     width: 100%;
@@ -89,6 +113,31 @@
     <div class="value money" data-amount="{{ "%.2f"|format(amounts.balance) }}">&#8377;{{ "%.2f"|format(amounts.balance) }}</div>
     <div class="sub">till return minus maturity amount</div>
   </div>
+</div>
+
+<div class="cards-row amounts" id="phase4-cards">
+  <div class="card" id="card-pnl">
+    <div class="label">P&amp;L <span class="l2-badge" id="pnl-l2-badge" data-l2-status="{{ pnl.l2_status }}">L2 pending owner confirmation</span></div>
+    <div class="value money" id="pnl-value" data-amount="{{ "%.2f"|format(pnl.pnl) }}">&#8377;{{ "%.2f"|format(pnl.pnl) }}</div>
+    <div class="sub" id="pnl-formula-note">proposed formula: till return &#8722; investment (not yet owner-confirmed)</div>
+  </div>
+  <div class="card" id="card-ongoing-tl">
+    <div class="label">Ongoing TL Value</div>
+    <div class="value money" id="ongoing-tl-value" data-amount="{{ "%.2f"|format(pnl.ongoing_tl) }}">&#8377;{{ "%.2f"|format(pnl.ongoing_tl) }}</div>
+    <div class="sub">sum of On-going bond principal (live)</div>
+  </div>
+</div>
+
+<div class="phase4-summary" id="phase4-summary">
+  <span class="label">Discount &amp; TDS summary (Phase 4)</span>
+  <div class="line" id="phase4-discount-tds-line">
+    Discount recorded: <strong id="discount-total" class="money" data-amount="{{ "%.2f"|format(discounts.totals.discount) }}">&#8377;{{ "%.2f"|format(discounts.totals.discount) }}</strong>
+    across <span id="discount-recorded-count">{{ discounts.totals.recorded }}</span> bond(s);
+    <span id="discount-not-recorded-count">{{ discounts.totals.not_recorded }}</span> not recorded.
+    Annual TDS: <strong id="annual-tds-total" class="money" data-amount="{{ "%.2f"|format(tds.totals.annual_tds) }}">&#8377;{{ "%.2f"|format(tds.totals.annual_tds) }}</strong>
+    &#183; Annual net payouts: <strong id="annual-net-total" class="money" data-amount="{{ "%.2f"|format(tds.totals.annual_net) }}">&#8377;{{ "%.2f"|format(tds.totals.annual_net) }}</strong>
+  </div>
+  <div class="line" id="phase4-links">Detail: <a href="/watch" id="phase4-watch-link">Watch List</a> &#183; per-bond payout schedules via the <a href="#status-overview" id="phase4-overview-link">status overview</a> below. P&amp;L uses the PROPOSED formula and awaits owner confirmation.</div>
 </div>
 
 <div class="card this-month" id="this-month-card">
@@ -220,7 +269,7 @@
 <div class="table-wrap">
   <table id="status-overview">
     <thead>
-      <tr><th>Bond</th><th>ISIN</th><th class="num">Tenure (mo)</th><th>Status</th></tr>
+      <tr><th>Bond</th><th>ISIN</th><th class="num">Tenure (mo)</th><th>Status</th><th>Payout</th></tr>
     </thead>
     <tbody>
       {% for row in overview %}
@@ -229,10 +278,11 @@
         <td class="mono">{{ row.isin }}</td>
         <td class="num">{{ row.tenure_months }}</td>
         <td class="status-cell-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</td>
+        <td><a href="/payout?bond_id={{ row.id }}" class="payout-link" data-bond="{{ row.id }}">schedule</a></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
-<p class="table-note">Statuses recomputed from the ledger on every view. Sort order: Danger &#8594; On-going &#8594; Completed.</p>
+<p class="table-note">Statuses recomputed from the ledger on every view. Sort order: Danger &#8594; On-going &#8594; Completed. The Payout column links to the quarterly/yearly/monthly payout schedule (FR-15).</p>
 {% endblock %}

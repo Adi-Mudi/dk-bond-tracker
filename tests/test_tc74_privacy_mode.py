@@ -69,7 +69,7 @@ def test_tc74_dashboard_money_elements_all_classed(client, db_path):
     assert len(tags) >= 4
     for tag in tags:
         assert "money" in tag, tag
-    assert html.count('class="value money"') == 4
+    assert html.count('class="value money"') == 6
     assert any('data-amount="179011.00"' in tag for tag in tags)
 
 
