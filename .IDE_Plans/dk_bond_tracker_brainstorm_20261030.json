@@ -4,7 +4,7 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "1.9.0",
+  "version": "2.1.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
@@ -446,6 +446,66 @@
       "WHY": "User directive 2026-10-30: 'must register on local only, do not register on the global'. Supersedes D31's registration location (D31's read-only/deferred design unchanged).",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 Q1 local-only"
+    },
+    {
+      "id": "D33",
+      "topic": "Watchlist redesign (confirmed mockup)",
+      "options": [
+        "Standalone desktop shell + 2-view watchlist + full bond fields (mockup v1)",
+        "Keep current minimal watchlist"
+      ],
+      "choice": "Confirmed design = standalone app shell (window chrome, left sidebar nav, status bar) + watchlist with segmented My Holdings/Watching views, full bond columns (type, credit rating+agency, coupon, yield-entered-offline, payout cycle, invested, returned, next payout, maturity countdown, status, alerts), filter/search/sort bar, summary strip, right detail drawer, alerts panel, offline honesty notes. Source: fix-watchlist/.IDE_Plans/design_drafts/watchlist_standalone_mockup_v1.html (user: 'this one is good').",
+      "WHY": "User Q1 2026-10-30 approval of mockup after community research (InvestX/Grip/GoldenPi/IndiaBonds patterns + Indian bond fields).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1"
+    },
+    {
+      "id": "D34",
+      "topic": "Settings screen (mailing + configuration)",
+      "options": [
+        "Full Settings screen added to design",
+        "No settings screen"
+      ],
+      "choice": "Add a dedicated Settings screen to the design: Email alerts (SMTP host/port/user/App Password masked/recipient/from-name + Test Send + configured status), Alert preferences (payout reminder days, overdue, maturity 30/7/1, daily sweep), General (default credit day, privacy default, INR format), Data (import Excel, export DB backup, default CSV scope), About (version, offline statement). Sidebar Settings item becomes a real nav destination. Mockup updated to v2 with this screen before docs finalize.",
+      "WHY": "User Q2 2026-10-30: menu/navigation good; Settings missing; must contain mailing detail and configuration; update fully.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q2"
+    },
+    {
+      "id": "D35",
+      "topic": "Fleet execution model (herdr visible + wave parallel)",
+      "options": [
+        "All subagents in visible herdr panes; wave-parallel implementation; PM picks captain/worker counts",
+        "Invisible subagents"
+      ],
+      "choice": "EVERY subagent runs as a kimi agent in a VISIBLE herdr pane (user watches live). Implementation uses WAVE PARALLEL mode. Fleet for this initiative: 1 Captain + 4 Workers + 1 Reviewer (PM-calculated; captain relays PM contracts and runs store gates, workers author in parallel lanes, reviewer read-only at gate).",
+      "WHY": "User Q3 2026-10-30 explicit.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q3"
+    },
+    {
+      "id": "D36",
+      "topic": "Watchlist-upgrade document pipeline + implementation gate",
+      "options": [
+        "Full docs (PRD..final design) into the database, THEN user approval before any implementation",
+        "Start coding directly"
+      ],
+      "choice": "Sequence: complete document set for the watchlist upgrade (PRD addendum, SRS+RTM addendum, test plan addendum, architecture delta, atomic functions + pseudocode addenda, development order addendum, final design = approved mockup v2), each projected into the store with gates + a review batch; STOP and WAIT for user approval before implementation begins.",
+      "WHY": "User Q1: generate detailed documents like PRD, every document complete, before implementation wait for approval; Q3: final full documentation updated in the database.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1+Q3"
+    },
+    {
+      "id": "D37",
+      "topic": "Purge old format + previous-user data everywhere (start-from-scratch product)",
+      "options": [
+        "Full purge: untrack XLSM, remove import feature + references, delete data-bearing artifacts, docs scrubbed",
+        "Keep import feature"
+      ],
+      "choice": "The XLSM (old format) carries the previous user's data: (1) untrack it from the repo and stop bundling it in the product (no sharing via clone/zip); (2) remove the Excel-import feature from the program (CLI flag, run scripts, README, import code+tests) and from ALL documents (FR/AF/pseudocode/TC references) - product is create-from-scratch ONLY: new users enter their own data; (3) delete data-bearing artifacts (extracted sheet XML, vba_dump, legacy migrated PRD/RTM/brainstorm bodies containing real portfolio data, archived scout extracts); (4) document scrub wave (D33-Q3) removes remaining real-data examples. Supersedes D2 (one-time import) for the shipped product. Deletion of the owner's ORIGINALS (workbook + imported backup) requires separate explicit confirmation.",
+      "WHY": "User 2026-10-30 Q1: remove the old format because it has previous-user data; clean program AND documents; new users start from scratch; developers must never ship/share any user's data.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1"
     }
   ],
   "gaps": [
@@ -588,6 +648,16 @@
       "version": "1.9.0",
       "date": "2026-10-30",
       "note": "D32: project MCPs moved to project-local .kimi-code/mcp.json; global config cleaned of project entries (supersedes D31 location only)."
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-10-30",
+      "note": "D33-D36: watchlist redesign confirmed (mockup v1), Settings screen required (mockup v2), herdr-visible wave-parallel fleet (1 captain + 4 workers + 1 reviewer), full doc pipeline with hard implementation approval gate."
+    },
+    {
+      "version": "2.1.0",
+      "date": "2026-10-30",
+      "note": "D37: full old-format + previous-user-data purge; import feature removed from product+docs (supersedes D2); originals deletion pending explicit owner confirm."
     }
   ],
   "decision_log": [
@@ -737,6 +807,18 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "D32 added (MCP local-only scope)."
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "Watchlist-upgrade initiative decisions D33-D36 added."
+    },
+    {
+      "version": "2.1.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "D37 added (data purge + start-from-scratch)."
     }
   ]
 }
