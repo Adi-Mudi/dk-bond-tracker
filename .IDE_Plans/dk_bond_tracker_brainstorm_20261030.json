@@ -4,7 +4,7 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
@@ -433,6 +433,19 @@
       "WHY": "User Q 2026-10-30 'shall we add MCP' + 'Q1, add'. Read-only + deferred chosen for financial-data safety (privacy-mode bypass concern documented: MCP exposes amounts to agent sessions on this machine; local-only, no network).",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 Q1 add"
+    },
+    {
+      "id": "D32",
+      "topic": "MCP registration scope",
+      "options": [
+        "Project-level .kimi-code/mcp.json only",
+        "Global ~/.kimi-code/mcp.json",
+        "Both"
+      ],
+      "choice": "Project MCP servers (sqlite-app-data + sqlite-excel-dashboard) live ONLY in the project-local .kimi-code/mcp.json of THIS repository; both removed from the global ~/.kimi-code/mcp.json, which now holds only general tools (tavily, brave). Per Kimi docs: project-level entries are effective only for this repository and take precedence over same-named user-level entries.",
+      "WHY": "User directive 2026-10-30: 'must register on local only, do not register on the global'. Supersedes D31's registration location (D31's read-only/deferred design unchanged).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1 local-only"
     }
   ],
   "gaps": [
@@ -570,6 +583,11 @@
       "version": "1.8.0",
       "date": "2026-10-30",
       "note": "D31: read-only deferred MCP 'sqlite-app-data' for app DB; product-facing MCP logged as future feature only."
+    },
+    {
+      "version": "1.9.0",
+      "date": "2026-10-30",
+      "note": "D32: project MCPs moved to project-local .kimi-code/mcp.json; global config cleaned of project entries (supersedes D31 location only)."
     }
   ],
   "decision_log": [
@@ -713,6 +731,12 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "D31 added (app-data MCP)."
+    },
+    {
+      "version": "1.9.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "D32 added (MCP local-only scope)."
     }
   ]
 }
