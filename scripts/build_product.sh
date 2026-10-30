@@ -37,11 +37,12 @@ cat > "${PRODUCT_DIR}/run.sh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-if [ "${1:-}" = "--empty" ]; then
-  exec .venv/bin/python src/app.py --db data/bonds.db
-fi
-if [ ! -f data/bonds.db ] && [ -f "v5.5_40L_Project_Tracker.xlsm" ]; then
-  .venv/bin/python src/app.py --import "v5.5_40L_Project_Tracker.xlsm" --db data/bonds.db
+if [ "${1:-}" = "--import" ]; then
+  if [ ! -f data/bonds.db ] && [ -f "v5.5_40L_Project_Tracker.xlsm" ]; then
+    .venv/bin/python src/app.py --import "v5.5_40L_Project_Tracker.xlsm" --db data/bonds.db
+  else
+    echo "import skipped: data/bonds.db already exists (delete it first to re-import)"
+  fi
 fi
 exec .venv/bin/python src/app.py --db data/bonds.db
 EOF
@@ -49,13 +50,12 @@ EOF
 cat > "${PRODUCT_DIR}/run.bat" <<'EOF'
 @echo off
 cd /d "%~dp0"
-if "%1"=="--empty" (
-  .venv\Scripts\python src\app.py --db data\bonds.db
-  pause
-  exit /b
-)
-if not exist data\bonds.db if exist "v5.5_40L_Project_Tracker.xlsm" (
-  .venv\Scripts\python src\app.py --import "v5.5_40L_Project_Tracker.xlsm" --db data\bonds.db
+if "%1"=="--import" (
+  if not exist data\bonds.db if exist "v5.5_40L_Project_Tracker.xlsm" (
+    .venv\Scripts\python src\app.py --import "v5.5_40L_Project_Tracker.xlsm" --db data\bonds.db
+  ) else (
+    echo import skipped: data\bonds.db already exists
+  )
 )
 .venv\Scripts\python src\app.py --db data\bonds.db
 pause
@@ -83,9 +83,8 @@ Offline bond-tracking dashboard. No accounts, no internet needed after install. 
 
 4. Open http://127.0.0.1:5000 in your browser.
 
-On first run the app imports v5.5_40L_Project_Tracker.xlsm into data/bonds.db automatically.
-
-Start EMPTY instead (fresh database, no data imported - add companies yourself from Watch List): ./run.sh --empty  (Windows: run.bat --empty)
+By default the app starts EMPTY (fresh database, nothing imported) - add companies yourself from Watch List > Add position.
+Optional one-time migration from the old Excel file: ./run.sh --import  (Windows: run.bat --import) - only imports if data/bonds.db does not exist yet.
 
 ## Email alerts (optional)
 

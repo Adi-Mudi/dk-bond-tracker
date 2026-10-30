@@ -84,6 +84,7 @@ def _ensure_columns(conn):
 
 def init_db(path):
     db_path = str(Path(path))
+    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     try:
         with get_conn(db_path) as conn:
             for statement in SCHEMA_STATEMENTS:

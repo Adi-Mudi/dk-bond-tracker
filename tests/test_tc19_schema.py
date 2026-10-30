@@ -79,3 +79,13 @@ def test_bond_insert_select_roundtrip(tmp_path):
     assert row["credit_day"] == 5
     assert row["status"] == "On-going"
     assert row["created_at"]
+
+
+def test_init_db_creates_missing_parent_dirs(tmp_path):
+    nested = tmp_path / "fresh" / "data" / "bonds.db"
+    init_db(str(nested))
+    assert nested.is_file()
+    with get_conn(str(nested)) as conn:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert "bonds" in tables
+    assert "payment_ledger" in tables
