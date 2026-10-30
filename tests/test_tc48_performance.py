@@ -7,6 +7,8 @@ from src.app import create_app
 from src.db import get_conn, init_db
 from src.validators import add_months
 
+pytestmark = pytest.mark.remote
+
 BOND_COUNT = 150
 MONTHS = 96
 THRESHOLD_SECONDS = 2.0

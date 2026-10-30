@@ -96,6 +96,7 @@ def test_tc16_negative_discount_is_real_recorded_value(db_path):
     assert detail["display"] == "-31.75"
 
 
+@pytest.mark.remote
 def test_tc16_real_workbook_discount_matches_watch_l_column(tmp_path):
     db_path = tmp_path / "tc16_real.db"
     summary = import_workbook(WORKBOOK, db_path)

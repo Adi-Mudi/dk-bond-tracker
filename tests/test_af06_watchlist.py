@@ -14,6 +14,8 @@ from src.import_xlsm import (
 )
 from src.validators import AppError
 
+pytestmark = pytest.mark.remote
+
 WORKBOOK = Path(
     "/workspace/01_excel_dashboard/v5.5_40L_Project_Tracker.xlsm"
 )
