@@ -88,3 +88,14 @@ def test_tc68_only_add_path_is_the_watch_list_form(client, db_path):
     assert "Sneaky Co" in grid
     dashboard = client.get("/").get_data(as_text=True)
     assert "Sneaky Co" in dashboard
+
+
+def test_tc68_tc59_new_company_rendered_on_every_surface(client, db_path):
+    response = client.post("/add", data=ADD_LIKE_FORM)
+    assert response.status_code == 302
+    assert current_bond_count(db_path) == 1
+    grid = client.get("/grid").get_data(as_text=True)
+    dashboard = client.get("/").get_data(as_text=True)
+    watch = client.get("/watch").get_data(as_text=True)
+    for page in (grid, dashboard, watch):
+        assert "Sneaky Co" in page

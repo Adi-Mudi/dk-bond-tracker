@@ -3,7 +3,6 @@ import re
 from datetime import date
 
 from .status import (
-    compute_row_status,
     compute_row_status_daywise,
     month_key,
     tenure_month_map,
@@ -141,7 +140,9 @@ def status_overview(conn, today=None):
     entries = []
     for row in rows:
         months = tenure_month_map(conn, row["id"], row["start_date"], row["tenure_months"])
-        status = compute_row_status(months, row["tenure_months"], today)
+        status = compute_row_status_daywise(
+            months, row["tenure_months"], row["credit_day"], today
+        )
         entry = dict(row)
         entry["status"] = status
         entry["color"] = STATUS_COLORS[status]
@@ -260,10 +261,16 @@ def active_bonds_in_month(conn, today=None):
         try:
             start = parse_date_value(row["start_date"], "start_date")
             tenure = int(row["tenure_months"])
-        except (AppError, TypeError, ValueError):
-            continue
+        except (AppError, TypeError, ValueError) as exc:
+            raise AppError(
+                "ERR-active-bonds",
+                f"bond {row['id']}: unparseable row metadata: {exc}",
+            ) from exc
         if tenure < 1:
-            continue
+            raise AppError(
+                "ERR-active-bonds",
+                f"bond {row['id']}: tenure_months must be positive: {row['tenure_months']!r}",
+            )
         first = month_key(start)
         last = month_key(add_months(start, tenure - 1))
         if first <= current <= last:

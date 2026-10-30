@@ -5,7 +5,7 @@ import pytest
 from conftest import add_bond, bond_status
 from src.alerts import daily_sweep
 from src.db import get_conn
-from src.queries import insert_payment
+from src.queries import grid_model, insert_payment, status_overview, summary_counts
 from src.status import compute_row_status_daywise, recompute_all
 from src.validators import AppError
 
@@ -122,3 +122,31 @@ def test_tc78_old_unpaid_month_keeps_danger_without_new_event(db_path):
         assert events[0]["month"] == "2026-10"
         assert events[0]["severity"] == "danger"
         assert bond_status(conn, bond_id) == "Danger"
+
+
+def test_tc78_summary_counts_overview_and_grid_agree_in_active_daywise_danger(db_path):
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "SyncCo", "INE000000078A", "2026-09-01", 12, credit_day=5)
+        insert_payment(conn, bond_id, "2026-09", 1000.0)
+        conn.execute("UPDATE bonds SET status = 'On-going' WHERE id = ?", (bond_id,))
+        today = date(2026, 10, 6)
+        events = daily_sweep(conn, today)
+        assert events == [
+            {
+                "bond_id": bond_id,
+                "company": "SyncCo",
+                "month": "2026-10",
+                "credit_day": 5,
+                "severity": "danger",
+            }
+        ]
+        assert bond_status(conn, bond_id) == "Danger"
+        counts = summary_counts(conn, today)
+        assert counts["danger"] >= 1
+        overview = status_overview(conn, today)
+        overview_entry = next(row for row in overview if row["id"] == bond_id)
+        assert overview_entry["status"] == "Danger"
+        model = grid_model(conn, today)
+        grid_row = next(row for row in model["rows"] if row["id"] == bond_id)
+        assert grid_row["status"] == "Danger"
+        assert counts["danger"] == sum(1 for row in overview if row["status"] == "Danger")

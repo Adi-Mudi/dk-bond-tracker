@@ -1,5 +1,5 @@
-import importlib
 import os
+import smtplib
 
 from .validators import AppError
 
@@ -27,6 +27,14 @@ def _config():
     return host, port, user, app_password, recipient
 
 
+def _use_starttls(port):
+    if port == 465:
+        return False
+    if os.environ.get("SMTP_STARTTLS") == "1":
+        return True
+    return port == 587
+
+
 def send_alert_email(event):
     if not isinstance(event, dict):
         raise AppError("ERR-email-send", f"alert event must be a dict: {event!r}")
@@ -44,11 +52,17 @@ def send_alert_email(event):
         f"Source: DK Bond Tracker local alert sweep\n"
     )
     message = f"From: {user}\r\nTo: {recipient}\r\nSubject: {subject}\r\n\r\n{body}"
-    smtp = importlib.import_module("smtplib")
     try:
-        with smtp.SMTP_SSL(host, port) as client:
-            client.login(user, app_password)
-            client.sendmail(user, [recipient], message)
+        if port == 465:
+            with smtplib.SMTP_SSL(host, port) as client:
+                client.login(user, app_password)
+                client.sendmail(user, [recipient], message)
+        else:
+            with smtplib.SMTP(host, port) as client:
+                if _use_starttls(port):
+                    client.starttls()
+                client.login(user, app_password)
+                client.sendmail(user, [recipient], message)
     except AppError:
         raise
     except Exception as exc:

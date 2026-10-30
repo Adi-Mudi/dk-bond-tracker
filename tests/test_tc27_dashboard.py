@@ -24,7 +24,8 @@ def seed_dashboard_portfolio(conn, today):
     danger_start = add_months(base, -2)
     completed_start = add_months(base, -2)
     add_bond(conn, "DangerCo", "INE0000000271", danger_start.isoformat(), 6)
-    add_bond(conn, "OngoingCo", "INE0000000272", base.isoformat(), 6)
+    ongoing_id = add_bond(conn, "OngoingCo", "INE0000000272", base.isoformat(), 6)
+    add_payment(conn, ongoing_id, f"{base.year:04d}-{base.month:02d}", 500.0)
     completed_id = add_bond(conn, "DoneCo", "INE0000000273", completed_start.isoformat(), 1)
     pay_range(conn, completed_id, f"{completed_start.year:04d}-{completed_start.month:02d}", 1)
     return completed_id

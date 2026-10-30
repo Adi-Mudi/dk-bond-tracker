@@ -7,6 +7,7 @@ import pytest
 from conftest import add_bond, add_payment
 from src.app import create_app
 from src.db import get_conn
+from src.mailer import send_alert_email
 
 
 def make_sim_date(frozen):
@@ -151,3 +152,137 @@ def test_tc79_alert_lands_in_bell_and_history(db_path, monkeypatch, fake_smtp, m
     history = app.test_client().get("/notifications").get_data(as_text=True)
     assert "BellCo" in history
     assert "danger" in history
+
+
+def test_tc79_day_of_reminder_fires_both_channels(db_path, monkeypatch, fake_smtp, mail_log):
+    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 5)))
+    monkeypatch.setenv("SMTP_USER", "owner@example.test")
+    monkeypatch.setenv("SMTP_APP_PASSWORD", "app-password-abc-123")
+    with get_conn(db_path) as conn:
+        add_bond(conn, "DayOfCo", "INE0000000795", "2026-09-01", 12, credit_day=5)
+    app = create_app(str(db_path))
+    app.config["TESTING"] = True
+    rows = notifications_rows(db_path)
+    day_of = [row for row in rows if row["severity"] == "due_today"]
+    assert len(day_of) == 1
+    assert "DayOfCo payment due today (day 5)" in day_of[0]["message"]
+    assert day_of[0]["created_at"]
+    send_entries = [entry for entry in mail_log if entry[0] == "sendmail"]
+    assert len(send_entries) == 1
+    assert "due_today" in send_entries[0][3]
+    assert "DayOfCo" in send_entries[0][3]
+
+
+def test_tc79_day_before_credit_day_no_day_of_notification(db_path, monkeypatch, fake_smtp, mail_log):
+    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 4)))
+    monkeypatch.setenv("SMTP_USER", "owner@example.test")
+    monkeypatch.setenv("SMTP_APP_PASSWORD", "app-password-abc-123")
+    with get_conn(db_path) as conn:
+        add_bond(conn, "PreCo", "INE0000000796", "2026-09-01", 12, credit_day=5)
+    create_app(str(db_path))
+    rows = notifications_rows(db_path)
+    assert [row for row in rows if row["severity"] == "due_today"] == []
+    assert [row for row in rows if row["severity"] == "reminder"] == []
+    assert not any(entry[0] == "sendmail" for entry in mail_log)
+
+
+def test_tc79_day_after_credit_day_sweep_only_no_day_of(db_path, monkeypatch, fake_smtp, mail_log):
+    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 6)))
+    monkeypatch.setenv("SMTP_USER", "owner@example.test")
+    monkeypatch.setenv("SMTP_APP_PASSWORD", "app-password-abc-123")
+    with get_conn(db_path) as conn:
+        add_bond(conn, "PostCo", "INE0000000797", "2026-09-01", 12, credit_day=5)
+    create_app(str(db_path))
+    rows = notifications_rows(db_path)
+    assert [row for row in rows if row["severity"] == "due_today"] == []
+    danger_rows = [row for row in rows if row["severity"] == "danger"]
+    assert len(danger_rows) == 1
+    assert "PostCo" in danger_rows[0]["message"]
+
+
+def test_tc79_day_of_reminder_fires_once_across_app_restarts(db_path, monkeypatch, fake_smtp, mail_log):
+    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 5)))
+    monkeypatch.setenv("SMTP_USER", "owner@example.test")
+    monkeypatch.setenv("SMTP_APP_PASSWORD", "app-password-abc-123")
+    with get_conn(db_path) as conn:
+        add_bond(conn, "OnceCo", "INE0000000798", "2026-09-01", 12, credit_day=5)
+    create_app(str(db_path))
+    create_app(str(db_path))
+    rows = notifications_rows(db_path)
+    assert len([row for row in rows if row["severity"] == "due_today"]) == 1
+
+
+def test_tc79_port_465_uses_ssl_class(monkeypatch, mail_log):
+    class FakeSSL:
+        def __init__(self, host, port):
+            mail_log.append(("ssl-connect", host, port))
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def login(self, user, password):
+            mail_log.append(("login", user, password))
+
+        def sendmail(self, sender, recipients, body):
+            mail_log.append(("sendmail", sender, recipients, body))
+
+    class FakePlain:
+        def __init__(self, host, port):
+            mail_log.append(("plain-connect", host, port))
+
+    monkeypatch.setattr(smtplib, "SMTP_SSL", FakeSSL)
+    monkeypatch.setattr(smtplib, "SMTP", FakePlain)
+    monkeypatch.setenv("SMTP_USER", "owner@example.test")
+    monkeypatch.setenv("SMTP_APP_PASSWORD", "app-password-abc-123")
+    monkeypatch.setenv("SMTP_PORT", "465")
+    monkeypatch.setenv("SMTP_STARTTLS", "1")
+
+    result = send_alert_email(
+        {"company": "SslCo", "month": "2026-10", "severity": "reminder", "credit_day": 5}
+    )
+    assert result["status"] == "sent"
+    assert ("ssl-connect", "smtp.gmail.com", 465) in mail_log
+    assert not any(entry[0] == "plain-connect" for entry in mail_log)
+
+
+def test_tc79_port_587_uses_plain_smtp_with_starttls(monkeypatch, mail_log):
+    class FakePlain:
+        def __init__(self, host, port):
+            mail_log.append(("plain-connect", host, port))
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def starttls(self):
+            mail_log.append(("starttls",))
+
+        def login(self, user, password):
+            mail_log.append(("login", user, password))
+
+        def sendmail(self, sender, recipients, body):
+            mail_log.append(("sendmail", sender, recipients, body))
+
+    class FakeSSL:
+        def __init__(self, host, port):
+            mail_log.append(("ssl-connect", host, port))
+
+    monkeypatch.setattr(smtplib, "SMTP", FakePlain)
+    monkeypatch.setattr(smtplib, "SMTP_SSL", FakeSSL)
+    monkeypatch.setenv("SMTP_USER", "owner@example.test")
+    monkeypatch.setenv("SMTP_APP_PASSWORD", "app-password-abc-123")
+    monkeypatch.setenv("SMTP_PORT", "587")
+    monkeypatch.delenv("SMTP_STARTTLS", raising=False)
+
+    result = send_alert_email(
+        {"company": "TlsCo", "month": "2026-10", "severity": "reminder", "credit_day": 5}
+    )
+    assert result["status"] == "sent"
+    assert ("plain-connect", "smtp.gmail.com", 587) in mail_log
+    assert ("starttls",) in mail_log
+    assert not any(entry[0] == "ssl-connect" for entry in mail_log)

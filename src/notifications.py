@@ -75,7 +75,9 @@ def due_reminders(conn, today):
                 f"bond {row['id']}: missing or invalid credit_day: {credit_day!r}",
             )
         lead_day = credit_day - 2
-        if lead_day < 1 or today.day != lead_day:
+        is_lead = lead_day >= 1 and today.day == lead_day
+        is_day_of = today.day == credit_day
+        if not is_lead and not is_day_of:
             continue
         try:
             months = tenure_month_map(conn, row["id"], row["start_date"], row["tenure_months"])
@@ -85,10 +87,16 @@ def due_reminders(conn, today):
             continue
         if months.get(current_month, False):
             continue
-        days_left = credit_day - today.day
-        key = f"due:{row['id']}:{current_month}"
-        message = f"{row['company']} payment due in {days_left} days (credit day {credit_day})"
-        if notify_once(conn, key, "reminder", message) is None:
+        if is_day_of:
+            key = f"dayof:{row['id']}:{current_month}"
+            severity = "due_today"
+            message = f"{row['company']} payment due today (day {credit_day})"
+        else:
+            days_left = credit_day - today.day
+            key = f"due:{row['id']}:{current_month}"
+            severity = "reminder"
+            message = f"{row['company']} payment due in {days_left} days (credit day {credit_day})"
+        if notify_once(conn, key, severity, message) is None:
             continue
         created.append(
             {
@@ -96,7 +104,7 @@ def due_reminders(conn, today):
                 "company": row["company"],
                 "month": current_month,
                 "credit_day": credit_day,
-                "severity": "reminder",
+                "severity": severity,
             }
         )
     return created
