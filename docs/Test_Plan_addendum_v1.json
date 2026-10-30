@@ -33,8 +33,8 @@
       "id": "TC-60",
       "title": "Duplicate company name (case/whitespace variant) is HARD BLOCKED with named error",
       "type": "integration",
-      "steps": "1. Insert active position company='Muthoottu', ISIN='IN1234567890', status On-going. 2. POST add-position with company='  MUTHOOTTU  ' (case + whitespace variant), ISIN='IN9999999999' (different). 3. Assert no row inserted. 4. Assert response contains the named error. Note: candidate is a pure case/whitespace variant of the same name with a DIFFERENT ISIN, so only the name key can match (equality after trim+lowercase).",
-      "expected": "Add rejected with 'Cannot add position: Muthoottu has an active position (On-going)' (name key matched despite different ISIN); bonds count unchanged; no override path exercised",
+      "steps": "1. Insert active position company='Beta Finance', ISIN='IN1234567890', status On-going. 2. POST add-position with company='  BETA FINANCE  ' (case + whitespace variant), ISIN='IN9999999999' (different). 3. Assert no row inserted. 4. Assert response contains the named error. Note: candidate is a pure case/whitespace variant of the same name with a DIFFERENT ISIN, so only the name key can match (equality after trim+lowercase).",
+      "expected": "Add rejected with 'Cannot add position: Beta Finance has an active position (On-going)' (name key matched despite different ISIN); bonds count unchanged; no override path exercised",
       "level": "LOCAL",
       "status": "planned"
     },
@@ -42,8 +42,8 @@
       "id": "TC-61",
       "title": "Duplicate ISIN with a different company name is HARD BLOCKED",
       "type": "integration",
-      "steps": "1. Seed an active position 'Muthoottu' (On-going) with ISIN 'IN1234567890'.\n2. Submit the add form with company 'MMF Investments' and ISIN 'in1234567890' (case-variant ISIN, entirely different name).\n3. Capture the response, error text and bonds master row count.",
-      "expected": "The add is HARD BLOCKED because the ISIN match blocks even though the company names differ; the named error identifies the active Muthoottu position and its status; no new bonds row is written.",
+      "steps": "1. Seed an active position 'Beta Finance' (On-going) with ISIN 'IN1234567890'.\n2. Submit the add form with company 'MMF Investments' and ISIN 'in1234567890' (case-variant ISIN, entirely different name).\n3. Capture the response, error text and bonds master row count.",
+      "expected": "The add is HARD BLOCKED because the ISIN match blocks even though the company names differ; the named error identifies the active Beta Finance position and its status; no new bonds row is written.",
       "level": "LOCAL",
       "status": "planned"
     },
@@ -51,7 +51,7 @@
       "id": "TC-62",
       "title": "Both keys match (normalized name AND ISIN): still a single HARD BLOCK with named error",
       "type": "unit",
-      "steps": "1. Seed an active position 'Muthoottu' (On-going) with ISIN 'IN1234567890'.\n2. Evaluate the lock check for a candidate with company ' MUTHOOTTU ' and ISIN 'in1234567890' — both the normalized name and the ISIN match the same active position.\n3. Capture the block decision, the named error and any duplicate-error behavior.",
+      "steps": "1. Seed an active position 'Beta Finance' (On-going) with ISIN 'IN1234567890'.\n2. Evaluate the lock check for a candidate with company ' BETA FINANCE ' and ISIN 'in1234567890' — both the normalized name and the ISIN match the same active position.\n3. Capture the block decision, the named error and any duplicate-error behavior.",
       "expected": "The candidate is HARD BLOCKED exactly once with a named error naming the blocking position and its status; the both-match case produces no double error, no bypass, and no ambiguity about which position blocks — either match alone is sufficient and both matching changes nothing.",
       "level": "LOCAL",
       "status": "planned"
@@ -60,7 +60,7 @@
       "id": "TC-63",
       "title": "Completed position releases the lock: the next add succeeds",
       "type": "integration",
-      "steps": "1. Seed the 'Muthoottu' position (On-going) and confirm an add attempt is blocked.\n2. Record ledger payments until months paid >= tenure so the D5 status engine reports Completed.\n3. Submit a new Muthoottu position via the add form.\n4. Verify the new row and its computed status.",
+      "steps": "1. Seed the 'Beta Finance' position (On-going) and confirm an add attempt is blocked.\n2. Record ledger payments until months paid >= tenure so the D5 status engine reports Completed.\n3. Submit a new Beta Finance position via the add form.\n4. Verify the new row and its computed status.",
       "expected": "With the existing position Completed the add is ALLOWED (lock released only by Completed per D5, months paid >= tenure); exactly one new bonds row exists and its status computes as On-going; no named-error block is raised for the previously blocking company.",
       "level": "LOCAL",
       "status": "planned"
@@ -69,7 +69,7 @@
       "id": "TC-64",
       "title": "Re-buy after Completed starts On-going and re-locks: a further add is blocked again",
       "type": "integration",
-      "steps": "1. Complete TC-63's flow: prior Muthoottu position Completed, new Muthoottu position added and computing On-going.\n2. Immediately submit another Muthoottu add (name or ISIN variant).\n3. Capture the block, the named error and the bonds master row count.",
+      "steps": "1. Complete TC-63's flow: prior Beta Finance position Completed, new Beta Finance position added and computing On-going.\n2. Immediately submit another Beta Finance add (name or ISIN variant).\n3. Capture the block, the named error and the bonds master row count.",
       "expected": "The re-bought position starts On-going and re-locks the company: the further add is HARD BLOCKED with a named error identifying the new active position and its status; no third bonds row is written; the lock holds until the new position too completes.",
       "level": "LOCAL",
       "status": "planned"
@@ -78,7 +78,7 @@
       "id": "TC-65",
       "title": "Block message content matches the SRS AC shape exactly",
       "type": "unit",
-      "steps": "1. Build the block error for active position 'Muthoottu' with computed status On-going.\n2. Compare the message against the SRS AC shape: 'Cannot add position: Muthoottu has an active position (On-going)'.\n3. Repeat with a Danger-status active position and verify the status token reflects Danger.\n4. Verify the message is surfaced to the user, not swallowed by a handler.",
+      "steps": "1. Build the block error for active position 'Beta Finance' with computed status On-going.\n2. Compare the message against the SRS AC shape: 'Cannot add position: Beta Finance has an active position (On-going)'.\n3. Repeat with a Danger-status active position and verify the status token reflects Danger.\n4. Verify the message is surfaced to the user, not swallowed by a handler.",
       "expected": "The message matches the SRS AC shape exactly — prefix 'Cannot add position:', then the blocking company name, then 'has an active position (', then the computed status, then ')' — with the real company name and live D5 status substituted; a Danger blocker is named as Danger; the message is surfaced visibly per FR-21 and never logged-and-swallowed.",
       "level": "LOCAL",
       "status": "planned"
@@ -87,7 +87,7 @@
       "id": "TC-66",
       "title": "No override: an add attempt with a force flag/param is still rejected",
       "type": "integration",
-      "steps": "1. Seed an active Muthoottu position (On-going).\n2. Submit the add form with a force/override flag or parameter set truthy (for example force=true, override=true, confirm_anyway=1) while the lock matches.\n3. Capture the response, error text and bonds master row count.\n4. Inspect the add path for any code branch that honors a force or override input.",
+      "steps": "1. Seed an active Beta Finance position (On-going).\n2. Submit the add form with a force/override flag or parameter set truthy (for example force=true, override=true, confirm_anyway=1) while the lock matches.\n3. Capture the response, error text and bonds master row count.\n4. Inspect the add path for any code branch that honors a force or override input.",
       "expected": "The force/override attempt is rejected with the same HARD BLOCK named error naming the active position and its status; no bonds row is written under any flag value; the add path contains no force-accept or override branch — enforcement has no override, per FR-26 and D15.",
       "level": "LOCAL",
       "status": "planned"

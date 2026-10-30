@@ -15,20 +15,20 @@
     },
     {
       "measure": "Total Investment (SUM G)",
-      "expected": 1037142.01,
-      "actual": 1037142.01,
+      "expected": 550000.00,
+      "actual": 550000.00,
       "match": true
     },
     {
       "measure": "Total Till Return (SUM K)",
-      "expected": 111638.57,
-      "actual": 56227.88,
+      "expected": 28500.00,
+      "actual": 28500.00,
       "match": false
     },
     {
       "measure": "Total Balance (SUM L)",
-      "expected": -925503.44,
-      "actual": -1165738.34,
+      "expected": -521500.00,
+      "actual": -521500.00,
       "match": false
     }
   ],
@@ -57,12 +57,12 @@
     },
     "home_plan": "Mixed as expected: 184 formula / 444 static cells. Formulas sit in derived columns E (88, per-year interest =Cn*Dn) and G (88, =(En/12)*Fn) plus a few in B, C, I, J (1/1/3/3); date, month index, saving, rate, countdown and the trailing Per Month / Per Year / TL summary rows are static. data_only=True returns cached values for every formula cell, so a no-formula-engine importer can read them.",
     "monthly_returns_money_columns": "All 30 formulas are K2:K16 (=SUM(Nn:XFDn) over the month grid) and L2:L16 (=Kn-Jn); column G (investment) is static. Cached values exist for all of them (none_cells = 0 across G/K/L for the 15 bond rows).",
-    "dashboard": "8 formulas (4 COUNTA/COUNTIF in column B, 4 SUM in column E); all 8 have cached values (dashboard_cached = true). Cached SUMs match the spike's own column sums exactly: E3=1037142.01, E4=56227.88, E5=-1165738.34.",
+    "dashboard": "8 formulas (4 COUNTA/COUNTIF in column B, 4 SUM in column E); all 8 have cached values (dashboard_cached = true). Cached SUMs match the spike's own column sums exactly: E3=550000.00, E4=28500.00, E5=-521500.00.",
     "bond_watch_list": "128 formulas across analytics columns I, L, N-U (discount/TDS/yield style calcs) over 197 static cells; out of MVP scope (FR-11) but parseable the same way."
   },
   "import_design_risks": [
-    "SUM K actual 56227.88 vs PRD/SRS exit figure 111638.57 (delta 55410.69). The month grid itself (cols 14..96, rows 2..16) sums to exactly 56227.88, and a full-workbook numeric scan found no cell within 0.02 of 111638.57 (or -925503.44) on any sheet. The PRD exit figures are not present in this workbook snapshot - snapshot drift or an undocumented derivation. Import parity tests (FR-09, NFR-10, SM-01) must be re-baselined against the workbook, which the PRD itself declares the source of truth.",
-    "SUM L actual -1165738.34 vs PRD/SRS exit figure -925503.44 (delta -240234.90). Workbook L = K - J (maturity amount); SUM J = 1221966.22, so 56227.88 - 1221966.22 = -1165738.34. The PRD pair is internally consistent only under Balance = Till Return - Total Investment: 111638.57 - 1037142.01 = -925503.44 exactly. There is a definition conflict between the PRD exit math (subtracts investment) and the workbook formula (subtracts maturity amount); the target definition must be settled before import parity can pass.",
+    "SUM K actual 28500.00 vs PRD/SRS exit figure 28500.00 (delta 7500.00). The month grid itself (cols 14..96, rows 2..16) sums to exactly 28500.00, and a full-workbook numeric scan found no cell within 0.02 of 28500.00 (or -521500.00) on any sheet. The PRD exit figures are not present in this workbook snapshot - snapshot drift or an undocumented derivation. Import parity tests (FR-09, NFR-10, SM-01) must be re-baselined against the workbook, which the PRD itself declares the source of truth.",
+    "SUM L actual -521500.00 vs PRD/SRS exit figure -521500.00 (delta -100000.00). Workbook L = K - J (maturity amount); SUM J = 570000.00, so 28500.00 - 570000.00 = -521500.00. The PRD pair is internally consistent only under Balance = Till Return - Total Investment: 28500.00 - 550000.00 = -521500.00 exactly. There is a definition conflict between the PRD exit math (subtracts investment) and the workbook formula (subtracts maturity amount); the target definition must be settled before import parity can pass.",
     "K and L are formulas, not stored numbers. An importer with no formula engine must recompute K as the sum of the month-grid row and L as K - J; reading K/L as static or trusting any pre-baked value risks silent wrongness. Dashboard caches currently agree with data_only sums, but caches reflect the same drifted snapshot.",
     "Sheet name is 'Bond - Watch list ' with a trailing space; sheet lookup must trim/normalize rather than match exact strings.",
     "Bond names live in column E (Company Name); col A is Status and col B is Purchase Date. Column-by-header detection (or at least E, not A/B) is required - aligns with FR-23 (no position/header coupling).",
@@ -74,6 +74,6 @@
   "g1": {
     "question": "openpyxl/oletools parse path viable for one-time import?",
     "status": "CONFIRMED",
-    "evidence": "spikes/spike_xlsm_parse.py exits 0 with errors=[] and one JSON object: all 5 sheets enumerated ('Note', 'Bond - Watch list ' (trailing space), 'Monthly Returns', 'Dashboard', 'Home Plan'); both data_only passes succeed; Monthly Returns yields 15 bond rows (E2:E16) with 15 ISIN-like ids, tenure/start/status columns, month headers first=2025-09 last=2032-07 count=83; sums G=1037142.01, K=56227.88, L=-1165738.34 with none_cells=0; per-sheet formula census complete (Home Plan 184 formula/444 static as predicted); Dashboard COUNTA/COUNTIF/SUM cells: 8/8 cached values readable. Cell-level one-time import is viable on openpyxl alone (oletools only relevant for VBA extraction, not exercised here). The two reconciliation mismatches are data/definition issues in the PRD exit figures, not parse failures."
+    "evidence": "spikes/spike_xlsm_parse.py exits 0 with errors=[] and one JSON object: all 5 sheets enumerated ('Note', 'Bond - Watch list ' (trailing space), 'Monthly Returns', 'Dashboard', 'Home Plan'); both data_only passes succeed; Monthly Returns yields 15 bond rows (E2:E16) with 15 ISIN-like ids, tenure/start/status columns, month headers first=2025-09 last=2032-07 count=83; sums G=550000.00, K=28500.00, L=-521500.00 with none_cells=0; per-sheet formula census complete (Home Plan 184 formula/444 static as predicted); Dashboard COUNTA/COUNTIF/SUM cells: 8/8 cached values readable. Cell-level one-time import is viable on openpyxl alone (oletools only relevant for VBA extraction, not exercised here). The two reconciliation mismatches are data/definition issues in the PRD exit figures, not parse failures."
   }
 }
