@@ -76,17 +76,17 @@
 <div class="cards-row amounts" id="amount-cards">
   <div class="card" id="card-investment">
     <div class="label">Total Investment</div>
-    <div class="value">&#8377;{{ "%.2f"|format(amounts.total_investment) }}</div>
+    <div class="value money" data-amount="{{ "%.2f"|format(amounts.total_investment) }}">&#8377;{{ "%.2f"|format(amounts.total_investment) }}</div>
     <div class="sub">sum of invested principal</div>
   </div>
   <div class="card" id="card-till-return">
     <div class="label">Till Return</div>
-    <div class="value">&#8377;{{ "%.2f"|format(amounts.till_return) }}</div>
+    <div class="value money" data-amount="{{ "%.2f"|format(amounts.till_return) }}">&#8377;{{ "%.2f"|format(amounts.till_return) }}</div>
     <div class="sub">computed from paid ledger rows</div>
   </div>
   <div class="card" id="card-balance">
     <div class="label">Balance</div>
-    <div class="value">&#8377;{{ "%.2f"|format(amounts.balance) }}</div>
+    <div class="value money" data-amount="{{ "%.2f"|format(amounts.balance) }}">&#8377;{{ "%.2f"|format(amounts.balance) }}</div>
     <div class="sub">till return minus maturity amount</div>
   </div>
 </div>
@@ -98,7 +98,7 @@
   {% elif not active_bonds %}
   <span class="value" id="this-month-message">no bonds active this month</span>
   {% else %}
-  <span class="value" id="this-month-total">&#8377;{{ "%.2f"|format(this_month.total) }}</span>
+  <span class="value money" data-amount="{{ "%.2f"|format(this_month.total) }}" id="this-month-total">&#8377;{{ "%.2f"|format(this_month.total) }}</span>
   {% endif %}
 </div>
 
@@ -208,7 +208,7 @@
       {% for row in history %}
       <tr{% if row.month == current_month %} class="current-month"{% endif %}>
         <td class="history-month">{{ row.month }}{% if row.month == current_month %} (current){% endif %}</td>
-        <td class="num history-total">{{ "%.2f"|format(row.total) }}</td>
+        <td class="num history-total"><span class="money" data-amount="{{ "%.2f"|format(row.total) }}">{{ "%.2f"|format(row.total) }}</span></td>
       </tr>
       {% endfor %}
     </tbody>

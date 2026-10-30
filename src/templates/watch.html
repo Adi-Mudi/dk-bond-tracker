@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .watch-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .btn {
+    display: inline-block;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--blue-light);
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:18px;margin-bottom:12px;">Watch List</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="watch-toolbar">
+  <a class="btn" href="/add" id="add-position-link">Add position</a>
+  <span class="table-note" style="margin-top:0;">single entry point &#8212; the same stored row appears in Month Grid, Dashboard and Watch List (no double entry)</span>
+</div>
+
+<div class="table-wrap">
+  <table id="watch-list">
+    <thead>
+      <tr>
+        <th>Bond</th>
+        <th>ISIN</th>
+        <th class="num">Amount (INR)</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th class="num">Tenure (mo)</th>
+        <th class="num">Credit day</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in entries %}
+      <tr>
+        <td>{{ row.company }}</td>
+        <td class="mono">{{ row.isin }}</td>
+        <td class="num"><span class="money" data-amount="{{ "%.2f"|format(row.amount or 0) }}">&#8377;{{ "%.2f"|format(row.amount or 0) }}</span></td>
+        <td>{{ row.start_date }}</td>
+        <td>{{ row.end_date }}</td>
+        <td class="num">{{ row.tenure_months }}</td>
+        <td class="num">{{ row.credit_day }}</td>
+        <td><span class="chip chip-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</span></td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8" class="empty-note" id="watch-empty">no positions yet &#8212; add the first one above</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="table-note">Stored position details (entered once through Add position). Discount / TDS / per-month analytics arrive with the watch-list analytics wave.</p>
+{% endblock %}
