@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .watch-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .btn {
+    display: inline-block;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--blue-light);
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .freed-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--completed);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .freeup-summary {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: baseline;
+  }
+  .freeup-summary strong { font-weight: 800; }
+</style>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:18px;margin-bottom:12px;">Watch List</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="watch-toolbar">
+  <a class="btn" href="/add" id="add-position-link">Add position</a>
+  <a class="btn" href="/#phase4-cards" id="phase4-reports-link">Phase-4 reports (P&amp;L, discount, TDS)</a>
+  <span class="table-note" style="margin-top:0;">single entry point &#8212; the same stored row appears in Month Grid, Dashboard and Watch List (no double entry)</span>
+</div>
+
+<div class="freeup-summary" id="reinvestment-summary">
+  <span>Principal freed by Completed: <strong class="money" id="principal-freed">&#8377;{{ "%.2f"|format(freeup.principal_freed_by_completed) }}</strong></span>
+  <span>Active locked (On-going + Danger): <strong class="money" id="active-locked">&#8377;{{ "%.2f"|format(freeup.active_locked) }}</strong></span>
+  <span class="table-note" style="margin-top:0;">Completed principal is free to reinvest and is never deducted again (FR-17)</span>
+</div>
+
+<div class="table-wrap">
+  <table id="watch-list">
+    <thead>
+      <tr>
+        <th>Bond</th>
+        <th>ISIN</th>
+        <th class="num">Amount (INR)</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th class="num">Tenure (mo)</th>
+        <th class="num">Credit day</th>
+        <th>Status</th>
+        <th class="num">Discount</th>
+        <th class="num">Per-month</th>
+        <th class="num">Actual per-month</th>
+        <th class="num">10% TDS</th>
+        <th class="num">12-month total</th>
+        <th class="num">Qty</th>
+        <th class="num">TL Principle</th>
+        <th class="num">Principal freed</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in entries %}
+      {% set analytics = row.analytics %}
+      <tr data-isin="{{ row.isin }}" data-status="{{ row.status }}">
+        <td>{{ row.company }}</td>
+        <td class="mono">{{ row.isin }}</td>
+        <td class="num"><span class="money" data-amount="{{ "%.2f"|format(row.amount or 0) }}">&#8377;{{ "%.2f"|format(row.amount or 0) }}</span></td>
+        <td>{{ row.start_date }}</td>
+        <td>{{ row.end_date }}</td>
+        <td class="num">{{ row.tenure_months }}</td>
+        <td class="num">{{ row.credit_day }}</td>
+        <td><span class="chip chip-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</span></td>
+        {% if analytics and analytics.computable %}
+        <td class="num analytics-discount"><span class="money">&#8377;{{ "%.2f"|format(analytics.discount) }}</span></td>
+        <td class="num analytics-per-month"><span class="money">&#8377;{{ "%.2f"|format(analytics.per_month) }}</span></td>
+        <td class="num analytics-actual-per-month"><span class="money">&#8377;{{ "%.2f"|format(analytics.actual_per_month) }}</span></td>
+        <td class="num analytics-tds"><span class="money">&#8377;{{ "%.2f"|format(analytics.tds) }}</span></td>
+        <td class="num analytics-12-month"><span class="money">&#8377;{{ "%.2f"|format(analytics.twelve_month) }}</span></td>
+        <td class="num analytics-qty">{% if analytics.qty is not none %}{{ "%.0f"|format(analytics.qty) }}{% else %}&#8212;{% endif %}</td>
+        <td class="num analytics-qty-tl">{% if analytics.qty_tl is not none %}<span class="money">&#8377;{{ "%.2f"|format(analytics.qty_tl) }}</span>{% else %}&#8212;{% endif %}</td>
+        {% else %}
+        <td class="num analytics-discount">&#8212;</td>
+        <td class="num analytics-per-month">&#8212;</td>
+        <td class="num analytics-actual-per-month">&#8212;</td>
+        <td class="num analytics-tds">&#8212;</td>
+        <td class="num analytics-12-month">&#8212;</td>
+        <td class="num analytics-qty">&#8212;</td>
+        <td class="num analytics-qty-tl">&#8212;</td>
+        {% endif %}
+        <td class="num">
+          {% if row.freed %}
+          <span class="freed-badge" data-freed="{{ "%.2f"|format(row.freed_amount or 0) }}">freed <span class="money">&#8377;{{ "%.2f"|format(row.freed_amount or 0) }}</span></span>
+          {% else %}
+          &#8212;
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="16" class="empty-note" id="watch-empty">no positions yet &#8212; add the first one above</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="table-note">Analytics computed on view from the source workbook watch-list formulas (DATA-04): Discount = face value &#8722; principle; Per-month = interest &#247; tenure (&#215;3 for quarterly payouts); Actual per-month = (interest &#8722; discount) &#247; tenure; 10% TDS = per-month &#8722; 10%; 12-month total = per-month &#215; 12; TL Principle = T.L.P &#215; Qty. Rows without watch inputs (manual adds) show &#8212;. Completed rows show the principal freed for reinvestment (FR-17).</p>
+{% endblock %}

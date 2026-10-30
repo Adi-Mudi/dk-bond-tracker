@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .sort-badge-v3 {
+    display: inline-block;
+    margin: 4px 0 10px;
+    padding: 6px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--current-month);
+    font-size: 12.5px;
+    font-weight: 800;
+  }
+  .grid-table td.cell { position: relative; text-align: center; min-width: 64px; }
+  .grid-table td.cell-paid { background: var(--paid); }
+  .grid-table td.cell-due { background: var(--due); font-weight: 700; }
+  .grid-table td.cell-future { background: var(--card-bg); color: #adb5bd; }
+  .grid-table td.cell-paid::after { content: "paid"; }
+  .grid-table td.cell-due::after { content: "due"; }
+  .grid-table td.cell-future::after { content: "\00a0"; }
+  .grid-table td.cell a.cell-hit { position: absolute; inset: 0; }
+  .grid-table th.month-col { text-align: center; }
+  .grid-table th.month-col.now { background: var(--current-month); }
+  .grid-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .grid-legend .swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--border); vertical-align: middle; margin-right: 4px; }
+  .swatch-paid { background: var(--paid); }
+  .swatch-due { background: var(--due); }
+  .swatch-future { background: var(--card-bg); }
+</style>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:18px;margin-bottom:12px;">Month Grid</h1>
+
+<div class="sort-badge-v3" id="autosort-badge">Auto-sort: Danger &#8594; On-going &#8594; Completed (Danger top, On-going middle, Completed bottom; D20 / FR-31)</div>
+<p class="table-note" style="margin-top:0;">Months across, dynamic headers derived from the data (no hardcoded window). Click any cell &#8594; edit payment (amount, paid flag).</p>
+
+{% if not rows %}
+<div class="empty-note" id="grid-empty">no bonds to grid</div>
+{% else %}
+<div class="table-wrap" style="margin-top:10px;">
+  <table class="grid-table" id="month-grid">
+    <thead>
+      <tr>
+        <th>Bond</th>
+        <th>ISIN</th>
+        <th>Status</th>
+        {% for col in months %}
+        <th class="month-col{% if col.current %} now{% endif %}" data-month="{{ col.key }}">{{ col.label }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr data-bond="{{ row.id }}">
+        <td class="grid-company">{{ row.company }}</td>
+        <td class="mono">{{ row.isin }}</td>
+        <td><span class="chip chip-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</span></td>
+        {% for cell in row.cells %}
+        <td class="cell cell-{{ cell.state }}" data-bond="{{ cell.bond_id }}" data-month="{{ cell.month }}"><a class="cell-hit" href="/payment/{{ cell.bond_id }}/{{ cell.month }}" aria-label="Edit payment {{ cell.bond_id }} {{ cell.month }}"></a></td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="grid-legend">
+  <span><span class="swatch swatch-paid"></span>paid (green #d3f9d8)</span>
+  <span><span class="swatch swatch-due"></span>due (light red #ffc9c9)</span>
+  <span><span class="swatch swatch-future"></span>future / outside window (neutral)</span>
+</div>
+<p class="table-note">Cell colors: paid green, unpaid past or current month light red (zero amount stays unpaid), future months neutral. Row statuses recompute from the ledger on every render.</p>
+{% endif %}
+{% endblock %}
