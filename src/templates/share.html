@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .share-panel { border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); padding: 16px 18px; max-width: 720px; }
+  .share-panel h2 { font-size: 17px; margin-bottom: 4px; }
+  .share-panel .note-line { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+  .share-checks { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-bottom: 14px; }
+  .share-checks label { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .share-checks input { width: 16px; height: 16px; accent-color: var(--blue); }
+  .share-format { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; font-size: 13.5px; font-weight: 600; }
+  .share-format label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .generate-btn { border: 2px solid var(--border); background: var(--blue-light); font-size: 14px; font-weight: 700; padding: 9px 22px; border-radius: 6px; cursor: pointer; }
+  .generate-btn:hover { background: var(--blue); color: var(--white); }
+</style>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:19px;margin-bottom:12px;">Share snapshot</h1>
+<div class="share-panel">
+  <h2>Share snapshot (D18 / FR-29)</h2>
+  <p class="note-line">Generates an offline shareable snapshot: print-styled HTML file plus a CSV option — no server beyond this app, no accounts. Amounts are masked whenever "Include amounts" is off or Privacy Mode is on.</p>
+  <form method="post" action="/share/generate" id="share-form">
+    <div class="share-checks">
+      <label><input type="checkbox" name="sections" value="totals" checked> Totals</label>
+      <label><input type="checkbox" name="sections" value="per_bond" checked> Per-bond list</label>
+      <label><input type="checkbox" name="sections" value="history" checked> Monthly history</label>
+      <label><input type="checkbox" name="sections" value="alerts" checked> Alerts</label>
+      <label><input type="checkbox" name="include_amounts" checked> Include amounts</label>
+    </div>
+    <div class="share-format">
+      <label><input type="radio" name="format" value="html" checked> HTML snapshot</label>
+      <label><input type="radio" name="format" value="csv"> CSV</label>
+    </div>
+    <input type="hidden" name="privacy" id="share-privacy-field" value="off">
+    <button type="submit" class="generate-btn">Generate snapshot</button>
+  </form>
+</div>
+<script>
+  (function () {
+    var form = document.getElementById("share-form");
+    var field = document.getElementById("share-privacy-field");
+    if (!form || !field) return;
+    form.addEventListener("submit", function () {
+      var stored = null;
+      try { stored = window.localStorage.getItem("privacy_mode"); } catch (err) { stored = null; }
+      field.value = stored === "on" ? "on" : "off";
+    });
+  })();
+</script>
+{% endblock %}

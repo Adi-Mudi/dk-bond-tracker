@@ -10,11 +10,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
 from src.db import get_conn, init_db
+from src.export_csv import (
+    LEDGER_HEADERS,
+    current_view_csv,
+    current_view_rows,
+    full_ledger_csv,
+)
 from src.import_xlsm import import_workbook
 from src.mailer import send_alert_email
 from src.notifications import (
@@ -25,7 +31,9 @@ from src.notifications import (
     notify_once,
     unread_count,
 )
+from src.print import monthly_print_model
 from src.queries import (
+    MONTH_PATTERN,
     active_bonds_in_month,
     chart_data,
     grid_model,
@@ -38,6 +46,7 @@ from src.queries import (
     summary_counts,
     this_month_returns,
 )
+from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, tenure_month_map
 from src.validators import AppError, active_position_lock, date_range_tenure
 
@@ -69,6 +78,11 @@ def _startup_alerts(db_file, today):
         except AppError as exc:
             notify(conn, "warn", f"daily sweep failed: {exc}")
             events = []
+        else:
+            conn.execute(
+                "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                ("last_sweep", today.isoformat()),
+            )
         for event in events:
             message = (
                 f"{event['company']} credit day {event['credit_day']} "
@@ -406,6 +420,116 @@ def create_app(db_path=None):
         with get_conn(db_file) as conn:
             mark_all_read(conn)
         return redirect(url_for("notifications_page"))
+
+    def error_page(code, message, title, status):
+        return (
+            render_template(
+                "error.html",
+                code=code,
+                message=message,
+                title=title,
+            ),
+            status,
+        )
+
+    @app.route("/export.csv")
+    def export_csv_route():
+        scope = request.args.get("scope", "")
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        if scope == "full":
+            try:
+                with get_conn(db_file) as conn:
+                    text = full_ledger_csv(conn)
+            except AppError as exc:
+                return error_page(exc.code, exc.message, "CSV export failed", 500)
+            filename = "full_ledger.csv"
+        elif scope == "current":
+            month = str(request.args.get("month", "")).strip()
+            if month and not MONTH_PATTERN.match(month):
+                return error_page(
+                    "ERR-export-view",
+                    f"unparseable month (expected YYYY-MM): {month!r}",
+                    "CSV export failed",
+                    400,
+                )
+            try:
+                with get_conn(db_file) as conn:
+                    if not month:
+                        row = conn.execute(
+                            "SELECT MAX(month) AS latest FROM payment_ledger"
+                        ).fetchone()
+                        month = row["latest"] if row and row["latest"] else month_key(date.today())
+                    rows = current_view_rows(conn, month, date.today())
+                    text = current_view_csv(rows, headers=list(LEDGER_HEADERS))
+            except AppError as exc:
+                status = 400 if exc.code == "ERR-export-view" else 500
+                return error_page(exc.code, exc.message, "CSV export failed", status)
+            filename = f"view_{month}.csv"
+        else:
+            return error_page(
+                "ERR-export-view",
+                f"unknown export scope: {scope!r} (expected 'current' or 'full')",
+                "CSV export failed",
+                400,
+            )
+        response = Response(text, mimetype="text/csv")
+        response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
+
+    def generate_share():
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        selected = request.form.getlist("sections")
+        sections = {key: key in selected for key in SECTION_KEYS}
+        include_amounts = request.form.get("include_amounts") in ("on", "1", "true", "yes")
+        privacy_on = request.form.get("privacy") in ("on", "1", "true", "yes")
+        fmt = request.form.get("format", "html")
+        if fmt not in ("html", "csv"):
+            return error_page(
+                "ERR-share-export",
+                f"unsupported share format: {fmt!r} (expected 'html' or 'csv')",
+                "Share snapshot failed",
+                400,
+            )
+        try:
+            with get_conn(db_file) as conn:
+                if fmt == "csv":
+                    text = share_csv(conn, sections, include_amounts, privacy_on)
+                    filename = "share_snapshot.csv"
+                else:
+                    text = build_share_snapshot(
+                        conn, sections, include_amounts, privacy_on
+                    )
+                    filename = "share_snapshot.html"
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Share snapshot failed", 400)
+        mimetype = "text/csv" if fmt == "csv" else "text/html"
+        response = Response(text, mimetype=mimetype)
+        response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
+
+    @app.route("/share", methods=["GET", "POST"])
+    def share_page():
+        if request.method == "GET":
+            return render_template("share.html")
+        return generate_share()
+
+    @app.route("/share/generate", methods=["POST"])
+    def share_generate():
+        return generate_share()
+
+    @app.route("/print")
+    def print_statement():
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        privacy = str(request.args.get("privacy", "")).lower() in ("1", "on", "true", "yes")
+        try:
+            with get_conn(db_file) as conn:
+                model = monthly_print_model(conn, date.today())
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Monthly print failed", 500)
+        return render_template("monthly_print.html", privacy=privacy, **model)
 
     return app
 
