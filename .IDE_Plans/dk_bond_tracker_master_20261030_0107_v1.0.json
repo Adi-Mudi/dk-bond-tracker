@@ -430,19 +430,29 @@
       "Two-pass projection pattern (decisions before PRD) resolved the prd-before-brainstorm LANE_ORDER trap cleanly",
       "Migration: 7/7 legacy md converted+verified+frozen+deleted exactly as authorized; zero content loss (full bodies in born-JSON, originals in git history)",
       "Honesty discipline held under pressure: L1 figure mismatch never green-washed (TC-26 pending_baseline), L2 P&L proposal flagged, final battery fully green without touching held acceptances",
-      "Workers produced on-contract docs first try (PRD 24 FRs, SRS 42/68, 37 AFs, 37 pseudocode, 58 TCs/42 coverage, 8 waves)"
+      "Workers produced on-contract docs first try (PRD 24 FRs, SRS 42/68, 37 AFs, 37 pseudocode, 58 TCs/42 coverage, 8 waves)",
+      "Build W0-W7 executed wave-by-wave with per-wave green gates; 436 tests at merge; batches 14+15 caught and fixed real logic holes (day-wise surface split, missing day-of cadence, hollow gate tests) before close",
+      "Pre-commit secret scanner caught a real hardcoded secret_key mid-build (fixed to env-or-random)",
+      "Holds discipline held end-to-end: L1 PENDING_BASELINE + L2 pending badge never green-washed; perf gate 0.17s vs 2s budget"
     ],
     "failed": [
       "Review log first written as multi-line pretty JSON instead of JSONL -> 6 malformed lines x2 project runs -> cumulative malformed-line audit gate stuck red -> required full store rebuild + stage-1 evidence re-record (recovery worked; lesson: JSONL one-line from the start, the malformed gate counts audit history forever)",
       "First PRD worker dispatch timed out mid-write (301s) without producing the file; resumed once - cost a full round-trip",
       "Reviewer F1-F2 (batch 1) caught real master-doc contradictions (migration timing, D12 namespace collision) that PM drafting introduced",
-      "Worktree pre-commit hook blocked stage-4 commit (store db missing in worktree) - resolved with relative store symlink, not documented anywhere"
+      "Worktree pre-commit hook blocked stage-4 commit (store db missing in worktree) - resolved with relative store symlink, not documented anywhere",
+      "W1 worker missed AF-05/AF-06 in first pass (caught by PM against dev-order exit; completed in follow-up)",
+      "W5 worker hit the 2h subagent timeout mid-write (resumed cleanly; cost one round-trip)",
+      "schema doc drift shipped with W6 (undocumented columns) - caught only at batch 15; schema deltas should be written the wave they land",
+      "test gate TC-50 was initially defeated by a dynamic-import dodge (fixed by revising the test to measure the real contract)"
     ],
     "improve": [
       "Encode the two-pass extract order in the stage template (rebuild -> project .IDE_Plans -> project full) before any PRD exists",
       "Always write JSONL via json.dumps per line in one python pass; never pretty-print a stream file",
       "Stage worktrees need the store symlink recipe (ln -s ../db-store/store store) in their setup checklist",
-      "Plan for worker timeout: instruct single-turn writes up front (worked from PRD attempt 2 onward)"
+      "Plan for worker timeout: instruct single-turn writes up front (worked from PRD attempt 2 onward)",
+      "Wave briefs must include a schema-delta line (columns added -> doc update in same wave)",
+      "Gate tests that ban a library need lifecycle wording (deferred-until-feature) or they invite dodges",
+      "Plan/report archival checklist runs belong in the wave-close routine, not first discovered by --advance"
     ]
   },
   "history": [
@@ -460,6 +470,11 @@
       "version": "v1.0",
       "date": "2026-10-30T04:15",
       "note": "Closeout: retrospective filled (stage 10 DONE, battery SATISFIED, stages 11-12 deferred per D7); ledger L1+L2+RR-06 remain open for owner."
+    },
+    {
+      "version": "v1.0",
+      "date": "2026-10-30T16:00",
+      "note": "Stage 11 build DONE (W0-W7, merge 7a197e6, 436 tests) + stage 12 DONE - pipeline complete; all 12 stages DONE; holds L1/L2 + owner notes handed over in build closeout report."
     }
   ]
 }

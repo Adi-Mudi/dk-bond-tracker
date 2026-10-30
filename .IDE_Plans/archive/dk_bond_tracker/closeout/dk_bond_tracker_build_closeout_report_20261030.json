@@ -1,0 +1,40 @@
+{
+  "schema": "report/v1",
+  "id": "dk_bond_tracker_build_closeout_report_20261030",
+  "kind": "report",
+  "title": "Build closeout — Stage 11 execute complete (waves W0-W7)",
+  "topic": "stage 11 build closeout + stage 12 handover",
+  "version": "v1.0",
+  "status": "complete",
+  "date": "2026-10-30",
+  "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
+  "overall_status": "BUILD_DONE_WITH_TWO_OWNER_HOLDS",
+  "items": [
+    {"id": "B-01", "item": "W0 foundation", "status": "DONE", "reason": "6-table schema with date/credit_day/maturity/watch columns, AppError+header decoupling, workbook open/normalize, Flask skeleton; 23 tests", "evidence": "5839e60"},
+    {"id": "B-02", "item": "W1 import pipeline", "status": "DONE", "reason": "full extractors (master/grid/home-plan/watch-list), dup-ISIN + watch-vs-master validation, honest L1 reconcile (PENDING_BASELINE, no force-match), atomic commit: 15 bonds / 83 months / 84 ledger rows / 84 goals; totals 1037142.01 / 56227.88 / -1165738.34", "evidence": "1ce294e"},
+    {"id": "B-03", "item": "W2 ledger + status engine + day-wise sweep + lock", "status": "DONE", "reason": "D5 single-helper status (Completed guard first, any-past-month Danger, zero=unpaid), credit-day sweep flips same-day, active-position lock name-OR-ISIN hard block, portfolio totals", "evidence": "5c98df7"},
+    {"id": "B-04", "item": "W3 dashboard + charts + history", "status": "DONE", "reason": "live queries, inline-SVG charts trio (bars / cumulative red-if-negative / donut), history window stops at current month with auto-append", "evidence": "4689ecf"},
+    {"id": "B-05", "item": "W4 MVP UI loop + review batch 14", "status": "DONE", "reason": "grid (dynamic headers, colors, auto-sort), payment edit, add-position sole entry + dates + credit day, privacy mode (localStorage), bell + SMTP mailer env-only; batch 14 BLOCKED->AGREED (F80-F86 fixed: day-wise unified across surfaces, day-of cadence, gate tests TC-66/64/59/21, TC-50 revised, dual SMTP, errorhandler, no silent skip)", "evidence": "8175bd8, 7f0cbb9"},
+    {"id": "B-06", "item": "W5 export + share + print", "status": "DONE", "reason": "RFC-4180 CSV current/full, customizable share snapshot (sections + include_amounts, masked HTML/CSV), A4 monthly print (5 sections, B&W markers, privacy=1 server-mask)", "evidence": "7013a27"},
+    {"id": "B-07", "item": "W6 Financial Goals + watch analytics + reinvestment", "status": "DONE", "reason": "tab renamed (zero 'Home Plan' in UI), targets/end dates/progress, legacy 84 goals imported, real-workbook analytics formulas reproduced (G-H discount, 10% TDS, per-month, qty TL), Completed frees principal report", "evidence": "edcc7b2"},
+    {"id": "B-08", "item": "W7 Phase 4 + review batch 15", "status": "DONE", "reason": "discount/TDS/payout cycles (partial last cycle), P&L + ongoing TL with L2 pending badge only, perf 0.17s @ 150x96 (<2s gate), regression chains; batch 15 BLOCKED->AGREED (F97 TC-43/45 gates added, F98 Schema_Delta_addendum 18/18 reconciliation, F99 subset)", "evidence": "ccdaca5, 4512b39"},
+    {"id": "B-09", "item": "Merge to dev + post-merge verification", "status": "DONE", "reason": "stage11-execute merged --no-ff after sequence gate; full suite green AT BASE: 436 passed; store battery SATISFIED failures=0; verify 10/10 PASS; reviews 1-15 + tests recorded", "evidence": "7a197e6, full-suite record-test passed=436 failed=0"},
+    {"id": "B-10", "item": "Hold L1 — import reconciliation baseline", "status": "PENDING", "reason": "OWNER: choose re-baseline (workbook 56227.88 / -1165738.34, L=K-J) or confirm PRD figures (111638.57 / -925503.44, Investment-TillReturn) with corrected source. App imports and runs; TC-26-style acceptance stays PENDING_BASELINE; reconcile report shows both sides honestly.", "evidence": "src/import_xlsm.py l1_status PENDING_BASELINE, tc24 asserts false PRD flags"},
+    {"id": "B-11", "item": "Hold L2 — P&L formula", "status": "PENDING", "reason": "OWNER: confirm proposed formula (Till Return - Investment) or choose alternative (maturity - Investment). Dashboard P&L card shows proposed value + 'L2 pending owner confirmation' badge; TC-40 asserts PENDING_CONFIRMATION only.", "evidence": "src/phase4.py PNL_L2_STATUS, dashboard badge"},
+    {"id": "B-12", "item": "Owner notes (informational)", "status": "PENDING", "reason": "(a) same-ISIN re-buy after Completed is rejected by FR-22 identity rule (409 duplicate-ISIN message) not the D15 lock banner - correct by design (F96); (b) share_config table exists but share selection is per-request form (documented in Schema_Delta_addendum); (c) SMTP needs one-time env setup: SMTP_USER + SMTP_APP_PASSWORD (Gmail app password) + optional ALERT_TO, else alerts stay in-app only; (d) W6 schema columns documented in Schema_Delta_addendum_v1 (supersedes SRS-v2 sketch where different)", "evidence": "docs/Schema_Delta_addendum_v1.json, review log F96/F99"},
+    {"id": "B-13", "item": "Old RR items still open", "status": "PENDING", "reason": "RR-06 project AGENTS.md still absent (readiness finding); db-store snapshot tool not installed (DB rebuildable from streams)", "evidence": "cli_readiness_report, closeout_report C-19"}
+  ],
+  "how_to_run": {
+    "launch": "python src/app.py (venv active) -> http://127.0.0.1:5000",
+    "import": "python src/app.py --import v5.5_40L_Project_Tracker.xlsm --db data/bonds.db (or any path)",
+    "tests": "python -m pytest tests/ -q (436 tests)",
+    "email": "export SMTP_USER=... SMTP_APP_PASSWORD=... [ALERT_TO=...] before launch to enable email alerts",
+    "privacy": "eye toggle in header (persists in browser); /print?privacy=1 for masked print"
+  },
+  "handover": {
+    "base_branch": "dev @ merge 7a197e6 (+ closeout commit); no remote (no push)",
+    "worktrees": ["db-store (live, never merged)", "stage4-feasibility (merged, removable after user confirm)", "stage11-execute (merged, removable after user confirm)"],
+    "rollback": "per-wave commits 5839e60, 1ce294e, 5c98df7, 4689ecf, 8175bd8, 7f0cbb9, 7013a27, edcc7b2, ccdaca5, 4512b39; merge 7a197e6",
+    "next": "owner: settle L1 + L2; owner manual tests TC-55/56/84 (cross-OS, second-machine, real A4 print); optional cleanup of merged worktrees"
+  }
+}
