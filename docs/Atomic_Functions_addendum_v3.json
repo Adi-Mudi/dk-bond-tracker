@@ -1,0 +1,450 @@
+{
+  "id": "Atomic_Functions_addendum_v3",
+  "kind": "atomic_function",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Atomic_Functions_addendum_v2",
+  "atomic_functions": [
+    {
+      "id": "AF-52",
+      "name": "watchlist_query",
+      "purpose": "Deliver the watchlist table read model (D33): ONE parameterized query pass over bonds (LEFT JOIN per-bond ledger aggregates) that returns the two-view data model — My Holdings and Watching rows with their counts in one payload — applying the filter chips (rating, payout cycle, issuer type, status), text search by company or ISIN, column sort from a fixed whitelist, and the Compact/Comfortable density preference, with every row enriched with two computed fields: next payout (earliest unpaid due month with its amount and credit day) and maturity countdown (days remaining until end_date). Consumes the full FR-40 upgraded field set (rating, rating_agency, coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value) as the display source. Query carries an offline LIMIT 200 row cap with a visible 'showing first 200 rows (offline cap)' note instead of pagination. Pure read path: no writes, no stored view, no network (offline rule, D33).",
+      "inputs": [
+        "query params: tab (holdings | watching), q (search term), rating, payout (cycle), issuer (type), status, sort, dir, density, row (open drawer)",
+        "bonds rows including FR-40 fields and watch_state (holding | watching)",
+        "payment_ledger rows for next-payout computation",
+        "today's date for maturity countdown and current-month resolution",
+        "live D5 status engine (AF-14) for the status filter and status column (day-wise helper only)",
+        "density preference persisted via query param and alert_prefs (shared with Settings General)"
+      ],
+      "outputs": [
+        "two-view payload: holdings_count and watching_count (tab labels + status bar, same request, no second query) plus the filtered row list for the active tab",
+        "each row: FR-40 fields, live status, computed next_payout (month, amount, credit_day) and maturity_days countdown with expired flag",
+        "visible row count for the status bar (FR-49) and the active filter/sort/density echo for removable filter chips and UI state restore",
+        "row cap note data: capped flag + true visible count when the result exceeds 200 rows",
+        "empty row list with zero counts when nothing matches (a legitimate empty result, not an error)"
+      ],
+      "triggers": [
+        "GET /watch table render (initial load serves holdings + watching counts in one payload)",
+        "tab switch (?tab=holdings|watching — preserves every filter param)",
+        "any filter chip, search, sort, direction or density change via query params",
+        "status bar row-count read on every shell render (same request)"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01) with the watch_state column present (ALTER: watch_state TEXT NOT NULL DEFAULT 'holding' CHECK IN ('holding','watching'))",
+        "Status engine available (AF-14) for live D5 statuses (no stored status column is read or written)",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "Row set contains ONLY bonds whose watch_state matches the requested tab — a holding row never appears under Watching and vice versa; holdings_count and watching_count are both returned so tab labels and the status bar never disagree with the table (FR-39, FR-41)",
+        "Filters AND-combine with the tab split; search is case-insensitive substring over company OR ISIN; a tab switch preserves every filter/search/sort/density param (FR-39, FR-41)",
+        "Sort is restricted to the whitelist maturity, company, rating, invested, next payout with direction ascending/descending and a stable company tie-break; an unknown sort key raises a named error naming the key rather than silently defaulting; default order = next payout soonest (FR-41)",
+        "Rating filter matches the stored rating value exactly (filter 'AA' returns only rows whose rating is 'AA' — 'AA+' and 'AA-' are different chips) (FR-41)",
+        "next_payout = the earliest month in the tenure window that is unpaid (no row, paid flag false, OR amount 0 — zero = unpaid preserved per D5): amount = the ledger row's amount when a row exists for that month, else the payout-cycle scheduled amount (interest_payout apportioned over tenure, same arithmetic as the payout schedule view) when interest_payout is set, else null (rendered '—'); fully paid or tenured-out positions return next_payout = none (FR-41)",
+        "maturity_days = days between today and end_date; matured positions show 0 with an expired flag rather than a negative number; a NULL end_date renders '—' without crashing (FR-41)",
+        "The FR-40 field set (rating, rating_agency, coupon_pct, expected_yield_pct labeled manual, payout_cycle Monthly/Quarterly/Annual, issuer_type, secured, face_value) is read from the position row per row; yield and rating are display-only values with no external fetch (FR-40, honesty)",
+        "Result capped at 200 rows with a visible 'showing first 200 rows (offline cap)' note; counts above the cap stay true — the cap is documented, never paginated (FR-41)",
+        "Density persists via query param and alert_prefs — one shared setting with the Settings General radio (FR-41, FR-46)",
+        "Query-only (DATA-05): no filter result, sort order or countdown is stored; every render recomputes; a query failure raises a named error via AF-30 naming the failing stage, never a silent empty table (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-41"
+      ],
+      "element": "queries",
+      "depends_on": [
+        "AF-01"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-53",
+      "name": "watchlist_summary",
+      "purpose": "Compute the four stat tiles that head the watchlist table from the AF-52 row set in the SAME query pass: (1) Total Invested with visible/total sub-line, (2) Current Returns (ledger-computed till return, offline), (3) Next Payout This Month with due count, (4) Maturing in 90 Days with bond count. Tiles and table share one request so tile figures and row figures can never disagree.",
+      "inputs": [
+        "AF-52 row set for the active tab (amount, end_date, next_payout, watch_state)",
+        "payment_ledger rows for those positions (paid amount, current month)",
+        "today's date (current month key, 90-day maturity horizon)"
+      ],
+      "outputs": [
+        "four tile payloads: total_investment, current_returns, next_payout_this_month (+ due_count), maturing_90_days (+ bond_count)",
+        "sub-line data (visible rows of total positions) for the tile caption"
+      ],
+      "triggers": [
+        "Watchlist table render (tiles render with the table, one request)",
+        "tab switch, filter or search change (tiles recompute against the current row set)"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01)",
+        "Watchlist query available (AF-52) for the row set",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "Total Invested = SUM(position amount) over the current tab's row set; Current Returns = SUM(payment_ledger amount WHERE paid = 1 AND amount > 0) over those rows (zero = unpaid preserved) (FR-41)",
+        "Next Payout This Month = SUM of next_payout amounts for rows whose next_payout.month equals the current month key; due_count = their row count (the mockup's '₹7,500.00 / 3 due' shape) (FR-41)",
+        "Maturing in 90 Days counts rows with 0 <= maturity_days <= 90 (expired rows are matured, not maturing, and are excluded) (FR-41)",
+        "Tiles always derive from the same AF-52 row set as the visible table, so tile sub-lines ('8 visible rows of 15 positions') match the rendered rows exactly (FR-41, FR-49)",
+        "Figures are computed live at render; no tile snapshot is stored (DATA-05); a failure raises a named error via AF-30 rather than rendering zeroed tiles over an errored table (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-41"
+      ],
+      "element": "queries",
+      "depends_on": [
+        "AF-52"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-54",
+      "name": "position_detail_drawer",
+      "purpose": "Build the detail drawer payload for one position (D33): a facts grid (ISIN, face value, secured, issuer type, credit rating, start/end date, credit day + cycle), a payment schedule block (every tenure month as received/overdue/upcoming), a yield-investment box (invested, returned, coupon, expected yield) and the actions block (Edit / Record Payment / Move to Holdings or Mark as Watching) plus the offline 'ratings entered manually' note, so the drawer renders from GET /watch/<id> (server-rendered fallback /watch?row=<id>) without a page reload.",
+      "inputs": [
+        "position id (drawer fragment GET /watch/<id> or /watch?row=<id>)",
+        "bonds row for that id (FR-40 fields, dates, watch_state, credit_day)",
+        "payment_ledger rows for that id (month, amount, paid)",
+        "live D5 status (AF-14)",
+        "view context (tab=holdings | watching) to select the correct action set"
+      ],
+      "outputs": [
+        "drawer fragment/payload: facts grid, yield-investment box, payment schedule (per-month state: received | overdue | upcoming), actions block, offline manual-rating note",
+        "named not-found error for an unknown position id"
+      ],
+      "triggers": [
+        "User opens the detail drawer from a watchlist row (row param or drawer endpoint)",
+        "Drawer refresh after a payment record or move action"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01)",
+        "Watchlist query available (AF-52)",
+        "Status engine available (AF-14)",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "Facts grid carries ISIN, face value, secured, issuer type, credit rating (+ agency), start/end date, credit day + payout cycle; the yield box carries invested, returned, coupon_pct and expected_yield_pct with the offline 'ratings entered manually' note (FR-40, FR-42)",
+        "Payment schedule lists exactly the tenure months: received when a ledger row exists with paid flag true AND amount > 0; overdue when the month is in window, unpaid (zero = unpaid preserved) and past (month < current, or current month already past credit_day); upcoming otherwise — the window matches the status engine's tenure window (FR-42)",
+        "Actions block contains Edit and Record Payment on both tabs, plus Move to Holdings only from the Watching tab and Mark as Watching only from the Holdings tab — the wrong-direction action never renders (FR-42, FR-39)",
+        "An unknown id raises a named error via AF-30 naming the id — the drawer never opens with an empty or fabricated payload (FR-21)",
+        "Money values in the payload flow through the privacy masking path at render (FR-49); no amount is leaked to an unmasked template while privacy is on"
+      ],
+      "fr_refs": [
+        "FR-42"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-52"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-55",
+      "name": "move_to_holdings",
+      "purpose": "Move a Watching candidate into My Holdings (D33 FR-39) via POST /watch/<id>/move: first validate the mandatory holding fields (amount, start/end date, credit day) that a candidate may lack, then RE-CHECK the D15 active-position lock (AF-39) because moving INTO holdings makes the row an active holding — if another active (On-going or Danger) position matches by normalized company name OR ISIN, the move is blocked with the named error ERR-move-watching identifying the blocking position and its status. The lock is not add-time-only: the same one-active-position-per-company invariant holds across the watch_state boundary. On pass, flip watch_state 'watching' -> 'holding' so the position joins the holdings view, grid and dashboard counts.",
+      "inputs": [
+        "position id to move (POST /watch/<id>/move)",
+        "candidate row's mandatory holding fields: amount, start_date, end_date, credit_day",
+        "current watch_state (must be 'watching')",
+        "candidate company name and ISIN",
+        "bonds table scan for active positions with live D5 statuses (AF-14 via AF-39)"
+      ],
+      "outputs": [
+        "updated bonds row: watch_state = 'holding' on pass",
+        "blocked verdict with named error ERR-move-watching (zero writes) on missing mandatory field or lock conflict",
+        "named state error for unknown id / already-holding row"
+      ],
+      "triggers": [
+        "User clicks Move to Holdings on a Watching card or in the drawer",
+        "API-level move POST from the watchlist view"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01)",
+        "Active-position lock validator available (AF-39)",
+        "Watchlist query available (AF-52) for the current view and row refresh",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "MANDATORY FIELDS first: amount present and numeric (>= 0), start_date and end_date parseable, credit_day an integer in 1..28 — any violation raises ERR-move-watching naming the missing/invalid field and writes nothing; a candidate with holes can never become a holding (FR-39)",
+        "D15 LOCK RE-CHECK before any write: AF-39 scans for an active position (live D5 status On-going or Danger, Completed excluded) whose normalized company name (trim + lowercase) OR ISIN matches the moving row's keys — if EITHER matches a DIFFERENT position, the move is blocked with ERR-move-watching naming that position and its status, and zero rows are updated (FR-39, D15 applied exactly: at most one active position per company, HARD BLOCK, no override, no force-accept)",
+        "On pass (fields valid, no active match), exactly one row changes: watch_state 'watching' -> 'holding'; a change count of 0 (unknown id / raced delete) or a row already 'holding' raises a named state error instead of succeeding silently (FR-39)",
+        "The moved row immediately appears in My Holdings, joins the grid/dashboard holdings population and updates both tab counts on the next render (FR-39)",
+        "The move never alters the live D5 status, ledger rows or any FR-40 field — only watch_state changes (FR-39, FR-40 integrity)",
+        "A blocked move surfaces visibly via AF-30 with the blocking position or field named (e.g. 'Cannot move: Alpha Securities Ltd has an active position (On-going)'), never a silent no-op and never a redirect-as-success (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-39"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-39",
+        "AF-52"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-56",
+      "name": "watchlist_alerts_feed",
+      "purpose": "Compose the watchlist alerts panel (D33 FR-43) as one merged feed of three card types — OVERDUE (red): positions flagged Danger by the credit-day engine for the current month while unpaid; DUE-SOON (amber): the next unpaid ledger month inside the reminder_days lead window of the credit day plus the day-of reminder; MATURITY (accent): end_date exactly 30, 7 or 1 days ahead per enabled horizon — each carrying its stable dedupe key from the existing key families so same-day re-runs never stack duplicate cards, and each linkable to its retained notification history row. Dismissals are panel state only.",
+      "inputs": [
+        "credit-day sweep results / Danger flags from the credit-day engine (AF-46)",
+        "notifications rows from the AF-47 cadence (before_due, day_of, overdue)",
+        "maturity scan: bonds end_date exactly 30/7/1 days ahead against enabled maturity_30 / maturity_7 / maturity_1 toggles from alert_prefs",
+        "alert_prefs dedupe registry (unique key column pattern of notifications.notify_once)",
+        "reminder_days lead window from alert_prefs",
+        "dismissal state (panel state only)"
+      ],
+      "outputs": [
+        "ordered merged card list: {card_type: overdue | due_soon | maturity_soon, bond_id, company, message, severity, dedupe_key, created_at}",
+        "alerts-today count for the shell status bar (same watchlist request)",
+        "bell badge count contribution from unread feed rows",
+        "dedupe registry rows (one per dedupe key) preventing repeat cards"
+      ],
+      "triggers": [
+        "Daily credit-day sweep run (AF-46)",
+        "Daily maturity scan at the 30/7/1-day horizons (same daily trigger)",
+        "Watchlist alerts panel render",
+        "Application startup catch-up"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01)",
+        "Credit-day sweep available (AF-46)",
+        "Notification builder available (AF-47)",
+        "Maturity thresholds and reminder_days readable from alert_prefs (AF-57)",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "The feed merges exactly three card types: OVERDUE = current month past credit_day AND unpaid (zero = unpaid preserved, Danger via the day-wise engine); DUE-SOON = today.day inside the lead window (credit_day - reminder_days <= today.day < credit_day) or on the credit day itself, with the current-cycle month unpaid; MATURITY = days to end_date exactly 30, 7 or 1 with that horizon's toggle enabled (FR-43)",
+        "Every card carries a stable dedupe key from the existing families — overdue: danger:{bond_id}:{YYYY-MM-DD}; due-soon lead: due:{bond_id}:{YYYY-MM}; day-of: dayof:{bond_id}:{YYYY-MM}; maturity: maturity:{bond_id}:{days_left} — and registering an already-present key is suppressed (INSERT-or-ignore semantics): a re-run the same day yields no duplicate card (FR-43)",
+        "DISMISSAL IS PANEL STATE ONLY: dismissing a card removes it from the panel but never DELETEs a notifications history row (original timestamp retained) and never deletes the alert_prefs dedupe marker — the bell history stays auditable and the same event cannot re-fire into a new history row after dismissal (FR-43, FR-34)",
+        "Cards sort severity-first (overdue > due_soon > maturity_soon) then timestamp desc; unread count feeds the bell badge and the alerts-today count feeds the status bar from the same request (FR-43, FR-49)",
+        "Maturity scan is read-only over bonds end_date (no new table, no stored scan rows); scan failures raise a named error via AF-30 naming the position — a position is never silently skipped (ERR-01, FR-21)",
+        "Only in-app cards are produced here; email dispatch remains AF-48's job for the same events (FR-43, D24 deferred channels unchanged)"
+      ],
+      "fr_refs": [
+        "FR-43"
+      ],
+      "element": "notifications",
+      "depends_on": [
+        "AF-46",
+        "AF-47"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-57",
+      "name": "settings_load",
+      "purpose": "Produce the effective settings view (D34): read the stored alert_prefs settings keys and merge environment overrides on top with strict precedence env > stored > default, returning per key the stored value (for the Settings form), the effective value (for send-time and indicators) and the source tag (env | stored | default), so the Settings screen shows stored values plus an env-wins annotation while the send path and status-bar indicator use the resolved configuration. The App Password is returned only as a masked marker — the stored secret is never emitted in clear.",
+      "inputs": [
+        "alert_prefs settings keys — exact set: smtp_host, smtp_port, smtp_user, smtp_app_password, alert_to, alert_from_name, reminder_days, overdue_on, maturity_30, maturity_7, maturity_1, sweep_time, default_credit_day, privacy_default, csv_scope — plus density (shared watchlist/General preference persisted per the watchlist container); runtime keys (last_sweep, notify_once dedupe markers) are skipped, never returned",
+        "environment variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_APP_PASSWORD, ALERT_TO",
+        "built-in defaults: smtp_host smtp.gmail.com, smtp_port 465 (SSL), csv_scope current_view, reminder_days 2, overdue_on 1, maturity_30/7/1 1, privacy_default 0; theme has NO key (fixed dark) and the INR format is a fixed radio (no key)"
+      ],
+      "outputs": [
+        "per-key view: {stored_value, effective_value, source: env | stored | default} — Settings form binds stored_value with an env-wins annotation; send path and indicators use effective_value",
+        "smtp_configured boolean: smtp_user, smtp_app_password and alert_to all resolvable (stored or env), each with a built-in default for host/port",
+        "smtp_app_password always as masked marker ('••••' or 'unset') — never the clear value",
+        "missing-key report (which keys fell through to defaults) for Settings first-run display"
+      ],
+      "triggers": [
+        "GET /settings render (any section)",
+        "status bar email-status indicator read ('Email: not configured' until configured)",
+        "AF-59 test-email configuration resolution",
+        "AF-58 settings_save prefill (stored layer only)"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01) with alert_prefs table present",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "PRECEDENCE MATRIX applied per key with env > stored > default: a non-empty env var wins over a stored alert_prefs value, a stored value wins over the built-in default, an absent stored key falls to the default — never the reverse (FR-44)",
+        "The matrix applies to exactly the five env-shared keys: SMTP_HOST -> smtp_host, SMTP_PORT -> smtp_port, SMTP_USER -> smtp_user, SMTP_APP_PASSWORD -> smtp_app_password, ALERT_TO -> alert_to; all other keys resolve stored > default only; env never gets written back to storage (FR-44, FR-45, FR-46)",
+        "Every key carries stored value + effective value + source so the Settings page can display the stored value with an 'overridden by environment' annotation (the user is never shown a stale stored username without the env-wins note) while send-time uses the effective value (FR-44)",
+        "smtp_configured = smtp_user AND smtp_app_password AND alert_to resolvable (stored or their env overrides) — the status bar shows 'Email: not configured' (muted/red) until all three exist, and never a value or a username (FR-44, FR-49)",
+        "smtp_app_password is never emitted in clear — load returns a masked marker (or 'unset') even when a stored value exists; blank stored value means not configured (FR-44 security note)",
+        "Runtime keys (last_sweep, notify_once dedupe markers) are filtered out of the returned view — Settings never displays or edits them (FR-44, FR-45)",
+        "A malformed stored value (e.g. non-integer smtp_port) surfaces a named error via AF-30 naming the key instead of silently substituting a default (FR-21); an empty alert_prefs table is a legitimate first-run state returning all defaults with configured flags false (FR-46)"
+      ],
+      "fr_refs": [
+        "FR-44",
+        "FR-45",
+        "FR-46"
+      ],
+      "element": "queries",
+      "depends_on": [
+        "AF-01"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-58",
+      "name": "settings_save",
+      "purpose": "Persist Settings edits (D34) as a per-section upsert into alert_prefs: the Email section writes the six SMTP keys, Alert Preferences writes reminder/overdue/maturity/sweep keys, General writes default credit day/privacy/density keys, Data writes csv_scope. The App Password is WRITE-ONCE: a blank or absent password input keeps the previously stored value (blank never clears it), a non-blank input replaces it, and the stored value is never echoed back. Validates port, credit day, enums and booleans before any write; only the submitted section's keys are touched.",
+      "inputs": [
+        "POST body scoped to one section (email | alerts | general | data)",
+        "section key sets: email -> [smtp_host, smtp_port, smtp_user, smtp_app_password, alert_to, alert_from_name]; alerts -> [reminder_days, overdue_on, maturity_30, maturity_7, maturity_1, sweep_time]; general -> [default_credit_day, privacy_default, density] (INR format fixed radio and theme fixed dark carry NO keys); data -> [csv_scope]",
+        "current alert_prefs rows (for write-once password merge and post-save refresh)",
+        "existing stored smtp_app_password (only to preserve it when input is blank)"
+      ],
+      "outputs": [
+        "upserted alert_prefs rows for exactly the submitted section's keys",
+        "write-once outcome for the password key: kept (blank input) | replaced (non-blank input)",
+        "success confirmation or named validation error per key (ERR-settings-save)"
+      ],
+      "triggers": [
+        "POST /settings save for any section",
+        "Settings form submit with validation errors (re-render with named errors)"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01) with alert_prefs table present",
+        "Settings load available (AF-57) for post-save refresh",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "Only the submitted section's keys are written; keys of other sections are untouched — a partial form never blanks unrelated settings; csv_scope belongs to the Data section, density to General (FR-44, FR-45, FR-46, FR-47)",
+        "WRITE-ONCE PASSWORD: smtp_app_password input blank or absent -> stored value preserved unchanged (blank KEEPS old, never clears); non-blank -> stored after validation; in both cases the stored secret is never returned to the client or logged (FR-44)",
+        "Validation before write, raising ERR-settings-save naming the key and writing NOTHING for that section on any violation: smtp_port parses as an integer in 1..65535; default_credit_day an integer in 1..28; reminder_days a non-negative integer; sweep_time an integer hour 0..23 (daily sweep hour); density in {compact, comfortable}; csv_scope in {current_view, full_ledger} (UI labels Current view / Full ledger); boolean toggles (overdue_on, maturity_30/7/1, privacy_default) as 0/1; theme accepts only 'dark' (Light disabled as coming later) (FR-45, FR-46, FR-47, FR-21)",
+        "Upsert semantics per key (INSERT ... ON CONFLICT(key) DO UPDATE): saving twice converges to one row per key — alert_prefs never accumulates duplicate keys (FR-44)",
+        "Saved values become the 'stored' layer of AF-57's precedence matrix; env vars still override them at read/send time — save never writes to the environment (FR-44)",
+        "Shared density: the General density save updates the same persisted key the watchlist density switch reads — one setting, two controls, immediate effect on the next render (FR-46)",
+        "A failed save reports failure visibly and the UI reloads showing the pre-save values (via AF-57), never a phantom success (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-44",
+        "FR-45",
+        "FR-46"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-57"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-59",
+      "name": "test_email_send",
+      "purpose": "Send the Settings Test Email (D34): build the synthetic event dict (company 'Test Alert', month = today, severity 'test', credit_day n/a) and reuse mailer.send_alert_email unchanged — no second mail path — with configuration resolved through AF-57's env > stored > default merge. Surfaces configuration gaps as ERR-smtp-unconfigured and transport failures as ERR-test-email in an inline banner; the Settings page never crashes (HTTP 500 page never) and never reports success without a real send.",
+      "inputs": [
+        "effective SMTP config from AF-57 (env > stored > default merge): host, port, user, app password, recipient",
+        "synthetic event dict: company 'Test Alert', month = current month, severity 'test', credit_day n/a",
+        "mailer send path (AF-48 / mailer.send_alert_email): SMTP connection, auth, sendmail"
+      ],
+      "outputs": [
+        "one sent test email (subject 'test: Test Alert payment YYYY-MM') on success",
+        "visible inline success confirmation (recipient + subject) on the Settings page",
+        "visible named-error banner: ERR-smtp-unconfigured (missing user/app password after merge) or ERR-test-email (auth/connection/send failure) — inline banner only, never an HTTP 500 page",
+        "no production notifications history row and no dedupe marker created for the synthetic event"
+      ],
+      "triggers": [
+        "POST /settings/test-email (Test Email button)"
+      ],
+      "preconditions": [
+        "Settings saved/loaded (AF-58, AF-57)",
+        "Email sender available (AF-48) with SMTP reachability",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "Exactly one email is attempted per click using the resolved configuration; the resolution follows AF-57 precedence — an env SMTP_USER/SMTP_APP_PASSWORD overrides the stored value for this send (FR-44)",
+        "When required configuration is missing after the merge (no user, no app password), the send is blocked BEFORE any connection attempt with a named inline banner ERR-smtp-unconfigured naming the missing item — no silent no-op, no default credential (FR-44, FR-21)",
+        "An authentication, connection or send failure is caught and surfaced as ERR-test-email in an inline banner with the underlying reason; the Settings page renders normally — a test failure never becomes an HTTP 500 or a swallowed exception (FR-44, FR-21)",
+        "Success reports the actual recipient and subject; the configured/not indicator (AF-57) is unchanged by the test — testing never mutates stored settings (FR-44)",
+        "The synthetic event writes no production notifications row and no alert_prefs dedupe marker, so the test pollutes neither history nor the dedupe registry (FR-43 integrity)",
+        "The Gmail App Password is passed to the mailer only from env/stored config — never hardcoded, never logged, never echoed into the response (FR-44 security note)"
+      ],
+      "fr_refs": [
+        "FR-44"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-58",
+        "AF-48"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-60",
+      "name": "reset_and_backup",
+      "purpose": "Provide the Settings > Data destructive pair (D34): (1) Export backup — stream the live SQLite database file as a downloadable .db file saved to the user's chosen location (the offline copy the user owns); (2) Reset (Danger zone) — wipe the database only after the user types the literal confirmation 'RESET', with a backup taken BEFORE the wipe (backup-before-wipe), then re-initialize the empty schema through the normal init path so the app restarts against a clean, structurally valid database. Wrong or missing confirmation ('reset', 'Reset', anything else) aborts with ERR-reset-db and zero deletion.",
+      "inputs": [
+        "POST backup request (no body parameters)",
+        "POST reset request carrying confirm_word",
+        "live database file path (app config DB_PATH)",
+        "schema initialization routine (AF-01 init path with the full SCHEMA_STATEMENTS set)"
+      ],
+      "outputs": [
+        "downloadable .db backup file stream saved to the user's chosen location on backup",
+        "backup-before-wipe artifact ensured before any reset deletion",
+        "post-reset: empty re-initialized schema (bonds, payment_ledger, financial_goals, notifications, alert_prefs, share_config all empty; watch_state default 'holding' restored by schema)",
+        "success confirmation or named error: ERR-reset-db (confirmation mismatch) / backup failure (no wipe)"
+      ],
+      "triggers": [
+        "POST /settings/backup (Export backup (.db) button)",
+        "POST /settings/reset with typed confirmation 'RESET'"
+      ],
+      "preconditions": [
+        "Application running (AF-23)",
+        "Schema initialization available (AF-01)",
+        "Error surfacing wrapper available (AF-30)",
+        "Database file present and readable for backup"
+      ],
+      "postconditions": [
+        "Backup streams the actual database file bytes as a downloadable .db file to the user's chosen location; a read failure raises a named error naming the operation — a zero-byte or missing file is never offered as a valid backup (FR-47, FR-21)",
+        "RESET CONFIRM: the reset handler compares confirm_word to the literal 'RESET' EXACTLY (case-sensitive) — 'reset', 'Reset', ' RESET ' or an empty word all raise ERR-reset-db and delete NOTHING; the client-side confirm dialog alone is never sufficient (the check is enforced server-side in the POST handler) (FR-47)",
+        "BACKUP-BEFORE-WIPE: when the confirmation matches, a backup is taken first; if the backup step fails, the reset ABORTS with a named error and the database stays fully intact — no wipe without a recoverable copy (FR-47)",
+        "After a successful reset the database is re-initialized through the normal init path (AF-01): all six tables exist and are empty, watch_state defaults to 'holding', alert_prefs key uniqueness restored — the app starts against an empty but structurally valid database, never a half-dropped file (FR-47, AF-01)",
+        "Reset is all-or-nothing: any failure mid-sequence surfaces a named error via AF-30 and leaves either the original database (pre-wipe failure) or the re-initialized empty schema (post-wipe failure) — never a partial table set (FR-21)",
+        "Backup and reset touch no other files: exports, imports and other settings keys are unaffected (FR-47 scope)"
+      ],
+      "fr_refs": [
+        "FR-47"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-01"
+      ],
+      "check_method": "integration"
+    }
+  ],
+  "coverage_map": {
+    "FR-38": [
+      "AF-57"
+    ],
+    "FR-39": [
+      "AF-55"
+    ],
+    "FR-40": [
+      "AF-52"
+    ],
+    "FR-41": [
+      "AF-52",
+      "AF-53"
+    ],
+    "FR-42": [
+      "AF-54"
+    ],
+    "FR-43": [
+      "AF-56"
+    ],
+    "FR-44": [
+      "AF-57",
+      "AF-58",
+      "AF-59"
+    ],
+    "FR-45": [
+      "AF-57",
+      "AF-58"
+    ],
+    "FR-46": [
+      "AF-57",
+      "AF-58"
+    ],
+    "FR-47": [
+      "AF-60"
+    ],
+    "FR-48": [
+      "AF-57"
+    ],
+    "FR-49": [
+      "AF-52"
+    ]
+  },
+  "change_record": "addendum v3.0 extends Atomic_Functions_addendum_v2 after the watchlist redesign decisions D33/D34 (scoped dk_bond_tracker_brainstorm_20261030:D33/D34); adds AF-52..AF-60 covering FR-38..FR-49 only. Coverage judgements (all 12 keys non-empty): FR-38 shell is static chrome except its Settings nav destination and status-bar email badge, both served by AF-57 settings_load (row counts belong to FR-49's AF-52); FR-40's upgraded field set is consumed by the AF-52 read model (kept as [AF-52], no import-mapping AF added); FR-48 About is static markup rendered over AF-57's effective config view (version/offline statement); FR-49 maps to AF-52 for the status-bar row counts (privacy masking rides the existing AF-43 path, email indicator rides AF-57 — unchanged ownership). Element notes: AF-52/AF-53 use 'queries' and AF-56 uses 'notifications' as element tags for this wave; AF-55 is route_handlers because the D15 lock logic itself stays in the AF-39 validator — only the transition handler is added here, so moving INTO holdings re-runs the existing lock (plus the mandatory-holding-fields check) with ERR-move-watching as the move-specific named error covering both rejection causes per the architecture addendum. No new tables: watch_state and the FR-40 fields ride the guarded bonds ALTER list, settings ride alert_prefs upserts (exact 15-key set + shared density key; theme and INR format carry no keys per D34), dedupe keys reuse the alert_prefs unique-key pattern already used by notifications.notify_once (keys danger:/due:/dayof:/maturity: per the architecture runtime_delta). Alignment with the parallel deliverables that landed during authoring: docs/Watchlist_Architecture_Addendum_v1.json was absent at first read (its presence triggered the brief's fallback derivation from D33/D34 + src/) and landed mid-authoring — both files were then cross-checked against it and aligned (dedupe key families, sort whitelist, query-param names, 200-row cap note, settings key list, port default 465 SSL, synthetic event 'Test Alert', case-sensitive RESET, ERR-move-watching dual cause); docs/PRD_DK_Bond_Tracker_addendum_v3.json + docs/SRS_DK_Bond_Tracker_addendum_v3.json (FR-38..FR-49) were checked for id and AC alignment (exact-rating filter, case-sensitive RESET, panel-only dismissal, env override note). AF-01..AF-51 and all earlier coverage_map entries remain owned by their source documents and are unaltered. Sources: docs/Atomic_Functions_addendum_v2.json + docs/Pseudocode_addendum_v2.json (envelope/field/style contracts), docs/Pseudocode_DK_Bond_Tracker_v1.json (D5 rule), src/db.py, src/queries.py, src/status.py, src/alerts.py, src/notifications.py, src/mailer.py, src/validators.py, src/phase4.py (runtime truth). Test coverage is TC-85..TC-104 per docs/Test_Plan_addendum_v3.json and wave placement per docs/Development_Order_addendum_v3.json (brief 05, parallel worker)."
+}
