@@ -39,6 +39,7 @@ def assert_csv_shape(rows, headers):
         assert len(row) == width, f"ragged row: {row!r}"
 
 
+@pytest.mark.remote
 def test_tc53_full_ledger_csv_parses_cleanly(imported_client):
     client, db_path, summary = imported_client
     response = client.get("/export.csv?scope=full")
@@ -56,6 +57,7 @@ def test_tc53_full_ledger_csv_parses_cleanly(imported_client):
         assert row[5] in ("Danger", "On-going", "Completed")
 
 
+@pytest.mark.remote
 def test_tc53_current_view_csv_matches_grid_and_amounts(imported_client):
     client, db_path, _summary = imported_client
     with get_conn(db_path) as conn:
@@ -81,6 +83,7 @@ def test_tc53_current_view_csv_matches_grid_and_amounts(imported_client):
         float(row[3])
 
 
+@pytest.mark.remote
 def test_tc53_csv_amounts_match_database_row_for_row(imported_client):
     client, db_path, _summary = imported_client
     with get_conn(db_path) as conn:
@@ -98,6 +101,7 @@ def test_tc53_csv_amounts_match_database_row_for_row(imported_client):
         assert int(by_key[key][4]) == int(record["paid"])
 
 
+@pytest.mark.remote
 def test_tc53_share_csv_opens_cleanly(imported_client):
     client, _db_path, _summary = imported_client
     response = client.post(
@@ -111,6 +115,7 @@ def test_tc53_share_csv_opens_cleanly(imported_client):
     assert rows
 
 
+@pytest.mark.remote
 def test_tc53_chain_import_dashboard_grid_watch_still_green(imported_client):
     client, _db_path, summary = imported_client
     assert summary["bonds"] == 15

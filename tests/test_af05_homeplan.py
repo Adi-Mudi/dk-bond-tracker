@@ -12,6 +12,8 @@ from src.import_xlsm import (
     open_workbook,
 )
 
+pytestmark = pytest.mark.remote
+
 WORKBOOK = Path(
     "/mnt/Just_Do_It/02_Devp_Soft/01_Adi-Mudi/04_Bonds/01_excel_dashboard/v5.5_40L_Project_Tracker.xlsm"
 )

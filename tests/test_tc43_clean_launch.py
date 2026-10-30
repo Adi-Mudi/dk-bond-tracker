@@ -6,6 +6,10 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.remote
+
 WORKSPACE = Path(__file__).resolve().parents[1]
 PORT = 5077
 LAUNCH_BUDGET_SECONDS = 60

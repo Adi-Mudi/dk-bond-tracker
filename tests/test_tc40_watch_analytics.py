@@ -183,10 +183,12 @@ def imported(tmp_path_factory):
     return summary, db_path
 
 
+@pytest.mark.remote
 def test_real_workbook_present():
     assert WORKBOOK.is_file()
 
 
+@pytest.mark.remote
 def test_real_import_analytics_match_spike_formulas(imported):
     summary, db_path = imported
     workbook = open_workbook(WORKBOOK)
@@ -233,6 +235,7 @@ def test_real_import_analytics_match_spike_formulas(imported):
     assert matched == 15
 
 
+@pytest.mark.remote
 def test_real_watch_page_shows_computed_discount(imported):
     summary, db_path = imported
     app = create_app(db_path)

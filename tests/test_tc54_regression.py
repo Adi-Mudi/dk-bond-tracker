@@ -131,6 +131,7 @@ def test_tc54_alerts_still_fire_for_unpaid_credit_day(client, db_path):
     assert history.status_code == 200
 
 
+@pytest.mark.remote
 def test_tc54_full_chain_import_edit_status_dashboard_export(tmp_path):
     from pathlib import Path
 

@@ -4,7 +4,7 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
@@ -381,6 +381,45 @@
       "WHY": "User statement 2026-10-30: 'start build', after being told desktop-local-web comes first and Android is out of scope.",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 'start build'"
+    },
+    {
+      "id": "D28",
+      "topic": "Repo + SSH remote + hosted test execution",
+      "options": [
+        "GitHub private repo via gh (logged in as Adi-Mudi) + SSH git remote + GitHub Actions as the remote test runner",
+        "External SSH server (details not provided)",
+        "No remote"
+      ],
+      "choice": "Create private GitHub repo 'dk-bond-tracker' using the existing gh login; add an SSH key (generated locally, uploaded via gh) so the git remote URL is git@github.com:... (literal 'ssh' per user Q1); push dev. Remote TESTS run on GitHub Actions (ubuntu runner) since no SSH test server was provided - the heavy tier executes remotely on every push, off the user's weak local hardware.",
+      "WHY": "User Q1 2026-10-30: create one repo, add ssh, small tests local + remaining tests remote (hardware not capable). Facts verified: repo had NO remote; gh CLI authenticated as Adi-Mudi; ssh client present; no external server details exist - Actions is the available remote runner today. If the user later provides an SSH test box, the same split scripts also run over ssh unchanged.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1 + AskUser answers"
+    },
+    {
+      "id": "D29",
+      "topic": "Local vs remote test split",
+      "options": [
+        "Fast-subset local, heavy remote (user choice)",
+        "Everything remote",
+        "Local quick + remote full"
+      ],
+      "choice": "pytest marker 'remote' on the heavy tier (real-workbook parsing, subprocess launch, 150x96 perf, full e2e import chains); local gate = 'pytest -m \"not remote\"' (<~30s); remote gate = full suite (GitHub Actions on push; also a scripts/test_remote.sh for any future SSH box).",
+      "WHY": "User Q1 + AskUser choice 'Fast-subset local, rest remote'.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q1 + AskUser"
+    },
+    {
+      "id": "D30",
+      "topic": "Ready-to-use product form",
+      "options": [
+        "Portable folder + one-command setup (plan MVP definition)",
+        "PyInstaller binary",
+        "Folder now binary later"
+      ],
+      "choice": "Deliver the plan-defined MVP package: a self-contained product folder (src/, tests/, the source XLSM, requirements.txt pinned, setup one-command script, run.sh/run.bat, README) plus a zip - 'copy one folder, run one command' exactly per the PRD MVP exit. Builder script committed so the package regenerates; generated folder+zip are local artifacts (gitignored).",
+      "WHY": "User Q2 'give me ready to use final product' answered 'execute fully per the plan': the locked PRD MVP defines the product as a copyable folder with a single launch command, so that IS the plan's product form; binary packaging stays out (plan never included it).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-30 Q2 + AskUser"
     }
   ],
   "gaps": [
@@ -508,6 +547,11 @@
       "version": "1.6.0",
       "date": "2026-10-30",
       "note": "D27 build kickoff: Stage 11 execute starts; L1/L2 remain scoped holds; Android out of scope."
+    },
+    {
+      "version": "1.7.0",
+      "date": "2026-10-30",
+      "note": "D28-D30: GitHub repo + SSH remote + Actions remote test runner; local/remote test split (fast local, heavy remote); ready product = plan MVP portable folder + zip."
     }
   ],
   "decision_log": [
@@ -580,6 +624,16 @@
       "date": "2026-10-30",
       "item": "graphs",
       "decision": "Full trio - user choice"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "remote tests",
+      "decision": "fast subset local, heavy tier remote (user choice)"
+    },
+    {
+      "date": "2026-10-30",
+      "item": "product form",
+      "decision": "execute per plan MVP: portable folder + zip (user: execute fully and re-verify with checklist)"
     }
   ],
   "revision_history": [
@@ -624,6 +678,12 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "D27 added (build kickoff)."
+    },
+    {
+      "version": "1.7.0",
+      "date": "2026-10-30",
+      "author": "PM",
+      "note": "D28-D30 added (repo/ssh/test-split/product package)."
     }
   ]
 }

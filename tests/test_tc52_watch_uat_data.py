@@ -6,6 +6,8 @@ from src.app import create_app
 from src.db import get_conn
 from src.import_xlsm import import_workbook
 
+pytestmark = pytest.mark.remote
+
 WORKBOOK = Path(
     "/mnt/Just_Do_It/02_Devp_Soft/01_Adi-Mudi/04_Bonds/01_excel_dashboard/v5.5_40L_Project_Tracker.xlsm"
 )
