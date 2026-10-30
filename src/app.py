@@ -33,6 +33,7 @@ from src.notifications import (
     notify_once,
     unread_count,
 )
+from src.phase4 import discount_report, payment_cycle_of, payout_schedule, pnl_summary, tds_report
 from src.print import monthly_print_model
 from src.queries import (
     MONTH_PATTERN,
@@ -176,6 +177,9 @@ def create_app(db_path=None):
                     "overview": status_overview(conn, today),
                     "charts": chart_data(conn, today),
                     "current_month": month_key(today),
+                    "pnl": pnl_summary(conn, today),
+                    "discounts": discount_report(conn),
+                    "tds": tds_report(conn),
                 }
         except AppError as exc:
             return (
@@ -610,6 +614,41 @@ def create_app(db_path=None):
         except AppError as exc:
             return error_page(exc.code, exc.message, "Monthly print failed", 500)
         return render_template("monthly_print.html", privacy=privacy, **model)
+
+    @app.route("/payout")
+    def payout_page():
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        raw_bond = str(request.args.get("bond_id", "")).strip()
+        try:
+            bond_id = int(raw_bond)
+        except ValueError:
+            return error_page(
+                "ERR-due-dates",
+                f"bond_id must be an integer: {raw_bond!r}",
+                "Payout schedule failed",
+                400,
+            )
+        cycle = str(request.args.get("cycle", "")).strip().lower()
+        try:
+            with get_conn(db_file) as conn:
+                if not cycle:
+                    row = conn.execute(
+                        "SELECT payment_type FROM bonds WHERE id = ?", (bond_id,)
+                    ).fetchone()
+                    if row is None:
+                        raise AppError("ERR-due-dates", f"bond not found: {bond_id!r}")
+                    cycle = payment_cycle_of(row["payment_type"])
+                    if cycle is None:
+                        raise AppError(
+                            "ERR-due-dates",
+                            f"payment type missing or unknown for bond {bond_id}: "
+                            f"{row['payment_type']!r}; pass cycle=monthly|quarterly|yearly",
+                        )
+                schedule = payout_schedule(conn, bond_id, cycle)
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Payout schedule failed", 400)
+        return render_template("payout.html", schedule=schedule)
 
     return app
 
