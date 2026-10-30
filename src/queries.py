@@ -1,7 +1,13 @@
+import calendar
 import re
 from datetime import date
 
-from .status import compute_row_status, month_key, tenure_month_map
+from .status import (
+    compute_row_status,
+    compute_row_status_daywise,
+    month_key,
+    tenure_month_map,
+)
 from .validators import AppError, add_months, parse_date_value
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
@@ -366,3 +372,166 @@ def chart_data(conn, today=None):
                 }
             )
     return {"bars": bars, "cumulative": cumulative, "donut": counts}
+
+
+def month_label(key):
+    year, mon = key.split("-")
+    return f"{calendar.month_abbr[int(mon)]}-{year}"
+
+
+def grid_month_columns(first_keys, last_keys, current_key):
+    if not first_keys or not last_keys:
+        return []
+    start = min(first_keys)
+    end = max(max(last_keys), current_key)
+    return _month_keys_span(start, end)
+
+
+def grid_model(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-render-grid", "current month could not be resolved")
+    current = month_key(today_value)
+    try:
+        bond_rows = conn.execute(
+            "SELECT id, company, isin, start_date, tenure_months, credit_day FROM bonds ORDER BY id"
+        ).fetchall()
+    except Exception as exc:
+        raise AppError("ERR-render-grid", f"bond scan failed: {exc}") from exc
+    entries = []
+    first_keys = []
+    last_keys = []
+    for row in bond_rows:
+        try:
+            start = parse_date_value(row["start_date"], "start_date")
+            tenure = int(row["tenure_months"])
+        except (AppError, TypeError, ValueError) as exc:
+            raise AppError(
+                "ERR-render-grid",
+                f"bond {row['id']}: unparseable row metadata: {exc}",
+            ) from exc
+        if tenure < 1:
+            raise AppError(
+                "ERR-render-grid",
+                f"bond {row['id']}: tenure_months must be positive: {row['tenure_months']!r}",
+            )
+        first = month_key(start)
+        last = month_key(add_months(start, tenure - 1))
+        entries.append({"row": row, "first": first, "last": last, "tenure": tenure})
+        first_keys.append(first)
+        last_keys.append(last)
+    months = grid_month_columns(first_keys, last_keys, current)
+    headers = [
+        {"key": key, "label": month_label(key), "current": key == current}
+        for key in months
+    ]
+    model_rows = []
+    for entry in entries:
+        row = entry["row"]
+        try:
+            window = tenure_month_map(conn, row["id"], row["start_date"], entry["tenure"])
+            status = compute_row_status_daywise(
+                window, entry["tenure"], row["credit_day"], today_value
+            )
+        except AppError as exc:
+            raise AppError(
+                "ERR-render-grid",
+                f"bond {row['id']}: status computation failed: {exc.message}",
+            ) from exc
+        cells = []
+        for key in months:
+            if key not in window:
+                state = "future"
+            elif window[key]:
+                state = "paid"
+            elif key <= current:
+                state = "due"
+            else:
+                state = "future"
+            cells.append({"month": key, "state": state, "bond_id": row["id"]})
+        model_rows.append(
+            {
+                "id": row["id"],
+                "company": row["company"],
+                "isin": row["isin"],
+                "status": status,
+                "tenure_months": entry["tenure"],
+                "cells": cells,
+            }
+        )
+    model_rows.sort(
+        key=lambda item: (
+            STATUS_ORDER[item["status"]],
+            str(item["company"] or "").lower(),
+            item["id"],
+        )
+    )
+    return {
+        "months": headers,
+        "rows": model_rows,
+        "current": current,
+        "bond_count": len(model_rows),
+    }
+
+
+def save_payment(conn, bond_id, month, amount, paid):
+    _require_bond(conn, bond_id)
+    key = _parse_month(month)
+    if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+        raise AppError("ERR-ledger-insert", f"amount must be a number: {amount!r}")
+    value = float(amount)
+    if value < 0:
+        raise AppError("ERR-ledger-insert", f"amount must not be negative: {amount!r}")
+    flag = 1 if (paid and value > 0) else 0
+    existing = conn.execute(
+        "SELECT id FROM payment_ledger WHERE bond_id = ? AND month = ?",
+        (bond_id, key),
+    ).fetchone()
+    if existing is None:
+        cursor = conn.execute(
+            "INSERT INTO payment_ledger (bond_id, month, amount, paid) VALUES (?, ?, ?, ?)",
+            (bond_id, key, value, flag),
+        )
+        action = "inserted"
+    else:
+        cursor = conn.execute(
+            "UPDATE payment_ledger SET amount = ?, paid = ? WHERE id = ?",
+            (value, flag, existing["id"]),
+        )
+        action = "corrected"
+    if cursor.rowcount != 1:
+        raise AppError(
+            "ERR-ledger-edit",
+            f"ledger write for bond {bond_id} month {key} affected {cursor.rowcount} rows",
+        )
+    return {"bond_id": bond_id, "month": key, "amount": value, "paid": flag, "action": action}
+
+
+def insert_position(conn, company, isin, amount, start_date, end_date, tenure_months, credit_day):
+    if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+        raise AppError("ERR-add-insert", f"amount must be a number: {amount!r}")
+    value = float(amount)
+    if value < 0:
+        raise AppError("ERR-add-insert", f"amount must not be negative: {amount!r}")
+    cursor = conn.execute(
+        "INSERT INTO bonds (company, isin, name, amount, maturity, start_date, end_date, "
+        "tenure_months, credit_day, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            company,
+            isin,
+            company,
+            value,
+            None,
+            start_date.isoformat(),
+            end_date.isoformat(),
+            int(tenure_months),
+            int(credit_day),
+            "On-going",
+        ),
+    )
+    if cursor.rowcount != 1:
+        raise AppError(
+            "ERR-add-insert",
+            f"position insert for {company} affected {cursor.rowcount} rows",
+        )
+    return cursor.lastrowid
