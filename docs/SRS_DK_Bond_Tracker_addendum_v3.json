@@ -1,0 +1,271 @@
+{
+  "id": "SRS_DK_Bond_Tracker_addendum_v3",
+  "kind": "srs",
+  "title": "SRS Addendum v3 — Watchlist Redesign Requirements (FR-38..FR-49)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "SRS_DK_Bond_Tracker_addendum_v2",
+  "sections": [
+    {
+      "heading": "Purpose",
+      "body": "This addendum extends SRS_DK_Bond_Tracker_addendum_v2 with the twelve requirements added after owner decisions D33 (standalone watchlist redesign) and D34 (Settings screen) of 2026-10-30: FR-38 (standalone app shell), FR-39 (two-view watchlist + Move-to-Holdings), FR-40 (bond master field set upgrade), FR-41 (table filters/search/sort/density), FR-42 (detail drawer), FR-43 (watchlist alerts panel), FR-44 (Settings Email Alerts), FR-45 (Settings Alert Preferences), FR-46 (Settings General), FR-47 (Settings Data), FR-48 (Settings About), FR-49 (shell counts, email status, privacy masking). Requirement ids match the PRD addendum prd_items exactly (hard FK to docs/PRD_DK_Bond_Tracker_addendum_v3.json). No requirement of SRS v1 (FR-01..FR-24, NFR-1..NFR-13, DATA-01..DATA-05), of addendum v1 (FR-25/FR-26), or of addendum v2 (FR-27..FR-37) is altered by this document."
+    },
+    {
+      "heading": "D33/D34 traceability",
+      "body": "markdown:| FR | Decision |\n| --- | --- |\n| FR-38 | dk_bond_tracker_brainstorm_20261030:D33 |\n| FR-39 | dk_bond_tracker_brainstorm_20261030:D33 |\n| FR-40 | dk_bond_tracker_brainstorm_20261030:D33 |\n| FR-41 | dk_bond_tracker_brainstorm_20261030:D33 |\n| FR-42 | dk_bond_tracker_brainstorm_20261030:D33 |\n| FR-43 | dk_bond_tracker_brainstorm_20261030:D33 |\n| FR-44 | dk_bond_tracker_brainstorm_20261030:D34 |\n| FR-45 | dk_bond_tracker_brainstorm_20261030:D34 |\n| FR-46 | dk_bond_tracker_brainstorm_20261030:D34 |\n| FR-47 | dk_bond_tracker_brainstorm_20261030:D34 |\n| FR-48 | dk_bond_tracker_brainstorm_20261030:D34 |\n| FR-49 | dk_bond_tracker_brainstorm_20261030:D33 (shell counts + privacy), :D34 (email-status indicator) |"
+    },
+    {
+      "heading": "Settings security notes",
+      "body": "SMTP credentials (host, port, security mode, username, App Password, recipient, from-name) are stored ONLY locally in the alert_prefs key/value table of the on-machine database — never in any file outside the data folder, never transmitted anywhere except the user's own SMTP server at send time. The App Password is write-only from the UI: masked on entry and never re-displayed after save (the reopen path shows only the mask, not the stored value). Environment variables SMTP_USER and SMTP_APP_PASSWORD override the stored values at use time, so a user who prefers env vars over DB storage can keep credentials out of the database entirely. Test Email reports failures as named in-app error banners (no crash, no stack traces in the UI). No cloud sync, no accounts, no telemetry — the '100% offline' claim on the About screen holds except for the user-initiated SMTP send."
+    },
+    {
+      "heading": "Data model deltas (documentation of deltas, not SQL)",
+      "body": "Wave-3 extends the established tables as follows; NO new tables are created. bonds: + rating TEXT, + rating_agency TEXT, + coupon_pct REAL, + expected_yield_pct REAL, + payout_cycle TEXT, + issuer_type TEXT, + secured INT, + watch_state TEXT CHECK IN ('holding','watching') — watch_state drives the My Holdings ('holding') vs Watching ('watching') split of FR-39; all research fields (FR-40) are stored per position on the bonds row. alert_prefs (existing key/value table, key TEXT UNIQUE + value TEXT): gains SMTP keys smtp_host, smtp_port, smtp_security (ssl|starttls), smtp_user, smtp_app_password, smtp_recipient, smtp_from; plus preference keys payout_reminder_days, overdue_reminder, maturity_alert_30d, maturity_alert_7d, maturity_alert_1d, sweep_time, default_credit_day, privacy_on_startup, table_density, theme, default_csv_scope, email_configured. These are documentation of intended deltas for downstream design/build; this document does not define SQL DDL."
+    },
+    {
+      "heading": "Offline constraints",
+      "body": "The redesign is offline-first: no live market data, no live credit-rating feeds, no price feeds, no broker integrations. Rating, rating agency, coupon, expected yield and face value are manual user entries; every UI surface showing them carries the manual/offline honesty note (table yield info tooltip, drawer offline note, About badge). Expected yield is explicitly labeled 'entered manually, offline' wherever displayed (FR-40). The only outbound network use in the entire product is the user-configured SMTP send of alert emails (FR-44); with SMTP unconfigured the app makes zero network requests. Status computation stays ledger-local: the day-wise sweep (FR-33) and alert cards (FR-43) run against the local payment_ledger and bonds tables only."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "FR-38",
+      "text": "When the watchlist redesign runs, the system SHALL present a standalone desktop-style app shell consisting of window chrome (titlebar with menu strip and window buttons), a left sidebar navigation listing Dashboard, Month Grid, Watchlist, Financial Goals, Alerts, Reports/Print and Settings — with Settings as a real, reachable destination — and a bottom status bar (D33).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the application launched on the desktop",
+          "when": "the shell loads",
+          "then": "window chrome (titlebar, menu strip, minimize/maximize/close buttons), a left sidebar and a bottom status bar are all present — the surface reads as an app window, not a browser page"
+        },
+        {
+          "given": "the sidebar navigation",
+          "when": "the user inspects the nav items",
+          "then": "Dashboard, Month Grid, Watchlist, Financial Goals, Alerts, Reports/Print and Settings are listed, and activating Settings navigates to the real Settings screen"
+        }
+      ]
+    },
+    {
+      "id": "FR-39",
+      "text": "The watchlist SHALL provide two views behind segmented tabs — 'My Holdings' for owned positions and 'Watching' for candidates being evaluated (not owned) — each displaying its own count; a 'Move to Holdings' action on a Watching item SHALL convert it into a held position that then appears in the monthly grid and dashboard and updates both tab counts, and 'Mark as Watching' in the detail drawer SHALL move a holding back (D33).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the Holdings tab with filter 'Rating: AA' applied and a Watching tab holding 4 candidates",
+          "when": "the user switches to the Watching tab and then back to Holdings",
+          "then": "the 'Rating: AA' filter is still applied on the Holdings view — switching tabs preserves the active filters"
+        },
+        {
+          "given": "the Watching tab containing candidate 'Epsilon Ltd 2031'",
+          "when": "the user activates 'Move to Holdings' on that candidate",
+          "then": "the position appears in the My Holdings table, in the monthly grid and on the dashboard; the Watching count decreases by one and the Holdings count increases by one"
+        }
+      ]
+    },
+    {
+      "id": "FR-40",
+      "text": "The bond master field set SHALL include credit rating plus rating agency, coupon %, expected yield % (manual offline entry labeled as manual), payout cycle, issuer type, secured flag and face value, SHALL store every field per position on the bonds row, and SHALL surface them in the watchlist table, Watching cards and detail drawer (D33).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the position form for 'Alpha Securities Ltd'",
+          "when": "the user enters rating 'AA-' with agency 'CRISIL', coupon 10.00, expected yield 10.40, payout Quarterly, issuer NCD, secured Yes, face value ₹10L and saves, then reloads the app",
+          "then": "all eight fields are persisted on that position's row and render in the table and drawer exactly as entered"
+        },
+        {
+          "given": "the watchlist table's Yield % column and the drawer's expected-yield value",
+          "when": "the user inspects them",
+          "then": "both carry a manual-entry indicator (info affordance / offline note) making clear the yield is entered manually with no live feed"
+        }
+      ]
+    },
+    {
+      "id": "FR-41",
+      "text": "The watchlist table SHALL support filter chips for rating, payout cycle, issuer type and status, text search by company name or ISIN, column sorting including maturity, removable active-filter chips, and a Compact/Comfortable density switch; monetary columns SHALL be right-aligned in Indian number format and row status SHALL be shown as a colored left border (D33).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a table containing rows rated AA-, AA and A+",
+          "when": "the user applies the Rating filter for the AA family (e.g. Rating AA)",
+          "then": "only AA-family rows are rendered — every non-matching row is hidden"
+        },
+        {
+          "given": "rows with unsorted maturity dates",
+          "when": "the user selects Sort: Maturity ascending",
+          "then": "rows are ordered by maturity date earliest-first"
+        },
+        {
+          "given": "density set to Compact",
+          "when": "the user reloads the application",
+          "then": "the table renders in Compact density again — the density choice persists across sessions"
+        }
+      ]
+    },
+    {
+      "id": "FR-42",
+      "text": "When a watchlist row is selected, the system SHALL open a detail drawer showing the position's facts (ISIN, face value, secured, issuer type, credit rating + agency, start date, end date, credit day with payout cycle), its payment schedule with per-month amounts and received/overdue/upcoming states, and a yield/investment summary (invested, returned, coupon, expected yield), with the actions Edit Position, Record Payment and Mark as Watching (D33).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the row 'Alpha Securities Ltd' (Danger) selected in the table",
+          "when": "the drawer renders",
+          "then": "all fact fields (ISIN INE9000A01001, face value, secured, issuer type, AA- CRISIL, start/end dates, credit day), the payment schedule rows and the invested/returned/coupon/yield summary are visible for that position"
+        },
+        {
+          "given": "the open drawer",
+          "when": "the user reviews the action buttons",
+          "then": "Edit Position, Record Payment and Mark as Watching are all present, and Record Payment is the primary action"
+        }
+      ]
+    },
+    {
+      "id": "FR-43",
+      "text": "The watchlist SHALL include an alerts panel fed by the day-wise credit-day sweep (FR-33) and the in-app notification history (FR-34), rendering overdue-payout, due-soon and maturity-soon cards with dismiss buttons and marking affected table rows with an alert dot; dismissing a card SHALL remove only the card and SHALL leave the notification history row with its timestamp intact (D33).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a position with credit_day 26 whose current-month payment is still unpaid",
+          "when": "the day-wise sweep runs after the credit day (e.g. on the 27th)",
+          "then": "an overdue alert card for that position appears in the watchlist alerts panel the same day, and the notification bell badge count increments by one"
+        },
+        {
+          "given": "an alert card displayed in the panel",
+          "when": "the user clicks its dismiss button",
+          "then": "the card is removed from the panel, but the notification history still contains the corresponding row with its original timestamp"
+        }
+      ]
+    },
+    {
+      "id": "FR-44",
+      "text": "Settings SHALL include an Email Alerts screen with SMTP host, port with SSL (465) or STARTTLS (587) selection, username, masked App Password that is never re-displayed after save, recipient and from-name fields, a Test Email button, a Save button and a configured/not-configured status badge; credentials SHALL persist in alert_prefs and the environment variables SMTP_USER and SMTP_APP_PASSWORD SHALL override stored values at use time (D34).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "SMTP settings including an App Password saved and the user reopening Settings > Email Alerts",
+          "when": "the form renders",
+          "then": "the App Password field shows only the mask — the stored password is never re-displayed anywhere in the UI"
+        },
+        {
+          "given": "SMTP not configured (no host, port or user saved)",
+          "when": "the user clicks Test Email",
+          "then": "a named error banner (e.g. 'SMTP not configured — set host, port and username') is shown and the application does not crash"
+        },
+        {
+          "given": "stored username 'you@gmail.com' and environment variable SMTP_USER='other@gmail.com'",
+          "when": "an email is sent or tested",
+          "then": "the env value overrides the stored username — the message is sent as 'other@gmail.com'"
+        }
+      ]
+    },
+    {
+      "id": "FR-45",
+      "text": "Settings SHALL include an Alert Preferences screen exposing toggles for payout reminder 3 days before, overdue alert on credit day+1, and maturity alerts at 30/7/1 days, plus a daily status sweep time select (00:00-23:00); the in-app bell SHALL be displayed as a locked, always-on disabled toggle with an explanatory hint (D34).",
+      "category": "functional",
+      "check_method": "unit",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "Settings > Alert Preferences opened with defaults",
+          "when": "the screen renders",
+          "then": "toggles for payout reminder (3 days before), overdue (credit day+1) and maturity alerts at 30, 7 and 1 days are present with the sweep-time select, and the in-app bell toggle is ON, disabled and annotated as always on"
+        },
+        {
+          "given": "the maturity 1-day alert toggle enabled",
+          "when": "the user disables it, saves and reloads",
+          "then": "the preference persists as disabled and the sweep uses the stored setting"
+        }
+      ]
+    },
+    {
+      "id": "FR-46",
+      "text": "Settings SHALL include a General screen with a default credit day select (1-28) applied to new positions, a privacy-on-startup toggle defaulting to OFF, a fixed Indian currency format radio (₹ 1,50,000.00), a table density radio (Compact/Comfortable) shared with the watchlist, and a theme selection with Dark selected and Light disabled as coming later (D34).",
+      "category": "functional",
+      "check_method": "unit",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "Settings > General with default credit day set to 10 and privacy-on-startup enabled",
+          "when": "the user opens the Add Position form for a new bond",
+          "then": "the credit day field defaults to 10, and privacy mode is active on next startup"
+        },
+        {
+          "given": "Settings > General density radio",
+          "when": "the user selects Comfortable",
+          "then": "the watchlist table immediately renders with Comfortable density — the General radio and the watchlist density switch share one persisted setting"
+        }
+      ]
+    },
+    {
+      "id": "FR-47",
+      "text": "Settings SHALL include a Data screen with an Import from Excel action, an Export backup action producing a downloadable .db file, a default CSV export scope select (Current view / Full ledger), and a Danger zone Reset local database action that requires typing the literal confirmation 'RESET' before any deletion (D34).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "Settings > Data and the Reset local database button",
+          "when": "the user clicks it and the confirmation prompts for typed text",
+          "then": "the reset proceeds only when the user types the exact literal 'RESET'; any other input (including 'reset' or 'Reset') aborts with no data deleted"
+        },
+        {
+          "given": "Settings > Data",
+          "when": "the user clicks Export backup (.db)",
+          "then": "a downloadable .db file of the local database is produced and saved to the user's chosen location"
+        }
+      ]
+    },
+    {
+      "id": "FR-48",
+      "text": "Settings SHALL include an About screen displaying the application version, a build-notes line, a '100% offline — no accounts, no cloud' badge, and an 'Open local data folder' action that reveals the local data directory (D34).",
+      "category": "functional",
+      "check_method": "manual review",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "Settings > About opened",
+          "when": "the screen renders",
+          "then": "the version string, build-notes line and the '100% offline — no accounts, no cloud' badge are all visible"
+        },
+        {
+          "given": "the About screen",
+          "when": "the user activates 'Open local data folder'",
+          "then": "the operating system's file manager opens at the local data folder containing the database"
+        }
+      ]
+    },
+    {
+      "id": "FR-49",
+      "text": "The shell SHALL show watchlist row counts in the status bar equal to the rows currently rendered in the table, SHALL show an email-status indicator ('Settings: N email alert rules active' when SMTP is configured, 'Email: not configured' otherwise), and the Privacy Mode toggle SHALL mask every monetary cell on the watchlist and Settings screens while names, statuses and non-money numbers remain visible (D33, D34).",
+      "category": "functional",
+      "check_method": "unit",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "Privacy Mode toggled ON from the sidebar",
+          "when": "the watchlist (Holdings table, summary tiles, drawer, Watching cards) and every Settings screen render",
+          "then": "every monetary cell is masked as '••••' while company names, ISINs, statuses, ratings and non-money numbers remain visible"
+        },
+        {
+          "given": "the Holdings table rendering 9 visible rows of 15 positions",
+          "when": "the bottom status bar renders",
+          "then": "the status bar's row count equals the visible table row count (9), and the email-status indicator reads 'Email: not configured' until SMTP is configured and 'Settings: N email alert rules active' after configuration"
+        }
+      ]
+    }
+  ]
+}
