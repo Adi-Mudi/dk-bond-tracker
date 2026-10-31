@@ -1,11 +1,82 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Settings</h1>
-<div class="card">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if error %}
+<div class="banner banner-error" id="settings-error">
+  <div class="banner-title">Error: {{ error_code }}</div>
+  <div id="settings-error-message">{{ error }}</div>
+</div>
+{% endif %}
+
+<div class="card" id="appearance-card">
   <h2>Appearance</h2>
   <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="system" checked> System (follow OS)</label>
   <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="light"> Light (default)</label>
   <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="dark"> Dark</label>
   <p class="caption">Theme is saved on this device.</p>
 </div>
+
+<form method="post" action="/settings" id="settings-form">
+  <div class="card" id="email-card">
+    <h2>Email</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="s-host">SMTP host</label>
+        <input type="text" id="s-host" name="smtp_host" placeholder="smtp.example.com" value="{{ prefs.get('smtp_host', '') }}">
+      </div>
+      <div class="field">
+        <label for="s-port">SMTP port</label>
+        <input type="number" id="s-port" name="smtp_port" placeholder="587" value="{{ prefs.get('smtp_port', '') }}">
+      </div>
+      <div class="field">
+        <label for="s-from">From</label>
+        <input type="email" id="s-from" name="smtp_from" placeholder="me@example.com" value="{{ prefs.get('smtp_from', '') }}">
+      </div>
+      <div class="field">
+        <label for="s-to">To</label>
+        <input type="email" id="s-to" name="smtp_to" placeholder="me@example.com" value="{{ prefs.get('smtp_recipient', '') }}">
+      </div>
+    </div>
+    <p class="caption section-gap">Personal account — personal SMTP, personal → personal.</p>
+  </div>
+
+  <div class="card" id="privacy-card">
+    <h2>Privacy</h2>
+    <label class="check-row"><input type="checkbox" name="privacy_on_startup"{% if prefs.get('privacy_on_startup') == '1' %} checked{% endif %}> Hide amounts by default</label>
+  </div>
+
+  <div class="card" id="currency-card">
+    <h2>Currency</h2>
+    <p>INR (&#8377;)</p>
+  </div>
+
+  <div class="card" id="share-export-card">
+    <h2>Share / Export</h2>
+    <p class="caption">Customize what to include.</p>
+    <label class="check-row"><input type="checkbox" name="share_holdings"{% if prefs.get('share_section_holdings', '1') == '1' %} checked{% endif %}> Holdings</label>
+    <label class="check-row"><input type="checkbox" name="share_payouts"{% if prefs.get('share_section_payouts', '1') == '1' %} checked{% endif %}> Payouts</label>
+    <label class="check-row"><input type="checkbox" name="share_goals"{% if prefs.get('share_section_goals') == '1' %} checked{% endif %}> Goals</label>
+  </div>
+
+  <div class="card" id="data-card">
+    <h2>Data</h2>
+    <p>Start empty — no data imported.</p>
+  </div>
+
+  <div class="section-gap">
+    <button class="btn btn-primary" type="submit" id="save-settings">Save settings</button>
+  </div>
+</form>
 {% endblock %}
