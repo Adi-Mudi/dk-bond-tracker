@@ -80,6 +80,19 @@ def _ensure_columns(conn):
     goal_columns = {row[1] for row in conn.execute("PRAGMA table_info(financial_goals)")}
     if "saved_amount" not in goal_columns:
         conn.execute("ALTER TABLE financial_goals ADD COLUMN saved_amount REAL DEFAULT 0")
+    for column in (
+        "rating TEXT",
+        "rating_agency TEXT",
+        "coupon_pct REAL",
+        "expected_yield_pct REAL",
+        "payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual'))",
+        "issuer_type TEXT CHECK (issuer_type IN ('corporate_bond','ncd','sdi','government','fd'))",
+        "secured INT DEFAULT 1",
+        "watch_state TEXT NOT NULL DEFAULT 'holding' CHECK (watch_state IN ('holding','watching'))",
+    ):
+        name = column.split()[0]
+        if name not in bond_columns:
+            conn.execute(f"ALTER TABLE bonds ADD COLUMN {column}")
 
 
 def init_db(path):

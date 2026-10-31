@@ -1,7 +1,6 @@
 import pytest
 
-from src.import_xlsm import find_duplicate_isins, validate_extracted
-from src.validators import AppError
+from src.validators import AppError, find_duplicate_isins, validate_extracted
 
 
 def make_bond(row, isin):
