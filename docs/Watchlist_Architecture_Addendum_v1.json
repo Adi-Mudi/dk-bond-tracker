@@ -74,7 +74,7 @@
     },
     {
       "id": "schema_delta",
-      "heading": "Schema delta — exact ALTER list for bonds, import mapping, defaults, zero new tables",
+      "heading": "Schema delta — exact ALTER list for bonds, manual-entry mapping, defaults, zero new tables",
       "body": "Exact DDL delta, extending the bonds table defined in src/db.py (SCHEMA_STATEMENTS + _ensure_columns). All eight columns are added by guarded ALTER TABLE bonds ADD COLUMN statements inside the existing _ensure_columns pattern (skip if the column already exists); the migration is idempotent and ships as an explicit step in db.py per the base architecture deployment rule. No column outside this list changes; payment_ledger, financial_goals, notifications, alert_prefs and share_config are untouched.",
       "alter": [
         {
@@ -199,7 +199,7 @@
     {
       "id": "honesty",
       "heading": "Honesty and scope holds",
-      "body": "What this delta does NOT do, stated plainly so no downstream document oversells it: (1) no live prices and no live ratings feeds anywhere — the app makes zero outbound connections (base cross_cutting security holds); every rating and every expected-yield value is entered manually and is only as fresh as the last manual edit (D33); the drawer and filter bar label yield as manual. (2) rows are never imported — all data is created by the user (start from scratch, D37). (4) Status display semantics beyond the day-wise helper are unchanged — D5 rules, no scan-window limit, zero = unpaid all carry over verbatim. (5) Email delivery is best-effort personal-to-personal SMTP (D22/D24): failures surface as visible warnings, never as silent success, and no delivery guarantee is implied.",
+      "body": "What this delta does NOT do, stated plainly so no downstream document oversells it: (1) no live prices and no live ratings feeds anywhere — the app makes zero outbound connections (base cross_cutting security holds); every rating and every expected-yield value is entered manually and is only as fresh as the last manual edit (D33); the drawer and filter bar label yield as manual. (2) rows are never imported — all data is created by the user (start from scratch, D37). (3) Status display semantics beyond the day-wise helper are unchanged — D5 rules, no scan-window limit, zero = unpaid all carry over verbatim. (4) Email delivery is best-effort personal-to-personal SMTP (D22/D24): failures surface as visible warnings, never as silent success, and no delivery guarantee is implied.",
       "refs": {
         "decisions": [
           "dk_bond_tracker_brainstorm_20261030:D33",
