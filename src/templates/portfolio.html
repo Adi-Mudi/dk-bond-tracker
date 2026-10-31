@@ -1,8 +1,286 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+  a.tab {
+    text-decoration: none;
+  }
+</style>
+{% endblock %}
 {% block content %}
-<h1>Portfolio</h1>
-<div class="card">
-  <h2>My Holdings</h2>
-  <p class="empty-note">No positions yet. Positions added here appear in My Holdings and Payouts.</p>
+<h1 style="font-size:18px;margin-bottom:12px;">Portfolio</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
 </div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if error %}
+<div class="banner banner-error" id="error-banner">
+  <div class="banner-title">Add position blocked</div>
+  <div id="lock-message">{{ error }}</div>
+  <div id="error-code">operation: {{ code }}</div>
+</div>
+{% endif %}
+
+<div id="portfolio-body">
+  <div class="tabs">
+    <a class="tab{% if tab == 'holdings' %} active{% endif %}" href="/portfolio?tab=holdings" data-tab="holdings">My Holdings</a>
+    <a class="tab{% if tab == 'payouts' %} active{% endif %}" href="/portfolio?tab=payouts" data-tab="payouts">Payouts</a>
+  </div>
+
+  <div id="portfolio-panels">
+    {% if tab == "holdings" %}
+    <div id="panel-holdings" class="panel active">
+      <div class="view-header">
+        <h2>Position registry</h2>
+        <div class="header-actions">
+          <a class="btn btn-primary" href="#add-position">+ Add Position</a>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="holdings-table">
+          <thead>
+            <tr>
+              <th>Company/ISIN</th>
+              <th>Rating</th>
+              <th>Coupon</th>
+              <th>Yield</th>
+              <th>Frequency</th>
+              <th class="num">Invested &#8377;</th>
+              <th class="num">Received &#8377;</th>
+              <th>Next Payout</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in holdings %}
+            <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}">
+              <td><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span></td>
+              <td>{% if row.rating %}{{ row.rating }}{% else %}&#8212;{% endif %}</td>
+              <td class="money">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
+              <td class="money">{% if row.yield_pct is not none %}{{ "%.1f"|format(row.yield_pct) }}%{% else %}&#8212;{% endif %}</td>
+              <td>{% if row.frequency %}{{ row.frequency|capitalize }}{% else %}&#8212;{% endif %}</td>
+              <td class="num money">&#8377;{{ "%.2f"|format(row.invested) }}</td>
+              <td class="num money">&#8377;{{ "%.2f"|format(row.received) }}</td>
+              <td>{{ row.next_payout }}</td>
+              <td><span class="chip chip-{{ row.health|lower|replace('-', '') }}" data-status="{{ row.health }}">{{ row.health }}</span></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="9" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card section-gap" id="add-position">
+        <h2>Add Position</h2>
+        <form method="post" action="/portfolio">
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-company">Company</label>
+              <input type="text" id="f-company" name="company" placeholder="e.g. Muthoottu Mini Financiers Ltd" value="{{ form.get('company', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-isin">ISIN</label>
+              <input type="text" id="f-isin" name="isin" placeholder="INE101Q07BS1" value="{{ form.get('isin', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-amount">Invested &#8377;</label>
+              <input type="number" id="f-amount" name="amount" step="0.01" min="0" placeholder="0.00" value="{{ form.get('amount', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-credit">Credit day (e.g. 15th of month)</label>
+              <input type="number" id="f-credit" name="credit_day" min="1" max="31" value="{{ form.get('credit_day', '15') }}">
+              <p class="caption">Credit day drives day-wise alerts.</p>
+            </div>
+            <div class="field">
+              <label for="f-start">Start date</label>
+              <input type="date" id="f-start" name="start_date" value="{{ form.get('start_date', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-end">End date</label>
+              <input type="date" id="f-end" name="end_date" value="{{ form.get('end_date', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-tenure">Tenure (auto-calculated)</label>
+              <input type="text" id="f-tenure" readonly placeholder="auto-calculated from start and end date">
+            </div>
+            <div class="field">
+              <label for="f-rating">Rating</label>
+              <input type="text" id="f-rating" name="rating" placeholder="AA" value="{{ form.get('rating', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-rating-agency">Rating agency</label>
+              <input type="text" id="f-rating-agency" name="rating_agency" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-coupon">Coupon %</label>
+              <input type="number" id="f-coupon" name="coupon_pct" step="any" placeholder="8.5" value="{{ form.get('coupon_pct', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-yield">Expected yield %</label>
+              <input type="number" id="f-yield" name="expected_yield_pct" step="any" placeholder="9.1" value="{{ form.get('expected_yield_pct', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-cycle">Payout cycle</label>
+              <select id="f-cycle" name="payout_cycle">
+                <option value=""{% if not form.get('payout_cycle') %} selected{% endif %}>&#8212;</option>
+                <option value="monthly"{% if form.get('payout_cycle') == 'monthly' %} selected{% endif %}>Monthly</option>
+                <option value="quarterly"{% if form.get('payout_cycle') == 'quarterly' %} selected{% endif %}>Quarterly</option>
+                <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-issuer">Issuer type</label>
+              <select id="f-issuer" name="issuer_type">
+                <option value=""{% if not form.get('issuer_type') %} selected{% endif %}>&#8212;</option>
+                <option value="corporate_bond"{% if form.get('issuer_type') == 'corporate_bond' %} selected{% endif %}>Corporate bond</option>
+                <option value="ncd"{% if form.get('issuer_type') == 'ncd' %} selected{% endif %}>NCD</option>
+                <option value="sdi"{% if form.get('issuer_type') == 'sdi' %} selected{% endif %}>SDI</option>
+                <option value="government"{% if form.get('issuer_type') == 'government' %} selected{% endif %}>Government</option>
+                <option value="fd"{% if form.get('issuer_type') == 'fd' %} selected{% endif %}>FD</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-secured">Secured</label>
+              <select id="f-secured" name="secured">
+                <option value="1"{% if form.get('secured', '1') == '1' %} selected{% endif %}>Secured</option>
+                <option value="0"{% if form.get('secured') == '0' %} selected{% endif %}>Not secured</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-face">Face value</label>
+              <input type="number" id="f-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
+            </div>
+          </div>
+          <div class="section-gap">
+            <button class="btn btn-primary" type="submit">Add Position</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div id="panel-payouts" class="panel active">
+      {% if not payouts %}
+      <div class="empty-note" id="payouts-empty">No positions yet. Payouts appear here once a position is added.</div>
+      {% else %}
+      <div class="table-wrap">
+        <table id="payouts-table">
+          <thead>
+            <tr>
+              <th>Company/ISIN</th>
+              {% for col in months %}
+              <th data-month="{{ col.key }}">{{ col.label }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in payouts %}
+            <tr data-isin="{{ row.isin }}" data-health="{{ row.health }}">
+              <td><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span></td>
+              {% for cell in row.cells %}
+              {% if cell.kind == "amount" %}
+              <td class="money">&#8377;{{ "%.2f"|format(cell.amount) }}</td>
+              {% elif cell.kind == "chip" %}
+              <td><span class="chip {{ cell.chip }}">{{ cell.text }}</span></td>
+              {% else %}
+              <td>{{ cell.text }}</td>
+              {% endif %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+      <p class="caption">Danger rows sort to top, On-going next, Matured moves down automatically.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card section-gap">
+  <h2>Status legend</h2>
+  <div class="legend-row"><span class="chip chip-watching">Watching</span><span class="caption">= candidate in Watchlist, not owned</span></div>
+  <div class="legend-row"><span class="chip chip-ongoing">On-going</span><span class="caption">= payment healthy</span></div>
+  <div class="legend-row"><span class="chip chip-danger">Danger</span><span class="caption">= payment missed on credit day</span></div>
+  <div class="legend-row"><span class="chip chip-matured">Matured</span><span class="caption">= completed, no longer pays</span></div>
+</div>
+
+<script>
+(function () {
+  var body = document.getElementById("portfolio-body");
+  if (!body || !window.fetch || !window.DOMParser) {
+    return;
+  }
+  function bindTabs() {
+    body.querySelectorAll(".tab").forEach(function (tab) {
+      tab.addEventListener("click", function (event) {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        var href = tab.getAttribute("href");
+        event.preventDefault();
+        fetch(href, { credentials: "same-origin" })
+          .then(function (response) {
+            return response.text();
+          })
+          .then(function (html) {
+            var doc = new DOMParser().parseFromString(html, "text/html");
+            var fresh = doc.getElementById("portfolio-body");
+            if (!fresh) {
+              window.location.href = href;
+              return;
+            }
+            body.innerHTML = fresh.innerHTML;
+            window.history.pushState(null, "", href);
+            bindTabs();
+          })
+          .catch(function () {
+            window.location.href = href;
+          });
+      });
+    });
+  }
+  bindTabs();
+  window.addEventListener("popstate", function () {
+    window.location.reload();
+  });
+})();
+</script>
+<script>
+(function () {
+  var startInput = document.getElementById("f-start");
+  var endInput = document.getElementById("f-end");
+  var tenureInput = document.getElementById("f-tenure");
+  if (!startInput || !endInput || !tenureInput) {
+    return;
+  }
+  function recalc() {
+    if (!startInput.value || !endInput.value) {
+      tenureInput.value = "";
+      return;
+    }
+    var startDate = new Date(startInput.value);
+    var endDate = new Date(endInput.value);
+    var months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+    if (months > 0) {
+      tenureInput.value = months + " months";
+    } else {
+      tenureInput.value = "invalid range (end date must be after start date)";
+    }
+  }
+  startInput.addEventListener("change", recalc);
+  endInput.addEventListener("change", recalc);
+  recalc();
+})();
+</script>
 {% endblock %}
