@@ -115,7 +115,7 @@
         {
           "given": "a stored row with bad data (unparseable dates or tenure 0 — the D41 row id=2 shape)",
           "when": "each of /, /portfolio, payouts and /print is loaded",
-          "then": "each response is HTTP 200 (never 500), the bad row shows an 'Invalid' chip with a Remove action, and every other row renders normally"
+          "then": "each response is HTTP 200 (never 500); every surface that renders rows shows the Invalid chip (holdings, payouts, print marker); the Remove action appears on Holdings rows and Payouts rows (single server route revalidating a holding); the dashboard exposes the bad-row count/flag as an aggregate note (no row list there); and every other row renders normally"
         },
         {
           "given": "the Invalid chip's Remove action activated",
