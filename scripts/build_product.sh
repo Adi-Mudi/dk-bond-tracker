@@ -16,7 +16,6 @@ mkdir -p "${PRODUCT_DIR}/scripts"
 
 cp -R "${ROOT}/src" "${PRODUCT_DIR}/src"
 cp -R "${ROOT}/tests" "${PRODUCT_DIR}/tests"
-cp "${ROOT}/v5.5_40L_Project_Tracker.xlsm" "${PRODUCT_DIR}/v5.5_40L_Project_Tracker.xlsm"
 cp "${ROOT}/requirements.txt" "${PRODUCT_DIR}/requirements.txt"
 cp "${ROOT}/scripts/test_local.sh" "${PRODUCT_DIR}/scripts/test_local.sh"
 cp "${ROOT}/scripts/test_remote.sh" "${PRODUCT_DIR}/scripts/test_remote.sh"
