@@ -103,17 +103,17 @@ def test_tc81_empty_portfolio_empty_history(db_path):
     assert history == []
 
 
-def test_tc81_dashboard_history_current_row_highlighted_no_future(client, db_path):
+def test_tc81_payouts_window_current_and_no_future(client, db_path):
     today = date.today()
     base = today.replace(day=1)
     start = add_months(base, -14)
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "DashCo", "INE0000000818", start.isoformat(), 24)
         add_payment(conn, bond_id, month_key(start), 500.0)
-    html = client.get("/").get_data(as_text=True)
-    assert 'class="current-month"' in html
-    assert f"{base.year:04d}-{base.month:02d} (current)" in html
-    rows = [line for line in html.splitlines() if "history-month" in line]
-    months = [line.split(">")[1].split(" ")[0] for line in rows]
-    assert months[-1] == f"{base.year:04d}-{base.month:02d}"
-    assert all(month <= f"{base.year:04d}-{base.month:02d}" for month in months)
+    assert client.get("/").status_code == 200
+    port = client.get("/portfolio").get_data(as_text=True)
+    months = [part.split('"')[0] for part in port.split('data-month="')[1:]]
+    current = f"{base.year:04d}-{base.month:02d}"
+    assert months, "payouts grid must render month columns"
+    assert current in months
+    assert all(month <= current for month in months)

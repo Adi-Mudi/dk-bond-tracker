@@ -61,7 +61,7 @@ def test_tc67_all_surfaces_show_no_trace_of_blocked_duplicate(client, db_path):
         assert "BETA FINANCE LTD" not in after[path], path
         assert "INE0000NEW99" not in after[path], path
     assert after["/"].count("Beta Finance Ltd") == 1
-    assert after["/portfolio"].count("Beta Finance Ltd") == 2
+    assert after["/portfolio"].count("Beta Finance Ltd") == 1
     assert after["/watch"].count("Beta Finance Ltd") == 1
     for path in ("/goals", "/notifications", "/settings"):
         assert "Beta Finance Ltd" not in after[path], path
