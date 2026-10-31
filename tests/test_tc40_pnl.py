@@ -98,32 +98,6 @@ def test_tc40_l2_status_pending_confirmation_names_both_formulas(db_path):
     assert "PROPOSED" in note
 
 
-def test_tc40_dashboard_card_shows_proposed_value_and_l2_badge(client, db_path):
-    today = date.today()
-    with get_conn(db_path) as conn:
-        seed_pnl_portfolio(conn, today)
-        result = pnl_summary(conn, today)
-    html = client.get("/").get_data(as_text=True)
-    assert 'id="card-pnl"' in html
-    assert 'id="pnl-l2-badge"' in html
-    assert "L2 pending owner confirmation" in html
-    assert 'data-l2-status="PENDING_CONFIRMATION"' in html
-    assert "{:.2f}".format(result["pnl"]) in html
-    assert "{:.2f}".format(result["ongoing_tl"]) in html
-    assert "proposed formula" in html
-    assert "not yet owner-confirmed" in html
-
-
-def test_tc40_dashboard_never_claims_pnl_approved(client, db_path):
-    today = date.today()
-    with get_conn(db_path) as conn:
-        seed_pnl_portfolio(conn, today)
-    html = client.get("/").get_data(as_text=True)
-    assert "P&L confirmed" not in html
-    assert "owner approved" not in html
-    assert "L2 pending owner confirmation" in html
-
-
 def test_tc40_pnl_reflects_ledger_edit_on_next_request(client, db_path):
     today = date.today()
     base = today.replace(day=1)

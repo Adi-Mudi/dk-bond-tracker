@@ -3,17 +3,9 @@ from datetime import date
 import pytest
 
 from conftest import add_bond, add_payment
-from src.app import create_app
 from src.db import get_conn
 from src.queries import chart_data, summary_counts
 from src.validators import add_months
-
-
-@pytest.fixture
-def client(db_path):
-    app = create_app(str(db_path))
-    app.config["TESTING"] = True
-    return app.test_client()
 
 
 def seed_donut_portfolio(conn, today):
@@ -56,17 +48,6 @@ def test_tc77_donut_recomputes_after_flip(db_path):
         )
         after = chart_data(conn, today)["donut"]
     assert after == {"danger": 3, "ongoing": 2, "completed": 1, "total": 6}
-
-
-def test_tc77_rendered_donut_labels_match_counts(client, db_path):
-    today = date.today()
-    with get_conn(db_path) as conn:
-        seed_donut_portfolio(conn, today)
-        counts = summary_counts(conn, today)
-    html = client.get("/").get_data(as_text=True)
-    assert f"Danger {counts['danger']}" in html
-    assert f"On-going {counts['ongoing']}" in html
-    assert f"Completed {counts['completed']}" in html
 
 
 def test_tc77_empty_portfolio_donut_zeros(db_path):

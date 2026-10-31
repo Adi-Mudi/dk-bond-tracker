@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from flask import Flask, Response, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, jsonify, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
@@ -47,10 +47,17 @@ from src.phase4 import payment_cycle_of, payout_schedule
 from src.print import monthly_print_model
 from src.queries import (
     MONTH_PATTERN,
+    chart_data,
     grid_model,
     insert_position,
     month_label,
+    portfolio_snapshot,
+    position_detail,
+    received_by_bond,
     save_payment,
+    status_overview,
+    summary_amounts,
+    summary_counts,
 )
 from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, tenure_month_map
@@ -158,7 +165,7 @@ def create_app(db_path=None):
             count = unread_count(conn)
             recent = list_notifications(conn, limit=5)
         for item in recent:
-            item["timestamp"] = (item.get("created_at") or "")[:16]
+            item["timestamp"] = (item.get("created_at") or "")[:19]
         return {"unread_count": count, "recent_notifications": recent}
 
     def next_payout_for(row, months_map, current):
@@ -189,6 +196,9 @@ def create_app(db_path=None):
         }
 
     def dashboard_model(conn):
+        counts = summary_counts(conn)
+        amounts = summary_amounts(conn)
+        received_map = received_by_bond(conn)
         current = month_key(date.today())
         holdings = conn.execute(
             "SELECT id, company, amount, interest_payout, tenure_months, credit_day, start_date "
@@ -205,15 +215,11 @@ def create_app(db_path=None):
                 "amount": float(row["amount"] or 0.0),
             }
         bars = []
-        total_invested = 0.0
-        received_total = 0.0
         next_payout = None
         for row in holdings:
             invested = float(row["amount"] or 0.0)
             months_map = months_by_bond.get(row["id"], {})
-            received = sum(entry["amount"] for entry in months_map.values() if entry["paid"])
-            total_invested += invested
-            received_total += received
+            received = received_map.get(row["id"], 0.0)
             bars.append(
                 {
                     "company": row["company"] or f"Bond {row['id']}",
@@ -230,7 +236,10 @@ def create_app(db_path=None):
             bar["recv_width"] = (
                 min(100.0, round(bar["received"] / bar["invested"] * 100.0, 1)) if bar["invested"] > 0 else 0.0
             )
+        total_invested = amounts["total_investment"]
+        received_total = amounts["till_return"]
         return {
+            "counts": counts,
             "total_invested": total_invested,
             "received_total": received_total,
             "outstanding": received_total - total_invested,
@@ -535,6 +544,10 @@ def create_app(db_path=None):
             ).fetchall()
         return [dict(row) for row in rows]
 
+    def watch_snapshot(db_file):
+        with get_conn(db_file) as conn:
+            return portfolio_snapshot(conn)
+
     def watch_percent(raw, field):
         text = str(raw or "").strip()
         if not text:
@@ -597,6 +610,7 @@ def create_app(db_path=None):
                     render_template(
                         "watch.html",
                         candidates=watch_candidates(db_file),
+                        snapshot=watch_snapshot(db_file),
                         error=exc.message,
                         error_code=exc.code,
                         form=form,
@@ -618,7 +632,12 @@ def create_app(db_path=None):
                 500,
             )
         return render_template(
-            "watch.html", candidates=candidates, error=None, error_code=None, form={}
+            "watch.html",
+            candidates=candidates,
+            snapshot=watch_snapshot(db_file),
+            error=None,
+            error_code=None,
+            form={},
         )
 
     @app.route("/watch/<int:candidate_id>/move", methods=["POST"])
@@ -681,6 +700,7 @@ def create_app(db_path=None):
                 render_template(
                     "watch.html",
                     candidates=watch_candidates(db_file),
+                    snapshot=watch_snapshot(db_file),
                     error=message,
                     error_code=exc.code,
                     form=form,
@@ -869,12 +889,7 @@ def create_app(db_path=None):
         return render_template("payout.html", schedule=schedule)
 
     def _portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
-        received_by_bond = {}
-        for entry in conn.execute(
-            "SELECT bond_id, COALESCE(SUM(amount), 0) AS total FROM payment_ledger "
-            "WHERE paid = 1 AND amount > 0 GROUP BY bond_id"
-        ).fetchall():
-            received_by_bond[entry["bond_id"]] = float(entry["total"])
+        received_by_bond_map = received_by_bond(conn)
         holdings = []
         for row in bond_rows:
             entries = ledger_by_bond.get(row["id"], {})
@@ -887,6 +902,7 @@ def create_app(db_path=None):
                         break
             holdings.append(
                 {
+                    "id": row["id"],
                     "company": row["company"],
                     "isin": row["isin"] or "",
                     "rating": row["rating"],
@@ -894,7 +910,7 @@ def create_app(db_path=None):
                     "yield_pct": row["expected_yield_pct"],
                     "frequency": row["payout_cycle"],
                     "invested": float(row["amount"] or 0.0),
-                    "received": received_by_bond.get(row["id"], 0.0),
+                    "received": received_by_bond_map.get(row["id"], 0.0),
                     "next_payout": next_payout,
                     "health": health,
                 }
@@ -1147,6 +1163,17 @@ def create_app(db_path=None):
         except AppError as exc:
             return error_page(exc.code, exc.message, "Portfolio render failed", 500)
         return render_template("portfolio.html", **context)
+
+    @app.route("/portfolio/<int:bond_id>/detail")
+    def portfolio_position_detail(bond_id):
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        try:
+            with get_conn(db_file) as conn:
+                detail = position_detail(conn, bond_id)
+        except AppError as exc:
+            return jsonify({"error": exc.code, "message": exc.message}), 404
+        return jsonify(detail)
 
     def settings_from_form(form):
         host = str(form.get("smtp_host", "")).strip()

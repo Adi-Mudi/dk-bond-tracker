@@ -65,10 +65,24 @@ def test_tc68_hand_crafted_post_to_grid_rejected(client, db_path):
     assert current_bond_count(db_path) == 0
 
 
-def test_tc68_post_to_watch_route_creates_nothing(client, db_path):
-    response = client.post("/watch", data=ADD_LIKE_FORM)
-    assert response.status_code == 405
-    assert current_bond_count(db_path) == 0
+def test_tc68_post_to_watch_route_creates_candidate_never_holding(client, db_path):
+    form = {
+        "company": "Sneaky Co",
+        "isin": "INE000000068",
+        "rating": "AA",
+        "coupon_pct": "8.5",
+        "expected_yield_pct": "9.1",
+        "source_note": "",
+    }
+    response = client.post("/watch", data=form)
+    assert response.status_code == 302
+    assert current_bond_count(db_path) == 1
+    with get_conn(db_path) as conn:
+        states = [
+            row["watch_state"]
+            for row in conn.execute("SELECT watch_state FROM bonds").fetchall()
+        ]
+    assert states == ["watching"]
 
 
 def test_tc68_only_add_path_is_the_watch_list_form(client, db_path):

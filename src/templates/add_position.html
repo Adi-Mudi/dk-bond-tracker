@@ -50,7 +50,7 @@
 {% endblock %}
 {% block content %}
 <h1 style="font-size:18px;margin-bottom:12px;">Watch List &#8212; Add position</h1>
-<p class="table-note" style="margin-top:0;">Single entry point: each position is added exactly once here, then rendered by the Month Grid, Dashboard and Watch List (D14 / FR-25). Start date &#183; End date &#8594; tenure auto-calculated &#183; payment credit day (1-28) (D26 / FR-36).</p>
+<p class="table-note" style="margin-top:0;">Single entry point: each position is added exactly once here, then rendered by the Month Grid, Dashboard and Watch List (D14 / FR-25). Start date &#183; End date &#8594; tenure auto-calculated &#183; payment credit day (1-31) (D26 / FR-36).</p>
 
 {% if error %}
 <div class="banner banner-error" id="error-banner">
@@ -67,7 +67,7 @@
     <div class="field-row">
       <div class="field">
         <label for="add-company">Company</label>
-        <input type="text" id="add-company" name="company" placeholder="e.g. Muthoottu Mini Financiers Ltd" value="{{ form.get('company', '') }}">
+        <input type="text" id="add-company" name="company" placeholder="e.g. Alpha Securities Ltd" value="{{ form.get('company', '') }}">
       </div>
       <div class="field">
         <label for="add-isin">ISIN</label>
@@ -88,9 +88,9 @@
         <input type="date" id="add-end-date" name="end_date" value="{{ form.get('end_date', '') }}">
       </div>
       <div class="field">
-        <label for="add-credit-day">Credit day (1-28)</label>
+        <label for="add-credit-day">Credit day (1-31)</label>
         <select id="add-credit-day" name="credit_day">
-          {% for day in range(1, 29) %}
+          {% for day in range(1, 32) %}
           <option value="{{ day }}"{% if form.get('credit_day') == day|string %} selected{% elif not form.get('credit_day') and day == 5 %} selected{% endif %}>{{ day }}</option>
           {% endfor %}
         </select>

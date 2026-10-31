@@ -2,6 +2,13 @@ import calendar
 import re
 from datetime import date
 
+from .engine import (
+    derive_health,
+    display_label,
+    entry_paid,
+    payout_date_label,
+    tenure_window,
+)
 from .status import (
     compute_row_status_daywise,
     month_key,
@@ -136,7 +143,7 @@ def portfolio_totals(conn):
 def status_overview(conn, today=None):
     if today is None:
         today = date.today()
-    rows = conn.execute("SELECT * FROM bonds").fetchall()
+    rows = conn.execute("SELECT * FROM bonds WHERE watch_state = 'holding'").fetchall()
     entries = []
     for row in rows:
         months = tenure_month_map(conn, row["id"], row["start_date"], row["tenure_months"])
@@ -401,7 +408,8 @@ def grid_model(conn, today=None):
     current = month_key(today_value)
     try:
         bond_rows = conn.execute(
-            "SELECT id, company, isin, start_date, tenure_months, credit_day FROM bonds ORDER BY id"
+            "SELECT id, company, isin, start_date, tenure_months, credit_day FROM bonds "
+            "WHERE watch_state = 'holding' ORDER BY id"
         ).fetchall()
     except Exception as exc:
         raise AppError("ERR-render-grid", f"bond scan failed: {exc}") from exc
@@ -578,4 +586,73 @@ def free_up_report(conn, today=None):
         "counts": counts,
         "per_bond": per_bond,
         "total_investment": sum(by_status.values()),
+    }
+
+
+def received_by_bond(conn):
+    totals = {}
+    for row in conn.execute(
+        "SELECT bond_id, COALESCE(SUM(amount), 0) AS total FROM payment_ledger "
+        "WHERE paid = 1 AND amount > 0 GROUP BY bond_id"
+    ).fetchall():
+        totals[row["bond_id"]] = float(row["total"])
+    return totals
+
+
+def portfolio_snapshot(conn):
+    rows = conn.execute(
+        "SELECT id, company, amount FROM bonds WHERE watch_state = 'holding' "
+        "ORDER BY company COLLATE NOCASE, id"
+    ).fetchall()
+    return [
+        {"id": row["id"], "company": row["company"], "invested": float(row["amount"] or 0.0)}
+        for row in rows
+    ]
+
+
+def position_detail(conn, bond_id, today=None):
+    today_value = _resolve_today(today)
+    row = conn.execute(
+        "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+        "amount, start_date, end_date, tenure_months, credit_day, watch_state "
+        "FROM bonds WHERE id = ?",
+        (bond_id,),
+    ).fetchone()
+    if row is None:
+        raise AppError("ERR-position-detail", f"position not found: {bond_id!r}")
+    if row["watch_state"] != "holding":
+        raise AppError(
+            "ERR-position-detail", f"position {bond_id} is a candidate, not a holding"
+        )
+    entries = {}
+    payments = []
+    for entry in conn.execute(
+        "SELECT month, amount, paid FROM payment_ledger WHERE bond_id = ? ORDER BY month",
+        (bond_id,),
+    ).fetchall():
+        amount = float(entry["amount"] or 0.0)
+        paid = bool(entry["paid"])
+        entries[entry["month"]] = {"amount": amount, "paid": paid}
+        payments.append({"month": entry["month"], "amount": amount, "paid": paid})
+    received = sum(item["amount"] for item in payments if item["paid"] and item["amount"] > 0)
+    health = display_label(derive_health(row, entries, today_value))
+    next_payout = None
+    if health != "Matured":
+        for key in tenure_window(row["start_date"], row["tenure_months"]):
+            if not entry_paid(entries.get(key)):
+                next_payout = payout_date_label(key, row["credit_day"])
+                break
+    return {
+        "id": row["id"],
+        "company": row["company"],
+        "isin": row["isin"] or "",
+        "rating": row["rating"] or "",
+        "coupon_pct": row["coupon_pct"],
+        "expected_yield_pct": row["expected_yield_pct"],
+        "frequency": row["payout_cycle"],
+        "invested": float(row["amount"] or 0.0),
+        "received": received,
+        "next_payout": next_payout,
+        "status": health,
+        "payments": payments,
     }
