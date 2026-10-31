@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block head %}
 <style>
-  .move-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .move-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 8px; align-items: end; }
+  .move-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .move-field label { font-size: 11px; color: var(--muted); line-height: 1.25; }
   .move-form input[type="date"],
+  .move-form input[type="text"],
   .move-form select {
     font: inherit;
     font-size: 12px;
@@ -64,6 +67,10 @@
         <label for="c-source">Source note</label>
         <input type="text" id="c-source" name="source_note" value="{{ form.get('source_note', '') }}">
       </div>
+      <div class="field">
+        <label for="c-broker">Broker</label>
+        <input type="text" id="c-broker" name="broker" value="{{ form.get('broker', '') }}">
+      </div>
     </div>
     <p class="caption section-gap">Company and ISIN must be unique across the whole register — duplicates are rejected at entry.</p>
     <div class="section-gap">
@@ -80,6 +87,7 @@
         <th>Rating</th>
         <th>Coupon</th>
         <th>Est. Yield</th>
+        <th>Broker</th>
         <th>Source note</th>
         <th>Action</th>
       </tr>
@@ -94,23 +102,37 @@
         <td>{{ candidate.rating or "—" }}</td>
         <td class="money">{% if candidate.coupon_pct is not none %}{{ "%.1f"|format(candidate.coupon_pct) }}%{% else %}—{% endif %}</td>
         <td class="money">{% if candidate.expected_yield_pct is not none %}{{ "%.1f"|format(candidate.expected_yield_pct) }}%{% else %}—{% endif %}</td>
+        <td class="caption">{{ candidate.broker or "" }}</td>
         <td class="caption">{{ candidate.name or "" }}</td>
         <td>
           <form class="move-form" method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
-            <input type="date" name="start_date" required title="Start date" aria-label="Start date">
-            <input type="date" name="end_date" required title="End date" aria-label="End date">
-            <select name="credit_day" title="Credit day" aria-label="Credit day">
-              {% for day in range(1, 32) %}
-              <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
-              {% endfor %}
-            </select>
+            <div class="move-field">
+              <label for="move-start-{{ candidate.id }}">Purchase date (start date)</label>
+              <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
+            </div>
+            <div class="move-field">
+              <label for="move-end-{{ candidate.id }}">End date</label>
+              <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
+            </div>
+            <div class="move-field">
+              <label for="move-credit-{{ candidate.id }}">Credit day — when the amount is credited each month</label>
+              <select id="move-credit-{{ candidate.id }}" name="credit_day">
+                {% for day in range(1, 32) %}
+                <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="move-field">
+              <label for="move-broker-{{ candidate.id }}">Broker</label>
+              <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}">
+            </div>
             <button class="btn btn-sm" type="submit" id="move-{{ candidate.id }}">Move to Portfolio</button>
           </form>
         </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="6" class="empty-note" id="watch-empty">no candidates yet — add the first one above</td>
+        <td colspan="7" class="empty-note" id="watch-empty">no candidates yet — add the first one above</td>
       </tr>
       {% endfor %}
     </tbody>

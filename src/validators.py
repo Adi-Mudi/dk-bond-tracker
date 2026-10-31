@@ -100,6 +100,21 @@ def is_blank(value):
     return False
 
 
+def percent_value(raw, field, code, required=True):
+    text = str(raw if raw is not None else "").strip()
+    if not text:
+        if required:
+            raise AppError(code, f"{field} is required")
+        return None
+    try:
+        value = float(text)
+    except (TypeError, ValueError) as exc:
+        raise AppError(code, f"{field} must be a number: {raw!r}") from exc
+    if value < 0:
+        raise AppError(code, f"{field} must not be negative: {raw!r}")
+    return value
+
+
 FIRST_DATA_ROW = 2
 MASTER_FIELDS = (
     "company",

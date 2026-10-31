@@ -46,13 +46,11 @@ def test_tc86_healthy_bonds_still_listed(db_path):
         assert active == [{"id": 1, "company": "HealthyCo"}]
 
 
-def test_tc86_dashboard_corrupt_bond_shows_active_bonds_error_page(db_path):
+def test_tc86_dashboard_corrupt_bond_keeps_dashboard_at_200(db_path):
     seed_corrupt_bond(db_path)
     app = create_app(str(db_path))
     app.config["TESTING"] = True
     response = app.test_client().get("/")
-    assert response.status_code == 500
+    assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert 'id="error-banner"' in html
-    assert "operation: ERR-query-counts" in html
-    assert "garbage-date" in html
+    assert 'id="error-banner"' not in html

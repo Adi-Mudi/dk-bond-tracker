@@ -17,8 +17,8 @@ from .status import (
 from .validators import AppError, add_months, parse_date_value
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
-STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green"}
-STATUS_ORDER = {"Danger": 0, "On-going": 1, "Completed": 2}
+STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green", "Invalid": "grey"}
+STATUS_ORDER = {"Danger": 0, "On-going": 1, "Completed": 2, "Invalid": 3}
 
 
 def _parse_month(month):
@@ -146,10 +146,13 @@ def status_overview(conn, today=None):
     rows = conn.execute("SELECT * FROM bonds WHERE watch_state = 'holding'").fetchall()
     entries = []
     for row in rows:
-        months = tenure_month_map(conn, row["id"], row["start_date"], row["tenure_months"])
-        status = compute_row_status_daywise(
-            months, row["tenure_months"], row["credit_day"], today
-        )
+        try:
+            months = tenure_month_map(conn, row["id"], row["start_date"], row["tenure_months"])
+            status = compute_row_status_daywise(
+                months, row["tenure_months"], row["credit_day"], today
+            )
+        except AppError:
+            status = "Invalid"
         entry = dict(row)
         entry["status"] = status
         entry["color"] = STATUS_COLORS[status]
@@ -195,7 +198,7 @@ def summary_counts(conn, today=None):
         raise AppError("ERR-query-counts", f"status computation failed: {exc.message}") from exc
     except Exception as exc:
         raise AppError("ERR-query-counts", f"status computation failed: {exc}") from exc
-    counts = {"danger": 0, "ongoing": 0, "completed": 0, "total": len(overview)}
+    counts = {"danger": 0, "ongoing": 0, "completed": 0, "invalid": 0, "total": len(overview)}
     for entry in overview:
         status = entry["status"]
         if status == "Danger":
@@ -204,9 +207,11 @@ def summary_counts(conn, today=None):
             counts["ongoing"] += 1
         elif status == "Completed":
             counts["completed"] += 1
+        elif status == "Invalid":
+            counts["invalid"] += 1
         else:
             raise AppError("ERR-query-counts", f"unknown status for bond {entry['id']}: {status!r}")
-    if counts["danger"] + counts["ongoing"] + counts["completed"] != counts["total"]:
+    if counts["danger"] + counts["ongoing"] + counts["completed"] + counts["invalid"] != counts["total"]:
         raise AppError("ERR-query-counts", "status counts do not sum to total bond count")
     return counts
 
@@ -420,19 +425,19 @@ def grid_model(conn, today=None):
         try:
             start = parse_date_value(row["start_date"], "start_date")
             tenure = int(row["tenure_months"])
-        except (AppError, TypeError, ValueError) as exc:
-            raise AppError(
-                "ERR-render-grid",
-                f"bond {row['id']}: unparseable row metadata: {exc}",
-            ) from exc
-        if tenure < 1:
-            raise AppError(
-                "ERR-render-grid",
-                f"bond {row['id']}: tenure_months must be positive: {row['tenure_months']!r}",
-            )
-        first = month_key(start)
-        last = month_key(add_months(start, tenure - 1))
-        entries.append({"row": row, "first": first, "last": last, "tenure": tenure})
+            if tenure < 1:
+                raise AppError(
+                    "ERR-render-grid",
+                    f"bond {row['id']}: tenure_months must be positive: {row['tenure_months']!r}",
+                )
+            first = month_key(start)
+            last = month_key(add_months(start, tenure - 1))
+        except (AppError, TypeError, ValueError):
+            entries.append({"row": row, "invalid": True, "tenure": row["tenure_months"]})
+            continue
+        entries.append(
+            {"row": row, "invalid": False, "first": first, "last": last, "tenure": tenure}
+        )
         first_keys.append(first)
         last_keys.append(last)
     months = grid_month_columns(first_keys, last_keys, current)
@@ -443,16 +448,17 @@ def grid_model(conn, today=None):
     model_rows = []
     for entry in entries:
         row = entry["row"]
-        try:
-            window = tenure_month_map(conn, row["id"], row["start_date"], entry["tenure"])
-            status = compute_row_status_daywise(
-                window, entry["tenure"], row["credit_day"], today_value
-            )
-        except AppError as exc:
-            raise AppError(
-                "ERR-render-grid",
-                f"bond {row['id']}: status computation failed: {exc.message}",
-            ) from exc
+        status = "Invalid"
+        window = {}
+        if not entry["invalid"]:
+            try:
+                window = tenure_month_map(conn, row["id"], row["start_date"], entry["tenure"])
+                status = compute_row_status_daywise(
+                    window, entry["tenure"], row["credit_day"], today_value
+                )
+            except AppError:
+                status = "Invalid"
+                window = {}
         cells = []
         for key in months:
             if key not in window:
@@ -614,7 +620,7 @@ def position_detail(conn, bond_id, today=None):
     today_value = _resolve_today(today)
     row = conn.execute(
         "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
-        "amount, start_date, end_date, tenure_months, credit_day, watch_state "
+        "amount, start_date, end_date, tenure_months, credit_day, watch_state, broker "
         "FROM bonds WHERE id = ?",
         (bond_id,),
     ).fetchone()
@@ -635,13 +641,17 @@ def position_detail(conn, bond_id, today=None):
         entries[entry["month"]] = {"amount": amount, "paid": paid}
         payments.append({"month": entry["month"], "amount": amount, "paid": paid})
     received = sum(item["amount"] for item in payments if item["paid"] and item["amount"] > 0)
-    health = display_label(derive_health(row, entries, today_value))
-    next_payout = None
-    if health != "Matured":
-        for key in tenure_window(row["start_date"], row["tenure_months"]):
-            if not entry_paid(entries.get(key)):
-                next_payout = payout_date_label(key, row["credit_day"])
-                break
+    try:
+        health = display_label(derive_health(row, entries, today_value))
+        next_payout = None
+        if health != "Matured":
+            for key in tenure_window(row["start_date"], row["tenure_months"]):
+                if not entry_paid(entries.get(key)):
+                    next_payout = payout_date_label(key, row["credit_day"])
+                    break
+    except AppError:
+        health = "Invalid"
+        next_payout = None
     return {
         "id": row["id"],
         "company": row["company"],
@@ -654,5 +664,6 @@ def position_detail(conn, bond_id, today=None):
         "received": received,
         "next_payout": next_payout,
         "status": health,
+        "broker": row["broker"] or "",
         "payments": payments,
     }

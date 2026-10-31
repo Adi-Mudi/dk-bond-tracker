@@ -5,7 +5,7 @@ from .status import month_key
 from .validators import AppError, add_months, parse_date_value
 
 DISPLAY_LABELS = {"Returned": "Received", "Completed": "Matured"}
-HEALTH_ORDER = {"Danger": 0, "On-going": 1, "Matured": 2}
+HEALTH_ORDER = {"Danger": 0, "On-going": 1, "Matured": 2, "Invalid": 3}
 
 
 def display_label(value):

@@ -44,6 +44,8 @@
   .drawer-facts th {
     width: 42%;
   }
+  .invalid-note { display: block; margin-top: 2px; }
+  .invalid-remove { margin-top: 4px; }
 </style>
 {% endblock %}
 {% block content %}
@@ -109,7 +111,15 @@
               <td class="num money">&#8377;{{ "%.2f"|format(row.invested) }}</td>
               <td class="num money">&#8377;{{ "%.2f"|format(row.received) }}</td>
               <td>{{ row.next_payout }}</td>
-              <td><span class="chip chip-{{ row.health|lower|replace('-', '') }}" data-status="{{ row.health }}">{{ row.health }}</span></td>
+              <td>
+                <span class="chip chip-{{ row.health|lower|replace('-', '') }}" data-status="{{ row.health }}">{{ row.health }}</span>
+                {% if row.health == "Invalid" %}
+                <span class="caption invalid-note">dates need review</span>
+                <form method="post" action="/portfolio/invalid/{{ row.id }}/remove" class="invalid-remove">
+                  <button class="btn btn-sm" type="submit" id="remove-invalid-{{ row.id }}">Remove</button>
+                </form>
+                {% endif %}
+              </td>
             </tr>
             {% else %}
             <tr>
@@ -137,12 +147,12 @@
               <input type="number" id="f-amount" name="amount" step="0.01" min="0" placeholder="0.00" value="{{ form.get('amount', '') }}">
             </div>
             <div class="field">
-              <label for="f-credit">Credit day (e.g. 15th of month)</label>
+              <label for="f-credit">Credit day — when the amount is credited each month</label>
               <input type="number" id="f-credit" name="credit_day" min="1" max="31" value="{{ form.get('credit_day', '15') }}">
               <p class="caption">Credit day drives day-wise alerts.</p>
             </div>
             <div class="field">
-              <label for="f-start">Start date</label>
+              <label for="f-start">Purchase date (start date)</label>
               <input type="date" id="f-start" name="start_date" value="{{ form.get('start_date', '') }}">
             </div>
             <div class="field">
@@ -199,6 +209,10 @@
             <div class="field">
               <label for="f-face">Face value</label>
               <input type="number" id="f-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
+            </div>
+            <div class="field">
+              <label for="f-broker">Broker</label>
+              <input type="text" id="f-broker" name="broker" value="{{ form.get('broker', '') }}">
             </div>
           </div>
           <div class="section-gap">
@@ -378,6 +392,7 @@
       '<div class="card"><h3>Details</h3><table class="drawer-facts">' +
       factRow("ISIN", data.isin) +
       factRow("Rating", data.rating) +
+      factRow("Broker", data.broker) +
       factRow("Coupon", pct(data.coupon_pct)) +
       factRow("Yield", pct(data.expected_yield_pct)) +
       factRow("Frequency", data.frequency) +

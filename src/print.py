@@ -6,9 +6,9 @@ from .queries import portfolio_totals, status_overview, summary_counts, this_mon
 from .status import month_key
 from .validators import AppError
 
-STATUS_ORDER = ("Danger", "On-going", "Completed")
-STATUS_MARKS = {"Danger": "● D", "On-going": "○ O", "Completed": "● C"}
-STATUS_KEYS = {"Danger": "danger", "On-going": "ongoing", "Completed": "completed"}
+STATUS_ORDER = ("Danger", "On-going", "Completed", "Invalid")
+STATUS_MARKS = {"Danger": "● D", "On-going": "○ O", "Completed": "● C", "Invalid": "✕ I"}
+STATUS_KEYS = {"Danger": "danger", "On-going": "ongoing", "Completed": "completed", "Invalid": "invalid"}
 ALERTS_FOOTER_CAP = 5
 
 
@@ -86,6 +86,20 @@ def monthly_print_model(conn, today):
         overview = status_overview(conn, today)
         rows = []
         for entry in overview:
+            if entry["status"] == "Invalid":
+                credit_day = entry["credit_day"]
+                rows.append(
+                    {
+                        "company": entry["company"],
+                        "isin": entry["isin"],
+                        "credit_day": credit_day if isinstance(credit_day, int) else "—",
+                        "due_date": "—",
+                        "amount": _expected_amount(conn, entry["id"], month),
+                        "status": entry["status"],
+                        "mark": STATUS_MARKS[entry["status"]],
+                    }
+                )
+                continue
             rows.append(
                 {
                     "company": entry["company"],
