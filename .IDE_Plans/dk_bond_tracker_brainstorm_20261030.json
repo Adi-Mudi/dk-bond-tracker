@@ -4,11 +4,11 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
-  "updated": "2026-10-30",
+  "updated": "2026-10-31",
   "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
   "routing": "PM Coordinator",
   "routing_note": "User delegated full PM ownership (Q3); routing = PM Coordinator per lifecycle default, no separate routing question needed.",
@@ -521,15 +521,28 @@
     },
     {
       "id": "D39",
-      "topic": "Labels + Add-Position location (pending wireframe approval)",
+      "topic": "Labels + Add-Position location (approved via ui_frontend_design_v4.html)",
       "options": [
         "A: Add Position inside Portfolio>My Holdings (both paths run D15 lock); relabel Returned->Received, Completed->Matured (display only)",
         "B: keep sole entry in Watchlist; other labels"
       ],
-      "choice": "PROPOSED in wireframe v4 for approval: Add Position button in Portfolio>My Holdings (Watchlist candidates convert via 'Move to Portfolio' — both funnel through the same D15 lock check); display relabels 'Returned'->'Received', 'Completed'->'Matured' (engine values unchanged). Purchase state: Watching/Held; payment health: On-going/Danger/Matured.",
-      "WHY": "Design proposals answering owner's Q1 confusions; owner reviews in wireframe v4 before lock.",
-      "Status": "OPEN",
-      "source": "PM proposal awaiting owner confirm via wireframe v4"
+      "choice": "APPROVED 2026-10-31 (owner, on ui_frontend_design_v4.html): Add Position button in Portfolio>My Holdings (Watchlist candidates convert via 'Move to Portfolio' — both funnel through the same D15 lock check); display relabels 'Returned'->'Received', 'Completed'->'Matured' (engine values unchanged). Purchase state: Watching/Held; payment health: On-going/Danger/Matured.",
+      "WHY": "Design proposals answering owner's Q1 confusions; owner reviewed the clean HTML design v4 and approved all three proposals.",
+      "Status": "CONFIRMED",
+      "source": "user approved 2026-10-31 on ui_frontend_design_v4.html"
+    },
+    {
+      "id": "D40",
+      "topic": "Multiple themes (System / Light / Dark)",
+      "options": [
+        "A: 3-way theme switcher (System default / Light / Dark) — data-theme attribute + CSS custom properties + prefers-color-scheme fallback + localStorage persistence",
+        "B: light only (current design)",
+        "C: light/dark plus accent-color theme gallery"
+      ],
+      "choice": "A: ship three themes — System (follows OS), Light (default), Dark. Header switcher + Settings > Appearance section. Implementation: :root light tokens (current v4 palette) + html[data-theme=dark] dark tokens (near-black surfaces #111827-family, desaturated accents, WCAG AA contrast, no pure white/pure black) + @media (prefers-color-scheme: dark) applied only when no explicit data-theme; choice saved in localStorage; zero-flash inline script reads stored theme before first paint.",
+      "WHY": "Owner directive 2026-10-31: application must have multiple themes. Community: LogRocket (offer OS Default/Dark/Light choice, never force), web.dev + MDN prefers-color-scheme, shadcn/ui token pattern (all colors switch via CSS variables, zero flash), dev.to (persist choice in localStorage), Atmos (dedicated dark palette — avoid pure white and saturated colors, use surface elevation), Digital Silk (WCAG contrast), Eleken (multi-theme products with dark as first-class option).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-31 + Tavily research 2026-10-31"
     }
   ],
   "gaps": [
@@ -687,6 +700,11 @@
       "version": "2.2.0",
       "date": "2026-10-31",
       "note": "D38 restructure (Portfolio rename + 2 tabs + watchlist=candidates) CONFIRMED; D39 labels/Add-position proposal OPEN pending wireframe v4 approval."
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-31",
+      "note": "D39 CONFIRMED (owner approved ui_frontend_design_v4.html: Add Position in My Holdings, Received/Matured relabels, Watching/Held + On-going/Danger/Matured status model); D40 added CONFIRMED (3-way themes System/Light/Dark per community research)."
     }
   ],
   "decision_log": [
@@ -854,6 +872,12 @@
       "date": "2026-10-31",
       "author": "PM",
       "note": "D38+D39 added."
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-31",
+      "author": "PM",
+      "note": "D39 CONFIRMED on HTML design approval; D40 themes added CONFIRMED."
     }
   ]
 }
