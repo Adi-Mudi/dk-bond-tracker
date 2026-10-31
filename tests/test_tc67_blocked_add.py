@@ -51,21 +51,20 @@ def test_tc67_blocked_add_inserts_no_row(client, db_path):
 
 def test_tc67_all_surfaces_show_no_trace_of_blocked_duplicate(client, db_path):
     seed_active_muthoottu(db_path)
-    grid_before = client.get("/grid").get_data(as_text=True)
-    dashboard_before = client.get("/").get_data(as_text=True)
-    watch_before = client.get("/watch").get_data(as_text=True)
+    surfaces = ("/", "/portfolio", "/watch", "/goals", "/notifications", "/settings")
+    before = {path: client.get(path).get_data(as_text=True) for path in surfaces}
     response = client.post("/add", data=BLOCKED_FORM)
     assert response.status_code == 409
-    grid_after = client.get("/grid").get_data(as_text=True)
-    dashboard_after = client.get("/").get_data(as_text=True)
-    watch_after = client.get("/watch").get_data(as_text=True)
-    assert grid_after == grid_before
-    assert dashboard_after == dashboard_before
-    assert watch_after == watch_before
-    for page in (grid_after, dashboard_after, watch_after):
-        assert "MUTHOOTTU" not in page
-        assert "INE0000NEW99" not in page
-        assert page.count("Muthoottu") == 1
+    after = {path: client.get(path).get_data(as_text=True) for path in surfaces}
+    for path in surfaces:
+        assert after[path] == before[path], path
+        assert "MUTHOOTTU" not in after[path], path
+        assert "INE0000NEW99" not in after[path], path
+    assert after["/"].count("Muthoottu") == 1
+    assert after["/portfolio"].count("Muthoottu") == 2
+    assert after["/watch"].count("Muthoottu") == 1
+    for path in ("/goals", "/notifications", "/settings"):
+        assert "Muthoottu" not in after[path], path
     assert current_bond_count(db_path) == 1
 
 

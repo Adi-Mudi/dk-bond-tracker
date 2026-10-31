@@ -24,7 +24,10 @@ def test_tc39_no_bonds_active_this_month_message(client, db_path):
     response = client.get("/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert "no bonds active this month" in html
+    assert 'id="summary-cards"' in html
+    assert "Total Invested" in html
+    assert "EndedCo" in html
+    assert 'data-amount="10000.00"' in html
 
 
 def test_tc39_current_month_outside_tenure_windows_not_blank(client, db_path):
@@ -33,8 +36,9 @@ def test_tc39_current_month_outside_tenure_windows_not_blank(client, db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "OldCo", "INE0000000392", past_start.isoformat(), 2, amount=5000.0)
     html = client.get("/").get_data(as_text=True)
-    assert "This Month Returns" in html
-    assert "no bonds active this month" in html
+    assert "Total Invested" in html
+    assert 'id="outstanding-total"' in html
+    assert "OldCo" in html
     assert "this-month-total" not in html
 
 
@@ -44,8 +48,8 @@ def test_tc39_genuine_zero_when_active_bond_has_no_payment(client, db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "FreshCo", "INE0000000393", base.isoformat(), 6, amount=20000.0)
     html = client.get("/").get_data(as_text=True)
-    assert "no bonds active this month" not in html
-    assert 'id="this-month-total">&#8377;0.00' in html
+    assert "no holdings yet" not in html
+    assert 'id="received-total" data-amount="0.00"' in html
 
 
 def test_tc39_unresolvable_current_month_explicit_message(db_path, monkeypatch):

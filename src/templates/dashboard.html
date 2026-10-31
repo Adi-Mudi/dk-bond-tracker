@@ -5,20 +5,20 @@
 <div class="stat-row" id="summary-cards">
   <div class="stat-card primary" id="card-total">
     <div class="stat-label">Total Invested</div>
-    <div class="stat-value money" id="total-invested" data-amount="{{ "%.2f"|format(total_invested) }}">&#8377;{{ "%.2f"|format(total_invested) }}</div>
+    <div class="stat-value"><span class="value money" id="total-invested" data-amount="{{ "%.2f"|format(total_invested) }}">&#8377;{{ "%.2f"|format(total_invested) }}</span></div>
   </div>
   <div class="stat-card" id="card-received">
     <div class="stat-label">Received</div>
-    <div class="stat-value money" id="received-total" data-amount="{{ "%.2f"|format(received_total) }}">&#8377;{{ "%.2f"|format(received_total) }}</div>
+    <div class="stat-value"><span class="value money" id="received-total" data-amount="{{ "%.2f"|format(received_total) }}">&#8377;{{ "%.2f"|format(received_total) }}</span></div>
   </div>
   <div class="stat-card" id="card-next-payout">
     <div class="stat-label">Next Payout</div>
     <div class="stat-value">
-      <span class="money" id="next-payout-amount" data-amount="{{ "%.2f"|format(next_payout_amount) }}">&#8377;{{ "%.2f"|format(next_payout_amount) }}</span>{% if next_payout_date %} <span class="stat-sub" id="next-payout-date">&#183; {{ next_payout_date }}</span>{% endif %}
+      <span class="value money" id="next-payout-amount" data-amount="{{ "%.2f"|format(next_payout_amount) }}">&#8377;{{ "%.2f"|format(next_payout_amount) }}</span>{% if next_payout_date %} <span class="stat-sub" id="next-payout-date">&#183; {{ next_payout_date }}</span>{% endif %}
     </div>
   </div>
 </div>
-<p class="caption outstanding-line">Outstanding <span class="money" id="outstanding-total" data-amount="{{ "%.2f"|format(outstanding) }}">&#8377;{{ "%.2f"|format(outstanding) }}</span></p>
+<p class="caption outstanding-line">Outstanding <span class="value money" id="outstanding-total" data-amount="{{ "%.2f"|format(outstanding) }}">&#8377;{{ "%.2f"|format(outstanding) }}</span></p>
 
 <div class="card" id="invested-received-chart">
   <h2>Invested vs Received per company</h2>
@@ -26,6 +26,7 @@
   <div class="chart-row">
     <div class="chart-label">{{ bar.company }}</div>
     <div class="bar-space"><div class="bar" style="width: {{ bar.bar_width }}%"><span style="width: {{ bar.recv_width }}%"></span></div></div>
+    <span class="value money" id="bar-received-{{ loop.index }}" data-amount="{{ "%.2f"|format(bar.received) }}">&#8377;{{ "%.2f"|format(bar.received) }}</span>
   </div>
   {% else %}
   <div class="empty-note" id="dashboard-bars-empty">no holdings yet — positions appear here once added from Portfolio</div>

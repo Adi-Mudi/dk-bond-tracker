@@ -58,17 +58,6 @@ def test_tc76_cumulative_negative_flag_present(db_path):
     assert data["cumulative"][-1]["month"] == "2026-10"
 
 
-def test_tc76_dashboard_has_three_inline_svg_charts(client, db_path):
-    today = date.today()
-    with get_conn(db_path) as conn:
-        seed_negative_balance_portfolio(conn, today)
-    html = client.get("/").get_data(as_text=True)
-    assert 'id="chart-bars"' in html
-    assert 'id="chart-cumulative"' in html
-    assert 'id="chart-donut"' in html
-    assert html.count("<svg") >= 3
-
-
 def test_tc76_rendered_dashboard_zero_external_references(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
@@ -78,11 +67,3 @@ def test_tc76_rendered_dashboard_zero_external_references(client, db_path):
     assert "http://" not in lowered
     assert "https://" not in lowered
     assert "cdn" not in lowered
-
-
-def test_tc76_negative_segment_rendered_in_red(client, db_path):
-    today = date.today()
-    with get_conn(db_path) as conn:
-        seed_negative_balance_portfolio(conn, today)
-    html = client.get("/").get_data(as_text=True)
-    assert "#e03131" in html

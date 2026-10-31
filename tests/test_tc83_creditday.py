@@ -7,13 +7,13 @@ from src.db import get_conn, init_db
 from src.validators import AppError, date_range_tenure, legacy_position, validate_credit_day
 
 
-@pytest.mark.parametrize("credit_day", [1, 28])
-def test_credit_day_accepted_within_1_to_28(credit_day):
+@pytest.mark.parametrize("credit_day", [1, 31])
+def test_credit_day_accepted_within_1_to_31(credit_day):
     assert validate_credit_day(credit_day) == credit_day
 
 
-@pytest.mark.parametrize("credit_day", [0, 29, 30, 31, -1])
-def test_credit_day_outside_1_to_28_rejected(credit_day):
+@pytest.mark.parametrize("credit_day", [0, 32, -1])
+def test_credit_day_outside_1_to_31_rejected(credit_day):
     with pytest.raises(AppError) as exc_info:
         validate_credit_day(credit_day)
     assert exc_info.value.code == "ERR-date-range"
@@ -31,11 +31,11 @@ def test_date_range_tenure_returns_validated_tuple():
     assert result == (date(2025, 9, 3), date(2026, 12, 2), 15, 5)
 
 
-def test_schema_check_rejects_credit_day_zero_and_29(tmp_path):
+def test_schema_check_rejects_credit_day_zero_and_32(tmp_path):
     db_path = tmp_path / "bonds.db"
     init_db(db_path)
     with get_conn(db_path) as conn:
-        for position, bad_day in enumerate((0, 29)):
+        for position, bad_day in enumerate((0, 32)):
             with pytest.raises(sqlite3.IntegrityError):
                 conn.execute(
                     "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "

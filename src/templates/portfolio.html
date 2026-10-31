@@ -4,6 +4,46 @@
   a.tab {
     text-decoration: none;
   }
+  tr.position-row {
+    cursor: pointer;
+  }
+  .position-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 360px;
+    max-width: 92vw;
+    height: 100%;
+    overflow: auto;
+    background: var(--white);
+    border-left: 1.5px solid var(--border);
+    padding: 16px;
+    z-index: 30;
+  }
+  .drawer-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .drawer-head h2 {
+    font-size: 15px;
+    margin: 0;
+  }
+  .drawer-facts {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .drawer-facts th,
+  .drawer-facts td {
+    text-align: left;
+    padding: 4px 6px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  .drawer-facts th {
+    width: 42%;
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -60,7 +100,7 @@
           </thead>
           <tbody>
             {% for row in holdings %}
-            <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}">
+            <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}" data-id="{{ row.id }}" class="position-row" tabindex="0">
               <td><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span></td>
               <td>{% if row.rating %}{{ row.rating }}{% else %}&#8212;{% endif %}</td>
               <td class="money">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
@@ -86,7 +126,7 @@
           <div class="form-grid">
             <div class="field">
               <label for="f-company">Company</label>
-              <input type="text" id="f-company" name="company" placeholder="e.g. Muthoottu Mini Financiers Ltd" value="{{ form.get('company', '') }}">
+              <input type="text" id="f-company" name="company" placeholder="e.g. Alpha Securities Ltd" value="{{ form.get('company', '') }}">
             </div>
             <div class="field">
               <label for="f-isin">ISIN</label>
@@ -207,6 +247,14 @@
   </div>
 </div>
 
+<aside id="position-drawer" class="position-drawer" hidden aria-label="Position detail">
+  <div class="drawer-head">
+    <h2 id="drawer-title">Position detail</h2>
+    <button class="btn btn-sm" type="button" id="drawer-close">Close</button>
+  </div>
+  <div id="drawer-body"></div>
+</aside>
+
 <div class="card section-gap">
   <h2>Status legend</h2>
   <div class="legend-row"><span class="chip chip-watching">Watching</span><span class="caption">= candidate in Watchlist, not owned</span></div>
@@ -241,7 +289,7 @@
               return;
             }
             body.innerHTML = fresh.innerHTML;
-            window.history.pushState(null, "", href);
+            window.history.replaceState(null, "", href);
             bindTabs();
           })
           .catch(function () {
@@ -281,6 +329,100 @@
   startInput.addEventListener("change", recalc);
   endInput.addEventListener("change", recalc);
   recalc();
+})();
+</script>
+<script>
+(function () {
+  var drawer = document.getElementById("position-drawer");
+  var body = document.getElementById("drawer-body");
+  var title = document.getElementById("drawer-title");
+  var closeBtn = document.getElementById("drawer-close");
+  if (!drawer || !body || !title || !closeBtn || !window.fetch) {
+    return;
+  }
+  function esc(value) {
+    return String(value === null || value === undefined ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function pct(value) {
+    return value === null || value === undefined ? "" : Number(value).toFixed(1) + "%";
+  }
+  function moneySpan(value) {
+    var amount = Number(value || 0).toFixed(2);
+    return '<span class="value money" data-amount="' + amount + '">&#8377;' + amount + "</span>";
+  }
+  function factRow(label, value) {
+    var text = value === null || value === undefined || value === "" ? "&#8212;" : esc(value);
+    return "<tr><th>" + esc(label) + "</th><td>" + text + "</td></tr>";
+  }
+  function moneyFactRow(label, value) {
+    return "<tr><th>" + esc(label) + "</th><td>" + moneySpan(value) + "</td></tr>";
+  }
+  function paymentsTable(payments) {
+    if (!payments || !payments.length) {
+      return '<p class="empty-note" id="drawer-payments-empty">no payments recorded yet</p>';
+    }
+    var rows = payments.map(function (payment) {
+      return "<tr><td>" + esc(payment.month) + "</td><td>" + moneySpan(payment.amount) +
+        "</td><td>" + (payment.paid ? "paid" : "unpaid") + "</td></tr>";
+    }).join("");
+    return '<div class="table-wrap"><table id="drawer-payments"><thead><tr><th>Month</th>' +
+      '<th class="num">Amount</th><th>State</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
+  }
+  function render(data) {
+    title.textContent = data.company || "Position detail";
+    body.innerHTML =
+      '<div class="card"><h3>Details</h3><table class="drawer-facts">' +
+      factRow("ISIN", data.isin) +
+      factRow("Rating", data.rating) +
+      factRow("Coupon", pct(data.coupon_pct)) +
+      factRow("Yield", pct(data.expected_yield_pct)) +
+      factRow("Frequency", data.frequency) +
+      moneyFactRow("Invested", data.invested) +
+      moneyFactRow("Received", data.received) +
+      factRow("Next payout", data.next_payout) +
+      factRow("Status", data.status) +
+      "</table></div>" +
+      '<div class="card"><h3>Payment history</h3>' + paymentsTable(data.payments) + "</div>";
+  }
+  function openDrawer(id) {
+    fetch("/portfolio/" + id + "/detail", { credentials: "same-origin" })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("detail unavailable");
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        render(data);
+        drawer.hidden = false;
+      })
+      .catch(function () {
+        title.textContent = "Position detail";
+        body.innerHTML = '<p class="empty-note" id="drawer-error">detail unavailable for this position</p>';
+        drawer.hidden = false;
+      });
+  }
+  function bindRows() {
+    document.querySelectorAll("tr.position-row").forEach(function (row) {
+      row.addEventListener("click", function () {
+        openDrawer(row.getAttribute("data-id"));
+      });
+      row.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openDrawer(row.getAttribute("data-id"));
+        }
+      });
+    });
+  }
+  closeBtn.addEventListener("click", function () {
+    drawer.hidden = true;
+  });
+  bindRows();
 })();
 </script>
 {% endblock %}

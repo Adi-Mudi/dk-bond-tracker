@@ -55,19 +55,19 @@ def test_tc54_payment_updates_dashboard_on_reload_without_restart(client, db_pat
     )
     assert response.status_code in (302, 200)
     after = client.get("/").get_data(as_text=True)
-    assert "&#8377;1450.00" in after
-    assert "&#8377;500.00" in after
+    assert 'id="received-total" data-amount="1450.00"' in after
+    assert 'id="total-invested" data-amount="160000.00"' in after
 
 
 def test_tc54_status_coverage_survives_payment_round(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
         seed_chain_portfolio(conn, today)
-    before = client.get("/").get_data(as_text=True)
-    for status in ("Danger", "On-going", "Completed"):
+    before = client.get("/portfolio?tab=holdings").get_data(as_text=True)
+    for status in ("Danger", "On-going", "Matured"):
         assert f'data-status="{status}"' in before
-    after = client.get("/").get_data(as_text=True)
-    for status in ("Danger", "On-going", "Completed"):
+    after = client.get("/portfolio?tab=holdings").get_data(as_text=True)
+    for status in ("Danger", "On-going", "Matured"):
         assert f'data-status="{status}"' in after
 
 

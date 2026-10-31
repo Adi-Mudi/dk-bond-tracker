@@ -18,11 +18,11 @@ def test_bonds_has_wave2_columns(tmp_path):
         assert expected in columns
 
 
-def test_credit_day_check_rejects_zero_and_29(tmp_path):
+def test_credit_day_check_rejects_zero_and_32(tmp_path):
     db_path = tmp_path / "bonds.db"
     init_db(db_path)
     with get_conn(db_path) as conn:
-        for bad_day in (0, 29):
+        for bad_day in (0, 32):
             with pytest.raises(sqlite3.IntegrityError):
                 conn.execute(
                     "INSERT INTO bonds "
@@ -32,11 +32,11 @@ def test_credit_day_check_rejects_zero_and_29(tmp_path):
                 )
 
 
-def test_credit_day_accepts_1_and_28(tmp_path):
+def test_credit_day_accepts_1_and_31(tmp_path):
     db_path = tmp_path / "bonds.db"
     init_db(db_path)
     with get_conn(db_path) as conn:
-        for good_day in (1, 28):
+        for good_day in (1, 31):
             conn.execute(
                 "INSERT INTO bonds "
                 "(company, isin, name, amount, start_date, end_date, tenure_months, credit_day) "

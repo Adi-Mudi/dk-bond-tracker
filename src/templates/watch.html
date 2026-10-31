@@ -100,7 +100,7 @@
             <input type="date" name="start_date" required title="Start date" aria-label="Start date">
             <input type="date" name="end_date" required title="End date" aria-label="End date">
             <select name="credit_day" title="Credit day" aria-label="Credit day">
-              {% for day in range(1, 29) %}
+              {% for day in range(1, 32) %}
               <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
               {% endfor %}
             </select>
@@ -117,4 +117,30 @@
   </table>
 </div>
 <p class="caption">Watchlist holds candidates only. 'Move to Portfolio' creates the position and locks the company while it is On-going or Danger.</p>
+
+<div class="card section-gap" id="held-positions-snapshot">
+  <h2>Held positions</h2>
+  {% if snapshot %}
+  <div class="table-wrap">
+    <table id="snapshot-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th class="num">Invested</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in snapshot %}
+        <tr>
+          <td><span class="co-name">{{ item.company }}</span></td>
+          <td class="num"><span class="value money" id="snapshot-invested-{{ item.id }}" data-amount="{{ "%.2f"|format(item.invested) }}">&#8377;{{ "%.2f"|format(item.invested) }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-note" id="snapshot-empty">no held positions yet — add one from Portfolio</div>
+  {% endif %}
+</div>
 {% endblock %}

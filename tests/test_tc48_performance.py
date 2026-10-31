@@ -119,6 +119,7 @@ def test_tc48_schema_unchanged_by_scaled_render(scale_client):
 def test_tc48_dashboard_body_covers_seeded_scale(scale_client):
     client, _db_path = scale_client
     body = client.get("/").get_data(as_text=True)
-    assert f"bonds: {BOND_COUNT}" in body
     assert "Scale Bond 000" in body
     assert f"Scale Bond {BOND_COUNT - 1:03d}" in body
+    assert 'data-amount="15011175.00"' in body
+    assert 'data-amount="14400000.00"' in body

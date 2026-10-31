@@ -82,4 +82,4 @@ def test_tc42_dashboard_page_amounts_match_queries(client, db_path):
     html = client.get("/").get_data(as_text=True)
     assert "{:.2f}".format(amounts["total_investment"]) in html
     assert "{:.2f}".format(amounts["till_return"]) in html
-    assert "{:.2f}".format(amounts["balance"]) in html
+    assert "{:.2f}".format(amounts["till_return"] - amounts["total_investment"]) in html
