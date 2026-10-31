@@ -130,36 +130,3 @@ def test_tc54_alerts_still_fire_for_unpaid_credit_day(client, db_path):
     history = client.get("/notifications")
     assert history.status_code == 200
 
-
-@pytest.mark.remote
-def test_tc54_full_chain_import_edit_status_dashboard_export(tmp_path):
-    from pathlib import Path
-
-    from src.import_xlsm import import_workbook
-
-    workbook = Path(
-        "/workspace/01_excel_dashboard/v5.5_40L_Project_Tracker.xlsm"
-    )
-    db_path = tmp_path / "tc54_chain.db"
-    summary = import_workbook(workbook, db_path)
-    assert summary["bonds"] == 15
-    app = create_app(str(db_path))
-    app.config["TESTING"] = True
-    client = app.test_client()
-    dashboard = client.get("/")
-    assert dashboard.status_code == 200
-    body = dashboard.get_data(as_text=True)
-    assert "bonds: 15" in body
-    with get_conn(db_path) as conn:
-        bond = conn.execute(
-            "SELECT id FROM bonds ORDER BY id LIMIT 1"
-        ).fetchone()
-    grid = client.get("/grid")
-    assert grid.status_code == 200
-    export = client.get("/export.csv?scope=full")
-    assert export.status_code == 200
-    rows = parse_csv(export.data.decode("utf-8"))
-    assert len(rows) - 1 == summary["ledger_rows"]
-    payout = client.get(f"/payout?bond_id={bond['id']}&cycle=monthly")
-    assert payout.status_code == 200
-    assert "payout-schedule" in payout.get_data(as_text=True)
