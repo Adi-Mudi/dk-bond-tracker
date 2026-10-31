@@ -68,7 +68,7 @@
     {
       "id": "FR-65",
       "area": "invalid-row render recovery",
-      "statement": "Every surface that renders rows — Dashboard (/), Portfolio (/portfolio), the payouts grid and /print — SHALL return HTTP 200 when any single stored row has bad data, rendering that row with an 'Invalid' chip and a Remove action while all other rows render normally; the Remove action SHALL delete exactly that row only after server-side re-validation of the id, so a bad row can never 500 a page (D41).",
+      "statement": "Every surface that renders rows — Dashboard (/), Portfolio (/portfolio), the payouts grid and /print — SHALL return HTTP 200 when any single stored row has bad data, while all other rows render normally; every surface that renders rows shows the Invalid chip (holdings, payouts, print marker), the dashboard exposes the bad-row count/flag as an aggregate note (no row list there), and the Remove action appears on Holdings rows and Payouts rows (single server route revalidating a holding); the Remove action SHALL delete exactly that row only after server-side re-validation of the id, so a bad row can never 500 a page (D41).",
       "priority": "must",
       "status": "proposed",
       "decision_id": "dk_bond_tracker_brainstorm_20261030:D41"
