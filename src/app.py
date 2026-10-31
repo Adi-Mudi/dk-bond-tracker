@@ -62,8 +62,7 @@ ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
 
 
 def _ensure_db(db_file):
-    if not db_file.exists():
-        init_db(db_file)
+    init_db(db_file)
 
 
 def _attempt_email(conn, event):
@@ -417,7 +416,7 @@ def create_app(db_path=None):
                     credit_value = int(credit_raw)
                 except ValueError as exc:
                     raise AppError(
-                        "ERR-add-fields", f"credit day must be an integer in 1-28: {credit_raw!r}"
+                        "ERR-add-fields", f"credit day must be an integer in 1-31: {credit_raw!r}"
                     ) from exc
                 start_date, end_date, tenure_months, credit_day = date_range_tenure(
                     form.get("start_date", ""), form.get("end_date", ""), credit_value
@@ -634,7 +633,7 @@ def create_app(db_path=None):
             except ValueError as exc:
                 raise AppError(
                     "ERR-move-watching",
-                    f"credit day must be an integer in 1-28: {credit_raw!r}",
+                    f"credit day must be an integer in 1-31: {credit_raw!r}",
                 ) from exc
             start_date, end_date, tenure_months, credit_day = date_range_tenure(
                 form.get("start_date", ""), form.get("end_date", ""), credit_value
