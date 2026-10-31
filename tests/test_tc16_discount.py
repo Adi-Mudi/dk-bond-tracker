@@ -1,22 +1,9 @@
-from pathlib import Path
-
 import pytest
 
 from conftest import add_bond
 from src.db import get_conn
-from src.import_xlsm import (
-    WATCH_LIST_SHEET_TITLE,
-    extract_watch_list,
-    import_workbook,
-    locate_sheet,
-    open_workbook,
-)
 from src.phase4 import bond_discount_detail, discount_report
 from src.validators import AppError
-
-WORKBOOK = Path(
-    "/workspace/01_excel_dashboard/v5.5_40L_Project_Tracker.xlsm"
-)
 
 
 def insert_raw(conn, company, isin, amount, maturity=None, face=None, watch_inv=None):
