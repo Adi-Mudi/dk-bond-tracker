@@ -45,7 +45,7 @@ def test_tc16_unknown_bond_raises_named_error(db_path):
 def test_tc16_watch_lgh_pattern_face_minus_investment(db_path):
     with get_conn(db_path) as conn:
         bond_id = insert_raw(
-            conn, "PaisaloLike", "INETC16003", 99626.52, face=100000.0, watch_inv=99626.52
+            conn, "AlphaLike", "INETC16003", 99626.52, face=100000.0, watch_inv=99626.52
         )
         detail = bond_discount_detail(conn, bond_id)
     assert detail["discount"] == pytest.approx(373.48, abs=1e-6)

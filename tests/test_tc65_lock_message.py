@@ -9,36 +9,36 @@ MESSAGE_SHAPE = "Cannot add position: {company} has an active position ({status}
 
 def test_tc65_message_shape_exact_ongoing(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Muthoottu", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
         with pytest.raises(AppError) as exc_info:
             active_position_lock(conn, " MUTHOOTTU ", "IN9999999999")
         message = exc_info.value.message
-        assert message == MESSAGE_SHAPE.format(company="Muthoottu", status="On-going")
+        assert message == MESSAGE_SHAPE.format(company="Beta Finance Ltd", status="On-going")
         assert message.startswith("Cannot add position:")
         assert message.endswith(")")
 
 
 def test_tc65_danger_blocker_named_as_danger(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Muthoottu", "IN1234567890", "2025-01-01", 12, status="Danger")
+        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="Danger")
         with pytest.raises(AppError) as exc_info:
             active_position_lock(conn, "MMF Investments", "IN1234567890")
         assert exc_info.value.message == MESSAGE_SHAPE.format(
-            company="Muthoottu", status="Danger"
+            company="Beta Finance Ltd", status="Danger"
         )
 
 
 def test_tc65_error_is_not_swallowed(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Muthoottu", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
         caught = None
         try:
-            active_position_lock(conn, "Muthoottu", "IN1234567890")
+            active_position_lock(conn, "Beta Finance Ltd", "IN1234567890")
         except AppError as exc:
             caught = exc
         assert caught is not None
         assert caught.code == "ERR-active-position"
-        assert caught.message == MESSAGE_SHAPE.format(company="Muthoottu", status="On-going")
+        assert caught.message == MESSAGE_SHAPE.format(company="Beta Finance Ltd", status="On-going")
         assert "ERR-active-position" in str(caught)
 
 
@@ -49,11 +49,11 @@ def test_tc65_empty_portfolio_passes(db_path):
 
 def test_tc65_lock_releases_only_on_completed(db_path):
     with get_conn(db_path) as conn:
-        bond_id = add_bond(conn, "Muthoottu", "IN1234567890", "2025-01-01", 12, status="Danger")
+        bond_id = add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="Danger")
         with pytest.raises(AppError):
-            active_position_lock(conn, "Muthoottu", "IN1234567890")
+            active_position_lock(conn, "Beta Finance Ltd", "IN1234567890")
         conn.execute(
             "UPDATE bonds SET status = ? WHERE id = ?",
             ("Completed", bond_id),
         )
-        assert active_position_lock(conn, "Muthoottu", "IN1234567890") is None
+        assert active_position_lock(conn, "Beta Finance Ltd", "IN1234567890") is None
