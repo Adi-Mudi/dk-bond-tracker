@@ -1,0 +1,162 @@
+{
+  "id": "SRS_DK_Bond_Tracker_addendum_v5",
+  "kind": "srs",
+  "title": "SRS Addendum v5 — D41 Patch Wave: Zero-Value Percents, Exact Labels, Validation Parity, Invalid-Row Recovery and Broker Field (FR-62..FR-66)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "SRS_DK_Bond_Tracker_addendum_v4",
+  "sections": [
+    {
+      "heading": "Purpose",
+      "body": "This addendum extends SRS_DK_Bond_Tracker_addendum_v4 with the five requirements added after owner decision D41 (CONFIRMED post-launch patch wave, 2026-11-01): FR-62 (00.00 allowed in Coupon/Est. Yield, empty/garbage/negative still rejected), FR-63 (exact field labels on Move to Portfolio and Add Position), FR-64 (move-path insert validation parity with /add — named 400, zero rows written), FR-65 (invalid-row render recovery — Invalid chip + Remove, HTTP 200 guaranteed on all row-rendering surfaces), FR-66 (broker detail field — nullable bonds column, three forms, Watchlist column, holdings drawer). Requirement ids match the PRD addendum prd_items exactly (hard FK to docs/PRD_DK_Bond_Tracker_addendum_v5.json), continuing the id sequence after the last requirement of addendum v4 (FR-61). No requirement of SRS v1 (FR-01..FR-24, NFR-1..NFR-13, DATA-01..DATA-05), of addendum v1 (FR-25/FR-26), of addendum v2 (FR-27..FR-37), of addendum v3 (FR-38..FR-49) or of addendum v4 (FR-50..FR-61) is altered by this document."
+    },
+    {
+      "heading": "D41 traceability",
+      "body": "markdown:| FR | Decision |\n| --- | --- |\n| FR-62 | dk_bond_tracker_brainstorm_20261030:D41 |\n| FR-63 | dk_bond_tracker_brainstorm_20261030:D41 |\n| FR-64 | dk_bond_tracker_brainstorm_20261030:D41 |\n| FR-65 | dk_bond_tracker_brainstorm_20261030:D41 |\n| FR-66 | dk_bond_tracker_brainstorm_20261030:D41 |"
+    },
+    {
+      "heading": "Percent parse rules (D41)",
+      "body": "The Coupon and Est. Yield inputs parse as follows on every entry surface — candidate add, Move to Portfolio, Add Position (D41): the submitted string is trimmed, then matched against a non-negative numeric pattern that allows leading zeros, so '00.00', '0.00', '0' and '7.25' all parse — zero is a value, not an absence. Three classes stay rejected with a named validation error naming the field and zero writes: empty (missing or whitespace-only), garbage (any non-numeric content such as 'abc' or '12%'), and negative (any value below zero). A parsed value of 0 is stored as 0 and renders unchanged — never coerced to empty, never defaulted, never silently dropped (D41: smoke POST /watch 0.00 was rejected with 400, and the owner ruled 00.00 valid)."
+    },
+    {
+      "heading": "Validation before insert (D41)",
+      "body": "Every insert path — candidate add, Add Position and Move to Portfolio — completes ALL field validation before any database write runs (D41). On the move path the rules are identical to /add: dates parseable with end after start, computed tenure at least 1 whole month, credit day an integer in 1..31, amount numeric and non-negative, percent fields per the parse rules above. A rejected payload returns HTTP 400 with a named error naming the offending field and writes ZERO rows — no partial writes: no position row, no watch_state flip, no ledger row (D41). This closes the exact hole in the D41 evidence: the move path previously missed the tenure guard, accepted start 2026-11-14 / end 2026-11-30 as tenure 0 with a 302 insert (MCP row id=2), and that row 500'd on /, /portfolio, payouts and /print afterwards."
+    },
+    {
+      "heading": "Render health (D41)",
+      "body": "Row-level data faults never become page faults (D41): each row's rendering and health/query derivation is isolated per row, so a row with unparseable dates, tenure 0 or a non-numeric amount renders as an 'Invalid' chip with a Remove action while every other row renders normally and the page still returns HTTP 200 — on Dashboard (/), Portfolio (/portfolio), the payouts grid and /print alike, eliminating the ERR-health-compute, ERR-query-counts and ERR-print-statement 500s. The Remove action re-validates server-side: the id must exist and must target a bonds position row before anything is deleted; an unknown or already-removed id raises a named state error with zero writes, and the client's own claim that a row is invalid is never trusted as authorization to delete (D41)."
+    },
+    {
+      "heading": "Broker persistence (D41)",
+      "body": "The broker detail field is a nullable TEXT column on bonds (D41): NULL is its natural absent state and SHALL render blank on every surface — never the string 'null'. The candidate-add, Move to Portfolio and Add Position forms each capture it; the Watchlist renders it as a Broker column; the Portfolio holdings detail drawer displays the stored value — the five surfaces. Roundtrip: a value saved on a candidate carries unchanged through Move to Portfolio into the holding — same string, no truncation, no reformatting — and an explicit edit on the move form replaces it. The field is free-text offline input: no broker integration, no network lookup fills it (D33 preserved)."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "FR-62",
+      "text": "On every entry surface — candidate add, Move to Portfolio and Add Position — the Coupon and Est. Yield fields SHALL accept 00.00 as a valid value, parse it to zero, store it as zero and render it unchanged; and the same fields SHALL reject an empty value, any non-numeric content and any negative value with a named validation error naming the field, writing nothing (D41).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the candidate-add form with Coupon set to exactly '00.00' and Est. Yield set to exactly '00.00'",
+          "when": "the form is submitted",
+          "then": "the submission is accepted (no 400), the row is written, and reading it back shows both values as zero — not empty, not defaulted, not dropped"
+        },
+        {
+          "given": "each of the three entry forms with Coupon set in turn to '', '   ', 'abc', '12%' and '-0.50'",
+          "when": "the form is submitted",
+          "then": "each submission is rejected with HTTP 400 and a named error naming the field, and zero rows are written"
+        },
+        {
+          "given": "a saved row whose Coupon is 0",
+          "when": "the Watchlist or Portfolio renders that row",
+          "then": "the Coupon cell displays the stored zero and the value passes through to exports and calculations unchanged"
+        }
+      ]
+    },
+    {
+      "id": "FR-63",
+      "text": "The Move to Portfolio form and the Add Position form SHALL each render exactly these three field labels, verbatim and case-sensitive: 'Purchase date (start date)' for the start-date input, 'End date' for the end-date input, and 'Credit day — when the amount is credited each month' for the credit-day input; the same three strings SHALL appear on both forms, and no label change SHALL alter any field's bound, meaning or engine value (D41).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the Move to Portfolio form and the Add Position form rendered",
+          "when": "their date and credit-day labels are read",
+          "then": "both forms show exactly 'Purchase date (start date)', 'End date' and 'Credit day — when the amount is credited each month' — identical strings, case-sensitive, em dash included"
+        },
+        {
+          "given": "both forms with the new labels",
+          "when": "the labelled fields are submitted with previously valid values",
+          "then": "tenure still auto-calculates from the dates, the credit day still accepts only 1..31, and the day-wise danger rule still reads the same credit day — the labels changed, the behavior did not"
+        }
+      ]
+    },
+    {
+      "id": "FR-64",
+      "text": "The Move to Portfolio insert path SHALL perform, before any write, the same validation Add Position performs — parseable dates with end after start, computed tenure of at least 1 whole month, credit day an integer in 1..31, amount numeric and non-negative, percent fields per the FR-62 parse rules — and SHALL reject any violation with HTTP 400 and a named error naming the offending field, writing zero rows: no position row, no watch_state change, no ledger row, and no success-shaped redirect (D41).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a move payload with start date 2026-11-14 and end date 2026-11-30 (computed tenure 0 — the exact D41 MCP row shape)",
+          "when": "Move to Portfolio is submitted",
+          "then": "the response is HTTP 400 with a named error naming the dates/tenure field, the candidate stays watching, and no position row is written"
+        },
+        {
+          "given": "a move payload with credit day 0, 32 or a non-integer",
+          "when": "the move is submitted",
+          "then": "the response is HTTP 400 with a named error naming the credit-day field and zero rows are written — matching the /add outcome for the identical payload"
+        },
+        {
+          "given": "the same valid payload submitted through /add and through Move to Portfolio",
+          "when": "both are executed",
+          "then": "both pass validation and both write exactly one row — identical outcomes, one rule set"
+        },
+        {
+          "given": "a rejected move payload",
+          "when": "the database is inspected afterward",
+          "then": "no partial writes exist: no bonds row, no watch_state flip and no ledger row were created or updated"
+        }
+      ]
+    },
+    {
+      "id": "FR-65",
+      "text": "Every surface that renders rows — Dashboard (/), Portfolio (/portfolio), the payouts grid and /print — SHALL return HTTP 200 even when a stored row has bad data, rendering the bad row as an 'Invalid' chip with a Remove action and rendering all other rows normally; the Remove action SHALL delete exactly the identified row only after server-side re-validation that the id exists and targets a bonds position row, raising a named state error with zero writes otherwise (D41).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a stored row with bad data (unparseable dates or tenure 0 — the D41 row id=2 shape)",
+          "when": "each of /, /portfolio, payouts and /print is loaded",
+          "then": "each response is HTTP 200 (never 500), the bad row shows an 'Invalid' chip with a Remove action, and every other row renders normally"
+        },
+        {
+          "given": "the Invalid chip's Remove action activated",
+          "when": "the removal request reaches the server",
+          "then": "the server re-validates the id before deleting, exactly that position row (and its own ledger entries) is removed, and no other row is affected"
+        },
+        {
+          "given": "a removal request for an id that does not exist or does not target a position row",
+          "when": "the server processes it",
+          "then": "a named state error is returned with zero writes — nothing is deleted, and the client's claim that a row is invalid is never trusted on its own"
+        }
+      ]
+    },
+    {
+      "id": "FR-66",
+      "text": "The product SHALL store the broker detail as a nullable TEXT column on bonds; SHALL capture it on the candidate-add, Move to Portfolio and Add Position forms; SHALL render a Broker column on the Watchlist and SHALL display the stored value in the Portfolio holdings detail drawer; a broker saved on a candidate SHALL carry unchanged through Move to Portfolio into the holding; and an absent broker SHALL render blank, never as the string 'null' (D41).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a candidate created with broker 'Example Securities Pvt Ltd'",
+          "when": "that candidate is moved to Portfolio and the holdings drawer is opened",
+          "then": "the drawer shows exactly 'Example Securities Pvt Ltd' — the value round-trips candidate to holding with no truncation or reformatting"
+        },
+        {
+          "given": "the candidate-add, Move to Portfolio and Add Position forms",
+          "when": "each is inspected and submitted with a broker value",
+          "then": "each form carries the broker input, the value is saved into the bonds broker column, and the Watchlist row shows it in the Broker column"
+        },
+        {
+          "given": "a position whose broker column is NULL",
+          "when": "the Watchlist and the holdings drawer render that row",
+          "then": "the broker cell is blank — the string 'null' appears nowhere"
+        },
+        {
+          "given": "a form submitted with an empty broker input",
+          "when": "the row is written",
+          "then": "the broker column stores NULL rather than an empty string or fabricated default"
+        }
+      ]
+    }
+  ]
+}
