@@ -14,14 +14,14 @@ def client(db_path):
     return app.test_client()
 
 
-def seed_active_muthoottu(db_path):
+def seed_active_beta_finance(db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
 
 
 def base_form():
     return {
-        "company": "MUTHOOTTU",
+        "company": "BETA FINANCE LTD",
         "isin": "INE0000NEW66",
         "amount": "50000",
         "start_date": "2026-11-01",
@@ -44,46 +44,46 @@ def assert_blocked(client, db_path, response, expected_count=1):
 
 
 def test_tc66_force_query_param_grants_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     response = client.post("/add?force=1", data=base_form())
     assert_blocked(client, db_path, response)
 
 
 def test_tc66_override_query_param_grants_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     response = client.post("/add?override=yes", data=base_form())
     assert_blocked(client, db_path, response)
 
 
 def test_tc66_bypass_query_param_grants_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     response = client.post("/add?bypass=1", data=base_form())
     assert_blocked(client, db_path, response)
 
 
 def test_tc66_force_form_field_grants_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     form = dict(base_form(), force="1")
     response = client.post("/add", data=form)
     assert_blocked(client, db_path, response)
 
 
 def test_tc66_override_form_field_grants_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     form = dict(base_form(), override="yes")
     response = client.post("/add", data=form)
     assert_blocked(client, db_path, response)
 
 
 def test_tc66_bypass_form_field_grants_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     form = dict(base_form(), bypass="1")
     response = client.post("/add", data=form)
     assert_blocked(client, db_path, response)
 
 
 def test_tc66_all_override_params_together_grant_no_override(client, db_path):
-    seed_active_muthoottu(db_path)
+    seed_active_beta_finance(db_path)
     form = dict(base_form(), force="1", override="yes", bypass="1")
     response = client.post("/add?force=1&override=yes&bypass=1", data=form)
     assert_blocked(client, db_path, response)
