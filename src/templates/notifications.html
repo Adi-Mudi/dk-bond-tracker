@@ -1,60 +1,31 @@
 {% extends "base.html" %}
-{% block head %}
-<style>
-  .sev-dot { display: inline-block; width: 10px; height: 10px; border: 1px solid var(--border); border-radius: 50%; margin-right: 6px; vertical-align: middle; }
-  .sev-dot.sev-danger { background: var(--danger); }
-  .sev-dot.sev-warn { background: var(--ongoing); }
-  .sev-dot.sev-reminder { background: var(--blue); }
-  .sev-dot.sev-info { background: var(--completed); }
-  .read-row { color: var(--muted); }
-  .unread-row { font-weight: 700; }
-  .btn {
-    display: inline-block;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    background: var(--blue-light);
-    color: var(--text);
-    text-decoration: none;
-    cursor: pointer;
-  }
-</style>
-{% endblock %}
 {% block content %}
-<h1 style="font-size:18px;margin-bottom:12px;">Notifications (alert history)</h1>
-<p class="table-note" style="margin-top:0;">In-app bell history, timestamped and retained (FR-34). Every alert also ships by email when SMTP is configured (environment-only credentials, personal-to-personal).</p>
+<h1>Alerts</h1>
 
-<form method="post" action="/notifications/read_all" style="margin-bottom:12px;">
-  <button class="btn" type="submit" id="mark-all-read">mark all read</button>
-</form>
-
-<div class="table-wrap">
-  <table id="notifications-list">
-    <thead>
-      <tr>
-        <th>Time</th>
-        <th>Severity</th>
-        <th>Message</th>
-        <th>State</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in notifications %}
-      <tr class="{{ 'unread-row' if not item.read else 'read-row' }}">
-        <td class="notification-time">{{ item.created_at }}</td>
-        <td><span class="sev-dot sev-{{ item.severity }}"></span>{{ item.severity }}</td>
-        <td class="notification-message">{{ item.message }}</td>
-        <td>{{ "unread" if not item.read else "read" }}</td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="4" class="empty-note" id="notifications-empty">no alerts yet</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
 </div>
-<p class="table-note">History is append-only: reading marks rows read without deleting them, and nothing in the app clears the table (FR-34). Email failures land here as warn rows.</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="card" id="day-wise-rules">
+  <h2>Day-wise rules</h2>
+  <p id="day-wise-rule-text">If Received amount is not entered on the credit day → status becomes Danger same day.</p>
+</div>
+
+<form method="post" action="/notifications" id="alert-channels-form">
+  <div class="card" id="alert-channels">
+    <h2>Channels</h2>
+    <label class="check-row"><input type="checkbox" name="inapp"{% if prefs.get('alert_channel_inapp', '1') == '1' %} checked{% endif %}> In-app notification</label>
+    <label class="check-row"><input type="checkbox" name="email"{% if prefs.get('alert_channel_email', '1') == '1' %} checked{% endif %}> Email (personal SMTP, personal → personal)</label>
+    <div class="section-gap">
+      <button class="btn btn-primary" type="submit" id="save-channels">Save channels</button>
+    </div>
+  </div>
+</form>
 {% endblock %}
