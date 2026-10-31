@@ -58,9 +58,9 @@ def tenure_from_range(start_value, end_value):
 
 def validate_credit_day(value):
     if isinstance(value, bool) or not isinstance(value, int):
-        raise AppError("ERR-date-range", f"credit_day must be an integer in 1-28: {value!r}")
-    if value < 1 or value > 28:
-        raise AppError("ERR-date-range", f"credit_day must be in 1-28: {value}")
+        raise AppError("ERR-date-range", f"credit_day must be an integer in 1-31: {value!r}")
+    if value < 1 or value > 31:
+        raise AppError("ERR-date-range", f"credit_day must be in 1-31: {value}")
     return value
 
 
