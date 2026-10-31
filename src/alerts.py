@@ -16,7 +16,7 @@ def daily_sweep(conn, today):
         if row["status"] == "Completed":
             continue
         credit_day = row["credit_day"]
-        if isinstance(credit_day, bool) or not isinstance(credit_day, int) or not 1 <= credit_day <= 28:
+        if isinstance(credit_day, bool) or not isinstance(credit_day, int) or not 1 <= credit_day <= 31:
             raise AppError(
                 "ERR-credit-sweep",
                 f"bond {row['id']}: missing or invalid credit_day: {credit_day!r}",

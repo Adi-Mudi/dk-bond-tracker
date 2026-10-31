@@ -1,3 +1,4 @@
+import re
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -15,7 +16,7 @@ SCHEMA_STATEMENTS = (
         start_date TEXT,
         end_date TEXT,
         tenure_months INTEGER,
-        credit_day INTEGER CHECK (credit_day >= 1 AND credit_day <= 28),
+        credit_day INTEGER CHECK (credit_day >= 1 AND credit_day <= 31),
         status TEXT DEFAULT 'On-going',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )""",
@@ -95,11 +96,52 @@ def _ensure_columns(conn):
             conn.execute(f"ALTER TABLE bonds ADD COLUMN {column}")
 
 
+def _migrate_credit_day_bound(conn):
+    row = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'bonds'"
+    ).fetchone()
+    if row is None:
+        return
+    create_sql = row["sql"]
+    if not create_sql or not re.search(r"credit_day\s*<=\s*28\b", create_sql):
+        return
+    migrate_sql = re.sub(r"(credit_day\s*<=\s*)28\b", r"\g<1>31", create_sql, count=1)
+    migrate_sql = re.sub(
+        r"^CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?bonds\b",
+        "CREATE TABLE bonds_credit_day_migrate",
+        migrate_sql,
+        count=1,
+        flags=re.IGNORECASE,
+    )
+    columns = [info[1] for info in conn.execute("PRAGMA table_info(bonds)").fetchall()]
+    if not columns:
+        raise AppError("ERR-schema-migrate", "bonds table has no columns")
+    column_list = ", ".join(columns)
+    before = conn.execute("SELECT COUNT(*) AS total FROM bonds").fetchone()["total"]
+    conn.execute("PRAGMA foreign_keys = OFF")
+    conn.execute("DROP TABLE IF EXISTS bonds_credit_day_migrate")
+    conn.execute(migrate_sql)
+    conn.execute(
+        f"INSERT INTO bonds_credit_day_migrate ({column_list}) SELECT {column_list} FROM bonds"
+    )
+    conn.execute("DROP TABLE bonds")
+    conn.execute("ALTER TABLE bonds_credit_day_migrate RENAME TO bonds")
+    after = conn.execute("SELECT COUNT(*) AS total FROM bonds").fetchone()["total"]
+    if after != before:
+        raise AppError(
+            "ERR-schema-migrate",
+            f"credit day migration copied {after} of {before} bonds rows",
+        )
+    conn.commit()
+    conn.execute("PRAGMA foreign_keys = ON")
+
+
 def init_db(path):
     db_path = str(Path(path))
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     try:
         with get_conn(db_path) as conn:
+            _migrate_credit_day_bound(conn)
             for statement in SCHEMA_STATEMENTS:
                 conn.execute(statement)
             _ensure_columns(conn)
