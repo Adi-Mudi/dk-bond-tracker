@@ -12,7 +12,7 @@
     },
     {
       "heading": "Definitions",
-      "body": "**Bond** — a fixed-income investment record held in the bond master table: ISN, company, rating, principal TL amount, tenure in months, maturity date/amount, purchase date, broker, interest start and payment type.\n\n**Bond status** — one of Danger / On-going / Completed computed by the status engine from the payment ledger; never stored as a static value.\n\n**Danger** — status meaning at least one past-month payment is unpaid (D5 rule: ANY unpaid past month, not only the previous month).\n\n**Completed** — status meaning the bond has paid for its full tenure (months paid >= tenure); Completed overrides Danger.\n\n**On-going** — status for a bond with no unpaid past month that has not yet reached full tenure.\n\n**Zero = unpaid** — a payment row with amount 0 counts as unpaid for every status calculation (D5).\n\n**Ledger / payment ledger** — one row per payment (bond ref, month, amount, paid flag); the single payment storage model (D3). All totals, statuses and grids are derived from it by live queries.\n\n**Month grid** — the Excel-like view with months across columns, rendered from ledger rows (not stored columns).\n\n**Till Return** — sum of paid ledger rows for a bond (legacy Excel column K); query-only, never stored.\n\n**Balance** — Till Return minus Maturity Amount (legacy Excel column L); negative means still to receive; query-only.\n\n**Home Plan** — the 84-month savings simulation schedule (month index 1..84, irregular savings such as 39588, 10063, 0, rate, per-year interest, countdown, remaining interest, totals).\n\n**Watch list** — the static analytics view reproducing discount, TDS, per-month, qty TL and 12-month formulas per bond.\n\n**ISN** — the bond identifier column from the workbook (legacy header spelling retained only as a display label; schema key is stable, per FR-23)."
+      "body": "**Bond** — a fixed-income investment record held in the bond master table: ISN, company, rating, principal TL amount, tenure in months, maturity date/amount, purchase date, broker, interest start and payment type.\n\n**Bond status** — one of Danger / On-going / Completed computed by the status engine from the payment ledger; never stored as a static value.\n\n**Danger** — status meaning at least one past-month payment is unpaid (D5 rule: ANY unpaid past month, not only the previous month).\n\n**Completed** — status meaning the bond has paid for its full tenure (months paid >= tenure); Completed overrides Danger.\n\n**On-going** — status for a bond with no unpaid past month that has not yet reached full tenure.\n\n**Zero = unpaid** — a payment row with amount 0 counts as unpaid for every status calculation (D5).\n\n**Ledger / payment ledger** — one row per payment (bond ref, month, amount, paid flag); the single payment storage model (D3). All totals, statuses and grids are derived from it by live queries.\n\n**Month grid** — the Excel-like view with months across columns, rendered from ledger rows (not stored columns).\n\n**Till Return** — sum of paid ledger rows for a bond (legacy Excel column K); query-only, never stored.\n\n**Balance** — Till Return minus Maturity Amount (legacy Excel column L); negative means still to receive; query-only.\n\n**Home Plan** — the 84-month savings simulation schedule (month index 1..84, irregular savings such as 25000, 10000, 0, rate, per-year interest, countdown, remaining interest, totals).\n\n**Watch list** — the static analytics view reproducing discount, TDS, per-month, qty TL and 12-month formulas per bond.\n\n**ISN** — the bond identifier column from the workbook (legacy header spelling retained only as a display label; schema key is stable, per FR-23)."
     },
     {
       "heading": "Overview of the Flask Local App",
@@ -20,7 +20,7 @@
     },
     {
       "heading": "Data Model Summary",
-      "body": "Three persisted tables in one SQLite file, matching DATA-01..DATA-05 and decision D3 (row-per-payment ledger; totals/status become live queries):\n\n1. **bonds (bond master, DATA-01)** — one row per bond: status reference, purchase date, broker, ISN, company name, rating, principle TL amount, tenure (months), maturity date, maturity amount, interest start, payment type. 15 rows after importing the real workbook (FR-10).\n2. **payment_ledger (DATA-02)** — one row per payment: bond ref, month (Sep-2025..Jul-2032+), amount, paid flag. No month columns ever exist in the schema (FR-01, FR-03); the month grid is rendered from these rows (FR-04).\n3. **home_plan (DATA-03)** — one row per schedule month: month index 1..84, saving amount (incl. irregular values 39588, 10063, 0), rate, per-year interest, countdown, remaining interest, plus schedule totals; stored values preserved verbatim on import (FR-12, ERR-06).\n\n**Query-only derived data (DATA-05):** Till Return, Balance and status are computed by SQL views/functions at read time and are never stored as columns. Watch-list analytics fields (DATA-04: face value, principle, T.L.P, discount, per-month, 10% TDS, 12-month, qty, TL principle) are computed on view for FR-11. The month window (grid columns, status scan range) is derived from bond start month + tenure — no hardcoded headers (Sep-2025..Feb-2027) and no scan-window limit (FR-18, FR-19, NFR-9)."
+      "body": "Three persisted tables in one SQLite file, matching DATA-01..DATA-05 and decision D3 (row-per-payment ledger; totals/status become live queries):\n\n1. **bonds (bond master, DATA-01)** — one row per bond: status reference, purchase date, broker, ISN, company name, rating, principle TL amount, tenure (months), maturity date, maturity amount, interest start, payment type. 15 rows after importing the real workbook (FR-10).\n2. **payment_ledger (DATA-02)** — one row per payment: bond ref, month (Sep-2025..Jul-2032+), amount, paid flag. No month columns ever exist in the schema (FR-01, FR-03); the month grid is rendered from these rows (FR-04).\n3. **home_plan (DATA-03)** — one row per schedule month: month index 1..84, saving amount (incl. irregular values 25000, 10000, 0), rate, per-year interest, countdown, remaining interest, plus schedule totals; stored values preserved verbatim on import (FR-12, ERR-06).\n\n**Query-only derived data (DATA-05):** Till Return, Balance and status are computed by SQL views/functions at read time and are never stored as columns. Watch-list analytics fields (DATA-04: face value, principle, T.L.P, discount, per-month, 10% TDS, 12-month, qty, TL principle) are computed on view for FR-11. The month window (grid columns, status scan range) is derived from bond start month + tenure — no hardcoded headers (Sep-2025..Feb-2027) and no scan-window limit (FR-18, FR-19, NFR-9)."
     },
     {
       "heading": "Status Engine Rules (D5)",
@@ -238,7 +238,7 @@
     },
     {
       "id": "FR-12",
-      "text": "When the Home Plan is viewed, the system SHALL reproduce the 84-month savings schedule including the irregular savings values 39588, 10063 and 0, with rate, per-year interest, countdown, remaining interest and totals preserved from stored Excel values.",
+      "text": "When the Home Plan is viewed, the system SHALL reproduce the 84-month savings schedule including the irregular savings values 25000, 10000 and 0, with rate, per-year interest, countdown, remaining interest and totals preserved from stored Excel values.",
       "category": "functional",
       "check_method": "inspection",
       "status": "draft",
@@ -246,7 +246,7 @@
         {
           "given": "imported home_plan rows for months 1..84",
           "when": "the Home Plan view renders",
-          "then": "all 84 months are listed and the irregular savings 39588, 10063 and 0 appear in their original month positions"
+          "then": "all 84 months are listed and the irregular savings 25000, 10000 and 0 appear in their original month positions"
         },
         {
           "given": "the rendered schedule and the stored Excel values",
@@ -611,7 +611,7 @@
     },
     {
       "id": "NFR-10",
-      "text": "When import runs, the system SHALL reproduce the full dataset with totals reconciling exactly: 15 bonds, Total Investment 1037142.01, Total Till Return 111638.57, Total Balance -925503.44.",
+      "text": "When import runs, the system SHALL reproduce the full dataset with totals reconciling exactly: 15 bonds, Total Investment 550000.00, Total Till Return 28500.00, Total Balance -521500.00.",
       "category": "nfr",
       "check_method": "integration",
       "status": "draft",
@@ -619,7 +619,7 @@
         {
           "given": "the real source XLSM",
           "when": "the import completes and reconciliation queries run",
-          "then": "bond count is 15, Total Investment is 1037142.01, Total Till Return is 111638.57 and Total Balance is -925503.44, all exactly equal to the Excel-derived figures"
+          "then": "bond count is 15, Total Investment is 550000.00, Total Till Return is 28500.00 and Total Balance is -521500.00, all exactly equal to the Excel-derived figures"
         }
       ]
     },
@@ -700,7 +700,7 @@
     },
     {
       "id": "DATA-03",
-      "text": "The system SHALL persist a Home Plan schedule entity (DATA-03) with month index 1..84, saving (including the irregular values 39588, 10063 and 0), rate, per-year interest, countdown, remaining interest and totals, backing FR-12.",
+      "text": "The system SHALL persist a Home Plan schedule entity (DATA-03) with month index 1..84, saving (including the irregular values 25000, 10000 and 0), rate, per-year interest, countdown, remaining interest and totals, backing FR-12.",
       "category": "functional",
       "check_method": "inspection",
       "status": "draft",
@@ -708,7 +708,7 @@
         {
           "given": "the imported home_plan rows",
           "when": "months 1..84 are read",
-          "then": "each row carries its saving, rate, per-year interest, countdown and remaining interest, and the irregular savings 39588, 10063 and 0 are stored verbatim"
+          "then": "each row carries its saving, rate, per-year interest, countdown and remaining interest, and the irregular savings 25000, 10000 and 0 are stored verbatim"
         },
         {
           "given": "the schedule totals",

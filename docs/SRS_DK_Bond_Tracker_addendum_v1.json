@@ -44,18 +44,18 @@
       "status": "draft",
       "acceptance_criteria": [
         {
-          "given": "an active position 'Muthoottu' (On-going, ISIN IN1234567890) exists and the user submits company '  MUTHOOTTU  ' with a DIFFERENT ISIN (IN9999999999)",
+          "given": "an active position 'Beta Finance' (On-going, ISIN IN1234567890) exists and the user submits company '  BETA FINANCE  ' with a DIFFERENT ISIN (IN9999999999)",
           "when": "the add-position form is submitted",
-          "then": "the add is blocked by the NAME key alone (normalized ' muthoottu ' == 'muthoottu' after trim+lowercase) with the named error 'Cannot add position: Muthoottu has an active position (On-going)', even though the ISIN differs"
+          "then": "the add is blocked by the NAME key alone (normalized ' beta finance ' == 'beta finance' after trim+lowercase) with the named error 'Cannot add position: Beta Finance has an active position (On-going)', even though the ISIN differs"
         },
         {
-          "given": "an active position for company 'Muthoottu' (On-going) with ISIN IN1234567890",
+          "given": "an active position for company 'Beta Finance' (On-going) with ISIN IN1234567890",
           "when": "adding a differently named company 'MMF Investments' with ISIN 'in1234567890'",
-          "then": "the add is blocked with a named error naming the active Muthoottu position and its status, because the ISIN match blocks even though the company names differ"
+          "then": "the add is blocked with a named error naming the active Beta Finance position and its status, because the ISIN match blocks even though the company names differ"
         },
         {
-          "given": "the previously blocking position 'Muthoottu' reaching Completed (months paid >= tenure)",
-          "when": "a new Muthoottu position is added, starts On-going, and then another add is attempted",
+          "given": "the previously blocking position 'Beta Finance' reaching Completed (months paid >= tenure)",
+          "when": "a new Beta Finance position is added, starts On-going, and then another add is attempted",
           "then": "the first add is allowed (lock released by Completed) and the second add is blocked with a named error (re-locked by the new On-going position)"
         }
       ]

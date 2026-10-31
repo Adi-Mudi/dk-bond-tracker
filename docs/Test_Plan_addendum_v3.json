@@ -115,15 +115,6 @@
       "status": "planned"
     },
     {
-      "id": "TC-97",
-      "title": "Excel import maps the new watch-sheet fields exactly: rating split, Yeild column, payment type normalization and safe defaults",
-      "type": "integration",
-      "steps": "1. Seed watch-sheet rows: rating cell 'ICRA BBB/STABLE' (agency separable), rating cell 'AA' (bare grade), payment cells '1 Monthly' and '4 Quartely', and a row with neither. 2. Run the legacy import. 3. Read rating, rating_agency, expected_yield_pct, coupon_pct, payout_cycle, issuer_type, secured and watch_state per imported row. 4. Confirm the 'Yeild' header column (verbatim typo) feeds expected_yield_pct.",
-      "expected": "The separable cell splits into rating_agency 'ICRA' + rating 'BBB/STABLE'; the bare grade stores rating 'AA' with rating_agency NULL (never guessed); '1 Monthly' normalizes to monthly, '4 Quartely' to quarterly, blank stays NULL; the 'Yeild' column maps to expected_yield_pct; coupon_pct and issuer_type stay NULL (no workbook source); secured defaults to 1; every imported row lands with watch_state 'holding' (FR-40 per-position storage, import-mapping clause).",
-      "level": "LOCAL",
-      "status": "planned"
-    },
-    {
       "id": "TC-98",
       "title": "Export backup streams the real .db file and Reset rejects any wrong confirmation word server-side before deleting",
       "type": "e2e",
@@ -212,11 +203,6 @@
       "requirement_id": "FR-40",
       "test_case_id": "TC-88",
       "covers": "full"
-    },
-    {
-      "requirement_id": "FR-40",
-      "test_case_id": "TC-97",
-      "covers": "partial"
     },
     {
       "requirement_id": "FR-41",
@@ -309,7 +295,7 @@
       "covers": "partial"
     }
   ],
-  "change_record": "Addendum v3.0 after owner decisions D33 (standalone watchlist redesign) and D34 (Settings screen) of 2026-10-30: adds FR-38..FR-49 as TC-85..TC-104 (20 cases, sequential from TC-84); the combined suite (v1 TC-01..TC-58, addendum v1 TC-59..TC-66, addendum v2 TC-67..TC-84, this addendum TC-85..TC-104) covers 67 requirements (42 legacy + FR-25/FR-26 + FR-27..FR-37 + FR-38..FR-49); no legacy test case or binding is altered. Nineteen cases are LOCAL; TC-99 is the single REMOTE case because the About screen's 'Open local data folder' action must be verified by the owner on a real desktop (the OS file-manager reveal is not LOCAL-assertable) — matching SRS FR-48 check_method 'manual review', the same pattern as TC-84. Scenario split per brief 05: shell chrome + status-bar row counts (TC-85); tab switch + Move-to-Holdings conversion (TC-86) with the D15-lock move conflict as its own case (TC-87); field persistence + yield manual label (TC-88); filter/sort/density (TC-89); drawer payload (TC-90); alerts feed dedupe (TC-91) with dismissal-keeps-history as its own case (TC-92); SMTP masked write-once + env override precedence (TC-93); test-email unconfigured named error (TC-94); alert-pref toggles (TC-95); general prefs with default credit-day 1-28 validation (TC-96); Excel import new-field mapping (TC-97); backup download + case-sensitive typed-RESET wrong-word rejection (TC-98); About screen (TC-99); privacy mask on watchlist + Settings (TC-100); status-bar email indicator (TC-101); maturity 30/7/1 scan + dedupe (TC-102); performance watchlist_query 150x96 < 0.5s LOCAL (TC-103); end-to-end add -> watch -> move -> pay -> alert chain with the zero-external-network offline gate folded into the same case (TC-104). Types are drawn from the addendum-v2 enum (unit, integration, e2e, gate); every level is LOCAL except TC-99.",
+  "change_record": "Addendum v3.0 after owner decisions D33 (standalone watchlist redesign) and D34 (Settings screen) of 2026-10-30: adds FR-38..FR-49 as TC-85..TC-104 excluding TC-97 (removed, D37: import retired) (20 cases, sequential from TC-84); the combined suite (v1 TC-01..TC-58, addendum v1 TC-59..TC-66, addendum v2 TC-67..TC-84, this addendum TC-85..TC-104 excluding TC-97 (removed, D37: import retired)) covers 67 requirements (42 legacy + FR-25/FR-26 + FR-27..FR-37 + FR-38..FR-49); no legacy test case or binding is altered. Nineteen cases are LOCAL; TC-99 is the single REMOTE case because the About screen's 'Open local data folder' action must be verified by the owner on a real desktop (the OS file-manager reveal is not LOCAL-assertable) — matching SRS FR-48 check_method 'manual review', the same pattern as TC-84. Scenario split per brief 05: shell chrome + status-bar row counts (TC-85); tab switch + Move-to-Holdings conversion (TC-86) with the D15-lock move conflict as its own case (TC-87); field persistence + yield manual label (TC-88); filter/sort/density (TC-89); drawer payload (TC-90); alerts feed dedupe (TC-91) with dismissal-keeps-history as its own case (TC-92); SMTP masked write-once + env override precedence (TC-93); test-email unconfigured named error (TC-94); alert-pref toggles (TC-95); general prefs with default credit-day 1-28 validation (TC-96); Excel import new-field mapping (TC-97); backup download + case-sensitive typed-RESET wrong-word rejection (TC-98); About screen (TC-99); privacy mask on watchlist + Settings (TC-100); status-bar email indicator (TC-101); maturity 30/7/1 scan + dedupe (TC-102); performance watchlist_query 150x96 < 0.5s LOCAL (TC-103); end-to-end add -> watch -> move -> pay -> alert chain with the zero-external-network offline gate folded into the same case (TC-104). Types are drawn from the addendum-v2 enum (unit, integration, e2e, gate); every level is LOCAL except TC-99. TC-97 (legacy import mapping) REMOVED per D37 and retirement register R-TC-import.",
   "strategy": {
     "framework": "pytest",
     "local": "All 19 LOCAL addendum TCs (TC-85..TC-98, TC-100..TC-104) run as pytest from the project root: unit cases on alert-pref toggles, general-pref validation and startup defaults against pure functions with temp SQLite fixtures; integration/e2e cases via the Flask test client against seeded databases for the shell render and status-bar counts, tab/move/lock flows, field persistence, filter/sort/density composition, drawer payload, alerts feed dedupe and dismissal retention, SMTP save write-once and env override, test-email error banner, import field mapping, backup/reset and the add -> watch -> move -> pay -> alert chain; TC-103 times the composed query against a 150x96 seeded portfolio with medians over 3 runs; TC-104 audits the recorded request log for zero external hosts across the full chain (offline gate).",
