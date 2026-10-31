@@ -4,7 +4,7 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
@@ -506,6 +506,30 @@
       "WHY": "User 2026-10-30 Q1: remove the old format because it has previous-user data; clean program AND documents; new users start from scratch; developers must never ship/share any user's data.",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 Q1"
+    },
+    {
+      "id": "D38",
+      "topic": "Screen restructure: Portfolio (renamed) + Watchlist = candidates only",
+      "options": [
+        "Restructure per owner Q1/Q2",
+        "Keep prior two-view layout"
+      ],
+      "choice": "Sidebar: Dashboard | PORTFOLIO (renamed from Month Grid) | WATCHLIST | Financial Goals | Alerts | Settings. PORTFOLIO = two tabs: My Holdings (position registry: full fields, drawer, Received+Next Payout columns, payment-health statuses) and Payouts (the month-grid pattern: mark paid/unpaid, colors, auto-sort Danger top -> Matured bottom). WATCHLIST = candidates only (research list, status 'Watching', Move to Portfolio action; NO invested/received/next-payout/health columns). Payment-health statuses (On-going/Danger/Matured) exist ONLY in Portfolio and are derived from the Payouts grid (owner: 'everything need to reflect from the monthly grid').",
+      "WHY": "User Q1+Q2 2026-10-31: status confusion (Completed != purchased), holdings belong in monthly grid, two options in Portfolio, rename grid to Portfolio. Community evidence: stocksbrew watchlist-vs-portfolio separation; IndiaBonds/Groww/BondScanner/Grip payout terminology.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-31 Q1+Q2"
+    },
+    {
+      "id": "D39",
+      "topic": "Labels + Add-Position location (pending wireframe approval)",
+      "options": [
+        "A: Add Position inside Portfolio>My Holdings (both paths run D15 lock); relabel Returned->Received, Completed->Matured (display only)",
+        "B: keep sole entry in Watchlist; other labels"
+      ],
+      "choice": "PROPOSED in wireframe v4 for approval: Add Position button in Portfolio>My Holdings (Watchlist candidates convert via 'Move to Portfolio' — both funnel through the same D15 lock check); display relabels 'Returned'->'Received', 'Completed'->'Matured' (engine values unchanged). Purchase state: Watching/Held; payment health: On-going/Danger/Matured.",
+      "WHY": "Design proposals answering owner's Q1 confusions; owner reviews in wireframe v4 before lock.",
+      "Status": "OPEN",
+      "source": "PM proposal awaiting owner confirm via wireframe v4"
     }
   ],
   "gaps": [
@@ -658,6 +682,11 @@
       "version": "2.1.0",
       "date": "2026-10-30",
       "note": "D37: full old-format + previous-user-data purge; import feature removed from product+docs (supersedes D2); originals deletion pending explicit owner confirm."
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-31",
+      "note": "D38 restructure (Portfolio rename + 2 tabs + watchlist=candidates) CONFIRMED; D39 labels/Add-position proposal OPEN pending wireframe v4 approval."
     }
   ],
   "decision_log": [
@@ -819,6 +848,12 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "D37 added (data purge + start-from-scratch)."
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-31",
+      "author": "PM",
+      "note": "D38+D39 added."
     }
   ]
 }
