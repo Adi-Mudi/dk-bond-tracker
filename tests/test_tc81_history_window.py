@@ -111,7 +111,7 @@ def test_tc81_payouts_window_current_and_no_future(client, db_path):
         bond_id = add_bond(conn, "DashCo", "INE0000000818", start.isoformat(), 24)
         add_payment(conn, bond_id, month_key(start), 500.0)
     assert client.get("/").status_code == 200
-    port = client.get("/portfolio").get_data(as_text=True)
+    port = client.get("/portfolio?tab=payouts").get_data(as_text=True)
     months = [part.split('"')[0] for part in port.split('data-month="')[1:]]
     current = f"{base.year:04d}-{base.month:02d}"
     assert months, "payouts grid must render month columns"
