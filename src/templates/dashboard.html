@@ -1,288 +1,39 @@
 {% extends "base.html" %}
-{% block head %}
-<style>
-  .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
-  .cards-row.amounts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-  .card {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    background: var(--white);
-    box-shadow: 0 1px 3px rgba(30,30,30,0.06);
-  }
-  .card .label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
-  .card .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .card.danger-card { background: var(--due); }
-  .card.ongoing-card { background: #ffe8cc; }
-  .card.completed-card { background: var(--paid); }
-  .l2-badge {
-    display: inline-block;
-    margin-left: 6px;
-    padding: 1px 8px;
-    border: 1.5px solid var(--border);
-    border-radius: 999px;
-    background: var(--current-month);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: 0;
-    vertical-align: middle;
-  }
-  .phase4-summary {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    background: var(--white);
-    padding: 10px 14px;
-    margin: 10px 0 14px;
-    font-size: 13px;
-  }
-  .phase4-summary .label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  .phase4-summary .line { margin-top: 6px; }
-  .phase4-summary a { color: var(--text); font-weight: 700; }
-  .card.this-month {
-    background: var(--blue-light);
-    width: 100%;
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-  }
-  .card.this-month .value { margin: 0; }
-  .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin: 10px 0 6px; }
-  .chart-card { border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); padding: 10px 12px; }
-  .chart-card .chart-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
-  .chart-card svg { width: 100%; height: auto; display: block; }
-  .chart-card .chart-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
-  .table-wrap { overflow-x: auto; border: 1.5px solid var(--border); border-radius: 8px; background: var(--white); }
-  table { border-collapse: collapse; width: 100%; font-size: 13px; }
-  thead th {
-    background: var(--header-row);
-    border-bottom: 2px solid var(--border);
-    padding: 8px 10px;
-    text-align: left;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  tbody td { padding: 7px 10px; border-bottom: 1px solid #dee2e6; white-space: nowrap; }
-  tbody tr:nth-child(even) { background: #f8f9fa; }
-  tbody tr:last-child td { border-bottom: none; }
-  tr.current-month { background: var(--current-month) !important; }
-  tr.current-month td { font-weight: 600; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .table-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
-  .status-cell-danger { background: #ff8787; font-weight: 700; }
-  .status-cell-ongoing { background: #ff922b; color: var(--white); font-weight: 700; }
-  .status-cell-completed { background: #69db7c; font-weight: 700; }
-  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-  .empty-note { font-size: 13px; color: var(--muted); padding: 10px 4px; }
-</style>
-{% endblock %}
 {% block content %}
-<h1 style="font-size:18px;margin-bottom:12px;">Dashboard</h1>
+<h1>Dashboard</h1>
 
-<div class="cards-row" id="summary-cards">
-  <div class="card" id="card-total">
-    <div class="label">Total</div>
-    <div class="value" id="count-total">bonds: {{ counts.total }}</div>
+<div class="stat-row" id="summary-cards">
+  <div class="stat-card primary" id="card-total">
+    <div class="stat-label">Total Invested</div>
+    <div class="stat-value money" id="total-invested" data-amount="{{ "%.2f"|format(total_invested) }}">&#8377;{{ "%.2f"|format(total_invested) }}</div>
   </div>
-  <div class="card danger-card" id="card-danger">
-    <div class="label">Danger</div>
-    <div class="value" id="count-danger">bonds: {{ counts.danger }}</div>
+  <div class="stat-card" id="card-received">
+    <div class="stat-label">Received</div>
+    <div class="stat-value money" id="received-total" data-amount="{{ "%.2f"|format(received_total) }}">&#8377;{{ "%.2f"|format(received_total) }}</div>
   </div>
-  <div class="card ongoing-card" id="card-ongoing">
-    <div class="label">On-going</div>
-    <div class="value" id="count-ongoing">bonds: {{ counts.ongoing }}</div>
-  </div>
-  <div class="card completed-card" id="card-completed">
-    <div class="label">Completed</div>
-    <div class="value" id="count-completed">bonds: {{ counts.completed }}</div>
+  <div class="stat-card" id="card-next-payout">
+    <div class="stat-label">Next Payout</div>
+    <div class="stat-value">
+      <span class="money" id="next-payout-amount" data-amount="{{ "%.2f"|format(next_payout_amount) }}">&#8377;{{ "%.2f"|format(next_payout_amount) }}</span>{% if next_payout_date %} <span class="stat-sub" id="next-payout-date">&#183; {{ next_payout_date }}</span>{% endif %}
+    </div>
   </div>
 </div>
+<p class="caption outstanding-line">Outstanding <span class="money" id="outstanding-total" data-amount="{{ "%.2f"|format(outstanding) }}">&#8377;{{ "%.2f"|format(outstanding) }}</span></p>
 
-<div class="cards-row amounts" id="amount-cards">
-  <div class="card" id="card-investment">
-    <div class="label">Total Investment</div>
-    <div class="value money" data-amount="{{ "%.2f"|format(amounts.total_investment) }}">&#8377;{{ "%.2f"|format(amounts.total_investment) }}</div>
-    <div class="sub">sum of invested principal</div>
+<div class="card" id="invested-received-chart">
+  <h2>Invested vs Received per company</h2>
+  {% for bar in bars %}
+  <div class="chart-row">
+    <div class="chart-label">{{ bar.company }}</div>
+    <div class="bar-space"><div class="bar" style="width: {{ bar.bar_width }}%"><span style="width: {{ bar.recv_width }}%"></span></div></div>
   </div>
-  <div class="card" id="card-till-return">
-    <div class="label">Till Return</div>
-    <div class="value money" data-amount="{{ "%.2f"|format(amounts.till_return) }}">&#8377;{{ "%.2f"|format(amounts.till_return) }}</div>
-    <div class="sub">computed from paid ledger rows</div>
-  </div>
-  <div class="card" id="card-balance">
-    <div class="label">Balance</div>
-    <div class="value money" data-amount="{{ "%.2f"|format(amounts.balance) }}">&#8377;{{ "%.2f"|format(amounts.balance) }}</div>
-    <div class="sub">till return minus maturity amount</div>
-  </div>
-</div>
-
-<div class="cards-row amounts" id="phase4-cards">
-  <div class="card" id="card-pnl">
-    <div class="label">P&amp;L <span class="l2-badge" id="pnl-l2-badge" data-l2-status="{{ pnl.l2_status }}">L2 pending owner confirmation</span></div>
-    <div class="value money" id="pnl-value" data-amount="{{ "%.2f"|format(pnl.pnl) }}">&#8377;{{ "%.2f"|format(pnl.pnl) }}</div>
-    <div class="sub" id="pnl-formula-note">proposed formula: till return &#8722; investment (not yet owner-confirmed)</div>
-  </div>
-  <div class="card" id="card-ongoing-tl">
-    <div class="label">Ongoing TL Value</div>
-    <div class="value money" id="ongoing-tl-value" data-amount="{{ "%.2f"|format(pnl.ongoing_tl) }}">&#8377;{{ "%.2f"|format(pnl.ongoing_tl) }}</div>
-    <div class="sub">sum of On-going bond principal (live)</div>
-  </div>
-</div>
-
-<div class="phase4-summary" id="phase4-summary">
-  <span class="label">Discount &amp; TDS summary (Phase 4)</span>
-  <div class="line" id="phase4-discount-tds-line">
-    Discount recorded: <strong id="discount-total" class="money" data-amount="{{ "%.2f"|format(discounts.totals.discount) }}">&#8377;{{ "%.2f"|format(discounts.totals.discount) }}</strong>
-    across <span id="discount-recorded-count">{{ discounts.totals.recorded }}</span> bond(s);
-    <span id="discount-not-recorded-count">{{ discounts.totals.not_recorded }}</span> not recorded.
-    Annual TDS: <strong id="annual-tds-total" class="money" data-amount="{{ "%.2f"|format(tds.totals.annual_tds) }}">&#8377;{{ "%.2f"|format(tds.totals.annual_tds) }}</strong>
-    &#183; Annual net payouts: <strong id="annual-net-total" class="money" data-amount="{{ "%.2f"|format(tds.totals.annual_net) }}">&#8377;{{ "%.2f"|format(tds.totals.annual_net) }}</strong>
-  </div>
-  <div class="line" id="phase4-links">Detail: <a href="/watch" id="phase4-watch-link">Watch List</a> &#183; per-bond payout schedules via the <a href="#status-overview" id="phase4-overview-link">status overview</a> below. P&amp;L uses the PROPOSED formula and awaits owner confirmation.</div>
-</div>
-
-<div class="card this-month" id="this-month-card">
-  <span class="label" style="margin:0;">This Month Returns{% if this_month.month %} ({{ this_month.month }}){% endif %}</span>
-  {% if this_month.message %}
-  <span class="value" id="this-month-message">{{ this_month.message }}</span>
-  {% elif not active_bonds %}
-  <span class="value" id="this-month-message">no bonds active this month</span>
   {% else %}
-  <span class="value money" data-amount="{{ "%.2f"|format(this_month.total) }}" id="this-month-total">&#8377;{{ "%.2f"|format(this_month.total) }}</span>
-  {% endif %}
-</div>
-
-<h4 style="font-size:14px;margin:14px 0 6px;">Charts row &#8212; inline SVG, no libraries, offline</h4>
-<div class="charts-row" id="charts-row">
-  <div class="chart-card" id="chart-bars-card">
-    <div class="chart-title">Invested vs received per bond (grouped bars)</div>
-    {% if charts.bars %}
-    {% set bns = namespace(m=1.0) %}
-    {% for b in charts.bars %}{% set bns.m = [bns.m, b.invested, b.received]|max %}{% endfor %}
-    {% set bcount = charts.bars|length %}
-    {% set bslot = 216.0 / bcount %}
-    {% set bwidth = [bslot * 0.35, 16]|min %}
-    <svg id="chart-bars" viewBox="0 0 240 140" role="img" aria-label="Grouped bars: invested versus received per bond">
-      <line x1="16" y1="118" x2="232" y2="118" stroke="#1e1e1e" stroke-width="1.5"></line>
-      {% for b in charts.bars %}
-      {% set x0 = 16 + (loop.index0 + 0.2) * bslot %}
-      {% set hi = b.invested / bns.m * 98 %}
-      {% set hr = b.received / bns.m * 98 %}
-      <rect x="{{ '%.2f'|format(x0) }}" y="{{ '%.2f'|format(118 - hi) }}" width="{{ '%.2f'|format(bwidth) }}" height="{{ '%.2f'|format(hi) }}" fill="#4dabf7" stroke="#1e1e1e"></rect>
-      <rect x="{{ '%.2f'|format(x0 + bwidth) }}" y="{{ '%.2f'|format(118 - hr) }}" width="{{ '%.2f'|format(bwidth) }}" height="{{ '%.2f'|format(hr) }}" fill="#69db7c" stroke="#1e1e1e"></rect>
-      <text x="{{ '%.2f'|format(x0) }}" y="132" font-size="8" fill="#495057">{{ b.bond[:4] }}</text>
-      {% endfor %}
-      <rect x="16" y="8" width="10" height="10" fill="#4dabf7" stroke="#1e1e1e"></rect>
-      <text x="30" y="17" font-size="9" fill="#495057">invested</text>
-      <rect x="86" y="8" width="10" height="10" fill="#69db7c" stroke="#1e1e1e"></rect>
-      <text x="100" y="17" font-size="9" fill="#495057">received</text>
-    </svg>
-    {% else %}
-    <div class="empty-note" id="chart-bars-empty">no bonds to chart</div>
-    {% endif %}
-    <div class="chart-note">Grouped columns: one invested/received pair per bond.</div>
+  <div class="empty-note" id="dashboard-bars-empty">no holdings yet — positions appear here once added from Portfolio</div>
+  {% endfor %}
+  <div class="chart-legend">
+    <span><span class="swatch" style="background: var(--bar-muted)"></span>Invested (muted)</span>
+    <span><span class="swatch" style="background: var(--accent)"></span>Received (accent)</span>
   </div>
-
-  <div class="chart-card" id="chart-cumulative-card">
-    <div class="chart-title">Cumulative returns line (red when negative)</div>
-    {% if charts.cumulative %}
-    {% set cns = namespace(m=1.0) %}
-    {% for p in charts.cumulative %}{% set cns.m = [cns.m, p.cumulative_till_return]|max %}{% endfor %}
-    {% set ccount = charts.cumulative|length %}
-    <svg id="chart-cumulative" viewBox="0 0 240 140" role="img" aria-label="Cumulative returns line turning red when balance is negative">
-      <line x1="16" y1="118" x2="232" y2="118" stroke="#1e1e1e" stroke-width="1.5"></line>
-      {% if ccount > 1 %}
-      {% for i in range(1, ccount) %}
-      {% set pa = charts.cumulative[i - 1] %}
-      {% set pb = charts.cumulative[i] %}
-      {% set xa = 16 + (i - 1) * 216.0 / (ccount - 1) %}
-      {% set xb = 16 + i * 216.0 / (ccount - 1) %}
-      {% set ya = 118 - pa.cumulative_till_return / cns.m * 98 %}
-      {% set yb = 118 - pb.cumulative_till_return / cns.m * 98 %}
-      <line x1="{{ '%.2f'|format(xa) }}" y1="{{ '%.2f'|format(ya) }}" x2="{{ '%.2f'|format(xb) }}" y2="{{ '%.2f'|format(yb) }}"
-            stroke="{% if pb.balance_flag_negative %}#e03131{% else %}#2f9e44{% endif %}" stroke-width="2.5"></line>
-      {% if pb.balance_flag_negative and not pa.balance_flag_negative %}
-      <circle cx="{{ '%.2f'|format(xb) }}" cy="{{ '%.2f'|format(yb) }}" r="3.5" fill="#e03131" stroke="#1e1e1e"></circle>
-      {% endif %}
-      {% endfor %}
-      {% else %}
-      <circle cx="124" cy="118" r="3.5" fill="{% if charts.cumulative[0].balance_flag_negative %}#e03131{% else %}#2f9e44{% endif %}" stroke="#1e1e1e"></circle>
-      {% endif %}
-      <text x="16" y="134" font-size="9" fill="#495057">{{ charts.cumulative[0].month }}</text>
-      <text x="232" y="134" font-size="9" fill="#495057" text-anchor="end">{{ charts.cumulative[-1].month }}</text>
-    </svg>
-    {% else %}
-    <div class="empty-note" id="chart-cumulative-empty">no history to chart</div>
-    {% endif %}
-    <div class="chart-note">Cumulative trend; the segment after the balance crosses zero renders in red.</div>
-  </div>
-
-  <div class="chart-card" id="chart-donut-card">
-    <div class="chart-title">Status donut (Danger / On-going / Completed)</div>
-    {% set dcount = counts.total %}
-    {% set C = 251.3274 %}
-    {% set dns = namespace(off=0.0) %}
-    {% set segs = [("Danger", counts.danger, "#ff8787"), ("On-going", counts.ongoing, "#ff922b"), ("Completed", counts.completed, "#69db7c")] %}
-    <svg id="chart-donut" viewBox="0 0 240 140" role="img" aria-label="Donut chart of status split">
-      <g transform="rotate(-90 66 70)">
-        {% for label, cnt, color in segs %}
-        {% if dcount > 0 and cnt > 0 %}
-        {% set dash = cnt / dcount * C %}
-        <circle cx="66" cy="70" r="40" fill="none" stroke="{{ color }}" stroke-width="20"
-                stroke-dasharray="{{ '%.2f'|format(dash) }} {{ '%.2f'|format(C - dash) }}"
-                stroke-dashoffset="{{ '%.2f'|format(-dns.off) }}"></circle>
-        {% set dns.off = dns.off + dash %}
-        {% endif %}
-        {% endfor %}
-      </g>
-      <text x="66" y="68" text-anchor="middle" font-size="13" font-weight="700">{{ dcount }}</text>
-      <text x="66" y="82" text-anchor="middle" font-size="9" fill="#495057">bonds</text>
-      <rect x="130" y="34" width="12" height="12" fill="#ff8787" stroke="#1e1e1e"></rect>
-      <text x="148" y="44" font-size="10">Danger {{ counts.danger }}</text>
-      <rect x="130" y="62" width="12" height="12" fill="#ff922b" stroke="#1e1e1e"></rect>
-      <text x="148" y="72" font-size="10">On-going {{ counts.ongoing }}</text>
-      <rect x="130" y="90" width="12" height="12" fill="#69db7c" stroke="#1e1e1e"></rect>
-      <text x="148" y="100" font-size="10">Completed {{ counts.completed }}</text>
-    </svg>
-    <div class="chart-note">Live split from position statuses, recomputed on every view.</div>
-  </div>
+  <p class="caption note-line" id="history-note">Monthly history shows completed months + current month only — future months are never shown.</p>
 </div>
-
-<h4 style="font-size:14px;margin-bottom:8px;" id="history-heading">Monthly History (elapsed months only &#8212; through {{ current_month }})</h4>
-<div class="table-wrap">
-  <table id="history-table">
-    <thead>
-      <tr><th>Month</th><th class="num">Received (INR)</th></tr>
-    </thead>
-    <tbody>
-      {% for row in history %}
-      <tr{% if row.month == current_month %} class="current-month"{% endif %}>
-        <td class="history-month">{{ row.month }}{% if row.month == current_month %} (current){% endif %}</td>
-        <td class="num history-total"><span class="money" data-amount="{{ "%.2f"|format(row.total) }}">{{ "%.2f"|format(row.total) }}</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<p class="table-note">History shows elapsed months + current month only; future months are never rendered, and each new month auto-appends from the ledger. Amounts are live queries &#8212; never stored.</p>
-
-<h4 style="font-size:14px;margin:16px 0 8px;" id="overview-heading">Bonds Status Overview (Danger first &#8212; colored status column)</h4>
-<div class="table-wrap">
-  <table id="status-overview">
-    <thead>
-      <tr><th>Bond</th><th>ISIN</th><th class="num">Tenure (mo)</th><th>Status</th><th>Payout</th></tr>
-    </thead>
-    <tbody>
-      {% for row in overview %}
-      <tr>
-        <td>{{ row.company }}</td>
-        <td class="mono">{{ row.isin }}</td>
-        <td class="num">{{ row.tenure_months }}</td>
-        <td class="status-cell-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</td>
-        <td><a href="/payout?bond_id={{ row.id }}" class="payout-link" data-bond="{{ row.id }}">schedule</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<p class="table-note">Statuses recomputed from the ledger on every view. Sort order: Danger &#8594; On-going &#8594; Completed. The Payout column links to the quarterly/yearly/monthly payout schedule (FR-15).</p>
 {% endblock %}
