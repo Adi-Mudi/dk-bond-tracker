@@ -45,7 +45,7 @@ def test_tc76_empty_portfolio_empty_series(db_path):
         data = chart_data(conn, today)
     assert data["bars"] == []
     assert data["cumulative"] == []
-    assert data["donut"] == {"danger": 0, "ongoing": 0, "completed": 0, "total": 0}
+    assert data["donut"] == {"danger": 0, "ongoing": 0, "completed": 0, "total": 0, "invalid": 0}
 
 
 def test_tc76_cumulative_negative_flag_present(db_path):
