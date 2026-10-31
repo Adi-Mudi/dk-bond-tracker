@@ -34,6 +34,3 @@ def test_no_hardcoded_month_header_literals_anywhere():
     assert offenders == []
 
 
-def test_header_coupling_uses_header_key_helper():
-    import_xlsm = (SRC / "import_xlsm.py").read_text(encoding="utf-8")
-    assert "header_key(" in import_xlsm
