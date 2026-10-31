@@ -1,0 +1,119 @@
+{
+  "schema": "plan/v1",
+  "id": "dk_bond_tracker_watchlist_stage11_execute_plan_20261031_v1.0",
+  "kind": "plan",
+  "title": "Stage 11 Execute — implementation per locked design v5",
+  "version": "v1.0",
+  "confidence": 85,
+  "status": "REVIEW-LOCK: OFF — batch 18 AGREED (gate 2 cleared 2026-10-31); awaiting Scope Confirm",
+  "master": ".IDE_Plans/dk_bond_tracker_watchlist_master_20261030_2355_v1.1 (stage 11)",
+  "brainstorm_source": "../.IDE_Plans/dk_bond_tracker_brainstorm_20261030.json (v2.3.1, D38/D39/D40 CONFIRMED)",
+  "owner_constraints": [
+    "Q1: execute ONLY the finalized/confirmed/locked design (ui_frontend_design_v5.html + approved v4 docs). No deviations, no design additions.",
+    "Q2: PM coordination per global skills (pm-coordination loaded), rules and scripts.",
+    "Q3: ALL testing is REMOTE (GitHub Actions on push); no local test tiers in this stage.",
+    "Q4: keep the existing architecture pattern (module monolith: Flask + server-rendered HTML + vanilla JS + SQLite, no build step, no new frameworks); consistency over novelty."
+  ],
+  "model_assignment": {
+    "coordinator": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
+    "captain": "wl-captain (existing herdr session; runs store gates + watches lanes)",
+    "workers": "wl-build1, wl-build2, wl-build3 (herdr visible panes, kimi, MiMo-V2.6-Flash via cline-pass, yolo mode)",
+    "reviewer": "wl-review (fresh session per gate, read-only, batches 18-20)"
+  },
+  "WORKTREE": {
+    "base_branch": "dev",
+    "stage_worktree": {"branch": "execute-v5", "folder": "execute-v5", "created_from": "dev"},
+    "phase_branches": ["phase-spine", "phase-screens-a", "phase-screens-b"],
+    "containment": "phase branches merge ONLY into execute-v5; execute-v5 merges to dev after stage FULL TEST; db-store worktree and database git operations NEVER touched (owner rule); folder name == branch name (Rule 13 spawn-time check)"
+  },
+  "Documents": {
+    "Truth": ["design_drafts/ui_frontend_design_v5.html (LOCKED — visual + theme truth)", "docs/PRD_DK_Bond_Tracker_addendum_v4.json (FR-50..FR-61)", "docs/SRS_DK_Bond_Tracker_addendum_v4.json", "docs/Watchlist_Architecture_Addendum_v2.json"],
+    "References": ["docs/Atomic_Functions_addendum_v4.json", "docs/Pseudocode_addendum_v4.json", "docs/Test_Plan_addendum_v4.json", "docs/Development_Order_addendum_v4.json", "existing src/ (current app pattern)"],
+    "Targets": ["src/app.py + src/ modules (engine, lock, schema)", "src/templates/ screens per design v5", "src/static/ (theme tokens css, vanilla js)", "tests/ (only per Test_Plan_addendum_v4 new TCs; no legacy workbook tests)", "data/bonds.db schema (empty by default)"],
+    "Dependencies": ["herdr fleet (1 captain + 3 workers + 1 reviewer)", "store tools (gates at doc closes)", "GitHub Actions 'tests' workflow (remote tier)"],
+    "Tests": ["REMOTE ONLY (Q3): every test gate = git push -> GitHub Actions run must be green", "known precondition: 5 legacy workbook test files must be removed first (they test the D37-deleted file and keep CI red) — pending owner tick at Scope Confirm"]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Remote-CI unblock",
+      "mode": "SERIES",
+      "owner": "PM",
+      "tasks": [
+        {"id": "T0.1", "action": "DELETE", "file": "tests/test_tc24_import_real.py, tests/test_tc40_watch_analytics.py, tests/test_tc52_watch_uat_data.py, tests/test_tc53_regression.py, tests/test_tc71_legacy_goals_import.py", "FROM": "5 test files that hard-require v5.5_40L_Project_Tracker.xlsm (purged by D37) — CI red: 10 failed + 41 errors", "TO": "files removed (they test a deleted feature and can never pass); remaining test suite green", "Reason": "Q3 makes remote testing the gate; these orphans block every push", "Status": "PENDING (owner tick at Scope Confirm)"}
+      ],
+      "test": {"type": "REMOTE", "where": "GitHub Actions push run green"},
+      "REVIEWER-CHECK": "wl-review verifies ONLY the 5 named files changed and that no non-workbook test was touched; grep proves zero remaining refs to the workbook path in tests/",
+      "reviewer_gate": "folded into batch 19 evidence"
+    },
+    {
+      "id": "P1",
+      "name": "Spine — schema, routes, shell (parallel base)",
+      "mode": "SERIES",
+      "owner": "wl-build1",
+      "tasks": [
+        {"id": "T1.1", "action": "ADD", "file": "src/schema.sql (or schema bootstrap in src/)", "FROM": "current tables (old design: month-grid-era)", "TO": "tables per arch v2: positions (company, isin, rating, coupon, yield, frequency, invested, start_date, end_date, credit_day, status), candidates (watchlist: company, isin, rating, coupon, est_yield, source_note, state='watching'), payouts (position_id, month, amount, received_flag, status), settings (theme, hide_amounts, smtp fields, share options), alerts_log — fresh install creates EMPTY database (owner rule: new users start from scratch)", "Reason": "arch v2 data ownership + D37 empty-default", "Status": "PENDING"},
+        {"id": "T1.2", "action": "EDIT", "file": "src/app.py", "FROM": "current routes/screens (old Month Grid/Watchlist)", "TO": "routes for the 6 locked screens: /dashboard /portfolio (tabs holdings|payouts) /watchlist /goals /alerts /settings (PRD v4 FR-51/52); existing pattern kept (Flask render_template, no new deps)", "Reason": "D38 restructure, Q4 architecture pattern", "Status": "PENDING"},
+        {"id": "T1.3", "action": "ADD", "file": "src/templates/base.html + src/static/theme.css + src/static/app.js", "FROM": "no shared shell", "TO": "base template with fixed sidebar (exact 6 labels), header actions (theme segmented control System|Light|Dark + Hide amounts), token-based CSS exactly per design v5 :root/html[data-theme] blocks, pre-paint localStorage dk-theme bootstrap, money mask js", "Reason": "D40 themes + privacy mask per locked design", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "push -> GitHub Actions green"},
+      "REVIEWER-CHECK": "plan-vs-code: sidebar labels byte-identical to design v5; theme tokens identical to v5 :root/[data-theme=dark]; schema columns match arch v2 field sets; no new dependencies in requirements.txt",
+      "reviewer_gate": "batch 19 (gate 3) reads this line"
+    },
+    {
+      "id": "P2",
+      "name": "Screens lane A — Portfolio + engine",
+      "mode": "PARALLEL (phase branch: phase-portfolio from execute-v5 after P1)",
+      "owner": "wl-build2",
+      "tasks": [
+        {"id": "T2.1", "action": "ADD", "file": "src/templates/portfolio.html (+partials)", "FROM": "no portfolio screen", "TO": "two tabs My Holdings + Payouts; holdings table columns per FR-53 (Company/ISIN, Rating, Coupon, Yield, Frequency, Invested, Received, Next Payout, Status chips On-going/Danger/Matured); Add Position form (start/end date -> auto tenure months, credit day 1..31) per FR-54; status legend card; Payouts grid months = current+past only, rows sorted Danger top, On-going next, Matured bottom (FR-55)", "Reason": "locked design v5 Portfolio view + FR-53..55", "Status": "PENDING"},
+        {"id": "T2.2", "action": "ADD", "file": "src/engine.py (status derivation + day-wise danger)", "FROM": "old month-end status logic", "TO": "derive payment health from payouts ledger: received on credit day -> On-going; not received on credit day -> Danger same day; tenure end -> Matured; display labels only: Received/Matured (engine values unchanged, FR-58/59)", "Reason": "D39 + PRD v4 FR-55/59", "Status": "PENDING"},
+        {"id": "T2.3", "action": "ADD", "file": "src/lock.py (D15 duplicate lock)", "FROM": "existing lock code (FR-26 era) if present, else new", "TO": "single shared routine used by BOTH Add Position and Move to Portfolio: block when normalized company OR ISIN has an active (On-going/Danger) position; allowed again after Matured; re-buy restarts lifecycle; named error, hard block, no override (FR-57)", "Reason": "owner Q2 earlier + FR-54/57", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "push -> GitHub Actions green; new TCs per Test_Plan_addendum_v4 run remote"},
+      "REVIEWER-CHECK": "code deep review: lock cannot be bypassed; tenure calc whole-months; future months never rendered; labels Received/Matured only in display layer",
+      "reviewer_gate": "batch 19 (gate 3)"
+    },
+    {
+      "id": "P3",
+      "name": "Screens lane B — Watchlist, Dashboard, Goals, Alerts, Settings",
+      "mode": "PARALLEL (phase branch: phase-watchlist from execute-v5 after P1)",
+      "owner": "wl-build3",
+      "tasks": [
+        {"id": "T3.1", "action": "ADD", "file": "src/templates/watchlist.html", "FROM": "old two-view watchlist with holdings", "TO": "candidates ONLY: columns Company/ISIN, Rating, Coupon, Est. Yield, Source note, Action; Watching chip; Move to Portfolio button invoking src/lock.py; NO invested/received/next-payout columns anywhere (FR-56); Add Candidate form validated at entry (no duplicate/invalid candidates)", "Reason": "D38 watchlist=candidates, FR-56", "Status": "PENDING"},
+        {"id": "T3.2", "action": "ADD", "file": "src/templates/dashboard.html", "FROM": "old dashboard", "TO": "cards Total Invested (top-left, largest) / Received / Next Payout + Outstanding; single Invested-vs-Received bar chart (pure CSS per v5); monthly history shows completed + current month only, never future months", "Reason": "locked design v5 dashboard", "Status": "PENDING"},
+        {"id": "T3.3", "action": "ADD", "file": "src/templates/goals.html, alerts.html, settings.html", "FROM": "old goals/alerts/settings screens", "TO": "goals: goal cards with target/saved/progress (empty by default); alerts: day-wise rule config + channels (in-app + email personal SMTP personal->personal) toggles; settings: Email (SMTP host/port/from/to), Privacy (Hide amounts by default), Currency INR, Share/Export with per-section checkboxes, Data 'Start empty' (FR-60 Appearance section: System/Light/Dark radios)", "Reason": "D34 legacy + D40 + FR-60", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "push -> GitHub Actions green"},
+      "REVIEWER-CHECK": "watchlist column whitelist exact (no forbidden columns); dashboard month rule; settings sections match design v5 Settings view",
+      "reviewer_gate": "batch 19 (gate 3)"
+    },
+    {
+      "id": "P4",
+      "name": "Integration + stage gates",
+      "mode": "SERIES",
+      "owner": "PM + wl-captain + wl-review",
+      "tasks": [
+        {"id": "T4.1", "action": "EDIT", "file": "phase merges", "FROM": "phase-portfolio/phase-watchlist unmerged", "TO": "merged into execute-v5 in order (phase branches touch disjoint templates/static files; spine files only in T1.x); conflict handling per Rule 14", "Reason": "Rule 13/14 containment", "Status": "PENDING"},
+        {"id": "T4.2", "action": "VERIFY", "file": "data/bonds.db", "FROM": "n/a", "TO": "fresh install = zero rows in every table; no import path anywhere (D37); all screens read from DB only", "Reason": "owner start-from-scratch rule", "Status": "PENDING"},
+        {"id": "T4.3", "action": "VERIFY", "file": "GitHub Actions", "FROM": "red (legacy workbook tests)", "TO": "remote suite GREEN on execute-v5 (Q3)", "Reason": "Q3 remote-only testing", "Status": "PENDING"},
+        {"id": "T4.4", "action": "VERIFY", "file": "review log", "FROM": "batches 1-17", "TO": "batch 18 (gate 2 plan review) AGREED before P1 starts; batch 19 (gate 3 implementation) AGREED before merge; batch 20 (gate 4 post-merge) AGREED at close", "Reason": "Rule 15 four gates", "Status": "PENDING"},
+        {"id": "T4.5", "action": "VERIFY", "file": "docs + store", "FROM": "n/a", "TO": "store-projector --project --extract + store-gates --all --strict SATISFIED after any doc change in this stage", "Reason": "D40 DB sequence", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "stage FULL TEST = GitHub Actions run on execute-v5 head, green, before dev merge"},
+      "REVIEWER-CHECK": "merge order matches plan; zero db-store/git-db operations happened (owner rule); zero design deviations vs v5 (spot-check every screen against the HTML)",
+      "reviewer_gate": "batch 20 (gate 4, post-merge)"
+    }
+  ],
+  "merge_close": {
+    "sequence_gate": "phase branches: spine -> lane A/B -> execute-v5; stage merge execute-v5 -> dev only after batch 19 AGREED + remote green",
+    "approval_gate": "owner asked for continuous execution (Q1-Q4 standing approval); stage-close checkpoint per D52: numbered summary + ONE question 'Approve stage 11 to close?'",
+    "close": "kill completed workers' panes (owner rule), captain+reviewer keep until checkpoint, retrospective appended to this plan"
+  },
+  "risks": [
+    {"risk": "parallel lanes touch shared base template", "mitigation": "base.html written once in P1 spine; lanes only add their own screen templates/static files"},
+    {"risk": "remote-only testing means slower feedback", "mitigation": "small atomic pushes per phase; captain watches each Actions run"},
+    {"risk": "design deviation drift", "mitigation": "every reviewer batch compares screens against ui_frontend_design_v5.html as pinned baseline (D49)"}
+  ],
+  "retrospective": "(filled at stage close)"
+}

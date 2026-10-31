@@ -95,31 +95,3 @@ def test_tc16_negative_discount_is_real_recorded_value(db_path):
     assert detail["discount"] == pytest.approx(-31.75, abs=1e-9)
     assert detail["display"] == "-31.75"
 
-
-@pytest.mark.remote
-def test_tc16_real_workbook_discount_matches_watch_l_column(tmp_path):
-    db_path = tmp_path / "tc16_real.db"
-    summary = import_workbook(WORKBOOK, db_path)
-    assert summary["bonds"] == 15
-    workbook = open_workbook(WORKBOOK)
-    try:
-        sheet = locate_sheet(workbook.values, WATCH_LIST_SHEET_TITLE)
-        watch = extract_watch_list(workbook.values[sheet])
-    finally:
-        workbook.values.close()
-        workbook.formulas.close()
-    expected = {
-        str(record["isin"]).strip().upper(): float(record["discount_amount"])
-        for record in watch
-        if record.get("discount_amount") is not None
-    }
-    assert len(expected) == 15
-    with get_conn(db_path) as conn:
-        report = discount_report(conn)
-    assert report["totals"]["recorded"] == 15
-    for row in report["rows"]:
-        isin = str(row["isin"]).strip().upper()
-        assert isin in expected
-        assert row["discount"] == pytest.approx(expected[isin], abs=1e-6)
-        assert row["source"] == "watch-lgh"
-    assert report["totals"]["discount"] == pytest.approx(sum(expected.values()), abs=1e-6)
