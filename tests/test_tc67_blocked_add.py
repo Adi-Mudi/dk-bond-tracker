@@ -20,12 +20,12 @@ BLOCKED_FORM = {
     "end_date": "2027-11-01",
     "credit_day": "5",
 }
-BLOCKED_MESSAGE = "Cannot add position: Muthoottu has an active position (On-going) — no override"
+BLOCKED_MESSAGE = "Cannot add position: Beta Finance Ltd has an active position (On-going) — no override"
 
 
 def seed_active_muthoottu(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Muthoottu", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
 
 
 def current_bond_count(db_path):
@@ -60,11 +60,11 @@ def test_tc67_all_surfaces_show_no_trace_of_blocked_duplicate(client, db_path):
         assert after[path] == before[path], path
         assert "MUTHOOTTU" not in after[path], path
         assert "INE0000NEW99" not in after[path], path
-    assert after["/"].count("Muthoottu") == 1
-    assert after["/portfolio"].count("Muthoottu") == 2
-    assert after["/watch"].count("Muthoottu") == 1
+    assert after["/"].count("Beta Finance Ltd") == 1
+    assert after["/portfolio"].count("Beta Finance Ltd") == 2
+    assert after["/watch"].count("Beta Finance Ltd") == 1
     for path in ("/goals", "/notifications", "/settings"):
-        assert "Muthoottu" not in after[path], path
+        assert "Beta Finance Ltd" not in after[path], path
     assert current_bond_count(db_path) == 1
 
 

@@ -4,7 +4,7 @@ from conftest import add_bond, bond_count
 from src.app import create_app
 from src.db import get_conn
 
-BLOCKED_MESSAGE = "Cannot add position: Muthoottu has an active position (On-going) — no override"
+BLOCKED_MESSAGE = "Cannot add position: Beta Finance Ltd has an active position (On-going) — no override"
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def client(db_path):
 
 def seed_active_muthoottu(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Muthoottu", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
 
 
 def base_form():
