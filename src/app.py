@@ -15,6 +15,16 @@ from werkzeug.exceptions import HTTPException
 from src.alerts import daily_sweep
 from src.analytics import watch_model
 from src.db import get_conn, init_db
+from src.engine import (
+    derive_health,
+    display_label,
+    entry_paid,
+    list_months_through_current,
+    month_due_passed,
+    payout_date_label,
+    sort_payout_rows,
+    tenure_window,
+)
 from src.export_csv import (
     LEDGER_HEADERS,
     current_view_csv,
@@ -22,6 +32,7 @@ from src.export_csv import (
     full_ledger_csv,
 )
 from src.goals import add_goal, delete_goal, list_goals, update_goal
+from src.lock import check_add_allowed
 from src.mailer import send_alert_email
 from src.notifications import (
     due_reminders,
@@ -648,9 +659,285 @@ def create_app(db_path=None):
             return error_page(exc.code, exc.message, "Payout schedule failed", 400)
         return render_template("payout.html", schedule=schedule)
 
-    @app.route("/portfolio")
+    def _portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
+        received_by_bond = {}
+        for entry in conn.execute(
+            "SELECT bond_id, COALESCE(SUM(amount), 0) AS total FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY bond_id"
+        ).fetchall():
+            received_by_bond[entry["bond_id"]] = float(entry["total"])
+        holdings = []
+        for row in bond_rows:
+            entries = ledger_by_bond.get(row["id"], {})
+            health = display_label(derive_health(row, entries, today))
+            next_payout = "—"
+            if health != "Matured":
+                for key in tenure_window(row["start_date"], row["tenure_months"]):
+                    if not entry_paid(entries.get(key)):
+                        next_payout = payout_date_label(key, row["credit_day"])
+                        break
+            holdings.append(
+                {
+                    "company": row["company"],
+                    "isin": row["isin"] or "",
+                    "rating": row["rating"],
+                    "coupon": row["coupon_pct"],
+                    "yield_pct": row["expected_yield_pct"],
+                    "frequency": row["payout_cycle"],
+                    "invested": float(row["amount"] or 0.0),
+                    "received": received_by_bond.get(row["id"], 0.0),
+                    "next_payout": next_payout,
+                    "health": health,
+                }
+            )
+        return holdings
+
+    def _portfolio_payouts(bond_rows, ledger_by_bond, today):
+        prepared = []
+        first_keys = []
+        for row in bond_rows:
+            entries = ledger_by_bond.get(row["id"], {})
+            window = tenure_window(row["start_date"], row["tenure_months"])
+            first_keys.append(window[0])
+            prepared.append(
+                (row, window, entries, display_label(derive_health(row, entries, today)))
+            )
+        months = list_months_through_current(today, min(first_keys) if first_keys else None)
+        rows = []
+        for row, window, entries, health in prepared:
+            window_set = set(window)
+            cells = []
+            for key in months:
+                entry = entries.get(key)
+                if key in window_set:
+                    if entry_paid(entry):
+                        cells.append({"kind": "amount", "amount": float(entry["amount"])})
+                    elif health == "Matured":
+                        cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
+                    elif month_due_passed(key, row["credit_day"], today):
+                        cells.append({"kind": "chip", "text": "Missed", "chip": "chip-danger"})
+                    else:
+                        cells.append({"kind": "chip", "text": "Due", "chip": "chip-ongoing"})
+                elif health == "Matured":
+                    cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
+                else:
+                    cells.append({"kind": "text", "text": "—"})
+            rows.append(
+                {
+                    "id": row["id"],
+                    "company": row["company"],
+                    "isin": row["isin"] or "",
+                    "health": health,
+                    "cells": cells,
+                }
+            )
+        return (
+            sort_payout_rows(rows),
+            [{"key": key, "label": month_label(key)} for key in months],
+        )
+
+    def _portfolio_context(conn, today, tab, form, error, code):
+        bond_rows = conn.execute(
+            "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+            "amount, start_date, end_date, tenure_months, credit_day "
+            "FROM bonds WHERE watch_state = 'holding' "
+            "ORDER BY company COLLATE NOCASE, id"
+        ).fetchall()
+        ledger_rows = conn.execute(
+            "SELECT bond_id, month, amount, paid FROM payment_ledger ORDER BY bond_id, month"
+        ).fetchall()
+        ledger_by_bond = {}
+        for entry in ledger_rows:
+            ledger_by_bond.setdefault(entry["bond_id"], {})[entry["month"]] = {
+                "amount": entry["amount"],
+                "paid": entry["paid"],
+            }
+        context = {
+            "tab": tab,
+            "holdings": [],
+            "months": [],
+            "payouts": [],
+            "form": form,
+            "error": error,
+            "code": code,
+        }
+        if tab == "holdings":
+            context["holdings"] = _portfolio_holdings(conn, bond_rows, ledger_by_bond, today)
+        elif bond_rows:
+            rows, months = _portfolio_payouts(bond_rows, ledger_by_bond, today)
+            context["payouts"] = rows
+            context["months"] = months
+        return context
+
+    def _portfolio_optional_text(form, field):
+        raw = str(form.get(field, "")).strip()
+        return raw or None
+
+    def _portfolio_optional_float(form, field):
+        raw = str(form.get(field, "")).strip()
+        if not raw:
+            return None
+        try:
+            return float(raw)
+        except ValueError as exc:
+            raise AppError("ERR-add-fields", f"{field} must be a number: {raw!r}") from exc
+
+    def _add_portfolio_position(db_file):
+        form = request.form
+        company = str(form.get("company", "")).strip()
+        isin = str(form.get("isin", "")).strip()
+        try:
+            with get_conn(db_file) as conn:
+                if not company:
+                    raise AppError("ERR-add-fields", "company is required")
+                if not isin:
+                    raise AppError("ERR-add-fields", "ISIN is required")
+                amount_raw = str(form.get("amount", "")).strip()
+                try:
+                    amount = float(amount_raw)
+                except ValueError as exc:
+                    raise AppError(
+                        "ERR-add-fields", f"amount must be a number: {amount_raw!r}"
+                    ) from exc
+                if amount < 0:
+                    raise AppError(
+                        "ERR-add-fields",
+                        f"amount must not be negative: {amount_raw!r}",
+                    )
+                credit_raw = str(form.get("credit_day", "")).strip()
+                try:
+                    credit_value = int(credit_raw)
+                except ValueError as exc:
+                    raise AppError(
+                        "ERR-add-fields",
+                        f"credit day must be an integer in 1-31: {credit_raw!r}",
+                    ) from exc
+                start_date, end_date, tenure_months, credit_day = date_range_tenure(
+                    form.get("start_date", ""), form.get("end_date", ""), credit_value
+                )
+                if tenure_months < 1:
+                    raise AppError(
+                        "ERR-date-range",
+                        f"tenure must span at least one whole month: {tenure_months}",
+                    )
+                payout_cycle = _portfolio_optional_text(form, "payout_cycle")
+                if payout_cycle is not None and payout_cycle not in (
+                    "monthly",
+                    "quarterly",
+                    "annual",
+                ):
+                    raise AppError(
+                        "ERR-add-fields",
+                        f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
+                    )
+                issuer_type = _portfolio_optional_text(form, "issuer_type")
+                if issuer_type is not None and issuer_type not in (
+                    "corporate_bond",
+                    "ncd",
+                    "sdi",
+                    "government",
+                    "fd",
+                ):
+                    raise AppError(
+                        "ERR-add-fields",
+                        "issuer_type must be one of corporate_bond, ncd, sdi, "
+                        f"government, fd: {issuer_type!r}",
+                    )
+                rating = _portfolio_optional_text(form, "rating")
+                rating_agency = _portfolio_optional_text(form, "rating_agency")
+                coupon_pct = _portfolio_optional_float(form, "coupon_pct")
+                expected_yield_pct = _portfolio_optional_float(form, "expected_yield_pct")
+                face_value = _portfolio_optional_float(form, "face_value")
+                secured = 1 if str(form.get("secured", "1")) == "1" else 0
+                check_add_allowed(company, isin, conn)
+                try:
+                    cursor = conn.execute(
+                        "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "
+                        "tenure_months, credit_day, status, watch_state, rating, rating_agency, "
+                        "coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            company,
+                            isin,
+                            company,
+                            float(amount),
+                            start_date.isoformat(),
+                            end_date.isoformat(),
+                            int(tenure_months),
+                            int(credit_day),
+                            "On-going",
+                            "holding",
+                            rating,
+                            rating_agency,
+                            coupon_pct,
+                            expected_yield_pct,
+                            payout_cycle,
+                            issuer_type,
+                            secured,
+                            face_value,
+                        ),
+                    )
+                except sqlite3.IntegrityError as exc:
+                    raise AppError(
+                        "ERR-add-insert",
+                        f"position insert rejected (duplicate ISIN {isin}): {exc}",
+                    ) from exc
+                if cursor.rowcount != 1:
+                    raise AppError(
+                        "ERR-add-insert",
+                        f"position insert for {company} affected {cursor.rowcount} rows",
+                    )
+                bond_id = cursor.lastrowid
+                current_key = month_key(date.today())
+                for key in tenure_window(start_date, tenure_months):
+                    if key > current_key:
+                        break
+                    conn.execute(
+                        "INSERT OR IGNORE INTO payment_ledger (bond_id, month, amount, paid) "
+                        "VALUES (?, ?, 0, 0)",
+                        (bond_id, key),
+                    )
+        except AppError as exc:
+            status_code = 409 if exc.code in ("ERR-active-position", "ERR-add-insert") else 400
+            try:
+                with get_conn(db_file) as conn:
+                    context = _portfolio_context(
+                        conn, date.today(), "holdings", form, exc.message, exc.code
+                    )
+            except AppError:
+                context = {
+                    "tab": "holdings",
+                    "holdings": [],
+                    "months": [],
+                    "payouts": [],
+                    "form": form,
+                    "error": exc.message,
+                    "code": exc.code,
+                }
+            return render_template("portfolio.html", **context), status_code
+        flash(f"Position added: {company}", "success")
+        return redirect(url_for("portfolio_page", tab="holdings"))
+
+    @app.route("/portfolio", methods=["GET", "POST"])
     def portfolio_page():
-        return render_template("portfolio.html")
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        if request.method == "POST":
+            return _add_portfolio_position(db_file)
+        tab = str(request.args.get("tab") or "holdings")
+        if tab not in ("holdings", "payouts"):
+            return error_page(
+                "ERR-portfolio-tab",
+                f"unknown tab: {tab!r} (expected 'holdings' or 'payouts')",
+                "Portfolio tab failed",
+                400,
+            )
+        try:
+            with get_conn(db_file) as conn:
+                context = _portfolio_context(conn, date.today(), tab, {}, None, None)
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Portfolio render failed", 500)
+        return render_template("portfolio.html", **context)
 
     @app.route("/settings")
     def settings_page():

@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 
 from .validators import AppError, add_months, parse_date_value
@@ -70,10 +71,10 @@ def credit_day_overdue(months, tenure_months, credit_day, today):
     tenure = _validate_tenure(tenure_months)
     _validate_months(months)
     _validate_today(today)
-    if isinstance(credit_day, bool) or not isinstance(credit_day, int) or not 1 <= credit_day <= 28:
+    if isinstance(credit_day, bool) or not isinstance(credit_day, int) or not 1 <= credit_day <= 31:
         raise AppError(
             "ERR-credit-sweep",
-            f"credit_day must be an integer in 1-28: {credit_day!r}",
+            f"credit_day must be an integer in 1-31: {credit_day!r}",
         )
     paid_count = sum(1 for paid in months.values() if paid)
     if paid_count >= tenure:
@@ -81,7 +82,8 @@ def credit_day_overdue(months, tenure_months, credit_day, today):
     current = month_key(today)
     if current not in months:
         return False
-    if today.day <= credit_day:
+    last_day = calendar.monthrange(today.year, today.month)[1]
+    if today.day < min(credit_day + 1, last_day):
         return False
     return not months.get(current, False)
 
