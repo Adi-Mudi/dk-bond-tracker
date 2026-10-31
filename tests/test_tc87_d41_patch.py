@@ -163,6 +163,8 @@ def test_tc87_add_position_persists_broker(client, db_path):
             "credit_day": "15",
             "start_date": "2026-10-01",
             "end_date": "2027-03-31",
+            "coupon_pct": "7.5",
+            "expected_yield_pct": "8.0",
             "broker": "ICICI Direct",
         },
         follow_redirects=False,
@@ -230,3 +232,146 @@ def test_tc87_invalid_row_detail_drawer_still_returns_json(client, db_path):
     assert response.status_code == 200
     payload = response.get_json()
     assert payload["status"] == "Invalid"
+
+
+def inject_bad_amount(db_path):
+    with get_conn(db_path) as conn:
+        cursor = conn.execute(
+            "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "
+            "tenure_months, credit_day, status, watch_state) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'holding')",
+            (
+                "BadAmt Co",
+                "INE9000A01555",
+                "BadAmt Co",
+                "abc",
+                "2026-10-01",
+                "2027-03-31",
+                6,
+                5,
+                "On-going",
+            ),
+        )
+        return cursor.lastrowid
+
+
+def test_tc87_f221_non_numeric_amount_surfaces_stay_200_invalid_row(client, db_path):
+    bond_id = inject_bad_amount(db_path)
+    for path in ("/", "/portfolio", "/portfolio?tab=payouts", "/watch"):
+        response = client.get(path)
+        assert response.status_code == 200, path
+    holdings = client.get("/portfolio").get_data(as_text=True)
+    assert "chip-invalid" in holdings
+    assert ">Invalid<" in holdings
+    assert "dates need review" in holdings
+    payouts = client.get("/portfolio?tab=payouts").get_data(as_text=True)
+    assert "chip-invalid" in payouts
+    detail = client.get(f"/portfolio/{bond_id}/detail").get_json()
+    assert detail["status"] == "Invalid"
+    assert detail["invested"] == 0.0
+
+
+def test_tc87_f222_portfolio_add_percent_empty_rejected_zero_rows(client, db_path):
+    base = {
+        "amount": "50000",
+        "credit_day": "15",
+        "start_date": "2026-10-01",
+        "end_date": "2027-03-31",
+        "coupon_pct": "7.5",
+        "expected_yield_pct": "8.0",
+    }
+    empty_coupon = dict(
+        base, company="Pct Co One", isin="INE9000A01661", coupon_pct=""
+    )
+    response = client.post("/portfolio", data=empty_coupon, follow_redirects=False)
+    assert response.status_code == 400
+    assert "coupon_pct is required" in response.get_data(as_text=True)
+    empty_yield = dict(
+        base, company="Pct Co Two", isin="INE9000A01662", expected_yield_pct=""
+    )
+    response = client.post("/portfolio", data=empty_yield, follow_redirects=False)
+    assert response.status_code == 400
+    assert "expected_yield_pct is required" in response.get_data(as_text=True)
+    with get_conn(db_path) as conn:
+        count = conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
+    assert count == 0
+    zeros = dict(
+        base,
+        company="Pct Co Zero",
+        isin="INE9000A01663",
+        coupon_pct="0.00",
+        expected_yield_pct="0.00",
+    )
+    response = client.post("/portfolio", data=zeros, follow_redirects=False)
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        row = conn.execute(
+            "SELECT coupon_pct, expected_yield_pct FROM bonds WHERE isin = 'INE9000A01663'"
+        ).fetchone()
+    assert row["coupon_pct"] == 0.0
+    assert row["expected_yield_pct"] == 0.0
+
+
+def test_tc87_f223_invalid_remove_rejects_watching_candidate(client, db_path):
+    response = watch_post(client)
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        candidate_id = conn.execute(
+            "SELECT id FROM bonds WHERE isin = 'INE9000A0100'"
+        ).fetchone()["id"]
+    response = client.post(
+        f"/portfolio/invalid/{candidate_id}/remove", follow_redirects=False
+    )
+    assert response.status_code == 400
+    assert "ERR-invalid-remove" in response.get_data(as_text=True)
+    with get_conn(db_path) as conn:
+        row = conn.execute(
+            "SELECT watch_state FROM bonds WHERE id = ?", (candidate_id,)
+        ).fetchone()
+    assert row is not None
+    assert row["watch_state"] == "watching"
+
+
+def test_tc87_f224a_payouts_invalid_row_shows_remove_and_post_works(client, db_path):
+    bond_id = inject_tenure_zero(db_path)
+    payouts = client.get("/portfolio?tab=payouts").get_data(as_text=True)
+    assert f"remove-invalid-payouts-{bond_id}" in payouts
+    assert ">Remove<" in payouts
+    response = client.post(
+        f"/portfolio/invalid/{bond_id}/remove", follow_redirects=False
+    )
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        row = conn.execute("SELECT id FROM bonds WHERE id = ?", (bond_id,)).fetchone()
+    assert row is None
+
+
+def test_tc87_f225_blank_broker_stores_null_on_both_insert_paths(client, db_path):
+    response = watch_post(client, broker="   ")
+    assert response.status_code == 302
+    response = client.post(
+        "/portfolio",
+        data={
+            "company": "Blank Brk Co",
+            "isin": "INE9000A01997",
+            "amount": "50000",
+            "credit_day": "15",
+            "start_date": "2026-10-01",
+            "end_date": "2027-03-31",
+            "coupon_pct": "7.5",
+            "expected_yield_pct": "8.0",
+            "broker": "  ",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        total = conn.execute(
+            "SELECT COUNT(*) AS n FROM bonds WHERE isin IN ('INE9000A0100', 'INE9000A01997')"
+        ).fetchone()["n"]
+        nulls = conn.execute(
+            "SELECT COUNT(*) AS n FROM bonds WHERE broker IS NULL "
+            "AND isin IN ('INE9000A0100', 'INE9000A01997')"
+        ).fetchone()["n"]
+    assert total == 2
+    assert nulls == 2

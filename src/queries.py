@@ -605,13 +605,20 @@ def received_by_bond(conn):
     return totals
 
 
+def _safe_invested(amount):
+    try:
+        return float(amount or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def portfolio_snapshot(conn):
     rows = conn.execute(
         "SELECT id, company, amount FROM bonds WHERE watch_state = 'holding' "
         "ORDER BY company COLLATE NOCASE, id"
     ).fetchall()
     return [
-        {"id": row["id"], "company": row["company"], "invested": float(row["amount"] or 0.0)}
+        {"id": row["id"], "company": row["company"], "invested": _safe_invested(row["amount"])}
         for row in rows
     ]
 
@@ -636,11 +643,20 @@ def position_detail(conn, bond_id, today=None):
         "SELECT month, amount, paid FROM payment_ledger WHERE bond_id = ? ORDER BY month",
         (bond_id,),
     ).fetchall():
-        amount = float(entry["amount"] or 0.0)
+        try:
+            amount = float(entry["amount"] or 0.0)
+        except (TypeError, ValueError):
+            amount = 0.0
         paid = bool(entry["paid"])
-        entries[entry["month"]] = {"amount": amount, "paid": paid}
+        entries[entry["month"]] = {"amount": entry["amount"], "paid": paid}
         payments.append({"month": entry["month"], "amount": amount, "paid": paid})
     received = sum(item["amount"] for item in payments if item["paid"] and item["amount"] > 0)
+    bad_amount = False
+    try:
+        invested = float(row["amount"] or 0.0)
+    except (TypeError, ValueError):
+        invested = 0.0
+        bad_amount = True
     try:
         health = display_label(derive_health(row, entries, today_value))
         next_payout = None
@@ -652,6 +668,9 @@ def position_detail(conn, bond_id, today=None):
     except AppError:
         health = "Invalid"
         next_payout = None
+    if bad_amount:
+        health = "Invalid"
+        next_payout = None
     return {
         "id": row["id"],
         "company": row["company"],
@@ -660,7 +679,7 @@ def position_detail(conn, bond_id, today=None):
         "coupon_pct": row["coupon_pct"],
         "expected_yield_pct": row["expected_yield_pct"],
         "frequency": row["payout_cycle"],
-        "invested": float(row["amount"] or 0.0),
+        "invested": invested,
         "received": received,
         "next_payout": next_payout,
         "status": health,

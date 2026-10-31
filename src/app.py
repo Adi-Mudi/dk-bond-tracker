@@ -192,7 +192,10 @@ def create_app(db_path=None):
         entry = months_map.get(month, {})
         amount = float(entry.get("amount") or 0.0)
         if amount <= 0 and row["interest_payout"] is not None:
-            amount = float(row["interest_payout"]) / int(tenure)
+            try:
+                amount = float(row["interest_payout"]) / int(tenure)
+            except (TypeError, ValueError):
+                amount = 0.0
         credit = int(row["credit_day"] or 1)
         year, mon = int(month[:4]), int(month[5:7])
         day = min(max(credit, 1), calendar.monthrange(year, mon)[1])
@@ -217,14 +220,20 @@ def create_app(db_path=None):
         months_by_bond = {}
         for row in ledger:
             entry = months_by_bond.setdefault(row["bond_id"], {})
-            entry[row["month"]] = {
-                "paid": bool(row["paid"]) and row["amount"] is not None and float(row["amount"]) > 0,
-                "amount": float(row["amount"] or 0.0),
-            }
+            try:
+                ledger_amount = float(row["amount"] or 0.0)
+                ledger_paid = bool(row["paid"]) and row["amount"] is not None and ledger_amount > 0
+            except (TypeError, ValueError):
+                ledger_amount = 0.0
+                ledger_paid = False
+            entry[row["month"]] = {"paid": ledger_paid, "amount": ledger_amount}
         bars = []
         next_payout = None
         for row in holdings:
-            invested = float(row["amount"] or 0.0)
+            try:
+                invested = float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                invested = 0.0
             months_map = months_by_bond.get(row["id"], {})
             received = received_map.get(row["id"], 0.0)
             bars.append(
@@ -588,7 +597,7 @@ def create_app(db_path=None):
             isin = str(form.get("isin", "")).strip().upper()
             rating = str(form.get("rating", "")).strip()
             source_note = str(form.get("source_note", "")).strip()
-            broker = str(form.get("broker", "")).strip()
+            broker = str(form.get("broker", "")).strip() or None
             try:
                 coupon = watch_percent(form.get("coupon_pct", ""), "coupon")
                 est_yield = watch_percent(form.get("expected_yield_pct", ""), "est yield")
@@ -919,6 +928,12 @@ def create_app(db_path=None):
         holdings = []
         for row in bond_rows:
             entries = ledger_by_bond.get(row["id"], {})
+            bad_amount = False
+            try:
+                invested = float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                invested = 0.0
+                bad_amount = True
             try:
                 health = display_label(derive_health(row, entries, today))
                 next_payout = "—"
@@ -930,6 +945,9 @@ def create_app(db_path=None):
             except AppError:
                 health = "Invalid"
                 next_payout = "—"
+            if bad_amount:
+                health = "Invalid"
+                next_payout = "—"
             holdings.append(
                 {
                     "id": row["id"],
@@ -939,7 +957,7 @@ def create_app(db_path=None):
                     "coupon": row["coupon_pct"],
                     "yield_pct": row["expected_yield_pct"],
                     "frequency": row["payout_cycle"],
-                    "invested": float(row["amount"] or 0.0),
+                    "invested": invested,
                     "received": received_by_bond_map.get(row["id"], 0.0),
                     "next_payout": next_payout,
                     "health": health,
@@ -952,6 +970,11 @@ def create_app(db_path=None):
         first_keys = []
         for row in bond_rows:
             entries = ledger_by_bond.get(row["id"], {})
+            try:
+                float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                prepared.append((row, [], entries, "Invalid", True))
+                continue
             try:
                 window = tenure_window(row["start_date"], row["tenure_months"])
                 first_keys.append(window[0])
@@ -1110,12 +1133,12 @@ def create_app(db_path=None):
                     )
                 rating = _portfolio_optional_text(form, "rating")
                 rating_agency = _portfolio_optional_text(form, "rating_agency")
-                coupon_pct = percent_value(form.get("coupon_pct", ""), "coupon_pct", "ERR-add-fields", required=False)
+                coupon_pct = percent_value(form.get("coupon_pct", ""), "coupon_pct", "ERR-add-fields")
                 expected_yield_pct = percent_value(
-                    form.get("expected_yield_pct", ""), "expected_yield_pct", "ERR-add-fields", required=False
+                    form.get("expected_yield_pct", ""), "expected_yield_pct", "ERR-add-fields"
                 )
                 face_value = _portfolio_optional_float(form, "face_value")
-                broker = str(form.get("broker", "")).strip()
+                broker = str(form.get("broker", "")).strip() or None
                 secured = 1 if str(form.get("secured", "1")) == "1" else 0
                 check_add_allowed(company, isin, conn)
                 try:
@@ -1226,11 +1249,16 @@ def create_app(db_path=None):
         try:
             with get_conn(db_file) as conn:
                 row = conn.execute(
-                    "SELECT id, start_date, end_date, tenure_months FROM bonds WHERE id = ?",
+                    "SELECT id, start_date, end_date, tenure_months, watch_state FROM bonds WHERE id = ?",
                     (bond_id,),
                 ).fetchone()
                 if row is None:
                     raise AppError("ERR-invalid-remove", f"position not found: {bond_id}")
+                if row["watch_state"] != "holding":
+                    raise AppError(
+                        "ERR-invalid-remove",
+                        f"position {bond_id} is {row['watch_state']}; remove only applies to holdings rows",
+                    )
                 if _row_valid(row):
                     raise AppError(
                         "ERR-invalid-remove",
