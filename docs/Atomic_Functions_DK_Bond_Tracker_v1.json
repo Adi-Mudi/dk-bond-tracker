@@ -11,7 +11,7 @@
     "docs/PRD_DK_Bond_Tracker_v2.json (prd_items FR-01..FR-24, phases)"
   ],
   "d5_status_rule": "Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved",
-  "l1_flag": "Ledger reconciliation (AF-08) compares imported figures against a baseline that is an OPEN owner decision per ADR-10: the workbook computes Total Till Return 56227.88 and Total Balance -1165738.34 while the PRD/SRS exit figures are 111638.57 and -925503.44, and the Balance definition itself is contested (workbook L = K - J maturity amount vs PRD Till Return - Total Investment). Reconciliation cannot honestly pass until the owner re-baselines; the mismatch is reported, never silently reconciled or silently passed.",
+  "l1_flag": "Ledger reconciliation (AF-08) compares imported figures against a baseline that is an OPEN owner decision per ADR-10: the workbook computes Total Till Return 28500.00 and Total Balance -521500.00 while the PRD/SRS exit figures are 28500.00 and -521500.00, and the Balance definition itself is contested (workbook L = K - J maturity amount vs PRD Till Return - Total Investment). Reconciliation cannot honestly pass until the owner re-baselines; the mismatch is reported, never silently reconciled or silently passed.",
   "atomic_functions": [
     {
       "id": "AF-01",
@@ -139,7 +139,7 @@
     {
       "id": "AF-05",
       "name": "Extract home plan schedule rows",
-      "purpose": "Extract the 84-month Home Plan schedule (month index 1..84), preserving static inputs (date, saving including irregular 39588, 10063 and 0, rate, countdown) verbatim and taking cached values for formula cells (per-year interest, remaining interest, schedule totals).",
+      "purpose": "Extract the 84-month Home Plan schedule (month index 1..84), preserving static inputs (date, saving including irregular 25000, 10000 and 0, rate, countdown) verbatim and taking cached values for formula cells (per-year interest, remaining interest, schedule totals).",
       "inputs": [
         "normalized workbook handle"
       ],
@@ -156,7 +156,7 @@
       ],
       "postconditions": [
         "All 84 schedule months extracted",
-        "Irregular savings 39588, 10063 and 0 preserved verbatim in their original month positions (ERR-06)",
+        "Irregular savings 25000, 10000 and 0 preserved verbatim in their original month positions (ERR-06)",
         "Formula cells taken from cached values, static cells preserved verbatim"
       ],
       "fr_refs": [
@@ -256,8 +256,8 @@
         "Baseline candidates identified per ADR-10"
       ],
       "postconditions": [
-        "Report lists bond count (15), Total Investment (1037142.01), Total Till Return and Total Balance computed side by side with the baseline",
-        "L1 is flagged, not resolved: the workbook computes Total Till Return 56227.88 and Total Balance -1165738.34 while the PRD/SRS exit figures are 111638.57 and -925503.44; the Balance definition (workbook L = K - J maturity amount vs PRD Till Return - Total Investment) is also contested — both sub-decisions are OPEN owner decisions under ADR-10",
+        "Report lists bond count (15), Total Investment (550000.00), Total Till Return and Total Balance computed side by side with the baseline",
+        "L1 is flagged, not resolved: the workbook computes Total Till Return 28500.00 and Total Balance -521500.00 while the PRD/SRS exit figures are 28500.00 and -521500.00; the Balance definition (workbook L = K - J maturity amount vs PRD Till Return - Total Investment) is also contested — both sub-decisions are OPEN owner decisions under ADR-10",
         "Reconciliation cannot honestly pass until the owner re-baselines; the mismatch is never silently reconciled and no acceptance test may be green-washed against the stale PRD numbers"
       ],
       "fr_refs": [
@@ -1022,7 +1022,7 @@
     {
       "id": "AF-31",
       "name": "Render Home Plan schedule view",
-      "purpose": "Render the imported 84-month Home Plan savings schedule (month index 1..84 with saving, rate, per-year interest, countdown, remaining interest and totals) exactly from stored values, including the irregular savings 39588, 10063 and 0 in their original month positions.",
+      "purpose": "Render the imported 84-month Home Plan savings schedule (month index 1..84 with saving, rate, per-year interest, countdown, remaining interest and totals) exactly from stored values, including the irregular savings 25000, 10000 and 0 in their original month positions.",
       "inputs": [
         "home_plan table rows (imported via AF-05/AF-09)"
       ],
@@ -1036,7 +1036,7 @@
         "Home Plan rows committed to the database (AF-09)"
       ],
       "postconditions": [
-        "All 84 months listed with irregular savings 39588, 10063 and 0 in original positions",
+        "All 84 months listed with irregular savings 25000, 10000 and 0 in original positions",
         "Rate, per-year interest, countdown, remaining interest and totals match the stored Excel values row by row (ERR-06 verbatim preservation)"
       ],
       "fr_refs": [

@@ -12,9 +12,18 @@
       "heading": "Shell and navigation delta (standalone app shell per D33)",
       "body": "DELTA over design/architecture_dk_bond_tracker_v1.json: the flask_web_app container gains a persistent application shell instead of the flat base.html top nav. (1) Sidebar nav map, fixed order with targets: Dashboard -> /, Month Grid -> /grid, Watchlist -> /watch (this screen; aria-current=page and active styling), Financial Goals -> /goals, Alerts -> /notifications (unread bell badge fed by notifications.unread_count), Reports/Print -> /print (with /share, /export.csv and /payout reachable from that area), Settings -> /settings (NEW route, D34). The sidebar bottom block carries the Privacy Mode toggle (privacy_default key), the offline indicator ('local database') and no other controls. (2) Window chrome purpose: a slim fake native window bar (title, menu strip, min/max/close glyphs) exists so the browser page reads as an installed desktop application, not a website — it is presentation only, it owns no logic and no routes, and it collapses away under the responsive breakpoint like the sidebar does. (3) Status bar data sources: left slot renders row counts straight from the watchlist query (holdings count, watching count, alerts-today count — same request, no second query); center slot renders active filter chips from the current query params; right slot renders Privacy state, 'DB: local', version, and the email status which is derived from alert_prefs key presence ONLY (configured/not — never a value, never a username); email status reads the same alert_prefs keys listed in section 3 and shows 'Email: not configured' in muted/red until smtp_user + smtp_app_password + alert_to all exist (or their env overrides do). (4) Route additions: GET /settings (tabbed page), POST /settings (per-section save), GET /watch serving the two-view data model (holdings + watching in one payload), and the detail drawer endpoint GET /watch/<id> returning the drawer fragment (equivalent server-rendered fallback: /watch?row=<id> keeps the drawer open with no JavaScript state).",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33", "dk_bond_tracker_brainstorm_20261030:D34"],
-        "fr": ["FR-38", "FR-49"],
-        "sources": [".IDE_Plans/design_drafts/watchlist_standalone_mockup_v1.html (sidebar, chrome, status bar)", "src/templates/base.html (current top nav this replaces)"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33",
+          "dk_bond_tracker_brainstorm_20261030:D34"
+        ],
+        "fr": [
+          "FR-38",
+          "FR-49"
+        ],
+        "sources": [
+          ".IDE_Plans/design_drafts/watchlist_standalone_mockup_v1.html (sidebar, chrome, status bar)",
+          "src/templates/base.html (current top nav this replaces)"
+        ]
       }
     },
     {
@@ -22,19 +31,45 @@
       "heading": "Watchlist container — components, templates, query model, reuse rules (D33)",
       "body": "Components, mapped to the mockup sections: (a) segmented view tabs — My Holdings (count) / Watching (count), tab state carried in the URL (?tab=holdings|watching) so a tab switch preserves every filter param; (b) filter bar — text search over company/ISIN plus chip filters rating, payout cycle, issuer type, status, a sort selector (whitelist: maturity, company, rating, invested, next payout — direction ascending/descending), and a density toggle (compact/comfortable) that persists via query param and alert_prefs; (c) summary strip — Total Invested, Current Returns (ledger-computed), Next Payout This Month, Maturing in 90 Days, all computed in the same query pass over the filtered set; (d) table — columns: select, Company/ISIN, Type, Rating, Coupon %, Yield % (manual badge), Payout, Invested, Returned, Next Payout, Maturity, Status; monetary columns right-aligned with the shared money helper, status cell rendered from the day-wise helper only, left status borders by state; (e) detail drawer — facts grid (ISIN, face value, secured, issuer type, credit rating, start/end date, credit day + cycle), payment schedule rows (received/overdue/upcoming), yield-investment box (invested, returned, coupon, expected yield), actions Edit / Mark as Watching or Move to Holdings / Record Payment, and the offline 'ratings entered manually' note; (f) alerts panel — overdue / due-soon / maturity cards with dismiss buttons (dismiss hides the card only, the notification history row is kept); (g) watching cards — rating badge with agency, coupon, yield, payout, status chip and a Move to Holdings button. Templates: new src/templates/watchlist_v2.html extending base.html (option B acceptable: extend the existing src/templates/watch.html in place — same partials either way), with Jinja include partials src/templates/watchlist/_tabs.html, _summary.html, _filters.html, _table.html, _drawer.html, _alerts.html, _watching.html so each mockup section maps 1:1 to one partial. Query model: ONE parameterized SQL per request over bonds LEFT JOIN per-bond ledger aggregates (paid sum, next unpaid month) with all filters composed into that single WHERE clause and the sort chosen from a fixed whitelist — no per-filter round trips, no client-side filtering; pagination is deliberately absent: the query carries LIMIT 200 with a visible note 'showing first 200 rows (offline cap)' — offline portfolios are capped, and the cap is documented rather than paginated. Reuse rules (hard): status comes from the status.py day-wise helper ONLY (compute_row_status_daywise / recompute_all path) — templates and queries never re-derive Danger/On-going/Completed and never call the month-only compute_row_status directly for a displayed row; money formatting uses ONE shared helper/filter (Indian grouping, 2 decimals, privacy masking aware) reused by watchlist, settings, dashboard and drawer — no per-template printf of rupee values.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33"],
-        "fr": ["FR-39", "FR-40", "FR-41", "FR-42", "FR-43"],
-        "sources": [".IDE_Plans/design_drafts/watchlist_standalone_mockup_v1.html sections A-G", "src/status.py (compute_row_status_daywise)", "src/analytics.py (watch_model precedent)", "src/templates/watch.html"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33"
+        ],
+        "fr": [
+          "FR-39",
+          "FR-40",
+          "FR-41",
+          "FR-42",
+          "FR-43"
+        ],
+        "sources": [
+          ".IDE_Plans/design_drafts/watchlist_standalone_mockup_v1.html sections A-G",
+          "src/status.py (compute_row_status_daywise)",
+          "src/analytics.py (watch_model precedent)",
+          "src/templates/watch.html"
+        ]
       }
     },
     {
       "id": "settings_container",
       "heading": "Settings container — sections, storage, precedence, security (D34)",
-      "body": "Settings page (GET /settings) is tabbed with five sections: (1) Email/Alerts — SMTP host (default smtp.gmail.com), port (465 SSL / 587 STARTTLS dropdown), username, App Password (masked), recipient alert email, From display name, [Test Email] and [Save] actions, plus a Configured / Not configured status badge; (2) Alert Preferences — payout reminder days before, overdue-on toggle (credit day + 1), maturity alert toggles 30/7/1 days, daily sweep hour, in-app bell shown as locked always-on; (3) General — default credit day for new positions (1-28), privacy-on-startup toggle, currency format fixed to Indian grouping, table density (compact/comfortable), theme fixed dark; (4) Data — import from Excel, export backup (.db), default CSV scope (current view / full ledger), Danger zone reset local database; (5) About — version, build note, offline/no-accounts badge, open local data folder link. Storage: ALL settings live in the existing alert_prefs key/value table (key TEXT UNIQUE, value TEXT — src/db.py SCHEMA_STATEMENTS) as upserts; exact key list (15 keys): smtp_host, smtp_port, smtp_user, smtp_app_password, alert_to, alert_from_name, reminder_days, overdue_on, maturity_30, maturity_7, maturity_1, sweep_time, default_credit_day, privacy_default, csv_scope. Theme has NO key: theme=dark is fixed in the UI (Light disabled, 'coming later'); alert_prefs additionally carries the pre-existing runtime keys last_sweep and notify_once dedupe markers, which Settings never edits. Precedence: at SEND time the five environment variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_APP_PASSWORD, ALERT_TO OVERRIDE any stored alert_prefs value — resolution order is env first, stored value second, and a missing value in both raises the existing ERR-smtp-unconfigured (src/mailer.py); the Settings page itself displays stored values plus a note that env wins, so a user who set an env var is never confused by a stale stored username. Security: the App Password is stored locally in alert_prefs on the same machine as the data; after a successful save it is masked and NEVER re-displayed — write-once semantics, a blank App Password input on any later save means 'keep the existing stored value', not 'clear it'; no credential value is ever logged, put in a notification, or rendered in any template — the status bar and badge show configured/not only; Reset (Danger zone) requires the typed literal RESET and is enforced server-side in the POST handler, not just by client-side confirm. Test Email: POST /settings/test-email builds a synthetic event dict (company 'Test Alert', month today, severity 'test', credit_day n/a) and reuses mailer.send_alert_email unchanged — no second mail path — and reports failure as a named error banner without crashing the page.",
+      "body": "Settings page (GET /settings) is tabbed with five sections: (1) Email/Alerts — SMTP host (default smtp.gmail.com), port (465 SSL / 587 STARTTLS dropdown), username, App Password (masked), recipient alert email, From display name, [Test Email] and [Save] actions, plus a Configured / Not configured status badge; (2) Alert Preferences — payout reminder days before, overdue-on toggle (credit day + 1), maturity alert toggles 30/7/1 days, daily sweep hour, in-app bell shown as locked always-on; (3) General — default credit day for new positions (1-28), privacy-on-startup toggle, currency format fixed to Indian grouping, table density (compact/comfortable), theme fixed dark; (4) Data — export backup (.db), default CSV scope (current view / full ledger), Danger zone reset local database; (5) About — version, build note, offline/no-accounts badge, open local data folder link. Storage: ALL settings live in the existing alert_prefs key/value table (key TEXT UNIQUE, value TEXT — src/db.py SCHEMA_STATEMENTS) as upserts; exact key list (15 keys): smtp_host, smtp_port, smtp_user, smtp_app_password, alert_to, alert_from_name, reminder_days, overdue_on, maturity_30, maturity_7, maturity_1, sweep_time, default_credit_day, privacy_default, csv_scope. Theme has NO key: theme=dark is fixed in the UI (Light disabled, 'coming later'); alert_prefs additionally carries the pre-existing runtime keys last_sweep and notify_once dedupe markers, which Settings never edits. Precedence: at SEND time the five environment variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_APP_PASSWORD, ALERT_TO OVERRIDE any stored alert_prefs value — resolution order is env first, stored value second, and a missing value in both raises the existing ERR-smtp-unconfigured (src/mailer.py); the Settings page itself displays stored values plus a note that env wins, so a user who set an env var is never confused by a stale stored username. Security: the App Password is stored locally in alert_prefs on the same machine as the data; after a successful save it is masked and NEVER re-displayed — write-once semantics, a blank App Password input on any later save means 'keep the existing stored value', not 'clear it'; no credential value is ever logged, put in a notification, or rendered in any template — the status bar and badge show configured/not only; Reset (Danger zone) requires the typed literal RESET and is enforced server-side in the POST handler, not just by client-side confirm. Test Email: POST /settings/test-email builds a synthetic event dict (company 'Test Alert', month today, severity 'test', credit_day n/a) and reuses mailer.send_alert_email unchanged — no second mail path — and reports failure as a named error banner without crashing the page.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D34"],
-        "fr": ["FR-44", "FR-45", "FR-46", "FR-47", "FR-48", "FR-49"],
-        "sources": ["src/db.py (alert_prefs table)", "src/mailer.py (_config env-only today; delta adds stored fallback)", ".IDE_Plans/briefs/01_wl_design_mockup_v2.md (D34 settings content)"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D34"
+        ],
+        "fr": [
+          "FR-44",
+          "FR-45",
+          "FR-46",
+          "FR-47",
+          "FR-48",
+          "FR-49"
+        ],
+        "sources": [
+          "src/db.py (alert_prefs table)",
+          "src/mailer.py (_config env-only today; delta adds stored fallback)",
+          ".IDE_Plans/briefs/01_wl_design_mockup_v2.md (D34 settings content)"
+        ]
       }
     },
     {
@@ -42,22 +77,62 @@
       "heading": "Schema delta — exact ALTER list for bonds, import mapping, defaults, zero new tables",
       "body": "Exact DDL delta, extending the bonds table defined in src/db.py (SCHEMA_STATEMENTS + _ensure_columns). All eight columns are added by guarded ALTER TABLE bonds ADD COLUMN statements inside the existing _ensure_columns pattern (skip if the column already exists); the migration is idempotent and ships as an explicit step in db.py per the base architecture deployment rule. No column outside this list changes; payment_ledger, financial_goals, notifications, alert_prefs and share_config are untouched.",
       "alter": [
-        {"column": "rating", "ddl": "ALTER TABLE bonds ADD COLUMN rating TEXT", "note": "credit grade only, e.g. AA+ / BBB-"},
-        {"column": "rating_agency", "ddl": "ALTER TABLE bonds ADD COLUMN rating_agency TEXT", "note": "agency only when separable from the source cell, else NULL"},
-        {"column": "coupon_pct", "ddl": "ALTER TABLE bonds ADD COLUMN coupon_pct REAL", "note": "coupon percent; no workbook source column — manual entry, NULL after import"},
-        {"column": "expected_yield_pct", "ddl": "ALTER TABLE bonds ADD COLUMN expected_yield_pct REAL", "note": "expected yield percent, manual/offline (D33)"},
-        {"column": "payout_cycle", "ddl": "ALTER TABLE bonds ADD COLUMN payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual'))", "note": "payment payout cycle"},
-        {"column": "issuer_type", "ddl": "ALTER TABLE bonds ADD COLUMN issuer_type TEXT CHECK (issuer_type IN ('corporate_bond','ncd','sdi','government','fd'))", "note": "issuer classification"},
-        {"column": "secured", "ddl": "ALTER TABLE bonds ADD COLUMN secured INT DEFAULT 1", "note": "1 = secured, 0 = unsecured; defaults to secured"},
-        {"column": "watch_state", "ddl": "ALTER TABLE bonds ADD COLUMN watch_state TEXT NOT NULL DEFAULT 'holding' CHECK (watch_state IN ('holding','watching'))", "note": "two-view key: holding rows are owned positions, watching rows are candidates"}
+        {
+          "column": "rating",
+          "ddl": "ALTER TABLE bonds ADD COLUMN rating TEXT",
+          "note": "credit grade only, e.g. AA+ / BBB-"
+        },
+        {
+          "column": "rating_agency",
+          "ddl": "ALTER TABLE bonds ADD COLUMN rating_agency TEXT",
+          "note": "agency only when separable from the source cell, else NULL"
+        },
+        {
+          "column": "coupon_pct",
+          "ddl": "ALTER TABLE bonds ADD COLUMN coupon_pct REAL",
+          "note": "coupon percent; manual entry via Add Position form (D37: no import)"
+        },
+        {
+          "column": "expected_yield_pct",
+          "ddl": "ALTER TABLE bonds ADD COLUMN expected_yield_pct REAL",
+          "note": "expected yield percent, manual/offline (D33)"
+        },
+        {
+          "column": "payout_cycle",
+          "ddl": "ALTER TABLE bonds ADD COLUMN payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual'))",
+          "note": "payment payout cycle"
+        },
+        {
+          "column": "issuer_type",
+          "ddl": "ALTER TABLE bonds ADD COLUMN issuer_type TEXT CHECK (issuer_type IN ('corporate_bond','ncd','sdi','government','fd'))",
+          "note": "issuer classification"
+        },
+        {
+          "column": "secured",
+          "ddl": "ALTER TABLE bonds ADD COLUMN secured INT DEFAULT 1",
+          "note": "1 = secured, 0 = unsecured; defaults to secured"
+        },
+        {
+          "column": "watch_state",
+          "ddl": "ALTER TABLE bonds ADD COLUMN watch_state TEXT NOT NULL DEFAULT 'holding' CHECK (watch_state IN ('holding','watching'))",
+          "note": "two-view key: holding rows are owned positions, watching rows are candidates"
+        }
       ],
-      "import_mapping": "One-time XLSM watch-sheet mapping (sheet 'Bond - Watch list ' with trailing space, headers A..U verbatim from the feasibility spike and doc-code analysis): (1) Rating cell (values such as 'AA+', 'ICRA BBB/STABLE', 'CRISIL A', 'Ind-Ra A', 'BBB- (Stable)') -> split when an agency token is separable (leading known agency word such as ICRA, CRISIL, Ind-Ra, ACUITE, IVR, CARE, IndiaBonds): agency -> rating_agency, remaining grade -> rating; when the cell is a bare grade ('AA', 'BBB+') or the agency cannot be separated confidently -> rating holds the full cell value and rating_agency stays NULL (never guess an agency). (2) 'Yeild' header column (verbatim typo) -> expected_yield_pct; coupon_pct has no watch-sheet column and stays NULL on import. (3) 'Payment type Type' cell (data-validation list '1 Monthly' / '4 Quartely') -> payout_cycle normalized: '1 Monthly' -> 'monthly', '4 Quartely' -> 'quarterly', anything else or blank -> NULL (the CHECK allows 'annual' for manual/future entry only). (4) No issuer-type or secured column exists in the workbook -> issuer_type stays NULL, secured takes its DEFAULT 1. (5) watch_state is NOT read from the workbook — see defaults below. (6) All other watch-sheet columns (Face Value, Principle Amount, T.L.P, discount/TDS analytics columns) keep mapping to their existing _ensure_columns columns exactly as the current import does — this delta adds no new import targets beyond those above.",
-      "existing_row_defaults": "Existing rows after ALTER: watch_state = 'holding' (NOT NULL DEFAULT 'holding' initializes every pre-existing bond as a held position — the legacy workbook has no watching candidates); secured = 1 (SQLite initializes existing rows from the declared DEFAULT 1); rating, rating_agency, coupon_pct, expected_yield_pct, payout_cycle, issuer_type = NULL (no DEFAULT declared on those columns). No UPDATE sweep is issued — the column defaults do the initialization.",
+      "import_mapping": "RETIRED per D37: no workbook import exists in the product. All bond fields are entered manually through the upgraded Add Position form (FR-36/FR-40) — start from scratch.",
+      "existing_row_defaults": "Existing rows after ALTER: watch_state = 'holding' (NOT NULL DEFAULT 'holding' initializes every pre-existing bond as a held position — users create watching candidates themselves); secured = 1 (SQLite initializes existing rows from the declared DEFAULT 1); rating, rating_agency, coupon_pct, expected_yield_pct, payout_cycle, issuer_type = NULL (no DEFAULT declared on those columns). No UPDATE sweep is issued — the column defaults do the initialization.",
       "tables_note": "Zero new tables: no CREATE and no DROP anywhere in this delta — the eight ALTER statements are the entire DDL. Settings storage reuses the existing alert_prefs table as a key/value upsert store (INSERT OR REPLACE), and dedupe markers keep using the same table exactly as notify_once already does.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33"],
-        "fr": ["FR-40"],
-        "sources": ["src/db.py (_ensure_columns pattern)", "docs/Feasibility_XLSM_Parser_v1.json (watch-sheet census)", "doc-code-analysis (watch headers A..U)"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33"
+        ],
+        "fr": [
+          "FR-40"
+        ],
+        "sources": [
+          "src/db.py (_ensure_columns pattern)",
+          "docs/Feasibility_XLSM_Parser_v1.json (watch-sheet census)",
+          "doc-code-analysis (watch headers A..U)"
+        ]
       }
     },
     {
@@ -65,9 +140,19 @@
       "heading": "Runtime delta — unchanged startup sweep, new daily maturity scan, alerts panel composition",
       "body": "Startup sweep UNCHANGED: _startup_alerts in src/app.py keeps running alerts.daily_sweep (credit-day overdue -> status Danger + notification + email attempt, dedupe danger:{bond_id}:{YYYY-MM-DD}) and notifications.due_reminders (lead/day-of reminders, dedupe dayof:{bond_id}:{YYYY-MM} and due:{bond_id}:{YYYY-MM}), and keeps stamping alert_prefs.last_sweep — no behavioral change to either engine. NEW daily maturity scan: alongside those two passes in the same daily trigger, scan every bond whose end_date is exactly 30, 7 or 1 days ahead (horizons enabled by maturity_30 / maturity_7 / maturity_1) and, for each hit, emit one notification plus a bell increment through notify_once with dedupe key maturity:{bond_id}:{days} (for example maturity:7:30 / maturity:7:7 / maturity:7:1) — re-running the scan the same day for the same bond+horizon is a no-op; the notification message names the company, the end date and the days remaining; no status change and no email-horizon logic is implied by the scan itself (email still flows only through the existing sweep event email path). Alerts panel composition: one composed query feeds the watchlist alerts panel with three sources unioned in priority order — (1) OVERDUE (red): bonds flagged Danger by the credit-day engine (status column after daily_sweep / credit_day_overdue for the current month, unpaid) with dedupe keys danger:{bond_id}:{YYYY-MM-DD}, dayof:{bond_id}:{YYYY-MM}, due:{bond_id}:{YYYY-MM}; (2) DUE-SOON (amber): next unpaid ledger month inside the reminder_days lead window of the credit day, same due/dayof key family; (3) MATURITY (accent): end_date within an enabled maturity horizon, key maturity:{bond_id}:{days}. Every key and its source are documented here so the test author can assert dedupe per source; the panel renders whatever the query returns for today — dismissals are panel state only and never delete a notifications or alert_prefs row.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33", "dk_bond_tracker_brainstorm_20261030:D34"],
-        "fr": ["FR-43", "FR-45"],
-        "sources": ["src/app.py (_startup_alerts)", "src/alerts.py (daily_sweep)", "src/notifications.py (notify_once, due_reminders)"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33",
+          "dk_bond_tracker_brainstorm_20261030:D34"
+        ],
+        "fr": [
+          "FR-43",
+          "FR-45"
+        ],
+        "sources": [
+          "src/app.py (_startup_alerts)",
+          "src/alerts.py (daily_sweep)",
+          "src/notifications.py (notify_once, due_reminders)"
+        ]
       }
     },
     {
@@ -75,9 +160,19 @@
       "heading": "Routes delta and named errors",
       "body": "Route delta over the base architecture route_handlers: (1) GET /settings — renders the tabbed Settings page from alert_prefs plus env-override annotation; POST /settings — per-section save: only the keys belonging to the submitted section are upserted (section = email | alerts | general | data), a blank smtp_app_password input keeps the stored value (write-once), per-section validation runs before commit; failure raises ERR-settings-save with the failed field named. (2) POST /settings/test-email — synthetic-event send via mailer.send_alert_email; not-configured raises ERR-smtp-unconfigured, transport failure raises ERR-test-email; either renders as an inline banner, HTTP 500 page never. (3) POST /settings/reset — server-side check that the submitted confirm literal equals RESET, otherwise ERR-reset-db; on match the DB file is reset through the normal init path. (4) GET /watch — two-view data: query params tab=holdings|watching, q (search), rating, payout, issuer, status, sort, dir, density, row (open drawer); all params compose into the single query, tab switch preserves them. (5) GET /watch/<id> — drawer fragment for one position (fallback: /watch?row=<id>). (6) POST /watch/<id>/move — Move to Holdings transition. (7) Existing routes (/, /grid, /add, /goals, /notifications, /export.csv, /share, /print, /payout, /payment/<id>/<month>) are unchanged. Named errors for this delta: ERR-settings-save (section save validation/commit failed), ERR-smtp-unconfigured (existing code reused — no env and no stored SMTP credential), ERR-test-email (Test Email transport failure), ERR-reset-db (typed RESET confirm missing/wrong, enforced server-side), ERR-move-watching (Move to Holdings rejected: missing mandatory holding fields such as amount/start/end/credit day, or the D15 active-position lock rejecting a duplicate active position). Each error follows the base error_surfacing policy: visible message naming the operation, no silent fallback, mapped through the existing AppError -> error.html path.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33", "dk_bond_tracker_brainstorm_20261030:D34"],
-        "fr": ["FR-39", "FR-44", "FR-47"],
-        "sources": ["src/app.py (route handlers, AppError -> error.html)", "src/validators.py (AppError, D15 lock validators)"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33",
+          "dk_bond_tracker_brainstorm_20261030:D34"
+        ],
+        "fr": [
+          "FR-39",
+          "FR-44",
+          "FR-47"
+        ],
+        "sources": [
+          "src/app.py (route handlers, AppError -> error.html)",
+          "src/validators.py (AppError, D15 lock validators)"
+        ]
       }
     },
     {
@@ -85,19 +180,37 @@
       "heading": "Testing notes — unit-testable components for the test-plan author",
       "body": "Components that are pure or single-connection and unit-testable without a browser: (1) filter query — feed the composed query a seeded bond set (ratings AA/AAA, cycles monthly/quarterly/annual, issuer types, both watch_state values, mixed statuses) and assert exact row sets per filter and per combined filters, sort whitelist orderings, the 200-row cap plus the cap note, and that tab=holdings and tab=watching partition the set with no overlap; (2) settings precedence — with both env and stored values set, assert env wins at send time for SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_APP_PASSWORD/ALERT_TO, stored value used when env is absent, ERR-smtp-unconfigured when neither, blank App Password input preserves the stored value, and no template/notification contains the stored App Password; (3) maturity scan — seed bonds with end_date at today+30/+7/+1 and controls outside those windows; assert notifications created only for in-horizon bonds, dedupe key maturity:{bond_id}:{days} prevents a second row on re-run, disabled horizon keys (maturity_30 off) suppress their hits, and the scan leaves bond status untouched; (4) move-to-holdings — move a watching row and assert watch_state becomes holding and the row now appears in holdings/grid/dashboard counts; assert ERR-move-watching when mandatory holding fields are absent and when the D15 active-position lock fires; (5) composition query — assert overdue/due-soon/maturity segments return with their documented dedupe keys and priority order; (6) per-section settings save — assert only the submitted section's keys change; (7) reset — assert the wrong confirm literal raises ERR-reset-db server-side; (8) named-error surface tests — each of the five error codes rendered visibly, no 500 tracebacks. Existing suites to extend rather than duplicate: test_tc78_daywise_sweep, test_tc79_alert_channels, test_tc80_alert_history, test_tc19/tc20_schema (add the eight columns to the schema assertions), test_af06_watchlist.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33", "dk_bond_tracker_brainstorm_20261030:D34"],
-        "fr": ["FR-39", "FR-43", "FR-44", "FR-47"],
-        "sources": ["tests/ existing suite naming (tc/af ids)", "docs/Test_Plan_addendum_v2.json"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33",
+          "dk_bond_tracker_brainstorm_20261030:D34"
+        ],
+        "fr": [
+          "FR-39",
+          "FR-43",
+          "FR-44",
+          "FR-47"
+        ],
+        "sources": [
+          "tests/ existing suite naming (tc/af ids)",
+          "docs/Test_Plan_addendum_v2.json"
+        ]
       }
     },
     {
       "id": "honesty",
       "heading": "Honesty and scope holds",
-      "body": "What this delta does NOT do, stated plainly so no downstream document oversells it: (1) no live prices and no live ratings feeds anywhere — the app makes zero outbound connections (base cross_cutting security holds); every rating and every expected-yield value is entered or imported manually and is only as fresh as the last manual edit (D33); the drawer and filter bar label yield as manual. (2) Coupon %, issuer type, secured flags and payout cycle for existing imported rows are NULL/default until the user fills them — import does not invent data the workbook never had. (3) P&L remains the L2 hold and the reconciliation/exit-figure question remains the L1 hold exactly as the base architecture records them (ADR-10, R-01, R-02): this addendum neither re-baselines nor consumes those figures, and no test may be marked green against them because of anything in this document. (4) Status display semantics beyond the day-wise helper are unchanged — D5 rules, no scan-window limit, zero = unpaid all carry over verbatim. (5) Email delivery is best-effort personal-to-personal SMTP (D22/D24): failures surface as visible warnings, never as silent success, and no delivery guarantee is implied.",
+      "body": "What this delta does NOT do, stated plainly so no downstream document oversells it: (1) no live prices and no live ratings feeds anywhere — the app makes zero outbound connections (base cross_cutting security holds); every rating and every expected-yield value is entered manually and is only as fresh as the last manual edit (D33); the drawer and filter bar label yield as manual. (2) rows are never imported — all data is created by the user (start from scratch, D37). (4) Status display semantics beyond the day-wise helper are unchanged — D5 rules, no scan-window limit, zero = unpaid all carry over verbatim. (5) Email delivery is best-effort personal-to-personal SMTP (D22/D24): failures surface as visible warnings, never as silent success, and no delivery guarantee is implied.",
       "refs": {
-        "decisions": ["dk_bond_tracker_brainstorm_20261030:D33", "dk_bond_tracker_brainstorm_20261030:D34"],
-        "fr": ["FR-40"],
-        "sources": ["design/architecture_dk_bond_tracker_v1.json (cross_cutting.security, ADR-10, risks R-01/R-02)"]
+        "decisions": [
+          "dk_bond_tracker_brainstorm_20261030:D33",
+          "dk_bond_tracker_brainstorm_20261030:D34"
+        ],
+        "fr": [
+          "FR-40"
+        ],
+        "sources": [
+          "design/architecture_dk_bond_tracker_v1.json (cross_cutting.security, ADR-10, risks R-01/R-02)"
+        ]
       }
     }
   ]
