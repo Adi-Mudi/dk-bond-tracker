@@ -4,11 +4,11 @@
   "initiative": "dk_bond_tracker",
   "title": "DK Bond Tracker — XLSM to SQLite+Flask rebuild (doc migration through Design Stage)",
   "kind": "brainstorm",
-  "version": "2.1.0",
+  "version": "2.3.1",
   "status": "locked",
   "stage": "brainstorming",
   "created": "2026-10-30",
-  "updated": "2026-10-30",
+  "updated": "2026-10-31",
   "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
   "routing": "PM Coordinator",
   "routing_note": "User delegated full PM ownership (Q3); routing = PM Coordinator per lifecycle default, no separate routing question needed.",
@@ -506,6 +506,43 @@
       "WHY": "User 2026-10-30 Q1: remove the old format because it has previous-user data; clean program AND documents; new users start from scratch; developers must never ship/share any user's data.",
       "Status": "CONFIRMED",
       "source": "user 2026-10-30 Q1"
+    },
+    {
+      "id": "D38",
+      "topic": "Screen restructure: Portfolio (renamed) + Watchlist = candidates only",
+      "options": [
+        "Restructure per owner Q1/Q2",
+        "Keep prior two-view layout"
+      ],
+      "choice": "Sidebar: Dashboard | PORTFOLIO (renamed from Month Grid) | WATCHLIST | Financial Goals | Alerts | Settings. PORTFOLIO = two tabs: My Holdings (position registry: full fields, drawer, Received+Next Payout columns, payment-health statuses) and Payouts (the month-grid pattern: mark paid/unpaid, colors, auto-sort Danger top -> Matured bottom). WATCHLIST = candidates only (research list, status 'Watching', Move to Portfolio action; NO invested/received/next-payout/health columns). Payment-health statuses (On-going/Danger/Matured) exist ONLY in Portfolio and are derived from the Payouts grid (owner: 'everything need to reflect from the monthly grid').",
+      "WHY": "User Q1+Q2 2026-10-31: status confusion (Completed != purchased), holdings belong in monthly grid, two options in Portfolio, rename grid to Portfolio. Community evidence: stocksbrew watchlist-vs-portfolio separation; IndiaBonds/Groww/BondScanner/Grip payout terminology.",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-31 Q1+Q2"
+    },
+    {
+      "id": "D39",
+      "topic": "Labels + Add-Position location (approved via ui_frontend_design_v4.html)",
+      "options": [
+        "A: Add Position inside Portfolio>My Holdings (both paths run D15 lock); relabel Returned->Received, Completed->Matured (display only)",
+        "B: keep sole entry in Watchlist; other labels"
+      ],
+      "choice": "APPROVED 2026-10-31 (owner, on ui_frontend_design_v4.html): Add Position button in Portfolio>My Holdings (Watchlist candidates convert via 'Move to Portfolio' — both funnel through the same D15 lock check); display relabels 'Returned'->'Received', 'Completed'->'Matured' (engine values unchanged). Purchase state: Watching/Held; payment health: On-going/Danger/Matured.",
+      "WHY": "Design proposals answering owner's Q1 confusions; owner reviewed the clean HTML design v4 and approved all three proposals.",
+      "Status": "CONFIRMED",
+      "source": "user approved 2026-10-31 on ui_frontend_design_v4.html"
+    },
+    {
+      "id": "D40",
+      "topic": "Multiple themes (System / Light / Dark)",
+      "options": [
+        "A: 3-way theme switcher (System default / Light / Dark) — data-theme attribute + CSS custom properties + prefers-color-scheme fallback + localStorage persistence",
+        "B: light only (current design)",
+        "C: light/dark plus accent-color theme gallery"
+      ],
+      "choice": "A: ship three themes — System (follows OS), Light (default), Dark. Header switcher + Settings > Appearance section. Implementation: :root light tokens (current v4 palette) + html[data-theme=dark] dark tokens (near-black surfaces #111827-family, desaturated accents, WCAG AA contrast, no pure white/pure black) + @media (prefers-color-scheme: dark) applied only when no explicit data-theme; choice saved in localStorage; zero-flash inline script reads stored theme before first paint.",
+      "WHY": "Owner directive 2026-10-31: application must have multiple themes. Community: LogRocket (offer OS Default/Dark/Light choice, never force), web.dev + MDN prefers-color-scheme, shadcn/ui token pattern (all colors switch via CSS variables, zero flash), dev.to (persist choice in localStorage), Atmos (dedicated dark palette — avoid pure white and saturated colors, use surface elevation), Digital Silk (WCAG contrast), Eleken (multi-theme products with dark as first-class option).",
+      "Status": "CONFIRMED",
+      "source": "user 2026-10-31 + Tavily research 2026-10-31"
     }
   ],
   "gaps": [
@@ -513,8 +550,9 @@
       "id": "G1",
       "topic": "XLSM parse path viability",
       "question": "Can openpyxl/oletools reliably read the mixed formula/static cells in the real workbook (Home Plan especially) for the one-time import?",
-      "Status": "OPEN",
-      "resolution_path": "Stage 4 feasibility+spikes (parser spike against the real XLSM)."
+      "Status": "CLOSED",
+      "resolution_path": "Stage 4 feasibility+spikes (parser spike against the real XLSM).",
+      "resolution": "MOOT post-D37: the stage-4 spike had proven openpyxl viability, then D37 removed the import feature entirely — there is no one-time import left to parse (closed 2026-10-31)."
     },
     {
       "id": "G2",
@@ -535,8 +573,9 @@
       "id": "OP2",
       "topic": "Legacy deletion execution",
       "detail": "Deletion of the 7 legacy .md docs happens only after D12 migration verification passes; the exact file list is re-confirmed at the Scope Confirm gate before any delete.",
-      "Status": "CONFIRMED",
-      "resolution_path": "Stage 1 execution + Rule 7 scope confirm"
+      "Status": "CLOSED",
+      "resolution_path": "Stage 1 execution + Rule 7 scope confirm",
+      "resolution": "Executed and verified 2026-10-31: Doc/ directory, docs/RTM.md, vba_dump.txt and the legacy .md set are gone; docs/ holds born-JSON only (evidence: root tree listing)."
     }
   ],
   "journey": [
@@ -658,6 +697,21 @@
       "version": "2.1.0",
       "date": "2026-10-30",
       "note": "D37: full old-format + previous-user-data purge; import feature removed from product+docs (supersedes D2); originals deletion pending explicit owner confirm."
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-31",
+      "note": "D38 restructure (Portfolio rename + 2 tabs + watchlist=candidates) CONFIRMED; D39 labels/Add-position proposal OPEN pending wireframe v4 approval."
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-31",
+      "note": "D39 CONFIRMED (owner approved ui_frontend_design_v4.html: Add Position in My Holdings, Received/Matured relabels, Watching/Held + On-going/Danger/Matured status model); D40 added CONFIRMED (3-way themes System/Light/Dark per community research)."
+    },
+    {
+      "version": "2.3.1",
+      "date": "2026-10-31",
+      "note": "Lifecycle closures (status-only): G1 CLOSED (moot post-D37, spike had proven viability); OP2 CLOSED (legacy .md deletion executed + verified)."
     }
   ],
   "decision_log": [
@@ -819,6 +873,24 @@
       "date": "2026-10-30",
       "author": "PM",
       "note": "D37 added (data purge + start-from-scratch)."
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-31",
+      "author": "PM",
+      "note": "D38+D39 added."
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-31",
+      "author": "PM",
+      "note": "D39 CONFIRMED on HTML design approval; D40 themes added CONFIRMED."
+    },
+    {
+      "version": "2.3.1",
+      "date": "2026-10-31",
+      "author": "PM",
+      "note": "G1 + OP2 lifecycle closures with evidence (status-only)."
     }
   ]
 }

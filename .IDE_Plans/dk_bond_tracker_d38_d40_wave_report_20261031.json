@@ -1,0 +1,91 @@
+{
+  "schema": "report/v1",
+  "id": "dk_bond_tracker_d38_d40_wave_report_20261031",
+  "initiative": "dk_bond_tracker_watchlist_upgrade",
+  "kind": "report",
+  "topic": "D38-D40 document + design wave (owner-approved restructure, labels, themes) through database lock",
+  "date": "2026-10-31",
+  "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass, herdr visible fleet)",
+  "overall_status": "DONE — all wave items complete; owner sign-off of design v5 is the only external pending",
+  "items": [
+    {
+      "item": "Community research: multi-theme design practice",
+      "status": "DONE",
+      "reason": "LogRocket/web.dev/MDN/shadcn/Atmos/Digital Silk/Eleken sources recorded in brainstorm D40 WHY",
+      "evidence": ["brainstorm v2.3.0 D40"]
+    },
+    {
+      "item": "Brainstorm: D39 approval locked + D40 themes decision",
+      "status": "DONE",
+      "reason": "owner approved the clean HTML design (D39 -> CONFIRMED); D40 added CONFIRMED; version bumps 2.2.0 -> 2.3.0 -> 2.3.1 with change_log + revision_history entries",
+      "evidence": [".IDE_Plans/dk_bond_tracker_brainstorm_20261030.json"]
+    },
+    {
+      "item": "Seven document deliverables (PRD/SRS/AF/Pseudo/TestPlan/DevOrder addenda v4 + Watchlist Architecture v2)",
+      "status": "DONE",
+      "reason": "written by wl-doc1/wl-doc2 per briefs 18a/18b; PM verified: all parse, extends chains correct, zero id declaration collisions, banned-token clean, D38/D39/D40 refs present (25/14/8 in PRD)",
+      "evidence": ["fix-watchlist/docs/*_v4.json", "fix-watchlist/docs/Watchlist_Architecture_Addendum_v2.json", "briefs 18a/18b"]
+    },
+    {
+      "item": "Design v5 with System/Light/Dark themes",
+      "status": "DONE",
+      "reason": "wl-theme built ui_frontend_design_v5.html (33,292 B); PM verified all v4 content preserved, dark render correct, zero external refs, banned-token clean",
+      "evidence": ["fix-watchlist/.IDE_Plans/design_drafts/ui_frontend_design_v5.html", "brief 19"]
+    },
+    {
+      "item": "Review batch 17 (BATCH cycle with REVIEW-LOCK)",
+      "status": "DONE",
+      "reason": "verdict AGREED: 8 PASS + F-171 MINOR fixed same turn (FR-60 now names localStorage dk-theme); lock recorded then UNLOCKED in review log",
+      "evidence": [".IDE_Plans/dk_bond_tracker_review_log.jsonl (batch 17 entries)", "brief 20"]
+    },
+    {
+      "item": "Database projection + gates",
+      "status": "DONE",
+      "reason": "store-gates --all --strict = SATISFIED failures=0 (population 56 docs/79 requirements/112 test cases; stages 12/12; coverage 79/79; freshness stamped 56; design-refs 154 rows unresolved=0); incident: PM's first run skipped --extract/second pass leaving refs dangling — traced projector source and re-ran correct sequence before claiming green",
+      "evidence": ["store-projector --verify 10/10 PASS", "store-gates SATISFIED"]
+    },
+    {
+      "item": "Document lifecycle checklists + review record in DB",
+      "status": "DONE",
+      "reason": "8 wave docs advanced created -> reviewed -> approved -> locked; store-projector --record-review 17 AGREED",
+      "evidence": ["checklists table", "record-review output"]
+    },
+    {
+      "item": "PM process audit fixes (found during owner's Q3 challenge)",
+      "status": "DONE",
+      "reason": "original master stage table back-synced 13/13 DONE (statuses were stale vs its own history); G1 CLOSED (moot post-D37); OP2 CLOSED (legacy .md deletion verified: Doc/, RTM.md, vba_dump.txt gone); this report doc created (was missing per Rule 5 format 5)",
+      "evidence": [".IDE_Plans/dk_bond_tracker_master_20261030_0107_v1.0.json history", "brainstorm v2.3.1"]
+    },
+    {
+      "item": "Commits + push",
+      "status": "DONE",
+      "reason": "dev 609be17 + fix-watchlist e108e7b pushed via SSH; worktrees clean",
+      "evidence": ["git log both branches"]
+    },
+    {
+      "item": "Operations (owner orders): yolo mode + auto-check + terminal housekeeping",
+      "status": "DONE",
+      "reason": "default_permission_mode=yolo validated+backed up; /yolo applied live to all 5 agents (proven: non-allowlisted command ran with zero dialogs); auto-check cron every 10 min; completed workers' panes closed",
+      "evidence": ["config.toml backup 20261031-113535", "cron 01M68FRQY1182KXBH4DNXY6S6B"]
+    },
+    {
+      "item": "Owner sign-off of ui_frontend_design_v5.html",
+      "status": "PENDING",
+      "reason": "design v5 delivered but not yet owner-approved; stage 10 of watchlist master stays RUNNING until then",
+      "evidence": ["watchlist master stage 10 status"]
+    },
+    {
+      "item": "Implementation stage start",
+      "status": "PENDING",
+      "reason": "behind the owner's approval gate by design (owner: docs-through-final-design, then approval before code); data must be fetched directly from the database per owner rule",
+      "evidence": ["owner instruction history"]
+    },
+    {
+      "item": ".grip/ residue folder deletion",
+      "status": "PENDING",
+      "reason": "260 B tool residue in project root; Rule 7 requires explicit owner confirmation before deletion",
+      "evidence": [".grip/history.jsonl"]
+    }
+  ],
+  "failed_items": []
+}
