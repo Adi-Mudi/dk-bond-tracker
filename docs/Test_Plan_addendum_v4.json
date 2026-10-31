@@ -1,0 +1,174 @@
+{
+  "id": "Test_Plan_addendum_v4",
+  "kind": "test_plan",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Test_Plan_addendum_v3",
+  "test_cases": [
+    {
+      "id": "TC-105",
+      "title": "Sidebar renders exactly the six D38 navigation labels and 'Month Grid' is absent from nav",
+      "type": "e2e",
+      "steps": "1. Start from a clean install state and load the application. 2. Read every sidebar navigation item in rendered order. 3. Search the served navigation markup and rendered text for the string 'Month Grid'. 4. Activate each of the six items and read the destination that renders.",
+      "expected": "The sidebar contains EXACTLY six items in order: Dashboard, Portfolio, Watchlist, Financial Goals, Alerts, Settings — Portfolio in place of the old Month Grid; the string 'Month Grid' appears nowhere in the nav markup or rendered nav text; each item navigates to its screen (Portfolio lands on the two-tab screen with My Holdings active) (FR-51; D38 nav map).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-106",
+      "title": "Portfolio tabs switch between My Holdings and Payouts; Holdings columns match FR-53 and Watchlist columns match the FR-56 candidates whitelist",
+      "type": "e2e",
+      "steps": "1. Seed holdings with mixed payment health and four Watchlist candidates. 2. Open Portfolio: read tab labels, the active panel and the Holdings table header cells. 3. Click Payouts, read the grid header and row order, then click back to My Holdings. 4. Reload with ?tab=payouts and read the active tab. 5. Open Watchlist and read its table header cells and row contents. 6. Grep both rendered tables for the columns Invested, Received, Next Payout and any health chip.",
+      "expected": "The two tabs are My Holdings and Payouts and they swap panels, with My Holdings active by default and ?tab=payouts surviving reload; the Holdings header is exactly Company/ISIN, Rating, Coupon, Yield, Frequency, Invested, Received, Next Payout, Status and its rows open the retained detail drawer; the Watchlist header is exactly Company/ISIN, Rating, Coupon, Est. Yield, Source note, Action with status Watching per row — Invested, Received, Next Payout and the payment-health statuses are ABSENT from every Watchlist cell (FR-52, FR-53, FR-56).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-107",
+      "title": "Add Position auto-calculates tenure in whole months from the date range and rejects credit day 0 and 32",
+      "type": "integration",
+      "steps": "1. In Portfolio > My Holdings open Add Position. 2. Set start date 2025-05-15 and end date 2026-11-15 and read the tenure field without typing anything into it. 3. Submit with credit day 0; read the error. 4. Submit with credit day 32; read the error. 5. Submit with a non-integer credit day; read the error. 6. Submit with credit day 15 and valid remaining fields; read the created row. 7. Attempt to submit with end date before start date.",
+      "expected": "Tenure shows 18 months, auto-computed from the range with no editable tenure field; credit day 0, 32 and the non-integer are each rejected with a validation error naming Credit day and nothing is persisted; credit day 15 is accepted and the position is created with purchase state Held (watch_state 'holding') carrying both dates, the computed tenure and credit day 15; an inverted date range is rejected naming the date field with zero writes (FR-54, D26; approved design: tenure auto-calculated, input min 1 max 31).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-108",
+      "title": "D15 lock rejects a duplicate company while On-going or Danger, allows re-buy after Matured, and the re-buy restarts the lifecycle",
+      "type": "integration",
+      "steps": "1. Add company X (credit day set) and read its status. 2. Attempt to add X again with a case/whitespace name variant; then with the same ISIN under a different name; read the error and all rows. 3. Leave X's current month unentered past its credit day -> read status; attempt the add again. 4. Pay X's entire tenure so the engine reaches Completed (displays Matured); attempt the add; then add X successfully and read the new position's status. 5. Seed candidate Y and attempt Move to Portfolio while an active X exists; then after X matures move Y and read its status. 6. Re-read all bonds rows after each blocked attempt.",
+      "expected": "Every attempt while X is On-going or Danger is HARD BLOCKED with the named error 'Cannot add position: <company> has an active position (<status>)' (Danger named as Danger) — both the normalized-name variant and the ISIN-only match block, and zero rows are written (row set unchanged after each block); after X shows Matured the add is allowed; the re-buy starts in the lifecycle as On-going and flips to Danger once its own credit day passes unentered; the Move to Portfolio of Y is blocked by the same shared lock while X is active and passes after X matures, landing Y as Held (FR-54, FR-57; D15 hard block, release only at Completed).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-109",
+      "title": "DOM renders Received and Matured; Returned and Completed never render while engine values stay unchanged",
+      "type": "e2e",
+      "steps": "1. Seed one position whose engine status is Completed (all tenure months paid) and one Returned-labeled amount column context on every surface: My Holdings, Payouts, drawer, dashboard, legend. 2. Read the amount column headers and every status chip on all surfaces. 3. Grep the served HTML and rendered DOM for the strings 'Returned' and 'Completed'. 4. Read the position's status value straight from the database and the ledger column names after rendering. 5. Toggle through the surfaces once more and re-grep.",
+      "expected": "Every surface renders 'Received' for the amount label and 'Matured' for the completed position's status chip; the strings 'Returned' and 'Completed' appear nowhere in the served HTML or rendered DOM; the database still holds the engine value 'Completed' and the schema/ledger names are untouched — a stored 'Completed' displays 'Matured' purely at the render layer (FR-58; D39 display-only relabels).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-110",
+      "title": "Payouts rows auto-sort Danger, On-going..., Matured... and future months are never rendered",
+      "type": "integration",
+      "steps": "1. Seed mixed positions: two Danger (credit day passed unentered), three On-going (current month entered), two Matured (tenure ended). 2. Open Portfolio > Payouts and read the row order top to bottom. 3. Read the month column headers against today's date. 4. Flip one On-going row to Danger (leave its credit day unentered) and re-read the order without any manual sort action. 5. Flip a Danger row to Matured (tenure end) and re-read. 6. Attempt to find a column for a future month.",
+      "expected": "Initial order is exactly the Danger rows first, then the On-going rows, then the Matured rows (within-group order stable); after each status change the grid re-sorts automatically on the next render — the flipped row lands in its new group with no user action; month headers show only elapsed months plus the current month and NO future month column exists anywhere in the grid (FR-55; D38 Payouts pattern).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-111",
+      "title": "System/Light/Dark switch changes tokens on every screen, dark avoids pure black/white surfaces, the choice persists, default is Light, reload is zero-flash and System follows the OS live",
+      "type": "e2e",
+      "steps": "1. On a fresh install read the resolved theme and the html data-theme state. 2. Cycle the switcher Light -> Dark -> System; on each mode read the computed custom properties (--bg, --card, --text, --accent, borders, status chip colors) on Dashboard, Portfolio (both tabs), Watchlist, Financial Goals, Alerts and Settings. 3. In Dark, scan every screen's computed background/foreground colors for pure #000000 or #ffffff surfaces and check text/background contrast pairs. 4. Select Dark, reload, and read data-theme at head-parse time (before body paint) plus the first painted frame's tokens. 5. Clear localStorage and reload. 6. Set mode System and flip the emulated prefers-color-scheme dark/light without touching the stored mode; then set explicit Dark and flip the emulated OS to light. 7. Grep all stylesheets for color literals outside the two token blocks.",
+      "expected": "All three modes switch tokens on EVERY screen with no hard-coded colors outside the light/dark token sets; Dark uses the near-black #111827-family surfaces with WCAG AA contrast and desaturated accents — NO pure #000000 or #ffffff surface anywhere; the explicit choice survives reload from localStorage; a fresh install resolves to Light (no stored mode); with saved Dark the pre-paint head bootstrap sets data-theme before the first paint — zero frames of the wrong theme on reload; while mode=System an OS flip re-themes live with the stored mode untouched, and explicit Dark/Light override the emulated OS (FR-60; D40: token sets, data-theme, prefers-color-scheme, localStorage, zero-flash).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-112",
+      "title": "New installation starts empty — no sample rows on any screen",
+      "type": "e2e",
+      "steps": "1. Initialize a brand-new empty database and start the application for the first time. 2. Read Dashboard tiles/charts, Portfolio My Holdings and Payouts, Watchlist, Financial Goals, Alerts and Settings > Data. 3. Compare every row set against the illustrative sample data shown in the approved design document.",
+      "expected": "Every data surface starts empty — zero positions, zero candidates, zero ledger rows, zero goals, zero notifications; tiles and charts render zero/empty states; none of the design document's sample rows (illustrative mockup data only) appear anywhere — the product ships start-from-scratch with no seeded data (D37 start-from-scratch; default-data rule).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-113",
+      "title": "Theme switcher renders in the header and in Settings > Appearance with the same three modes and stays in sync",
+      "type": "e2e",
+      "steps": "1. Read the header controls on any screen and locate the theme switcher with its option labels. 2. Open Settings > Appearance and read its option labels. 3. Select Dark in the header, then read the Settings > Appearance state; reverse the direction from Settings to header. 4. Set System in Settings, reload, and read both controls' initial state.",
+      "expected": "Both surfaces expose exactly the three modes System, Light and Dark with the active mode marked; selecting a mode on one surface reflects on the other and on the resolved theme after render; after reload both controls pre-select the persisted mode — one stored choice, two synced controls (FR-60 switcher clause; D40: header switcher + Settings > Appearance).",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "FR-50",
+      "test_case_id": "TC-106",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-51",
+      "test_case_id": "TC-105",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-52",
+      "test_case_id": "TC-106",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-53",
+      "test_case_id": "TC-106",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-54",
+      "test_case_id": "TC-107",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-54",
+      "test_case_id": "TC-108",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-55",
+      "test_case_id": "TC-110",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-56",
+      "test_case_id": "TC-106",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-57",
+      "test_case_id": "TC-108",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-58",
+      "test_case_id": "TC-109",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-59",
+      "test_case_id": "TC-107",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-59",
+      "test_case_id": "TC-110",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-60",
+      "test_case_id": "TC-111",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "FR-60",
+      "test_case_id": "TC-113",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "FR-61",
+      "test_case_id": "TC-112",
+      "covers": "full"
+    }
+  ],
+  "change_record": "Addendum v4.0 after owner decisions D38 (screen restructure), D39 (labels + Add Position location) and D40 (themes), CONFIRMED in brainstorm v2.3.0: adds FR-51..FR-60 as TC-105..TC-113 (9 cases, sequential after the suite's true max TC-104), with bindings extended to the landed PRD v4 ids FR-50..FR-61; the combined suite (v1 + addenda v1..v3 + this addendum) now covers the legacy 42 requirements plus FR-25..FR-61 with no legacy test case or binding altered. ALL NINE cases are LOCAL — none requires an owner-manual OS-level check (the theme, switcher, persistence and zero-flash assertions are all assertable through the Flask test client, emulated prefers-color-scheme and DOM/computed-style inspection, so no REMOTE case is added). Scenario split per brief 18b: six-label sidebar nav with 'Month Grid' absent (TC-105); Portfolio tab switch + Holdings FR-53 columns + Watchlist FR-56 whitelist with Invested/Received/Next Payout absent (TC-106); Add Position tenure auto-calc (2025-05-15 -> 2026-11-15 = 18 months) + credit-day bounds rejecting 0/32 (TC-107, credit day validated 1..31 per FR-54 and the approved design input, superseding the D26-era 1..28 note); D15 duplicate-lock lifecycle — block while On-going/Danger, allowed after Matured, re-buy restarts On-going/Danger, shared by Add Position and Move to Portfolio (TC-108); display labels — DOM shows Received/Matured while a stored engine 'Completed' still displays 'Matured' and the DB value stays untouched (TC-109); payout auto-sort Danger -> On-going -> Matured with auto re-sort and no future month columns (TC-110); the full theme contract — token switch on every screen, dark palette constraints (no pure #000/#fff), localStorage persistence, default install Light, zero-flash reload, live OS follow in System mode and explicit override (TC-111); fresh install starts with zero rows (TC-112); and switcher placement/sync across header and Settings > Appearance (TC-113). Types drawn from the established enum (unit, integration, e2e, gate); every level LOCAL. Binding note: docs/PRD_DK_Bond_Tracker_addendum_v4.json landed mid-authoring and was cross-checked per brief 18b — its ids are FR-50..FR-61: FR-51..FR-60 match the brief-18a list exactly, FR-61 is the default-data requirement and is bound to TC-112 (full), and FR-50 (umbrella restructure: positions only under Portfolio, candidates only in Watchlist) is bound to TC-106 (partial). Every key FR-50..FR-61 has at least one binding above. Types enum usage: e2e for surface/DOM/flow cases (TC-105, TC-106, TC-109, TC-111, TC-112, TC-113), integration for handler/validation flows (TC-107, TC-108, TC-110).",
+  "strategy": {
+    "framework": "pytest",
+    "local": "All 9 addendum TCs (TC-105..TC-113) run as pytest from the project root: e2e cases through the Flask test client asserting served HTML, rendered DOM strings and computed custom-property values — nav labels (TC-105), tab round-trip plus both column whitelists (TC-106), label relabels with a database round-trip proving engine values unchanged (TC-109), the theme matrix including head-time data-theme inspection before body paint for zero-flash, emulated prefers-color-scheme flips for System mode and localStorage persistence (TC-111), first-run emptiness (TC-112), switcher placement/sync (TC-113); integration cases for the Add Position form validation and tenure/credit-day rules (TC-107), the shared D15 lock lifecycle across add and move (TC-108), and the Payouts auto-sort with month-window assertions (TC-110). Theme tests patch localStorage and prefers-color-scheme per test — no real OS interaction needed, keeping every case LOCAL.",
+    "remote": "None in this addendum — every TC-105..TC-113 case is LOCAL-assertable; no owner-manual OS-level check is introduced (unlike TC-84/TC-99). Remote tier conventions from D29 and the v3 strategy remain unchanged for the pre-existing suite."
+  }
+}
