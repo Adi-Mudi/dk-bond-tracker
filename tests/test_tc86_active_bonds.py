@@ -54,5 +54,5 @@ def test_tc86_dashboard_corrupt_bond_shows_active_bonds_error_page(db_path):
     assert response.status_code == 500
     html = response.get_data(as_text=True)
     assert 'id="error-banner"' in html
-    assert "operation: ERR-active-bonds" in html
+    assert "operation: ERR-query-counts" in html
     assert "garbage-date" in html

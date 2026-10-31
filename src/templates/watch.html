@@ -1,46 +1,22 @@
 {% extends "base.html" %}
 {% block head %}
 <style>
-  .watch-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
-  .btn {
-    display: inline-block;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    background: var(--blue-light);
+  .move-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .move-form input[type="date"],
+  .move-form select {
+    font: inherit;
+    font-size: 12px;
+    height: 30px;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
     color: var(--text);
-    text-decoration: none;
-    cursor: pointer;
   }
-  .freed-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border: 1.5px solid var(--border);
-    border-radius: 999px;
-    background: var(--completed);
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .freeup-summary {
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: var(--white);
-    padding: 10px 14px;
-    margin: 12px 0;
-    font-size: 13px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    align-items: baseline;
-  }
-  .freeup-summary strong { font-weight: 800; }
 </style>
 {% endblock %}
 {% block content %}
-<h1 style="font-size:18px;margin-bottom:12px;">Watch List</h1>
+<h1>Watchlist</h1>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
@@ -53,84 +29,118 @@
 {% endif %}
 {% endwith %}
 
-<div class="watch-toolbar">
-  <a class="btn" href="/add" id="add-position-link">Add position</a>
-  <a class="btn" href="/#phase4-cards" id="phase4-reports-link">Phase-4 reports (P&amp;L, discount, TDS)</a>
-  <span class="table-note" style="margin-top:0;">single entry point &#8212; the same stored row appears in Month Grid, Dashboard and Watch List (no double entry)</span>
+{% if error %}
+<div class="banner banner-error" id="watch-error">
+  <div class="banner-title">Error: {{ error_code }}</div>
+  <div id="watch-error-message">{{ error }}</div>
 </div>
+{% endif %}
 
-<div class="freeup-summary" id="reinvestment-summary">
-  <span>Principal freed by Completed: <strong class="money" id="principal-freed">&#8377;{{ "%.2f"|format(freeup.principal_freed_by_completed) }}</strong></span>
-  <span>Active locked (On-going + Danger): <strong class="money" id="active-locked">&#8377;{{ "%.2f"|format(freeup.active_locked) }}</strong></span>
-  <span class="table-note" style="margin-top:0;">Completed principal is free to reinvest and is never deducted again (FR-17)</span>
+<div class="card">
+  <h2>Add Candidate</h2>
+  <form method="post" action="/watch" id="add-candidate-form">
+    <div class="form-grid">
+      <div class="field">
+        <label for="c-company">Company</label>
+        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}">
+      </div>
+      <div class="field">
+        <label for="c-isin">ISIN</label>
+        <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}">
+      </div>
+      <div class="field">
+        <label for="c-rating">Rating</label>
+        <input type="text" id="c-rating" name="rating" value="{{ form.get('rating', '') }}">
+      </div>
+      <div class="field">
+        <label for="c-coupon">Coupon (%)</label>
+        <input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.1" value="{{ form.get('coupon_pct', '') }}">
+      </div>
+      <div class="field">
+        <label for="c-yield">Est. Yield (%)</label>
+        <input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.1" value="{{ form.get('expected_yield_pct', '') }}">
+      </div>
+      <div class="field">
+        <label for="c-source">Source note</label>
+        <input type="text" id="c-source" name="source_note" value="{{ form.get('source_note', '') }}">
+      </div>
+    </div>
+    <p class="caption section-gap">Company and ISIN must be unique across the whole register — duplicates are rejected at entry.</p>
+    <div class="section-gap">
+      <button class="btn btn-primary" type="submit" id="add-candidate-submit">+ Add Candidate</button>
+    </div>
+  </form>
 </div>
 
 <div class="table-wrap">
   <table id="watch-list">
     <thead>
       <tr>
-        <th>Bond</th>
-        <th>ISIN</th>
-        <th class="num">Amount (INR)</th>
-        <th>Start date</th>
-        <th>End date</th>
-        <th class="num">Tenure (mo)</th>
-        <th class="num">Credit day</th>
-        <th>Status</th>
-        <th class="num">Discount</th>
-        <th class="num">Per-month</th>
-        <th class="num">Actual per-month</th>
-        <th class="num">10% TDS</th>
-        <th class="num">12-month total</th>
-        <th class="num">Qty</th>
-        <th class="num">TL Principle</th>
-        <th class="num">Principal freed</th>
+        <th>Company / ISIN</th>
+        <th>Rating</th>
+        <th>Coupon</th>
+        <th>Est. Yield</th>
+        <th>Source note</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      {% for row in entries %}
-      {% set analytics = row.analytics %}
-      <tr data-isin="{{ row.isin }}" data-status="{{ row.status }}">
-        <td>{{ row.company }}</td>
-        <td class="mono">{{ row.isin }}</td>
-        <td class="num"><span class="money" data-amount="{{ "%.2f"|format(row.amount or 0) }}">&#8377;{{ "%.2f"|format(row.amount or 0) }}</span></td>
-        <td>{{ row.start_date }}</td>
-        <td>{{ row.end_date }}</td>
-        <td class="num">{{ row.tenure_months }}</td>
-        <td class="num">{{ row.credit_day }}</td>
-        <td><span class="chip chip-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</span></td>
-        {% if analytics and analytics.computable %}
-        <td class="num analytics-discount"><span class="money">&#8377;{{ "%.2f"|format(analytics.discount) }}</span></td>
-        <td class="num analytics-per-month"><span class="money">&#8377;{{ "%.2f"|format(analytics.per_month) }}</span></td>
-        <td class="num analytics-actual-per-month"><span class="money">&#8377;{{ "%.2f"|format(analytics.actual_per_month) }}</span></td>
-        <td class="num analytics-tds"><span class="money">&#8377;{{ "%.2f"|format(analytics.tds) }}</span></td>
-        <td class="num analytics-12-month"><span class="money">&#8377;{{ "%.2f"|format(analytics.twelve_month) }}</span></td>
-        <td class="num analytics-qty">{% if analytics.qty is not none %}{{ "%.0f"|format(analytics.qty) }}{% else %}&#8212;{% endif %}</td>
-        <td class="num analytics-qty-tl">{% if analytics.qty_tl is not none %}<span class="money">&#8377;{{ "%.2f"|format(analytics.qty_tl) }}</span>{% else %}&#8212;{% endif %}</td>
-        {% else %}
-        <td class="num analytics-discount">&#8212;</td>
-        <td class="num analytics-per-month">&#8212;</td>
-        <td class="num analytics-actual-per-month">&#8212;</td>
-        <td class="num analytics-tds">&#8212;</td>
-        <td class="num analytics-12-month">&#8212;</td>
-        <td class="num analytics-qty">&#8212;</td>
-        <td class="num analytics-qty-tl">&#8212;</td>
-        {% endif %}
-        <td class="num">
-          {% if row.freed %}
-          <span class="freed-badge" data-freed="{{ "%.2f"|format(row.freed_amount or 0) }}">freed <span class="money">&#8377;{{ "%.2f"|format(row.freed_amount or 0) }}</span></span>
-          {% else %}
-          &#8212;
-          {% endif %}
+      {% for candidate in candidates %}
+      <tr>
+        <td>
+          <span class="co-name">{{ candidate.company }} <span class="chip chip-watching">Watching</span></span>
+          <span class="co-isin">{{ candidate.isin }}</span>
+        </td>
+        <td>{{ candidate.rating or "—" }}</td>
+        <td class="money">{% if candidate.coupon_pct is not none %}{{ "%.1f"|format(candidate.coupon_pct) }}%{% else %}—{% endif %}</td>
+        <td class="money">{% if candidate.expected_yield_pct is not none %}{{ "%.1f"|format(candidate.expected_yield_pct) }}%{% else %}—{% endif %}</td>
+        <td class="caption">{{ candidate.name or "" }}</td>
+        <td>
+          <form class="move-form" method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
+            <input type="date" name="start_date" required title="Start date" aria-label="Start date">
+            <input type="date" name="end_date" required title="End date" aria-label="End date">
+            <select name="credit_day" title="Credit day" aria-label="Credit day">
+              {% for day in range(1, 32) %}
+              <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-sm" type="submit" id="move-{{ candidate.id }}">Move to Portfolio</button>
+          </form>
         </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="16" class="empty-note" id="watch-empty">no positions yet &#8212; add the first one above</td>
+        <td colspan="6" class="empty-note" id="watch-empty">no candidates yet — add the first one above</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
-<p class="table-note">Analytics computed on view from the source workbook watch-list formulas (DATA-04): Discount = face value &#8722; principle; Per-month = interest &#247; tenure (&#215;3 for quarterly payouts); Actual per-month = (interest &#8722; discount) &#247; tenure; 10% TDS = per-month &#8722; 10%; 12-month total = per-month &#215; 12; TL Principle = T.L.P &#215; Qty. Rows without watch inputs (manual adds) show &#8212;. Completed rows show the principal freed for reinvestment (FR-17).</p>
+<p class="caption">Watchlist holds candidates only. 'Move to Portfolio' creates the position and locks the company while it is On-going or Danger.</p>
+
+<div class="card section-gap" id="held-positions-snapshot">
+  <h2>Held positions</h2>
+  {% if snapshot %}
+  <div class="table-wrap">
+    <table id="snapshot-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th class="num">Invested</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in snapshot %}
+        <tr>
+          <td><span class="co-name">{{ item.company }}</span></td>
+          <td class="num"><span class="value money" id="snapshot-invested-{{ item.id }}" data-amount="{{ "%.2f"|format(item.invested) }}">&#8377;{{ "%.2f"|format(item.invested) }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-note" id="snapshot-empty">no held positions yet — add one from Portfolio</div>
+  {% endif %}
+</div>
 {% endblock %}

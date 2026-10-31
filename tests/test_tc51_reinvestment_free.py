@@ -2,7 +2,6 @@ from datetime import date
 
 import pytest
 
-from src.app import create_app
 from src.db import get_conn
 from src.queries import free_up_report
 from src.status import month_key
@@ -108,26 +107,3 @@ def test_all_completed_full_principal_available(tmp_path):
     assert report["principal_freed_by_completed"] == 75000.0
     assert report["active_locked"] == 0.0
     assert report["deduction_breakdown"] == {"On-going": 0.0, "Danger": 0.0}
-
-
-def test_watch_page_shows_freed_badge_and_summary(portfolio):
-    db_path, completed_id, danger_id, ongoing_id = portfolio
-    app = create_app(db_path)
-    app.config["TESTING"] = True
-    body = app.test_client().get("/watch").data.decode()
-    assert "Principal freed by Completed" in body
-    assert "50000.00" in body
-    assert "Active locked (On-going + Danger)" in body
-    assert 'data-freed="50000.00"' in body
-    assert "Done Corp" in body
-
-
-def test_watch_page_does_not_freed_badge_ongoing(portfolio):
-    db_path, completed_id, danger_id, ongoing_id = portfolio
-    app = create_app(db_path)
-    app.config["TESTING"] = True
-    body = app.test_client().get("/watch").data.decode()
-    live_row = [line for line in body.splitlines() if "Live Corp" in line]
-    assert live_row
-    assert 'data-freed="30000.00"' not in body
-    assert 'data-freed="20000.00"' not in body

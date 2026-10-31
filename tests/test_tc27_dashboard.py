@@ -45,26 +45,25 @@ def test_tc27_dashboard_markers_present(client, db_path):
     for marker in (
         'id="summary-cards"',
         'id="card-total"',
-        'id="card-danger"',
-        'id="card-ongoing"',
-        'id="card-completed"',
-        'id="amount-cards"',
-        'id="this-month-card"',
-        'id="charts-row"',
-        'id="history-table"',
-        'id="status-overview"',
+        'id="card-received"',
+        'id="card-next-payout"',
+        'id="total-invested"',
+        'id="received-total"',
+        'id="next-payout-amount"',
+        'id="outstanding-total"',
+        'id="invested-received-chart"',
     ):
         assert marker in html, marker
 
 
-def test_tc27_seeded_bonds_render_live_counts(client, db_path):
+def test_tc27_seeded_bonds_render_live_amounts(client, db_path):
     with get_conn(db_path) as conn:
         seed_dashboard_portfolio(conn, date.today())
     html = client.get("/").get_data(as_text=True)
-    assert 'id="count-total">bonds: 3' in html
-    assert 'id="count-danger">bonds: 1' in html
-    assert 'id="count-ongoing">bonds: 1' in html
-    assert 'id="count-completed">bonds: 1' in html
+    assert 'data-amount="300000.00"' in html
+    assert 'data-amount="1500.00"' in html
+    for company in ("DangerCo", "OngoingCo", "DoneCo"):
+        assert company in html
 
 
 def test_tc27_new_payment_reflected_on_next_request(client, db_path):
@@ -74,11 +73,11 @@ def test_tc27_new_payment_reflected_on_next_request(client, db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "LiveCo", "INE0000000274", base.isoformat(), 6)
     first = client.get("/").get_data(as_text=True)
-    assert 'id="this-month-total">&#8377;0.00' in first
+    assert 'id="received-total" data-amount="0.00"' in first
     with get_conn(db_path) as conn:
         add_payment(conn, bond_id, month, 500.0)
     second = client.get("/").get_data(as_text=True)
-    assert 'id="this-month-total">&#8377;500.00' in second
+    assert 'id="received-total" data-amount="500.00"' in second
 
 
 def test_tc27_two_no_change_requests_identical(client, db_path):

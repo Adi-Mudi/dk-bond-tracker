@@ -4,7 +4,7 @@ from pathlib import Path
 SRC = Path(__file__).resolve().parents[1] / "src"
 TEMPLATES = SRC / "templates"
 
-SUM_ALLOWED = {"queries.py", "phase4.py", "import_xlsm.py"}
+SUM_ALLOWED = {"queries.py", "phase4.py"}
 AGG_TOKENS = ("SUM(", "SELECT COUNT", "GROUP BY", "JOIN")
 
 

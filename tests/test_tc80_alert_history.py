@@ -19,8 +19,8 @@ def source_files():
 
 def seed_history(db_path):
     with get_conn(db_path) as conn:
-        notify(conn, "danger", "Muthoottu credit day 5 missed — Danger set (2026-10-06)")
-        notify(conn, "reminder", "Paisalo payment due in 2 days")
+        notify(conn, "danger", "Beta Finance Ltd credit day 5 missed — Danger set (2026-10-06)")
+        notify(conn, "reminder", "Alpha Securities Ltd payment due in 2 days")
         notify(conn, "warn", "email failed: boom")
 
 
@@ -34,8 +34,8 @@ def client(db_path):
 def test_tc80_history_rows_persist_with_timestamps(client, db_path):
     seed_history(db_path)
     html = client.get("/notifications").get_data(as_text=True)
-    assert "Muthoottu credit day 5 missed" in html
-    assert "Paisalo payment due in 2 days" in html
+    assert "Beta Finance Ltd credit day 5 missed" in html
+    assert "Alpha Securities Ltd payment due in 2 days" in html
     assert "email failed: boom" in html
     assert re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", html)
     assert "danger" in html
@@ -68,7 +68,7 @@ def test_tc80_mark_all_read_keeps_rows_and_clears_badge(client, db_path):
     assert len(rows) == 3
     assert all(int(row["read"]) == 1 for row in rows)
     html = client.get("/notifications").get_data(as_text=True)
-    assert "Muthoottu credit day 5 missed" in html
+    assert "Beta Finance Ltd credit day 5 missed" in html
 
 
 def test_tc80_severity_colors_render_in_bell_dropdown(client, db_path):

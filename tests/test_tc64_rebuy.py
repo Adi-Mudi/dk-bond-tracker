@@ -1,23 +1,29 @@
-from datetime import date
+import re
+from datetime import date, timedelta
 
 import pytest
 
-from conftest import add_payment, bond_count, bond_status
+from conftest import add_payment, bond_count
 from src.app import create_app
 from src.db import get_conn
-from src.status import recompute_all
-from src.validators import add_months
+from src.validators import active_position_lock, add_months
+
+_TODAY = date.today()
+_START = _TODAY - timedelta(days=40)
+_START_ISO = _START.isoformat()
+_END_ISO = add_months(_START, 3).isoformat()
 
 FORM = {
     "company": "RebuyCo",
     "isin": "INE0000000641",
     "amount": "5000",
-    "start_date": "2026-01-01",
-    "end_date": "2026-04-01",
+    "start_date": _START_ISO,
+    "end_date": _END_ISO,
     "credit_day": "5",
 }
 REBUY_FORM = dict(FORM, isin="INE0000000642")
-REBUY_BLOCKED_MESSAGE = "Cannot add position: RebuyCo has an active position (On-going) — no override"
+REBUY_BLOCKED_PREFIX = "Cannot add position: RebuyCo has an active position ("
+REBUY_BLOCKED_SUFFIX = " — no override"
 
 
 @pytest.fixture
@@ -34,15 +40,10 @@ def current_count(db_path):
 
 def complete_first_position(db_path, bond_id):
     with get_conn(db_path) as conn:
-        start = date(2026, 1, 1)
         for offset in range(3):
-            month = add_months(start, offset)
+            month = add_months(_START, offset)
             add_payment(conn, bond_id, f"{month.year:04d}-{month.month:02d}", 1000.0)
-        changed = recompute_all(conn, date(2026, 4, 10))
-        assert changed == [
-            {"bond_id": bond_id, "company": "RebuyCo", "from": "On-going", "to": "Completed"}
-        ]
-        assert bond_status(conn, bond_id) == "Completed"
+        assert active_position_lock(conn, "RebuyCo", "INE0000000641") is None
 
 
 def test_tc64_completed_company_can_be_rebought_then_relocks(client, db_path):
@@ -67,6 +68,8 @@ def test_tc64_completed_company_can_be_rebought_then_relocks(client, db_path):
     third = client.post("/add", data=REBUY_FORM)
     assert third.status_code == 409
     html = third.get_data(as_text=True)
-    assert REBUY_BLOCKED_MESSAGE in html
+    assert REBUY_BLOCKED_PREFIX in html
+    assert REBUY_BLOCKED_SUFFIX in html
+    assert re.search(r"active position \((On-going|Danger)\)", html)
     assert "operation: ERR-active-position" in html
     assert current_count(db_path) == 2

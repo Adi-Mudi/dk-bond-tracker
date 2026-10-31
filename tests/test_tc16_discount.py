@@ -1,22 +1,9 @@
-from pathlib import Path
-
 import pytest
 
 from conftest import add_bond
 from src.db import get_conn
-from src.import_xlsm import (
-    WATCH_LIST_SHEET_TITLE,
-    extract_watch_list,
-    import_workbook,
-    locate_sheet,
-    open_workbook,
-)
 from src.phase4 import bond_discount_detail, discount_report
 from src.validators import AppError
-
-WORKBOOK = Path(
-    "/mnt/Just_Do_It/02_Devp_Soft/01_Adi-Mudi/04_Bonds/01_excel_dashboard/v5.5_40L_Project_Tracker.xlsm"
-)
 
 
 def insert_raw(conn, company, isin, amount, maturity=None, face=None, watch_inv=None):
@@ -58,7 +45,7 @@ def test_tc16_unknown_bond_raises_named_error(db_path):
 def test_tc16_watch_lgh_pattern_face_minus_investment(db_path):
     with get_conn(db_path) as conn:
         bond_id = insert_raw(
-            conn, "PaisaloLike", "INETC16003", 99626.52, face=100000.0, watch_inv=99626.52
+            conn, "AlphaLike", "INETC16003", 99626.52, face=100000.0, watch_inv=99626.52
         )
         detail = bond_discount_detail(conn, bond_id)
     assert detail["discount"] == pytest.approx(373.48, abs=1e-6)

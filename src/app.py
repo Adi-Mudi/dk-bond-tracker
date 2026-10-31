@@ -1,6 +1,7 @@
 import argparse
-import json
+import calendar
 import os
+import re
 import sqlite3
 import sys
 from datetime import date
@@ -10,12 +11,21 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from flask import Flask, Response, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, jsonify, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
-from src.analytics import watch_model
 from src.db import get_conn, init_db
+from src.engine import (
+    derive_health,
+    display_label,
+    entry_paid,
+    list_months_through_current,
+    month_due_passed,
+    payout_date_label,
+    sort_payout_rows,
+    tenure_window,
+)
 from src.export_csv import (
     LEDGER_HEADERS,
     current_view_csv,
@@ -23,7 +33,7 @@ from src.export_csv import (
     full_ledger_csv,
 )
 from src.goals import add_goal, delete_goal, list_goals, update_goal
-from src.import_xlsm import import_workbook
+from src.lock import check_add_allowed
 from src.mailer import send_alert_email
 from src.notifications import (
     due_reminders,
@@ -33,25 +43,25 @@ from src.notifications import (
     notify_once,
     unread_count,
 )
-from src.phase4 import discount_report, payment_cycle_of, payout_schedule, pnl_summary, tds_report
+from src.phase4 import payment_cycle_of, payout_schedule
 from src.print import monthly_print_model
 from src.queries import (
     MONTH_PATTERN,
-    active_bonds_in_month,
     chart_data,
     grid_model,
     insert_position,
     month_label,
-    monthly_history,
+    portfolio_snapshot,
+    position_detail,
+    received_by_bond,
     save_payment,
     status_overview,
     summary_amounts,
     summary_counts,
-    this_month_returns,
 )
 from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, tenure_month_map
-from src.validators import AppError, active_position_lock, date_range_tenure
+from src.validators import AppError, active_position_lock, add_months, date_range_tenure, parse_date_value
 
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
 
@@ -59,8 +69,7 @@ ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
 
 
 def _ensure_db(db_file):
-    if not db_file.exists():
-        init_db(db_file)
+    init_db(db_file)
 
 
 def _attempt_email(conn, event):
@@ -156,8 +165,88 @@ def create_app(db_path=None):
             count = unread_count(conn)
             recent = list_notifications(conn, limit=5)
         for item in recent:
-            item["timestamp"] = (item.get("created_at") or "")[:16]
+            item["timestamp"] = (item.get("created_at") or "")[:19]
         return {"unread_count": count, "recent_notifications": recent}
+
+    def next_payout_for(row, months_map, current):
+        tenure = row["tenure_months"]
+        if not tenure or int(tenure) < 1 or not row["start_date"]:
+            return None
+        try:
+            start = parse_date_value(row["start_date"], "start_date")
+        except AppError:
+            return None
+        window = [month_key(add_months(start, offset)) for offset in range(int(tenure))]
+        unpaid = [key for key in window if not months_map.get(key, {}).get("paid")]
+        if not unpaid:
+            return None
+        upcoming = [key for key in unpaid if key >= current]
+        month = upcoming[0] if upcoming else unpaid[0]
+        entry = months_map.get(month, {})
+        amount = float(entry.get("amount") or 0.0)
+        if amount <= 0 and row["interest_payout"] is not None:
+            amount = float(row["interest_payout"]) / int(tenure)
+        credit = int(row["credit_day"] or 1)
+        year, mon = int(month[:4]), int(month[5:7])
+        day = min(max(credit, 1), calendar.monthrange(year, mon)[1])
+        return {
+            "amount": amount,
+            "date_label": date(year, mon, day).strftime("%d %b %Y"),
+            "sort_key": month,
+        }
+
+    def dashboard_model(conn):
+        counts = summary_counts(conn)
+        amounts = summary_amounts(conn)
+        received_map = received_by_bond(conn)
+        current = month_key(date.today())
+        holdings = conn.execute(
+            "SELECT id, company, amount, interest_payout, tenure_months, credit_day, start_date "
+            "FROM bonds WHERE watch_state = 'holding' ORDER BY company COLLATE NOCASE, id"
+        ).fetchall()
+        ledger = conn.execute(
+            "SELECT bond_id, month, amount, paid FROM payment_ledger"
+        ).fetchall()
+        months_by_bond = {}
+        for row in ledger:
+            entry = months_by_bond.setdefault(row["bond_id"], {})
+            entry[row["month"]] = {
+                "paid": bool(row["paid"]) and row["amount"] is not None and float(row["amount"]) > 0,
+                "amount": float(row["amount"] or 0.0),
+            }
+        bars = []
+        next_payout = None
+        for row in holdings:
+            invested = float(row["amount"] or 0.0)
+            months_map = months_by_bond.get(row["id"], {})
+            received = received_map.get(row["id"], 0.0)
+            bars.append(
+                {
+                    "company": row["company"] or f"Bond {row['id']}",
+                    "invested": invested,
+                    "received": received,
+                }
+            )
+            payout = next_payout_for(row, months_map, current)
+            if payout is not None and (next_payout is None or payout["sort_key"] < next_payout["sort_key"]):
+                next_payout = payout
+        max_invested = max((bar["invested"] for bar in bars), default=0.0)
+        for bar in bars:
+            bar["bar_width"] = round(bar["invested"] / max_invested * 100.0, 1) if max_invested > 0 else 0.0
+            bar["recv_width"] = (
+                min(100.0, round(bar["received"] / bar["invested"] * 100.0, 1)) if bar["invested"] > 0 else 0.0
+            )
+        total_invested = amounts["total_investment"]
+        received_total = amounts["till_return"]
+        return {
+            "counts": counts,
+            "total_invested": total_invested,
+            "received_total": received_total,
+            "outstanding": received_total - total_invested,
+            "next_payout_amount": next_payout["amount"] if next_payout else 0.0,
+            "next_payout_date": next_payout["date_label"] if next_payout else None,
+            "bars": bars,
+        }
 
     @app.route("/", methods=["GET", "POST"])
     def index():
@@ -167,30 +256,9 @@ def create_app(db_path=None):
         _ensure_db(db_file)
         try:
             with get_conn(db_file) as conn:
-                today = date.today()
-                context = {
-                    "active_bonds": active_bonds_in_month(conn, today),
-                    "counts": summary_counts(conn, today),
-                    "amounts": summary_amounts(conn, today),
-                    "this_month": this_month_returns(conn, today),
-                    "history": monthly_history(conn, today),
-                    "overview": status_overview(conn, today),
-                    "charts": chart_data(conn, today),
-                    "current_month": month_key(today),
-                    "pnl": pnl_summary(conn, today),
-                    "discounts": discount_report(conn),
-                    "tds": tds_report(conn),
-                }
+                context = dashboard_model(conn)
         except AppError as exc:
-            return (
-                render_template(
-                    "error.html",
-                    code=exc.code,
-                    message=exc.message,
-                    title="Dashboard query failed",
-                ),
-                500,
-            )
+            return error_page(exc.code, exc.message, "Dashboard query failed", 500)
         return render_template("dashboard.html", **context)
 
     @app.route("/grid", methods=["GET", "POST"])
@@ -357,7 +425,7 @@ def create_app(db_path=None):
                     credit_value = int(credit_raw)
                 except ValueError as exc:
                     raise AppError(
-                        "ERR-add-fields", f"credit day must be an integer in 1-28: {credit_raw!r}"
+                        "ERR-add-fields", f"credit day must be an integer in 1-31: {credit_raw!r}"
                     ) from exc
                 start_date, end_date, tenure_months, credit_day = date_range_tenure(
                     form.get("start_date", ""), form.get("end_date", ""), credit_value
@@ -468,34 +536,204 @@ def create_app(db_path=None):
             400,
         )
 
-    @app.route("/watch")
+    def watch_candidates(db_file):
+        with get_conn(db_file) as conn:
+            rows = conn.execute(
+                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name "
+                "FROM bonds WHERE watch_state = 'watching' ORDER BY company COLLATE NOCASE, id"
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def watch_snapshot(db_file):
+        with get_conn(db_file) as conn:
+            return portfolio_snapshot(conn)
+
+    def watch_percent(raw, field):
+        text = str(raw or "").strip()
+        if not text:
+            raise AppError("ERR-watch-add", f"{field} is required")
+        try:
+            value = float(text)
+        except ValueError as exc:
+            raise AppError("ERR-watch-add", f"{field} must be a number: {raw!r}") from exc
+        if value < 0:
+            raise AppError("ERR-watch-add", f"{field} must not be negative: {raw!r}")
+        return value
+
+    ISIN_PATTERN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
+
+    @app.route("/watch", methods=["GET", "POST"])
     def watch_list():
         db_file = Path(app.config["DB_PATH"])
         _ensure_db(db_file)
+        if request.method == "POST":
+            form = request.form
+            company = str(form.get("company", "")).strip()
+            isin = str(form.get("isin", "")).strip().upper()
+            rating = str(form.get("rating", "")).strip()
+            source_note = str(form.get("source_note", "")).strip()
+            try:
+                coupon = watch_percent(form.get("coupon_pct", ""), "coupon")
+                est_yield = watch_percent(form.get("expected_yield_pct", ""), "est yield")
+                if not company:
+                    raise AppError("ERR-watch-add", "company is required")
+                if not isin:
+                    raise AppError("ERR-watch-add", "ISIN is required")
+                if not ISIN_PATTERN.match(isin):
+                    raise AppError(
+                        "ERR-watch-add",
+                        f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A01001)",
+                    )
+                if not rating:
+                    raise AppError("ERR-watch-add", "rating is required")
+                with get_conn(db_file) as conn:
+                    duplicate = conn.execute(
+                        "SELECT company, isin, watch_state FROM bonds "
+                        "WHERE lower(trim(company)) = lower(?) OR upper(trim(isin)) = upper(?)",
+                        (company, isin),
+                    ).fetchone()
+                    if duplicate is not None:
+                        raise AppError(
+                            "ERR-watch-dup",
+                            f"duplicate candidate rejected: {duplicate['company']} "
+                            f"({duplicate['isin']}) already exists as {duplicate['watch_state']}",
+                        )
+                    cursor = conn.execute(
+                        "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
+                        "expected_yield_pct, watch_state) VALUES (?, ?, ?, ?, ?, ?, 'watching')",
+                        (company, isin, source_note, rating, coupon, est_yield),
+                    )
+                    if cursor.rowcount != 1:
+                        raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
+            except AppError as exc:
+                return (
+                    render_template(
+                        "watch.html",
+                        candidates=watch_candidates(db_file),
+                        snapshot=watch_snapshot(db_file),
+                        error=exc.message,
+                        error_code=exc.code,
+                        form=form,
+                    ),
+                    409 if exc.code == "ERR-watch-dup" else 400,
+                )
+            flash(f"Candidate added: {company}", "success")
+            return redirect(url_for("watch_list"))
         try:
-            with get_conn(db_file) as conn:
-                model = watch_model(conn, date.today())
+            candidates = watch_candidates(db_file)
         except AppError as exc:
             return (
                 render_template(
                     "error.html",
                     code=exc.code,
                     message=exc.message,
-                    title="Watch list failed",
+                    title="Watchlist failed",
                 ),
                 500,
             )
         return render_template(
-            "watch.html", entries=model["entries"], freeup=model["freeup"]
+            "watch.html",
+            candidates=candidates,
+            snapshot=watch_snapshot(db_file),
+            error=None,
+            error_code=None,
+            form={},
         )
 
-    @app.route("/notifications")
+    @app.route("/watch/<int:candidate_id>/move", methods=["POST"])
+    def watch_move(candidate_id):
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        form = request.form
+        try:
+            credit_raw = str(form.get("credit_day", "")).strip()
+            try:
+                credit_value = int(credit_raw)
+            except ValueError as exc:
+                raise AppError(
+                    "ERR-move-watching",
+                    f"credit day must be an integer in 1-31: {credit_raw!r}",
+                ) from exc
+            start_date, end_date, tenure_months, credit_day = date_range_tenure(
+                form.get("start_date", ""), form.get("end_date", ""), credit_value
+            )
+            with get_conn(db_file) as conn:
+                row = conn.execute(
+                    "SELECT id, company, isin, watch_state FROM bonds WHERE id = ?",
+                    (candidate_id,),
+                ).fetchone()
+                if row is None:
+                    raise AppError("ERR-move-watching", f"candidate not found: {candidate_id}")
+                if row["watch_state"] != "watching":
+                    raise AppError(
+                        "ERR-move-watching",
+                        f"already in Portfolio: {row['company']} is {row['watch_state']}",
+                    )
+                from src.lock import check_add_allowed
+
+                check_add_allowed(row["company"], row["isin"], conn)
+                cursor = conn.execute(
+                    "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
+                    "credit_day = ?, watch_state = 'holding' "
+                    "WHERE id = ? AND watch_state = 'watching'",
+                    (
+                        start_date.isoformat(),
+                        end_date.isoformat(),
+                        int(tenure_months),
+                        int(credit_day),
+                        candidate_id,
+                    ),
+                )
+                if cursor.rowcount != 1:
+                    raise AppError(
+                        "ERR-move-watching",
+                        f"move affected {cursor.rowcount} rows for candidate {candidate_id}",
+                    )
+                moved_company = row["company"]
+        except AppError as exc:
+            message = (
+                f"{exc.message} — no override"
+                if exc.code == "ERR-active-position"
+                else exc.message
+            )
+            return (
+                render_template(
+                    "watch.html",
+                    candidates=watch_candidates(db_file),
+                    snapshot=watch_snapshot(db_file),
+                    error=message,
+                    error_code=exc.code,
+                    form=form,
+                ),
+                409 if exc.code == "ERR-active-position" else 400,
+            )
+        flash(f"Moved to Portfolio: {moved_company}", "success")
+        return redirect(url_for("watch_list"))
+
+    def alert_prefs_map(db_file):
+        with get_conn(db_file) as conn:
+            rows = conn.execute("SELECT key, value FROM alert_prefs").fetchall()
+        return {row["key"]: row["value"] for row in rows}
+
+    @app.route("/notifications", methods=["GET", "POST"])
     def notifications_page():
         db_file = Path(app.config["DB_PATH"])
         _ensure_db(db_file)
-        with get_conn(db_file) as conn:
-            rows = list_notifications(conn)
-        return render_template("notifications.html", notifications=rows)
+        if request.method == "POST":
+            inapp_on = request.form.get("inapp") in ("on", "1", "true", "yes")
+            email_on = request.form.get("email") in ("on", "1", "true", "yes")
+            with get_conn(db_file) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                    ("alert_channel_inapp", "1" if inapp_on else "0"),
+                )
+                conn.execute(
+                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                    ("alert_channel_email", "1" if email_on else "0"),
+                )
+            flash("Alert channels saved", "success")
+            return redirect(url_for("notifications_page"))
+        return render_template("notifications.html", prefs=alert_prefs_map(db_file))
 
     @app.route("/notifications/read_all", methods=["POST"])
     def notifications_read_all():
@@ -650,22 +888,357 @@ def create_app(db_path=None):
             return error_page(exc.code, exc.message, "Payout schedule failed", 400)
         return render_template("payout.html", schedule=schedule)
 
+    def _portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
+        received_by_bond_map = received_by_bond(conn)
+        holdings = []
+        for row in bond_rows:
+            entries = ledger_by_bond.get(row["id"], {})
+            health = display_label(derive_health(row, entries, today))
+            next_payout = "—"
+            if health != "Matured":
+                for key in tenure_window(row["start_date"], row["tenure_months"]):
+                    if not entry_paid(entries.get(key)):
+                        next_payout = payout_date_label(key, row["credit_day"])
+                        break
+            holdings.append(
+                {
+                    "id": row["id"],
+                    "company": row["company"],
+                    "isin": row["isin"] or "",
+                    "rating": row["rating"],
+                    "coupon": row["coupon_pct"],
+                    "yield_pct": row["expected_yield_pct"],
+                    "frequency": row["payout_cycle"],
+                    "invested": float(row["amount"] or 0.0),
+                    "received": received_by_bond_map.get(row["id"], 0.0),
+                    "next_payout": next_payout,
+                    "health": health,
+                }
+            )
+        return holdings
+
+    def _portfolio_payouts(bond_rows, ledger_by_bond, today):
+        prepared = []
+        first_keys = []
+        for row in bond_rows:
+            entries = ledger_by_bond.get(row["id"], {})
+            window = tenure_window(row["start_date"], row["tenure_months"])
+            first_keys.append(window[0])
+            prepared.append(
+                (row, window, entries, display_label(derive_health(row, entries, today)))
+            )
+        months = list_months_through_current(today, min(first_keys) if first_keys else None)
+        rows = []
+        for row, window, entries, health in prepared:
+            window_set = set(window)
+            cells = []
+            for key in months:
+                entry = entries.get(key)
+                if key in window_set:
+                    if entry_paid(entry):
+                        cells.append({"kind": "amount", "amount": float(entry["amount"])})
+                    elif health == "Matured":
+                        cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
+                    elif month_due_passed(key, row["credit_day"], today):
+                        cells.append({"kind": "chip", "text": "Missed", "chip": "chip-danger"})
+                    else:
+                        cells.append({"kind": "chip", "text": "Due", "chip": "chip-ongoing"})
+                elif health == "Matured":
+                    cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
+                else:
+                    cells.append({"kind": "text", "text": "—"})
+            rows.append(
+                {
+                    "id": row["id"],
+                    "company": row["company"],
+                    "isin": row["isin"] or "",
+                    "health": health,
+                    "cells": cells,
+                }
+            )
+        return (
+            sort_payout_rows(rows),
+            [{"key": key, "label": month_label(key)} for key in months],
+        )
+
+    def _portfolio_context(conn, today, tab, form, error, code):
+        bond_rows = conn.execute(
+            "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+            "amount, start_date, end_date, tenure_months, credit_day "
+            "FROM bonds WHERE watch_state = 'holding' "
+            "ORDER BY company COLLATE NOCASE, id"
+        ).fetchall()
+        ledger_rows = conn.execute(
+            "SELECT bond_id, month, amount, paid FROM payment_ledger ORDER BY bond_id, month"
+        ).fetchall()
+        ledger_by_bond = {}
+        for entry in ledger_rows:
+            ledger_by_bond.setdefault(entry["bond_id"], {})[entry["month"]] = {
+                "amount": entry["amount"],
+                "paid": entry["paid"],
+            }
+        context = {
+            "tab": tab,
+            "holdings": [],
+            "months": [],
+            "payouts": [],
+            "form": form,
+            "error": error,
+            "code": code,
+        }
+        if tab == "holdings":
+            context["holdings"] = _portfolio_holdings(conn, bond_rows, ledger_by_bond, today)
+        elif bond_rows:
+            rows, months = _portfolio_payouts(bond_rows, ledger_by_bond, today)
+            context["payouts"] = rows
+            context["months"] = months
+        return context
+
+    def _portfolio_optional_text(form, field):
+        raw = str(form.get(field, "")).strip()
+        return raw or None
+
+    def _portfolio_optional_float(form, field):
+        raw = str(form.get(field, "")).strip()
+        if not raw:
+            return None
+        try:
+            return float(raw)
+        except ValueError as exc:
+            raise AppError("ERR-add-fields", f"{field} must be a number: {raw!r}") from exc
+
+    def _add_portfolio_position(db_file):
+        form = request.form
+        company = str(form.get("company", "")).strip()
+        isin = str(form.get("isin", "")).strip()
+        try:
+            with get_conn(db_file) as conn:
+                if not company:
+                    raise AppError("ERR-add-fields", "company is required")
+                if not isin:
+                    raise AppError("ERR-add-fields", "ISIN is required")
+                amount_raw = str(form.get("amount", "")).strip()
+                try:
+                    amount = float(amount_raw)
+                except ValueError as exc:
+                    raise AppError(
+                        "ERR-add-fields", f"amount must be a number: {amount_raw!r}"
+                    ) from exc
+                if amount < 0:
+                    raise AppError(
+                        "ERR-add-fields",
+                        f"amount must not be negative: {amount_raw!r}",
+                    )
+                credit_raw = str(form.get("credit_day", "")).strip()
+                try:
+                    credit_value = int(credit_raw)
+                except ValueError as exc:
+                    raise AppError(
+                        "ERR-add-fields",
+                        f"credit day must be an integer in 1-31: {credit_raw!r}",
+                    ) from exc
+                start_date, end_date, tenure_months, credit_day = date_range_tenure(
+                    form.get("start_date", ""), form.get("end_date", ""), credit_value
+                )
+                if tenure_months < 1:
+                    raise AppError(
+                        "ERR-date-range",
+                        f"tenure must span at least one whole month: {tenure_months}",
+                    )
+                payout_cycle = _portfolio_optional_text(form, "payout_cycle")
+                if payout_cycle is not None and payout_cycle not in (
+                    "monthly",
+                    "quarterly",
+                    "annual",
+                ):
+                    raise AppError(
+                        "ERR-add-fields",
+                        f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
+                    )
+                issuer_type = _portfolio_optional_text(form, "issuer_type")
+                if issuer_type is not None and issuer_type not in (
+                    "corporate_bond",
+                    "ncd",
+                    "sdi",
+                    "government",
+                    "fd",
+                ):
+                    raise AppError(
+                        "ERR-add-fields",
+                        "issuer_type must be one of corporate_bond, ncd, sdi, "
+                        f"government, fd: {issuer_type!r}",
+                    )
+                rating = _portfolio_optional_text(form, "rating")
+                rating_agency = _portfolio_optional_text(form, "rating_agency")
+                coupon_pct = _portfolio_optional_float(form, "coupon_pct")
+                expected_yield_pct = _portfolio_optional_float(form, "expected_yield_pct")
+                face_value = _portfolio_optional_float(form, "face_value")
+                secured = 1 if str(form.get("secured", "1")) == "1" else 0
+                check_add_allowed(company, isin, conn)
+                try:
+                    cursor = conn.execute(
+                        "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "
+                        "tenure_months, credit_day, status, watch_state, rating, rating_agency, "
+                        "coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            company,
+                            isin,
+                            company,
+                            float(amount),
+                            start_date.isoformat(),
+                            end_date.isoformat(),
+                            int(tenure_months),
+                            int(credit_day),
+                            "On-going",
+                            "holding",
+                            rating,
+                            rating_agency,
+                            coupon_pct,
+                            expected_yield_pct,
+                            payout_cycle,
+                            issuer_type,
+                            secured,
+                            face_value,
+                        ),
+                    )
+                except sqlite3.IntegrityError as exc:
+                    raise AppError(
+                        "ERR-add-insert",
+                        f"position insert rejected (duplicate ISIN {isin}): {exc}",
+                    ) from exc
+                if cursor.rowcount != 1:
+                    raise AppError(
+                        "ERR-add-insert",
+                        f"position insert for {company} affected {cursor.rowcount} rows",
+                    )
+                bond_id = cursor.lastrowid
+                current_key = month_key(date.today())
+                for key in tenure_window(start_date, tenure_months):
+                    if key > current_key:
+                        break
+                    conn.execute(
+                        "INSERT OR IGNORE INTO payment_ledger (bond_id, month, amount, paid) "
+                        "VALUES (?, ?, 0, 0)",
+                        (bond_id, key),
+                    )
+        except AppError as exc:
+            status_code = 409 if exc.code in ("ERR-active-position", "ERR-add-insert") else 400
+            try:
+                with get_conn(db_file) as conn:
+                    context = _portfolio_context(
+                        conn, date.today(), "holdings", form, exc.message, exc.code
+                    )
+            except AppError:
+                context = {
+                    "tab": "holdings",
+                    "holdings": [],
+                    "months": [],
+                    "payouts": [],
+                    "form": form,
+                    "error": exc.message,
+                    "code": exc.code,
+                }
+            return render_template("portfolio.html", **context), status_code
+        flash(f"Position added: {company}", "success")
+        return redirect(url_for("portfolio_page", tab="holdings"))
+
+    @app.route("/portfolio", methods=["GET", "POST"])
+    def portfolio_page():
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        if request.method == "POST":
+            return _add_portfolio_position(db_file)
+        tab = str(request.args.get("tab") or "holdings")
+        if tab not in ("holdings", "payouts"):
+            return error_page(
+                "ERR-portfolio-tab",
+                f"unknown tab: {tab!r} (expected 'holdings' or 'payouts')",
+                "Portfolio tab failed",
+                400,
+            )
+        try:
+            with get_conn(db_file) as conn:
+                context = _portfolio_context(conn, date.today(), tab, {}, None, None)
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Portfolio render failed", 500)
+        return render_template("portfolio.html", **context)
+
+    @app.route("/portfolio/<int:bond_id>/detail")
+    def portfolio_position_detail(bond_id):
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        try:
+            with get_conn(db_file) as conn:
+                detail = position_detail(conn, bond_id)
+        except AppError as exc:
+            return jsonify({"error": exc.code, "message": exc.message}), 404
+        return jsonify(detail)
+
+    def settings_from_form(form):
+        host = str(form.get("smtp_host", "")).strip()
+        port_raw = str(form.get("smtp_port", "")).strip()
+        sender = str(form.get("smtp_from", "")).strip()
+        recipient = str(form.get("smtp_to", "")).strip()
+        port_value = ""
+        if port_raw:
+            try:
+                port = int(port_raw)
+            except ValueError as exc:
+                raise AppError(
+                    "ERR-settings-save", f"SMTP port must be an integer: {port_raw!r}"
+                ) from exc
+            if not 1 <= port <= 65535:
+                raise AppError("ERR-settings-save", f"SMTP port out of range 1-65535: {port}")
+            port_value = str(port)
+        checked = ("on", "1", "true", "yes")
+        return {
+            "smtp_host": host,
+            "smtp_port": port_value,
+            "smtp_from": sender,
+            "smtp_recipient": recipient,
+            "privacy_on_startup": "1" if form.get("privacy_on_startup") in checked else "0",
+            "share_section_holdings": "1" if form.get("share_holdings") in checked else "0",
+            "share_section_payouts": "1" if form.get("share_payouts") in checked else "0",
+            "share_section_goals": "1" if form.get("share_goals") in checked else "0",
+        }
+
+    @app.route("/settings", methods=["GET", "POST"])
+    def settings_page():
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        if request.method == "POST":
+            try:
+                values = settings_from_form(request.form)
+            except AppError as exc:
+                return (
+                    render_template(
+                        "settings.html",
+                        prefs=alert_prefs_map(db_file),
+                        error=exc.message,
+                        error_code=exc.code,
+                    ),
+                    400,
+                )
+            with get_conn(db_file) as conn:
+                for key, value in values.items():
+                    conn.execute(
+                        "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                        (key, value),
+                    )
+            flash("Settings saved", "success")
+            return redirect(url_for("settings_page"))
+        return render_template(
+            "settings.html", prefs=alert_prefs_map(db_file), error=None, error_code=None
+        )
+
     return app
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="dk-bond-tracker")
-    parser.add_argument("--import", dest="import_path", metavar="XLSM")
     parser.add_argument("--db", dest="db_path", default=str(DEFAULT_DB_PATH), metavar="SQLITE")
     args = parser.parse_args(argv)
-    if args.import_path:
-        try:
-            summary = import_workbook(args.import_path, args.db_path)
-        except AppError as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
-        print(json.dumps(summary, indent=2))
-        return 0
     create_app(args.db_path).run(
         host="127.0.0.1", port=int(os.environ.get("PORT", "5000"))
     )
