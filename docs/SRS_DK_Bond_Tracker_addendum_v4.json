@@ -1,0 +1,291 @@
+{
+  "id": "SRS_DK_Bond_Tracker_addendum_v4",
+  "kind": "srs",
+  "title": "SRS Addendum v4 — Screen Restructure, Labels, Status Model, Add-Position Form and Themes (FR-50..FR-61)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "SRS_DK_Bond_Tracker_addendum_v3",
+  "sections": [
+    {
+      "heading": "Purpose",
+      "body": "This addendum extends SRS_DK_Bond_Tracker_addendum_v3 with the twelve requirements added after owner decisions D38 (screen restructure), D39 (labels + Add-Position location, approved on ui_frontend_design_v4.html) and D40 (multiple themes System/Light/Dark) of 2026-10-31: FR-50 (Portfolio/Watchlist restructure), FR-51 (exact sidebar labels), FR-52 (Portfolio two tabs), FR-53 (My Holdings registry columns + drawer), FR-54 (Add Position form + shared D15 lock), FR-55 (Payouts month grid), FR-56 (candidates-only Watchlist column whitelist), FR-57 (Move to Portfolio lock rules), FR-58 (display labels Received/Matured), FR-59 (status enums, derivation, legend, Danger sort), FR-60 (three themes with persistence and zero flash), FR-61 (empty default data). Requirement ids match the PRD addendum prd_items exactly (hard FK to docs/PRD_DK_Bond_Tracker_addendum_v4.json), continuing the id sequence after the last requirement of addendum v3. No requirement of SRS v1 (FR-01..FR-24, NFR-1..NFR-13, DATA-01..DATA-05), of addendum v1 (FR-25/FR-26), of addendum v2 (FR-27..FR-37) or of addendum v3 (FR-38..FR-49) is altered by this document."
+    },
+    {
+      "heading": "D38/D39/D40 traceability",
+      "body": "markdown:| FR | Decision |\n| --- | --- |\n| FR-50 | dk_bond_tracker_brainstorm_20261030:D38 |\n| FR-51 | dk_bond_tracker_brainstorm_20261030:D38 |\n| FR-52 | dk_bond_tracker_brainstorm_20261030:D38 |\n| FR-53 | dk_bond_tracker_brainstorm_20261030:D38 (drawer per D33) |\n| FR-54 | dk_bond_tracker_brainstorm_20261030:D39 (lock per D15) |\n| FR-55 | dk_bond_tracker_brainstorm_20261030:D38 |\n| FR-56 | dk_bond_tracker_brainstorm_20261030:D38 |\n| FR-57 | dk_bond_tracker_brainstorm_20261030:D39 (lock per D15) |\n| FR-58 | dk_bond_tracker_brainstorm_20261030:D39 |\n| FR-59 | dk_bond_tracker_brainstorm_20261030:D39 (enums), :D38 (derivation, legend, sort) |\n| FR-60 | dk_bond_tracker_brainstorm_20261030:D40 |\n| FR-61 | dk_bond_tracker_brainstorm_20261030:D37 (start empty), reconfirmed by :D38 |"
+    },
+    {
+      "heading": "Display labels and status rendering (D39 + D38)",
+      "body": "The label mapping is display-only: the engine value Returned SHALL render as the string Received, and the engine value Completed SHALL render as the string Matured, while storage and engine computation keep the original values untouched (D39). Neither 'Returned' nor 'Completed' SHALL appear as a rendered status or field label on any screen. Purchase state uses exactly the values Watching (candidate, shown on the Watchlist) and Held (owned position). Payment health uses exactly the values On-going, Danger and Matured, exists only on Portfolio surfaces, and SHALL be derived from the Payouts grid (D38) — the day-wise rule being: if the received amount is not entered on the credit day, health becomes Danger the same day. The Portfolio status legend SHALL render all four chips (Watching, On-going, Danger, Matured) with their meanings, and in the Payouts grid Danger rows SHALL sort to the top, On-going next, Matured last."
+    },
+    {
+      "heading": "Theme system notes (D40)",
+      "body": "All colors SHALL come from CSS custom properties: light tokens defined once on :root, dark tokens defined once on html[data-theme=\"dark\"], and no component SHALL hard-code a color. System mode SHALL listen to prefers-color-scheme and apply it live (changing the OS theme while the app is open restyles the app); an explicit Light or Dark choice SHALL override the OS in both directions. The stored mode SHALL be read by an inline script before first paint so no flash of the wrong theme occurs. The dark palette SHALL avoid pure black (#000000) and pure white (#FFFFFF) surfaces, SHALL keep text and interactive elements at WCAG AA contrast or better, and SHALL use desaturated accents. The active theme SHALL render every screen (Dashboard, Portfolio, Watchlist, Financial Goals, Alerts, Settings) identically — no screen carries its own hard-coded colors."
+    },
+    {
+      "heading": "Data and persistence notes (D39, D40)",
+      "body": "This addendum requires no schema change: display relabels are view-level only (D39), payment health is computed from the existing ledger via the Payouts grid (D38), and the purchase-state distinction maps onto the existing bonds watch_state values ('holding' renders Held, 'watching' renders Watching). The three-mode theme choice SHALL persist client-side in localStorage per D40 — it is not stored in the database, and the legacy theme preference key from the earlier Settings work plays no part in the System/Light/Dark switcher. Sample rows: a fresh install SHALL ship with no seeded rows of any kind (FR-61)."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "FR-50",
+      "text": "Following the restructure, owned positions SHALL be reachable only under Portfolio (its My Holdings and Payouts tabs); the Watchlist SHALL contain candidates only; and payment-health statuses (On-going, Danger, Matured) SHALL be rendered only on Portfolio surfaces, never on the Watchlist (D38).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a database holding owned positions and watchlist candidates",
+          "when": "the user opens the Watchlist screen",
+          "then": "only candidate rows render, with no Invested, Received or Next Payout value and no payment-health chip on any row"
+        },
+        {
+          "given": "the same database",
+          "when": "the user opens Portfolio > My Holdings",
+          "then": "every owned position appears there with its payment-health status, and no candidate appears in the registry"
+        }
+      ]
+    },
+    {
+      "id": "FR-51",
+      "text": "The sidebar navigation SHALL display exactly these six labels in this order: 'Dashboard', 'Portfolio', 'Watchlist', 'Financial Goals', 'Alerts', 'Settings'; the string 'Month Grid' SHALL NOT appear in the sidebar, no seventh navigation item SHALL be present, and activating 'Portfolio' SHALL navigate to the Portfolio screen (D38).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the application shell rendered",
+          "when": "the sidebar navigation labels are read in order",
+          "then": "they equal exactly Dashboard, Portfolio, Watchlist, Financial Goals, Alerts, Settings — case-sensitive, six items, no more and no fewer"
+        },
+        {
+          "given": "the rendered sidebar",
+          "when": "it is inspected for the legacy label",
+          "then": "the text 'Month Grid' does not occur anywhere in the sidebar, and activating each of the six items navigates to its screen with Settings opening the real Settings screen"
+        }
+      ]
+    },
+    {
+      "id": "FR-52",
+      "text": "The Portfolio screen SHALL present exactly two tabs labelled 'My Holdings' and 'Payouts'; 'My Holdings' SHALL be the active tab when Portfolio opens; and switching tabs SHALL swap the panel below without leaving the Portfolio screen (D38).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the user navigates to Portfolio",
+          "when": "the screen renders",
+          "then": "exactly two tab labels are present — 'My Holdings' and 'Payouts' — with My Holdings active"
+        },
+        {
+          "given": "Portfolio open on My Holdings",
+          "when": "the user clicks Payouts and then My Holdings again",
+          "then": "the position registry shows after the second click, the payout grid showed after the first, and the destination never leaves Portfolio"
+        }
+      ]
+    },
+    {
+      "id": "FR-53",
+      "text": "The My Holdings tab SHALL render a position registry whose column headers are exactly, in order: Company/ISIN, Rating, Coupon, Yield, Frequency, Invested, Received, Next Payout, Status; selecting any row SHALL open the per-position detail drawer introduced by the watchlist redesign and SHALL show that position's facts (D38; drawer per D33).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "Portfolio > My Holdings rendered with at least one position",
+          "when": "the table headers are read",
+          "then": "they equal exactly Company/ISIN, Rating, Coupon, Yield, Frequency, Invested, Received, Next Payout, Status in that order with no extra or missing column"
+        },
+        {
+          "given": "a row selected in the registry",
+          "when": "the click completes",
+          "then": "the detail drawer opens for that position showing its ISIN and facts, and the Status cell of the row shows one of On-going, Danger, Matured"
+        }
+      ]
+    },
+    {
+      "id": "FR-54",
+      "text": "The Add Position action SHALL be placed inside Portfolio > My Holdings; its form SHALL capture a start date, an end date, an auto-calculated tenure displayed in whole months and read-only, and a credit day accepting only integers from 1 to 31 inclusive; the tenure SHALL be computed as the whole months between start date and end date; the credit day SHALL drive the day-wise danger evaluation; and this form and the Watchlist's Move to Portfolio action SHALL both pass the same D15 duplicate/active-position lock check before any data is written (D39).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the Add Position form with start date 2025-05-15 and end date 2026-11-15",
+          "when": "both dates are set",
+          "then": "the tenure field shows 18 months — the whole months between the two dates — and the field is read-only and not user-editable"
+        },
+        {
+          "given": "the credit day field",
+          "when": "the user enters 0, 32 or a non-integer",
+          "then": "the form rejects the value with a validation message and writes nothing; values 1 and 31 are accepted"
+        },
+        {
+          "given": "a company already held with payment health On-going",
+          "when": "the user submits Add Position for that same company",
+          "then": "the shared D15 lock check blocks the submit, no position row is written, and the same lock outcome applies to the Watchlist Move to Portfolio path"
+        },
+        {
+          "given": "a position with credit day 15 whose current-month amount is not entered on the 15th",
+          "when": "the day-wise sweep runs",
+          "then": "its payment health becomes Danger that same day, proving the credit day drives day-wise danger"
+        }
+      ]
+    },
+    {
+      "id": "FR-55",
+      "text": "The Payouts tab SHALL render a month grid with one row per company and one column per month, covering only the current month and months before it — columns for future months SHALL never be rendered; each cell SHALL display either the payment amount or the payment status; and rows SHALL auto-sort so that Danger rows are first, On-going rows next and Matured rows last (D38).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "today inside the current month",
+          "when": "the Payouts grid renders",
+          "then": "its month columns include the current month and earlier months only — no column exists for any future month"
+        },
+        {
+          "given": "a grid containing rows with mixed payment health",
+          "when": "the grid loads without user sorting",
+          "then": "the row order is all Danger rows first, then On-going rows, then Matured rows"
+        },
+        {
+          "given": "a cell whose payment is unpaid on or after the credit day",
+          "when": "the cell renders",
+          "then": "it shows the payment status instead of an amount, while paid cells show the amount"
+        }
+      ]
+    },
+    {
+      "id": "FR-56",
+      "text": "The Watchlist SHALL list candidates only and SHALL render exactly these columns: Company/ISIN, Rating, Coupon, Est. Yield, Source note, Action; every candidate row SHALL display the purchase state Watching; and no Invested, Received, Next Payout or payment-health column SHALL appear anywhere on the Watchlist (D38).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the Watchlist screen rendered",
+          "when": "the table headers are read",
+          "then": "they equal exactly Company/ISIN, Rating, Coupon, Est. Yield, Source note, Action in that order"
+        },
+        {
+          "given": "candidates and owned positions both exist",
+          "when": "the Watchlist renders",
+          "then": "only candidates are listed, each row shows a Watching chip, and no column header or row cell for Invested, Received, Next Payout or any payment-health value is present"
+        },
+        {
+          "given": "the Watchlist table markup",
+          "when": "it is searched for forbidden column headers",
+          "then": "the strings 'Invested', 'Received' and 'Next Payout' do not occur as column headers anywhere on the screen"
+        }
+      ]
+    },
+    {
+      "id": "FR-57",
+      "text": "The Move to Portfolio action SHALL convert a candidate into an owned position only after the D15 duplicate/active-position lock check passes: a company whose existing position is On-going or Danger SHALL be rejected with no new position row written, and once a position has reached Matured a new purchase of that company SHALL be allowed and SHALL restart the lifecycle as On-going or Danger (D39).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "company X already held with payment health On-going or Danger",
+          "when": "the user activates Move to Portfolio for company X",
+          "then": "the action is blocked by the lock, no second position row is created, and a lock message explains the company is already held"
+        },
+        {
+          "given": "company Y whose previous position reached Matured",
+          "when": "the user activates Move to Portfolio for company Y",
+          "then": "a new position row is created and its payment health restarts as On-going, or Danger if its credit day in the current month has already passed without an entered amount — never Matured"
+        }
+      ]
+    },
+    {
+      "id": "FR-58",
+      "text": "Every UI surface SHALL render the received-amount label as the exact string 'Received' and the finished-position label as the exact string 'Matured', while the stored engine values 'Returned' and 'Completed' remain unchanged; neither 'Returned' nor 'Completed' SHALL be rendered as a status or field label anywhere in the UI (D39).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a position whose engine value is 'completed'",
+          "when": "any screen renders that position",
+          "then": "the displayed status reads 'Matured' and the stored engine value in the database is still 'completed'"
+        },
+        {
+          "given": "all screens rendered (Dashboard, Portfolio, Watchlist, Financial Goals, Alerts, Settings)",
+          "when": "status and field labels are inspected",
+          "then": "labels read 'Received' (e.g. the My Holdings Received column) and 'Matured' (e.g. the Portfolio legend chip), and no status or field label anywhere reads 'Returned' or 'Completed'"
+        }
+      ]
+    },
+    {
+      "id": "FR-59",
+      "text": "The product SHALL model purchase state with exactly the values Watching and Held, and payment health with exactly the values On-going, Danger and Matured; payment health SHALL be derived from the Payouts grid; a status legend SHALL be rendered on the Portfolio screen showing all four rendered values; and Danger rows SHALL sort to the top of the Payouts grid with On-going next and Matured last (D38, D39).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the Portfolio screen",
+          "when": "the status legend renders",
+          "then": "it shows the four chips Watching, On-going, Danger, Matured with their meanings, and no fifth status value exists anywhere in the UI"
+        },
+        {
+          "given": "a position whose current-month amount is not entered on its credit day",
+          "when": "the Payouts grid derives payment health",
+          "then": "the health reads Danger both in the Payouts grid and in the My Holdings Status column for that same position"
+        },
+        {
+          "given": "a grid with at least one row of each health value",
+          "when": "the grid renders",
+          "then": "Danger rows occupy the top positions, On-going rows follow, and Matured rows sit at the bottom"
+        }
+      ]
+    },
+    {
+      "id": "FR-60",
+      "text": "The application SHALL ship exactly three theme modes — 'System' (follow the operating system), 'Light' (default) and 'Dark' — selectable from a switcher in the header and from Settings > Appearance; the selected mode SHALL persist across restarts via localStorage; and the stored mode SHALL be applied before first paint so that no flash of the wrong theme occurs on load (D40).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "the application open in Light mode",
+          "when": "the header theme switcher and Settings > Appearance are inspected",
+          "then": "both offer exactly the three modes System, Light and Dark, and selecting Dark restyles the whole app immediately"
+        },
+        {
+          "given": "Dark selected and the application reloaded",
+          "when": "the first paint is observed",
+          "then": "the page is Dark from the very first painted frame — no light frame flashes — and the mode is still Dark after restarting the application"
+        },
+        {
+          "given": "System mode selected",
+          "when": "the operating system switches between light and dark while the app is open",
+          "then": "the app follows the OS live via prefers-color-scheme; with an explicit Light or Dark mode selected the app ignores the OS in both directions"
+        }
+      ]
+    },
+    {
+      "id": "FR-61",
+      "text": "A new installation SHALL start completely empty — zero positions, zero candidates, zero payments — with nothing seeded, and the sample rows shown in the approved design SHALL be treated as illustrative examples only and SHALL never be written to the database (D37; reconfirmed by the D38 restructure, under which Portfolio and Watchlist start empty) (D38).",
+      "category": "functional",
+      "check_method": "e2e",
+      "status": "draft",
+      "acceptance_criteria": [
+        {
+          "given": "a fresh installation with a newly created local database",
+          "when": "Portfolio > My Holdings, Portfolio > Payouts and the Watchlist are opened",
+          "then": "each renders zero rows with zero counts, and no position, candidate or payment exists"
+        },
+        {
+          "given": "the fresh installation",
+          "when": "the database is searched for any of the sample company rows shown in the approved design",
+          "then": "no such row exists — every row in the product was created by the user"
+        }
+      ]
+    }
+  ]
+}

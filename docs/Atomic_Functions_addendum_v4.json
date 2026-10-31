@@ -1,0 +1,424 @@
+{
+  "id": "Atomic_Functions_addendum_v4",
+  "kind": "atomic_function",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Atomic_Functions_addendum_v3",
+  "atomic_functions": [
+    {
+      "id": "AF-61",
+      "name": "apply_theme",
+      "purpose": "Apply a theme mode to the document root (D40): set/resolve the data-theme attribute on the html root for the requested mode in {system, light, dark}; explicit light/dark write the matching data-theme value so their token set wins unconditionally, while mode 'system' clears any explicit data-theme so the token set resolves through @media (prefers-color-scheme: dark) — OS changes then follow live with no polling and no re-apply. Every screen color comes from the CSS custom-property token sets (light set on :root, dark set on html[data-theme=dark]): the function only flips the attribute, it never touches individual colors. Also syncs the header theme switcher and the Settings > Appearance active state to the mode actually applied.",
+      "inputs": [
+        "mode requested by the user or the boot path: one of 'system' | 'light' | 'dark'",
+        "current data-theme attribute on the html root (if any)",
+        "prefers-color-scheme state via matchMedia('(prefers-color-scheme: dark)') — the system-mode resolver and its change events",
+        "the two token sets: :root light tokens (current approved palette) and html[data-theme=dark] dark tokens"
+      ],
+      "outputs": [
+        "html root attribute state: data-theme='light' or data-theme='dark' for explicit modes; NO explicit data-theme for mode 'system' (delegated to prefers-color-scheme)",
+        "switcher and Settings > Appearance controls synced to the applied mode",
+        "on system mode, a matchMedia change listener keeps the control indicators in sync while CSS handles the token flip itself"
+      ],
+      "triggers": [
+        "user picks a mode in the header theme switcher",
+        "user picks a mode in Settings > Appearance",
+        "boot path restore_theme_at_boot (AF-63) applies the stored mode before first paint"
+      ],
+      "preconditions": [
+        "Both token sets exist in the stylesheet: light tokens on :root and dark tokens on html[data-theme=dark], with the @media (prefers-color-scheme: dark) block scoped so it applies only when no explicit data-theme is present (D40)",
+        "No screen carries hard-coded color values outside the two token blocks (all colors flow through var())"
+      ],
+      "postconditions": [
+        "mode 'light' -> html[data-theme='light']; mode 'dark' -> html[data-theme='dark']; mode 'system' -> explicit data-theme removed so @media prefers-color-scheme decides (FR-60, D40)",
+        "EXPLICIT OVERRIDES OS: with data-theme set, the @media block never applies — explicit Light stays light on a dark OS and explicit Dark stays dark on a light OS (FR-60)",
+        "SYSTEM FOLLOWS OS LIVE: while mode is system, flipping the OS appearance re-themes every screen immediately through the CSS media query, without a page reload and without the stored mode changing; the matchMedia listener only refreshes the control indicators (FR-60)",
+        "The applied mode always equals the last resolved state — no half-applied outcome where the attribute says one theme and the tokens render another (the attribute IS the token switch)",
+        "An unknown mode value is rejected: the controls show a visible message naming the rejected value and the html root keeps its previous data-theme — no attribute is written for an invalid mode (FR-21)",
+        "apply_theme itself never writes storage — persistence is persist_theme's (AF-62) job on explicit user selection; OS-driven system-mode flips never touch localStorage (separation of concerns)"
+      ],
+      "fr_refs": [
+        "FR-60"
+      ],
+      "element": "theme_subsystem",
+      "depends_on": [],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-62",
+      "name": "persist_theme",
+      "purpose": "Persist the user's explicit theme mode so the choice survives reloads and restarts (D40): validate the mode against {system, light, dark} and write it to localStorage under the key 'theme_mode'. Storage is browser-local only — no server round trip, no alert_prefs key, no cookie (offline rule: theme state never leaves the machine).",
+      "inputs": [
+        "mode from the switcher or Settings > Appearance: 'system' | 'light' | 'dark'",
+        "localStorage key 'theme_mode' (current stored value)"
+      ],
+      "outputs": [
+        "localStorage['theme_mode'] updated to the validated mode (overwriting the previous choice)",
+        "read-back confirmation used by the caller to report a successful save",
+        "storage-failure outcome: when localStorage is unavailable (privacy mode, quota), the session keeps the applied theme and the control shows a visible non-blocking notice — the current render is never reverted"
+      ],
+      "triggers": [
+        "explicit mode selection in the header switcher (after apply_theme)",
+        "explicit mode selection in Settings > Appearance (after apply_theme)"
+      ],
+      "preconditions": [
+        "mode already validated by apply_theme (AF-61) — persist writes only modes that applied successfully",
+        "localStorage reachable for this origin"
+      ],
+      "postconditions": [
+        "After persist, a reload reads back exactly the stored mode — explicit choice survives reload (FR-60)",
+        "Only the three legal values are ever stored: 'system', 'light', 'dark'; anything else is rejected before the write (defensive re-validation at this boundary)",
+        "A fresh install has no key — absence means Light (the default) until the user first chooses; persist never fabricates a pre-set choice (default install = Light, FR-60)",
+        "OS-driven system-mode changes are never persisted (only user selections write), so the stored intent stays 'system' and later OS flips keep following (FR-60)",
+        "Storage failure surfaces visibly on the control and never crashes the page or clears the previously stored mode (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-60"
+      ],
+      "element": "theme_subsystem",
+      "depends_on": [],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-63",
+      "name": "restore_theme_at_boot",
+      "purpose": "Restore the stored theme BEFORE first paint (zero-flash, D40): an inline bootstrap script in the document head reads localStorage['theme_mode'] and applies it synchronously while the head is parsed — before the body or any styled content renders — so a saved Dark theme never shows an unpainted Light frame on reload and vice versa. Missing or corrupt storage falls back to the Light default (fresh install = Light). The resolved mode is then handed to the controls so the switcher and Settings > Appearance open pre-selected to the stored mode.",
+      "inputs": [
+        "localStorage['theme_mode'] read synchronously at head-parse time",
+        "fallback default 'light' when the key is absent, unreadable or holds an unknown value",
+        "apply rules shared with AF-61 (set data-theme for explicit modes, clear it for system)"
+      ],
+      "outputs": [
+        "data-theme attribute state set on the html root before first paint (light/dark explicit, absent for system)",
+        "resolved mode handed to switcher/Settings initialization so controls open pre-selected",
+        "corrupt-value repair: an unknown stored value is replaced with 'light' on the next explicit user save (the read path itself never writes)"
+      ],
+      "triggers": [
+        "page load — inline <head> script, runs once, synchronously before first paint",
+        "every reload/navigation that re-parses the document head"
+      ],
+      "preconditions": [
+        "The bootstrap snippet ships in the document <head> BEFORE the stylesheet link and before any body markup (execution order is the zero-flash guarantee)",
+        "Token sets present per AF-61 preconditions"
+      ],
+      "postconditions": [
+        "ZERO-FLASH: with a stored 'dark' choice, html[data-theme='dark'] is set before the first paint — no frame of the wrong theme is ever visible; stored 'system' leaves no explicit attribute and the @media block resolves the OS value at first paint with the same zero-flash property (FR-60)",
+        "Stored 'light' on a dark OS renders light (explicit wins), stored 'dark' on a light OS renders dark (FR-60)",
+        "Absent key (fresh install) -> Light, with no error and no stored value fabricated (default install = Light, FR-60)",
+        "Corrupt/unreadable storage -> treated as absent: Light renders, the page never crashes and never renders an unthemed or half-themed document (FR-21)",
+        "A localStorage exception (disabled storage) is caught: the page boots with the Light default and remains fully usable (FR-21)",
+        "Restore is read-only — it never writes localStorage and never re-persists the mode (AF-62 owns writes)"
+      ],
+      "fr_refs": [
+        "FR-60"
+      ],
+      "element": "theme_subsystem",
+      "depends_on": [],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-64",
+      "name": "portfolio_tab_switch",
+      "purpose": "Switch the Portfolio screen between its two tabs (D38): My Holdings (the position registry with the FR-53 column set, the Add Position entry and the detail drawer) and Payouts (the month-grid pattern with amount/status cells and auto-sorted rows). The active tab is carried in the URL (?tab=holdings|payouts, default holdings) so a reload or deep link keeps the selected tab, exactly like the two-view pattern already used on the watchlist. One request renders the active panel — the hidden panel is not queried.",
+      "inputs": [
+        "tab param: 'holdings' | 'payouts' (default 'holdings' when absent)",
+        "position registry rows for My Holdings (FR-53 columns: Company/ISIN, Rating, Coupon, Yield, Frequency, Invested, Received, Next Payout, Status)",
+        "payouts grid rows for the Payouts tab (elapsed months + current month columns only)",
+        "row param (optional) to open the detail drawer from a Holdings row"
+      ],
+      "outputs": [
+        "active panel payload: the selected tab's table plus tab counts and the echo of the active tab for the tab-bar styling (aria/tab state)",
+        "the non-selected panel is omitted entirely from the response (no dead query for the hidden tab)",
+        "named error for an unknown tab value"
+      ],
+      "triggers": [
+        "GET /portfolio?tab=holdings|payouts on initial Portfolio navigation (default holdings)",
+        "click on the My Holdings / Payouts tab buttons (URL updates, panel swaps without losing the drawer row param)",
+        "reload or deep link with a tab param"
+      ],
+      "preconditions": [
+        "Portfolio screen exists as the renamed destination of the old Month Grid (D38 nav: Dashboard | Portfolio | Watchlist | Financial Goals | Alerts | Settings)",
+        "Error surfacing wrapper available (AF-30) for the unknown-tab named error"
+      ],
+      "postconditions": [
+        "Exactly two tabs exist — My Holdings and Payouts — with My Holdings active by default; the tab state round-trips through the URL so reload keeps the tab (FR-52)",
+        "My Holdings renders the exact FR-53 column list and hosts the Add Position action and the retained detail drawer; Payouts renders the FR-55 month grid (FR-52, FR-53, FR-55)",
+        "An unknown tab param (e.g. ?tab=foo) raises a named error naming the offending value via AF-30 — never a silent fallback to a tab (FR-21)",
+        "Switching tabs issues one request for the target panel; the response never contains the hidden panel's rows, so tab data cannot disagree with what is displayed (FR-52)",
+        "The drawer row param only resolves against Holdings rows — opening Payouts leaves no drawer state behind (FR-53)",
+        "Tab switching performs no writes: no status, ledger row or position field changes on a tab click (DATA-05)"
+      ],
+      "fr_refs": [
+        "FR-52"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-30"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-65",
+      "name": "add_position",
+      "purpose": "Create a new position from the Add Position form inside Portfolio > My Holdings (D39 approved location): capture the exact START DATE and END DATE from date inputs, compute tenure in whole months automatically from the range (no manual tenure field), capture the payment credit day, run the shared D15 duplicate/lock check, and on pass create the position with purchase state Held (watch_state 'holding'). Both the tenure calculation and the credit-day bound are validated before the lock runs; the lock is the same single routine used by Move to Portfolio (AF-66) — one invariant, two entry funnels. Positions are still created only through this form path (grid and dashboard expose no add route, D16 preserved).",
+      "inputs": [
+        "form fields: company, ISIN, amount, start_date (date picker), end_date (date picker), credit_day (number input), plus the FR-40 display fields (rating, rating_agency, coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value)",
+        "computed tenure_months = whole months between start_date and end_date (AF-50 date_range_tenure arithmetic; e.g. 2025-05-15 -> 2026-11-15 = 18 months)",
+        "credit_day bound: integer 1..31 (0, 32 and non-integers rejected)",
+        "bonds table scan for active positions with live statuses (AF-39 lock routine over engine On-going/Danger)"
+      ],
+      "outputs": [
+        "one new bonds row: watch_state 'holding' (purchase state Held) with dates, computed tenure, credit_day and FR-40 fields",
+        "post-create render: the row appears in My Holdings and in the Payouts grid; payment health derives On-going while current (AF-67)",
+        "on any validation or lock failure: a named error and ZERO writes (no partial position, no ledger rows)"
+      ],
+      "triggers": [
+        "POST from the Add Position form in Portfolio > My Holdings (or the header + Add Position button, which lands on that tab)",
+        "form re-render after a validation or lock failure (values preserved, error visible)"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01) with the two-view partition columns present",
+        "Date/tenure validator available (AF-50) for the whole-month tenure arithmetic",
+        "Active-position lock validator available (AF-39) — the SHARED D15 routine",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "TENURE AUTO-CALC: tenure_months is always whole months between start_date and end_date, computed from the range and read-only in the form — 2025-05-15 to 2026-11-15 yields 18 months; there is no editable tenure field (FR-54, D26)",
+        "DATE RULES: end_date must be a parseable date after start_date; an inverted or unparseable range raises a named error naming the field and writes nothing (FR-54)",
+        "CREDIT-DAY BOUNDS: credit_day must be an integer in 1..31 — 0, 32 and non-integers are each rejected with a named error naming the field and zero writes (FR-54, approved design input min 1 max 31; supersedes the legacy 1..28 note carried by the D26-era validator for this flow)",
+        "D15 LOCK (the shared routine): before any write, AF-39 scans all other positions with live status On-going or Danger; a duplicate is blocked when EITHER the normalized company name (trim + lowercase) OR the normalized ISIN matches, with the existing named-error shape 'Cannot add position: <company> has an active position (<status>)' — HARD BLOCK, no override, zero writes (FR-54, D15)",
+        "LOCK RELEASE: the check passes when every matching position is engine Completed (displayed Matured) — a re-buy after Matured is allowed and the new position restarts the lifecycle as On-going/Danger (FR-57)",
+        "ON PASS exactly one bonds row is created with watch_state 'holding' (Held) — the purchase state of a new position is Held, never Watching (FR-59)",
+        "The new position renders in My Holdings, its months render in the Payouts grid, and health derives from the grid entries — health is never written at create time (FR-53, FR-55, FR-59)",
+        "No alternate add route exists: the Payouts grid, dashboard and Watchlist expose no position-creation control — Watchlist's + Add Candidate creates a candidate (watching row) only (D16, D38)",
+        "A blocked or invalid submit surfaces visibly with the blocking position/field named — never a silent no-op, never a redirect-as-success (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-54",
+        "FR-59"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-01",
+        "AF-30",
+        "AF-39",
+        "AF-50"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-66",
+      "name": "move_to_portfolio",
+      "purpose": "Convert a Watchlist candidate into a position (D39): on POST of the Move to Portfolio action, validate the mandatory position fields a candidate may lack, then re-run the SAME shared D15 lock routine used by Add Position (AF-65) — the one-active-position-per-company invariant holds across the watch_state boundary — and on pass flip watch_state 'watching' -> 'holding' so the candidate lands in Portfolio > My Holdings as a Held position. This is the D39-renamed successor of the move action previously called Move to Holdings: action label and destination surface changed, lock semantics did not.",
+      "inputs": [
+        "position id to move (POST from the Watchlist row's Move to Portfolio button)",
+        "candidate row's mandatory position fields: amount, start_date, end_date, credit_day",
+        "candidate company name and ISIN",
+        "current watch_state (must be 'watching')",
+        "bonds table scan for active positions through the shared lock routine (AF-39)"
+      ],
+      "outputs": [
+        "updated bonds row: watch_state = 'holding' (Held) on pass — the row joins Portfolio > My Holdings, the Payouts grid and dashboard counts",
+        "blocked verdict with the named move error (zero writes) on missing mandatory field or lock conflict",
+        "named state error for unknown id / already-held row"
+      ],
+      "triggers": [
+        "user clicks Move to Portfolio on a Watchlist candidate row or in the candidate drawer",
+        "API-level move POST for a watching row"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01)",
+        "Active-position lock validator available (AF-39) — the SAME routine Add Position calls",
+        "Error surfacing wrapper available (AF-30)",
+        "Watchlist candidates-only view (FR-56) rendering the Move to Portfolio action"
+      ],
+      "postconditions": [
+        "MANDATORY FIELDS first: amount present and numeric (>= 0), start_date and end_date parseable with end after start, credit_day an integer in 1..31 — any violation raises the named move error naming the missing/invalid field and writes nothing (FR-57, FR-54 bounds)",
+        "D15 LOCK RE-CHECK through the shared routine before any write: an active position (engine On-going or Danger) matching by normalized company name OR ISIN blocks the move with the named error naming the blocking position and its status — HARD BLOCK, no override, zero rows updated (FR-57, D15)",
+        "LOCK RELEASE: a candidate whose company only matches engine-Completed (displayed Matured) positions passes the check; after the move the new position starts the lifecycle On-going/Danger (FR-57)",
+        "On pass exactly one row changes: watch_state 'watching' -> 'holding'; a change count of 0 (unknown id / raced delete) or an already-held row raises a named state error instead of succeeding silently (FR-57)",
+        "The moved row immediately appears in Portfolio > My Holdings with purchase state Held, joins the Payouts grid and updates the Watchlist candidates count on the next render (FR-57, FR-59)",
+        "The move never alters ledger rows, dates or any FR-40 field — only watch_state changes; health of the new position derives from the grid as On-going while paid (FR-57, DATA-05)",
+        "The blocked move surfaces visibly with the blocking position or field named — never a silent no-op, never a redirect-as-success (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-57",
+        "FR-59"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-30",
+        "AF-39"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-67",
+      "name": "derive_payment_health",
+      "purpose": "Derive a position's payment health at read time from its Payouts grid entries (D38: everything reflects from the monthly grid): paid on or before the credit day -> On-going; no qualifying entry on the credit day -> Danger from that same day (day-wise rule, no grace to month end); tenure end reached -> Matured. Health exists ONLY on the Portfolio surfaces (My Holdings Status column, Payouts rows, status legend) and is never stored — every render recomputes it from the ledger entry for the credit day. The underlying engine values are untouched; Matured is the display face of engine Completed (label mapping per AF-69).",
+      "inputs": [
+        "position row: start_date, end_date, credit_day, tenure window",
+        "payment_ledger (Payouts grid) entries for the position's tenure window — the entry for the current cycle month at the credit day",
+        "today's date (current month key, credit-day comparison, tenure-end comparison)",
+        "day-wise/tenure-window arithmetic shared with the status engine (AF-14)"
+      ],
+      "outputs": [
+        "payment health for the position: 'On-going' | 'Danger' | 'Matured'",
+        "the derivation source is recorded as the grid entry for the credit day (for the legend/tooltip and for tests to assert against)",
+        "named error for unparseable dates or an unreadable ledger"
+      ],
+      "triggers": [
+        "My Holdings Status column render",
+        "Payouts grid row render",
+        "status legend render on Portfolio",
+        "any read of health after a payment entry, credit-day flip or tenure end (recompute on read)"
+      ],
+      "preconditions": [
+        "Schema initialized (AF-01) with payment_ledger rows",
+        "Status engine arithmetic available (AF-14) for the tenure window and day-wise comparison",
+        "Error surfacing wrapper available (AF-30)"
+      ],
+      "postconditions": [
+        "MATURED FIRST: when the tenure end is reached (end_date passed / months paid >= tenure — engine Completed), health is Matured regardless of the current month's entry, and the position stops contributing to On-going/Danger (FR-59)",
+        "ON-GOING: while the tenure is live and the current cycle month's grid entry is present with paid flag true AND amount > 0 on or before the credit day (zero = unpaid preserved), health is On-going (FR-59)",
+        "DANGER SAME DAY: once the credit day arrives with no qualifying entry — no ledger row, paid flag false, or amount 0 — health is Danger from that same day onward (the credit day is the deadline; danger does not wait for month end) (FR-59, D38 owner rule)",
+        "Before the credit day, a not-yet-entered current month stays On-going (the due window is still open) (FR-59)",
+        "READ-TIME ONLY: derivation writes nothing — no status column is stored or updated for health; two reads of the same unchanged ledger always agree, and the engine's own values remain untouched (DATA-05, D39 engine-unchanged clause)",
+        "Health exists ONLY on Portfolio surfaces: Watchlist candidates never show On-going/Danger/Matured — candidates show Watching only (FR-56, FR-59)",
+        "Unparseable start/end/credit-day values raise a named error naming the field via AF-30; an unreadable ledger raises a named error naming the position — health is never guessed as On-going over an error (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-59"
+      ],
+      "element": "status_engine",
+      "depends_on": [
+        "AF-14"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-68",
+      "name": "sort_payouts_rows",
+      "purpose": "Order the Payouts grid rows by payment health (D38): Danger rows first, On-going next, Matured last — recomputed automatically whenever a health value changes, so a position that flips to Danger rises to the top and a Matured position sinks to the bottom without any user action. Within each group the row order stays stable (company, then id). The grid it sorts spans only elapsed months plus the current month; future month columns are never rendered.",
+      "inputs": [
+        "the Payouts grid row set (positions with their ledger entries for the rendered month columns)",
+        "per-row payment health from AF-67 (derive_payment_health)",
+        "rendered month columns: elapsed months + current month only (FR-55)"
+      ],
+      "outputs": [
+        "ordered row list: all Danger rows, then all On-going rows, then all Matured rows, each group in stable company/id order",
+        "the same ordering is recomputed on every render — no order is persisted"
+      ],
+      "triggers": [
+        "Payouts panel render (tab active or first paint)",
+        "any event that changes a health value: payment entry, credit-day flip, tenure end (next render re-sorts)",
+        "Add Position / Move to Portfolio adding rows to the grid"
+      ],
+      "preconditions": [
+        "Payment health available per row (AF-67)",
+        "Payouts grid rendered with the month window rule: columns stop at the current month (FR-55)"
+      ],
+      "postconditions": [
+        "Row order is exactly Danger first, On-going next, Matured last — with mixed statuses every Danger row precedes every On-going row and every On-going row precedes every Matured row (FR-55)",
+        "AUTO RE-SORT: whenever a row's health changes, the next render places it by its new health with no user interaction (Danger rises, Matured sinks) (FR-55)",
+        "Within a group order is stable (company ascending, then position id) so rows do not shuffle between renders when health is unchanged (FR-55)",
+        "An unknown health value from the derivation raises a named error naming the value rather than silently dropping the row to the bottom (FR-21)",
+        "Month columns stop at the current month — future months are never rendered, so no future column can carry rows or ordering (FR-55, D23 window rule)",
+        "Sorting is presentation only: no ledger row, status or position field is written by ordering (DATA-05)"
+      ],
+      "fr_refs": [
+        "FR-55"
+      ],
+      "element": "month_grid_renderer",
+      "depends_on": [
+        "AF-67"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-69",
+      "name": "render_label",
+      "purpose": "Display-time label mapping (D39): at render only, map the engine/field string 'Returned' to 'Received' and 'Completed' to 'Matured' on every UI surface (My Holdings headers and cells, Payouts rows, drawer, dashboard, legend). The mapping is a one-way presentation whitelist — engine values, stored rows, ledger column names and every computation are untouched; a position whose stored engine value is 'Completed' still displays 'Matured'.",
+      "inputs": [
+        "raw values/labels at render time: the amount column label ('Returned') and any status string ('Completed', plus unmapped values 'On-going', 'Danger', 'Watching', 'Held')",
+        "the display mapping table: {'Returned': 'Received', 'Completed': 'Matured'} (fixed, not user-configurable)"
+      ],
+      "outputs": [
+        "display strings: 'Received' for the amount column label, 'Matured' for engine 'Completed' wherever it renders",
+        "unmapped values pass through unchanged",
+        "engine/storage values unchanged — the mapping is never written back"
+      ],
+      "triggers": [
+        "template render of any surface showing the mapped strings (Portfolio tables, Payouts grid, drawer, dashboard, status legend)",
+        "drawer fragment render",
+        "print/share snapshot rendering (same render layer)"
+      ],
+      "preconditions": [
+        "Mapping table defined at the render layer (template filter/helper), not in the engine or the database",
+        "Status and amount values arrive from the engine/ledger as stored (AF-14, AF-67 read path)"
+      ],
+      "postconditions": [
+        "The DOM shows 'Received' and 'Matured'; the strings 'Returned' and 'Completed' are never rendered on any screen (FR-58)",
+        "ENGINE VALUES UNCHANGED: a stored engine status of 'Completed' still displays 'Matured' — reading the database after render shows 'Completed' untouched; no row, column or ledger value is rewritten by rendering (FR-58, D39)",
+        "The mapping is exact-match and display-only: only the two defined pairs translate; 'On-going', 'Danger', 'Watching', 'Held' and everything else pass through verbatim (FR-58)",
+        "Every surface maps identically — the Holdings header reads 'Received', the dashboard tile reads 'Received', status chips read 'Matured' — no screen may show one face while another shows the other (FR-58)",
+        "Exports and calculations use engine values, not display labels — the mapping never feeds a query, sort key or computation (engine/display separation)",
+        "An unknown value at render passes through unchanged; the mapping never raises over unmapped content (presentation whitelist, no crash path) (FR-21)"
+      ],
+      "fr_refs": [
+        "FR-58"
+      ],
+      "element": "label_renderer",
+      "depends_on": [],
+      "check_method": "unit"
+    }
+  ],
+  "coverage_map": {
+    "FR-50": [
+      "AF-64",
+      "AF-52",
+      "AF-67"
+    ],
+    "FR-51": [
+      "AF-64"
+    ],
+    "FR-52": [
+      "AF-64"
+    ],
+    "FR-53": [
+      "AF-52",
+      "AF-54"
+    ],
+    "FR-54": [
+      "AF-65"
+    ],
+    "FR-55": [
+      "AF-67",
+      "AF-68"
+    ],
+    "FR-56": [
+      "AF-52"
+    ],
+    "FR-57": [
+      "AF-66"
+    ],
+    "FR-58": [
+      "AF-69"
+    ],
+    "FR-59": [
+      "AF-65",
+      "AF-66",
+      "AF-67"
+    ],
+    "FR-60": [
+      "AF-61",
+      "AF-62",
+      "AF-63"
+    ],
+    "FR-61": [
+      "AF-65"
+    ]
+  },
+  "change_record": "addendum v4.0 extends Atomic_Functions_addendum_v3 after owner decisions D38 (screen restructure: Portfolio tabs + candidates-only Watchlist), D39 (Add Position in Portfolio>My Holdings, Move to Portfolio rename, display relabels) and D40 (System/Light/Dark themes), all CONFIRMED in dk_bond_tracker_brainstorm_20261030 v2.3.0; adds AF-61..AF-69 covering FR-50..FR-61 (the brief-18a enumerated FR-51..FR-60 plus the two ids the landed PRD v4 added). Coverage judgements (all 12 keys non-empty): FR-50 umbrella restructure maps to the serving AFs of its three clauses — AF-64 (owned positions live under the Portfolio container), AF-52 (watch_state partition puts candidates only in Watchlist), AF-67 (payment health derived for and rendered only on Portfolio); FR-51 sidebar labels are static template chrome — mapped to AF-64 as the Portfolio nav destination's handler (the nav item's only dynamic target); FR-53's registry columns render over the existing two-view read model (AF-52, re-pointed at Portfolio>My Holdings under D38) with the retained drawer (AF-54); FR-56 candidates-only whitelist is enforced in the restructured AF-52 read model (its holdings half now serves Portfolio); FR-59 maps to the create/move handlers that set purchase state Held and the derivation AF that produces payment health; FR-61 default-data maps to AF-65 — the sole row-creation path is user-driven, so no code path seeds a row and a fresh install stays empty. Element notes: this wave introduces two element tags — theme_subsystem (AF-61/AF-62/AF-63, browser-side: DOM attribute, localStorage, matchMedia, pre-paint head script) and label_renderer (AF-69, render-layer mapping) — AF-64/AF-65/AF-66 are route_handlers, AF-67 is status_engine (read-time derivation beside AF-14/AF-46), AF-68 is month_grid_renderer (mirrors AF-44 grid_auto_sort). The three theme AFs and AF-69 carry empty depends_on: they are pure client/render-layer functions with no server AF dependency (localStorage/matchMedia/DOM and a fixed mapping table are platform facilities, not AFs). Supersession/alignment: D38 supersedes the v3 shell nav (Month Grid -> Portfolio; six exact labels) and moves My Holdings out of the watchlist two-view — no v3 AF is edited or renumbered here, AF-52/AF-54/AF-55 simply serve their re-pointed surfaces; D39 renames the move action, so AF-66 is the successor surface of AF-55 (same shared lock, action label now 'Move to Portfolio', destination Portfolio>My Holdings); AF-65 and AF-66 both call the SINGLE shared lock routine AF-39 (one invariant, two funnels — no second lock implementation); the Add Position credit-day bound is 1..31 per FR-54 and the approved design input (min 1 max 31), superseding the D26-era 1..28 note for this flow; the existing named errors keep their codes (lock block keeps the 'Cannot add position: ...' shape; the move keeps ERR-move-watching so Test_Plan_addendum_v3 TC-87 assertions stay valid). Zero new tables: positions/candidates stay the bonds watch_state partition, health is read-time only (DATA-05), theme mode lives in browser localStorage only (no alert_prefs key — D40 chose localStorage). Alignment with parallel deliverables: docs/PRD_DK_Bond_Tracker_addendum_v4.json + docs/SRS_DK_Bond_Tracker_addendum_v4.json landed mid-authoring and were cross-checked against brief 18a's id list — FR-51..FR-60 semantics match exactly (nav, tabs, registry columns, Add Position with credit day 1..31, payouts window + auto-sort, whitelist, move lock, labels, status model, themes), and the PRD worker's extra ids FR-50 (umbrella restructure) and FR-61 (default-data) are folded into the coverage map above; docs/Watchlist_Architecture_Addendum_v2.json (this wave's architecture delta) and .IDE_Plans/design_drafts/ui_frontend_design_v4.html (approved UI truth) were cross-checked for the nav map, tab structure, column whitelist, Add Position fields, credit-day bounds and legend. AF-01..AF-60 and all earlier coverage_map entries remain owned by their source documents and are unaltered. Test coverage is TC-105..TC-113 per docs/Test_Plan_addendum_v4.json; wave/order placement per docs/Development_Order_addendum_v4.json (brief 18b, parallel worker)."
+}
