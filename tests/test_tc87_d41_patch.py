@@ -196,6 +196,7 @@ def test_tc87_move_without_broker_keeps_candidate_broker(client, db_path):
 
 
 def test_tc87_labels_present_on_watch_and_portfolio(client):
+    watch_post(client)
     watch_html = client.get("/watch").get_data(as_text=True)
     assert "Purchase date (start date)" in watch_html
     assert "End date" in watch_html
