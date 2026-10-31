@@ -5,7 +5,7 @@
   "title": "Stage 11 Execute — implementation per locked design v5 (v1.1: P1 corrected against approved Truth docs after build1 BLOCKED report)",
   "version": "v1.1",
   "confidence": 88,
-  "status": "open (revision of v1.0 per owner choice; gate-2 re-verify of T1.x dispatched as batch 18 fix round)",
+  "status": "CLOSED — all phases DONE; merged to dev 81dc108; reviewer gates 17-20 all AGREED; remote CI green; closed under owner standing PM delegation 2026-11-01",
   "supersedes": ".IDE_Plans/dk_bond_tracker_watchlist_stage11_execute_plan_20261031_v1.0.json (kept untouched; its T1.1-T1.3 FROM/TO contradicted the approved Truth docs — caught by wl-build1 BLOCKED report F-185)",
   "master": ".IDE_Plans/dk_bond_tracker_watchlist_master_20261030_2355_v1.1 (stage 11)",
   "brainstorm_source": "../.IDE_Plans/dk_bond_tracker_brainstorm_20261030.json (v2.3.1, D38/D39/D40 CONFIRMED)",
@@ -120,5 +120,9 @@
     {"risk": "parallel lanes touch shared files", "mitigation": "shared files owned by P1 only; lanes add/replace their own templates after spine lands"},
     {"risk": "remote-only feedback loop slower", "mitigation": "small atomic pushes per phase; captain watches each Actions run"}
   ],
-  "retrospective": "(filled at stage close)"
+  "retrospective": {
+    "went_well": ["workers BLOCKED correctly instead of improvising (F-185 caught plan-vs-docs contradictions before code was written)", "remote-only CI caught the legacy-test collision early; 4 consecutive green runs at close", "review gates found real defects (lock divergence F-191, banned labels F-192) that smoke tests missed", "yolo mode + 5-minute auto-check kept 5 concurrent agents moving with near-zero approval latency"],
+    "failed": ["my initial P1 tasks contradicted the approved arch docs (written from memory, not the Truth files) — cost a plan revision round", "workbook-test purge scope underestimated twice (5 files -> 8 -> case-variant residue)", "monitoring blind gap: 10-minute cadence + status-only checks missed a tool-spin for ~10 minutes (owner caught it)"],
+    "improve": ["write plan FROM/TO by reading the actual files/docs first, never from memory", "run the FULL banned-token sweep across src+tests before first push, not after CI reds", "progress-metric comparison in every health check (v3 cron) — status flags alone are not health"]
+  }
 }
