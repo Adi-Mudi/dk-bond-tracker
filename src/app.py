@@ -671,7 +671,7 @@ def create_app(db_path=None):
                     )
                 from src.lock import check_add_allowed
 
-                check_add_allowed(conn, row["company"], row["isin"])
+                check_add_allowed(row["company"], row["isin"], conn)
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
                     "credit_day = ?, watch_state = 'holding' "

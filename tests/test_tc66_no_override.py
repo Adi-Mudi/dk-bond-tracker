@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import add_bond, bond_count
+from conftest import add_ongoing_seed, bond_count
 from src.app import create_app
 from src.db import get_conn
 
@@ -16,7 +16,7 @@ def client(db_path):
 
 def seed_active_beta_finance(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_ongoing_seed(conn, "Beta Finance Ltd", "IN1234567890")
 
 
 def base_form():

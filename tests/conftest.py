@@ -1,5 +1,5 @@
 import sys
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -7,6 +7,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.db import init_db
+from src.status import month_key
 from src.validators import add_months
 
 
@@ -84,3 +85,26 @@ def bond_status(conn, bond_id):
 
 def bond_count(conn):
     return conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
+
+
+def add_danger_seed(conn, company, isin):
+    start = date.today() - timedelta(days=40)
+    return add_bond(conn, company, isin, start, 60, credit_day=1, status="Danger")
+
+
+def add_ongoing_seed(conn, company, isin):
+    today = date.today()
+    start = today - timedelta(days=10)
+    bond_id = add_bond(conn, company, isin, start, 60, credit_day=28, status="On-going")
+    offset = 0
+    while True:
+        key = month_key(add_months(start, offset))
+        add_payment(conn, bond_id, key, 1000.0)
+        if key == month_key(today):
+            break
+        offset += 1
+    return bond_id
+
+
+def add_matured_seed(conn, company, isin):
+    return add_bond(conn, company, isin, "2025-01-01", 12, status="Completed")

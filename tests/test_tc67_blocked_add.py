@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import add_bond, bond_count
+from conftest import add_ongoing_seed, bond_count
 from src.app import create_app
 from src.db import get_conn
 
@@ -25,7 +25,7 @@ BLOCKED_MESSAGE = "Cannot add position: Beta Finance Ltd has an active position 
 
 def seed_active_beta_finance(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_ongoing_seed(conn, "Beta Finance Ltd", "IN1234567890")
 
 
 def current_bond_count(db_path):

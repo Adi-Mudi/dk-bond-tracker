@@ -1,13 +1,13 @@
 import pytest
 
-from conftest import add_bond, bond_count
+from conftest import add_bond, add_danger_seed, add_matured_seed, add_ongoing_seed, bond_count
 from src.db import get_conn
 from src.validators import AppError, active_position_lock
 
 
 def test_tc62_both_keys_matching_single_hard_block(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
+        add_ongoing_seed(conn, "Beta Finance Ltd", "IN1234567890")
         with pytest.raises(AppError) as exc_info:
             active_position_lock(conn, " BETA FINANCE LTD ", "in1234567890")
         assert exc_info.value.code == "ERR-active-position"
@@ -19,8 +19,8 @@ def test_tc62_both_keys_matching_single_hard_block(db_path):
 
 def test_tc62_two_active_positions_name_and_isin_each_block(db_path):
     with get_conn(db_path) as conn:
-        add_bond(conn, "Beta Finance Ltd", "IN1111111111", "2025-01-01", 12, status="On-going")
-        add_bond(conn, "Other Corp", "IN2222222222", "2025-02-01", 12, status="Danger")
+        add_ongoing_seed(conn, "Beta Finance Ltd", "IN1111111111")
+        add_danger_seed(conn, "Other Corp", "IN2222222222")
         with pytest.raises(AppError) as exc_info:
             active_position_lock(conn, "  BETA FINANCE LTD  ", "in2222222222")
         assert exc_info.value.message == (
