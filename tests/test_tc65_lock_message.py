@@ -11,7 +11,7 @@ def test_tc65_message_shape_exact_ongoing(db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "Beta Finance Ltd", "IN1234567890", "2025-01-01", 12, status="On-going")
         with pytest.raises(AppError) as exc_info:
-            active_position_lock(conn, " MUTHOOTTU ", "IN9999999999")
+            active_position_lock(conn, " BETA FINANCE LTD ", "IN9999999999")
         message = exc_info.value.message
         assert message == MESSAGE_SHAPE.format(company="Beta Finance Ltd", status="On-going")
         assert message.startswith("Cannot add position:")
