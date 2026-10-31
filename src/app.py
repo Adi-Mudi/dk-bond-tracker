@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 import sqlite3
 import sys
@@ -23,7 +22,6 @@ from src.export_csv import (
     full_ledger_csv,
 )
 from src.goals import add_goal, delete_goal, list_goals, update_goal
-from src.import_xlsm import import_workbook
 from src.mailer import send_alert_email
 from src.notifications import (
     due_reminders,
@@ -650,22 +648,21 @@ def create_app(db_path=None):
             return error_page(exc.code, exc.message, "Payout schedule failed", 400)
         return render_template("payout.html", schedule=schedule)
 
+    @app.route("/portfolio")
+    def portfolio_page():
+        return render_template("portfolio.html")
+
+    @app.route("/settings")
+    def settings_page():
+        return render_template("settings.html")
+
     return app
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="dk-bond-tracker")
-    parser.add_argument("--import", dest="import_path", metavar="XLSM")
     parser.add_argument("--db", dest="db_path", default=str(DEFAULT_DB_PATH), metavar="SQLITE")
     args = parser.parse_args(argv)
-    if args.import_path:
-        try:
-            summary = import_workbook(args.import_path, args.db_path)
-        except AppError as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
-        print(json.dumps(summary, indent=2))
-        return 0
     create_app(args.db_path).run(
         host="127.0.0.1", port=int(os.environ.get("PORT", "5000"))
     )

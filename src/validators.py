@@ -102,3 +102,60 @@ def active_position_lock(conn, company, isin):
                 "ERR-active-position",
                 f"Cannot add position: {row['company']} has an active position ({row['status']})",
             )
+
+
+def is_blank(value):
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return not value.strip()
+    return False
+
+
+FIRST_DATA_ROW = 2
+MASTER_FIELDS = (
+    "company",
+    "isin",
+    "status",
+    "tenure_months",
+    "start_month",
+    "investment",
+    "maturity",
+)
+
+
+def find_duplicate_isins(bonds):
+    if bonds is None:
+        raise AppError("ERR-duplicate-check", "bond set unavailable")
+    grouped = {}
+    for position, bond in enumerate(bonds):
+        raw = bond.get("isin")
+        if is_blank(raw):
+            continue
+        key = str(raw).strip().upper()
+        entry = grouped.setdefault(key, {"rows": [], "values": []})
+        entry["rows"].append(bond.get("row", position + FIRST_DATA_ROW))
+        entry["values"].append(raw)
+    duplicates = []
+    for key, entry in grouped.items():
+        if len(entry["rows"]) > 1:
+            duplicates.append({"isin": key, "occurrences": entry["rows"], "values": entry["values"]})
+    return duplicates
+
+
+def validate_extracted(bonds, grid):
+    duplicates = find_duplicate_isins(bonds)
+    if duplicates:
+        details = []
+        for duplicate in duplicates:
+            rows = ", ".join(str(row) for row in duplicate["occurrences"])
+            values = ", ".join(repr(value) for value in duplicate["values"])
+            details.append(f"{duplicate['isin']} at rows {rows} (values: {values})")
+        raise AppError("ERR-04", "duplicate ISIN: " + "; ".join(details))
+    for position, bond in enumerate(bonds):
+        missing = [field for field in MASTER_FIELDS if is_blank(bond.get(field))]
+        if missing:
+            row_number = bond.get("row", position + FIRST_DATA_ROW)
+            raise AppError("ERR-05", f"row {row_number}: missing {', '.join(missing)}")
+    if len(grid) != len(bonds):
+        raise AppError("ERR-05", f"grid rows {len(grid)} != bond rows {len(bonds)}")
