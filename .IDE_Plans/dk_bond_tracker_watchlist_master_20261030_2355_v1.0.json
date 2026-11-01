@@ -12,45 +12,223 @@
   "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
   "gating": "FULL-AUTO standing approval (D13/D36) for document waves; HARD GATE CLEARED: owner approved final design v5 and ordered execution 2026-10-31 (Q1: locked design only, no deviations, 1 captain + 3 workers; Q3: ALL testing remote; Q4: existing architecture pattern only)",
   "Documents": {
-    "Truth": ["brainstorm D33-D37", "confirmed mockup v2 (design_drafts/watchlist_standalone_mockup_v2.html)"],
-    "References": ["parent master v1.0", "Format_Retirement_Addendum_v1 (D37 register)"],
-    "Targets": ["docs/*addendum_v3 set", "docs/Watchlist_Architecture_Addendum_v1", "docs/Test_Plan_addendum_v3", "docs/Development_Order_addendum_v3", "design_drafts mockup v2", "legacy doc set scrubbed to sample data"],
-    "Dependencies": ["herdr visible fleet (D35): 1 captain + rotating workers + 1 reviewer; supervision watchdog; store tools"],
-    "Tests": ["store-gates --all --strict SATISFIED (currently failures=0, coverage 67/67)", "zero real-user-token scan across all docs (PM independent check)", "review batch verdict AGREED"]
+    "Truth": [
+      "brainstorm D33-D37",
+      "confirmed mockup v2 (design_drafts/watchlist_standalone_mockup_v2.html)"
+    ],
+    "References": [
+      "parent master v1.0",
+      "Format_Retirement_Addendum_v1 (D37 register)"
+    ],
+    "Targets": [
+      "docs/*addendum_v3 set",
+      "docs/Watchlist_Architecture_Addendum_v1",
+      "docs/Test_Plan_addendum_v3",
+      "docs/Development_Order_addendum_v3",
+      "design_drafts mockup v2",
+      "legacy doc set scrubbed to sample data"
+    ],
+    "Dependencies": [
+      "herdr visible fleet (D35): 1 captain + rotating workers + 1 reviewer; supervision watchdog; store tools"
+    ],
+    "Tests": [
+      "store-gates --all --strict SATISFIED (currently failures=0, coverage 67/67)",
+      "zero real-user-token scan across all docs (PM independent check)",
+      "review batch verdict AGREED"
+    ]
   },
   "1_objective": {
     "objective": "Complete every document of the watchlist redesign (from scratch, zero previous-user data, D37) up to and including the FINAL DESIGN, with all artifacts projected into the store, then stop for owner approval before implementation.",
     "completion_criterion": "Stages 1-10 all verified PASS; battery SATISFIED failures=0; scrub scan zero hits on all 18 legacy files; review batch AGREED; final design package delivered; owner approval recorded."
   },
   "2_scope": {
-    "IN": ["document waves (brainstorm, design mockup+Settings, PRD/SRS/arch/AF/pseudo addenda v3, test plan v3, dev order v3, retirement register)", "legacy doc scrub to canonical sample data (D37/Q3)", "store projection + gates + checklists after every set", "herdr visible fleet + watchdog (D35)", "final design package + lock on approval", "IMPLEMENTATION per locked design v5 + approved v4 docs (owner 2026-10-31 Q1-Q4: no design deviations, existing architecture pattern only, 1 captain + 3 workers, all testing remote)"],
-    "OUT": ["database-related git/worktree operations (owner rule: high risk)", "deleting owner originals (workbook already deleted per explicit order; backups untouched)", "product zip rebuild (post-approval with Wave X)"]
+    "IN": [
+      "document waves (brainstorm, design mockup+Settings, PRD/SRS/arch/AF/pseudo addenda v3, test plan v3, dev order v3, retirement register)",
+      "legacy doc scrub to canonical sample data (D37/Q3)",
+      "store projection + gates + checklists after every set",
+      "herdr visible fleet + watchdog (D35)",
+      "final design package + lock on approval",
+      "IMPLEMENTATION per locked design v5 + approved v4 docs (owner 2026-10-31 Q1-Q4: no design deviations, existing architecture pattern only, 1 captain + 3 workers, all testing remote)"
+    ],
+    "OUT": [
+      "database-related git/worktree operations (owner rule: high risk)",
+      "deleting owner originals (workbook already deleted per explicit order; backups untouched)",
+      "product zip rebuild (post-approval with Wave X)"
+    ]
   },
-  "3_decision_references": ["D33 redesign spec", "D34 Settings", "D35 herdr fleet", "D36 doc pipeline + approval gate", "D37 old-format purge/start-from-scratch", "D13 full-auto", "D8 fleet model"],
+  "3_decision_references": [
+    "D33 redesign spec",
+    "D34 Settings",
+    "D35 herdr fleet",
+    "D36 doc pipeline + approval gate",
+    "D37 old-format purge/start-from-scratch",
+    "D13 full-auto",
+    "D8 fleet model"
+  ],
   "4_stages_table": [
-    {"stage": "1 brainstorm D33-37", "wave": "W0", "lanes": "PM", "plan_link": "brainstorm doc (living)", "status": "DONE"},
-    {"stage": "2 design mockup (v1 confirmed + v2 Settings + D37 edits)", "wave": "W1", "lanes": "wl-design", "plan_link": "briefs/01", "status": "DONE (lock pending owner confirm)"},
-    {"stage": "3 PRD addendum v3", "wave": "W1", "lanes": "wl-prd", "plan_link": "briefs/02", "status": "DONE (gated)"},
-    {"stage": "4 SRS addendum v3", "wave": "W1", "lanes": "wl-prd", "plan_link": "briefs/02", "status": "DONE (gated)"},
-    {"stage": "5 architecture + schema delta", "wave": "W1", "lanes": "wl-arch", "plan_link": "briefs/03", "status": "DONE (gated, D37-cleaned)"},
-    {"stage": "6 atomic functions v3", "wave": "W1", "lanes": "wl-funcs", "plan_link": "briefs/04", "status": "DONE (gated)"},
-    {"stage": "7 pseudocode v3", "wave": "W1", "lanes": "wl-funcs", "plan_link": "briefs/04", "status": "DONE (gated)"},
-    {"stage": "8 test plan v3", "wave": "W2", "lanes": "wl-tests", "plan_link": "briefs/05", "status": "DONE (gated, coverage 67/67)"},
-    {"stage": "9 development order v3", "wave": "W2", "lanes": "wl-tests", "plan_link": "briefs/05", "status": "DONE (gated)"},
-    {"stage": "10 final design package", "wave": "W3+", "lanes": "wl-review then PM", "plan_link": "briefs/10-12 + review", "status": "DONE (owner approved ui_frontend_design_v5.html 2026-10-31; D38-D40 doc wave gated: batch 17 AGREED, store-gates SATISFIED, docs checklist-locked)"},
-    {"stage": "11 execute (implementation per locked design v5)", "wave": "W4", "lanes": "1 captain (wl-captain, gates) + 3 workers (wl-build1/2/3)", "plan_link": ".IDE_Plans/dk_bond_tracker_watchlist_stage11_execute_plan_20261031_v1.1.json", "status": "DONE (merged to dev 81dc108; remote CI success 41236982308 + 41237497046; reviewer gates 17-20 all AGREED; store gates SATISFIED; closed by owner standing PM delegation 2026-11-01)"},
-    {"stage": "12 implement (locked design v6 + docs v6, D41-D43)", "wave": "W5", "lanes": "1 captain (wl-captain2) + 3 workers (wl-b1/b2/b3), wave parallel, cap 4", "plan_link": ".IDE_Plans/dk_bond_tracker_watchlist_stage12_impl_plan_20261031_v1.0.json", "status": "RUNNING (plan drafted; batch 24 gate-2 review dispatched; design locked @7b67f54; docs v6 projected, gates SATISFIED 92/92)"}
+    {
+      "stage": "1 brainstorm D33-37",
+      "wave": "W0",
+      "lanes": "PM",
+      "plan_link": "brainstorm doc (living)",
+      "status": "DONE"
+    },
+    {
+      "stage": "2 design mockup (v1 confirmed + v2 Settings + D37 edits)",
+      "wave": "W1",
+      "lanes": "wl-design",
+      "plan_link": "briefs/01",
+      "status": "DONE (lock pending owner confirm)"
+    },
+    {
+      "stage": "3 PRD addendum v3",
+      "wave": "W1",
+      "lanes": "wl-prd",
+      "plan_link": "briefs/02",
+      "status": "DONE (gated)"
+    },
+    {
+      "stage": "4 SRS addendum v3",
+      "wave": "W1",
+      "lanes": "wl-prd",
+      "plan_link": "briefs/02",
+      "status": "DONE (gated)"
+    },
+    {
+      "stage": "5 architecture + schema delta",
+      "wave": "W1",
+      "lanes": "wl-arch",
+      "plan_link": "briefs/03",
+      "status": "DONE (gated, D37-cleaned)"
+    },
+    {
+      "stage": "6 atomic functions v3",
+      "wave": "W1",
+      "lanes": "wl-funcs",
+      "plan_link": "briefs/04",
+      "status": "DONE (gated)"
+    },
+    {
+      "stage": "7 pseudocode v3",
+      "wave": "W1",
+      "lanes": "wl-funcs",
+      "plan_link": "briefs/04",
+      "status": "DONE (gated)"
+    },
+    {
+      "stage": "8 test plan v3",
+      "wave": "W2",
+      "lanes": "wl-tests",
+      "plan_link": "briefs/05",
+      "status": "DONE (gated, coverage 67/67)"
+    },
+    {
+      "stage": "9 development order v3",
+      "wave": "W2",
+      "lanes": "wl-tests",
+      "plan_link": "briefs/05",
+      "status": "DONE (gated)"
+    },
+    {
+      "stage": "10 final design package",
+      "wave": "W3+",
+      "lanes": "wl-review then PM",
+      "plan_link": "briefs/10-12 + review",
+      "status": "DONE (owner approved ui_frontend_design_v5.html 2026-10-31; D38-D40 doc wave gated: batch 17 AGREED, store-gates SATISFIED, docs checklist-locked)"
+    },
+    {
+      "stage": "11 execute (implementation per locked design v5)",
+      "wave": "W4",
+      "lanes": "1 captain (wl-captain, gates) + 3 workers (wl-build1/2/3)",
+      "plan_link": ".IDE_Plans/dk_bond_tracker_watchlist_stage11_execute_plan_20261031_v1.1.json",
+      "status": "DONE (merged to dev 81dc108; remote CI success 41236982308 + 41237497046; reviewer gates 17-20 all AGREED; store gates SATISFIED; closed by owner standing PM delegation 2026-11-01)"
+    },
+    {
+      "stage": "12 implement (locked design v6 + docs v6, D41-D43)",
+      "wave": "W5",
+      "lanes": "1 captain (wl-captain2) + 3 workers (wl-b1/b2/b3), wave parallel, cap 4",
+      "plan_link": ".IDE_Plans/dk_bond_tracker_watchlist_stage12_impl_plan_20261031_v1.0.json",
+      "status": "DONE (merged to dev b9e1823 --no-ff; execute-v6 CI 41298514582 success incl. F-245 fix; dev CI 41298878844 success; reviewer gates 25 impl + 26 post-merge both AGREED, F-245 MINOR fixed pre-merge ae0c2d7; D43 HEALTH_ORDER single-source verified; closed by owner standing PM delegation 2026-11-01)"
+    }
   ],
-  "5_execution_model": {"base_branch": "dev", "worktree": "fix-watchlist (docs+design work; merged to dev at wave closes)", "fleet": "herdr visible panes per D35; captain wl-captain runs store gates; watchdog auto-approves benign dialogs; PM tick cron 01M6701HEGD13FBT1DJECPH74M every 11 min", "containment": "no db-store operations; no database git ops; briefs beside plans (.IDE_Plans/briefs -> rename .brief* at wave-Y close per D4 backfill)"},
-  "6_test_gates": [{"type": "LOCAL", "command": "store-projector --verify + store-gates --all --strict (must be SATISFIED failures=0)", "remote": "none (no CI)"}],
+  "5_execution_model": {
+    "base_branch": "dev",
+    "worktree": "fix-watchlist (docs+design work; merged to dev at wave closes)",
+    "fleet": "herdr visible panes per D35; captain wl-captain runs store gates; watchdog auto-approves benign dialogs; PM tick cron 01M6701HEGD13FBT1DJECPH74M every 11 min",
+    "containment": "no db-store operations; no database git ops; briefs beside plans (.IDE_Plans/briefs -> rename .brief* at wave-Y close per D4 backfill)"
+  },
+  "6_test_gates": [
+    {
+      "type": "LOCAL",
+      "command": "store-projector --verify + store-gates --all --strict (must be SATISFIED failures=0)",
+      "remote": "none (no CI)"
+    }
+  ],
   "7_risks": [
-    {"id": "R1", "risk": "worker stalls on permission dialogs", "mitigation": "watchdog every 12s + PM tick + project permission rules (16 allow entries)"},
-    {"id": "R2", "risk": "legacy scrub misses a token", "mitigation": "PM independent scan over the full real-token list before review"},
-    {"id": "R3", "risk": "db-touch regression (owner forbade)", "mitigation": "zero db/git-store operations except sanctioned projector/gates tools"}
+    {
+      "id": "R1",
+      "risk": "worker stalls on permission dialogs",
+      "mitigation": "watchdog every 12s + PM tick + project permission rules (16 allow entries)"
+    },
+    {
+      "id": "R2",
+      "risk": "legacy scrub misses a token",
+      "mitigation": "PM independent scan over the full real-token list before review"
+    },
+    {
+      "id": "R3",
+      "risk": "db-touch regression (owner forbade)",
+      "mitigation": "zero db/git-store operations except sanctioned projector/gates tools"
+    }
   ],
-  "8_escalation": {"list": ["deleting owner backups", "any db-store git op", "starting implementation before approval", "quota/money"], "single_approval_line": "D13 full-auto covers document waves; implementation gate + escalation list stay with the owner."},
+  "8_escalation": {
+    "list": [
+      "deleting owner backups",
+      "any db-store git op",
+      "starting implementation before approval",
+      "quota/money"
+    ],
+    "single_approval_line": "D13 full-auto covers document waves; implementation gate + escalation list stay with the owner."
+  },
   "9_change_control": "Master immutable after this version; status updates in place; structural changes = v1.1.",
-  "10_rules_of_engagement": ["honest green only; name every red tier", "REVIEW-LOCK recorded per batch (D2 fix, batch 16+)", "zero comments in code", "briefs retained as evidence", "milestones-only user reports"],
-  "11_retrospective": {"went_well": [], "failed": [], "improve": [], "note": "filled at close"},
-  "history": [{"version": "v1.0", "date": "2026-10-30T23:55", "note": "Backfilled master for the watchlist sub-initiative (compliance fix D3)."}, {"version": "v1.0", "date": "2026-10-31T15:10", "note": "Stage 10 DONE: owner approved ui_frontend_design_v5.html; all 10 stages DONE. Status-only update."}, {"version": "v1.1", "date": "2026-10-31T15:40", "note": "Owner approved implementation (Q1-Q4: locked design only, no deviations, 1 captain + 3 workers, ALL testing remote, existing architecture pattern only) -> stage 11 execute added; scope IN gains implementation, OUT drops the approval-gated entry."}, {"version": "v1.2", "date": "2026-11-01T12:50", "note": "Stage 12 implement added (locked design v6 @7b67f54, docs v6 projected gates SATISFIED 92/92, D41-D43); plan stage12_impl_plan_20261031_v1.0 drafted for batch 24 gate-2 review; fleet cap 1 captain + 3 workers wave-parallel."}]
+  "10_rules_of_engagement": [
+    "honest green only; name every red tier",
+    "REVIEW-LOCK recorded per batch (D2 fix, batch 16+)",
+    "zero comments in code",
+    "briefs retained as evidence",
+    "milestones-only user reports"
+  ],
+  "11_retrospective": {
+    "went_well": [],
+    "failed": [],
+    "improve": [],
+    "note": "filled at close"
+  },
+  "history": [
+    {
+      "version": "v1.0",
+      "date": "2026-10-30T23:55",
+      "note": "Backfilled master for the watchlist sub-initiative (compliance fix D3)."
+    },
+    {
+      "version": "v1.0",
+      "date": "2026-10-31T15:10",
+      "note": "Stage 10 DONE: owner approved ui_frontend_design_v5.html; all 10 stages DONE. Status-only update."
+    },
+    {
+      "version": "v1.1",
+      "date": "2026-10-31T15:40",
+      "note": "Owner approved implementation (Q1-Q4: locked design only, no deviations, 1 captain + 3 workers, ALL testing remote, existing architecture pattern only) -> stage 11 execute added; scope IN gains implementation, OUT drops the approval-gated entry."
+    },
+    {
+      "version": "v1.2",
+      "date": "2026-11-01T12:50",
+      "note": "Stage 12 implement added (locked design v6 @7b67f54, docs v6 projected gates SATISFIED 92/92, D41-D43); plan stage12_impl_plan_20261031_v1.0 drafted for batch 24 gate-2 review; fleet cap 1 captain + 3 workers wave-parallel."
+    },
+    {
+      "version": "v1.2",
+      "date": "2026-11-01T16:10",
+      "note": "Stage 12 DONE: merged execute-v6 -> dev b9e1823, CI green (41298514582 execute-v6, 41298878844 dev), batches 25+26 AGREED, F-245 fixed. Status-only update per change control."
+    }
+  ]
 }
