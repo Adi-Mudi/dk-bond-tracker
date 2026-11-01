@@ -61,7 +61,14 @@ from src.queries import (
 )
 from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, tenure_month_map
-from src.validators import AppError, active_position_lock, add_months, date_range_tenure, parse_date_value
+from src.validators import (
+    AppError,
+    active_position_lock,
+    add_months,
+    date_range_tenure,
+    parse_date_value,
+    percent_value,
+)
 
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
 
@@ -185,7 +192,10 @@ def create_app(db_path=None):
         entry = months_map.get(month, {})
         amount = float(entry.get("amount") or 0.0)
         if amount <= 0 and row["interest_payout"] is not None:
-            amount = float(row["interest_payout"]) / int(tenure)
+            try:
+                amount = float(row["interest_payout"]) / int(tenure)
+            except (TypeError, ValueError):
+                amount = 0.0
         credit = int(row["credit_day"] or 1)
         year, mon = int(month[:4]), int(month[5:7])
         day = min(max(credit, 1), calendar.monthrange(year, mon)[1])
@@ -210,14 +220,20 @@ def create_app(db_path=None):
         months_by_bond = {}
         for row in ledger:
             entry = months_by_bond.setdefault(row["bond_id"], {})
-            entry[row["month"]] = {
-                "paid": bool(row["paid"]) and row["amount"] is not None and float(row["amount"]) > 0,
-                "amount": float(row["amount"] or 0.0),
-            }
+            try:
+                ledger_amount = float(row["amount"] or 0.0)
+                ledger_paid = bool(row["paid"]) and row["amount"] is not None and ledger_amount > 0
+            except (TypeError, ValueError):
+                ledger_amount = 0.0
+                ledger_paid = False
+            entry[row["month"]] = {"paid": ledger_paid, "amount": ledger_amount}
         bars = []
         next_payout = None
         for row in holdings:
-            invested = float(row["amount"] or 0.0)
+            try:
+                invested = float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                invested = 0.0
             months_map = months_by_bond.get(row["id"], {})
             received = received_map.get(row["id"], 0.0)
             bars.append(
@@ -430,6 +446,11 @@ def create_app(db_path=None):
                 start_date, end_date, tenure_months, credit_day = date_range_tenure(
                     form.get("start_date", ""), form.get("end_date", ""), credit_value
                 )
+                if tenure_months < 1:
+                    raise AppError(
+                        "ERR-date-range",
+                        f"tenure must span at least one whole month: {tenure_months}",
+                    )
                 try:
                     insert_position(
                         conn,
@@ -539,7 +560,7 @@ def create_app(db_path=None):
     def watch_candidates(db_file):
         with get_conn(db_file) as conn:
             rows = conn.execute(
-                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name "
+                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, broker "
                 "FROM bonds WHERE watch_state = 'watching' ORDER BY company COLLATE NOCASE, id"
             ).fetchall()
         return [dict(row) for row in rows]
@@ -549,16 +570,25 @@ def create_app(db_path=None):
             return portfolio_snapshot(conn)
 
     def watch_percent(raw, field):
-        text = str(raw or "").strip()
-        if not text:
-            raise AppError("ERR-watch-add", f"{field} is required")
+        return percent_value(raw, field, "ERR-watch-add")
+
+    def _row_valid(row):
         try:
-            value = float(text)
-        except ValueError as exc:
-            raise AppError("ERR-watch-add", f"{field} must be a number: {raw!r}") from exc
-        if value < 0:
-            raise AppError("ERR-watch-add", f"{field} must not be negative: {raw!r}")
-        return value
+            start = parse_date_value(row["start_date"], "start_date")
+            end = parse_date_value(row["end_date"], "end_date")
+        except AppError:
+            return False
+        if end <= start:
+            return False
+        tenure = row["tenure_months"]
+        if isinstance(tenure, bool) or not isinstance(tenure, int) or tenure < 1:
+            return False
+        if "amount" in row.keys():
+            try:
+                float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                return False
+        return True
 
     ISIN_PATTERN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 
@@ -572,6 +602,7 @@ def create_app(db_path=None):
             isin = str(form.get("isin", "")).strip().upper()
             rating = str(form.get("rating", "")).strip()
             source_note = str(form.get("source_note", "")).strip()
+            broker = str(form.get("broker", "")).strip() or None
             try:
                 coupon = watch_percent(form.get("coupon_pct", ""), "coupon")
                 est_yield = watch_percent(form.get("expected_yield_pct", ""), "est yield")
@@ -600,8 +631,8 @@ def create_app(db_path=None):
                         )
                     cursor = conn.execute(
                         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
-                        "expected_yield_pct, watch_state) VALUES (?, ?, ?, ?, ?, ?, 'watching')",
-                        (company, isin, source_note, rating, coupon, est_yield),
+                        "expected_yield_pct, watch_state, broker) VALUES (?, ?, ?, ?, ?, ?, 'watching', ?)",
+                        (company, isin, source_note, rating, coupon, est_yield, broker),
                     )
                     if cursor.rowcount != 1:
                         raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
@@ -657,6 +688,12 @@ def create_app(db_path=None):
             start_date, end_date, tenure_months, credit_day = date_range_tenure(
                 form.get("start_date", ""), form.get("end_date", ""), credit_value
             )
+            if tenure_months < 1:
+                raise AppError(
+                    "ERR-date-range",
+                    f"tenure must span at least one whole month: {tenure_months}",
+                )
+            broker = str(form.get("broker", "")).strip()
             with get_conn(db_file) as conn:
                 row = conn.execute(
                     "SELECT id, company, isin, watch_state FROM bonds WHERE id = ?",
@@ -674,13 +711,16 @@ def create_app(db_path=None):
                 check_add_allowed(row["company"], row["isin"], conn)
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
-                    "credit_day = ?, watch_state = 'holding' "
+                    "credit_day = ?, broker = CASE WHEN ? != '' THEN ? ELSE broker END, "
+                    "watch_state = 'holding' "
                     "WHERE id = ? AND watch_state = 'watching'",
                     (
                         start_date.isoformat(),
                         end_date.isoformat(),
                         int(tenure_months),
                         int(credit_day),
+                        broker,
+                        broker,
                         candidate_id,
                     ),
                 )
@@ -893,13 +933,26 @@ def create_app(db_path=None):
         holdings = []
         for row in bond_rows:
             entries = ledger_by_bond.get(row["id"], {})
-            health = display_label(derive_health(row, entries, today))
-            next_payout = "—"
-            if health != "Matured":
-                for key in tenure_window(row["start_date"], row["tenure_months"]):
-                    if not entry_paid(entries.get(key)):
-                        next_payout = payout_date_label(key, row["credit_day"])
-                        break
+            bad_amount = False
+            try:
+                invested = float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                invested = 0.0
+                bad_amount = True
+            try:
+                health = display_label(derive_health(row, entries, today))
+                next_payout = "—"
+                if health != "Matured":
+                    for key in tenure_window(row["start_date"], row["tenure_months"]):
+                        if not entry_paid(entries.get(key)):
+                            next_payout = payout_date_label(key, row["credit_day"])
+                            break
+            except AppError:
+                health = "Invalid"
+                next_payout = "—"
+            if bad_amount:
+                health = "Invalid"
+                next_payout = "—"
             holdings.append(
                 {
                     "id": row["id"],
@@ -909,7 +962,7 @@ def create_app(db_path=None):
                     "coupon": row["coupon_pct"],
                     "yield_pct": row["expected_yield_pct"],
                     "frequency": row["payout_cycle"],
-                    "invested": float(row["amount"] or 0.0),
+                    "invested": invested,
                     "received": received_by_bond_map.get(row["id"], 0.0),
                     "next_payout": next_payout,
                     "health": health,
@@ -922,31 +975,46 @@ def create_app(db_path=None):
         first_keys = []
         for row in bond_rows:
             entries = ledger_by_bond.get(row["id"], {})
-            window = tenure_window(row["start_date"], row["tenure_months"])
-            first_keys.append(window[0])
-            prepared.append(
-                (row, window, entries, display_label(derive_health(row, entries, today)))
-            )
+            try:
+                float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                prepared.append((row, [], entries, "Invalid", True))
+                continue
+            try:
+                window = tenure_window(row["start_date"], row["tenure_months"])
+                first_keys.append(window[0])
+                prepared.append(
+                    (row, window, entries, display_label(derive_health(row, entries, today)), False)
+                )
+            except AppError:
+                prepared.append((row, [], entries, "Invalid", True))
         months = list_months_through_current(today, min(first_keys) if first_keys else None)
         rows = []
-        for row, window, entries, health in prepared:
+        for row, window, entries, health, invalid in prepared:
             window_set = set(window)
             cells = []
-            for key in months:
-                entry = entries.get(key)
-                if key in window_set:
-                    if entry_paid(entry):
-                        cells.append({"kind": "amount", "amount": float(entry["amount"])})
+            if invalid:
+                for index, _key in enumerate(months):
+                    if index == 0:
+                        cells.append({"kind": "chip", "text": "Invalid", "chip": "chip-invalid"})
+                    else:
+                        cells.append({"kind": "text", "text": "—"})
+            else:
+                for key in months:
+                    entry = entries.get(key)
+                    if key in window_set:
+                        if entry_paid(entry):
+                            cells.append({"kind": "amount", "amount": float(entry["amount"])})
+                        elif health == "Matured":
+                            cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
+                        elif month_due_passed(key, row["credit_day"], today):
+                            cells.append({"kind": "chip", "text": "Missed", "chip": "chip-danger"})
+                        else:
+                            cells.append({"kind": "chip", "text": "Due", "chip": "chip-ongoing"})
                     elif health == "Matured":
                         cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
-                    elif month_due_passed(key, row["credit_day"], today):
-                        cells.append({"kind": "chip", "text": "Missed", "chip": "chip-danger"})
                     else:
-                        cells.append({"kind": "chip", "text": "Due", "chip": "chip-ongoing"})
-                elif health == "Matured":
-                    cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
-                else:
-                    cells.append({"kind": "text", "text": "—"})
+                        cells.append({"kind": "text", "text": "—"})
             rows.append(
                 {
                     "id": row["id"],
@@ -1070,17 +1138,20 @@ def create_app(db_path=None):
                     )
                 rating = _portfolio_optional_text(form, "rating")
                 rating_agency = _portfolio_optional_text(form, "rating_agency")
-                coupon_pct = _portfolio_optional_float(form, "coupon_pct")
-                expected_yield_pct = _portfolio_optional_float(form, "expected_yield_pct")
+                coupon_pct = percent_value(form.get("coupon_pct", ""), "coupon_pct", "ERR-add-fields")
+                expected_yield_pct = percent_value(
+                    form.get("expected_yield_pct", ""), "expected_yield_pct", "ERR-add-fields"
+                )
                 face_value = _portfolio_optional_float(form, "face_value")
+                broker = str(form.get("broker", "")).strip() or None
                 secured = 1 if str(form.get("secured", "1")) == "1" else 0
                 check_add_allowed(company, isin, conn)
                 try:
                     cursor = conn.execute(
                         "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "
                         "tenure_months, credit_day, status, watch_state, rating, rating_agency, "
-                        "coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         (
                             company,
                             isin,
@@ -1100,6 +1171,7 @@ def create_app(db_path=None):
                             issuer_type,
                             secured,
                             face_value,
+                            broker,
                         ),
                     )
                 except sqlite3.IntegrityError as exc:
@@ -1174,6 +1246,40 @@ def create_app(db_path=None):
         except AppError as exc:
             return jsonify({"error": exc.code, "message": exc.message}), 404
         return jsonify(detail)
+
+    @app.route("/portfolio/invalid/<int:bond_id>/remove", methods=["POST"])
+    def portfolio_invalid_remove(bond_id):
+        db_file = Path(app.config["DB_PATH"])
+        _ensure_db(db_file)
+        try:
+            with get_conn(db_file) as conn:
+                row = conn.execute(
+                    "SELECT id, start_date, end_date, tenure_months, watch_state, amount FROM bonds WHERE id = ?",
+                    (bond_id,),
+                ).fetchone()
+                if row is None:
+                    raise AppError("ERR-invalid-remove", f"position not found: {bond_id}")
+                if row["watch_state"] != "holding":
+                    raise AppError(
+                        "ERR-invalid-remove",
+                        f"position {bond_id} is {row['watch_state']}; remove only applies to holdings rows",
+                    )
+                if _row_valid(row):
+                    raise AppError(
+                        "ERR-invalid-remove",
+                        f"position {bond_id} is valid; remove is only for rows with dates that need review",
+                    )
+                conn.execute("DELETE FROM payment_ledger WHERE bond_id = ?", (bond_id,))
+                cursor = conn.execute("DELETE FROM bonds WHERE id = ?", (bond_id,))
+                if cursor.rowcount != 1:
+                    raise AppError(
+                        "ERR-invalid-remove",
+                        f"remove for position {bond_id} affected {cursor.rowcount} rows",
+                    )
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Remove failed", 400)
+        flash("Invalid row removed", "success")
+        return redirect(url_for("portfolio_page", tab="holdings"))
 
     def settings_from_form(form):
         host = str(form.get("smtp_host", "")).strip()
