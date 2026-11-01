@@ -1,14 +1,15 @@
 import calendar
 from datetime import date
 
+from .engine import HEALTH_ORDER, display_label
 from .notifications import list_notifications
 from .queries import portfolio_totals, status_overview, summary_counts, this_month_returns
 from .status import month_key
 from .validators import AppError
 
-STATUS_ORDER = ("Danger", "On-going", "Completed", "Invalid")
 STATUS_MARKS = {"Danger": "● D", "On-going": "○ O", "Completed": "● C", "Invalid": "✕ I"}
 STATUS_KEYS = {"Danger": "danger", "On-going": "ongoing", "Completed": "completed", "Invalid": "invalid"}
+STATUS_ORDER = tuple(sorted(STATUS_MARKS, key=lambda value: HEALTH_ORDER[display_label(value)]))
 ALERTS_FOOTER_CAP = 5
 
 
