@@ -2,6 +2,12 @@
 {% block content %}
 <h1>Dashboard</h1>
 
+<div class="tabs" id="dashboard-tabs">
+  <button type="button" class="tab active" data-dtab="overview" id="dtab-overview">Overview</button>
+  <button type="button" class="tab" data-dtab="returns" id="dtab-returns">Returns history</button>
+</div>
+
+<div class="panel active" id="dpanel-overview">
 <div class="stat-row" id="summary-cards">
   <div class="stat-card primary" id="card-total">
     <div class="stat-label">Total Invested</div>
@@ -25,11 +31,19 @@
 
 <div class="card" id="invested-received-chart">
   <h2>Invested vs Received per company</h2>
+  <div class="filter-chips" role="group" aria-label="Filter by status">
+    <button type="button" class="btn btn-sm filter-chip active" data-filter="all" id="filter-all">All</button>
+    <button type="button" class="btn btn-sm filter-chip" data-filter="danger" id="filter-danger">Danger</button>
+    <button type="button" class="btn btn-sm filter-chip" data-filter="ongoing" id="filter-ongoing">On-going</button>
+    <button type="button" class="btn btn-sm filter-chip" data-filter="matured" id="filter-matured">Matured</button>
+  </div>
+  <p class="caption" id="sorted-caption" style="margin-bottom:12px">Sorted by priority — items needing attention first.</p>
   {% for bar in bars %}
-  <div class="chart-row">
+  <div class="chart-row" data-status="{{ bar.status_slug }}">
     <div class="chart-label">{{ bar.company }}</div>
     <div class="bar-space"><div class="bar" style="width: {{ bar.bar_width }}%"><span style="width: {{ bar.recv_width }}%"></span></div></div>
     <span class="value money" id="bar-received-{{ loop.index }}" data-amount="{{ "%.2f"|format(bar.received) }}">&#8377;{{ "%.2f"|format(bar.received) }}</span>
+    <span class="chip {{ bar.chip_class }}" id="bar-chip-{{ loop.index }}">{{ bar.status }}</span>
   </div>
   {% else %}
   <div class="empty-note" id="dashboard-bars-empty">no holdings yet — positions appear here once added from Portfolio</div>
@@ -39,5 +53,35 @@
     <span><span class="swatch" style="background: var(--accent)"></span>Received (accent)</span>
   </div>
   <p class="caption note-line" id="history-note">Monthly history shows completed months + current month only — future months are never shown.</p>
+</div>
+</div>
+
+<div class="panel" id="dpanel-returns">
+<div class="card" id="returns">
+  <h2>Returns history</h2>
+  <div class="table-wrap">
+    <table id="returns-table">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th class="num">Interest received</th>
+          <th class="num">Positions paid &#183; pending</th>
+          <th class="num">Cumulative received</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in returns.rows %}
+        <tr{% if row.is_current %} class="current-month-row"{% endif %}>
+          <td>{{ row.label }}{% if row.is_current %} <span class="chip chip-watching" id="returns-current-chip">Current</span>{% endif %}</td>
+          <td class="num money" data-amount="{{ "%.2f"|format(row.interest) }}">&#8377;{{ "%.2f"|format(row.interest) }}</td>
+          <td class="num">{{ row.paid_count }} &#183; {{ row.pending_count }}</td>
+          <td class="num money" data-amount="{{ "%.2f"|format(row.cumulative) }}">&#8377;{{ "%.2f"|format(row.cumulative) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="caption" id="returns-caption">Interest Received = total amount credited to you in that month. Positions paid &#183; pending = how many of your active positions received their payout that month vs still awaiting it (of {{ returns.active_count }} active). Cumulative Received = running total of all interest from your first payout through this month (latest row = the Received card). Newest month first — current month highlighted; future months are never shown.</p>
+</div>
 </div>
 {% endblock %}
