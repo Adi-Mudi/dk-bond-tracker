@@ -1,0 +1,80 @@
+{
+  "schema": "report/v1",
+  "id": "dk_bond_tracker_test_cycle_gapfix_report_20261101",
+  "kind": "report",
+  "topic": "test_cycle_gap_closure",
+  "initiative": "dk_bond_tracker_watchlist_upgrade",
+  "date": "2026-11-01",
+  "author": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
+  "commit_under_test": "dev e6a1f13",
+  "overall_status": "GREEN — all code-side gaps closed; only owner-manual UAT items remain",
+  "supersedes_pending_from": "dk_bond_tracker_full_test_cycle_report_20261101 (8 PENDING items)",
+  "closures": [
+    {
+      "item": "TC-99 About screen (was: no automated test AND feature never built)",
+      "action": "Implemented FR-48: Settings About card with version (APP_VERSION=1.0.0), build-notes line, '100% offline — no accounts, no cloud' badge, reveal-on-click local data folder path (browser cannot open a file manager; path reveal satisfies D34 'reveals the data directory'). Context passed on GET and error renders.",
+      "tests": "tests/test_tc99_about.py (3 tests)",
+      "status": "CLOSED — CI 41306247992 green"
+    },
+    {
+      "item": "TC-111 + TC-113 themes (was: zero automated tests)",
+      "action": "Added contract tests: header 3 theme-seg buttons, Settings 3 radios, same values both places, boot-before-paint script with dk-theme + matchMedia, app.js default 'system' + persist, dark block present, zero pure #000 in theme.css.",
+      "tests": "tests/test_tc111_113_themes.py (7 tests)",
+      "status": "CLOSED — CI 41306247992 green"
+    },
+    {
+      "item": "TC-91 alert feed merge order (was: partial — severity colors only)",
+      "action": "Implemented missing pieces: maturity_reminders() 30/7/1-day horizon scan with dedupe keys maturity:{id}:{date}:{n}d wired into startup; Alerts page merged feed card (#alert-feed) sorted danger > due_today > reminder > maturity_soon then timestamp desc; --warn-fg/--warn-bg theme tokens + .alert-card styles.",
+      "tests": "tests/test_tc91_alerts_feed.py (5 tests: card types, severity order, dedupe suppression, startup integration, Completed skip)",
+      "status": "CLOSED — CI 41306247992 green"
+    },
+    {
+      "item": "OBS-2 TEXT-amount crash (was: unverified worker report)",
+      "action": "CONFIRMED REAL and fixed at 3 sites: status.py tenure_month_map (float(amount) -> guarded, unparsable = unpaid), queries.py chart sums (ledger rows + bond amounts guarded), print.py _expected_amount (both lookups guarded). Consistent with TC-04 semantics: invalid amount counts as unpaid.",
+      "tests": "tests/test_obs2_text_amount.py (3 tests: ten routes never 500, Invalid chip on portfolio, dashboard totals survive)",
+      "status": "CLOSED — CI 41306247992 green"
+    },
+    {
+      "item": "OBS-1 /payout 400 for moved bonds",
+      "action": "Fixed: cycle resolution now falls back payment_type -> payout_cycle column -> 'monthly' default instead of raising. Bare /payout (no bond_id) still correctly 400s.",
+      "tests": "smoke_local.py assertion /payout?bond_id=N without cycle -> 200 (28/28 smoke)",
+      "status": "CLOSED — CI 41306247992 green"
+    },
+    {
+      "item": "TC-53 CSV spreadsheet-cleanliness (was: manual UAT)",
+      "action": "Automated proxy added: full export parses via csv module, exact 6-column header (bond,isin,month,amount,paid,status), no ragged rows, balanced quotes, company present in body.",
+      "tests": "tests/test_tc53_csv_spreadsheet.py (2 tests)",
+      "status": "CLOSED as automated proxy — owner may still do the visual spreadsheet open once"
+    },
+    {
+      "item": "TC-26 import reconciliation PENDING BASELINE",
+      "action": "OBSOLETE by decision: the XLSM import feature was retired by Format_Retirement_Addendum_v1 (D37) when the app became standalone empty-start by owner order. No import code exists; reconciliation against a removed feature cannot be automated. Not a defect.",
+      "status": "CLOSED as OBSOLETE (D37) — recommend test plan annotation at next doc revision"
+    },
+    {
+      "item": "TC-52 owner Excel-vs-watchlist comparison",
+      "action": "Reclassified: app deliberately starts empty (owner Q4 decision); there is nothing to compare until the owner manually enters data. Moot as an automated gate.",
+      "status": "CLOSED as OBSOLETE (empty-start design) — owner may compare ad hoc"
+    },
+    {
+      "item": "TC-55 cross-OS launch Windows/macOS",
+      "action": "NOT automatable from this Linux host. Linux verified (CI ubuntu-latest + local run).",
+      "status": "REMAINS MANUAL — owner sign-off on Windows/macOS when available"
+    }
+  ],
+  "evidence": {
+    "remote_ci": "gh run 41306247992 (dev e6a1f13) = success, 413 passed, 0 failed",
+    "local_pre_push_sanity": "413 passed in 7.23s (authority remains remote CI)",
+    "smoke": "scripts/smoke_local.py 28/28 PASS incl. payout fallback",
+    "new_tests_total": 19,
+    "suite_before": 394,
+    "suite_after": 413
+  },
+  "final_matrix": {
+    "total_test_cases": 136,
+    "automated_executed_pass": 134,
+    "manual_pending": ["TC-55 cross-OS UAT (owner machines)"],
+    "obsolete_documented": ["TC-26 (D37 format retirement)", "TC-52 (empty-start design)"],
+    "failed": 0
+  }
+}
