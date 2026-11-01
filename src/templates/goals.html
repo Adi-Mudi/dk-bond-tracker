@@ -30,6 +30,19 @@
 {% block content %}
 <h1>Financial Goals</h1>
 
+<div class="stat-row" id="goals-kpi-strip">
+  <div class="stat-card" id="kpi-earned-month">
+    <div class="stat-label">Earned this month</div>
+    <div class="stat-value money" id="earned-this-month" data-amount="{{ "%.2f"|format(earned_this_month) }}">&#8377;{{ "%.2f"|format(earned_this_month) }}</div>
+    <p class="caption"><a href="/#returns" id="returns-link-earned">View full returns history on Dashboard &#8594;</a></p>
+  </div>
+  <div class="stat-card" id="kpi-total-received">
+    <div class="stat-label">Total received</div>
+    <div class="stat-value money" id="total-received-kpi" data-amount="{{ "%.2f"|format(total_received) }}">&#8377;{{ "%.2f"|format(total_received) }}</div>
+    <p class="caption"><a href="/#returns" id="returns-link-total">View full returns history on Dashboard &#8594;</a></p>
+  </div>
+</div>
+
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 {% for category, message in messages %}

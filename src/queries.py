@@ -254,6 +254,101 @@ def this_month_returns(conn, today=None):
     return {"month": key, "total": float(row["total"]), "message": None}
 
 
+def returns_history(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-query-returns", "current month could not be resolved")
+    current = month_key(today_value)
+    candidates = []
+    try:
+        ledger_row = conn.execute("SELECT MIN(month) AS earliest FROM payment_ledger").fetchone()
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
+    if ledger_row is not None and ledger_row["earliest"]:
+        earliest = str(ledger_row["earliest"]).strip()
+        if MONTH_PATTERN.match(earliest):
+            candidates.append(earliest)
+    try:
+        start_rows = conn.execute("SELECT start_date FROM bonds").fetchall()
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
+    for row in start_rows:
+        try:
+            candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
+        except AppError:
+            continue
+    if candidates:
+        start = min(candidates)
+        if start > current:
+            start = current
+        window = _month_keys_span(start, current)
+        if len(window) > HISTORY_MONTH_CAP:
+            window = window[-HISTORY_MONTH_CAP:]
+    else:
+        window = []
+    try:
+        ledger_rows = conn.execute(
+            "SELECT month, SUM(amount) AS total FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY month"
+        ).fetchall()
+        paid_rows = conn.execute(
+            "SELECT bond_id, month FROM payment_ledger WHERE paid = 1 AND amount > 0"
+        ).fetchall()
+        bond_rows = conn.execute(
+            "SELECT id, start_date, tenure_months FROM bonds WHERE watch_state = 'holding'"
+        ).fetchall()
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns aggregation failed: {exc}") from exc
+
+    def safe_total(value):
+        try:
+            return float(value or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    interest_by_month = {}
+    for row in ledger_rows:
+        month = str(row["month"] or "").strip()
+        if not MONTH_PATTERN.match(month):
+            continue
+        interest_by_month[month] = safe_total(row["total"])
+    paid_pairs = {
+        (row["bond_id"], str(row["month"] or "").strip())
+        for row in paid_rows
+        if MONTH_PATTERN.match(str(row["month"] or "").strip())
+    }
+    active_by_month = {}
+    for row in bond_rows:
+        try:
+            keys = tenure_window(row["start_date"], row["tenure_months"])
+        except AppError:
+            continue
+        for key in keys:
+            active_by_month.setdefault(key, set()).add(row["id"])
+    rows = []
+    running = 0.0
+    for key in window:
+        interest = interest_by_month.get(key, 0.0)
+        running += interest
+        active = active_by_month.get(key, set())
+        paid_count = sum(1 for bond_id in active if (bond_id, key) in paid_pairs)
+        rows.append(
+            {
+                "month": key,
+                "label": month_label(key),
+                "interest": interest,
+                "paid_count": paid_count,
+                "pending_count": max(len(active) - paid_count, 0),
+                "cumulative": running,
+                "is_current": key == current,
+            }
+        )
+    rows.reverse()
+    return {"rows": rows, "active_count": len(active_by_month.get(current, set()))}
+
+
 def active_bonds_in_month(conn, today=None):
     today_value = _resolve_today(today)
     if today_value is None:
