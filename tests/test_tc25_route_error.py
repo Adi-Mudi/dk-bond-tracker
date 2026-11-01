@@ -40,30 +40,26 @@ def test_tc25_dashboard_query_failure_surfaces_named_error_page(db_path, monkeyp
     assert "fixture fault" in html
 
 
-def test_tc25_corrupt_bond_data_surfaces_grid_error_page(db_path):
+def test_tc25_corrupt_bond_data_renders_invalid_chip_on_grid(db_path):
     seed_corrupt_bond(db_path)
     app = create_app(str(db_path))
     app.config["TESTING"] = True
     response = app.test_client().get("/grid")
-    assert response.status_code == 500
+    assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert 'id="error-banner"' in html
-    assert "operation: ERR-render-grid" in html
-    assert "start_date" in html
-    assert "garbage-date" in html
+    assert 'id="error-banner"' not in html
+    assert "chip-invalid" in html
+    assert ">Invalid<" in html
 
 
-def test_tc25_corrupt_bond_data_surfaces_dashboard_error_page(db_path):
+def test_tc25_corrupt_bond_data_keeps_dashboard_at_200(db_path):
     seed_corrupt_bond(db_path)
     app = create_app(str(db_path))
     app.config["TESTING"] = True
     response = app.test_client().get("/")
-    assert response.status_code == 500
+    assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert 'id="error-banner"' in html
-    assert 'id="error-code"' in html
-    assert "operation: " in html
-    assert "garbage-date" in html or "status computation failed" in html
+    assert 'id="error-banner"' not in html
 
 
 def test_tc25_healthy_data_never_renders_error_page(client, db_path):

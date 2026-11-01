@@ -33,7 +33,7 @@ def test_tc77_donut_counts_equal_summary_counts(db_path):
         data = chart_data(conn, today)
         counts = summary_counts(conn, today)
     assert data["donut"] == counts
-    assert counts == {"danger": 2, "ongoing": 3, "completed": 1, "total": 6}
+    assert counts == {"danger": 2, "ongoing": 3, "completed": 1, "total": 6, "invalid": 0}
 
 
 def test_tc77_donut_recomputes_after_flip(db_path):
@@ -41,17 +41,17 @@ def test_tc77_donut_recomputes_after_flip(db_path):
     with get_conn(db_path) as conn:
         flip_id, void_month, _ = seed_donut_portfolio(conn, today)
         before = chart_data(conn, today)["donut"]
-        assert before == {"danger": 2, "ongoing": 3, "completed": 1, "total": 6}
+        assert before == {"danger": 2, "ongoing": 3, "completed": 1, "total": 6, "invalid": 0}
         conn.execute(
             "UPDATE payment_ledger SET amount = 0, paid = 0 WHERE bond_id = ? AND month = ?",
             (flip_id, void_month),
         )
         after = chart_data(conn, today)["donut"]
-    assert after == {"danger": 3, "ongoing": 2, "completed": 1, "total": 6}
+    assert after == {"danger": 3, "ongoing": 2, "completed": 1, "total": 6, "invalid": 0}
 
 
 def test_tc77_empty_portfolio_donut_zeros(db_path):
     today = date(2026, 10, 3)
     with get_conn(db_path) as conn:
         data = chart_data(conn, today)
-    assert data["donut"] == {"danger": 0, "ongoing": 0, "completed": 0, "total": 0}
+    assert data["donut"] == {"danger": 0, "ongoing": 0, "completed": 0, "total": 0, "invalid": 0}

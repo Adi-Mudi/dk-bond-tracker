@@ -90,6 +90,7 @@ def _ensure_columns(conn):
         "issuer_type TEXT CHECK (issuer_type IN ('corporate_bond','ncd','sdi','government','fd'))",
         "secured INT DEFAULT 1",
         "watch_state TEXT NOT NULL DEFAULT 'holding' CHECK (watch_state IN ('holding','watching'))",
+        "broker TEXT",
     ):
         name = column.split()[0]
         if name not in bond_columns:
