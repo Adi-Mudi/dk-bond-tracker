@@ -21,28 +21,11 @@
 </script>
   <title>{% block title %}DK Bond Tracker{% endblock %}</title>
   <style>
-    :root {
-      --border: #1e1e1e;
-      --text: #1e1e1e;
-      --page-bg: #f8f9fa;
-      --card-bg: #f1f3f5;
-      --white: #ffffff;
-      --blue: #4dabf7;
-      --blue-light: #d0ebff;
-      --paid: #d3f9d8;
-      --due: #ffc9c9;
-      --danger: #ff8787;
-      --ongoing: #ff922b;
-      --completed: #69db7c;
-      --current-month: #fff3bf;
-      --header-row: #e9ecef;
-      --muted: #495057;
-    }
     .privacy-on .money { font-size: 0; }
     .privacy-on .money::after { content: "••••"; font-size: 14px; letter-spacing: 0.14em; }
     .privacy-on .money-input { color: transparent; }
     th { border-bottom: 2px solid var(--border); }
-    td { border-bottom: 1px solid #dee2e6; }
+    td { border-bottom: 1px solid var(--border); }
   </style>
   <link rel="stylesheet" href="/static/theme.css">
   {% block head %}{% endblock %}
@@ -65,9 +48,9 @@
   <div class="view-header">
     <div class="header-actions">
       <div class="theme-switch" role="group" aria-label="Theme">
-        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
-        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
-        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+        {% for value, label in themes %}
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="{{ value }}">{{ label.split(' (')[0] if value != 'system' else 'System' }}</button>
+        {% endfor %}
       </div>
       <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
       <div class="bell-wrap" id="notificationsBell" title="Notifications" tabindex="0">
@@ -127,6 +110,7 @@
     }
   })();
 </script>
+<script src="/static/theme.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

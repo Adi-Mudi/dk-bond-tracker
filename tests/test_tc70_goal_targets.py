@@ -52,7 +52,8 @@ def test_ten_year_goal_shows_months_remaining(client):
     )
     body = http.get("/goals").data.decode()
     expected = months_until(date(2036, 10, 1), date.today())
-    assert 119 <= expected <= 121
+    assert months_until(date(2036, 10, 1), date(2026, 11, 1)) == 119
+    assert months_until(date(2036, 10, 1), date(2026, 11, 2)) == 118
     assert f'id="months-remaining-1">{expected}<' in body
     assert "10-year wealth plan" in body
     assert "2036-10-01" in body

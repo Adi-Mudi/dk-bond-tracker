@@ -1,0 +1,310 @@
+{
+  "header": {
+    "task": "theme_consolidation",
+    "type": "normal_plan",
+    "version": "v1.0",
+    "created": "2026-11-02 00:04",
+    "confidence": "86%",
+    "master_link": "none - standalone small single-approach task",
+    "worktree": "in-place branch: theme-consolidation-v1 (created from HEAD of dev in the main checkout)",
+    "interview_summary": {
+      "problem": "Theme code is scattered: tokens centralized in theme.css (OK), but theme JS is buried inside app.js, the theme list is hardcoded in 4 places, and the grid/status palette lives inline in base.html ignoring dark mode",
+      "expected_outcome": "One central theme system: theme.css owns ALL tokens (incl. grid palette with dark variants), theme.js owns runtime theme switching, app.py owns the theme list registry, stale product build refreshed",
+      "constraints": "Pre-paint boot script MUST stay inline in base.html (FOUC prevention, asserted by test tc111); tc139 asserts dashboard/filter/email logic stays in app.js; zero comments in code; app.js stays one IIFE for remaining non-theme logic",
+      "files_involved": [
+        "src/static/theme.css",
+        "src/static/app.js",
+        "src/static/theme.js (new)",
+        "src/templates/base.html",
+        "src/templates/settings.html",
+        "src/app.py",
+        "tests/test_tc111_113_themes.py",
+        "tests/test_tc35_grid_colors.py",
+        "scripts/build_product.sh (run only)"
+      ],
+      "patterns": "Existing ES5 IIFE style in app.js, CSS custom-property tokens in theme.css, context_processor injection pattern at src/app.py:187"
+    },
+    "user_decisions": [
+      {
+        "id": "U1",
+        "decision": "Full consolidation scope",
+        "detail": "Extract theme JS, centralize theme list, make grid palette theme-aware with dark variants, update tests, rebuild product"
+      },
+      {
+        "id": "U2",
+        "decision": "Grid palette gets dark variants",
+        "detail": "Grid/monthly cell colors restyle with dark mode (user-approved visual change)"
+      },
+      {
+        "id": "U3",
+        "decision": "fix-watchlist sync deferred",
+        "detail": "User said: create separate git branch, then we will work. Main src only in this plan; fix-watchlist mirroring is future separate work (ASSUMED interpretation - confirm at approval)"
+      }
+    ]
+  },
+  "documents": {
+    "truth": [
+      "src/static/theme.css (current token contract: 18 vars per theme)",
+      "tests/test_tc111_113_themes.py (3-theme contract, persistence contract)",
+      "tests/test_tc139_dashboard_returns_email.py (app.js must keep dashboard/filter/email logic)"
+    ],
+    "references": [
+      "docs/PRD_DK_Bond_Tracker_v2.json + addenda (UI theming requirements)",
+      "docs/Watchlist_Architecture_Addendum_v3.json",
+      "design/ui_frontend_design_v6.html"
+    ],
+    "targets": [
+      "src/static/theme.js",
+      "src/static/app.js",
+      "src/static/theme.css",
+      "src/templates/base.html",
+      "src/templates/settings.html",
+      "src/app.py",
+      "tests/test_tc111_113_themes.py",
+      "tests/test_tc35_grid_colors.py"
+    ],
+    "dependencies": [
+      "All 15 templates extend base.html (script tag change is global)",
+      "grid.html, payout.html, portfolio.html, share.html, add_position.html, payment_edit.html consume the moved palette tokens",
+      "scripts/build_product.sh copies src/ wholesale - rebuild picks up new files automatically",
+      "fix-watchlist/src holds identical copies - NOT touched in this plan (U3)"
+    ],
+    "tests": [
+      "pytest full suite (local, .venv/bin/python -m pytest)",
+      "scripts/test_local.sh (fast tier)",
+      "scripts/test_remote.sh (full tier, before merge)"
+    ]
+  },
+  "cascade_note": "src/templates/base.html inline :root defines --muted, --border, --text which are ALREADY dead code: theme.css loads after the inline style and redefines all three (same :root specificity, later wins). Only 12 inline tokens are live: --page-bg, --card-bg, --white, --blue, --blue-light, --paid, --due, --danger, --ongoing, --completed, --current-month, --header-row. Phase 4 moves the live ones and drops the dead duplicates.",
+  "phases": [
+    {
+      "id": "P1",
+      "name": "Branch setup",
+      "mode": "SERIES",
+      "test_block": {
+        "type": "git sanity",
+        "where": "LOCAL",
+        "check": "git branch --show-current = theme-consolidation-v1 and clean checkout of expected files"
+      },
+      "reviewer_check": "Verify branch exists and was created from current dev HEAD; verify no files modified yet",
+      "tasks": [
+        {
+          "id": "T1.1",
+          "action": "CREATE",
+          "item": "git branch theme-consolidation-v1 from dev HEAD and switch to it",
+          "from": "current checkout on branch dev (note: pre-existing uncommitted deletions under .IDE_Plans/archive/ exist in working tree and are NOT part of this task - carried as-is, never committed by this plan)",
+          "to": "branch theme-consolidation-v1 active, same working tree state",
+          "reason": "U3 - user asked for work on a separate branch",
+          "status": "DONE"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "name": "Theme JS extraction",
+      "mode": "SERIES",
+      "test_block": {
+        "type": "pytest subset + manual",
+        "where": "LOCAL",
+        "check": "pytest tests/test_tc111_113_themes.py tests/test_tc139_dashboard_returns_email.py green; pages load theme.js (HTTP 200)"
+      },
+      "reviewer_check": "Diff theme.js vs removed app.js block - logic byte-equivalent (move, not rewrite); tc111 html asserts untouched (boot script stays inline); tc139 assertions still satisfied by remaining app.js",
+      "tasks": [
+        {
+          "id": "T2.1",
+          "action": "CREATE",
+          "file": "src/static/theme.js",
+          "from": "new file",
+          "to": "IIFE containing the exact theme block moved from app.js lines 1-24: themeSegments/themeRadios lookups, applyTheme(value) (sets data-theme on documentElement, persists to localStorage 'dk-theme', syncs segment .active and radio .checked), click/change listeners, initial applyTheme(localStorage.getItem('dk-theme') || 'system'). No comments. ES5 style matching app.js.",
+          "reason": "Theme runtime gets its own central home; app.js keeps only non-theme features",
+          "status": "DONE"
+        },
+        {
+          "id": "T2.2",
+          "action": "EDIT",
+          "file": "src/static/app.js",
+          "location": "lines 1-24",
+          "from": "IIFE opens with theme block (themeSegments, themeRadios, applyTheme, listeners, initial applyTheme call)",
+          "to": "IIFE opens directly with the privacy block (var privacyToggles = ...); theme code gone",
+          "reason": "Same logic moved to theme.js; tc139 assertions (activateDashboardTab, data-dtab, filter row.hidden, email presets, #returns handling) all remain in app.js",
+          "status": "DONE"
+        },
+        {
+          "id": "T2.3",
+          "action": "EDIT",
+          "file": "src/templates/base.html",
+          "location": "line 130",
+          "from": "<script src=\"/static/app.js\"></script>",
+          "to": "<script src=\"/static/theme.js\"></script>\n<script src=\"/static/app.js\"></script>",
+          "reason": "theme.js loads first so switching handlers exist on every page; inline boot script (lines 6-21) stays untouched",
+          "status": "DONE"
+        },
+        {
+          "id": "T2.4",
+          "action": "EDIT",
+          "file": "tests/test_tc111_113_themes.py",
+          "location": "test_tc111_app_js_default_and_persist (lines 57-60)",
+          "from": "js = (ROOT / \"src\" / \"static\" / \"app.js\").read_text(...); assert \"localStorage.getItem('dk-theme') || 'system'\" in js; assert \"localStorage.setItem('dk-theme'\" in js; assert \"data-theme\" in js",
+          "to": "same three assertions against (ROOT / \"src\" / \"static\" / \"theme.js\"); plus fetch '/static/theme.js' via test client returns HTTP 200",
+          "reason": "Test follows the moved code",
+          "status": "DONE"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "name": "Theme list registry",
+      "mode": "SERIES",
+      "test_block": {
+        "type": "pytest subset",
+        "where": "LOCAL",
+        "check": "tests/test_tc111_113_themes.py green (3 segments on /, 3 radios on /settings, sync test, system checked default)"
+      },
+      "reviewer_check": "Single THEMES constant in app.py; both templates render from the injected list; rendered HTML identical to today (same 3 values, same order, same attributes) except radios/buttons are Jinja-generated",
+      "tasks": [
+        {
+          "id": "T3.1",
+          "action": "EDIT",
+          "file": "src/app.py",
+          "location": "module-level constants near BUILD_NOTES (line 80) + context_processor inject_header_alerts (line 187)",
+          "from": "no theme list anywhere in Python; context processor returns only unread_count + recent_notifications",
+          "to": "module-level THEMES = ((\"system\", \"System (follow OS)\"), (\"light\", \"Light (default)\"), (\"dark\", \"Dark\")); context processor adds \"themes\": THEMES to the injected context (both the no-db early-return dict and the normal return dict)",
+          "reason": "Single source of truth for the theme list; adding a 4th theme later touches ONE file",
+          "status": "DONE"
+        },
+        {
+          "id": "T3.2",
+          "action": "EDIT",
+          "file": "src/templates/base.html",
+          "location": "lines 67-71 (theme-switch div)",
+          "from": "three hardcoded buttons: data-theme-value=\"system\" System / \"light\" Light / \"dark\" Dark",
+          "to": "{% for value, label in themes %}<button type=\"button\" class=\"btn btn-sm theme-seg\" data-theme-value=\"{{ value }}\">{{ label.split(' (')[0] if value != 'system' else 'System' }}...{% endfor %} - exact rendering contract: button labels 'System', 'Light', 'Dark', same attributes and order (labels for the segmented control are the short names; the parenthetical hints belong to settings radios only)",
+          "reason": "Registry-driven UI",
+          "status": "DONE"
+        },
+        {
+          "id": "T3.3",
+          "action": "EDIT",
+          "file": "src/templates/settings.html",
+          "location": "lines 25-27",
+          "from": "three hardcoded radio labels: System (follow OS) / Light (default) / Dark",
+          "to": "{% for value, label in themes %}<label class=\"check-row\"><input type=\"radio\" name=\"theme-choice\" data-theme-value=\"{{ value }}\" {% if value == 'system' %}checked{% endif %}> {{ label }}</label>{% endfor %} - keeps 'system checked' default so test string 'data-theme-value=\"system\" checked' still matches (adjust attribute order if needed to keep that literal, else update the test assertion)",
+          "reason": "Registry-driven UI",
+          "status": "DONE"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "name": "Grid palette into theme.css with dark variants",
+      "mode": "SERIES",
+      "test_block": {
+        "type": "pytest subset + manual dark-mode eyeball",
+        "where": "LOCAL",
+        "check": "tests/test_tc35_grid_colors.py green against new location; manual: dark mode shows dark grid cells, light unchanged"
+      },
+      "reviewer_check": "Live 12 tokens moved, 3 dead duplicates dropped; every template using var(--page-bg|--card-bg|--white|--blue|--blue-light|--paid|--due|--danger|--ongoing|--completed|--current-month|--header-row) still resolves; no name collisions with the 18 existing theme tokens",
+      "tasks": [
+        {
+          "id": "T4.1",
+          "action": "EDIT",
+          "file": "src/static/theme.css",
+          "location": "after the three existing palette blocks (lines 1-65)",
+          "from": "no grid/status tokens",
+          "to": "Add to :root/light block: --page-bg:#f8f9fa; --card-bg:#f1f3f5; --white:#ffffff; --blue:#4dabf7; --blue-light:#d0ebff; --paid:#d3f9d8; --due:#ffc9c9; --danger:#ff8787; --ongoing:#ff922b; --completed:#69db7c; --current-month:#fff3bf; --header-row:#e9ecef. Add SAME 12 names to the dark block and the system @media block with dark-tuned values: --page-bg:#0d1117; --card-bg:#161b22; --white:#ffffff; --blue:#58a6ff; --blue-light:#12233d; --paid:#10251a; --due:#2b1519; --danger:#ff7b72; --ongoing:#f0883e; --completed:#56d364; --current-month:#201a08; --header-row:#21262d (values aligned with existing dark tokens: accent #58a6ff, watching-bg #12233d, ongoing-bg #10251a, danger-bg #2b1519, danger-fg #ff7b72, warn-bg #201a08). Do NOT add --muted/--border/--text duplicates (theme.css already owns them).",
+          "reason": "U2 - grid colors restyle with dark mode; tokens leave base.html",
+          "status": "DONE"
+        },
+        {
+          "id": "T4.2",
+          "action": "EDIT",
+          "file": "src/templates/base.html",
+          "location": "inline <style> block lines 23-46",
+          "from": ":root { 14 custom properties incl. dead --muted/--border/--text } plus .privacy-on rules plus th/td border rules",
+          "to": "inline style keeps ONLY the behavioral rules (.privacy-on .money, .privacy-on .money::after, .privacy-on .money-input, th border-bottom, td border-bottom using var(--border)); the :root token block is removed entirely",
+          "reason": "Tokens now live centrally in theme.css",
+          "status": "DONE"
+        },
+        {
+          "id": "T4.3",
+          "action": "EDIT",
+          "file": "tests/test_tc35_grid_colors.py",
+          "location": "lines 61-64",
+          "from": "asserts '--paid: #d3f9d8' and '--due: #ffc9c9' present in rendered grid HTML",
+          "to": "assert the 12 tokens with light values are in the /static/theme.css response fetched via test client; keep the .cell-paid/.cell-due class assertions against grid HTML; add assertions that the dark block carries --paid:#10251a and --due:#2b1519",
+          "reason": "Test follows the moved tokens and locks in U2 dark variants",
+          "status": "DONE"
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "name": "Verify, build, close",
+      "mode": "SERIES",
+      "test_block": {
+        "type": "FULL TEST",
+        "where": "LOCAL + REMOTE",
+        "check": ".venv/bin/python -m pytest (all 70+ tests) green locally; scripts/test_remote.sh full tier; product build regenerated and contains static/"
+      },
+      "reviewer_check": "Full suite honest-green (name any red tier); product/dk_bond_tracker_v1.0 now has src/static/theme.css + theme.js + updated base.html; single commit on theme-consolidation-v1 with push; merge into dev ONLY on user confirmation",
+      "tasks": [
+        {
+          "id": "T5.1",
+          "action": "RUN",
+          "item": "Full local test suite (.venv/bin/python -m pytest)",
+          "from": "n/a",
+          "to": "all tests green or STOP & ASK with pass/fail breakdown",
+          "reason": "Test gate",
+          "status": "DONE"
+        },
+        {
+          "id": "T5.2",
+          "action": "RUN",
+          "item": "bash scripts/build_product.sh",
+          "from": "stale product build (no static/, pre-theme templates)",
+          "to": "fresh product/dk_bond_tracker_v1.0 + zip including src/static/theme.css, theme.js, updated templates",
+          "reason": "Fixes finding #7 - shipped build predates themes",
+          "status": "DONE"
+        },
+        {
+          "id": "T5.3",
+          "action": "COMMIT",
+          "item": "Auto commit + push of the 8 target files on theme-consolidation-v1",
+          "from": "uncommitted changes on branch",
+          "to": "one commit (theme consolidation) pushed to origin",
+          "reason": "Canonical gates line",
+          "status": "DONE"
+        },
+        {
+          "id": "T5.4",
+          "action": "MERGE",
+          "item": "Merge theme-consolidation-v1 into dev",
+          "from": "branch state",
+          "to": "merged ONLY after user says yes (Approval Gate - never self-approve)",
+          "reason": "Rule 14 approval gate",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "fix-watchlist/ repo - identical theme copies stay untouched (U3, future separate work)",
+    "monthly_print.html standalone palette - intentional print-only, no change",
+    "Typography/spacing tokenization (--font-*, --space-*) - separate future initiative",
+    "Pre-existing uncommitted .IDE_Plans/archive deletions in the working tree - not touched, not committed by this plan"
+  ],
+  "risks": [
+    {
+      "risk": "tc35/tc111 style tests assert exact strings - attribute order changes in T3.3 may break the 'system\" checked' literal",
+      "mitigation": "keep attribute order identical or update assertion in same task; suite run after each phase"
+    },
+    {
+      "risk": "Dark grid values judged by eye - colors may need a tuning pass after U2",
+      "mitigation": "values derived from existing dark tokens for consistency; user reviews screenshots at review gate"
+    },
+    {
+      "risk": "theme.js/app.js load order regression if a template blocks head scripts",
+      "mitigation": "both scripts stay at end of body, theme.js before app.js; tc139-style fetch assertions verify 200s"
+    }
+  ]
+}

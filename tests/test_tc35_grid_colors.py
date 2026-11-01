@@ -58,8 +58,21 @@ def test_tc35_paid_due_zero_future_cells_and_status_colors(db_path, monkeypatch)
     assert 'cell cell-paid' in html
     assert 'cell cell-due' in html
     assert 'cell cell-future' in html
-    assert "--paid: #d3f9d8" in html
-    assert "--due: #ffc9c9" in html
+    css = app.test_client().get("/static/theme.css").get_data(as_text=True)
+    assert "--page-bg: #f8f9fa" in css
+    assert "--card-bg: #f1f3f5" in css
+    assert "--white: #ffffff" in css
+    assert "--blue: #4dabf7" in css
+    assert "--blue-light: #d0ebff" in css
+    assert "--paid: #d3f9d8" in css
+    assert "--due: #ffc9c9" in css
+    assert "--danger: #ff8787" in css
+    assert "--ongoing: #ff922b" in css
+    assert "--completed: #69db7c" in css
+    assert "--current-month: #fff3bf" in css
+    assert "--header-row: #e9ecef" in css
+    assert "--paid: #10251a" in css
+    assert "--due: #2b1519" in css
     assert ".cell-paid { background: var(--paid); }" in html
     assert ".cell-due { background: var(--due); font-weight: 700; }" in html
 
@@ -69,9 +82,6 @@ def test_tc35_paid_due_zero_future_cells_and_status_colors(db_path, monkeypatch)
     assert 'chip chip-danger' in html
     assert 'chip chip-ongoing' in html
     assert 'chip chip-completed' in html
-    assert "--danger: #ff8787" in html
-    assert "--ongoing: #ff922b" in html
-    assert "--completed: #69db7c" in html
 
     assert 'th class="month-col now" data-month="2026-10"' in html
 
