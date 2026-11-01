@@ -153,6 +153,10 @@ def status_overview(conn, today=None):
             )
         except AppError:
             status = "Invalid"
+        try:
+            float(row["amount"] or 0.0)
+        except (TypeError, ValueError):
+            status = "Invalid"
         entry = dict(row)
         entry["status"] = status
         entry["color"] = STATUS_COLORS[status]
