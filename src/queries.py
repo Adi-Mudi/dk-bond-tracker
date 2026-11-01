@@ -7,6 +7,7 @@ from .engine import (
     display_label,
     entry_paid,
     payout_date_label,
+    sort_rows,
     tenure_window,
 )
 from .status import (
@@ -18,7 +19,6 @@ from .validators import AppError, add_months, parse_date_value
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green", "Invalid": "grey"}
-STATUS_ORDER = {"Danger": 0, "On-going": 1, "Completed": 2, "Invalid": 3}
 
 
 def _parse_month(month):
@@ -161,14 +161,7 @@ def status_overview(conn, today=None):
         entry["status"] = status
         entry["color"] = STATUS_COLORS[status]
         entries.append(entry)
-    entries.sort(
-        key=lambda item: (
-            STATUS_ORDER[item["status"]],
-            str(item["company"] or "").lower(),
-            item["id"],
-        )
-    )
-    return entries
+    return sort_rows(entries)
 
 
 HISTORY_MONTH_CAP = 120
@@ -259,6 +252,101 @@ def this_month_returns(conn, today=None):
     except Exception as exc:
         raise AppError("ERR-query-month-returns", f"this-month query failed: {exc}") from exc
     return {"month": key, "total": float(row["total"]), "message": None}
+
+
+def returns_history(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-query-returns", "current month could not be resolved")
+    current = month_key(today_value)
+    candidates = []
+    try:
+        ledger_row = conn.execute("SELECT MIN(month) AS earliest FROM payment_ledger").fetchone()
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
+    if ledger_row is not None and ledger_row["earliest"]:
+        earliest = str(ledger_row["earliest"]).strip()
+        if MONTH_PATTERN.match(earliest):
+            candidates.append(earliest)
+    try:
+        start_rows = conn.execute("SELECT start_date FROM bonds").fetchall()
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
+    for row in start_rows:
+        try:
+            candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
+        except AppError:
+            continue
+    if candidates:
+        start = min(candidates)
+        if start > current:
+            start = current
+        window = _month_keys_span(start, current)
+        if len(window) > HISTORY_MONTH_CAP:
+            window = window[-HISTORY_MONTH_CAP:]
+    else:
+        window = []
+    try:
+        ledger_rows = conn.execute(
+            "SELECT month, SUM(amount) AS total FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY month"
+        ).fetchall()
+        paid_rows = conn.execute(
+            "SELECT bond_id, month FROM payment_ledger WHERE paid = 1 AND amount > 0"
+        ).fetchall()
+        bond_rows = conn.execute(
+            "SELECT id, start_date, tenure_months FROM bonds WHERE watch_state = 'holding'"
+        ).fetchall()
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns aggregation failed: {exc}") from exc
+
+    def safe_total(value):
+        try:
+            return float(value or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    interest_by_month = {}
+    for row in ledger_rows:
+        month = str(row["month"] or "").strip()
+        if not MONTH_PATTERN.match(month):
+            continue
+        interest_by_month[month] = safe_total(row["total"])
+    paid_pairs = {
+        (row["bond_id"], str(row["month"] or "").strip())
+        for row in paid_rows
+        if MONTH_PATTERN.match(str(row["month"] or "").strip())
+    }
+    active_by_month = {}
+    for row in bond_rows:
+        try:
+            keys = tenure_window(row["start_date"], row["tenure_months"])
+        except AppError:
+            continue
+        for key in keys:
+            active_by_month.setdefault(key, set()).add(row["id"])
+    rows = []
+    running = 0.0
+    for key in window:
+        interest = interest_by_month.get(key, 0.0)
+        running += interest
+        active = active_by_month.get(key, set())
+        paid_count = sum(1 for bond_id in active if (bond_id, key) in paid_pairs)
+        rows.append(
+            {
+                "month": key,
+                "label": month_label(key),
+                "interest": interest,
+                "paid_count": paid_count,
+                "pending_count": max(len(active) - paid_count, 0),
+                "cumulative": running,
+                "is_current": key == current,
+            }
+        )
+    rows.reverse()
+    return {"rows": rows, "active_count": len(active_by_month.get(current, set()))}
 
 
 def active_bonds_in_month(conn, today=None):
@@ -484,13 +572,7 @@ def grid_model(conn, today=None):
                 "cells": cells,
             }
         )
-    model_rows.sort(
-        key=lambda item: (
-            STATUS_ORDER[item["status"]],
-            str(item["company"] or "").lower(),
-            item["id"],
-        )
-    )
+    model_rows = sort_rows(model_rows)
     return {
         "months": headers,
         "rows": model_rows,
@@ -617,20 +699,21 @@ def _safe_invested(amount):
 
 
 def portfolio_snapshot(conn):
-    rows = conn.execute(
-        "SELECT id, company, amount FROM bonds WHERE watch_state = 'holding' "
-        "ORDER BY company COLLATE NOCASE, id"
-    ).fetchall()
     return [
-        {"id": row["id"], "company": row["company"], "invested": _safe_invested(row["amount"])}
-        for row in rows
+        {
+            "id": entry["id"],
+            "company": entry["company"],
+            "invested": _safe_invested(entry["amount"]),
+        }
+        for entry in status_overview(conn)
     ]
 
 
 def position_detail(conn, bond_id, today=None):
     today_value = _resolve_today(today)
     row = conn.execute(
-        "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+        "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
+        "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, "
         "amount, start_date, end_date, tenure_months, credit_day, watch_state, broker "
         "FROM bonds WHERE id = ?",
         (bond_id,),
@@ -680,13 +763,18 @@ def position_detail(conn, bond_id, today=None):
         "company": row["company"],
         "isin": row["isin"] or "",
         "rating": row["rating"] or "",
+        "rating_agency": row["rating_agency"] or "",
         "coupon_pct": row["coupon_pct"],
         "expected_yield_pct": row["expected_yield_pct"],
         "frequency": row["payout_cycle"],
+        "issuer_type": row["issuer_type"] or "",
+        "secured": row["secured"],
+        "face_value": row["face_value"],
         "invested": invested,
         "received": received,
         "next_payout": next_payout,
         "status": health,
         "broker": row["broker"] or "",
+        "source_note": row["name"] or "",
         "payments": payments,
     }

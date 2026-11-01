@@ -23,7 +23,7 @@ from src.engine import (
     list_months_through_current,
     month_due_passed,
     payout_date_label,
-    sort_payout_rows,
+    sort_rows,
     tenure_window,
 )
 from src.export_csv import (
@@ -52,12 +52,15 @@ from src.queries import (
     insert_position,
     month_label,
     portfolio_snapshot,
+    portfolio_totals,
     position_detail,
     received_by_bond,
+    returns_history,
     save_payment,
     status_overview,
     summary_amounts,
     summary_counts,
+    this_month_returns,
 )
 from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, tenure_month_map
@@ -73,6 +76,13 @@ from src.validators import (
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
 
 ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
+
+EMAIL_TEST_SUCCESS_MESSAGE = "Test email sent. Check the inbox (and the spam folder)."
+
+EMAIL_TEST_FAILURE_MESSAGE = (
+    "Sending failed. Authentication failed = usually needs an App Password. "
+    "Also check SMTP host, port and security setting."
+)
 
 
 def _ensure_db(db_file):
@@ -205,15 +215,19 @@ def create_app(db_path=None):
             "sort_key": month,
         }
 
+    STATUS_CHIPS = {
+        "Danger": ("danger", "chip-danger"),
+        "On-going": ("ongoing", "chip-ongoing"),
+        "Matured": ("matured", "chip-matured"),
+        "Invalid": ("invalid", "chip-invalid"),
+    }
+
     def dashboard_model(conn):
         counts = summary_counts(conn)
         amounts = summary_amounts(conn)
         received_map = received_by_bond(conn)
         current = month_key(date.today())
-        holdings = conn.execute(
-            "SELECT id, company, amount, interest_payout, tenure_months, credit_day, start_date "
-            "FROM bonds WHERE watch_state = 'holding' ORDER BY company COLLATE NOCASE, id"
-        ).fetchall()
+        holdings = status_overview(conn)
         ledger = conn.execute(
             "SELECT bond_id, month, amount, paid FROM payment_ledger"
         ).fetchall()
@@ -236,11 +250,16 @@ def create_app(db_path=None):
                 invested = 0.0
             months_map = months_by_bond.get(row["id"], {})
             received = received_map.get(row["id"], 0.0)
+            status_label = display_label(row["status"])
+            status_slug, chip_class = STATUS_CHIPS.get(status_label, ("invalid", "chip-invalid"))
             bars.append(
                 {
                     "company": row["company"] or f"Bond {row['id']}",
                     "invested": invested,
                     "received": received,
+                    "status": status_label,
+                    "status_slug": status_slug,
+                    "chip_class": chip_class,
                 }
             )
             payout = next_payout_for(row, months_map, current)
@@ -262,6 +281,7 @@ def create_app(db_path=None):
             "next_payout_amount": next_payout["amount"] if next_payout else 0.0,
             "next_payout_date": next_payout["date_label"] if next_payout else None,
             "bars": bars,
+            "returns": returns_history(conn, date.today()),
         }
 
     @app.route("/", methods=["GET", "POST"])
@@ -369,11 +389,20 @@ def create_app(db_path=None):
                 ) from exc
             paid = request.form.get("paid") in ("on", "1", "true", "yes")
             with get_conn(db_file) as conn:
-                save_payment(conn, bond_id, month, amount, paid)
                 bond = conn.execute(
                     "SELECT start_date, tenure_months, credit_day FROM bonds WHERE id = ?",
                     (bond_id,),
                 ).fetchone()
+                if bond is not None and MONTH_PATTERN.match(str(month).strip()):
+                    window = tenure_month_map(
+                        conn, bond_id, bond["start_date"], bond["tenure_months"]
+                    )
+                    if month not in window:
+                        raise AppError(
+                            "ERR-ledger-edit",
+                            f"month outside the payment window: {month!r}",
+                        )
+                save_payment(conn, bond_id, month, amount, paid)
                 if bond is None:
                     raise AppError("ERR-ledger-edit", f"bond not found: {bond_id!r}")
                 today = date.today()
@@ -503,10 +532,18 @@ def create_app(db_path=None):
         try:
             with get_conn(db_file) as conn:
                 goals = list_goals(conn, date.today())
+                month_returns = this_month_returns(conn)
+                totals = portfolio_totals(conn)
         except AppError as exc:
             return error_page(exc.code, exc.message, "Financial Goals failed", 500)
         return render_template(
-            "goals.html", goals=goals, error=None, error_code=None, form={}
+            "goals.html",
+            goals=goals,
+            error=None,
+            error_code=None,
+            form={},
+            earned_this_month=month_returns["total"] or 0.0,
+            total_received=totals["till_return"],
         )
 
     @app.route("/goals/<int:goal_id>/edit", methods=["POST"])
@@ -553,6 +590,8 @@ def create_app(db_path=None):
                 error=exc.message,
                 error_code=exc.code,
                 form=form,
+                earned_this_month=0.0,
+                total_received=0.0,
             ),
             400,
         )
@@ -560,10 +599,18 @@ def create_app(db_path=None):
     def watch_candidates(db_file):
         with get_conn(db_file) as conn:
             rows = conn.execute(
-                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, broker "
+                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, "
+                "broker, rating_agency, issuer_type, secured, face_value, payout_cycle, "
+                "watch_investment "
                 "FROM bonds WHERE watch_state = 'watching' ORDER BY company COLLATE NOCASE, id"
             ).fetchall()
-        return [dict(row) for row in rows]
+        candidates = []
+        for row in rows:
+            item = dict(row)
+            item["source_note"] = item.pop("name", None)
+            item["invested"] = item.pop("watch_investment", None)
+            candidates.append(item)
+        return candidates
 
     def watch_snapshot(db_file):
         with get_conn(db_file) as conn:
@@ -617,6 +664,40 @@ def create_app(db_path=None):
                     )
                 if not rating:
                     raise AppError("ERR-watch-add", "rating is required")
+                rating_agency = str(form.get("rating_agency", "")).strip() or None
+                issuer_type = str(form.get("issuer_type", "")).strip() or None
+                if issuer_type is not None and issuer_type not in (
+                    "corporate_bond",
+                    "ncd",
+                    "sdi",
+                    "government",
+                    "fd",
+                ):
+                    raise AppError(
+                        "ERR-watch-add",
+                        f"issuer_type must be one of corporate_bond, ncd, sdi, "
+                        f"government, fd: {issuer_type!r}",
+                    )
+                payout_cycle = str(form.get("payout_cycle", "")).strip() or None
+                if payout_cycle is not None and payout_cycle not in (
+                    "monthly",
+                    "quarterly",
+                    "annual",
+                ):
+                    raise AppError(
+                        "ERR-watch-add",
+                        f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
+                    )
+                secured = 1 if str(form.get("secured", "1")) == "1" else 0
+                face_value = percent_value(
+                    form.get("face_value", ""), "face_value", "ERR-watch-add", required=False
+                )
+                watch_investment = percent_value(
+                    form.get("watch_investment", ""),
+                    "watch_investment",
+                    "ERR-watch-add",
+                    required=False,
+                )
                 with get_conn(db_file) as conn:
                     duplicate = conn.execute(
                         "SELECT company, isin, watch_state FROM bonds "
@@ -631,8 +712,24 @@ def create_app(db_path=None):
                         )
                     cursor = conn.execute(
                         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
-                        "expected_yield_pct, watch_state, broker) VALUES (?, ?, ?, ?, ?, ?, 'watching', ?)",
-                        (company, isin, source_note, rating, coupon, est_yield, broker),
+                        "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
+                        "secured, face_value, payout_cycle, watch_investment) "
+                        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            company,
+                            isin,
+                            source_note,
+                            rating,
+                            coupon,
+                            est_yield,
+                            broker,
+                            rating_agency,
+                            issuer_type,
+                            secured,
+                            face_value,
+                            payout_cycle,
+                            watch_investment,
+                        ),
                     )
                     if cursor.rowcount != 1:
                         raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
@@ -712,6 +809,7 @@ def create_app(db_path=None):
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
                     "credit_day = ?, broker = CASE WHEN ? != '' THEN ? ELSE broker END, "
+                    "amount = COALESCE(amount, watch_investment), "
                     "watch_state = 'holding' "
                     "WHERE id = ? AND watch_state = 'watching'",
                     (
@@ -960,15 +1058,24 @@ def create_app(db_path=None):
                     "isin": row["isin"] or "",
                     "rating": row["rating"],
                     "coupon": row["coupon_pct"],
+                    "coupon_pct": row["coupon_pct"],
                     "yield_pct": row["expected_yield_pct"],
+                    "expected_yield_pct": row["expected_yield_pct"],
                     "frequency": row["payout_cycle"],
+                    "payout_cycle": row["payout_cycle"],
+                    "rating_agency": row["rating_agency"],
+                    "issuer_type": row["issuer_type"],
+                    "secured": row["secured"],
+                    "face_value": row["face_value"],
+                    "broker": row["broker"],
+                    "source_note": row["name"],
                     "invested": invested,
                     "received": received_by_bond_map.get(row["id"], 0.0),
                     "next_payout": next_payout,
                     "health": health,
                 }
             )
-        return holdings
+        return sort_rows(holdings)
 
     def _portfolio_payouts(bond_rows, ledger_by_bond, today):
         prepared = []
@@ -988,7 +1095,13 @@ def create_app(db_path=None):
                 )
             except AppError:
                 prepared.append((row, [], entries, "Invalid", True))
-        months = list_months_through_current(today, min(first_keys) if first_keys else None)
+        current_key = month_key(today)
+        months = [
+            key
+            for key in list_months_through_current(today, min(first_keys) if first_keys else None)
+            if key <= current_key
+        ]
+        months.reverse()
         rows = []
         for row, window, entries, health, invalid in prepared:
             window_set = set(window)
@@ -1002,19 +1115,29 @@ def create_app(db_path=None):
             else:
                 for key in months:
                     entry = entries.get(key)
-                    if key in window_set:
-                        if entry_paid(entry):
-                            cells.append({"kind": "amount", "amount": float(entry["amount"])})
-                        elif health == "Matured":
-                            cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
-                        elif month_due_passed(key, row["credit_day"], today):
-                            cells.append({"kind": "chip", "text": "Missed", "chip": "chip-danger"})
-                        else:
-                            cells.append({"kind": "chip", "text": "Due", "chip": "chip-ongoing"})
-                    elif health == "Matured":
-                        cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
-                    else:
+                    if health == "Matured":
+                        cells.append({"kind": "matured"})
+                        continue
+                    if key not in window_set:
                         cells.append({"kind": "text", "text": "—"})
+                        continue
+                    if entry_paid(entry):
+                        cells.append(
+                            {"kind": "received", "month": key, "amount": float(entry["amount"])}
+                        )
+                        continue
+                    amount_value = 0.0
+                    if entry is not None:
+                        try:
+                            amount_value = float(entry["amount"] or 0.0)
+                        except (TypeError, ValueError):
+                            amount_value = 0.0
+                    if amount_value > 0:
+                        cells.append({"kind": "pending", "month": key, "amount": amount_value})
+                    elif month_due_passed(key, row["credit_day"], today):
+                        cells.append({"kind": "missed", "month": key})
+                    else:
+                        cells.append({"kind": "pending", "month": key, "amount": None})
             rows.append(
                 {
                     "id": row["id"],
@@ -1025,16 +1148,17 @@ def create_app(db_path=None):
                 }
             )
         return (
-            sort_payout_rows(rows),
+            sort_rows(rows),
             [{"key": key, "label": month_label(key)} for key in months],
         )
 
     def _portfolio_context(conn, today, tab, form, error, code):
         bond_rows = conn.execute(
-            "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+            "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
+            "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker, "
             "amount, start_date, end_date, tenure_months, credit_day "
             "FROM bonds WHERE watch_state = 'holding' "
-            "ORDER BY company COLLATE NOCASE, id"
+            "ORDER BY id"
         ).fetchall()
         ledger_rows = conn.execute(
             "SELECT bond_id, month, amount, paid FROM payment_ledger ORDER BY bond_id, month"
@@ -1284,8 +1408,14 @@ def create_app(db_path=None):
     def settings_from_form(form):
         host = str(form.get("smtp_host", "")).strip()
         port_raw = str(form.get("smtp_port", "")).strip()
+        security = str(form.get("smtp_security", "")).strip()
         sender = str(form.get("smtp_from", "")).strip()
         recipient = str(form.get("smtp_to", "")).strip()
+        if security not in ("", "TLS", "STARTTLS", "SSL", "None"):
+            raise AppError(
+                "ERR-settings-save",
+                f"unknown SMTP security: {security!r} (expected TLS, STARTTLS, SSL or None)",
+            )
         port_value = ""
         if port_raw:
             try:
@@ -1301,6 +1431,7 @@ def create_app(db_path=None):
         return {
             "smtp_host": host,
             "smtp_port": port_value,
+            "smtp_security": security,
             "smtp_from": sender,
             "smtp_recipient": recipient,
             "privacy_on_startup": "1" if form.get("privacy_on_startup") in checked else "0",
@@ -1337,6 +1468,46 @@ def create_app(db_path=None):
         return render_template(
             "settings.html", prefs=alert_prefs_map(db_file), error=None, error_code=None
         )
+
+    @app.route("/settings/email/test", methods=["POST"])
+    def settings_email_test():
+        host = str(request.form.get("smtp_host", "")).strip()
+        ok = bool(host)
+        detail = ""
+        if ok:
+            try:
+                send_alert_email(
+                    {
+                        "company": "settings test",
+                        "month": "manual test",
+                        "severity": "test",
+                        "credit_day": None,
+                    }
+                )
+            except AppError as exc:
+                ok = False
+                detail = exc.code
+            except Exception as exc:
+                ok = False
+                detail = "ERR-email-send"
+                print(f"email test send failed: {exc}", file=sys.stderr)
+        status = "success" if ok else "failure"
+        message = EMAIL_TEST_SUCCESS_MESSAGE if ok else EMAIL_TEST_FAILURE_MESSAGE
+        try:
+            db_file = Path(app.config["DB_PATH"])
+            _ensure_db(db_file)
+            with get_conn(db_file) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                    ("email_test_last_status", status),
+                )
+                conn.execute(
+                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                    ("email_test_last_at", date.today().isoformat()),
+                )
+        except Exception as exc:
+            print(f"email test status persist failed: {exc}", file=sys.stderr)
+        return jsonify({"status": status, "message": message, "detail": detail})
 
     return app
 
