@@ -617,7 +617,8 @@ def portfolio_snapshot(conn):
 def position_detail(conn, bond_id, today=None):
     today_value = _resolve_today(today)
     row = conn.execute(
-        "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+        "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
+        "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, "
         "amount, start_date, end_date, tenure_months, credit_day, watch_state, broker "
         "FROM bonds WHERE id = ?",
         (bond_id,),
@@ -667,13 +668,18 @@ def position_detail(conn, bond_id, today=None):
         "company": row["company"],
         "isin": row["isin"] or "",
         "rating": row["rating"] or "",
+        "rating_agency": row["rating_agency"] or "",
         "coupon_pct": row["coupon_pct"],
         "expected_yield_pct": row["expected_yield_pct"],
         "frequency": row["payout_cycle"],
+        "issuer_type": row["issuer_type"] or "",
+        "secured": row["secured"],
+        "face_value": row["face_value"],
         "invested": invested,
         "received": received,
         "next_payout": next_payout,
         "status": health,
         "broker": row["broker"] or "",
+        "source_note": row["name"] or "",
         "payments": payments,
     }
