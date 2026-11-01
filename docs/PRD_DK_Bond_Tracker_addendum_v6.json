@@ -1,0 +1,121 @@
+{
+  "id": "PRD_DK_Bond_Tracker_addendum_v6",
+  "kind": "prd",
+  "title": "PRD Addendum v6 — D42/D43 Design Wave: Editable Payouts with Newest-First Timeline, Bond-Attribute Parity, Dashboard Status Controls, App-Wide Sort Standard, Email Presets, Returns History Tab and Inline Move Panel (D42, D43)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "PRD_DK_Bond_Tracker_addendum_v5",
+  "sections": [
+    {
+      "heading": "Change Record",
+      "body": "markdown: addendum v6.0 extends addendum v5 (which extends v4, which extends v3, which extends v2, which extends v1, which extends PRD_DK_Bond_Tracker_v2). Addendum v5 carried the D41 post-launch patch wave (FR-62..FR-66: zero-value percents, exact labels, move-path validation parity, invalid-row render recovery, broker detail). This document continues the FR sequence after FR-66 with FR-67..FR-74, one requirement per cluster, each citing D42 or D43. The visual truth is the owner-locked design .IDE_Plans/design_drafts/ui_frontend_design_v6.html @ 7b67f54 (LOCKED 2026-11-01 after review batch 23 AGREED) — payouts Nov/Oct newest-first, inline move panel, attribute parity, dashboard tabs + filters, email presets, returns history definitions. D42 is the design-first round built from owner Q1-Q10 feedback (editable payouts, newest-left month columns, full bond-attribute parity across Watchlist and Portfolio, dashboard status chips/filter/order, Gmail/Outlook email presets, reverse-chronological returns history, move-form placement redesign). D43 is the owner-LOCKED app-wide sort standard plus status taxonomy plus the automatic Danger rule, carried here as FR-71; FR-70 is the D42 dashboard surface of that same standard — a declared subset, not a second rule. Review finding F-231 (the design rendered a future Dec 2026 column while the current month was Nov 2026, against the current+past rule) is absorbed into FR-68 as the regression this wave forbids. This addendum supersedes nothing: the D41 patch wave stands intact, no earlier requirement is edited or deleted, and the FR ranges of PRD_DK_Bond_Tracker_v2 and addenda v1 through v5 remain unchanged."
+    },
+    {
+      "heading": "Inline Payout Editing (D42)",
+      "body": "Every payout month cell on the Payouts grid becomes an inline editor (D42, owner Q3): clicking a cell opens an in-place editor carrying the amount, a Received flag and Save/Cancel — no separate payment page, no modal. Save writes through the existing payment route so the ledger, received totals and the day-wise health engine stay the single source of truth; statuses re-derive immediately after the save. The three cell states follow the locked design: received renders the amount with a check, pending renders the amount with a pending marker, and an empty amount renders Missed. Matured positions keep the Matured chip and are not editable (D42)."
+    },
+    {
+      "heading": "Payout Timeline Scope (D42, F-231)",
+      "body": "The Payouts grid shows elapsed months plus the current month ONLY, newest month on the left and oldest visible month on the right (D42, owner Q3). Future months are never rendered in any state. This rule is stated here because design review F-231 caught exactly the opposite being built — a future Dec 2026 column rendered while the current month was Nov 2026 — and the fix (future header and cells dropped) is the behavior this requirement locks for implementation (F-231)."
+    },
+    {
+      "heading": "Bond-Attribute Parity (D42)",
+      "body": "Add Candidate collects the full bond-attribute set the owner specified (D42, owner Q4): rating agency, issuer type, secured, face value, payout cycle, invested amount and broker, alongside the existing company, ISIN, rating, coupon, est. yield and source note. The identical attributes must be visible on both parity surfaces — the Watchlist Details facts grid for the candidate, and the My Holdings attribute strip for the same bond once it is held — so the owner never sees a value collected in one place and missing in the other. Review finding F-232 (the holdings attribute strip existed as styling only, never rendered) is the concrete gap this requirement closes: the strip is a rendered row carrying all parity fields (D42)."
+    },
+    {
+      "heading": "Dashboard Status Controls (D42, subset of D43)",
+      "body": "The Dashboard company list gains per-item status chips, a status filter and the priority order (D42, owner Q5): each row shows Danger, On-going or Matured; filter chips (All, Danger, On-going, Matured) narrow the list to the selected status; and the list is ordered items-needing-attention-first. This is the dashboard-local subset of the D43 app-wide standard — FR-71 owns the global rule, FR-70 owns this surface's controls, and the two must never disagree (D42, D43)."
+    },
+    {
+      "heading": "App-Wide Sort Standard and Status Taxonomy (D43)",
+      "body": "One ordering applies to every list the product renders — Dashboard, My Holdings, Payouts, exports, print and alerts (D43, owner-LOCKED 2026-11-01): Danger first, On-going next, Completed/Matured last. The status taxonomy purposes are fixed: Danger means immediate attention is required (missed payment, overdue, missing data); On-going means active and progressing normally with nothing needing attention; Completed/Matured means successfully finished with no further action. Danger assignment is AUTOMATIC by business rule, never a manual field: when the credit day has passed with no payment entered by the due date, the position becomes Danger the same day — due on the 1st and not entered by the 1st is Danger on the 1st (D43). The rule rides the day-wise engine that D41 already hardened; this requirement extends it from per-screen behavior to an app-wide contract (D41, D43)."
+    },
+    {
+      "heading": "Email Presets and Delivery Diagnostics (D42)",
+      "body": "Settings → Email gains provider presets (D42, owner Q7): choosing Gmail, Outlook / Microsoft 365 or Custom autofills host, port and security — Gmail smtp.gmail.com port 587 TLS (465/SSL as the documented alternative; app-password-only, since less-secure-apps was retired in 2025), Outlook smtp.office365.com port 587 STARTTLS, Custom leaves the fields empty for manual entry. A collapsible setup guide walks the app-password flow (enable 2-Verification, create an App Password, paste the 16-char app password — never the login password; Outlook uses the same app-password concept). A Send test email action reports success or failure in a banner, and a troubleshooting list names the common faults (wrong port — use 587 with TLS/STARTTLS or 465 with SSL; most providers refuse plain connections; check the spam folder). Email stays personal-account, personal-to-personal SMTP, the only outbound network use, only when the user configures it (D33 preserved)."
+    },
+    {
+      "heading": "Returns History Tab (D42)",
+      "body": "Returns history becomes a Dashboard tab next to Overview (D42, owner Q9): a month table with the columns Month, Interest received, Positions paid · pending (of active positions) and Cumulative received, newest month first, the current month highlighted, future months never shown. The owner definitions carried into the locked design apply verbatim in substance: Interest received is the total amount credited in that month; Positions paid · pending counts how many of the active positions received their payout that month versus still awaiting it; Cumulative received is the running total of all interest from the first payout through that month, and its latest row equals the Received KPI card. The Goals KPI strip (Earned this month, Total received) links to this history such that following the link lands the user on the Dashboard with the Returns history tab active — a view switch alone is not enough (D42)."
+    },
+    {
+      "heading": "Inline Move-to-Portfolio Panel (D42)",
+      "body": "Move to Portfolio stops being a cramped stack inside the Watchlist Action cell and becomes an inline expansion panel opening directly below the candidate's row (D42, owner Q2). The panel carries the labeled fields from the D41 label decision — 'Purchase date (start date)', 'End date', 'Credit day — when the amount is credited each month' — verbatim, plus a Broker field prefilled from the candidate, and Move / Cancel actions. Cancel closes the panel with no write. Move runs the full D41 insert-validation parity (FR-64) before anything is written, so the panel is presentation only: one validation rule set, every path (D41, D42)."
+    },
+    {
+      "heading": "Default Data",
+      "body": "A new installation starts empty — zero positions, zero candidates, zero payments, nothing seeded (FR-61, D41 continuity) — and the new D42 attributes (rating agency, issuer type, secured, face value, payout cycle, invested, source note) ship absent/NULL on every fresh row until the user enters them. The wave seeds no data of any kind and adds no import path (D42 adds no seeding; D41's empty-start rule stands)."
+    },
+    {
+      "heading": "Out of Scope",
+      "body": "The D42/D43 wave changes no scope boundary set by the earlier addenda: no live market data, no rating or price feeds, no broker integrations — broker remains manual offline text (D33). The sort standard changes ordering only: it adds no new status value, no manual status override, and no change to the day-wise engine's stored values (D39 engine-unchanged preserved; D41 label-relabeling precedent preserved). Email remains the only outbound network use and only under user-configured personal SMTP. Themes, screen structure, empty default data, no cloud/accounts/server, Android packaging out (D27) — all stand. The acceptance holds: Phase-4 P&L acceptance only (L2 pending owner confirmation)."
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "FR-67",
+      "area": "payout inline editing",
+      "statement": "Every payout month cell in the Payouts grid SHALL be inline-editable: clicking the cell SHALL open an in-place editor with a numeric amount input (minimum 0, step 0.01), a Received flag checkbox and Save/Cancel actions; Save SHALL write through the existing payment route and the cell SHALL re-render as received (amount with check), pending (amount marked pending) or Missed (empty amount), and every dependent status and aggregate (Danger/On-going/Matured, dashboard totals, returns history) SHALL re-derive immediately from the saved value; Matured positions SHALL keep a non-editable Matured chip (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    },
+    {
+      "id": "FR-68",
+      "area": "payout timeline scope",
+      "statement": "The Payouts grid SHALL render month columns for elapsed months and the current month ONLY, ordered newest month first at the left; future months SHALL never be rendered in any state — header, cell or editor — so the F-231 review defect (a rendered future Dec 2026 column while the current month was Nov 2026) cannot recur (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    },
+    {
+      "id": "FR-69",
+      "area": "bond-attribute parity",
+      "statement": "The Add Candidate form SHALL collect the full bond-attribute set — rating agency, issuer type, secured, face value, payout cycle, invested amount and broker, alongside company, ISIN, rating, coupon, est. yield and source note — and the identical attribute values SHALL be visible on both parity surfaces: the Watchlist Details facts grid for the candidate and the My Holdings attribute strip for the same bond once held, with no attribute collected-but-undisplayed or displayed-but-uncollected (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    },
+    {
+      "id": "FR-70",
+      "area": "dashboard status controls",
+      "statement": "Every Dashboard company row SHALL carry a status chip (Danger, On-going or Matured) and SHALL be ordered Danger first, On-going next, Matured last; the Dashboard SHALL provide status filter chips (All, Danger, On-going, Matured) that narrow the list to the selected status and restore the full ordered list on All — the dashboard-local subset of the D43 app-wide standard, never at odds with it (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    },
+    {
+      "id": "FR-71",
+      "area": "app-wide sort standard",
+      "statement": "One sort standard SHALL apply to EVERY list surface — Dashboard, My Holdings, Payouts, exports, print and alerts: Danger first, On-going next, Completed/Matured last; the status taxonomy purposes SHALL hold — Danger = immediate attention required (missed payment, overdue, missing data), On-going = active and progressing normally with nothing needing attention, Completed/Matured = successfully finished with no further action; and Danger assignment SHALL be AUTOMATIC by business rule — a passed credit day with no payment entered by the due date makes the position Danger the same day (due on the 1st, not entered by the 1st, is Danger on the 1st), with no manual status field anywhere (D43).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D43"
+    },
+    {
+      "id": "FR-72",
+      "area": "email presets",
+      "statement": "Settings → Email SHALL offer provider presets Gmail, Outlook / Microsoft 365 and Custom, where selecting a provider autofills SMTP host, port and security — Gmail smtp.gmail.com port 587 TLS (465/SSL as the documented alternative, app-password-only), Outlook smtp.office365.com port 587 STARTTLS, Custom leaving the fields empty — and SHALL include a collapsible setup guide covering the app-password flow (enable 2-Verification, create an App Password, paste the 16-char app password, never the login password; Outlook uses the same app-password concept), a Send test email action with a success/failure banner, and a troubleshooting list (wrong port → 587 with TLS/STARTTLS or 465 with SSL; most providers refuse plain connections; check the spam folder) (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    },
+    {
+      "id": "FR-73",
+      "area": "returns history",
+      "statement": "Returns history SHALL be a Dashboard tab alongside Overview, rendering a month table with the columns Month, Interest received, Positions paid · pending (of active positions) and Cumulative received, newest month first, the current month highlighted and future months never shown, where Interest received is the total amount credited in that month, Positions paid · pending counts active positions paid versus still awaiting that month, and Cumulative received is the running total of all interest from the first payout through that month (its latest row equal to the Received KPI card); the Goals KPI strip links (Earned this month, Total received) SHALL, when activated, switch the view to the Dashboard AND activate the Returns history tab (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    },
+    {
+      "id": "FR-74",
+      "area": "inline move panel",
+      "statement": "Move to Portfolio SHALL open as an inline expansion panel directly below the candidate's Watchlist row — never a cramped stack inside the Action cell — carrying the labeled fields 'Purchase date (start date)', 'End date' and 'Credit day — when the amount is credited each month' (the exact D41 label strings), a Broker field prefilled from the candidate, and Move/Cancel actions; Cancel SHALL close the panel with zero writes, and Move SHALL run the FR-64 insert-validation parity before anything is written (D42).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D42"
+    }
+  ]
+}
