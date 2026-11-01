@@ -151,12 +151,12 @@
         <td class="caption">{{ candidate.broker or "" }}</td>
         <td class="caption">{{ candidate.source_note or "" }}</td>
         <td><button type="button" class="btn btn-sm details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
-        <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button></td>
+        <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button></td>
       </tr>
       <tr class="details-row" id="details-{{ candidate.id }}" hidden>
         <td colspan="8">{{ details_facts(candidate) }}</td>
       </tr>
-      <tr class="move-row" id="move-{{ candidate.id }}" hidden>
+      <tr class="move-row" id="move-panel-{{ candidate.id }}" hidden>
         <td colspan="8">
           <form class="move-form" method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
             <div class="move-field">
@@ -181,7 +181,7 @@
             </div>
             <div class="move-actions">
               <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
-              <button class="btn btn-sm move-cancel" type="button" data-panel="move-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
+              <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
             </div>
           </form>
         </td>

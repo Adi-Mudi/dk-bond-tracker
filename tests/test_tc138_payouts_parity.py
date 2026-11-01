@@ -255,7 +255,7 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
             "SELECT id FROM bonds WHERE isin = 'INE137000001'"
         ).fetchone()["id"]
     panel = re.search(
-        r'<tr class="move-row" id="move-' + str(candidate_id) + r'" hidden>(.*?)</tr>',
+        r'<tr class="move-row" id="move-panel-' + str(candidate_id) + r'" hidden>(.*?)</tr>',
         html,
         re.S,
     )
@@ -270,11 +270,11 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
     assert ">Cancel</button>" in panel_html
     assert f'id="move-{candidate_id}"' in panel_html
     toggle_index = html.index(f'id="move-toggle-{candidate_id}"')
-    panel_index = html.index(f'id="move-{candidate_id}" hidden')
+    panel_index = html.index(f'id="move-panel-{candidate_id}" hidden')
     assert toggle_index < panel_index
     action_cell = re.search(
         r'<td><button type="button" class="btn btn-sm move-toggle" '
-        + f'data-panel="move-{candidate_id}"'
+        + f'data-panel="move-panel-{candidate_id}"'
         + r'[^>]*>Move to Portfolio</button></td>',
         html,
     )
