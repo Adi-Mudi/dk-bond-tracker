@@ -132,20 +132,23 @@ def derive_health(position, ledger_entries, today):
     return "On-going"
 
 
-def _payout_sort_key(row):
-    health = _row_value(row, "health")
-    if health not in HEALTH_ORDER:
-        raise AppError("ERR-payout-sort", f"unknown health value: {health!r}")
+def row_sort_key(row):
+    value = _row_value(row, "health")
+    if value is None:
+        value = _row_value(row, "status")
+    label = display_label(value)
+    if label not in HEALTH_ORDER:
+        raise AppError("ERR-row-sort", f"unknown status value: {value!r}")
     row_id = _row_value(row, "id")
     return (
-        HEALTH_ORDER[health],
+        HEALTH_ORDER[label],
         str(_row_value(row, "company") or "").lower(),
         row_id if isinstance(row_id, int) else 0,
     )
 
 
-def sort_payout_rows(rows):
-    return sorted(rows, key=_payout_sort_key)
+def sort_rows(rows):
+    return sorted(rows, key=row_sort_key)
 
 
 def list_months_through_current(today, first_key=None):
