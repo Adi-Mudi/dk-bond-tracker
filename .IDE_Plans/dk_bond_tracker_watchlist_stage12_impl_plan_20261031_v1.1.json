@@ -61,7 +61,7 @@
       "store gates at doc/test closes"
     ],
     "Tests": [
-      "REMOTE ONLY: every phase push runs GitHub Actions; stage gate = full suite green on execute-v5 head before dev merge; local = py_compile + structural greps only"
+      "REMOTE ONLY: every phase push runs GitHub Actions; stage gate = full suite green on execute-v6 head before dev merge; local = py_compile + structural greps only"
     ]
   },
   "phases": [
@@ -141,7 +141,7 @@
     {
       "id": "P2",
       "name": "Lane A — payout editor + attribute parity",
-      "mode": "PARALLEL (branch phase-payouts from execute-v5 after P1)",
+      "mode": "PARALLEL (branch phase-payouts from execute-v6 after P1)",
       "owner": "wl-b2",
       "tasks": [
         {
@@ -182,7 +182,7 @@
     {
       "id": "P3",
       "name": "Lane B — dashboard tabs/status/filters, returns, goals link, email presets",
-      "mode": "PARALLEL (branch phase-dash from execute-v5 after P1)",
+      "mode": "PARALLEL (branch phase-dash from execute-v6 after P1)",
       "owner": "wl-b3",
       "tasks": [
         {
@@ -240,7 +240,7 @@
           "action": "EDIT",
           "file": "phase merges",
           "FROM": "3 phase branches",
-          "TO": "merged into execute-v5 in order phase-core -> phase-payouts -> phase-dash (disjoint files; shared app.py hunks conflict-resolved by PM)",
+          "TO": "merged into execute-v6 in order phase-core -> phase-payouts -> phase-dash (disjoint files; shared app.py hunks conflict-resolved by PM)",
           "Reason": "Rule 13/14 containment",
           "Status": "PENDING"
         },
@@ -258,7 +258,7 @@
           "action": "VERIFY",
           "file": "GitHub Actions",
           "FROM": "phase greens",
-          "TO": "full suite green on execute-v5 head",
+          "TO": "full suite green on execute-v6 head",
           "Reason": "Q3 remote gate",
           "Status": "PENDING"
         },
@@ -283,14 +283,14 @@
       ],
       "test": {
         "type": "REMOTE",
-        "where": "stage FULL TEST = Actions run on execute-v5 head green before merge"
+        "where": "stage FULL TEST = Actions run on execute-v6 head green before merge"
       },
       "REVIEWER-CHECK": "merge order per plan; zero db-store touches; zero design deviations (spot-check vs locked v6 lines); capacity cap 4 never exceeded; completed workers terminated at close (station-close order workers -> captain -> PM -> tab)",
       "reviewer_gate": "batch 25 + batch 26"
     }
   ],
   "merge_close": {
-    "sequence_gate": "phase branches only merge forward into execute-v5; execute-v5 -> dev only after batch 25 AGREED + remote green (sequence-gate check before asking)",
+    "sequence_gate": "phase branches only merge forward into execute-v6; execute-v6 -> dev only after batch 25 AGREED + remote green (sequence-gate check before asking)",
     "approval_gate": "owner standing full-approval control (2026-11-01); D52 checkpoint ONE question at stage close: 'Approve stage 12 to close?'",
     "close": "captain closes workers, PM closes captain + tab, registry + approval logs updated, retrospective appended here"
   },
@@ -309,7 +309,7 @@
     }
   ],
   "retrospective": "(filled at stage close)",
-  "supersedes": ".IDE_Plans/dk_bond_tracker_watchlist_stage12_impl_plan_20261031_v1.0.json (kept; F-241 execute-v5/v6 contradiction, F-242 TC-137 unmapped, F-243 migration proof not in task TO)",
+  "supersedes": ".IDE_Plans/dk_bond_tracker_watchlist_stage12_impl_plan_20261031_v1.0.json (kept; F-241 execute-v6/v6 contradiction, F-242 TC-137 unmapped, F-243 migration proof not in task TO)",
   "change_history": [
     {
       "version": "v1.0",
@@ -319,7 +319,7 @@
     {
       "version": "v1.1",
       "date": "2026-11-01",
-      "note": "all six execute-v5 refs -> execute-v6 (F-241); TC-137 added to T2.3 (F-242); in-task copy-smoke+row-count proof added to T1.1 TO (F-243)"
+      "note": "all six execute-v6 refs -> execute-v6 (F-241); TC-137 added to T2.3 (F-242); in-task copy-smoke+row-count proof added to T1.1 TO (F-243)"
     }
   ]
 }
