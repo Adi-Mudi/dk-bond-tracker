@@ -19,6 +19,9 @@
   </div>
 </div>
 <p class="caption outstanding-line">Outstanding <span class="value money" id="outstanding-total" data-amount="{{ "%.2f"|format(outstanding) }}">&#8377;{{ "%.2f"|format(outstanding) }}</span></p>
+{% if counts.invalid %}
+<p class="caption" id="invalid-rows-note">{{ counts.invalid }} position{% if counts.invalid != 1 %}s{% endif %} need review — open Portfolio to fix or remove</p>
+{% endif %}
 
 <div class="card" id="invested-received-chart">
   <h2>Invested vs Received per company</h2>

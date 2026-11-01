@@ -583,6 +583,11 @@ def create_app(db_path=None):
         tenure = row["tenure_months"]
         if isinstance(tenure, bool) or not isinstance(tenure, int) or tenure < 1:
             return False
+        if "amount" in row.keys():
+            try:
+                float(row["amount"] or 0.0)
+            except (TypeError, ValueError):
+                return False
         return True
 
     ISIN_PATTERN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
@@ -1249,7 +1254,7 @@ def create_app(db_path=None):
         try:
             with get_conn(db_file) as conn:
                 row = conn.execute(
-                    "SELECT id, start_date, end_date, tenure_months, watch_state FROM bonds WHERE id = ?",
+                    "SELECT id, start_date, end_date, tenure_months, watch_state, amount FROM bonds WHERE id = ?",
                     (bond_id,),
                 ).fetchone()
                 if row is None:

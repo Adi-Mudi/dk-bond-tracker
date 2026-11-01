@@ -375,3 +375,14 @@ def test_tc87_f225_blank_broker_stores_null_on_both_insert_paths(client, db_path
         ).fetchone()["n"]
     assert total == 2
     assert nulls == 2
+
+
+def test_tc87_amount_fault_dashboard_note_and_removable(client, db_path):
+    bond_id = inject_bad_amount(db_path)
+    dash = client.get("/").get_data(as_text=True)
+    assert 'id="invalid-rows-note"' in dash
+    assert "need review" in dash
+    r = client.post(f"/portfolio/invalid/{bond_id}/remove")
+    assert r.status_code == 302
+    with get_conn(db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) AS n FROM bonds WHERE id = ?", (bond_id,)).fetchone()["n"] == 0
