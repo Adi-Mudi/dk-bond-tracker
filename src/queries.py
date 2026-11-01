@@ -254,6 +254,59 @@ def this_month_returns(conn, today=None):
     return {"month": key, "total": float(row["total"]), "message": None}
 
 
+def returns_history(conn, today=None):
+    today_value = _resolve_today(today)
+    if today_value is None:
+        raise AppError("ERR-query-returns", "current month could not be resolved")
+    current = month_key(today_value)
+    try:
+        window = _history_window(conn, current)
+        ledger_rows = conn.execute(
+            "SELECT month, SUM(amount) AS total FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY month"
+        ).fetchall()
+        paid_rows = conn.execute(
+            "SELECT bond_id, month FROM payment_ledger WHERE paid = 1 AND amount > 0"
+        ).fetchall()
+        bond_rows = conn.execute(
+            "SELECT id, start_date, tenure_months FROM bonds WHERE watch_state = 'holding'"
+        ).fetchall()
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns aggregation failed: {exc}") from exc
+    interest_by_month = {row["month"]: float(row["total"] or 0.0) for row in ledger_rows}
+    paid_pairs = {(row["bond_id"], row["month"]) for row in paid_rows}
+    active_by_month = {}
+    for row in bond_rows:
+        try:
+            keys = tenure_window(row["start_date"], row["tenure_months"])
+        except AppError:
+            continue
+        for key in keys:
+            active_by_month.setdefault(key, set()).add(row["id"])
+    rows = []
+    running = 0.0
+    for key in window:
+        interest = interest_by_month.get(key, 0.0)
+        running += interest
+        active = active_by_month.get(key, set())
+        paid_count = sum(1 for bond_id in active if (bond_id, key) in paid_pairs)
+        rows.append(
+            {
+                "month": key,
+                "label": month_label(key),
+                "interest": interest,
+                "paid_count": paid_count,
+                "pending_count": max(len(active) - paid_count, 0),
+                "cumulative": running,
+                "is_current": key == current,
+            }
+        )
+    rows.reverse()
+    return {"rows": rows, "active_count": len(active_by_month.get(current, set()))}
+
+
 def active_bonds_in_month(conn, today=None):
     today_value = _resolve_today(today)
     if today_value is None:
