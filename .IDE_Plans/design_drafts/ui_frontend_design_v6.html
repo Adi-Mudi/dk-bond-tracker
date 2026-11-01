@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  var stored = localStorage.getItem('dk-theme') || 'system';
+  document.documentElement.setAttribute('data-theme', stored);
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var reapply = function () {
+    var current = localStorage.getItem('dk-theme') || 'system';
+    document.documentElement.setAttribute('data-theme', current);
+  };
+  if (mq.addEventListener) {
+    mq.addEventListener('change', reapply);
+  } else if (mq.addListener) {
+    mq.addListener(reapply);
+  }
+})();
+</script>
+<title>DK Bond Tracker — UI Design v6</title>
+<style>
+:root, html[data-theme="light"] {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #2563eb;
+  --bar-muted: #d1d5db;
+  --on-accent: #ffffff;
+  --accent-hover: #1d4ed8;
+  --danger-fg: #dc2626;
+  --danger-bg: #fef2f2;
+  --ongoing-fg: #16a34a;
+  --ongoing-bg: #f0fdf4;
+  --matured-fg: #6b7280;
+  --matured-bg: #f3f4f6;
+  --watching-fg: #2563eb;
+  --watching-bg: #eff6ff;
+}
+html[data-theme="dark"] {
+  --bg: #0d1117;
+  --card: #161b22;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --bar-muted: #30363d;
+  --on-accent: #0d1117;
+  --accent-hover: #79c0ff;
+  --danger-fg: #ff7b72;
+  --danger-bg: #2b1519;
+  --ongoing-fg: #56d364;
+  --ongoing-bg: #10251a;
+  --matured-fg: #8b949e;
+  --matured-bg: #21262d;
+  --watching-fg: #79c0ff;
+  --watching-bg: #12233d;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] {
+    --bg: #0d1117;
+    --card: #161b22;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --bar-muted: #30363d;
+    --on-accent: #0d1117;
+    --accent-hover: #79c0ff;
+    --danger-fg: #ff7b72;
+    --danger-bg: #2b1519;
+    --ongoing-fg: #56d364;
+    --ongoing-bg: #10251a;
+    --matured-fg: #8b949e;
+    --matured-bg: #21262d;
+    --watching-fg: #79c0ff;
+    --watching-bg: #12233d;
+  }
+}
+:root, html[data-theme="light"] {
+  --invalid-fg: #9333ea;
+  --invalid-bg: #faf5ff;
+}
+html[data-theme="dark"] {
+  --invalid-fg: #d2a8ff;
+  --invalid-bg: #1c1427;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] {
+    --invalid-fg: #d2a8ff;
+    --invalid-bg: #1c1427;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.money { font-variant-numeric: tabular-nums; }
+.caption { font-size: 12px; color: var(--muted); }
+a { color: var(--accent); }
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 220px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+}
+.brand {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 8px;
+  margin-bottom: 24px;
+}
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--watching-bg); color: var(--accent); font-weight: 600; }
+.main { margin-left: 220px; padding: 32px; }
+.content { max-width: 1100px; }
+.view { display: none; }
+.view.active { display: block; }
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+h1 { font-size: 22px; font-weight: 650; }
+h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.header-actions { display: flex; gap: 8px; }
+.btn {
+  font: inherit;
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+.btn:hover { background: var(--bg); }
+.btn.active,
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover,
+.btn.active:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.theme-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.theme-switch .theme-seg {
+  border: none;
+  border-radius: 0;
+  border-right: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.theme-switch .theme-seg:last-child { border-right: none; }
+.theme-switch .theme-seg:hover { background: var(--bg); color: var(--text); }
+.theme-switch .theme-seg.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.stat-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.stat-card {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  padding: 24px;
+}
+.stat-card.primary { flex: 2; }
+.stat-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.stat-value { font-size: 22px; font-weight: 650; }
+.stat-card.primary .stat-value { font-size: 28px; }
+.stat-sub { font-size: 14px; font-weight: 400; color: var(--muted); }
+.outstanding-line { margin-bottom: 24px; }
+.chart-row { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+.chart-row[hidden] { display: none; }
+.chart-label {
+  width: 160px;
+  flex: none;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar-space { flex: 1; }
+.bar {
+  height: 16px;
+  border-radius: 4px;
+  background: var(--bar-muted);
+  overflow: hidden;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  min-width: 8px;
+}
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  vertical-align: -1px;
+  margin-right: 4px;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.tab {
+  font: inherit;
+  font-size: 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.panel { display: none; }
+.panel.active { display: block; }
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  height: 48px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+.num { text-align: right; }
+th.num { text-align: right; }
+.co-name { display: block; }
+.co-isin { display: block; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.chip-danger { color: var(--danger-fg); background: var(--danger-bg); }
+.chip-ongoing { color: var(--ongoing-fg); background: var(--ongoing-bg); }
+.chip-matured { color: var(--matured-fg); background: var(--matured-bg); }
+.chip-watching { color: var(--watching-fg); background: var(--watching-bg); }
+.chip-invalid { color: var(--invalid-fg); background: var(--invalid-bg); }
+.legend-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.legend-row .chip { width: 96px; text-align: center; }
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.field label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.field input,
+.field select {
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--text);
+}
+.field input[readonly] { background: var(--bg); color: var(--muted); }
+.field .caption { margin-top: 4px; }
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.check-row input { width: 16px; height: 16px; accent-color: var(--accent); }
+.progress {
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+}
+.goal-rows { display: flex; gap: 48px; margin-bottom: 8px; }
+.note-line { margin-top: 16px; }
+.section-gap { margin-top: 24px; }
+.filter-chips { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.attr-row td { height: auto; padding: 0; }
+.attr-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-top: 1px dashed var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+.attr-strip b { color: var(--text); font-weight: 600; }
+tr[hidden] { display: none; }
+.move-row td { height: auto; padding: 12px; background: var(--bg); }
+.move-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: end;
+}
+.move-actions { display: flex; gap: 8px; align-items: flex-end; padding-bottom: 8px; }
+.details-row td { height: auto; padding: 12px; background: var(--bg); }
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 16px;
+}
+.fact-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.fact-value { font-size: 14px; }
+.payout-cell {
+  font: inherit;
+  font-size: 14px;
+  border: 1px dashed transparent;
+  background: none;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+}
+.payout-cell:hover { border-color: var(--border); background: var(--bg); }
+.payout-cell.pending { color: var(--muted); }
+.payout-editor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.payout-editor input[type="number"] {
+  font: inherit;
+  font-size: 14px;
+  height: 32px;
+  width: 110px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--text);
+}
+.check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.check-inline input { width: 14px; height: 14px; accent-color: var(--accent); }
+.current-month-row td { background: var(--watching-bg); }
+.setup-guide {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.setup-guide summary { cursor: pointer; font-weight: 600; }
+.guide-list, .trouble-list {
+  margin: 8px 0 0 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.guide-list li, .trouble-list li { margin-bottom: 4px; }
+.test-banner { margin-top: 12px; padding: 12px; border-radius: 6px; font-size: 13px; }
+.banner-success {
+  color: var(--ongoing-fg);
+  background: var(--ongoing-bg);
+  border: 1px solid var(--ongoing-fg);
+}
+.banner-failure {
+  color: var(--danger-fg);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-fg);
+}
+</style>
+</head>
+<body>
+<div class="content">
+<aside class="sidebar">
+  <div class="brand">DK Bond Tracker</div>
+  <nav aria-label="Main">
+    <button type="button" class="nav-item active" data-view="dashboard">Dashboard</button>
+    <button type="button" class="nav-item" data-view="portfolio">Portfolio</button>
+    <button type="button" class="nav-item" data-view="watchlist">Watchlist</button>
+    <button type="button" class="nav-item" data-view="goals">Financial Goals</button>
+    <button type="button" class="nav-item" data-view="alerts">Alerts</button>
+    <button type="button" class="nav-item" data-view="settings">Settings</button>
+  </nav>
+</aside>
+
+<main class="main">
+
+<section id="view-dashboard" class="view active">
+  <div class="view-header">
+    <h1>Dashboard</h1>
+    <div class="header-actions">
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+      </div>
+      <button type="button" class="btn privacy-toggle" aria-pressed="false">Hide amounts</button>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card primary">
+      <div class="stat-label">Total Invested</div>
+      <div class="stat-value money">₹5,50,000.00</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Received</div>
+      <div class="stat-value money">₹28,500.00</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Next Payout</div>
+      <div class="stat-value"><span class="money">₹7,500.00</span> <span class="stat-sub">· 15 Nov 2026</span></div>
+    </div>
+  </div>
+  <p class="caption outstanding-line">Outstanding <span class="money">₹-5,21,500.00</span></p>
+
+  <div class="card">
+    <h2>Invested vs Received per company</h2>
+    <div class="filter-chips" role="group" aria-label="Filter by status">
+      <button type="button" class="btn btn-sm filter-chip active" data-filter="all">All</button>
+      <button type="button" class="btn btn-sm filter-chip" data-filter="danger">Danger</button>
+      <button type="button" class="btn btn-sm filter-chip" data-filter="ongoing">On-going</button>
+      <button type="button" class="btn btn-sm filter-chip" data-filter="matured">Matured</button>
+    </div>
+    <p class="caption" style="margin-bottom:12px">Sorted by priority — items needing attention first.</p>
+    <div class="chart-row" data-status="danger">
+      <div class="chart-label">Gamma NBFC</div>
+      <div class="bar-space"><div class="bar" style="width:60%"><span style="width:7.5%"></span></div></div>
+      <span class="chip chip-danger">Danger</span>
+    </div>
+    <div class="chart-row" data-status="ongoing">
+      <div class="chart-label">Alpha Securities</div>
+      <div class="bar-space"><div class="bar" style="width:100%"><span style="width:7.5%"></span></div></div>
+      <span class="chip chip-ongoing">On-going</span>
+    </div>
+    <div class="chart-row" data-status="ongoing">
+      <div class="chart-label">Beta Finance</div>
+      <div class="bar-space"><div class="bar" style="width:75%"><span style="width:7%"></span></div></div>
+      <span class="chip chip-ongoing">On-going</span>
+    </div>
+    <div class="chart-row" data-status="ongoing">
+      <div class="chart-label">Delta Capital</div>
+      <div class="bar-space"><div class="bar" style="width:80%"><span style="width:6.6%"></span></div></div>
+      <span class="chip chip-ongoing">On-going</span>
+    </div>
+    <div class="chart-row" data-status="ongoing">
+      <div class="chart-label">Zeta Infra</div>
+      <div class="bar-space"><div class="bar" style="width:70%"><span style="width:1.5%"></span></div></div>
+      <span class="chip chip-ongoing">On-going</span>
+    </div>
+    <div class="chart-row" data-status="ongoing">
+      <div class="chart-label">Eta Retail</div>
+      <div class="bar-space"><div class="bar" style="width:65%"><span style="width:1.9%"></span></div></div>
+      <span class="chip chip-ongoing">On-going</span>
+    </div>
+    <div class="chart-row" data-status="matured">
+      <div class="chart-label">Epsilon Housing</div>
+      <div class="bar-space"><div class="bar" style="width:55%"><span style="width:5.8%"></span></div></div>
+      <span class="chip chip-matured">Matured</span>
+    </div>
+    <div class="chart-row" data-status="matured">
+      <div class="chart-label">Theta Motors</div>
+      <div class="bar-space"><div class="bar" style="width:45%"><span style="width:1.2%"></span></div></div>
+      <span class="chip chip-matured">Matured</span>
+    </div>
+    <div class="chart-legend">
+      <span><span class="swatch" style="background:var(--bar-muted)"></span>Invested (muted)</span>
+      <span><span class="swatch" style="background:var(--accent)"></span>Received (accent)</span>
+    </div>
+    <p class="caption note-line">Monthly history shows completed months + current month only — future months are never shown.</p>
+  </div>
+
+  <div class="card" id="returns">
+    <h2>Returns history</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th class="num">Interest received</th>
+            <th class="num">Positions paid</th>
+            <th class="num">Cumulative received</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="current-month-row">
+            <td>Nov 2026 <span class="chip chip-watching">Current</span></td>
+            <td class="num money">₹1,200.00</td>
+            <td class="num">1</td>
+            <td class="num money">₹28,500.00</td>
+          </tr>
+          <tr>
+            <td>Oct 2026</td>
+            <td class="num money">₹20,250.00</td>
+            <td class="num">5</td>
+            <td class="num money">₹27,300.00</td>
+          </tr>
+          <tr>
+            <td>Sep 2026</td>
+            <td class="num money">₹2,300.00</td>
+            <td class="num">3</td>
+            <td class="num money">₹7,050.00</td>
+          </tr>
+          <tr>
+            <td>Aug 2026</td>
+            <td class="num money">₹2,200.00</td>
+            <td class="num">3</td>
+            <td class="num money">₹4,750.00</td>
+          </tr>
+          <tr>
+            <td>Jul 2026</td>
+            <td class="num money">₹1,750.00</td>
+            <td class="num">2</td>
+            <td class="num money">₹2,550.00</td>
+          </tr>
+          <tr>
+            <td>Jun 2026</td>
+            <td class="num money">₹800.00</td>
+            <td class="num">1</td>
+            <td class="num money">₹800.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Newest month first — current month highlighted. Future months are never shown.</p>
+  </div>
+</section>
+
+<section id="view-portfolio" class="view">
+  <div class="view-header">
+    <h1>Portfolio</h1>
+    <div class="header-actions">
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+      </div>
+      <button type="button" class="btn privacy-toggle" aria-pressed="false">Hide amounts</button>
+      <button type="button" class="btn btn-primary" id="header-add-position">+ Add Position</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button type="button" class="tab active" data-tab="holdings">My Holdings</button>
+    <button type="button" class="tab" data-tab="payouts">Payouts</button>
+  </div>
+
+  <div id="portfolio-panels">
+    <div id="panel-holdings" class="panel active">
+      <div class="view-header">
+        <h2>Position registry</h2>
+        <button type="button" class="btn btn-primary">+ Add Position</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Company / ISIN</th>
+              <th>Rating</th>
+              <th>Coupon</th>
+              <th>Yield</th>
+              <th>Frequency</th>
+              <th class="num">Invested ₹</th>
+              <th class="num">Received ₹</th>
+              <th>Next Payout</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="co-name">Alpha Securities Ltd</span><span class="co-isin">INE9000A01001</span></td>
+              <td>AA</td>
+              <td class="money">8.5%</td>
+              <td class="money">9.1%</td>
+              <td>Monthly</td>
+              <td class="num money">₹1,00,000.00</td>
+              <td class="num money">₹7,500.00</td>
+              <td>15 Nov 2026</td>
+              <td><span class="chip chip-ongoing">On-going</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> CRISIL</span><span><b>Issuer type:</b> Corporate Bond</span><span><b>Secured:</b> Secured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> grip invest</span><span><b>Source note:</b> saw in grip invest</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Beta Finance Ltd</span><span class="co-isin">INE9000A01002</span></td>
+              <td>AA-</td>
+              <td class="money">8.2%</td>
+              <td class="money">8.9%</td>
+              <td>Monthly</td>
+              <td class="num money">₹75,000.00</td>
+              <td class="num money">₹5,250.00</td>
+              <td>20 Nov 2026</td>
+              <td><span class="chip chip-ongoing">On-going</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> ICRA</span><span><b>Issuer type:</b> NCD</span><span><b>Secured:</b> Secured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> golden pie</span><span><b>Source note:</b> golden pie list</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Gamma NBFC Ltd</span><span class="co-isin">INE9000A01003</span></td>
+              <td>A+</td>
+              <td class="money">9.0%</td>
+              <td class="money">9.6%</td>
+              <td>Monthly</td>
+              <td class="num money">₹60,000.00</td>
+              <td class="num money">₹4,500.00</td>
+              <td>05 Nov 2026</td>
+              <td><span class="chip chip-danger">Danger</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> CRISIL</span><span><b>Issuer type:</b> NCD</span><span><b>Secured:</b> Unsecured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> india bonds</span><span><b>Source note:</b> india bonds screener</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Delta Capital Ltd</span><span class="co-isin">INE9000A01004</span></td>
+              <td>AA</td>
+              <td class="money">8.0%</td>
+              <td class="money">8.5%</td>
+              <td>Monthly</td>
+              <td class="num money">₹80,000.00</td>
+              <td class="num money">₹5,250.00</td>
+              <td>10 Dec 2026</td>
+              <td><span class="chip chip-ongoing">On-going</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> IND</span><span><b>Issuer type:</b> Corporate Bond</span><span><b>Secured:</b> Secured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> grip invest</span><span><b>Source note:</b> saw in grip invest</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Epsilon Housing Ltd</span><span class="co-isin">INE9000A01005</span></td>
+              <td>A</td>
+              <td class="money">9.5%</td>
+              <td class="money">10.1%</td>
+              <td>Monthly</td>
+              <td class="num money">₹55,000.00</td>
+              <td class="num money">₹3,200.00</td>
+              <td>—</td>
+              <td><span class="chip chip-matured">Matured</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> ICRA</span><span><b>Issuer type:</b> NCD</span><span><b>Secured:</b> Secured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> peer</span><span><b>Source note:</b> peer suggestion</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Zeta Infra Ltd</span><span class="co-isin">INE9000A01006</span></td>
+              <td>AA-</td>
+              <td class="money">8.4%</td>
+              <td class="money">8.8%</td>
+              <td>Monthly</td>
+              <td class="num money">₹70,000.00</td>
+              <td class="num money">₹1,050.00</td>
+              <td>25 Nov 2026</td>
+              <td><span class="chip chip-ongoing">On-going</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> CRISIL</span><span><b>Issuer type:</b> SDI</span><span><b>Secured:</b> Secured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> india bonds</span><span><b>Source note:</b> india bonds screener</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Eta Retail Ltd</span><span class="co-isin">INE9000A01007</span></td>
+              <td>A+</td>
+              <td class="money">9.2%</td>
+              <td class="money">9.8%</td>
+              <td>Monthly</td>
+              <td class="num money">₹65,000.00</td>
+              <td class="num money">₹1,200.00</td>
+              <td>01 Dec 2026</td>
+              <td><span class="chip chip-ongoing">On-going</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> CARE</span><span><b>Issuer type:</b> NCD</span><span><b>Secured:</b> Unsecured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> golden pie</span><span><b>Source note:</b> golden pie list</span></div></td></tr>
+            <tr>
+              <td><span class="co-name">Theta Motors Ltd</span><span class="co-isin">INE9000A01008</span></td>
+              <td>AA</td>
+              <td class="money">8.6%</td>
+              <td class="money">9.0%</td>
+              <td>Monthly</td>
+              <td class="num money">₹45,000.00</td>
+              <td class="num money">₹550.00</td>
+              <td>—</td>
+              <td><span class="chip chip-matured">Matured</span></td>
+            </tr>
+            <tr class="attr-row"><td colspan="9"><div class="attr-strip"><span><b>Rating agency:</b> IND</span><span><b>Issuer type:</b> Corporate Bond</span><span><b>Secured:</b> Secured</span><span><b>Face value:</b> <span class="money">₹10,000.00</span></span><span><b>Payout cycle:</b> Monthly</span><span><b>Broker:</b> grip invest</span><span><b>Source note:</b> saw in grip invest</span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">Each holding shows a compact attribute strip matching the Watchlist Details facts grid.</p>
+      <div class="card">
+        <h2>Add Position</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-start">Start date</label>
+            <input type="date" id="f-start" value="2025-05-15">
+          </div>
+          <div class="field">
+            <label for="f-end">End date</label>
+            <input type="date" id="f-end" value="2026-11-15">
+          </div>
+          <div class="field">
+            <label for="f-tenure">Tenure (auto-calculated)</label>
+            <input type="text" id="f-tenure" value="18 months" readonly>
+          </div>
+          <div class="field">
+            <label for="f-credit">Credit day (e.g. 15th of month)</label>
+            <input type="number" id="f-credit" min="1" max="31" value="15">
+            <p class="caption">Credit day drives day-wise alerts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-payouts" class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Company / ISIN</th>
+              <th>Dec 2026</th>
+              <th>Nov 2026</th>
+              <th>Oct 2026</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="co-name">Gamma NBFC Ltd</span><span class="co-isin">INE9000A01003</span></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="4500" data-received="0">₹4,500.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="4500" data-received="0">₹4,500.00 · pending</button></td>
+              <td><button type="button" class="payout-cell chip chip-danger" data-amount="" data-received="0">Missed</button></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Alpha Securities Ltd</span><span class="co-isin">INE9000A01001</span></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="7500" data-received="0">₹7,500.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="7500" data-received="0">₹7,500.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money" data-amount="7500" data-received="1">₹7,500.00 ✓</button></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Beta Finance Ltd</span><span class="co-isin">INE9000A01002</span></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="5250" data-received="0">₹5,250.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="5250" data-received="0">₹5,250.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money" data-amount="5250" data-received="1">₹5,250.00 ✓</button></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Delta Capital Ltd</span><span class="co-isin">INE9000A01004</span></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="5250" data-received="0">₹5,250.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="5250" data-received="0">₹5,250.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money" data-amount="5250" data-received="1">₹5,250.00 ✓</button></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Zeta Infra Ltd</span><span class="co-isin">INE9000A01006</span></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="1050" data-received="0">₹1,050.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="1050" data-received="0">₹1,050.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money" data-amount="1050" data-received="1">₹1,050.00 ✓</button></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Eta Retail Ltd</span><span class="co-isin">INE9000A01007</span></td>
+              <td><button type="button" class="payout-cell money pending" data-amount="1200" data-received="0">₹1,200.00 · pending</button></td>
+              <td><button type="button" class="payout-cell money" data-amount="1200" data-received="1">₹1,200.00 ✓</button></td>
+              <td><button type="button" class="payout-cell money" data-amount="1200" data-received="1">₹1,200.00 ✓</button></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Epsilon Housing Ltd</span><span class="co-isin">INE9000A01005</span></td>
+              <td><span class="chip chip-matured">Matured</span></td>
+              <td><span class="chip chip-matured">Matured</span></td>
+              <td><span class="chip chip-matured">Matured</span></td>
+            </tr>
+            <tr>
+              <td><span class="co-name">Theta Motors Ltd</span><span class="co-isin">INE9000A01008</span></td>
+              <td><span class="chip chip-matured">Matured</span></td>
+              <td><span class="chip chip-matured">Matured</span></td>
+              <td><span class="chip chip-matured">Matured</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">Months ordered newest month first (latest month first).</p>
+      <p class="caption">Click any month cell to enter or correct the received amount. Newest months appear first.</p>
+      <p class="caption">Danger rows sort to top, On-going next, Matured moves down automatically.</p>
+    </div>
+  </div>
+
+  <div class="card section-gap">
+    <h2>Status legend</h2>
+    <div class="legend-row"><span class="chip chip-watching">Watching</span><span class="caption">= candidate in Watchlist, not owned</span></div>
+    <div class="legend-row"><span class="chip chip-ongoing">On-going</span><span class="caption">= payment healthy</span></div>
+    <div class="legend-row"><span class="chip chip-danger">Danger</span><span class="caption">= payment missed on credit day</span></div>
+    <div class="legend-row"><span class="chip chip-matured">Matured</span><span class="caption">= completed, no longer pays</span></div>
+    <div class="legend-row"><span class="chip chip-invalid">Invalid</span><span class="caption">= bad or incomplete entry, excluded from totals (sorted last)</span></div>
+  </div>
+</section>
+<section id="view-watchlist" class="view">
+  <div class="view-header">
+    <h1>Watchlist</h1>
+    <div class="header-actions">
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+      </div>
+      <button type="button" class="btn privacy-toggle" aria-pressed="false">Hide amounts</button>
+      <button type="button" class="btn btn-primary">+ Add Candidate</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Company / ISIN</th>
+          <th>Rating</th>
+          <th>Coupon</th>
+          <th>Est. Yield</th>
+          <th>Broker</th>
+          <th>Status</th>
+          <th>Details</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="co-name">Alpha Securities Ltd</span><span class="co-isin">INE9000A01001</span></td>
+          <td>AA</td>
+          <td class="money">8.5%</td>
+          <td class="money">9.1%</td>
+          <td>grip invest</td>
+          <td><span class="chip chip-watching">Watching</span></td>
+          <td><button type="button" class="btn btn-sm details-toggle" data-details="d-1">Details</button></td>
+          <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-1">Move to Portfolio</button></td>
+        </tr>
+        <tr class="details-row" id="d-1" hidden>
+          <td colspan="8">
+            <div class="facts-grid">
+              <div><span class="fact-label">Company / ISIN</span><span class="fact-value">Alpha Securities Ltd · INE9000A01001</span></div>
+              <div><span class="fact-label">Rating</span><span class="fact-value">AA</span></div>
+              <div><span class="fact-label">Rating agency</span><span class="fact-value">CRISIL</span></div>
+              <div><span class="fact-label">Coupon</span><span class="fact-value money">8.5%</span></div>
+              <div><span class="fact-label">Est. Yield</span><span class="fact-value money">9.1%</span></div>
+              <div><span class="fact-label">Issuer type</span><span class="fact-value">Corporate Bond</span></div>
+              <div><span class="fact-label">Secured</span><span class="fact-value">Secured</span></div>
+              <div><span class="fact-label">Face value</span><span class="fact-value money">₹10,000.00</span></div>
+              <div><span class="fact-label">Payout cycle</span><span class="fact-value">Monthly</span></div>
+              <div><span class="fact-label">Invested ₹</span><span class="fact-value money">—</span></div>
+              <div><span class="fact-label">Broker</span><span class="fact-value">grip invest</span></div>
+              <div><span class="fact-label">Source note</span><span class="fact-value">saw in grip invest</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="move-row" id="move-1" hidden>
+          <td colspan="8">
+            <div class="move-grid">
+              <div class="field">
+                <label for="mv-start-1">Purchase date (start date)</label>
+                <input type="date" id="mv-start-1" value="2026-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-end-1">End date</label>
+                <input type="date" id="mv-end-1" value="2028-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-credit-1">Credit day — when the amount is credited each month</label>
+                <input type="number" id="mv-credit-1" min="1" max="31" value="15">
+              </div>
+              <div class="field">
+                <label for="mv-broker-1">Broker</label>
+                <input type="text" id="mv-broker-1" value="grip invest">
+              </div>
+              <div class="move-actions">
+                <button type="button" class="btn btn-primary move-submit" data-panel="move-1">Move</button>
+                <button type="button" class="btn move-cancel" data-panel="move-1">Cancel</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="co-name">Kappa Power Ltd</span><span class="co-isin">INE9000C03001</span></td>
+          <td>AA-</td>
+          <td class="money">8.8%</td>
+          <td class="money">9.3%</td>
+          <td>india bonds</td>
+          <td><span class="chip chip-watching">Watching</span></td>
+          <td><button type="button" class="btn btn-sm details-toggle" data-details="d-2">Details</button></td>
+          <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-2">Move to Portfolio</button></td>
+        </tr>
+        <tr class="details-row" id="d-2" hidden>
+          <td colspan="8">
+            <div class="facts-grid">
+              <div><span class="fact-label">Company / ISIN</span><span class="fact-value">Kappa Power Ltd · INE9000C03001</span></div>
+              <div><span class="fact-label">Rating</span><span class="fact-value">AA-</span></div>
+              <div><span class="fact-label">Rating agency</span><span class="fact-value">CRISIL</span></div>
+              <div><span class="fact-label">Coupon</span><span class="fact-value money">8.8%</span></div>
+              <div><span class="fact-label">Est. Yield</span><span class="fact-value money">9.3%</span></div>
+              <div><span class="fact-label">Issuer type</span><span class="fact-value">NCD</span></div>
+              <div><span class="fact-label">Secured</span><span class="fact-value">Secured</span></div>
+              <div><span class="fact-label">Face value</span><span class="fact-value money">₹10,000.00</span></div>
+              <div><span class="fact-label">Payout cycle</span><span class="fact-value">Monthly</span></div>
+              <div><span class="fact-label">Invested ₹</span><span class="fact-value money">—</span></div>
+              <div><span class="fact-label">Broker</span><span class="fact-value">india bonds</span></div>
+              <div><span class="fact-label">Source note</span><span class="fact-value">india bonds screener</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="move-row" id="move-2" hidden>
+          <td colspan="8">
+            <div class="move-grid">
+              <div class="field">
+                <label for="mv-start-2">Purchase date (start date)</label>
+                <input type="date" id="mv-start-2" value="2026-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-end-2">End date</label>
+                <input type="date" id="mv-end-2" value="2028-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-credit-2">Credit day — when the amount is credited each month</label>
+                <input type="number" id="mv-credit-2" min="1" max="31" value="15">
+              </div>
+              <div class="field">
+                <label for="mv-broker-2">Broker</label>
+                <input type="text" id="mv-broker-2" value="india bonds">
+              </div>
+              <div class="move-actions">
+                <button type="button" class="btn btn-primary move-submit" data-panel="move-2">Move</button>
+                <button type="button" class="btn move-cancel" data-panel="move-2">Cancel</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="co-name">Lambda Infra Ltd</span><span class="co-isin">INE9000C03002</span></td>
+          <td>A+</td>
+          <td class="money">9.4%</td>
+          <td class="money">10.0%</td>
+          <td>golden pie</td>
+          <td><span class="chip chip-watching">Watching</span></td>
+          <td><button type="button" class="btn btn-sm details-toggle" data-details="d-3">Details</button></td>
+          <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-3">Move to Portfolio</button></td>
+        </tr>
+        <tr class="details-row" id="d-3" hidden>
+          <td colspan="8">
+            <div class="facts-grid">
+              <div><span class="fact-label">Company / ISIN</span><span class="fact-value">Lambda Infra Ltd · INE9000C03002</span></div>
+              <div><span class="fact-label">Rating</span><span class="fact-value">A+</span></div>
+              <div><span class="fact-label">Rating agency</span><span class="fact-value">ICRA</span></div>
+              <div><span class="fact-label">Coupon</span><span class="fact-value money">9.4%</span></div>
+              <div><span class="fact-label">Est. Yield</span><span class="fact-value money">10.0%</span></div>
+              <div><span class="fact-label">Issuer type</span><span class="fact-value">Corporate Bond</span></div>
+              <div><span class="fact-label">Secured</span><span class="fact-value">Unsecured</span></div>
+              <div><span class="fact-label">Face value</span><span class="fact-value money">₹10,000.00</span></div>
+              <div><span class="fact-label">Payout cycle</span><span class="fact-value">Monthly</span></div>
+              <div><span class="fact-label">Invested ₹</span><span class="fact-value money">—</span></div>
+              <div><span class="fact-label">Broker</span><span class="fact-value">golden pie</span></div>
+              <div><span class="fact-label">Source note</span><span class="fact-value">golden pie list</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="move-row" id="move-3" hidden>
+          <td colspan="8">
+            <div class="move-grid">
+              <div class="field">
+                <label for="mv-start-3">Purchase date (start date)</label>
+                <input type="date" id="mv-start-3" value="2026-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-end-3">End date</label>
+                <input type="date" id="mv-end-3" value="2028-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-credit-3">Credit day — when the amount is credited each month</label>
+                <input type="number" id="mv-credit-3" min="1" max="31" value="15">
+              </div>
+              <div class="field">
+                <label for="mv-broker-3">Broker</label>
+                <input type="text" id="mv-broker-3" value="golden pie">
+              </div>
+              <div class="move-actions">
+                <button type="button" class="btn btn-primary move-submit" data-panel="move-3">Move</button>
+                <button type="button" class="btn move-cancel" data-panel="move-3">Cancel</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="co-name">Mu Finance Ltd</span><span class="co-isin">INE9000C03003</span></td>
+          <td>A</td>
+          <td class="money">9.8%</td>
+          <td class="money">10.4%</td>
+          <td>peer</td>
+          <td><span class="chip chip-watching">Watching</span></td>
+          <td><button type="button" class="btn btn-sm details-toggle" data-details="d-4">Details</button></td>
+          <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-4">Move to Portfolio</button></td>
+        </tr>
+        <tr class="details-row" id="d-4" hidden>
+          <td colspan="8">
+            <div class="facts-grid">
+              <div><span class="fact-label">Company / ISIN</span><span class="fact-value">Mu Finance Ltd · INE9000C03003</span></div>
+              <div><span class="fact-label">Rating</span><span class="fact-value">A</span></div>
+              <div><span class="fact-label">Rating agency</span><span class="fact-value">CARE</span></div>
+              <div><span class="fact-label">Coupon</span><span class="fact-value money">9.8%</span></div>
+              <div><span class="fact-label">Est. Yield</span><span class="fact-value money">10.4%</span></div>
+              <div><span class="fact-label">Issuer type</span><span class="fact-value">NCD</span></div>
+              <div><span class="fact-label">Secured</span><span class="fact-value">Unsecured</span></div>
+              <div><span class="fact-label">Face value</span><span class="fact-value money">₹10,000.00</span></div>
+              <div><span class="fact-label">Payout cycle</span><span class="fact-value">Monthly</span></div>
+              <div><span class="fact-label">Invested ₹</span><span class="fact-value money">—</span></div>
+              <div><span class="fact-label">Broker</span><span class="fact-value">peer</span></div>
+              <div><span class="fact-label">Source note</span><span class="fact-value">peer suggestion</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="move-row" id="move-4" hidden>
+          <td colspan="8">
+            <div class="move-grid">
+              <div class="field">
+                <label for="mv-start-4">Purchase date (start date)</label>
+                <input type="date" id="mv-start-4" value="2026-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-end-4">End date</label>
+                <input type="date" id="mv-end-4" value="2028-11-15">
+              </div>
+              <div class="field">
+                <label for="mv-credit-4">Credit day — when the amount is credited each month</label>
+                <input type="number" id="mv-credit-4" min="1" max="31" value="15">
+              </div>
+              <div class="field">
+                <label for="mv-broker-4">Broker</label>
+                <input type="text" id="mv-broker-4" value="peer">
+              </div>
+              <div class="move-actions">
+                <button type="button" class="btn btn-primary move-submit" data-panel="move-4">Move</button>
+                <button type="button" class="btn move-cancel" data-panel="move-4">Cancel</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Watchlist holds candidates only. 'Move to Portfolio' creates the position and locks the company while it is On-going or Danger. The move form opens inline below the row — no cramped stack in the Action cell.</p>
+
+  <div class="card section-gap">
+    <h2>Add Candidate</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="c-name">Company name</label>
+        <input type="text" id="c-name" placeholder="e.g. Kappa Power Ltd">
+      </div>
+      <div class="field">
+        <label for="c-isin">ISIN</label>
+        <input type="text" id="c-isin" placeholder="INE9000C03001">
+      </div>
+      <div class="field">
+        <label for="c-rating">Rating</label>
+        <select id="c-rating">
+          <option>AAA</option>
+          <option>AA+</option>
+          <option selected>AA</option>
+          <option>AA-</option>
+          <option>A+</option>
+          <option>A</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="c-agency">Rating agency</label>
+        <select id="c-agency">
+          <option selected>CRISIL</option>
+          <option>ICRA</option>
+          <option>IND</option>
+          <option>CARE</option>
+        </select>
+        <p class="caption">e.g. CRISIL</p>
+      </div>
+      <div class="field">
+        <label for="c-coupon">Coupon %</label>
+        <input type="number" id="c-coupon" step="0.1" value="8.8">
+      </div>
+      <div class="field">
+        <label for="c-yield">Est. Yield %</label>
+        <input type="number" id="c-yield" step="0.1" value="9.3">
+      </div>
+      <div class="field">
+        <label for="c-issuer">Issuer type</label>
+        <select id="c-issuer">
+          <option selected>Corporate Bond</option>
+          <option>NCD</option>
+          <option>SDI</option>
+          <option>Govt</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="c-secured">Secured</label>
+        <select id="c-secured">
+          <option selected>Secured</option>
+          <option>Unsecured</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="c-face">Face value</label>
+        <input type="number" id="c-face" value="10000">
+      </div>
+      <div class="field">
+        <label for="c-cycle">Payout cycle</label>
+        <select id="c-cycle">
+          <option selected>Monthly</option>
+          <option>Quarterly</option>
+          <option>Annual</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="c-invested">Invested ₹</label>
+        <input type="number" id="c-invested" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="c-broker">Broker</label>
+        <input type="text" id="c-broker" placeholder="e.g. grip invest">
+      </div>
+      <div class="field">
+        <label for="c-source">Source note</label>
+        <input type="text" id="c-source" placeholder="where you saw it">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button type="button" class="btn btn-primary">+ Add Candidate</button>
+      </div>
+    </div>
+    <p class="caption section-gap">All Add Candidate attributes appear in the row Details facts grid and in the matching My Holdings attribute strip.</p>
+  </div>
+</section>
+
+<section id="view-goals" class="view">
+  <div class="view-header">
+    <h1>Financial Goals</h1>
+    <div class="header-actions">
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+      </div>
+      <button type="button" class="btn privacy-toggle" aria-pressed="false">Hide amounts</button>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-label">Earned this month</div>
+      <div class="stat-value money">₹1,200.00</div>
+      <p class="caption"><a href="#returns">View full returns history on Dashboard →</a></p>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total received</div>
+      <div class="stat-value money">₹28,500.00</div>
+      <p class="caption"><a href="#returns">View full returns history on Dashboard →</a></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Steady Income Plan — 10 years</h2>
+    <div class="goal-rows">
+      <div>
+        <div class="stat-label">Target</div>
+        <div class="stat-value money">—</div>
+      </div>
+      <div>
+        <div class="stat-label">Saved</div>
+        <div class="stat-value money">—</div>
+      </div>
+    </div>
+    <div class="progress"><span></span></div>
+    <p class="caption">Figures to be confirmed.</p>
+    <p class="caption">Goal naming to be confirmed.</p>
+  </div>
+</section>
+
+<section id="view-alerts" class="view">
+  <div class="view-header">
+    <h1>Alerts</h1>
+    <div class="header-actions">
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+      </div>
+      <button type="button" class="btn privacy-toggle" aria-pressed="false">Hide amounts</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Day-wise rules</h2>
+    <p>If Received amount is not entered on the credit day → status becomes Danger same day.</p>
+  </div>
+
+  <div class="card">
+    <h2>Channels</h2>
+    <label class="check-row"><input type="checkbox" checked> In-app notification</label>
+    <label class="check-row"><input type="checkbox" checked> Email (personal SMTP, personal → personal)</label>
+  </div>
+</section>
+
+<section id="view-settings" class="view">
+  <div class="view-header">
+    <h1>Settings</h1>
+    <div class="header-actions">
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+        <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+      </div>
+      <button type="button" class="btn privacy-toggle" aria-pressed="false">Hide amounts</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Appearance</h2>
+    <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="system" checked> System (follow OS)</label>
+    <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="light"> Light (default)</label>
+    <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="dark"> Dark</label>
+    <p class="caption">Theme is saved on this device.</p>
+  </div>
+
+  <div class="card">
+    <h2>Email</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="s-provider">Provider</label>
+        <select id="s-provider">
+          <option value="gmail" selected>Gmail</option>
+          <option value="outlook">Outlook / Microsoft 365</option>
+          <option value="custom">Custom</option>
+        </select>
+        <p class="caption">Picking a provider fills host, port and security.</p>
+      </div>
+      <div class="field">
+        <label for="s-host">SMTP host</label>
+        <input type="text" id="s-host" value="smtp.gmail.com">
+      </div>
+      <div class="field">
+        <label for="s-port">SMTP port</label>
+        <input type="number" id="s-port" value="587">
+      </div>
+      <div class="field">
+        <label for="s-security">Security</label>
+        <select id="s-security">
+          <option selected>TLS</option>
+          <option>STARTTLS</option>
+          <option>SSL</option>
+          <option>None</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="s-from">From</label>
+        <input type="email" id="s-from" value="me@example.com">
+      </div>
+      <div class="field">
+        <label for="s-to">To</label>
+        <input type="email" id="s-to" value="me@example.com">
+      </div>
+    </div>
+    <p class="caption section-gap">Personal account — personal SMTP, personal → personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>
+    <details class="setup-guide">
+      <summary>Setup guide</summary>
+      <ol class="guide-list">
+        <li>Gmail: enable 2-Verification on your Google account.</li>
+        <li>Create an App Password at myaccount.google.com (search "App Passwords").</li>
+        <li>Paste the 16-char app password into the SMTP password field — NOT your login password.</li>
+        <li>Outlook / Microsoft 365 personal accounts use the same app-password concept.</li>
+      </ol>
+    </details>
+    <div class="section-gap">
+      <button type="button" class="btn btn-primary" id="s-send-test">Send test email</button>
+      <div id="email-test-banner" class="test-banner" hidden></div>
+    </div>
+    <div class="section-gap">
+      <p class="caption">Troubleshooting</p>
+      <ul class="trouble-list">
+        <li>Wrong port — use 587 with TLS/STARTTLS, or 465 with SSL.</li>
+        <li>TLS required — most providers refuse plain connections.</li>
+        <li>Check the spam folder — test emails often land there.</li>
+      </ul>
+    </div>
+    <p class="caption section-gap">Personal account — personal SMTP, personal → personal.</p>
+  </div>
+
+  <div class="card">
+    <h2>Privacy</h2>
+    <label class="check-row"><input type="checkbox"> Hide amounts by default</label>
+  </div>
+
+  <div class="card">
+    <h2>Currency</h2>
+    <p>INR (₹)</p>
+  </div>
+
+  <div class="card">
+    <h2>Share / Export</h2>
+    <p class="caption">Customize what to include.</p>
+    <label class="check-row"><input type="checkbox" checked> Holdings</label>
+    <label class="check-row"><input type="checkbox" checked> Payouts</label>
+    <label class="check-row"><input type="checkbox"> Goals</label>
+  </div>
+
+  <div class="card">
+    <h2>Data</h2>
+    <p>Start empty — no data imported.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  var navItems = document.querySelectorAll('.nav-item');
+  var views = document.querySelectorAll('.view');
+  navItems.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      navItems.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      views.forEach(function (v) { v.classList.remove('active'); });
+      document.getElementById('view-' + btn.getAttribute('data-view')).classList.add('active');
+    });
+  });
+
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      document.querySelectorAll('#portfolio-panels .panel').forEach(function (p) {
+        p.classList.toggle('active', p.id === 'panel-' + tab.getAttribute('data-tab'));
+      });
+    });
+  });
+
+  document.querySelectorAll('.privacy-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var on = document.body.classList.toggle('hide-amounts');
+      document.querySelectorAll('.privacy-toggle').forEach(function (b) {
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        b.classList.toggle('active', on);
+      });
+      document.querySelectorAll('.money').forEach(function (el) {
+        if (!el.getAttribute('data-value')) {
+          el.setAttribute('data-value', el.textContent);
+        }
+        el.textContent = on ? '₹••••••' : el.getAttribute('data-value');
+      });
+    });
+  });
+
+  var headerAdd = document.getElementById('header-add-position');
+  headerAdd.addEventListener('click', function () {
+    var holdingsTab = document.querySelector('.tab[data-tab="holdings"]');
+    if (holdingsTab) { holdingsTab.click(); }
+  });
+
+  var themeSegments = document.querySelectorAll('.theme-seg');
+  var themeRadios = document.querySelectorAll('input[name="theme-choice"]');
+  function applyTheme(value) {
+    document.documentElement.setAttribute('data-theme', value);
+    localStorage.setItem('dk-theme', value);
+    themeSegments.forEach(function (seg) {
+      seg.classList.toggle('active', seg.getAttribute('data-theme-value') === value);
+    });
+    themeRadios.forEach(function (radio) {
+      radio.checked = radio.getAttribute('data-theme-value') === value;
+    });
+  }
+  themeSegments.forEach(function (seg) {
+    seg.addEventListener('click', function () {
+      applyTheme(seg.getAttribute('data-theme-value'));
+    });
+  });
+  themeRadios.forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (radio.checked) { applyTheme(radio.getAttribute('data-theme-value')); }
+    });
+  });
+  applyTheme(localStorage.getItem('dk-theme') || 'system');
+
+  document.querySelectorAll('.filter-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
+      chip.classList.add('active');
+      var filter = chip.getAttribute('data-filter');
+      document.querySelectorAll('.chart-row[data-status]').forEach(function (row) {
+        row.hidden = filter !== 'all' && row.getAttribute('data-status') !== filter;
+      });
+    });
+  });
+
+  document.querySelectorAll('.details-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var row = document.getElementById(btn.getAttribute('data-details'));
+      row.hidden = !row.hidden;
+    });
+  });
+
+  document.querySelectorAll('.move-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var row = document.getElementById(btn.getAttribute('data-panel'));
+      row.hidden = !row.hidden;
+    });
+  });
+  document.querySelectorAll('.move-submit, .move-cancel').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.getElementById(btn.getAttribute('data-panel')).hidden = true;
+    });
+  });
+
+  function formatPayout(value, received) {
+    if (!value) { return 'Missed'; }
+    var n = Number(value);
+    return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (received ? ' ✓' : ' · pending');
+  }
+  document.querySelectorAll('.payout-cell').forEach(function (cell) {
+    cell.addEventListener('click', function () {
+      var td = cell.parentNode;
+      if (td.querySelector('.payout-editor')) { return; }
+      var amount = cell.getAttribute('data-amount') || '';
+      var received = cell.getAttribute('data-received') === '1';
+      var editor = document.createElement('span');
+      editor.className = 'payout-editor';
+      editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox"' + (received ? ' checked' : '') + '> Received?</label><button type="button" class="btn btn-sm">Save</button><button type="button" class="btn btn-sm">Cancel</button>';
+      td.appendChild(editor);
+      cell.hidden = true;
+      var buttons = editor.querySelectorAll('button');
+      buttons[0].addEventListener('click', function () {
+        var val = editor.querySelector('input[type="number"]').value;
+        var rec = editor.querySelector('input[type="checkbox"]').checked;
+        cell.setAttribute('data-amount', val);
+        cell.setAttribute('data-received', rec ? '1' : '0');
+        cell.removeAttribute('data-value');
+        if (!val) {
+          cell.className = 'payout-cell chip chip-danger';
+        } else {
+          cell.className = rec ? 'payout-cell money' : 'payout-cell money pending';
+        }
+        cell.textContent = formatPayout(val, rec);
+        cell.hidden = false;
+        editor.remove();
+      });
+      buttons[1].addEventListener('click', function () {
+        cell.hidden = false;
+        editor.remove();
+      });
+    });
+  });
+
+  var emailPresets = {
+    gmail: { host: 'smtp.gmail.com', port: '587', security: 'TLS' },
+    outlook: { host: 'smtp.office365.com', port: '587', security: 'STARTTLS' },
+    custom: { host: '', port: '', security: '' }
+  };
+  var providerSelect = document.getElementById('s-provider');
+  providerSelect.addEventListener('change', function () {
+    var preset = emailPresets[providerSelect.value];
+    document.getElementById('s-host').value = preset.host;
+    document.getElementById('s-port').value = preset.port;
+    document.getElementById('s-security').value = preset.security;
+  });
+
+  var testBanner = document.getElementById('email-test-banner');
+  document.getElementById('s-send-test').addEventListener('click', function () {
+    var host = document.getElementById('s-host').value.trim();
+    testBanner.hidden = false;
+    if (host) {
+      testBanner.className = 'test-banner banner-success';
+      testBanner.textContent = 'Test email sent. Check the inbox (and the spam folder).';
+    } else {
+      testBanner.className = 'test-banner banner-failure';
+      testBanner.textContent = 'Sending failed. Authentication failed = usually needs an App Password. Also check SMTP host, port and security setting.';
+    }
+  });
+})();
+</script>
+</body>
+</html>
