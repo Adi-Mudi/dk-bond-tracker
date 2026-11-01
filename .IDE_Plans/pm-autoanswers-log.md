@@ -1,0 +1,1 @@
+- 2026-11-01T12:17 wl-doc-c Q: Development_Order_addendum_v4 already exists (brief 18b, referenced by AF v4/v5 + stage11 plan). PM answer: option [1] — write v5 extending v4; change_record notes brief said v4 but v4 was taken. Non-destructive choice.
