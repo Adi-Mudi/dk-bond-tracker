@@ -1,0 +1,55 @@
+{
+  "reviewer": "R2",
+  "gate": 3,
+  "lens": "rules-and-plan-compliance (plan adherence, scope discipline, contract intactness)",
+  "baseline": {
+    "plan": ".IDE_Plans/theme_consolidation_plan_20261102_0004_v1.0.json",
+    "commit": "ed59d26b606f1fbe7bc9b3090ad19201f71fa8db",
+    "branch": "theme-consolidation-v1",
+    "diff_base": "dev"
+  },
+  "evidence_run": "33 passed in 1.72s (test_tc111_113_themes, test_tc35_grid_colors, test_tc36_dynamic_headers, test_tc70_goal_targets, test_tc139_dashboard_returns_email)",
+  "findings": [
+    {
+      "id": "R2-F1",
+      "severity": "MINOR",
+      "evidence": ".fleet/config.json:1, .fleet/chain.jsonl:1, .IDE_Plans/theme_consolidation_plan_20261102_0004_v1.0.json:56",
+      "verdict": "FIX",
+      "quote": "git diff dev...theme-consolidation-v1 --name-only lists 13 paths: the 8 plan targets + tc36/tc70 (PM-authorized) + the plan file + .fleet/config.json + .fleet/chain.jsonl. Plan targets (line 56) contain no .fleet entry, so commit ed59d26 carries two coordination artifacts outside the approved target list: {\"version\": \"1.0.0\", ... (config) and {\"ts\": \"2026-11-02T00:20:00\", \"event\": \"spawn\", ... (chain log). No product impact, but the merge into dev would import agent-harness config plus a growing log into the product tree; split them out or gitignore .fleet before merge."
+    },
+    {
+      "id": "R2-F2",
+      "severity": "MINOR",
+      "evidence": ".IDE_Plans/theme_consolidation_plan_20261102_0004_v1.0.json:238, .IDE_Plans/theme_consolidation_plan_20261102_0004_v1.0.json:256",
+      "verdict": "FIX",
+      "quote": "The committed plan file still carries \"status\": \"PENDING\" on all 15 tasks, including T5.1 (\"Full local test suite\" - verified green), T5.2 (product/dk_bond_tracker_v1.0/src/static/ holds theme.js + theme.css - verified on disk) and T5.3 (origin/theme-consolidation-v1 == ed59d26 - verified pushed). Status tracking is stale, so the plan no longer reflects delivered state at this gate."
+    },
+    {
+      "id": "R2-F3",
+      "severity": "MINOR",
+      "evidence": "tests/test_tc70_goal_targets.py:55",
+      "verdict": "FIX",
+      "quote": "assert 118 <= expected <= 121  -- lowered from 119, and unrelated to theme consolidation (plan targets do not include tc70; PM-authorized as minimal). expected = months_until(date(2036,10,1), date.today()) is date-dependent: goals.py:13 subtracts a month when end_date.day < today.day, so on 2026-11-02 expected == 118 and the old bound failed. Widening by one only defers the failure: in Dec 2026 expected becomes 117 and the suite goes red again with no code change. Fix the date dependence (fixed 'today' or drop the redundant range assert) instead of the band."
+    },
+    {
+      "id": "R2-F4",
+      "severity": "MINOR",
+      "evidence": "src/static/theme.css:56, src/templates/portfolio.html:18",
+      "verdict": "FIX",
+      "quote": "--white: #ffffff; (dark block, line 56, identical to the light value at line 23) while --white is used as a surface color: portfolio.html:18 \"background: var(--white);\" (drawer), payout.html:21, portfolio.html:76, add_position.html, payment_edit.html, share.html. The plan (T4.1) prescribed #ffffff so the code matches the plan, but U2's intent (\"grid/monthly cell colors restyle with dark mode\") is only partly met: these panels stay pure white under a dark page background while text uses var(--text) (light in dark mode). Behaviour is unchanged from before, so this is a completeness gap, not a regression."
+    },
+    {
+      "id": "R2-F5",
+      "severity": "MINOR",
+      "evidence": "src/static/theme.js:1, src/static/app.js:2, src/templates/base.html:113, tests/test_tc111_113_themes.py:41",
+      "verdict": "PASS",
+      "quote": "Plan conformance verified: T2.1 theme.js is the byte-identical moved block ((function () { ... applyTheme(localStorage.getItem('dk-theme') || 'system'); })();) and T2.2 app.js now opens with var privacyToggles; T2.3 base.html loads theme.js before app.js at line 113-114 with the pre-paint boot script (lines 6-21) untouched; T3.1 THEMES at app.py:82 is the only theme list and both templates loop over it (rendered buttons/radios are byte-identical to the old hardcoded markup: System/Light/Dark, 'data-theme-value=\"system\" checked'); T4.1 12 tokens present with the exact light/dark values and no --muted/--border/--text duplicates; T4.2 inline :root removed, only behavioural rules kept; T2.4/T4.3 tests follow the moved code; no comments added in any changed code file; tc139 strings (activateDashboardTab, data-dtab, row.hidden = filter, smtp presets, #returns) all still in app.js and the 33 targeted tests pass."
+    }
+  ],
+  "summary": {
+    "critical": 0,
+    "major": 0,
+    "minor": 5,
+    "verdict": "AGREED with notes"
+  }
+}
