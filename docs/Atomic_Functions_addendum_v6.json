@@ -1,0 +1,548 @@
+{
+  "id": "Atomic_Functions_addendum_v6",
+  "kind": "atomic_function",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "Atomic_Functions_addendum_v5",
+  "atomic_functions": [
+    {
+      "id": "AF-75",
+      "name": "payout_cell_edit",
+      "purpose": "Make every payout month cell in the Payouts grid inline-editable (D42): clicking a cell opens an in-place editor carrying a numeric amount input (minimum 0, step 0.01), a Received flag checkbox and Save/Cancel actions; Save writes through the EXISTING payment route — POST /payment/<bond_id>/<month> landing in save_payment, the AF-11 ledger upsert — and the cell re-renders as received (amount with check), pending (amount marked pending) or Missed (empty amount). Every dependent status and aggregate (Danger/On-going/Matured, dashboard totals, returns history) re-derives immediately from the saved value: the handler recomputes the row status day-wise and rewrites bonds.status before the response, then the grid re-sorts through the shared D43 order (AF-81). Cancel closes the editor with zero writes. Matured positions keep a non-editable Matured chip — never an editable cell (FR-67).",
+      "inputs": [
+        "clicked payout cell identity (bond_id, month key inside the tenure window)",
+        "raw amount string submitted by the editor (numeric, minimum 0, step 0.01)",
+        "Received flag checkbox state submitted with the Save action",
+        "current payment_health / bonds.status used to decide editability (Matured cells are read-only)"
+      ],
+      "outputs": [
+        "payment_ledger upsert via save_payment — inserted or corrected row, paid flag set only when amount > 0",
+        "immediately re-derived bonds.status (day-wise Danger/On-going/Matured) written before the response",
+        "refreshed cell state: received (amount + check), pending (amount marked pending) or Missed (empty amount)",
+        "zero writes and a closed editor on Cancel",
+        "named validation error via AF-30 on non-numeric or negative amount, leaving the ledger untouched"
+      ],
+      "triggers": [
+        "click on an editable payout month cell in the Payouts grid",
+        "Save inside the open payout editor",
+        "Cancel inside the open payout editor"
+      ],
+      "preconditions": [
+        "The Payouts grid renders only elapsed + current month columns (AF-76, FR-68) so every editable cell is already due or current",
+        "The clicked month lies inside the position tenure window",
+        "The position health is not Matured — Matured cells expose a chip, not an editor (FR-67)",
+        "The existing payment route and save_payment ledger write (AF-11) are the write path — no second write path is added"
+      ],
+      "postconditions": [
+        "Clicking an editable cell opens the in-place editor with amount, Received flag, Save and Cancel — never a separate page (FR-67)",
+        "Save writes through the existing payment route and the cell re-renders as received, pending or Missed from the saved value (FR-67)",
+        "Every dependent status and aggregate re-derives immediately after Save — Danger/On-going/Matured chips, dashboard totals and returns history all reflect the new value with no manual refresh (FR-67)",
+        "Matured positions keep a non-editable Matured chip in every state (FR-67)",
+        "Cancel closes the editor with zero writes — the ledger and status columns are byte-identical to before the click (FR-67)",
+        "Amount below 0 or non-numeric is rejected with a named AF-30 error and zero writes; 0 is a valid value preserved as unpaid (FR-67, D5 rule carried by v4)",
+        "After Save the row keeps its place in the shared D43 order — a flip to Danger rises the row to the top, a Matured sink to the bottom, via AF-81 only (D43)"
+      ],
+      "fr_refs": [
+        "FR-67"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-11",
+        "AF-30",
+        "AF-67",
+        "AF-76",
+        "AF-81"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-76",
+      "name": "month_columns_elapsed_current",
+      "purpose": "Compute the Payouts grid month columns as elapsed months plus the current month ONLY, ordered newest month first at the left and oldest visible month at the right (D42, FR-68): the tenure window (tenure_month_map / list_months_through_current pattern) is filtered to months <= the current month key and then reversed for newest-left order. Future months are never emitted in any state — not in the column header, not in a cell, not in the payout editor — so the design-review defect F-231 (a future Dec 2026 column rendered while the current month was Nov 2026) cannot recur. This extends the AF-49 elapsed+current history-window rule from the Dashboard history table to the Payouts grid and adds the newest-left ordering the owner locked in design v6.",
+      "inputs": [
+        "position start_date, tenure_months and today's date",
+        "tenure window month keys produced by tenure_month_map",
+        "current month key produced by month_key(today)"
+      ],
+      "outputs": [
+        "ordered column list: newest elapsed/current month first, oldest visible month last",
+        "the same list drives header cells, payout cells and the payout editor's month scope",
+        "empty future set — no month key greater than the current month key ever appears"
+      ],
+      "triggers": [
+        "Payouts grid render request",
+        "payout editor open (columns already computed for the grid)",
+        "any re-render after a payment save (AF-75) or health re-derivation (AF-67)"
+      ],
+      "preconditions": [
+        "The position has a valid start_date, tenure_months and tenure window (AF-50 date arithmetic)",
+        "today's date is available to the render path"
+      ],
+      "postconditions": [
+        "Columns = elapsed months + current month ONLY; the newest month sits at the left, the oldest visible month at the right (FR-68)",
+        "Future months are never rendered in any state — header, cell or editor — so F-231 cannot recur (FR-68)",
+        "The list auto-extends as months elapse with no stored header row and no manual window edit (AF-49 rule carried to the Payouts grid, FR-68)",
+        "The payout editor opened from AF-75 can only address months inside this computed list (FR-67, FR-68 together)",
+        "Every surface that draws month columns calls this one computation — the Payouts grid and its editor never recompute the window independently (D42)"
+      ],
+      "fr_refs": [
+        "FR-68"
+      ],
+      "element": "month_grid_renderer",
+      "depends_on": [
+        "AF-49",
+        "AF-50",
+        "AF-67"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-77",
+      "name": "attribute_collect_candidate",
+      "purpose": "Extend the Add Candidate form (the AF-38 Watch List add path) to collect the full bond-attribute set the owner locked in design v6 (D42, FR-69): rating agency, issuer type, secured, face value, payout cycle, invested amount and broker, alongside the existing company, ISIN, rating, coupon, est. yield and source note fields. The submitted attributes are validated (AF-30 named errors, AF-70 percent parse for coupon/est. yield, AF-74 broker persistence already in place) and written to the bonds row on candidate insert, so the values roundtrip unchanged to the holdings surfaces when the candidate later moves to portfolio. Nothing in the set is collected-but-undisplayed: every field this form accepts is one of the attributes the parity surfaces (AF-78) render.",
+      "inputs": [
+        "Add Candidate form fields: company, ISIN, rating, coupon, est. yield, source note (existing)",
+        "new attribute fields: rating agency, issuer type, secured, face value, payout cycle, invested amount, broker",
+        "raw percent strings routed through AF-70 parse rules (00.00 allowed, zero preserved)"
+      ],
+      "outputs": [
+        "bonds row insert carrying the complete attribute set — nullable columns hold NULL when the candidate leaves a field empty, never a fabricated default",
+        "named AF-30 validation error naming the offending attribute with zero writes on rejection",
+        "read-back attribute dict used by the Watchlist Details grid (AF-78)"
+      ],
+      "triggers": [
+        "Add Candidate POST on the /watch route",
+        "candidate re-save / attribute edit paths sharing the same insert funnel"
+      ],
+      "preconditions": [
+        "The AF-38 candidate-add route owns the insert funnel (AF-40 sole-entry guard applies)",
+        "The bonds schema carries the attribute columns (extended by the AF-74 broker column precedent; face value, payout cycle, rating agency, issuer type, secured, invested as the D42 set)",
+        "AF-70 percent validation and AF-30 error surfacing are available"
+      ],
+      "postconditions": [
+        "The Add Candidate form collects the full attribute set — rating agency, issuer type, secured, face value, payout cycle, invested amount and broker — alongside company, ISIN, rating, coupon, est. yield and source note (FR-69)",
+        "Every collected attribute persists on the bonds row and roundtrips unchanged to My Holdings once the candidate moves (FR-69, D42 parity intent)",
+        "No attribute is collected-but-undisplayed: each accepted field is rendered by AF-78 on both parity surfaces (FR-69)",
+        "Percent fields accept 00.00 per AF-70 with zero preserved (FR-62, D41 rule carried)",
+        "Validation runs before any insert step — a rejected attribute leaves every table untouched (FR-64 validation-before-insert rule)",
+        "Empty optional attributes store NULL and render as an em dash on the surfaces, never as an invented value (FR-69)"
+      ],
+      "fr_refs": [
+        "FR-69"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-30",
+        "AF-38",
+        "AF-40",
+        "AF-70",
+        "AF-74"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-78",
+      "name": "attribute_display_parity",
+      "purpose": "Render the identical bond-attribute set on both parity surfaces (D42, FR-69): the Watchlist Details facts grid for the candidate and the My Holdings attribute strip for the same bond once held. Both surfaces read the SAME attribute dict from the SAME bonds row and render through one shared facts-grid partial — rating agency, issuer type, secured, face value, payout cycle, invested amount, broker, rating, coupon, est. yield and source note — so no attribute is displayed-but-uncollected on one surface and hidden on the other. The My Holdings strip is compact chrome under each holding row; the Watchlist Details grid is the expanded candidate panel; labels and value formatting (money, percent) come from the shared renderer, never per-surface copies.",
+      "inputs": [
+        "bonds row attribute dict (the AF-77 write output, read via the AF-52 watchlist query / holdings read path)",
+        "shared facts-grid partial: label + value pairs for the locked attribute order",
+        "display formatting helpers (money, percent, em dash for NULL)"
+      ],
+      "outputs": [
+        "Watchlist Details facts grid listing every attribute of the candidate",
+        "My Holdings attribute strip listing the identical attribute set for the held position",
+        "identical label strings and value formats on both surfaces"
+      ],
+      "triggers": [
+        "Watchlist Details panel expand",
+        "My Holdings row render (attribute strip)",
+        "re-render after an attribute edit (AF-77) or a move to portfolio (AF-66)"
+      ],
+      "preconditions": [
+        "The bonds row carries the attribute columns written by AF-77",
+        "One shared facts-grid partial is available to both templates",
+        "AF-52 (watchlist read) and the holdings read path expose the same dict shape"
+      ],
+      "postconditions": [
+        "The Watchlist Details facts grid and the My Holdings attribute strip show the identical attribute values for the same bond (FR-69)",
+        "No attribute is collected-but-undisplayed — every AF-77 field appears on both surfaces (FR-69)",
+        "No attribute is displayed-but-uncollected — both surfaces render only fields the candidate form accepts (FR-69)",
+        "Label strings and money/percent formats are byte-identical across the two surfaces — one partial, no per-surface relabeling (FR-69, D42)",
+        "NULL attributes render as an em dash on both surfaces, never as a fabricated value (FR-69)",
+        "After Move to Portfolio the holding strip shows the same values the candidate panel showed — roundtrip without loss (FR-69, D42)"
+      ],
+      "fr_refs": [
+        "FR-69"
+      ],
+      "element": "label_renderer",
+      "depends_on": [
+        "AF-52",
+        "AF-54",
+        "AF-77"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-79",
+      "name": "dashboard_priority_sort",
+      "purpose": "Order every Dashboard company row through the shared D43 sort standard (D42 surface, D43 rule, FR-70): each row carries a status chip (Danger, On-going or Matured) and the list is ordered Danger first, On-going next, Matured last by calling the single shared sort_key_appwide (AF-81) — never a dashboard-local copy of the ordering. This is the declared dashboard-local subset of the D43 app-wide standard: identical order, identical taxonomy, never at odds with it. Within each status group the shared key's tiebreak (company name, then row id) keeps the order stable across re-renders.",
+      "inputs": [
+        "dashboard company rows each carrying status (Danger/On-going/Matured) and company identity",
+        "shared sort_key_appwide from AF-81 fed by HEALTH_ORDER"
+      ],
+      "outputs": [
+        "dashboard list ordered Danger -> On-going -> Matured with stable tiebreak",
+        "status chip rendered per row from the same status value the sort consumed"
+      ],
+      "triggers": [
+        "Dashboard render request",
+        "status filter change re-render (AF-80)",
+        "any health re-derivation that changes a row's status"
+      ],
+      "preconditions": [
+        "Every row carries a status derived by the day-wise engine (AF-67) — no manual status field exists (D43)",
+        "AF-81 sort_key_appwide is available to the dashboard query module"
+      ],
+      "postconditions": [
+        "Every Dashboard company row carries a status chip — Danger, On-going or Matured (FR-70)",
+        "Rows are ordered Danger first, On-going next, Matured last via the shared D43 key (FR-70, FR-71)",
+        "The dashboard order is a declared subset of the app-wide D43 standard — same order, same taxonomy, never a second rule (FR-70, D43)",
+        "A status flip reorders on the next render without user action — a row rising to Danger moves to the top (D43)",
+        "Invalid rows, if any reach the dashboard, sort last of all through the same shared key (D43, AF-81)",
+        "No per-screen reimplementation: the dashboard imports AF-81 and never restates the ordering (D43)"
+      ],
+      "fr_refs": [
+        "FR-70"
+      ],
+      "element": "dashboard_query_module",
+      "depends_on": [
+        "AF-67",
+        "AF-81"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-80",
+      "name": "status_filter",
+      "purpose": "Provide the Dashboard status filter chips — All, Danger, On-going, Matured (D42, FR-70): selecting a chip narrows the already-sorted dashboard list to rows of the selected status while PRESERVING the shared D43 priority order inside the subset (Danger still first among Danger rows is vacuous, but the surviving rows keep their relative order from AF-79 — filtering never re-sorts). All restores the full ordered list. Filtering is a pure view operation: it never mutates a status, never re-derives health and never writes.",
+      "inputs": [
+        "selected filter chip value in {All, Danger, On-going, Matured}",
+        "the priority-sorted dashboard rows from AF-79"
+      ],
+      "outputs": [
+        "filtered row subset in the original priority order (All = full list)",
+        "active chip state on the control; other chips inactive",
+        "zero writes — no status, ledger or bonds column is touched"
+      ],
+      "triggers": [
+        "click on a Dashboard filter chip",
+        "Dashboard re-render carrying a selected filter"
+      ],
+      "preconditions": [
+        "The dashboard list is already ordered by AF-79 through the shared D43 key",
+        "Every row carries a status chip value (FR-70)"
+      ],
+      "postconditions": [
+        "The filter chips All, Danger, On-going and Matured narrow the list to the selected status and All restores the full ordered list (FR-70)",
+        "The filtered subset keeps the D43 priority order of the full list — filtering never re-sorts (FR-70, D43)",
+        "Filtering is read-only: no status value, ledger row or bonds column changes (FR-70)",
+        "The filter is the dashboard-local subset of the D43 standard and never contradicts the app-wide order (FR-70, D43)",
+        "Chip state and filtered rows stay consistent across re-renders — a status flip while a filter is active re-evaluates membership on the next render without clearing the filter (FR-70)"
+      ],
+      "fr_refs": [
+        "FR-70"
+      ],
+      "element": "dashboard_query_module",
+      "depends_on": [
+        "AF-79",
+        "AF-81"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-81",
+      "name": "sort_key_appwide",
+      "purpose": "Own the ONE app-wide ordering function the owner LOCKED as D43: a single shared sort key fed by HEALTH_ORDER = {Danger: 0, On-going: 1, Matured: 2, Invalid: 3} — Danger first, On-going next, Matured (Completed) last, and Invalid (incomplete or unreadable rows) last of all — applied to EVERY list surface: Dashboard (AF-79), My Holdings, Payouts (the AF-68 sort becomes one caller of this function), exports, print and alerts. The key is (HEALTH_ORDER[status], company lowercased, row id); an unknown health value raises the named ERR-payout-sort error rather than silently falling back, matching the engine pattern. The D43 status taxonomy is codified here: Danger = immediate attention required (missed payment, overdue, missing data); On-going = active and progressing normally, nothing needs attention; Matured/Completed = successfully finished, no further action. Danger assignment stays AUTOMATIC by business rule — a passed credit day with no payment entered by the due date makes the position Danger the same day (due on the 1st, not entered by the 1st, is Danger on the 1st) — with no manual status field anywhere. This function is the ONLY place the ordering lives; no screen reimplements it (D43 LOCKED).",
+      "inputs": [
+        "row collection where each row carries status (health), company name and id",
+        "HEALTH_ORDER mapping Danger 0, On-going 1, Matured 2, Invalid 3",
+        "the status value produced by the day-wise engine (AF-67) — read, never written here"
+      ],
+      "outputs": [
+        "rows sorted by (HEALTH_ORDER[status], company.lower(), id)",
+        "named ERR-payout-sort error on an unknown health value — no silent fallback",
+        "the one shared ordering every list surface imports"
+      ],
+      "triggers": [
+        "any list render: dashboard, holdings, payouts, exports, print, alerts",
+        "any health re-derivation that changes a row's status before a re-sort"
+      ],
+      "preconditions": [
+        "Every row's status comes from the day-wise engine (AF-67) or the Invalid render guard (AF-72) — never from a manual field (D43)",
+        "HEALTH_ORDER is defined exactly once, in the status engine, and imported everywhere else"
+      ],
+      "postconditions": [
+        "One sort standard applies to EVERY list surface — Dashboard, My Holdings, Payouts, exports, print and alerts — Danger first, On-going next, Matured/Completed last, Invalid last of all (FR-71, D43)",
+        "The status taxonomy purposes hold: Danger = immediate attention required (missed payment, overdue, missing data); On-going = active and progressing normally with nothing needing attention; Matured/Completed = successfully finished with no further action (FR-71, D43)",
+        "Danger assignment is AUTOMATIC by business rule — credit day passed with no payment entered by the due date makes the position Danger the same day — with no manual status field anywhere (FR-71, D43)",
+        "No screen reimplements the ordering: every surface calls this one function; a second copy of the order anywhere is a defect (FR-71, D43)",
+        "Invalid rows sort last of all through the same key — a bad row never outranks a healthy one and never raises a render error at sort time (D43)",
+        "An unknown health value raises the named ERR-payout-sort error instead of silently mis-sorting (D43)"
+      ],
+      "fr_refs": [
+        "FR-71"
+      ],
+      "element": "status_engine",
+      "depends_on": [
+        "AF-67",
+        "AF-68",
+        "AF-72"
+      ],
+      "check_method": "unit"
+    },
+    {
+      "id": "AF-82",
+      "name": "email_preset_apply",
+      "purpose": "Offer the Settings → Email provider presets the owner locked in design v6 (D42, FR-72): Gmail, Outlook / Microsoft 365 and Custom. Selecting a provider autofills SMTP host, port and security — Gmail: smtp.gmail.com, port 587, TLS (465/SSL as the documented alternative, app-password-only); Outlook: smtp.office365.com, port 587, STARTTLS; Custom: host, port and security left empty for manual entry. The autofill writes only the host/port/security trio — From and To are never touched by a preset switch — and persists through the existing alert_prefs key-value store. The same Settings view renders the collapsible setup guide (enable 2-Verification, create an App Password, paste the 16-char app password, never the login password; Outlook uses the same app-password concept) and the troubleshooting list (wrong port → 587 with TLS/STARTTLS or 465 with SSL; most providers refuse plain connections; check the spam folder) as static chrome beside the preset control.",
+      "inputs": [
+        "selected provider value in {Gmail, Outlook / Microsoft 365, Custom}",
+        "preset table: Gmail -> (smtp.gmail.com, 587, TLS), Outlook -> (smtp.office365.com, 587, STARTTLS), Custom -> (empty, empty, empty)",
+        "current alert_prefs SMTP values (host, port, security, from, to)"
+      ],
+      "outputs": [
+        "autofilled SMTP host, port and security fields in the Settings → Email form",
+        "persisted alert_prefs values for host/port/security on save",
+        "From and To untouched by the preset switch",
+        "visible setup guide and troubleshooting chrome from the same view"
+      ],
+      "triggers": [
+        "provider preset select in Settings → Email",
+        "Settings save persisting the autofilled values",
+        "Settings render restoring the last selected provider"
+      ],
+      "preconditions": [
+        "alert_prefs key-value store (AF-01 schema) is available for SMTP persistence",
+        "The Settings → Email view exposes host, port, security, From and To inputs (D42 design v6)",
+        "AF-30 error surfacing available for rejected provider values"
+      ],
+      "postconditions": [
+        "Selecting Gmail autofills smtp.gmail.com, port 587, TLS — with 465/SSL documented as the alternative and app-password-only auth — Outlook autofills smtp.office365.com, port 587, STARTTLS, and Custom leaves host, port and security empty (FR-72)",
+        "A preset switch overwrites only host, port and security — From and To keep their values (FR-72)",
+        "The setup guide renders from the same view covering the app-password flow: enable 2-Verification, create an App Password, paste the 16-char app password, never the login password; Outlook uses the same app-password concept (FR-72)",
+        "The troubleshooting list renders: wrong port → 587 with TLS/STARTTLS or 465 with SSL; most providers refuse plain connections; check the spam folder (FR-72)",
+        "Selected provider, host, port and security persist across sessions via alert_prefs and restore on the next Settings render (FR-72)",
+        "An unknown provider value is rejected with a named AF-30 error and no field is autofilled (FR-72)"
+      ],
+      "fr_refs": [
+        "FR-72"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-01",
+        "AF-30"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-83",
+      "name": "email_send_test",
+      "purpose": "Send a test email from Settings → Email through a NEW route and surface the outcome as an inline success/failure banner, never a 500 (D42, FR-72): the handler validates the current SMTP config (host, port, security, From, To all present — naming the missing field otherwise), opens an SMTP session with the same transport family as the existing send_alert_email path (TLS on 587, STARTTLS on 587 for Outlook, SSL on 465), sends a fixed test message From → To, and renders a banner reporting success or the named failure cause — missing config, authentication refused (Gmail app-password required), connection refused, or TLS/STARTTLS mismatch. The banner stays visible on the Settings view so the owner can read the outcome without leaving the page; failures never leak a traceback or an internal path (AF-30 error discipline).",
+      "inputs": [
+        "current SMTP config from alert_prefs (host, port, security, from, to)",
+        "Send test email action on the Settings → Email view",
+        "fixed test message content"
+      ],
+      "outputs": [
+        "inline success banner on the Settings view after a delivered test message",
+        "inline failure banner naming the cause (missing config field, auth refused, connection refused, TLS/STARTTLS mismatch) — never a 500 page",
+        "zero persistence changes: the test never writes SMTP config or ledger rows"
+      ],
+      "triggers": [
+        "Send test email click in Settings → Email",
+        "test retry after a failed attempt with corrected config"
+      ],
+      "preconditions": [
+        "AF-82 preset autofill or manual entry has produced a candidate config",
+        "The alert-email transport family (send_alert_email) is the session pattern",
+        "AF-30 error discipline: named codes and messages only, no tracebacks or paths"
+      ],
+      "postconditions": [
+        "The Send test email action opens an SMTP session with the current config and sends a fixed test message From → To (FR-72)",
+        "Success renders an inline success banner on the Settings view; the page never 500s (FR-72)",
+        "Failure renders an inline failure banner naming the cause — missing config field, authentication refused (Gmail app-password required), connection refused, or TLS/STARTTLS mismatch — with no traceback or internal path exposed (FR-72, AF-30)",
+        "The test writes nothing: alert_prefs, payment_ledger and bonds are byte-identical after a send attempt (FR-72)",
+        "A test with an empty host, port, security, From or To fails fast with a banner naming the missing field, before any connection attempt (FR-72)",
+        "The banner persists on the view until the next Settings render or the next test attempt (FR-72)"
+      ],
+      "fr_refs": [
+        "FR-72"
+      ],
+      "element": "notifications",
+      "depends_on": [
+        "AF-30",
+        "AF-82"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-84",
+      "name": "returns_history_aggregate",
+      "purpose": "Aggregate the Returns history Dashboard tab (D42, FR-73): a month table with columns Month, Interest received, Positions paid · pending (of active positions) and Cumulative received, newest month first, the current month highlighted, future months never shown. Per month: Interest received = the total amount credited in that month (SUM of paid payment_ledger rows for that month); Positions paid · pending = count of ACTIVE positions paid for that month · count of active positions still awaiting it; Cumulative received = the running total of all interest from the first payout through that month, its latest row equal to the Received KPI card. The SQL sketch groups payment_ledger by month and orders month DESC, restricted to months <= the current month key (elapsed + current only, F-231 discipline) and to active positions for the paid/pending counts.",
+      "inputs": [
+        "payment_ledger rows: bond_id, month, amount, paid",
+        "active-position set (positions whose status is not Matured/Completed)",
+        "current month key from month_key(today)",
+        "first payout month for the cumulative start"
+      ],
+      "outputs": [
+        "month rows newest first: month label, interest received total, paid · pending counts of active positions, cumulative running total",
+        "current-month row flagged for highlight; no future month rows",
+        "latest cumulative value equal to the Received KPI card total"
+      ],
+      "triggers": [
+        "Dashboard Returns history tab render",
+        "payment save re-derivation (AF-75) invalidating the cached aggregate",
+        "KPI card render reusing the same cumulative total"
+      ],
+      "preconditions": [
+        "payment_ledger carries amount and paid per (bond_id, month) (AF-10 / AF-11 schema)",
+        "The active-position set is computable from the day-wise health (AF-67) — Matured/Completed positions drop out of paid/pending counts",
+        "Elapsed+current month discipline (AF-49 / AF-76) applies to the row set"
+      ],
+      "postconditions": [
+        "The Returns history tab renders Month, Interest received, Positions paid · pending (of active positions) and Cumulative received, newest month first, current month highlighted, future months never shown (FR-73)",
+        "Interest received per month equals the total amount credited in that month from paid payment_ledger rows (FR-73)",
+        "Positions paid · pending counts active positions only — Matured/Completed positions never enter either side of the count (FR-73)",
+        "Cumulative received is the running total of all interest from the first payout through that month, its latest row equal to the Received KPI card (FR-73)",
+        "The aggregate re-derives immediately after a payment save (AF-75) — no stale totals persist (FR-73, FR-67)",
+        "Zero-month edge: months with no paid rows show 0 interest and 0 paid against the active count — never a dropped row inside the elapsed window (FR-73)"
+      ],
+      "fr_refs": [
+        "FR-73"
+      ],
+      "element": "dashboard_query_module",
+      "depends_on": [
+        "AF-11",
+        "AF-49",
+        "AF-67",
+        "AF-75"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-85",
+      "name": "goals_kpi_link",
+      "purpose": "Wire the Financial Goals KPI strip links — Earned this month and Total received — to the Returns history in one navigation (D42, FR-73): activating either link switches the view to the Dashboard AND activates the Returns history tab. Both steps are required — a plain view switch that lands on the Overview tab is a defect (the SRS v6 implementation caution). The links render the same cumulative figures the Returns history latest row carries, so the Goals strip and the Returns history never disagree.",
+      "inputs": [
+        "Goals KPI strip values: Earned this month, Total received",
+        "navigation target: Dashboard view + Returns history tab id",
+        "current active view and active Dashboard tab"
+      ],
+      "outputs": [
+        "view switched to Dashboard",
+        "Returns history tab activated (Overview deactivated)",
+        "KPI figures equal to the Returns history aggregates (AF-84)"
+      ],
+      "triggers": [
+        "click on Earned this month link in the Goals KPI strip",
+        "click on Total received link in the Goals KPI strip"
+      ],
+      "preconditions": [
+        "AF-84 returns_history_aggregate is the figure source (AF-84 latest row = Total received)",
+        "The Dashboard view exposes the Overview and Returns history tabs (D42 design v6)",
+        "Tab activation state is client-side and survives the view switch in the same navigation"
+      ],
+      "postconditions": [
+        "Activating a Goals KPI link switches the view to the Dashboard AND activates the Returns history tab — both steps, one navigation (FR-73)",
+        "The Returns history tab is active on arrival — Overview is not (FR-73)",
+        "The link figures (Earned this month, Total received) equal the AF-84 aggregates — the Goals strip and Returns history never disagree (FR-73)",
+        "A second activation while already on Returns history keeps the tab active without a redundant view reload (FR-73)",
+        "The link never mutates any state — navigation only, zero writes (FR-73)"
+      ],
+      "fr_refs": [
+        "FR-73"
+      ],
+      "element": "route_handlers",
+      "depends_on": [
+        "AF-84"
+      ],
+      "check_method": "integration"
+    },
+    {
+      "id": "AF-86",
+      "name": "credit_day_check_migration",
+      "purpose": "Migrate the bonds.credit_day storage constraint from CHECK (credit_day >= 1 AND credit_day <= 28) to 1..31 (D41 owner rule carried into the D42 wave, FR-74 credit-day field enabler, SRS v6 implementation caution (a)): SQLite cannot ALTER a CHECK constraint, so the migration performs a one-time table rebuild — create bonds_new with the widened CHECK, copy every row, drop the old table, rename — preserving all rows and ids. The rebuild runs inside the boot schema-ensure path before any insert path (candidate add, move to portfolio, add position) writes a credit day, so an insert of 29..31 never fails at the storage layer while app-level validation already accepts 1..31 (FR-54). The migration is idempotent: a stored marker in alert_prefs plus a PRAGMA table_info guard makes a second boot a no-op.",
+      "inputs": [
+        "existing bonds table with CHECK (credit_day >= 1 AND credit_day <= 28)",
+        "all bonds rows (ids, columns, values) to copy",
+        "alert_prefs migration marker key"
+      ],
+      "outputs": [
+        "bonds table with CHECK (credit_day >= 1 AND credit_day <= 31)",
+        "every pre-existing row preserved with its original id and values",
+        "migration marker written to alert_prefs so the rebuild never runs twice",
+        "named AF-30 error on a copy failure, leaving the original table untouched (transaction rollback)"
+      ],
+      "triggers": [
+        "boot schema-ensure path (_ensure_db / _ensure_columns) when the marker is absent",
+        "first insert attempt after a fresh database is created with the widened CHECK directly (no rebuild needed)"
+      ],
+      "preconditions": [
+        "The AF-01 bonds schema is the migration target",
+        "alert_prefs (AF-01 schema) is available for the idempotency marker",
+        "The whole rebuild runs inside one transaction so a failure rolls back to the original table"
+      ],
+      "postconditions": [
+        "bonds.credit_day accepts 1..31 at the storage layer — an insert of 29, 30 or 31 never fails the CHECK (FR-74, D41 owner rule)",
+        "Every pre-existing bonds row is preserved with its original id and values through the rebuild (FR-74)",
+        "The rebuild runs exactly once: the alert_prefs marker plus PRAGMA guard make subsequent boots no-ops (FR-74)",
+        "A failed copy rolls back inside the transaction — the original bonds table is untouched and named AF-30 error surfaces (FR-74)",
+        "App-level validation stays 1..31 (FR-54) and now agrees with storage — no path rejects a valid credit day the validator accepts (FR-74, D41)",
+        "All insert paths (candidate add AF-38, move AF-66, add position AF-65) can persist credit day 31 after the migration (FR-74)"
+      ],
+      "fr_refs": [
+        "FR-74"
+      ],
+      "element": "ledger_repository",
+      "depends_on": [
+        "AF-01",
+        "AF-30"
+      ],
+      "check_method": "integration"
+    }
+  ],
+  "coverage_map": {
+    "FR-67": [
+      "AF-75"
+    ],
+    "FR-68": [
+      "AF-76"
+    ],
+    "FR-69": [
+      "AF-77",
+      "AF-78"
+    ],
+    "FR-70": [
+      "AF-79",
+      "AF-80"
+    ],
+    "FR-71": [
+      "AF-81"
+    ],
+    "FR-72": [
+      "AF-82",
+      "AF-83"
+    ],
+    "FR-73": [
+      "AF-84",
+      "AF-85"
+    ],
+    "FR-74": [
+      "AF-66",
+      "AF-86"
+    ]
+  },
+  "change_record": "addendum v6.0 extends Atomic_Functions_addendum_v5 after owner decisions D42 (CONFIRMED design-first v6 round of 2026-11-01: editable payouts, newest-left month columns, bond-attribute parity, dashboard status chips + filter, email presets + test send, returns history, inline move panel) and D43 (LOCKED app-wide sort standard + status taxonomy + automatic Danger rule); adds AF-75..AF-86 covering FR-67..FR-74, the eight ids of docs/PRD_DK_Bond_Tracker_addendum_v6.json (read at write time; the FR-74 coverage row also carries the existing AF-66 move handler because the inline move panel is template chrome served by that handler, exactly as v5 mapped FR-63 labels to AF-65/AF-66). The visual truth is the owner-locked design .IDE_Plans/design_drafts/ui_frontend_design_v6.html @ 7b67f54 (payouts Nov/Oct newest-first, inline move panel, attribute parity, dashboard tabs + filters, email presets, returns-history definitions). D42 evidence carried into the AFs: editable payout cells writing through the existing payment route with immediate re-derivation (AF-75), elapsed+current newest-left columns closing review defect F-231 (AF-76), the seven-attribute Add Candidate set with two-surface parity (AF-77/AF-78), dashboard chips + filter as the declared D43 subset (AF-79/AF-80), Gmail/Outlook/Custom autofill with app-password-only auth and a non-500 test banner (AF-82/AF-83), the Returns history aggregation with paid·pending counted of active positions only and cumulative equal to the Received card (AF-84), the Goals KPI links performing view AND tab activation (AF-85), and the credit_day 1..28 -> 1..31 storage migration that unblocks the move panel's credit-day field (AF-86, SRS v6 implementation caution (a)). Coverage judgements (all 8 keys non-empty): FR-67 maps to AF-75 alone — one route handler owns the cell -> editor -> existing-payment-route -> immediate re-derivation chain; FR-68 maps to AF-76 alone — one column computation owns the elapsed+current newest-left rule for the grid and its editor; FR-69 maps to the collector AF-77 and the renderer AF-78 — collect and display are separate contracts joined by the shared facts-grid partial; FR-70 maps to the orderer AF-79 and the filter AF-80 — ordering and filtering are distinct operations on the same sorted list; FR-71 maps to AF-81 alone — the D43 standard is exactly one shared function; FR-72 maps to the config writer AF-82 and the transport tester AF-83; FR-73 maps to the aggregator AF-84 and the navigation link AF-85; FR-74 maps to the existing move handler AF-66 (the panel's write path) plus AF-86 (the credit-day storage enabler every insert path needs). Element notes: this wave introduces no new element tag — AF-75/AF-77/AF-82/AF-85 are route_handlers beside AF-66; AF-76 joins month_grid_renderer beside AF-68; AF-79/AF-80/AF-84 join dashboard_query_module beside AF-20/AF-49; AF-81 joins status_engine beside AF-67; AF-78 joins label_renderer beside AF-69; AF-83 joins notifications beside AF-56; AF-86 joins ledger_repository beside AF-01/AF-10/AF-11. Dependencies: AF-75 depends on AF-11 (ledger write), AF-67 (health re-derivation), AF-76 (editable column scope) and AF-81 (re-sort after a flip); AF-76 depends on AF-49 (elapsed+current rule) and AF-50 (date arithmetic); AF-77 depends on AF-38/AF-40 (candidate-add funnel) and AF-70/AF-74 (percent and broker rules already in place); AF-78 depends on AF-52/AF-54 (both read surfaces); AF-79/AF-80 depend on AF-81; AF-81 depends on AF-67/AF-68/AF-72 (status source, the payouts sort it generalizes, the Invalid render guard); AF-82/AF-83 depend on AF-01/AF-30; AF-84 depends on AF-11/AF-49/AF-67/AF-75; AF-85 depends on AF-84; AF-86 depends on AF-01. Supersession/alignment: no v5 AF is edited or renumbered — AF-68 sort_payouts_rows keeps its contract but its ordering becomes one CALLER of AF-81 (the D43 shared key subsumes its per-grid sort, Invalid-last added); AF-49's elapsed+current rule is extended by AF-76 to the Payouts grid with newest-left order; AF-20's monthly history aggregation pattern is refined by AF-84 into paid/pending-of-active plus cumulative-equals-Received-card semantics; AF-74 broker_persist is absorbed into the wider AF-77 attribute set without changing its five-surface write contract; AF-66 keeps its shared-lock semantics and gains the AF-86 storage enabler for its credit-day field. D43 is the LOCKED app-wide ordering (AF-81) with the dashboard surface (AF-79) and filter (AF-80) declared subsets — never a second rule; the automatic Danger rule stays in the day-wise engine (AF-67) and is cited here as the taxonomy source, not reimplemented. Schema delta for this wave: the AF-86 table rebuild (CHECK 1..28 -> 1..31, rows preserved) plus the attribute columns AF-77 persists (rating agency, issuer type, secured, face value, payout cycle, invested amount — broker already landed as AF-74); zero new tables. Alignment with parallel deliverables: docs/PRD_DK_Bond_Tracker_addendum_v6.json landed as the brief-36a sibling and was read id-for-id (FR-67..FR-74 semantics match the twelve AFs above: inline cell edit with immediate re-derivation, elapsed+current newest-left columns with F-231 named, seven-attribute collect with two-surface parity, dashboard chips + filter as the D43 subset, the app-wide sort standard with taxonomy and automatic Danger, Gmail/Outlook/Custom autofill with app-password-only auth and troubleshooting, returns history with paid·pending of active and cumulative equal to the Received card, Goals KPI links performing view AND tab activation, inline move panel with the exact D41 label strings); the SRS v6 sibling (brief 36a) carries the verifiable ACs and the F-233 implementation cautions this AF set implements — credit-day CHECK migration (AF-86), Goals view+tab link (AF-85), candidate whitelist extension to the D42 attribute set (AF-77); docs/Test_Plan_addendum and docs/Development_Order_addendum cover their own waves — D42/D43 test ids belong to a later test addendum. AF-01..AF-74 and all earlier coverage_map entries remain owned by their source documents and are unaltered."
+}

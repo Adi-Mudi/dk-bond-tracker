@@ -1,0 +1,164 @@
+{
+ "id": "Pseudocode_addendum_v6",
+ "kind": "pseudocode",
+ "version": "v1.0",
+ "status": "draft",
+ "project": "01_excel_dashboard",
+ "extends": "Pseudocode_addendum_v4",
+ "d5_rule": "Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved",
+ "d43_rule": "D43 LOCKED app-wide order: one shared sort key fed by HEALTH_ORDER {Danger: 0, On-going: 1, Matured: 2, Invalid: 3} on EVERY list surface — Danger first, On-going next, Matured/Completed last, Invalid last of all; Danger assignment is AUTOMATIC by the day-wise business rule (credit day passed with no payment entered by the due date -> Danger the same day); no manual status field anywhere; no per-screen reimplementation of the order",
+ "entries": [
+  {
+   "af_id": "AF-75",
+   "function_name": "payout_cell_edit",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: clicked payout cell (bond_id, month key inside the tenure window); editor submit = raw amount string + Received flag + Save|Cancel; current health of the row; today's date\nOUTPUT: on Save — payment_ledger upsert via the existing save_payment route, bonds.status re-derived day-wise and written, cell re-rendered received (amount + check) | pending (amount marked pending) | Missed (empty amount); on Cancel — zero writes, editor closed\nERRORS: non-numeric or negative amount -> named AF-30 validation error on the editor field, ledger untouched; month outside the tenure window -> named ERR-ledger-edit, zero writes; Matured row -> the cell is not editable (chip only), no editor opens\n1. Click on a payout cell: read row health (AF-67). health == 'Matured' -> render the non-editable Matured chip, STOP (FR-67: Matured keeps a chip, never an editor).\n2. health in {Danger, On-going, Invalid}: open the in-place editor on the cell — numeric amount input (min 0, step 0.01), Received flag checkbox, Save and Cancel (FR-67).\n3. Cancel -> close the editor, return; NO write touches payment_ledger, bonds.status or any aggregate.\n4. Save: trim the amount string; parse float; non-numeric or < 0 -> ERRORS path (named field error, zero writes). Amount == 0 is VALID and means unpaid (D5 rule: zero-value = unpaid).\n5. Write through the EXISTING payment route: POST /payment/<bond_id>/<month> -> save_payment(conn, bond_id, month, amount, paid_flag) — the AF-11 upsert (insert when no row, correct when a row exists). NO second write path is introduced.\n6. paid_flag = (checkbox on) AND (amount > 0) — the save_payment rule; a checked box with 0 stores unpaid.\n7. Re-derive immediately: window = tenure_month_map(bond_id, start_date, tenure_months); status = compute_row_status_daywise(window, tenure, credit_day, today) (AF-67); UPDATE bonds SET status = status WHERE id = bond_id — written BEFORE the response so dashboard totals, chips and returns history all refresh from the saved value (FR-67: every dependent status and aggregate re-derives immediately).\n8. Re-render the cell state from the stored row: amount > 0 and paid -> received (amount with check); amount > 0 not paid or 0 -> pending (amount marked pending); no row and month due -> Missed (empty amount).\n9. Re-sort the grid through the shared D43 key (AF-81) — a flip to Danger rises the row, a Matured sink drops it; this handler never sorts on its own (D43: one ordering function, no per-screen copy).\n10. Returns history aggregates (AF-84) are invalidated by the same save — the next tab render recomputes from the ledger; this handler never writes an aggregate cache.",
+   "complexity_note": "one ledger upsert + one status write per Save; re-sort is the shared key on the visible row set; Cancel is O(1) with zero writes",
+   "edge_cases": [
+    "amount 0 with Received checked -> stored unpaid (D5: zero-value = unpaid), cell renders pending or Missed by due state",
+    "Save on a month outside the tenure window (stale editor) -> named ERR-ledger-edit, zero writes",
+    "Matured row click -> chip only; no editor, no route call",
+    "re-Save correcting a previous amount -> save_payment 'corrected' branch updates the existing ledger row; status re-derived again",
+    "Negative or garbage amount -> named field error inside the editor; bonds and ledger byte-identical to before"
+   ]
+  },
+  {
+   "af_id": "AF-76",
+   "function_name": "month_columns_elapsed_current",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: position start_date, tenure_months; today's date; tenure window from tenure_month_map\nOUTPUT: ordered column list — elapsed months + current month ONLY, newest month first (left), oldest visible month last (right); never any month > current\nERRORS: invalid start_date or tenure -> named date/tenure error from the AF-50 arithmetic (same discipline as the grid it serves)\n1. current = month_key(today).\n2. window = tenure_month_map(start_date, tenure_months) — the full month-key list from start through tenure.\n3. visible = [key for key in window if key <= current] — elapsed + current ONLY; every future key is dropped before any render (FR-68; F-231 regression: a future Dec 2026 column rendered while current was Nov 2026 is exactly the defect this filter prevents).\n4. columns = reverse(visible) — newest month at the LEFT, oldest visible month at the right (D42 owner order).\n5. Header, payout cells and the payout editor (AF-75) all consume this ONE list; no surface recomputes the window independently.\n6. No stored header row and no manual window edit: each new month auto-extends its column from the ledger on the next render (AF-49 rule carried to the Payouts grid).\n7. The editor opened from a cell can only address months inside columns — a future month is unreachable in any state (FR-68: never rendered in header, cell or editor).",
+   "complexity_note": "one filter + one reverse over the tenure window (tens of months); O(window) per render, no I/O of its own",
+   "edge_cases": [
+    "current month inside the window -> it is the first (leftmost) column, highlighted by the grid chrome",
+    "start month == current month (fresh position) -> exactly one column",
+    "position started before the ledger import era -> visible still starts at the tenure start; no column appears before start_date",
+    "clock flip across a month boundary while the page is open -> next render recomputes from today; no polling"
+   ]
+  },
+  {
+   "af_id": "AF-77",
+   "function_name": "attribute_collect_candidate",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: Add Candidate form fields — company, ISIN, rating, coupon, est. yield, source note (existing) PLUS rating agency, issuer type, secured, face value, payout cycle, invested amount, broker (D42 set)\nOUTPUT: bonds row insert carrying the complete attribute set (NULL for left-empty optionals); read-back dict for the Watchlist Details grid (AF-78)\nERRORS: invalid percent -> AF-70 named field error, zero writes; invalid face value / invested amount (non-numeric or negative) -> named field error, zero writes; duplicate active candidate -> AF-40 sole-entry guard rejection\n1. Trim every submitted string; empty optional -> store NULL (never a fabricated default).\n2. Route coupon and est. yield through the AF-70 validator: non-negative numeric pattern, leading zeros allowed ('00.00' -> 0); empty/garbage/negative -> named field error, ZERO writes (D41 rule carried).\n3. Parse face value and invested amount as non-negative numerics; non-numeric or negative -> named field error naming the field, zero writes.\n4. rating agency, issuer type, secured, payout cycle, broker are free-text optionals — trimmed, stored as submitted (broker already owned by AF-74 persistence).\n5. Run the AF-38 candidate-add funnel with the AF-40 sole-entry guard (no duplicate active candidate for the same company/ISIN).\n6. VALIDATION BEFORE INSERT: all field checks above complete before any INSERT begins — a rejected attribute leaves every table untouched (FR-64 rule).\n7. INSERT INTO bonds (company, isin, rating, coupon, est_yield, source_note, rating_agency, issuer_type, secured, face_value, payout_cycle, invested_amount, broker, ...) VALUES (...) — one row, complete attribute set.\n8. Read the row back and hand the attribute dict to the Watchlist Details grid — the SAME dict shape both parity surfaces consume (AF-78); nothing collected here may be absent from that dict (FR-69: no collected-but-undisplayed attribute).",
+   "complexity_note": "field validation O(fields) + one insert; no aggregation",
+   "edge_cases": [
+    "face value 0 -> accepted as a value (non-negative); NULL only when the field is left empty",
+    "coupon '00.00' -> AF-70 parses to 0, stored, zero preserved (D41 smoke finding closed)",
+    "all optionals empty -> insert still succeeds; surfaces render em dashes (never invented values)",
+    "duplicate candidate -> sole-entry guard rejects before any attribute write"
+   ]
+  },
+  {
+   "af_id": "AF-78",
+   "function_name": "attribute_display_parity",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: bonds row attribute dict (AF-77 write output, read via AF-52 / holdings read path); shared facts-grid partial (locked label order + money/percent/em-dash formatting)\nOUTPUT: Watchlist Details facts grid for the candidate; My Holdings attribute strip for the held position; identical labels and formats on both\nERRORS: missing attribute key -> render em dash via the shared partial; surfaces never raise, never invent values\n1. SHARED PARTIAL: one renderer maps the attribute dict to (label, formatted value) pairs in the locked order — rating agency, issuer type, secured, face value, payout cycle, invested amount, broker, rating, coupon, est. yield, source note.\n2. Formatting lives ONLY in the partial: money -> locale currency, percent -> one-decimal, NULL -> em dash. No surface re-formats.\n3. Watchlist Details panel (candidate): expand row -> render partial(candidate_dict).\n4. My Holdings attribute strip (held position): under each holding row -> render partial(holding_dict) — the compact strip variant uses the SAME pairs, wrapped tighter; labels byte-identical (FR-69 parity).\n5. PARITY INVARIANT: the pair list is built from the dict keys the candidate form accepts (AF-77) — a key collected but not rendered, or rendered but not collected, is a defect caught at this boundary (FR-69).\n6. After Move to Portfolio (AF-66) the holding dict is the roundtripped candidate dict — strip values equal the Details values the candidate showed.\n7. Re-render on attribute edit (AF-77) and on move: both surfaces re-pull the row; no cached pair lists.",
+   "complexity_note": "O(attributes) rendering per surface; zero queries of its own beyond the row read",
+   "edge_cases": [
+    "NULL rating agency -> em dash on BOTH surfaces (never an empty cell on one and a dash on the other)",
+    "held bond predates the attribute columns -> all new keys NULL -> dashes; no crash, no fabricated values",
+    "privacy mode ON -> amounts masked by the shared formatter, labels unchanged on both surfaces"
+   ]
+  },
+  {
+   "af_id": "AF-79",
+   "function_name": "dashboard_priority_sort",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: dashboard company rows each carrying status (Danger/On-going/Matured) and identity (company, id); shared sort_key_appwide (AF-81)\nOUTPUT: rows ordered Danger -> On-going -> Matured with stable tiebreak; status chip rendered per row from the same status value consumed by the sort\nERRORS: unknown status -> the shared key raises the named ERR-payout-sort; the dashboard never catches-and-sorts-silently\n1. rows = dashboard query rows, each tagged with its day-wise status (AF-67).\n2. rows = sort_key_appwide(rows) — the ONE shared D43 key: (HEALTH_ORDER[status], company.lower(), id). The dashboard NEVER restates the order (D43: no per-screen reimplementation).\n3. Render each row's status chip from the SAME status value the sort consumed — chip and position can never disagree.\n4. Invalid rows (AF-72 guard) flow through the same key and land last of all (D43: Invalid last).\n5. This order is the declared dashboard-local SUBSET of the app-wide D43 standard — same order, same taxonomy, never a second rule (FR-70).\n6. A status flip (AF-75 save, engine re-derivation) reorders on the next render with no user action — Danger rises, Matured sinks (D43).",
+   "complexity_note": "one sort over the visible row set via the shared key; no per-row I/O",
+   "edge_cases": [
+    "two Danger rows -> tiebreak company.lower() then id keeps the order stable across re-renders",
+    "all rows Matured -> full list renders in company order under the single status group",
+    "unknown status string from a corrupt row -> named ERR-payout-sort surfaces; no silent mis-sort"
+   ]
+  },
+  {
+   "af_id": "AF-80",
+   "function_name": "status_filter",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: selected filter chip in {All, Danger, On-going, Matured}; priority-sorted dashboard rows from AF-79\nOUTPUT: filtered subset preserving the incoming relative order; active chip state; zero writes\nERRORS: chip value outside the enum -> treat as All (restore full ordered list); never mutate a status\n1. Read the selected chip: value in {All, Danger, On-going, Matured}; anything else -> All.\n2. All -> show every row in the AF-79 order (the full ordered list restored).\n3. Otherwise -> subset = [row for row in rows if row.status == selected] — FILTERING NEVER RE-SORTS: the surviving rows keep their relative D43 order from AF-79 (D43 subset discipline, FR-70).\n4. Mark the selected chip active, all others inactive; render the subset rows with their chips unchanged.\n5. Filtering is a pure view operation: no status write, no health re-derivation, no ledger touch (FR-70 read-only).\n6. Re-render while a filter is active: re-evaluate membership against freshly derived statuses (a row that flipped to Danger while On-going was selected drops out; under Danger it appears) — the filter never clears itself silently.",
+   "complexity_note": "O(rows) subset pass; no sort, no I/O",
+   "edge_cases": [
+    "filter Danger with zero Danger rows -> empty list with the chips still active; All restores",
+    "status flip while filtered -> membership re-evaluated on next render, relative order kept",
+    "unknown chip state from stale UI -> treated as All; full ordered list shown"
+   ]
+  },
+  {
+   "af_id": "AF-81",
+   "function_name": "sort_key_appwide",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: rows where each row carries status (health), company name and id; HEALTH_ORDER = {Danger: 0, On-going: 1, Matured: 2, Invalid: 3} (defined ONCE in the status engine)\nOUTPUT: rows sorted by key = (HEALTH_ORDER[status], str(company).lower(), id) — Danger first, On-going next, Matured/Completed last, Invalid last of all\nERRORS: status not in HEALTH_ORDER -> raise named AppError('ERR-payout-sort', 'unknown health value: <value>') — NEVER a silent fallback, NEVER a default bucket\n1. Import HEALTH_ORDER from the status engine; no screen defines its own copy of the order (D43 LOCKED: one standard, every list surface — Dashboard, My Holdings, Payouts, exports, print, alerts).\n2. def sort_key(row): health = row.status; if health not in HEALTH_ORDER -> raise ERR-payout-sort; return (HEALTH_ORDER[health], str(row.company or '').lower(), row.id).\n3. return sorted(rows, key=sort_key) — the single function every surface calls; a second implementation of the order anywhere is a defect (D43).\n4. Taxonomy (codified beside the key): Danger = immediate attention required (missed payment, overdue, missing data); On-going = active and progressing normally, nothing needs attention; Matured/Completed = successfully finished, no further action.\n5. Danger stays AUTOMATIC: assignment comes only from the day-wise engine (AF-67) — credit day passed with no payment entered by the due date -> Danger the same day (due on the 1st, not entered by the 1st -> Danger on the 1st); there is NO manual status field (D43).\n6. Invalid (AF-72 render guard rows) sorts after Matured via HEALTH_ORDER[3] — a bad row never outranks a healthy one and never crashes the sort.\n7. Callers: dashboard_priority_sort (AF-79), payouts row order (AF-68 becomes one caller), holdings list, exports, print, alerts — all pass their rows through this function unchanged.",
+   "complexity_note": "one comparison sort; key extraction O(1) per row; no I/O",
+   "edge_cases": [
+    "row with status 'Invalid' among Danger rows -> lands last of all via HEALTH_ORDER",
+    "empty company name -> str(or '') keeps the key total; ordering falls through to id",
+    "status value 'Completed' arriving from a legacy row -> named ERR-payout-sort unless mapped to Matured by the label layer BEFORE this key (display labels are AF-69's job)"
+   ]
+  },
+  {
+   "af_id": "AF-82",
+   "function_name": "email_preset_apply",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: selected provider in {Gmail, Outlook / Microsoft 365, Custom}; current alert_prefs SMTP values (host, port, security, from, to)\nOUTPUT: autofilled host/port/security fields; persisted alert_prefs values on save; From/To untouched; setup guide + troubleshooting chrome from the same view\nERRORS: provider outside the enum -> named AF-30 error, NO field is autofilled\n1. PRESET TABLE (single source): Gmail -> (smtp.gmail.com, 587, TLS); Outlook / Microsoft 365 -> (smtp.office365.com, 587, STARTTLS); Custom -> ('', '', '').\n2. On provider select: look up the triple; Custom -> clear ONLY host/port/security for manual entry (do not touch From/To).\n3. Autofill writes ONLY the host/port/security inputs in the Settings -> Email form — From and To keep their current values (FR-72: a preset switch never overwrites identity fields).\n4. The Gmail row of the guide documents 465/SSL as the alternative and app-password-only auth (less-secure-apps is dead; the login password is never accepted).\n5. On Settings save: persist provider, host, port, security (and any manual From/To edits) to alert_prefs via the AF-01 key-value store; restore the same values on the next Settings render.\n6. Render the collapsible setup guide from the same view: Gmail — enable 2-Verification, create an App Password at the account page, paste the 16-char app password, never the login password; Outlook — same app-password concept.\n7. Render the troubleshooting list: wrong port -> 587 with TLS/STARTTLS or 465 with SSL; most providers refuse plain connections; check the spam folder.\n8. The Send test email action (AF-83) reads exactly this persisted config — the preset is the single write path the tester trusts.",
+   "complexity_note": "constant-time triple lookup + one prefs write; guide and troubleshooting are static chrome",
+   "edge_cases": [
+    "select Gmail then Custom -> host/port/security cleared, From/To preserved",
+    "unknown provider from a stale control -> named error, no autofill, form unchanged",
+    "save with Custom and empty host -> allowed at config time; the test send (AF-83) fails fast with a banner naming the missing field",
+    "re-open Settings -> provider + autofilled values restored from alert_prefs, no re-select needed"
+   ]
+  },
+  {
+   "af_id": "AF-83",
+   "function_name": "email_send_test",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: current SMTP config from alert_prefs (host, port, security, from, to); Send test email action on Settings -> Email\nOUTPUT: inline success banner after a delivered fixed test message; inline failure banner naming the cause; zero persistence changes\nERRORS: missing config field -> banner naming the field, BEFORE any connection; auth refused -> banner 'authentication refused — Gmail requires an App Password'; connection refused -> banner; TLS/STARTTLS mismatch -> banner; NEVER a 500, NEVER a traceback or internal path (AF-30)\n1. Read host, port, security, from, to from alert_prefs. ANY of the five empty/missing -> render the failure banner naming the missing field; STOP (no connection attempt).\n2. Open an SMTP session with the same transport family as send_alert_email: security TLS -> SMTP(host, port) + starttls(); STARTTLS -> SMTP(host, port) + starttls(); SSL -> SMTP_SSL(host, 465-equivalent port); None -> plain (most providers refuse; the troubleshooting list says so).\n3. login(from, password) — the password is read from the environment/config the alert path already uses; it is NEVER persisted by this route and NEVER echoed into the banner.\n4. send fixed test message: From -> To, subject 'DK Bond Tracker test email', short body. Delivered -> success banner on the Settings view.\n5. Any exception during connect/auth/send -> close the session, map to a NAMED banner cause (auth refused / connection refused / TLS mismatch / provider refused plain connection); the page stays HTTP 200 with the banner — never a 500 (FR-72).\n6. The banner persists on the view until the next render or the next attempt; the user reads the outcome without leaving Settings.\n7. Writes NOTHING: alert_prefs, payment_ledger and bonds are byte-identical after any attempt — a test never mutates config or data (FR-72).",
+   "complexity_note": "one SMTP round-trip; bounded by provider timeout; no DB writes",
+   "edge_cases": [
+    "empty host -> banner names 'SMTP host' before any socket is opened",
+    "Gmail with login password instead of App Password -> auth-refused banner pointing at the app-password flow",
+    "port 587 with security None -> provider refuses plain -> banner + troubleshooting hint (587 TLS/STARTTLS or 465 SSL)",
+    "provider timeout -> connection-refused banner; no traceback rendered"
+   ]
+  },
+  {
+   "af_id": "AF-84",
+   "function_name": "returns_history_aggregate",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: payment_ledger (bond_id, month, amount, paid); active-position set from day-wise health (AF-67); current month key; first payout month\nOUTPUT: month rows newest first — month label, Interest received, Positions paid · pending (of active), Cumulative received; current row flagged; no future rows; latest cumulative == Received KPI card\nERRORS: ledger unreadable -> named ERR-query-counts style error surfaced by AF-30; never a partial table\n1. current = month_key(today). Row months = months from the first payout month through current, DESC (newest first) — future months never appear (F-231 discipline; same elapsed+current rule as AF-76).\n2. SQL sketch for the money column:\n     SELECT month, SUM(amount) AS interest\n       FROM payment_ledger\n      WHERE paid = 1 AND month <= :current\n      GROUP BY month\n      ORDER BY month DESC;\n3. SQL sketch for paid/pending of ACTIVE positions (per month):\n     SELECT pl.month,\n            SUM(CASE WHEN pl.paid = 1 THEN 1 ELSE 0 END) AS paid_count\n       FROM payment_ledger pl\n       JOIN bonds b ON b.id = pl.bond_id\n      WHERE b.status != 'Matured' AND pl.month <= :current\n      GROUP BY pl.month\n      ORDER BY pl.month DESC;\n     pending_count(month) = active_count - paid_count(month) — active_count = COUNT of positions whose status != 'Matured' (Matured/Completed drop out of BOTH sides, FR-73 'of active positions').\n4. Merge per month: interest received (step 2, 0 when absent), 'paid · pending' (step 3), from the DESC row list; months inside the window with no ledger rows render 0 interest and 0 · active_count — never a dropped row.\n5. Cumulative: walk the DESC rows, running_total += interest; store running_total per row — its latest (newest) value EQUALS the Received KPI card total (FR-73: latest row = Received card).\n6. Flag the current month row for highlight (FR-73); the newest row is always the current month when the position set is non-empty.\n7. Invalidate on every payment save (AF-75): the next tab render recomputes from the ledger — never serve a stale aggregate.\n8. Render columns: Month | Interest received | Positions paid · pending (of active positions) | Cumulative received — labels exact per design v6 (FR-73).",
+   "complexity_note": "two GROUP BY scans over the ledger + one linear cumulative pass; months x positions is small (tens x units)",
+   "edge_cases": [
+    "month with zero paid rows inside the window -> 0 interest, 0 paid against active_count — row present, not skipped",
+    "all positions Matured -> active set empty; paid/pending renders 0 · 0; interest rows continue from the ledger",
+    "no ledger rows at all -> single current-month row with zeros; Received card shows 0 matching the cumulative",
+    "payment corrected to 0 (AF-75) -> interest for that month drops on recompute; cumulative rebuilds from first payout"
+   ]
+  },
+  {
+   "af_id": "AF-85",
+   "function_name": "goals_kpi_link",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: Goals KPI strip links (Earned this month, Total received); navigation target = Dashboard view + Returns history tab id; current view + active tab\nOUTPUT: view switched to Dashboard AND Returns history tab activated (Overview deactivated) in ONE navigation; zero writes\nERRORS: none user-facing — unknown tab id falls back to the Returns tab by name; navigation never raises\n1. Render the Goals KPI strip with the two links wired to the navigation handler: Earned this month -> (view=Dashboard, tab=returns_history); Total received -> (view=Dashboard, tab=returns_history).\n2. On activation: step A — switch the view to Dashboard; step B — activate the Returns history tab (deactivate Overview). BOTH steps required; a view switch that lands on Overview is a defect (FR-73 implementation caution).\n3. Perform A+B in one navigation — no intermediate render on the wrong tab.\n4. Figures on the strip come from the AF-84 aggregates: Total received = latest cumulative row; Earned this month = current-month interest — Goals strip and Returns history never disagree (FR-73).\n5. If already on Dashboard with Returns active: keep the tab, skip a redundant reload.\n6. Navigation writes NOTHING — no ledger, status or prefs touch (FR-73 read-only link).",
+   "complexity_note": "client-side navigation only; figures arrive with the Dashboard render from AF-84",
+   "edge_cases": [
+    "link activated from Goals while Dashboard was never opened this session -> Dashboard boots directly on the Returns tab",
+    "second click while already on Returns -> no-op reload guard; tab stays active",
+    "Goals with zero payouts -> strip figures 0; link still navigates; Returns tab renders the zero-row table"
+   ]
+  },
+  {
+   "af_id": "AF-86",
+   "function_name": "credit_day_check_migration",
+   "language_flavor": "python-like",
+   "pseudocode": "INPUT: bonds table with CHECK (credit_day >= 1 AND credit_day <= 28); all bonds rows; alert_prefs marker key 'credit_day_check_1_31_migrated'\nOUTPUT: bonds rebuilt with CHECK (credit_day >= 1 AND credit_day <= 31); every row and id preserved; marker written; second boot = no-op\nERRORS: copy failure -> transaction rollback, original table untouched, named AF-30 error (ERR-migration) surfaces; never a half-migrated schema\n1. Boot path (_ensure_db): read alert_prefs marker 'credit_day_check_1_31_migrated'. Marker present -> SKIP (idempotent; the rebuild runs EXACTLY once).\n2. Inspect PRAGMA table_info(bonds): if the credit_day CHECK text already allows 31 -> write the marker, SKIP (fresh DBs are created with the widened CHECK directly).\n3. BEGIN TRANSACTION (the whole rebuild is ONE transaction — failure rolls back to the original table).\n4. CREATE TABLE bonds_new (LIKE the current bonds schema, with the widened clause):\n     CREATE TABLE bonds_new (\n       id INTEGER PRIMARY KEY,\n       company TEXT,\n       isin TEXT UNIQUE,\n       name TEXT,\n       amount REAL,\n       maturity REAL,\n       start_date TEXT,\n       end_date TEXT,\n       tenure_months INTEGER,\n       credit_day INTEGER CHECK (credit_day >= 1 AND credit_day <= 31),\n       status TEXT DEFAULT 'On-going',\n       created_at TEXT DEFAULT CURRENT_TIMESTAMP\n       -- plus every _ensure_columns column (face_value, tlp_amount, payment_type, interest_payout, qty, watch_investment, broker, attribute columns)\n     );\n5. INSERT INTO bonds_new SELECT <every column in the current table> FROM bonds — preserve all rows; ids unchanged (PRIMARY KEY carries over).\n6. DROP TABLE bonds; ALTER TABLE bonds_new RENAME TO bonds; recreate any indexes.\n7. Write the alert_prefs marker; COMMIT.\n8. Rebuild runs BEFORE any insert path (AF-38 candidate add, AF-66 move, AF-65 add position) writes a credit day — an insert of 29..31 can never hit the old 28 ceiling (FR-74 enabler; D41 owner rule 1..31 now agrees with storage; FR-54 app validation already accepted 1..31).",
+   "complexity_note": "one-time O(rows) copy inside a single transaction; zero-cost on every subsequent boot (marker/PRAGMA guard)",
+   "edge_cases": [
+    "fresh database -> bonds created with the widened CHECK; step 2 writes the marker, no rebuild",
+    "rows with credit_day already 29..31 present (imported) -> copy preserves them; before the migration these rows could not have been inserted through the CHECK",
+    "crash mid-rebuild -> transaction rollback leaves the original table; next boot retries from step 1",
+    "second boot after success -> marker hit, SKIP; PRAGMA guard as belt-and-braces if the marker row was lost"
+   ]
+  }
+ ]
+}
