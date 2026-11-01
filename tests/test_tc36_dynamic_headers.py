@@ -95,7 +95,7 @@ def test_tc36_grid_table_borders_defined(db_path):
     html = app.test_client().get("/grid").get_data(as_text=True)
     assert "grid-table" in html
     assert "border-bottom: 2px solid var(--border)" in html
-    assert "border-bottom: 1px solid #dee2e6" in html
+    assert "border-bottom: 1px solid var(--border)" in html
 
 
 def test_tc36_schema_unchanged_after_render(db_path, monkeypatch):
