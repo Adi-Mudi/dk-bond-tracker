@@ -366,11 +366,20 @@ def create_app(db_path=None):
                 ) from exc
             paid = request.form.get("paid") in ("on", "1", "true", "yes")
             with get_conn(db_file) as conn:
-                save_payment(conn, bond_id, month, amount, paid)
                 bond = conn.execute(
                     "SELECT start_date, tenure_months, credit_day FROM bonds WHERE id = ?",
                     (bond_id,),
                 ).fetchone()
+                if bond is not None and MONTH_PATTERN.match(str(month).strip()):
+                    window = tenure_month_map(
+                        conn, bond_id, bond["start_date"], bond["tenure_months"]
+                    )
+                    if month not in window:
+                        raise AppError(
+                            "ERR-ledger-edit",
+                            f"month outside the payment window: {month!r}",
+                        )
+                save_payment(conn, bond_id, month, amount, paid)
                 if bond is None:
                     raise AppError("ERR-ledger-edit", f"bond not found: {bond_id!r}")
                 today = date.today()
@@ -557,10 +566,18 @@ def create_app(db_path=None):
     def watch_candidates(db_file):
         with get_conn(db_file) as conn:
             rows = conn.execute(
-                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, broker "
+                "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, "
+                "broker, rating_agency, issuer_type, secured, face_value, payout_cycle, "
+                "watch_investment "
                 "FROM bonds WHERE watch_state = 'watching' ORDER BY company COLLATE NOCASE, id"
             ).fetchall()
-        return [dict(row) for row in rows]
+        candidates = []
+        for row in rows:
+            item = dict(row)
+            item["source_note"] = item.pop("name", None)
+            item["invested"] = item.pop("watch_investment", None)
+            candidates.append(item)
+        return candidates
 
     def watch_snapshot(db_file):
         with get_conn(db_file) as conn:
@@ -614,6 +631,40 @@ def create_app(db_path=None):
                     )
                 if not rating:
                     raise AppError("ERR-watch-add", "rating is required")
+                rating_agency = str(form.get("rating_agency", "")).strip() or None
+                issuer_type = str(form.get("issuer_type", "")).strip() or None
+                if issuer_type is not None and issuer_type not in (
+                    "corporate_bond",
+                    "ncd",
+                    "sdi",
+                    "government",
+                    "fd",
+                ):
+                    raise AppError(
+                        "ERR-watch-add",
+                        f"issuer_type must be one of corporate_bond, ncd, sdi, "
+                        f"government, fd: {issuer_type!r}",
+                    )
+                payout_cycle = str(form.get("payout_cycle", "")).strip() or None
+                if payout_cycle is not None and payout_cycle not in (
+                    "monthly",
+                    "quarterly",
+                    "annual",
+                ):
+                    raise AppError(
+                        "ERR-watch-add",
+                        f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
+                    )
+                secured = 1 if str(form.get("secured", "1")) == "1" else 0
+                face_value = percent_value(
+                    form.get("face_value", ""), "face_value", "ERR-watch-add", required=False
+                )
+                watch_investment = percent_value(
+                    form.get("watch_investment", ""),
+                    "watch_investment",
+                    "ERR-watch-add",
+                    required=False,
+                )
                 with get_conn(db_file) as conn:
                     duplicate = conn.execute(
                         "SELECT company, isin, watch_state FROM bonds "
@@ -628,8 +679,24 @@ def create_app(db_path=None):
                         )
                     cursor = conn.execute(
                         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
-                        "expected_yield_pct, watch_state, broker) VALUES (?, ?, ?, ?, ?, ?, 'watching', ?)",
-                        (company, isin, source_note, rating, coupon, est_yield, broker),
+                        "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
+                        "secured, face_value, payout_cycle, watch_investment) "
+                        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            company,
+                            isin,
+                            source_note,
+                            rating,
+                            coupon,
+                            est_yield,
+                            broker,
+                            rating_agency,
+                            issuer_type,
+                            secured,
+                            face_value,
+                            payout_cycle,
+                            watch_investment,
+                        ),
                     )
                     if cursor.rowcount != 1:
                         raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
@@ -709,6 +776,7 @@ def create_app(db_path=None):
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
                     "credit_day = ?, broker = CASE WHEN ? != '' THEN ? ELSE broker END, "
+                    "amount = COALESCE(amount, watch_investment), "
                     "watch_state = 'holding' "
                     "WHERE id = ? AND watch_state = 'watching'",
                     (
@@ -957,8 +1025,17 @@ def create_app(db_path=None):
                     "isin": row["isin"] or "",
                     "rating": row["rating"],
                     "coupon": row["coupon_pct"],
+                    "coupon_pct": row["coupon_pct"],
                     "yield_pct": row["expected_yield_pct"],
+                    "expected_yield_pct": row["expected_yield_pct"],
                     "frequency": row["payout_cycle"],
+                    "payout_cycle": row["payout_cycle"],
+                    "rating_agency": row["rating_agency"],
+                    "issuer_type": row["issuer_type"],
+                    "secured": row["secured"],
+                    "face_value": row["face_value"],
+                    "broker": row["broker"],
+                    "source_note": row["name"],
                     "invested": invested,
                     "received": received_by_bond_map.get(row["id"], 0.0),
                     "next_payout": next_payout,
@@ -985,7 +1062,13 @@ def create_app(db_path=None):
                 )
             except AppError:
                 prepared.append((row, [], entries, "Invalid", True))
-        months = list_months_through_current(today, min(first_keys) if first_keys else None)
+        current_key = month_key(today)
+        months = [
+            key
+            for key in list_months_through_current(today, min(first_keys) if first_keys else None)
+            if key <= current_key
+        ]
+        months.reverse()
         rows = []
         for row, window, entries, health, invalid in prepared:
             window_set = set(window)
@@ -999,19 +1082,29 @@ def create_app(db_path=None):
             else:
                 for key in months:
                     entry = entries.get(key)
-                    if key in window_set:
-                        if entry_paid(entry):
-                            cells.append({"kind": "amount", "amount": float(entry["amount"])})
-                        elif health == "Matured":
-                            cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
-                        elif month_due_passed(key, row["credit_day"], today):
-                            cells.append({"kind": "chip", "text": "Missed", "chip": "chip-danger"})
-                        else:
-                            cells.append({"kind": "chip", "text": "Due", "chip": "chip-ongoing"})
-                    elif health == "Matured":
-                        cells.append({"kind": "chip", "text": "Matured", "chip": "chip-matured"})
-                    else:
+                    if health == "Matured":
+                        cells.append({"kind": "matured"})
+                        continue
+                    if key not in window_set:
                         cells.append({"kind": "text", "text": "—"})
+                        continue
+                    if entry_paid(entry):
+                        cells.append(
+                            {"kind": "received", "month": key, "amount": float(entry["amount"])}
+                        )
+                        continue
+                    amount_value = 0.0
+                    if entry is not None:
+                        try:
+                            amount_value = float(entry["amount"] or 0.0)
+                        except (TypeError, ValueError):
+                            amount_value = 0.0
+                    if amount_value > 0:
+                        cells.append({"kind": "pending", "month": key, "amount": amount_value})
+                    elif month_due_passed(key, row["credit_day"], today):
+                        cells.append({"kind": "missed", "month": key})
+                    else:
+                        cells.append({"kind": "pending", "month": key, "amount": None})
             rows.append(
                 {
                     "id": row["id"],
@@ -1028,7 +1121,8 @@ def create_app(db_path=None):
 
     def _portfolio_context(conn, today, tab, form, error, code):
         bond_rows = conn.execute(
-            "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
+            "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
+            "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker, "
             "amount, start_date, end_date, tenure_months, credit_day "
             "FROM bonds WHERE watch_state = 'holding' "
             "ORDER BY id"
