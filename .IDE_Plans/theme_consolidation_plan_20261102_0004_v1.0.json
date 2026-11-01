@@ -40,7 +40,8 @@
         "decision": "fix-watchlist sync deferred",
         "detail": "User said: create separate git branch, then we will work. Main src only in this plan; fix-watchlist mirroring is future separate work (ASSUMED interpretation - confirm at approval)"
       }
-    ]
+    ],
+    "status": "COMPLETE - merged to dev as 742a22d"
   },
   "documents": {
     "truth": [
@@ -282,7 +283,7 @@
           "from": "branch state",
           "to": "merged ONLY after user says yes (Approval Gate - never self-approve)",
           "reason": "Rule 14 approval gate",
-          "status": "PENDING"
+          "status": "DONE"
         }
       ]
     }
@@ -306,5 +307,22 @@
       "risk": "theme.js/app.js load order regression if a template blocks head scripts",
       "mitigation": "both scripts stay at end of body, theme.js before app.js; tc139-style fetch assertions verify 200s"
     }
-  ]
+  ],
+  "retrospective": {
+    "what_went_well": [
+      "herdr captain+worker flow executed P2-P4 with byte-faithful plan adherence (verified by 2 reviewers, 0 critical/major)",
+      "file work survived the herdr workspace restart - edits on disk were the recovery point",
+      "two-family reviewer gate caught 4 real minors including a dark-mode surface bug (--white) that predates this change"
+    ],
+    "what_failed": [
+      "herdr workspace w3S with the whole team vanished mid-P4 (server kept running; workspace closed) - cause unknown, team respawn skipped because remaining work was PM-doable",
+      "cline reviewer model cline-free/mimo-v2.6-flash rejected by cline at first prompt (Select another model) - liveness pre-check passed config presence but not model acceptance",
+      "herdr agent prompt paste+Enter atomic submission did not submit on cline TUI (text sat unsubmitted); raw send-text + manual Enter used on the replacement"
+    ],
+    "what_to_improve": [
+      "probe the exact model acceptance (not just config presence) before spawning a reviewer CLI",
+      "commit incrementally per phase so team loss never orphans more than one phase",
+      "keep pre-paint boot script inline and note it as a permanent constraint in any future theme work"
+    ]
+  }
 }
