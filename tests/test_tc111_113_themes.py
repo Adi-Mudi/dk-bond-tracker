@@ -41,7 +41,7 @@ def test_tc113_header_and_settings_stay_in_sync(db_path):
     settings = client.get("/settings").get_data(as_text=True)
     assert _seg_values(home) == _radio_values(settings)
     assert 'data-theme-value="system" checked' in settings
-    js = (ROOT / "src" / "static" / "app.js").read_text(encoding="utf-8")
+    js = (ROOT / "src" / "static" / "theme.js").read_text(encoding="utf-8")
     assert "themeSegments" in js and "themeRadios" in js
 
 
@@ -55,10 +55,13 @@ def test_tc111_boot_script_sets_theme_before_paint(db_path):
 
 
 def test_tc111_app_js_default_and_persist(db_path):
-    js = (ROOT / "src" / "static" / "app.js").read_text(encoding="utf-8")
+    js = (ROOT / "src" / "static" / "theme.js").read_text(encoding="utf-8")
     assert "localStorage.getItem('dk-theme') || 'system'" in js
     assert "localStorage.setItem('dk-theme'" in js
     assert "data-theme" in js
+    app = create_app(str(db_path))
+    client = app.test_client()
+    assert client.get("/static/theme.js").status_code == 200
 
 
 def test_tc111_dark_theme_block_exists_and_avoids_pure_black():

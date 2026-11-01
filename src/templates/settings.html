@@ -22,9 +22,9 @@
 
 <div class="card" id="appearance-card">
   <h2>Appearance</h2>
-  <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="system" checked> System (follow OS)</label>
-  <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="light"> Light (default)</label>
-  <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="dark"> Dark</label>
+  {% for value, label in themes %}
+  <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="{{ value }}"{% if value == 'system' %} checked{% endif %}> {{ label }}</label>
+  {% endfor %}
   <p class="caption">Theme is saved on this device.</p>
 </div>
 
