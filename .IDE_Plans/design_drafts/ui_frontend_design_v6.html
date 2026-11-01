@@ -500,6 +500,13 @@ tr[hidden] { display: none; }
     </div>
   </div>
 
+  <div class="tabs" id="dashboard-tabs">
+    <button type="button" class="tab active" data-dtab="overview">Overview</button>
+    <button type="button" class="tab" data-dtab="returns">Returns history</button>
+  </div>
+
+  <div class="panel active" id="dpanel-overview">
+
   <div class="stat-row">
     <div class="stat-card primary">
       <div class="stat-label">Total Invested</div>
@@ -571,7 +578,9 @@ tr[hidden] { display: none; }
     </div>
     <p class="caption note-line">Monthly history shows completed months + current month only — future months are never shown.</p>
   </div>
+  </div>
 
+  <div class="panel" id="dpanel-returns">
   <div class="card" id="returns">
     <h2>Returns history</h2>
     <div class="table-wrap">
@@ -580,7 +589,7 @@ tr[hidden] { display: none; }
           <tr>
             <th>Month</th>
             <th class="num">Interest received</th>
-            <th class="num">Positions paid</th>
+            <th class="num">Positions paid · pending</th>
             <th class="num">Cumulative received</th>
           </tr>
         </thead>
@@ -588,43 +597,44 @@ tr[hidden] { display: none; }
           <tr class="current-month-row">
             <td>Nov 2026 <span class="chip chip-watching">Current</span></td>
             <td class="num money">₹1,200.00</td>
-            <td class="num">1</td>
+            <td class="num">1 · 5</td>
             <td class="num money">₹28,500.00</td>
           </tr>
           <tr>
             <td>Oct 2026</td>
             <td class="num money">₹20,250.00</td>
-            <td class="num">5</td>
+            <td class="num">5 · 1</td>
             <td class="num money">₹27,300.00</td>
           </tr>
           <tr>
             <td>Sep 2026</td>
             <td class="num money">₹2,300.00</td>
-            <td class="num">3</td>
+            <td class="num">3 · 3</td>
             <td class="num money">₹7,050.00</td>
           </tr>
           <tr>
             <td>Aug 2026</td>
             <td class="num money">₹2,200.00</td>
-            <td class="num">3</td>
+            <td class="num">3 · 3</td>
             <td class="num money">₹4,750.00</td>
           </tr>
           <tr>
             <td>Jul 2026</td>
             <td class="num money">₹1,750.00</td>
-            <td class="num">2</td>
+            <td class="num">2 · 4</td>
             <td class="num money">₹2,550.00</td>
           </tr>
           <tr>
             <td>Jun 2026</td>
             <td class="num money">₹800.00</td>
-            <td class="num">1</td>
+            <td class="num">1 · 5</td>
             <td class="num money">₹800.00</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p class="caption">Newest month first — current month highlighted. Future months are never shown.</p>
+    <p class="caption">Interest Received = total amount credited to you in that month. Positions paid · pending = how many of your active positions received their payout that month vs still awaiting it (of 6 active). Cumulative Received = running total of all interest from your first payout through this month (latest row = the Received card). Newest month first — current month highlighted; future months are never shown.</p>
+  </div>
   </div>
 </section>
 
@@ -1403,13 +1413,24 @@ tr[hidden] { display: none; }
     });
   });
 
-  var tabs = document.querySelectorAll('.tab');
+  var tabs = document.querySelectorAll('.tab:not([data-dtab])');
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
       tabs.forEach(function (t) { t.classList.remove('active'); });
       tab.classList.add('active');
       document.querySelectorAll('#portfolio-panels .panel').forEach(function (p) {
         p.classList.toggle('active', p.id === 'panel-' + tab.getAttribute('data-tab'));
+      });
+    });
+  });
+
+  var dtabs = document.querySelectorAll('#dashboard-tabs .tab');
+  dtabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      dtabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      document.querySelectorAll('#view-dashboard .panel').forEach(function (p) {
+        p.classList.toggle('active', p.id === 'dpanel-' + tab.getAttribute('data-dtab'));
       });
     });
   });
