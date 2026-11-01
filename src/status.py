@@ -49,7 +49,11 @@ def tenure_month_map(conn, bond_id, start_date, tenure_months):
     ).fetchall()
     for row in rows:
         amount = row["amount"]
-        paid_map[row["month"]] = bool(row["paid"]) and amount is not None and float(amount) > 0
+        try:
+            numeric = float(amount) if amount is not None else 0.0
+        except (TypeError, ValueError):
+            numeric = 0.0
+        paid_map[row["month"]] = bool(row["paid"]) and amount is not None and numeric > 0
     return {key: paid_map.get(key, False) for key in window}
 
 

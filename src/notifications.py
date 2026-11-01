@@ -1,7 +1,7 @@
 from datetime import date
 
 from .status import month_key, tenure_month_map
-from .validators import AppError
+from .validators import AppError, add_months, parse_date_value
 
 
 def notify(conn, severity, message):
@@ -105,6 +105,53 @@ def due_reminders(conn, today):
                 "month": current_month,
                 "credit_day": credit_day,
                 "severity": severity,
+            }
+        )
+    return created
+
+
+def maturity_reminders(conn, today, horizons=(30, 7, 1)):
+    if not isinstance(today, date):
+        raise AppError("ERR-notify-build", f"today must be a date: {today!r}")
+    created = []
+    rows = conn.execute(
+        "SELECT id, company, start_date, end_date, tenure_months, status FROM bonds ORDER BY id"
+    ).fetchall()
+    for row in rows:
+        if row["status"] == "Completed":
+            continue
+        end_date = None
+        raw_end = row["end_date"]
+        if raw_end:
+            try:
+                end_date = parse_date_value(raw_end, "end_date")
+            except AppError:
+                end_date = None
+        if end_date is None and row["start_date"] and row["tenure_months"]:
+            try:
+                start = parse_date_value(row["start_date"], "start_date")
+                end_date = add_months(start, int(row["tenure_months"]))
+            except (AppError, TypeError, ValueError):
+                continue
+        if end_date is None:
+            continue
+        days_left = (end_date - today).days
+        if days_left not in horizons:
+            continue
+        key = f"maturity:{row['id']}:{today.isoformat()}:{days_left}d"
+        message = (
+            f"{row['company']} matures in {days_left} day(s) "
+            f"({end_date.strftime('%d %b %Y')})"
+        )
+        if notify_once(conn, key, "maturity_soon", message) is None:
+            continue
+        created.append(
+            {
+                "bond_id": row["id"],
+                "company": row["company"],
+                "end_date": end_date.isoformat(),
+                "days_left": days_left,
+                "severity": "maturity_soon",
             }
         )
     return created

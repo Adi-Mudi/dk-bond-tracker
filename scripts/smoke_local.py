@@ -89,6 +89,8 @@ with tempfile.TemporaryDirectory() as tmp:
     check("GET /export.csv bare -> 400 validation", r.status_code == 400, f"status={r.status_code}")
     r = c.get(f"/payout?bond_id={bid}&cycle=monthly")
     check(f"GET /payout?bond_id={bid}&cycle=monthly", r.status_code == 200, f"status={r.status_code}")
+    r = c.get(f"/payout?bond_id={bid}")
+    check(f"GET /payout?bond_id={bid} (no cycle, fallback)", r.status_code == 200, f"status={r.status_code}")
     r = c.get("/payout")
     check("GET /payout bare -> 400 validation", r.status_code == 400, f"status={r.status_code}")
 

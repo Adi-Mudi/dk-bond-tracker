@@ -445,13 +445,20 @@ def chart_data(conn, today=None):
     received_by_bond = {}
     received_by_month = {}
     for row in ledger_rows:
-        received_by_bond[row["bond_id"]] = received_by_bond.get(row["bond_id"], 0.0) + float(row["amount"])
-        received_by_month[row["month"]] = received_by_month.get(row["month"], 0.0) + float(row["amount"])
+        try:
+            ledger_value = float(row["amount"])
+        except (TypeError, ValueError):
+            ledger_value = 0.0
+        received_by_bond[row["bond_id"]] = received_by_bond.get(row["bond_id"], 0.0) + ledger_value
+        received_by_month[row["month"]] = received_by_month.get(row["month"], 0.0) + ledger_value
     bars = []
     invested_by_month = {}
     for row in bond_rows:
         label = row["company"] or row["name"] or f"Bond {row['id']}"
-        invested = float(row["amount"] or 0)
+        try:
+            invested = float(row["amount"] or 0)
+        except (TypeError, ValueError):
+            invested = 0.0
         bars.append(
             {
                 "bond": label,

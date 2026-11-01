@@ -18,6 +18,21 @@
   <p id="day-wise-rule-text">If Received amount is not entered on the credit day → status becomes Danger same day.</p>
 </div>
 
+<div class="card alert-feed" id="alert-feed">
+  <h2>Alert feed</h2>
+  {% if feed %}
+  {% for item in feed %}
+  <div class="alert-card alert-{{ item.severity }}" data-severity="{{ item.severity }}" data-order="{{ loop.index0 }}" id="alert-{{ item.id }}">
+    <span class="alert-severity">{{ item.severity }}</span>
+    <span class="alert-message">{{ item.message }}</span>
+    <span class="alert-time">{{ item.created_at }}</span>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p id="alert-feed-empty">No alerts yet — day-wise rules will appear here.</p>
+  {% endif %}
+</div>
+
 <form method="post" action="/notifications" id="alert-channels-form">
   <div class="card" id="alert-channels">
     <h2>Channels</h2>
