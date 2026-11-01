@@ -14,9 +14,9 @@
   <div><span class="fact-label">Secured</span><span class="fact-value">{{ fact_secured(item.secured) }}</span></div>
   <div><span class="fact-label">Face value</span><span class="fact-value">{{ fact_money(item.face_value) }}</span></div>
   <div><span class="fact-label">Payout cycle</span><span class="fact-value">{{ fact_cycle(item.payout_cycle) }}</span></div>
-  <div><span class="fact-label">Invested ₹</span><span class="fact-value">{{ fact_money(item.invested) }}</span></div>
+  <div><span class="fact-label">Invested <span class="rupee"></span></span><span class="fact-value">{{ fact_money(item.invested) }}</span></div>
   <div><span class="fact-label">Broker</span><span class="fact-value">{{ item.broker or "—" }}</span></div>
-  <div><span class="fact-label">Source note</span><span class="fact-value">{{ item.source_note or "—" }}</span></div>
+  {% if item.source_note and item.source_note != item.company %}<div><span class="fact-label">Source note</span><span class="fact-value">{{ item.source_note }}</span></div>{% endif %}
 </div>
 {% endmacro %}
 {% macro attribute_strip(item) %}
@@ -25,6 +25,8 @@
 <span class="attr-row"><b>Secured:</b> {{ fact_secured(item.secured) }}</span> ·
 <span class="attr-row"><b>Face value:</b> {{ fact_money(item.face_value) }}</span> ·
 <span class="attr-row"><b>Payout cycle:</b> {{ fact_cycle(item.payout_cycle) }}</span> ·
-<span class="attr-row"><b>Broker:</b> {{ item.broker or "—" }}</span> ·
-<span class="attr-row"><b>Source note:</b> {{ item.source_note or "—" }}</span>
+<span class="attr-row"><b>Broker:</b> {{ item.broker or "—" }}</span>
+{% if item.source_note and item.source_note != item.company %} ·
+<span class="attr-row"><b>Source note:</b> {{ item.source_note }}</span>
+{% endif %}
 {% endmacro %}
