@@ -1,0 +1,122 @@
+{
+  "schema": "plan/v1",
+  "id": "dk_bond_tracker_watchlist_stage12_impl_plan_20261031_v1.0",
+  "kind": "plan",
+  "title": "Stage 12 Implement — locked design v6 + docs v6 (D41-D43)",
+  "version": "v1.0",
+  "confidence": 85,
+  "status": "draft (gate-2 review dispatched as batch 24)",
+  "master": ".IDE_Plans/dk_bond_tracker_watchlist_master_20261030_2355_v1.2 (stage 12)",
+  "brainstorm_source": "../.IDE_Plans/dk_bond_tracker_brainstorm_20261030.json (v2.6.0, D41/D42/D43 CONFIRMED; D43 LOCKED)",
+  "owner_constraints": [
+    "Full PM approval control granted (2026-11-01): design LOCKED (batch 23 AGREED @7b67f54), docs written+projected+gates SATISFIED (92/92 coverage), implementation proceeds autonomously with progress reports.",
+    "Fleet cap: MAX 4 agents = 1 captain + 3 workers, wave parallel mode, D113 native spawn (captain creates its worker panes).",
+    "Q3 standing: ALL testing is REMOTE (GitHub Actions) — local runs are verification greps/py_compile only.",
+    "Q4/architecture: Flask + server-rendered vanilla JS + SQLite module monolith ONLY — no new dependencies, no build step, follow existing code patterns.",
+    "D43 LOCKED: Danger -> On-going -> Completed/Matured ordering on EVERY list surface; automatic same-day Danger rule unchanged; single shared sort key (engine HEALTH_ORDER + Invalid last), never per-template sorting."
+  ],
+  "model_assignment": {
+    "coordinator": "PM (Kimi CLI, MiMo-V2.6-Flash via cline-pass)",
+    "captain": "wl-captain2 (gate battery, relay, station close)",
+    "workers": "wl-b1 (spine), wl-b2 (lane A), wl-b3 (lane B) — spawned by the captain, same 2x2 tab",
+    "reviewer": "fresh session per gate (batch 24 plan, batch 25 impl, batch 26 post-merge), flat topology"
+  },
+  "WORKTREE": {
+    "base_branch": "dev",
+    "stage_worktree": {"branch": "execute-v6", "folder": "execute-v6", "created_from": "dev @ current green tip"},
+    "phase_branches": ["phase-core (spine)", "phase-payouts (lane A)", "phase-dash (lane B)"],
+    "containment": "phase branches merge ONLY into execute-v6; execute-v6 merges to dev after batch 25 AGREED + remote CI green; spawn-time HARD-FAIL unless folder==branch; db-store and database git ops NEVER touched; live main checkout untouched"
+  },
+  "Documents": {
+    "Truth": ["design_drafts/ui_frontend_design_v6.html @7b67f54 (LOCKED)", "docs/PRD_DK_Bond_Tracker_addendum_v6.json (FR-67..74)", "docs/SRS_DK_Bond_Tracker_addendum_v6.json", "docs/Watchlist_Architecture_Addendum_v3.json"],
+    "References": ["docs/Atomic_Functions_addendum_v6.json (AF-75..86)", "docs/Pseudocode_addendum_v6.json", "docs/Test_Plan_addendum_v6.json (TC-129..137)", "docs/Development_Order_addendum_v5.json (8 REMOTE steps)"],
+    "Targets": ["src/db.py (credit-day CHECK 1..31 migration)", "src/engine.py (shared sort key)", "src/app.py + templates + static", "tests/ (v6 TCs only)", "requirements.txt UNTOUCHED"],
+    "Dependencies": ["herdr fleet cap 4", "remote CI (tests workflow)", "store gates at doc/test closes"],
+    "Tests": ["REMOTE ONLY: every phase push runs GitHub Actions; stage gate = full suite green on execute-v5 head before dev merge; local = py_compile + structural greps only"]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Pre-flight",
+      "mode": "SERIES",
+      "owner": "PM",
+      "tasks": [
+        {"id": "T0.1", "action": "VERIFY", "file": "base tip", "FROM": "n/a", "TO": "execute-v6 worktree created from dev (folder==branch HARD-FAIL check), store symlink present, baseline dev CI green cited", "Reason": "Rule 13 spawn-time checks", "Status": "PENDING"},
+        {"id": "T0.2", "action": "EDIT", "file": "master (stage row)", "FROM": "11 stages", "TO": "stage 12 implement added (this plan), status RUNNING", "Reason": "D31 stage table tracks execution", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "baseline dev CI already green (cite run)"},
+      "REVIEWER-CHECK": "worktree list folder==branch; master stage 12 cites D42/D43 + this plan link",
+      "reviewer_gate": "n/a (PM pre-flight)"
+    },
+    {
+      "id": "P1",
+      "name": "Spine — schema migration + shared sort key",
+      "mode": "SERIES",
+      "owner": "wl-b1 (phase-core)",
+      "tasks": [
+        {"id": "T1.1", "action": "EDIT", "file": "src/db.py", "FROM": "credit_day CHECK 1..28 (line ~18); migration path only creates fresh DBs", "TO": "CHECK BETWEEN 1 AND 31 + idempotent table-rebuild migration for existing DBs (PRAGMA-guarded, preserves all rows — SRS v6 AC); fresh installs identical schema", "Reason": "SRS v6 F-233(a) caution; credit_day=31 inserts currently IntegrityError", "Status": "PENDING"},
+        {"id": "T1.2", "action": "EDIT", "file": "src/engine.py", "FROM": "HEALTH_ORDER exists; sort applied per-surface ad hoc", "TO": "ONE exported sort-key function (Danger=0, On-going=1, Matured=2, Invalid=3, then company/id tiebreak) used by every consumer (D43: single implementation, no per-template sorting)", "Reason": "D43 LOCKED standard", "Status": "PENDING"},
+        {"id": "T1.3", "action": "EDIT", "file": "exports/print/alerts ordering call sites", "FROM": "mixed company-name ordering (dashboard bars app.py:215, holdings :1037, exports queries:622 etc.)", "TO": "all list renderers consume the shared sort key: dashboard bars, holdings, payouts, exports, print groups, alerts history", "Reason": "D43 app-wide; F-233 gap list", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "push phase-core -> Actions green"},
+      "REVIEWER-CHECK": "grep proves single sort-key source; credit_day=31 insert works pre/post migration; no lost rows on migration (smoke on a copy)",
+      "reviewer_gate": "batch 25 (stage gate, covers all phases)"
+    },
+    {
+      "id": "P2",
+      "name": "Lane A — payout editor + attribute parity",
+      "mode": "PARALLEL (branch phase-payouts from execute-v5 after P1)",
+      "owner": "wl-b2",
+      "tasks": [
+        {"id": "T2.1", "action": "EDIT", "file": "payouts tab (portfolio template + app route)", "FROM": "read-only cells (amount/pending/missed chips)", "TO": "cell click -> inline editor (amount + received + Save) posting the EXISTING payment route (F-233 seam); status re-derives on next read; rows keep D43 order; months elapsed+current only, newest left", "Reason": "FR-67/68 (D42, F-231 fixed in design)", "Status": "PENDING"},
+        {"id": "T2.2", "action": "EDIT", "file": "watch/portfolio forms + holdings template", "FROM": "Add Candidate lacks agency/issuer/secured/face/cycle/invested; holdings shows no attributes", "TO": "FR-69 parity: candidate form fields -> bonds ALTER columns where absent (FR-40 inventory + broker) -> Watchlist Details grid values -> Move carries them -> Holdings attribute strip renders them identically", "Reason": "FR-69 (D42)", "Status": "PENDING"},
+        {"id": "T2.3", "action": "ADD", "file": "tests (TC-129.. mapped to this lane)", "FROM": "no coverage", "TO": "TCs: payout edit save + re-derive, no-future-months, parity roundtrip", "Reason": "Test_Plan v6 bindings", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "push phase-payouts -> Actions green"},
+      "REVIEWER-CHECK": "editor writes only via existing route (no new payment tables); parity field values byte-equal across three surfaces; D43 order preserved",
+      "reviewer_gate": "batch 25"
+    },
+    {
+      "id": "P3",
+      "name": "Lane B — dashboard tabs/status/filters, returns, goals link, email presets",
+      "mode": "PARALLEL (branch phase-dash from execute-v5 after P1)",
+      "owner": "wl-b3",
+      "tasks": [
+        {"id": "T3.1", "action": "EDIT", "file": "dashboard template + app", "FROM": "single-view dashboard, bars alphabetical (now shared-key after P1)", "TO": "v6 tabs Overview|Returns history; per-row status chips; filter chips All/Danger/On-going/Matured (JS) + 'sorted by priority' caption", "Reason": "FR-70 (D42)", "Status": "PENDING"},
+        {"id": "T3.2", "action": "ADD", "file": "returns history (dashboard) + queries", "FROM": "no returns view", "TO": "payment_ledger monthly aggregation: Month / Interest received / paid·pending (of active) / Cumulative running total, newest first, current highlighted; cumulative latest == Received card", "Reason": "FR-73 (D42 + Q1.1 definitions)", "Status": "PENDING"},
+        {"id": "T3.3", "action": "EDIT", "file": "goals template + settings", "FROM": "no KPI; settings email = raw fields only", "TO": "Goals KPI strip (Earned this month / Total received) linking to dashboard returns tab via view+tab JS (SRS v6); Settings>EMAIL: Gmail/Outlook/Custom autofill (exact values FR-72), setup guide, Send test button -> NEW route persisting result via alert_prefs (F-233 seam), no 500 on failure", "Reason": "FR-72/73", "Status": "PENDING"},
+        {"id": "T3.4", "action": "ADD", "file": "tests (TC set mapped to this lane)", "FROM": "no coverage", "TO": "TCs: tabs, filters, sort order, returns math, preset autofill, test-email banner, credit_day31 (migration pair with T1.1)", "Reason": "Test_Plan v6 bindings", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "push phase-dash -> Actions green"},
+      "REVIEWER-CHECK": "no future months anywhere; paid·pending math matches ledger; email test route never 500s; #returns navigates view+tab; banned-token sweep stays clean",
+      "reviewer_gate": "batch 25"
+    },
+    {
+      "id": "P4",
+      "name": "Integration + stage gates",
+      "mode": "SERIES",
+      "owner": "PM + captain + reviewer",
+      "tasks": [
+        {"id": "T4.1", "action": "EDIT", "file": "phase merges", "FROM": "3 phase branches", "TO": "merged into execute-v5 in order phase-core -> phase-payouts -> phase-dash (disjoint files; shared app.py hunks conflict-resolved by PM)", "Reason": "Rule 13/14 containment", "Status": "PENDING"},
+        {"id": "T4.2", "action": "VERIFY", "file": "app-wide D43 sweep", "FROM": "per-lane order", "TO": "single grep/audit proves every list surface uses the shared sort key; smoke: bad row + danger row render correctly on all surfaces", "Reason": "D43 LOCKED", "Status": "PENDING"},
+        {"id": "T4.3", "action": "VERIFY", "file": "GitHub Actions", "FROM": "phase greens", "TO": "full suite green on execute-v5 head", "Reason": "Q3 remote gate", "Status": "PENDING"},
+        {"id": "T4.4", "action": "VERIFY", "file": "review log", "FROM": "batches 1-23", "TO": "batch 24 (plan) AGREED before P1 starts; batch 25 (impl) AGREED before dev merge; batch 26 (post-merge) AGREED at close", "Reason": "Rule 15 gates", "Status": "PENDING"},
+        {"id": "T4.5", "action": "VERIFY", "file": "store gates", "FROM": "SATISFIED 92/92", "TO": "still SATISFIED after any doc/test projection at close", "Reason": "D40", "Status": "PENDING"}
+      ],
+      "test": {"type": "REMOTE", "where": "stage FULL TEST = Actions run on execute-v5 head green before merge"},
+      "REVIEWER-CHECK": "merge order per plan; zero db-store touches; zero design deviations (spot-check vs locked v6 lines); capacity cap 4 never exceeded; completed workers terminated at close (station-close order workers -> captain -> PM -> tab)",
+      "reviewer_gate": "batch 25 + batch 26"
+    }
+  ],
+  "merge_close": {
+    "sequence_gate": "phase branches only merge forward into execute-v5; execute-v5 -> dev only after batch 25 AGREED + remote green (sequence-gate check before asking)",
+    "approval_gate": "owner standing full-approval control (2026-11-01); D52 checkpoint ONE question at stage close: 'Approve stage 12 to close?'",
+    "close": "captain closes workers, PM closes captain + tab, registry + approval logs updated, retrospective appended here"
+  },
+  "risks": [
+    {"risk": "app.py merge conflicts across parallel lanes", "mitigation": "lanes own disjoint templates/static; app.py hunks partitioned by route family; PM resolves in base worktree only"},
+    {"risk": "CHECK migration corrupts existing user DB", "mitigation": "PRAGMA-guarded rebuild on a copy in smoke + row-count asserts in TC; fresh-install path untouched"},
+    {"risk": "remote-only loop slower", "mitigation": "small atomic pushes per phase; captain watches each Actions run; no local suites (Q3)"}
+  ],
+  "retrospective": "(filled at stage close)"
+}
