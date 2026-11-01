@@ -1,0 +1,32 @@
+{% macro fact_money(value) %}{% if value is none %}&#8212;{% else %}<span class="money" data-amount="{{ "%.2f"|format(value) }}">&#8377;{{ "%.2f"|format(value) }}</span>{% endif %}{% endmacro %}
+{% macro fact_pct(value) %}{% if value is none %}&#8212;{% else %}<span class="money">{{ "%.1f"|format(value) }}%</span>{% endif %}{% endmacro %}
+{% macro fact_issuer(value) %}{% if not value %}&#8212;{% elif value == "corporate_bond" %}Corporate Bond{% elif value == "ncd" %}NCD{% elif value == "sdi" %}SDI{% elif value == "government" %}Government{% elif value == "fd" %}FD{% else %}{{ value }}{% endif %}{% endmacro %}
+{% macro fact_secured(value) %}{% if value is none %}&#8212;{% elif value|int == 1 %}Secured{% else %}Not secured{% endif %}{% endmacro %}
+{% macro fact_cycle(value) %}{% if not value %}&#8212;{% elif value == "monthly" %}Monthly{% elif value == "quarterly" %}Quarterly{% elif value == "annual" %}Annual{% else %}{{ value }}{% endif %}{% endmacro %}
+{% macro details_facts(item) %}
+<div class="facts-grid">
+  <div><span class="fact-label">Company / ISIN</span><span class="fact-value">{{ item.company or "—" }}{% if item.isin %} · {{ item.isin }}{% endif %}</span></div>
+  <div><span class="fact-label">Rating</span><span class="fact-value">{{ item.rating or "—" }}</span></div>
+  <div><span class="fact-label">Rating agency</span><span class="fact-value">{{ item.rating_agency or "—" }}</span></div>
+  <div><span class="fact-label">Coupon</span><span class="fact-value">{{ fact_pct(item.coupon_pct) }}</span></div>
+  <div><span class="fact-label">Est. Yield</span><span class="fact-value">{{ fact_pct(item.expected_yield_pct) }}</span></div>
+  <div><span class="fact-label">Issuer type</span><span class="fact-value">{{ fact_issuer(item.issuer_type) }}</span></div>
+  <div><span class="fact-label">Secured</span><span class="fact-value">{{ fact_secured(item.secured) }}</span></div>
+  <div><span class="fact-label">Face value</span><span class="fact-value">{{ fact_money(item.face_value) }}</span></div>
+  <div><span class="fact-label">Payout cycle</span><span class="fact-value">{{ fact_cycle(item.payout_cycle) }}</span></div>
+  <div><span class="fact-label">Invested <span class="rupee"></span></span><span class="fact-value">{{ fact_money(item.invested) }}</span></div>
+  <div><span class="fact-label">Broker</span><span class="fact-value">{{ item.broker or "—" }}</span></div>
+  {% if item.source_note and item.source_note != item.company %}<div><span class="fact-label">Source note</span><span class="fact-value">{{ item.source_note }}</span></div>{% endif %}
+</div>
+{% endmacro %}
+{% macro attribute_strip(item) %}
+<span class="attr-row"><b>Rating agency:</b> {{ item.rating_agency or "—" }}</span> ·
+<span class="attr-row"><b>Issuer type:</b> {{ fact_issuer(item.issuer_type) }}</span> ·
+<span class="attr-row"><b>Secured:</b> {{ fact_secured(item.secured) }}</span> ·
+<span class="attr-row"><b>Face value:</b> {{ fact_money(item.face_value) }}</span> ·
+<span class="attr-row"><b>Payout cycle:</b> {{ fact_cycle(item.payout_cycle) }}</span> ·
+<span class="attr-row"><b>Broker:</b> {{ item.broker or "—" }}</span>
+{% if item.source_note and item.source_note != item.company %} ·
+<span class="attr-row"><b>Source note:</b> {{ item.source_note }}</span>
+{% endif %}
+{% endmacro %}

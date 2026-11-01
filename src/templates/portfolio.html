@@ -46,9 +46,50 @@
   }
   .invalid-note { display: block; margin-top: 2px; }
   .invalid-remove { margin-top: 4px; }
+  .payout-cell {
+    font: inherit;
+    font-size: 13px;
+    border: 1px dashed transparent;
+    background: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: var(--text);
+    text-align: left;
+  }
+  .payout-cell:hover { border-color: var(--border); background: var(--white); }
+  .payout-cell.pending { color: var(--muted); }
+  .payout-editor {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .payout-editor input[type="number"] {
+    font: inherit;
+    font-size: 13px;
+    height: 30px;
+    width: 100px;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--text);
+  }
+  .check-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .check-inline input { width: 14px; height: 14px; }
+  .attr-strip { background: var(--header-row); font-size: 12px; }
+  .attr-row b { font-weight: 700; }
 </style>
 {% endblock %}
 {% block content %}
+{% from "attribute_facts.html" import attribute_strip %}
 <h1 style="font-size:18px;margin-bottom:12px;">Portfolio</h1>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -121,6 +162,7 @@
                 {% endif %}
               </td>
             </tr>
+            <tr><td colspan="9" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
             {% else %}
             <tr>
               <td colspan="9" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
@@ -248,8 +290,14 @@
                 {% endif %}
               </td>
               {% for cell in row.cells %}
-              {% if cell.kind == "amount" %}
-              <td class="money">&#8377;{{ "%.2f"|format(cell.amount) }}</td>
+              {% if cell.kind == "received" %}
+              <td class="money"><button type="button" class="payout-cell money" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1">&#8377;{{ "%.2f"|format(cell.amount) }} &#10003;</button></td>
+              {% elif cell.kind == "pending" %}
+              <td class="money"><button type="button" class="payout-cell money pending" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{% if cell.amount is not none %}{{ "%.2f"|format(cell.amount) }}{% endif %}" data-received="0">{% if cell.amount is not none %}&#8377;{{ "%.2f"|format(cell.amount) }} &#183; pending{% else %}pending{% endif %}</button></td>
+              {% elif cell.kind == "missed" %}
+              <td><button type="button" class="payout-cell chip chip-danger" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0">Missed</button></td>
+              {% elif cell.kind == "matured" %}
+              <td><span class="chip chip-matured">Matured</span></td>
               {% elif cell.kind == "chip" %}
               <td><span class="chip {{ cell.chip }}">{{ cell.text }}</span></td>
               {% else %}
@@ -262,6 +310,8 @@
         </table>
       </div>
       {% endif %}
+      <p class="caption">Months ordered newest month first (latest month first). Future months are never shown.</p>
+      <p class="caption">Click any month cell to enter or correct the received amount. Newest months appear first.</p>
       <p class="caption">Danger rows sort to top, On-going next, Matured moves down automatically.</p>
     </div>
     {% endif %}
@@ -312,6 +362,9 @@
             body.innerHTML = fresh.innerHTML;
             window.history.replaceState(null, "", href);
             bindTabs();
+            if (typeof window.bindPayoutCells === "function") {
+              window.bindPayoutCells();
+            }
           })
           .catch(function () {
             window.location.href = href;
@@ -320,6 +373,7 @@
     });
   }
   bindTabs();
+  window.bindPortfolioTabs = bindTabs;
   window.addEventListener("popstate", function () {
     window.location.reload();
   });
@@ -394,15 +448,23 @@
       '<th class="num">Amount</th><th>State</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
   }
   function render(data) {
+    var issuerLabels = { corporate_bond: "Corporate Bond", ncd: "NCD", sdi: "SDI", government: "Government", fd: "FD" };
+    var cycleLabels = { monthly: "Monthly", quarterly: "Quarterly", annual: "Annual" };
+    var securedText = data.secured === null || data.secured === undefined ? "" : (Number(data.secured) === 1 ? "Secured" : "Not secured");
     title.textContent = data.company || "Position detail";
     body.innerHTML =
       '<div class="card"><h3>Details</h3><table class="drawer-facts">' +
       factRow("ISIN", data.isin) +
       factRow("Rating", data.rating) +
-      factRow("Broker", data.broker) +
+      factRow("Rating agency", data.rating_agency) +
       factRow("Coupon", pct(data.coupon_pct)) +
       factRow("Yield", pct(data.expected_yield_pct)) +
-      factRow("Frequency", data.frequency) +
+      factRow("Issuer type", data.issuer_type ? (issuerLabels[data.issuer_type] || data.issuer_type) : "") +
+      factRow("Secured", securedText) +
+      (data.face_value === null || data.face_value === undefined ? factRow("Face value", "") : moneyFactRow("Face value", data.face_value)) +
+      factRow("Payout cycle", data.frequency ? (cycleLabels[data.frequency] || data.frequency) : "") +
+      factRow("Broker", data.broker) +
+      factRow("Source note", data.source_note) +
       moneyFactRow("Invested", data.invested) +
       moneyFactRow("Received", data.received) +
       factRow("Next payout", data.next_payout) +
@@ -445,6 +507,77 @@
     drawer.hidden = true;
   });
   bindRows();
+})();
+</script>
+<script>
+(function () {
+  function bindPayoutCells() {
+    document.querySelectorAll(".payout-cell").forEach(function (cell) {
+      if (cell.getAttribute("data-bound") === "1") {
+        return;
+      }
+      cell.setAttribute("data-bound", "1");
+      cell.addEventListener("click", function () {
+        var td = cell.parentNode;
+        if (td.querySelector(".payout-editor")) {
+          return;
+        }
+        var amount = cell.getAttribute("data-amount") || "";
+        var received = cell.getAttribute("data-received") === "1";
+        var editor = document.createElement("span");
+        editor.className = "payout-editor";
+        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox"' + (received ? " checked" : "") + '> Received?</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
+        td.appendChild(editor);
+        cell.hidden = true;
+        editor.querySelector(".payout-cancel").addEventListener("click", function () {
+          cell.hidden = false;
+          editor.remove();
+        });
+        editor.querySelector(".payout-save").addEventListener("click", function () {
+          var value = editor.querySelector("input[type=\"number\"]").value;
+          var flag = editor.querySelector("input[type=\"checkbox\"]").checked;
+          var payload = new URLSearchParams();
+          payload.set("amount", value === "" ? "0" : value);
+          if (flag) {
+            payload.set("paid", "on");
+          }
+          fetch("/payment/" + cell.getAttribute("data-bond") + "/" + cell.getAttribute("data-month"), {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: payload.toString()
+          })
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("payment save failed");
+              }
+              return fetch("/portfolio?tab=payouts", { credentials: "same-origin" });
+            })
+            .then(function (response) {
+              return response.text();
+            })
+            .then(function (html) {
+              var doc = new DOMParser().parseFromString(html, "text/html");
+              var fresh = doc.getElementById("portfolio-body");
+              if (!fresh) {
+                window.location.reload();
+                return;
+              }
+              document.getElementById("portfolio-body").innerHTML = fresh.innerHTML;
+              if (typeof window.bindPortfolioTabs === "function") {
+                window.bindPortfolioTabs();
+              }
+              bindPayoutCells();
+            })
+            .catch(function () {
+              window.location.reload();
+            });
+        });
+      });
+    });
+  }
+  window.bindPayoutCells = bindPayoutCells;
+  bindPayoutCells();
 })();
 </script>
 {% endblock %}
