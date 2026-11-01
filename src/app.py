@@ -39,6 +39,7 @@ from src.notifications import (
     due_reminders,
     list_notifications,
     mark_all_read,
+    maturity_reminders,
     notify,
     notify_once,
     unread_count,
@@ -74,6 +75,9 @@ from src.validators import (
 )
 
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
+
+APP_VERSION = "1.0.0"
+BUILD_NOTES = "DK Bond Tracker standalone build — watchlist upgrade v6 (D43 ordering, day-wise alerts, themes)"
 
 ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
 
@@ -128,6 +132,13 @@ def _startup_alerts(db_file, today):
             reminders = []
         for reminder in reminders:
             _attempt_email(conn, reminder)
+        try:
+            maturities = maturity_reminders(conn, today)
+        except AppError as exc:
+            notify(conn, "warn", f"maturity reminder failed: {exc}")
+            maturities = []
+        for maturity_event in maturities:
+            _attempt_email(conn, maturity_event)
 
 
 def create_app(db_path=None):
@@ -871,7 +882,26 @@ def create_app(db_path=None):
                 )
             flash("Alert channels saved", "success")
             return redirect(url_for("notifications_page"))
-        return render_template("notifications.html", prefs=alert_prefs_map(db_file))
+        with get_conn(db_file) as conn:
+            feed = list_notifications(conn, limit=50)
+        severity_rank = {
+            "danger": 0,
+            "due_today": 1,
+            "reminder": 2,
+            "maturity_soon": 3,
+            "warn": 4,
+            "info": 5,
+        }
+        feed.sort(
+            key=lambda item: (item.get("created_at") or "", item.get("id") or 0),
+            reverse=True,
+        )
+        feed.sort(
+            key=lambda item: severity_rank.get(item.get("severity"), 99)
+        )
+        return render_template(
+            "notifications.html", prefs=alert_prefs_map(db_file), feed=feed
+        )
 
     @app.route("/notifications/read_all", methods=["POST"])
     def notifications_read_all():
@@ -1010,17 +1040,16 @@ def create_app(db_path=None):
             with get_conn(db_file) as conn:
                 if not cycle:
                     row = conn.execute(
-                        "SELECT payment_type FROM bonds WHERE id = ?", (bond_id,)
+                        "SELECT payment_type, payout_cycle FROM bonds WHERE id = ?",
+                        (bond_id,),
                     ).fetchone()
                     if row is None:
                         raise AppError("ERR-due-dates", f"bond not found: {bond_id!r}")
                     cycle = payment_cycle_of(row["payment_type"])
                     if cycle is None:
-                        raise AppError(
-                            "ERR-due-dates",
-                            f"payment type missing or unknown for bond {bond_id}: "
-                            f"{row['payment_type']!r}; pass cycle=monthly|quarterly|yearly",
-                        )
+                        cycle = payment_cycle_of(row["payout_cycle"])
+                    if cycle is None:
+                        cycle = "monthly"
                 schedule = payout_schedule(conn, bond_id, cycle)
         except AppError as exc:
             return error_page(exc.code, exc.message, "Payout schedule failed", 400)
@@ -1454,6 +1483,9 @@ def create_app(db_path=None):
                         prefs=alert_prefs_map(db_file),
                         error=exc.message,
                         error_code=exc.code,
+                        app_version=APP_VERSION,
+                        build_notes=BUILD_NOTES,
+                        data_dir=str(db_file.parent),
                     ),
                     400,
                 )
@@ -1466,7 +1498,13 @@ def create_app(db_path=None):
             flash("Settings saved", "success")
             return redirect(url_for("settings_page"))
         return render_template(
-            "settings.html", prefs=alert_prefs_map(db_file), error=None, error_code=None
+            "settings.html",
+            prefs=alert_prefs_map(db_file),
+            error=None,
+            error_code=None,
+            app_version=APP_VERSION,
+            build_notes=BUILD_NOTES,
+            data_dir=str(db_file.parent),
         )
 
     @app.route("/settings/email/test", methods=["POST"])

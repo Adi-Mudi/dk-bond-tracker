@@ -16,6 +16,8 @@
   --matured-bg: #f3f4f6;
   --watching-fg: #2563eb;
   --watching-bg: #eff6ff;
+  --warn-fg: #b45309;
+  --warn-bg: #fffbeb;
 }
 html[data-theme="dark"] {
   --bg: #0d1117;
@@ -35,6 +37,8 @@ html[data-theme="dark"] {
   --matured-bg: #21262d;
   --watching-fg: #79c0ff;
   --watching-bg: #12233d;
+  --warn-fg: #e3b341;
+  --warn-bg: #201a08;
 }
 @media (prefers-color-scheme: dark) {
   html[data-theme="system"] {
@@ -55,6 +59,8 @@ html[data-theme="dark"] {
     --matured-bg: #21262d;
     --watching-fg: #79c0ff;
     --watching-bg: #12233d;
+    --warn-fg: #e3b341;
+    --warn-bg: #201a08;
   }
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -474,3 +480,33 @@ tr[hidden] { display: none; }
   background: var(--danger-bg);
   border: 1px solid var(--danger-fg);
 }
+.alert-feed .alert-card {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 8px 10px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: var(--card);
+}
+.alert-card .alert-severity {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  min-width: 92px;
+}
+.alert-card .alert-message { flex: 1; }
+.alert-card .alert-time { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.alert-card.alert-danger, .alert-card.alert-due_today { border-left-color: var(--danger-fg); }
+.alert-card.alert-danger .alert-severity, .alert-card.alert-due_today .alert-severity { color: var(--danger-fg); }
+.alert-card.alert-reminder { border-left-color: var(--warn-fg); }
+.alert-card.alert-reminder .alert-severity { color: var(--warn-fg); }
+.alert-card.alert-maturity_soon { border-left-color: var(--accent); }
+.alert-card.alert-maturity_soon .alert-severity { color: var(--accent); }
+.alert-card.alert-warn { border-left-color: var(--warn-fg); }
+.alert-card.alert-warn .alert-severity { color: var(--warn-fg); }
+.alert-card.alert-info { border-left-color: var(--muted); }
+.alert-card.alert-info .alert-severity { color: var(--muted); }

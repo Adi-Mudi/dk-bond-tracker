@@ -114,8 +114,28 @@
     <p>Start empty — no data imported.</p>
   </div>
 
+  <div class="card" id="about-card">
+    <h2>About</h2>
+    <p id="app-version">Version {{ app_version }}</p>
+    <p id="build-notes-line">{{ build_notes }}</p>
+    <p id="offline-badge" class="banner banner-info">100% offline — no accounts, no cloud</p>
+    <p id="data-dir-wrap" hidden><code id="data-dir-path">{{ data_dir }}</code></p>
+    <button type="button" class="btn btn-sm" id="reveal-data-folder">Open local data folder</button>
+  </div>
+
   <div class="section-gap">
     <button class="btn btn-primary" type="submit" id="save-settings">Save settings</button>
   </div>
 </form>
+<script>
+(function () {
+  var btn = document.getElementById("reveal-data-folder");
+  var wrap = document.getElementById("data-dir-wrap");
+  if (btn && wrap) {
+    btn.addEventListener("click", function () {
+      wrap.hidden = false;
+    });
+  }
+})();
+</script>
 {% endblock %}

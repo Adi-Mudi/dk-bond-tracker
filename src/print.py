@@ -31,7 +31,10 @@ def _expected_amount(conn, bond_id, month):
         (bond_id, month),
     ).fetchone()
     if row is not None:
-        return float(row["amount"] or 0.0)
+        try:
+            return float(row["amount"] or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
     prior = conn.execute(
         "SELECT amount FROM payment_ledger "
         "WHERE bond_id = ? AND month < ? AND amount > 0 "
@@ -39,7 +42,10 @@ def _expected_amount(conn, bond_id, month):
         (bond_id, month),
     ).fetchone()
     if prior is not None:
-        return float(prior["amount"] or 0.0)
+        try:
+            return float(prior["amount"] or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
     return 0.0
 
 
