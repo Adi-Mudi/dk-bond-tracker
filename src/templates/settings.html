@@ -33,12 +33,30 @@
     <h2>Email</h2>
     <div class="form-grid">
       <div class="field">
+        <label for="s-provider">Provider</label>
+        <select id="s-provider">
+          <option value="gmail" selected>Gmail</option>
+          <option value="outlook">Outlook / Microsoft 365</option>
+          <option value="custom">Custom</option>
+        </select>
+        <p class="caption">Picking a provider fills host, port and security.</p>
+      </div>
+      <div class="field">
         <label for="s-host">SMTP host</label>
         <input type="text" id="s-host" name="smtp_host" placeholder="smtp.example.com" value="{{ prefs.get('smtp_host', '') }}">
       </div>
       <div class="field">
         <label for="s-port">SMTP port</label>
         <input type="number" id="s-port" name="smtp_port" placeholder="587" value="{{ prefs.get('smtp_port', '') }}">
+      </div>
+      <div class="field">
+        <label for="s-security">Security</label>
+        <select id="s-security" name="smtp_security">
+          <option{% if prefs.get('smtp_security', 'TLS') == 'TLS' %} selected{% endif %}>TLS</option>
+          <option{% if prefs.get('smtp_security') == 'STARTTLS' %} selected{% endif %}>STARTTLS</option>
+          <option{% if prefs.get('smtp_security') == 'SSL' %} selected{% endif %}>SSL</option>
+          <option{% if prefs.get('smtp_security') == 'None' %} selected{% endif %}>None</option>
+        </select>
       </div>
       <div class="field">
         <label for="s-from">From</label>
@@ -49,7 +67,28 @@
         <input type="email" id="s-to" name="smtp_to" placeholder="me@example.com" value="{{ prefs.get('smtp_recipient', '') }}">
       </div>
     </div>
-    <p class="caption section-gap">Personal account — personal SMTP, personal → personal.</p>
+    <p class="caption section-gap">Personal account — personal SMTP, personal &#8594; personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>
+    <details class="setup-guide" id="email-setup-guide">
+      <summary>Setup guide</summary>
+      <ol class="guide-list">
+        <li>Gmail: enable 2-Verification on your Google account.</li>
+        <li>Create an App Password at myaccount.google.com (search "App Passwords").</li>
+        <li>Paste the 16-char app password into the SMTP password field — NOT your login password.</li>
+        <li>Outlook / Microsoft 365 personal accounts use the same app-password concept.</li>
+      </ol>
+    </details>
+    <div class="section-gap">
+      <button type="button" class="btn btn-primary" id="s-send-test">Send test email</button>
+      <div id="email-test-banner" class="test-banner" hidden></div>
+    </div>
+    <div class="section-gap">
+      <p class="caption">Troubleshooting</p>
+      <ul class="trouble-list">
+        <li>Wrong port — use 587 with TLS/STARTTLS, or 465 with SSL.</li>
+        <li>TLS required — most providers refuse plain connections.</li>
+        <li>Check the spam folder — test emails often land there.</li>
+      </ul>
+    </div>
   </div>
 
   <div class="card" id="privacy-card">

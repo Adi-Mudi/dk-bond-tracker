@@ -52,12 +52,15 @@ from src.queries import (
     insert_position,
     month_label,
     portfolio_snapshot,
+    portfolio_totals,
     position_detail,
     received_by_bond,
+    returns_history,
     save_payment,
     status_overview,
     summary_amounts,
     summary_counts,
+    this_month_returns,
 )
 from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, tenure_month_map
@@ -73,6 +76,13 @@ from src.validators import (
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
 
 ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
+
+EMAIL_TEST_SUCCESS_MESSAGE = "Test email sent. Check the inbox (and the spam folder)."
+
+EMAIL_TEST_FAILURE_MESSAGE = (
+    "Sending failed. Authentication failed = usually needs an App Password. "
+    "Also check SMTP host, port and security setting."
+)
 
 
 def _ensure_db(db_file):
@@ -205,6 +215,13 @@ def create_app(db_path=None):
             "sort_key": month,
         }
 
+    STATUS_CHIPS = {
+        "Danger": ("danger", "chip-danger"),
+        "On-going": ("ongoing", "chip-ongoing"),
+        "Matured": ("matured", "chip-matured"),
+        "Invalid": ("invalid", "chip-invalid"),
+    }
+
     def dashboard_model(conn):
         counts = summary_counts(conn)
         amounts = summary_amounts(conn)
@@ -233,11 +250,16 @@ def create_app(db_path=None):
                 invested = 0.0
             months_map = months_by_bond.get(row["id"], {})
             received = received_map.get(row["id"], 0.0)
+            status_label = display_label(row["status"])
+            status_slug, chip_class = STATUS_CHIPS.get(status_label, ("invalid", "chip-invalid"))
             bars.append(
                 {
                     "company": row["company"] or f"Bond {row['id']}",
                     "invested": invested,
                     "received": received,
+                    "status": status_label,
+                    "status_slug": status_slug,
+                    "chip_class": chip_class,
                 }
             )
             payout = next_payout_for(row, months_map, current)
@@ -259,6 +281,7 @@ def create_app(db_path=None):
             "next_payout_amount": next_payout["amount"] if next_payout else 0.0,
             "next_payout_date": next_payout["date_label"] if next_payout else None,
             "bars": bars,
+            "returns": returns_history(conn, date.today()),
         }
 
     @app.route("/", methods=["GET", "POST"])
@@ -500,10 +523,18 @@ def create_app(db_path=None):
         try:
             with get_conn(db_file) as conn:
                 goals = list_goals(conn, date.today())
+                month_returns = this_month_returns(conn)
+                totals = portfolio_totals(conn)
         except AppError as exc:
             return error_page(exc.code, exc.message, "Financial Goals failed", 500)
         return render_template(
-            "goals.html", goals=goals, error=None, error_code=None, form={}
+            "goals.html",
+            goals=goals,
+            error=None,
+            error_code=None,
+            form={},
+            earned_this_month=month_returns["total"] or 0.0,
+            total_received=totals["till_return"],
         )
 
     @app.route("/goals/<int:goal_id>/edit", methods=["POST"])
@@ -550,6 +581,8 @@ def create_app(db_path=None):
                 error=exc.message,
                 error_code=exc.code,
                 form=form,
+                earned_this_month=0.0,
+                total_received=0.0,
             ),
             400,
         )
@@ -1281,8 +1314,14 @@ def create_app(db_path=None):
     def settings_from_form(form):
         host = str(form.get("smtp_host", "")).strip()
         port_raw = str(form.get("smtp_port", "")).strip()
+        security = str(form.get("smtp_security", "")).strip()
         sender = str(form.get("smtp_from", "")).strip()
         recipient = str(form.get("smtp_to", "")).strip()
+        if security not in ("", "TLS", "STARTTLS", "SSL", "None"):
+            raise AppError(
+                "ERR-settings-save",
+                f"unknown SMTP security: {security!r} (expected TLS, STARTTLS, SSL or None)",
+            )
         port_value = ""
         if port_raw:
             try:
@@ -1298,6 +1337,7 @@ def create_app(db_path=None):
         return {
             "smtp_host": host,
             "smtp_port": port_value,
+            "smtp_security": security,
             "smtp_from": sender,
             "smtp_recipient": recipient,
             "privacy_on_startup": "1" if form.get("privacy_on_startup") in checked else "0",
@@ -1334,6 +1374,45 @@ def create_app(db_path=None):
         return render_template(
             "settings.html", prefs=alert_prefs_map(db_file), error=None, error_code=None
         )
+
+    @app.route("/settings/email/test", methods=["POST"])
+    def settings_email_test():
+        host = str(request.form.get("smtp_host", "")).strip()
+        ok = bool(host)
+        detail = ""
+        if ok:
+            try:
+                send_alert_email(
+                    {
+                        "company": "settings test",
+                        "month": "manual test",
+                        "severity": "test",
+                        "credit_day": None,
+                    }
+                )
+            except AppError as exc:
+                ok = False
+                detail = exc.code
+            except Exception:
+                ok = False
+                detail = "ERR-email-send"
+        status = "success" if ok else "failure"
+        message = EMAIL_TEST_SUCCESS_MESSAGE if ok else EMAIL_TEST_FAILURE_MESSAGE
+        try:
+            db_file = Path(app.config["DB_PATH"])
+            _ensure_db(db_file)
+            with get_conn(db_file) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                    ("email_test_last_status", status),
+                )
+                conn.execute(
+                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
+                    ("email_test_last_at", date.today().isoformat()),
+                )
+        except Exception as exc:
+            print(f"email test status persist failed: {exc}", file=sys.stderr)
+        return jsonify({"status": status, "message": message, "detail": detail})
 
     return app
 
