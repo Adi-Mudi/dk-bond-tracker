@@ -1,0 +1,85 @@
+{
+  "id": "PRD_DK_Bond_Tracker_addendum_v5",
+  "kind": "prd",
+  "title": "PRD Addendum v5 — D41 Post-Launch Patch Wave: Zero-Value Percents, Explicit Field Labels, Move-Path Validation Parity, Invalid-Row Render Recovery and Broker Detail (D41)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "extends": "PRD_DK_Bond_Tracker_addendum_v4",
+  "sections": [
+    {
+      "heading": "Change Record",
+      "body": "markdown: addendum v5.0 extends addendum v4 (which extends addendum v3, which extends addendum v2, which extends addendum v1, which extends PRD_DK_Bond_Tracker_v2) after owner decision D41 (CONFIRMED, 2026-11-01) — the post-launch patch wave covering form allowances, explicit date labels, the broker field, the tenure guard and invalid-row recovery. D41 embeds its own smoke/MCP evidence in the brainstorm WHY: smoke POST /watch 0.00 -> 400 (zero-value coupon rejected), unlabeled move dates (owner screenshot), a tenure-0 row inserted through the move path with a 302 redirect (MCP row id=2, start 2026-11-14, end 2026-11-30, tenure 0) that then produced 500s on four surfaces (/, /portfolio, payouts, /print — ERR-health-compute / ERR-query-counts / ERR-print-statement), and the broker provenance requirement for bond purchases. Scope of this addendum is exactly the D41 patch wave. It supersedes nothing structurally: the v4 FRs (FR-50..FR-61) stay intact and unaltered, no earlier requirement is edited or deleted, and this document only adds FR-62 onward — each new FR citing D41 — so the FR ranges of PRD_DK_Bond_Tracker_v2 and addenda v1 through v4 remain unchanged."
+    },
+    {
+      "heading": "Zero-Value Coupon and Est. Yield (D41)",
+      "body": "The Coupon and Est. Yield fields accept 00.00 as a valid value on every entry surface — candidate add on the Watchlist, Move to Portfolio and Add Position (D41: the live smoke POST /watch 0.00 was rejected with 400, which the owner overruled). A zero coupon or zero expected yield is a legitimate offline observation and is stored and displayed unchanged. The allowance is exact, not a loosening: empty values, garbage (anything non-numeric) and negative values are still rejected with a named validation error and no write, on all three paths (D41)."
+    },
+    {
+      "heading": "Explicit Field Labels (D41)",
+      "body": "Both the Move to Portfolio form and the Add Position form SHALL carry explicit field labels — the exact strings 'Purchase date (start date)', 'End date' and 'Credit day — when the amount is credited each month' — rendered verbatim and identically on the two forms (D41: owner screenshot of unlabeled move dates). The labels describe the same inputs the design already defines: the start date, the end date, and the credit day from 1 to 31 that drives day-wise danger evaluation (FR-54). Relabeling is display-only: no field meaning, bound or engine value changes with it (D39 engine-unchanged clause preserved)."
+    },
+    {
+      "heading": "Move-Path Insert Validation Parity (D41)",
+      "body": "The Move to Portfolio insert path runs the same validation as Add Position before anything is written: dates parseable with end after start, computed tenure of at least 1 whole month, credit day an integer in 1..31, amount and percent fields valid (D41). Any violation is rejected with HTTP 400 and a named error naming the offending field — zero rows written, no partial writes, no success-shaped redirect. This is the root-cause guard of the D41 evidence: the move path previously missed the tenure check, let a tenure-0 row through with a 302 insert, and that row 500'd on four surfaces afterwards (D41)."
+    },
+    {
+      "heading": "Invalid-Row Render Recovery (D41)",
+      "body": "A stored row with bad data never takes a page down with it (D41): Dashboard (/), Portfolio (/portfolio), the payouts grid and /print render the offending row as an 'Invalid' chip carrying a Remove action, render every other row normally, and return HTTP 200 — the ERR-health-compute, ERR-query-counts and ERR-print-statement 500s are eliminated at render time by isolating the failure to its row. The Remove action deletes exactly that row after a server-side re-validation of the id (existence and row type) — the client never triggers a blind delete (D41)."
+    },
+    {
+      "heading": "Broker Detail Field (D41)",
+      "body": "A broker detail field is added for bond-purchase provenance (D41): a new nullable TEXT column on bonds, an input on the candidate-add form, the Move to Portfolio form and the Add Position form, a Broker column on the Watchlist, and display of the stored value in the Portfolio holdings detail drawer — five surfaces plus the schema. The field is free text captured offline: it is never populated by a broker integration or any network lookup (D33 offline rule preserved), it round-trips unchanged from candidate to holding on a move, and an absent broker renders blank rather than as a placeholder string."
+    },
+    {
+      "heading": "Default Data",
+      "body": "A new installation starts empty — zero positions, zero candidates, zero payments, nothing seeded (FR-61) — and the broker column ships NULL on every fresh row until the user fills it; the patch wave seeds no data of any kind (D41 adds no seeding path)."
+    },
+    {
+      "heading": "Out of Scope",
+      "body": "The D41 patch wave changes no scope boundary: no live market data, no rating or price feeds, no broker integrations — the broker detail field is manual offline text (D33), not a connection to a broker (D41). Themes, screen structure, status model and empty default data stand as shipped in v4 (D38, D39, D40). No cloud, no accounts, no server; email remains the only outbound network use and only when the user configures their own SMTP. Android packaging and mobile apps remain out (D27). The acceptance holds: Phase-4 P&L acceptance only (L2 pending owner confirmation)."
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "FR-62",
+      "area": "percent fields",
+      "statement": "The product SHALL accept 00.00 as a valid value for the Coupon and Est. Yield fields on every entry surface — candidate add, Move to Portfolio and Add Position — and SHALL store and display it unchanged as zero, while continuing to reject empty, garbage (non-numeric) and negative values with a named validation error and no write (D41).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D41"
+    },
+    {
+      "id": "FR-63",
+      "area": "form labels",
+      "statement": "The Move to Portfolio form and the Add Position form SHALL each render the exact field labels 'Purchase date (start date)', 'End date' and 'Credit day — when the amount is credited each month', the same three strings verbatim on both forms, with no change to any field's meaning, bound or engine value (D41).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D41"
+    },
+    {
+      "id": "FR-64",
+      "area": "move validation parity",
+      "statement": "The Move to Portfolio insert path SHALL run the same validation as Add Position before writing — parseable dates with end after start, computed tenure of at least 1 whole month, credit day an integer in 1..31, valid amount and percent fields — and SHALL reject any violation with HTTP 400 and a named error naming the offending field, writing zero rows (no partial writes, no success-shaped redirect) (D41).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D41"
+    },
+    {
+      "id": "FR-65",
+      "area": "invalid-row render recovery",
+      "statement": "Every surface that renders rows — Dashboard (/), Portfolio (/portfolio), the payouts grid and /print — SHALL return HTTP 200 when any single stored row has bad data, while all other rows render normally; every surface that renders rows shows the Invalid chip (holdings, payouts, print marker), the dashboard exposes the bad-row count/flag as an aggregate note (no row list there), and the Remove action appears on Holdings rows and Payouts rows (single server route revalidating a holding); the Remove action SHALL delete exactly that row only after server-side re-validation of the id, so a bad row can never 500 a page (D41).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D41"
+    },
+    {
+      "id": "FR-66",
+      "area": "broker detail",
+      "statement": "The product SHALL add a broker detail field as a nullable TEXT column on bonds, SHALL capture it on the candidate-add, Move to Portfolio and Add Position forms, SHALL render a Broker column on the Watchlist and SHALL display the stored value in the Portfolio holdings detail drawer, with the value round-tripping unchanged from candidate to holding on a move and an absent broker rendering blank (D41).",
+      "priority": "must",
+      "status": "proposed",
+      "decision_id": "dk_bond_tracker_brainstorm_20261030:D41"
+    }
+  ]
+}
