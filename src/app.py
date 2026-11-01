@@ -79,6 +79,12 @@ DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
 APP_VERSION = "1.0.0"
 BUILD_NOTES = "DK Bond Tracker standalone build — watchlist upgrade v6 (D43 ordering, day-wise alerts, themes)"
 
+THEMES = (
+    ("system", "System (follow OS)"),
+    ("light", "Light (default)"),
+    ("dark", "Dark"),
+)
+
 ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
 
 EMAIL_TEST_SUCCESS_MESSAGE = "Test email sent. Check the inbox (and the spam folder)."
@@ -188,13 +194,13 @@ def create_app(db_path=None):
     def inject_header_alerts():
         current_db = Path(app.config["DB_PATH"])
         if not current_db.exists():
-            return {"unread_count": 0, "recent_notifications": []}
+            return {"unread_count": 0, "recent_notifications": [], "themes": THEMES}
         with get_conn(current_db) as conn:
             count = unread_count(conn)
             recent = list_notifications(conn, limit=5)
         for item in recent:
             item["timestamp"] = (item.get("created_at") or "")[:19]
-        return {"unread_count": count, "recent_notifications": recent}
+        return {"unread_count": count, "recent_notifications": recent, "themes": THEMES}
 
     def next_payout_for(row, months_map, current):
         tenure = row["tenure_months"]
