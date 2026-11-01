@@ -1393,9 +1393,10 @@ def create_app(db_path=None):
             except AppError as exc:
                 ok = False
                 detail = exc.code
-            except Exception:
+            except Exception as exc:
                 ok = False
                 detail = "ERR-email-send"
+                print(f"email test send failed: {exc}", file=sys.stderr)
         status = "success" if ok else "failure"
         message = EMAIL_TEST_SUCCESS_MESSAGE if ok else EMAIL_TEST_FAILURE_MESSAGE
         try:

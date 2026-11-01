@@ -259,8 +259,34 @@ def returns_history(conn, today=None):
     if today_value is None:
         raise AppError("ERR-query-returns", "current month could not be resolved")
     current = month_key(today_value)
+    candidates = []
     try:
-        window = _history_window(conn, current)
+        ledger_row = conn.execute("SELECT MIN(month) AS earliest FROM payment_ledger").fetchone()
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
+    if ledger_row is not None and ledger_row["earliest"]:
+        earliest = str(ledger_row["earliest"]).strip()
+        if MONTH_PATTERN.match(earliest):
+            candidates.append(earliest)
+    try:
+        start_rows = conn.execute("SELECT start_date FROM bonds").fetchall()
+    except Exception as exc:
+        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
+    for row in start_rows:
+        try:
+            candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
+        except AppError:
+            continue
+    if candidates:
+        start = min(candidates)
+        if start > current:
+            start = current
+        window = _month_keys_span(start, current)
+        if len(window) > HISTORY_MONTH_CAP:
+            window = window[-HISTORY_MONTH_CAP:]
+    else:
+        window = []
+    try:
         ledger_rows = conn.execute(
             "SELECT month, SUM(amount) AS total FROM payment_ledger "
             "WHERE paid = 1 AND amount > 0 GROUP BY month"
@@ -275,8 +301,24 @@ def returns_history(conn, today=None):
         raise
     except Exception as exc:
         raise AppError("ERR-query-returns", f"returns aggregation failed: {exc}") from exc
-    interest_by_month = {row["month"]: float(row["total"] or 0.0) for row in ledger_rows}
-    paid_pairs = {(row["bond_id"], row["month"]) for row in paid_rows}
+
+    def safe_total(value):
+        try:
+            return float(value or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    interest_by_month = {}
+    for row in ledger_rows:
+        month = str(row["month"] or "").strip()
+        if not MONTH_PATTERN.match(month):
+            continue
+        interest_by_month[month] = safe_total(row["total"])
+    paid_pairs = {
+        (row["bond_id"], str(row["month"] or "").strip())
+        for row in paid_rows
+        if MONTH_PATTERN.match(str(row["month"] or "").strip())
+    }
     active_by_month = {}
     for row in bond_rows:
         try:
