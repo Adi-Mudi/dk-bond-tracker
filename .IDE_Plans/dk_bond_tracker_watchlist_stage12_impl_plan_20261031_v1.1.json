@@ -5,7 +5,7 @@
   "title": "Stage 12 Implement — locked design v6 + docs v6 (D41-D43) [v1.1: batch 24 fixes]",
   "version": "v1.1",
   "confidence": 85,
-  "status": "fix-round pending (batch 24 F-241/F-242/F-243 fixed)",
+  "status": "CLOSED (merged to dev b9e1823; batches 25+26 AGREED; F-245 fixed ae0c2d7; CI green 41298514582/41298878844; closed by owner standing PM delegation 2026-11-01)",
   "master": ".IDE_Plans/dk_bond_tracker_watchlist_master_20261030_2355_v1.2 (stage 12)",
   "brainstorm_source": "../.IDE_Plans/dk_bond_tracker_brainstorm_20261030.json (v2.6.0, D41/D42/D43 CONFIRMED; D43 LOCKED)",
   "owner_constraints": [
@@ -308,7 +308,25 @@
       "mitigation": "small atomic pushes per phase; captain watches each Actions run; no local suites (Q3)"
     }
   ],
-  "retrospective": "(filled at stage close)",
+  "retrospective": {
+    "went_well": [
+      "Wave-parallel lanes (spine -> A/B parallel -> merge) kept the cap-4 fleet busy with zero idle-blocked time",
+      "Gate-2 batch 24 caught plan-level defects (F-241/242/243) before a single line was written - the fix round was cheap",
+      "Implementation gate 25 and post-merge gate 26 both AGREED first round; only one MINOR (F-245 duplicate DOM id)",
+      "theme.css union merge precedent from stage 11 reused without conflict loss",
+      "Remote-only testing held: every green was a GitHub Actions run id, no local pytest claims"
+    ],
+    "failed": [
+      "F-241 plan defect: Python string-replace rebinding silently no-oped - cost one full fix round; root cause was structure-blind replace",
+      "Merge initially blocked by untracked duplicate briefs 39/40 at root (agent-session write leakage) - moved to /tmp, cost one retry",
+      "Watchdog script /tmp/wl_supervise2.py wiped twice by system tmp cleanup - recreated each time"
+    ],
+    "improve": [
+      "Briefs must be written inside the owning worktree only; PM pre-merge check for untracked collisions before git merge",
+      "Python replace helpers should rebuild containers explicitly (assert count of replacements) - ban rebinding-in-recursion pattern",
+      "Move watchdog state out of /tmp (project .IDE_Plans/session_state/) to survive tmp cleanup"
+    ]
+  },
   "supersedes": ".IDE_Plans/dk_bond_tracker_watchlist_stage12_impl_plan_20261031_v1.0.json (kept; F-241 execute-v6/v6 contradiction, F-242 TC-137 unmapped, F-243 migration proof not in task TO)",
   "change_history": [
     {
@@ -320,6 +338,11 @@
       "version": "v1.1",
       "date": "2026-11-01",
       "note": "all six execute-v6 refs -> execute-v6 (F-241); TC-137 added to T2.3 (F-242); in-task copy-smoke+row-count proof added to T1.1 TO (F-243)"
+    },
+    {
+      "version": "v1.1",
+      "date": "2026-11-01T16:12",
+      "note": "Status -> CLOSED at stage close; retrospective filled. No scope change."
     }
   ]
 }
