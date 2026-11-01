@@ -107,7 +107,7 @@
     },
     {
       "id": "FR-65",
-      "text": "Every surface that renders rows — Dashboard (/), Portfolio (/portfolio), the payouts grid and /print — SHALL return HTTP 200 even when a stored row has bad data, rendering the bad row as an 'Invalid' chip with a Remove action and rendering all other rows normally; the Remove action SHALL delete exactly the identified row only after server-side re-validation that the id exists and targets a bonds position row, raising a named state error with zero writes otherwise (D41).",
+      "text": "Every surface that renders rows — Dashboard (/), Portfolio (/portfolio), the payouts grid and /print — SHALL return HTTP 200 even when a stored row has bad data, rendering every other row normally; surfaces that render rows show the bad row as an 'Invalid' chip (holdings, payouts) or 'Invalid' marker (/print), the Remove action appears on Holdings and Payouts rows only, Dashboard shows an aggregate bad-row count note (no row list), and the Remove action SHALL delete exactly the identified row only after server-side re-validation that the id exists, targets a bonds position row in watch_state='holding', and that the row is actually invalid (bad dates/tenure or unparseable amount), raising a named state error with zero writes otherwise (D41).",
       "category": "functional",
       "check_method": "e2e",
       "status": "draft",
