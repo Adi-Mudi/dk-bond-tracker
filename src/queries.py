@@ -7,6 +7,7 @@ from .engine import (
     display_label,
     entry_paid,
     payout_date_label,
+    sort_rows,
     tenure_window,
 )
 from .status import (
@@ -18,7 +19,6 @@ from .validators import AppError, add_months, parse_date_value
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green", "Invalid": "grey"}
-STATUS_ORDER = {"Danger": 0, "On-going": 1, "Completed": 2, "Invalid": 3}
 
 
 def _parse_month(month):
@@ -161,14 +161,7 @@ def status_overview(conn, today=None):
         entry["status"] = status
         entry["color"] = STATUS_COLORS[status]
         entries.append(entry)
-    entries.sort(
-        key=lambda item: (
-            STATUS_ORDER[item["status"]],
-            str(item["company"] or "").lower(),
-            item["id"],
-        )
-    )
-    return entries
+    return sort_rows(entries)
 
 
 HISTORY_MONTH_CAP = 120
@@ -484,13 +477,7 @@ def grid_model(conn, today=None):
                 "cells": cells,
             }
         )
-    model_rows.sort(
-        key=lambda item: (
-            STATUS_ORDER[item["status"]],
-            str(item["company"] or "").lower(),
-            item["id"],
-        )
-    )
+    model_rows = sort_rows(model_rows)
     return {
         "months": headers,
         "rows": model_rows,
@@ -617,13 +604,13 @@ def _safe_invested(amount):
 
 
 def portfolio_snapshot(conn):
-    rows = conn.execute(
-        "SELECT id, company, amount FROM bonds WHERE watch_state = 'holding' "
-        "ORDER BY company COLLATE NOCASE, id"
-    ).fetchall()
     return [
-        {"id": row["id"], "company": row["company"], "invested": _safe_invested(row["amount"])}
-        for row in rows
+        {
+            "id": entry["id"],
+            "company": entry["company"],
+            "invested": _safe_invested(entry["amount"]),
+        }
+        for entry in status_overview(conn)
     ]
 
 

@@ -23,7 +23,7 @@ from src.engine import (
     list_months_through_current,
     month_due_passed,
     payout_date_label,
-    sort_payout_rows,
+    sort_rows,
     tenure_window,
 )
 from src.export_csv import (
@@ -210,10 +210,7 @@ def create_app(db_path=None):
         amounts = summary_amounts(conn)
         received_map = received_by_bond(conn)
         current = month_key(date.today())
-        holdings = conn.execute(
-            "SELECT id, company, amount, interest_payout, tenure_months, credit_day, start_date "
-            "FROM bonds WHERE watch_state = 'holding' ORDER BY company COLLATE NOCASE, id"
-        ).fetchall()
+        holdings = status_overview(conn)
         ledger = conn.execute(
             "SELECT bond_id, month, amount, paid FROM payment_ledger"
         ).fetchall()
@@ -968,7 +965,7 @@ def create_app(db_path=None):
                     "health": health,
                 }
             )
-        return holdings
+        return sort_rows(holdings)
 
     def _portfolio_payouts(bond_rows, ledger_by_bond, today):
         prepared = []
@@ -1025,7 +1022,7 @@ def create_app(db_path=None):
                 }
             )
         return (
-            sort_payout_rows(rows),
+            sort_rows(rows),
             [{"key": key, "label": month_label(key)} for key in months],
         )
 
@@ -1034,7 +1031,7 @@ def create_app(db_path=None):
             "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, payout_cycle, "
             "amount, start_date, end_date, tenure_months, credit_day "
             "FROM bonds WHERE watch_state = 'holding' "
-            "ORDER BY company COLLATE NOCASE, id"
+            "ORDER BY id"
         ).fetchall()
         ledger_rows = conn.execute(
             "SELECT bond_id, month, amount, paid FROM payment_ledger ORDER BY bond_id, month"
