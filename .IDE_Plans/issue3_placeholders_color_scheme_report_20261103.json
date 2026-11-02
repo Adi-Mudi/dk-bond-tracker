@@ -1,0 +1,44 @@
+{
+  "header": {
+    "topic": "issue3_placeholders_color_scheme",
+    "date": "20261103",
+    "author": "pm-kimi-code",
+    "overall_status": "DONE",
+    "github_issue": 3,
+    "branch": "fix-dark-placeholders-color-scheme",
+    "base": "dev",
+    "commits": ["b58d8cf", "bff1296"]
+  },
+  "items": [
+    {
+      "id": "S1",
+      "status": "DONE",
+      "what": "::placeholder { color: var(--muted); opacity: 1; } added (theme.css:337) — placeholders 3.75:1 -> 5.62:1 dark, 4.83:1 light; opacity 1 suppresses Firefox 0.54 default",
+      "evidence": "reviewer contrast computations both themes"
+    },
+    {
+      "id": "S2",
+      "status": "DONE",
+      "what": "color-scheme driven from the app's own data-theme states instead of UA preference: light for :root/light, dark for data-theme=dark, dark for system under prefers-color-scheme: dark",
+      "evidence": "commit bff1296 (review round 2 AGREED); reviewer found round-1 light dark value wrong for forced themes (F-007 MAJOR, fixed)"
+    },
+    {
+      "id": "S3",
+      "status": "DONE",
+      "what": "Native selects, date pickers, scrollbars, checkboxes now follow the active theme in all three modes",
+      "evidence": "CSS Color Adjust semantics per reviewer analysis; 19 inputs + 37+ native controls covered by the two rules"
+    },
+    {
+      "id": "S4",
+      "status": "DONE",
+      "what": "Tests: scripts/test_local.sh 408 passed, 5 deselected (worker + reviewer independent runs)",
+      "evidence": "worker + reviewer runs"
+    },
+    {
+      "id": "S5",
+      "status": "DONE",
+      "what": "Review gate 3: round 1 NOT AGREED (1 MAJOR) -> fix applied -> round 2 AGREED; 2 MINOR recorded (QB-003)",
+      "evidence": "dk_bond_tracker_issue_fixes_review_log.jsonl"
+    }
+  ]
+}
