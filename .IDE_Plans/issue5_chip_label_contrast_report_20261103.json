@@ -1,0 +1,44 @@
+{
+  "header": {
+    "topic": "issue5_chip_label_contrast",
+    "date": "20261103",
+    "author": "pm-kimi-code",
+    "overall_status": "DONE",
+    "github_issue": 5,
+    "branch": "fix-chip-label-contrast",
+    "base": "dev",
+    "commit": "6c2e49c"
+  },
+  "items": [
+    {
+      "id": "S1",
+      "status": "DONE",
+      "what": "Light --muted and --matured-fg #6b7280 -> #5b6472: fact labels 4.08 -> 5.04:1, matured/completed chips 4.39 -> 5.44:1",
+      "evidence": "worker + reviewer computations; all var(--muted) light consumers verified on light surfaces (darkening only improves)"
+    },
+    {
+      "id": "S2",
+      "status": "DONE",
+      "what": "Light --danger-fg #dc2626 -> #b91c1c: chip-danger 4.41 -> 5.91:1",
+      "evidence": "worker + reviewer computations"
+    },
+    {
+      "id": "S3",
+      "status": "DONE",
+      "what": ".chip-invalid opacity removed; new --invalid-bg token (light #fcebe9, dark #22110f) declared in all three theme blocks; invalid 5.61:1 light / 7.21:1 dark (was 3.27 / 4.42 with opacity)",
+      "evidence": "git show 6c2e49c; reviewer verified three-block declaration and rule integrity"
+    },
+    {
+      "id": "S4",
+      "status": "DONE",
+      "what": "Tests: scripts/test_local.sh 408 passed, 5 deselected; no test asserted old token values",
+      "evidence": "worker run; reviewer spot-check of test_tc111_113_themes.py"
+    },
+    {
+      "id": "S5",
+      "status": "DONE",
+      "what": "Review gate 3: AGREED, zero CRITICAL/MAJOR; 2 MINOR recorded (QB-006)",
+      "evidence": "dk_bond_tracker_issue_fixes_review_log.jsonl"
+    }
+  ]
+}
