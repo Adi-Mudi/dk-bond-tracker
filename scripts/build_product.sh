@@ -7,6 +7,46 @@ NAME="dk_bond_tracker_v${VERSION}"
 PRODUCT_DIR="${ROOT}/product/${NAME}"
 ZIP_PATH="${ROOT}/product/${NAME}.zip"
 
+if [ "${1:-}" = "--check" ]; then
+  drift=0
+  report() {
+    printf '%s\n' "$1"
+    drift=1
+  }
+  if [ ! -d "${PRODUCT_DIR}/src" ]; then
+    printf 'MISSING %s/src\n' "${NAME}"
+    exit 1
+  fi
+  while IFS= read -r -d '' f; do
+    rel="${f#"${ROOT}/src/"}"
+    dst="${PRODUCT_DIR}/src/${rel}"
+    if [ ! -f "${dst}" ]; then
+      report "MISSING src/${rel}"
+    elif ! cmp -s "${f}" "${dst}"; then
+      report "DRIFT src/${rel}"
+    fi
+  done < <(find "${ROOT}/src" -type d -name '__pycache__' -prune -o \( -type f ! -name '*.pyc' ! -name '*.pyo' \) -print0 | sort -z)
+  while IFS= read -r -d '' f; do
+    rel="${f#"${PRODUCT_DIR}/src/"}"
+    if [ ! -f "${ROOT}/src/${rel}" ]; then
+      report "EXTRA src/${rel}"
+    fi
+  done < <(find "${PRODUCT_DIR}/src" -type d -name '__pycache__' -prune -o \( -type f ! -name '*.pyc' ! -name '*.pyo' \) -print0 | sort -z)
+  for f in requirements.txt scripts/test_local.sh scripts/test_remote.sh; do
+    dst="${PRODUCT_DIR}/${f}"
+    if [ ! -f "${dst}" ]; then
+      report "MISSING ${f}"
+    elif ! cmp -s "${ROOT}/${f}" "${dst}"; then
+      report "DRIFT ${f}"
+    fi
+  done
+  if [ "${drift}" -eq 0 ]; then
+    printf 'OK no drift\n'
+    exit 0
+  fi
+  exit 1
+fi
+
 if [ ! -f "${ROOT}/requirements.txt" ]; then
   printf 'flask==3.1.3\nopenpyxl==3.1.5\npytest==9.2.0\n' > "${ROOT}/requirements.txt"
 fi
