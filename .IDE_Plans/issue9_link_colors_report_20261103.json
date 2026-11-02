@@ -1,0 +1,44 @@
+{
+  "header": {
+    "topic": "issue9_link_colors_dark_theme",
+    "date": "20261103",
+    "author": "pm-kimi-code",
+    "overall_status": "DONE",
+    "github_issue": 9,
+    "branch": "fix-link-colors-dark-theme",
+    "base": "dev",
+    "commit": "060a751"
+  },
+  "items": [
+    {
+      "id": "S1",
+      "status": "DONE",
+      "what": "Global anchor rules added to theme.css: a { color: var(--accent); } a:hover { color: var(--accent-hover); }",
+      "evidence": "git show 060a751: 1 file, 2 insertions; single occurrence each"
+    },
+    {
+      "id": "S2",
+      "status": "DONE",
+      "what": "Contrast: light 4.90:1 (hover 6.36:1), dark 7.49:1 (hover 9.73:1) on --bg; on --card 5.17:1/6.85:1 — all PASS AA (was 1.84:1/1.57:1 browser defaults)",
+      "evidence": "worker + reviewer independent computations"
+    },
+    {
+      "id": "S3",
+      "status": "DONE",
+      "what": "Button-links unaffected: .btn/.btn-primary/.sidebar nav a specificity beats the global rule; .cell-hit is an empty overlay anchor",
+      "evidence": "reviewer specificity analysis (theme.css:152,156; grid.html:59)"
+    },
+    {
+      "id": "S4",
+      "status": "DONE",
+      "what": "Tests: scripts/test_local.sh 408 passed, 5 deselected",
+      "evidence": "worker run"
+    },
+    {
+      "id": "S5",
+      "status": "DONE",
+      "what": "Review gate 3: AGREED, zero CRITICAL/MAJOR; 3 MINOR recorded (QB-004) -> follow-up",
+      "evidence": "dk_bond_tracker_issue_fixes_review_log.jsonl"
+    }
+  ]
+}
