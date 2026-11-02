@@ -1,0 +1,38 @@
+{
+  "header": {
+    "topic": "issue12_theme_radio_first_paint",
+    "date": "20261103",
+    "author": "pm-kimi-code",
+    "overall_status": "DONE",
+    "github_issue": 12,
+    "branch": "fix-theme-radio-first-paint",
+    "base": "dev",
+    "commit": "e3bb6ec"
+  },
+  "items": [
+    {
+      "id": "S1",
+      "status": "DONE",
+      "what": "Inline localStorage sync script inserted right after the settings radio loop (settings.html:28): checked state matches stored theme on first paint; no flash of wrong selection",
+      "evidence": "git show e3bb6ec (1 file, 1 insertion); reviewer parse-order analysis"
+    },
+    {
+      "id": "S2",
+      "status": "DONE",
+      "what": "No conflict with end-of-body theme.js (property assignment only, no events fired); no injection surface (literal strings only, stored value compared never interpolated)",
+      "evidence": "reviewer checks (c) and (d)"
+    },
+    {
+      "id": "S3",
+      "status": "DONE",
+      "what": "Tests: scripts/test_local.sh 408 passed, 5 deselected",
+      "evidence": "worker run"
+    },
+    {
+      "id": "S4",
+      "status": "DONE",
+      "what": "Review gate 3: AGREED, zero CRITICAL/MAJOR; 2 MINOR recorded (QB-012); theme-init triplication flagged as consolidation follow-up",
+      "evidence": "dk_bond_tracker_issue_fixes_review_log.jsonl"
+    }
+  ]
+}
