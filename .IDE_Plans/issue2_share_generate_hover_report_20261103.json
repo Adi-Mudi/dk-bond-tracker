@@ -1,0 +1,50 @@
+{
+  "header": {
+    "topic": "issue2_share_generate_hover",
+    "date": "20261103",
+    "author": "pm-kimi-code",
+    "overall_status": "DONE",
+    "github_issue": 2,
+    "branch": "fix-share-generate-hover-contrast",
+    "base": "dev",
+    "commit": "60d5008"
+  },
+  "items": [
+    {
+      "id": "S1",
+      "status": "DONE",
+      "what": "share.html:13 hover changed FROM background var(--blue)/color var(--white) TO background var(--accent-hover)/color var(--on-accent)",
+      "evidence": "git show 60d5008: 1 file, 1 insertion, 1 deletion"
+    },
+    {
+      "id": "S2",
+      "status": "DONE",
+      "what": "Contrast: old #ffffff on #4dabf7 = 2.48:1 FAIL; new light #ffffff on #1d4ed8 = 6.70:1 PASS; new dark #0d1117 on #79c0ff = 9.73:1 PASS",
+      "evidence": "worker + reviewer independent WCAG relative-luminance computations"
+    },
+    {
+      "id": "S3",
+      "status": "DONE",
+      "what": "Root cause removed: --white (surface token) no longer used as text-on-accent; matches .btn-primary pattern (theme.css:152-159)",
+      "evidence": "reviewer check (a), grep generate-btn = share.html only"
+    },
+    {
+      "id": "S4",
+      "status": "DONE",
+      "what": "Tests: scripts/test_local.sh 408 passed, 5 deselected",
+      "evidence": "worker run"
+    },
+    {
+      "id": "S5",
+      "status": "DONE",
+      "what": "Review gate 3: AGREED, zero CRITICAL/MAJOR; 3 MINOR recorded (QB-002)",
+      "evidence": "dk_bond_tracker_issue_fixes_review_log.jsonl"
+    },
+    {
+      "id": "S6",
+      "status": "DONE",
+      "what": "Post-merge release step: product rebuilt from merged dev and synced to main repo on-disk artifact (gitignored)",
+      "evidence": "build_product.sh run + --check exit 0 + grep in main repo copy"
+    }
+  ]
+}
