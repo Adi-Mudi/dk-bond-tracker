@@ -3,6 +3,7 @@ from datetime import date
 
 from .engine import HEALTH_ORDER, display_label
 from .notifications import list_notifications
+from .print_palette import PRINT_PALETTE
 from .queries import portfolio_totals, status_overview, summary_counts, this_month_returns
 from .status import month_key
 from .validators import AppError
@@ -154,4 +155,5 @@ def monthly_print_model(conn, today):
         "rows": rows,
         "status_groups": status_groups,
         "alerts_footer": alerts_footer,
+        "palette": PRINT_PALETTE,
     }
