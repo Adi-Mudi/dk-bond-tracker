@@ -2,6 +2,7 @@ from html import escape
 
 from .export_csv import serialize_records
 from .notifications import list_notifications
+from .print_palette import PRINT_PALETTE
 from .queries import (
     bond_month_totals,
     monthly_history,
@@ -23,20 +24,20 @@ SECTION_TITLES = {
 
 SHARE_STYLE = """
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: #1e1e1e; background: #f8f9fa; padding: 24px 16px 48px; line-height: 1.45; }
-  .sheet { max-width: 860px; margin: 0 auto; background: #ffffff; border: 1px solid #adb5bd; padding: 20px 24px; }
+  body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: %(ink)s; background: %(bg)s; padding: 24px 16px 48px; line-height: 1.45; }
+  .sheet { max-width: 860px; margin: 0 auto; background: %(paper)s; border: 1px solid %(sheet_border)s; padding: 20px 24px; }
   h1 { font-size: 20px; margin-bottom: 4px; }
-  .sub { font-size: 12px; color: #495057; margin-bottom: 16px; }
+  .sub { font-size: 12px; color: %(sub)s; margin-bottom: 16px; }
   .share-sec { margin-bottom: 20px; }
-  .share-sec h2 { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1.5px solid #1e1e1e; padding-bottom: 3px; margin-bottom: 8px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  th { background: #e9ecef; border: 1px solid #1e1e1e; padding: 5px 7px; text-align: left; font-size: 11px; text-transform: uppercase; }
-  td { border: 1px solid #ced4da; padding: 5px 7px; vertical-align: top; }
+  .share-sec h2 { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1.5px solid %(ink)s; padding-bottom: 3px; margin-bottom: 8px; }
+  table { width: 100%%; border-collapse: collapse; font-size: 12.5px; }
+  th { background: %(th_bg)s; border: 1px solid %(ink)s; padding: 5px 7px; text-align: left; font-size: 11px; text-transform: uppercase; }
+  td { border: 1px solid %(cell_border)s; padding: 5px 7px; vertical-align: top; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .money { white-space: nowrap; }
-  .foot { font-size: 11px; color: #495057; border-top: 1.5px solid #1e1e1e; padding-top: 8px; font-style: italic; }
-  @media print { body { background: #fff; padding: 0; } .sheet { border: none; padding: 0; } }
-"""
+  .foot { font-size: 11px; color: %(sub)s; border-top: 1.5px solid %(ink)s; padding-top: 8px; font-style: italic; }
+  @media print { body { background: %(paper)s; padding: 0; } .sheet { border: none; padding: 0; } }
+""" % PRINT_PALETTE
 
 
 def _selected_sections(sections):

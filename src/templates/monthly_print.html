@@ -6,27 +6,32 @@
 <title>DK Bond Tracker — Monthly Statement</title>
 <style>
   :root {
-    --border: #1e1e1e;
-    --text: #1e1e1e;
-    --muted: #495057;
-    --header-row: #e9ecef;
-    --due: #ffc9c9;
-    --danger: #ff8787;
-    --ongoing: #ff922b;
-    --ongoing-light: #ffe8cc;
-    --completed: #69db7c;
-    --completed-light: #d3f9d8;
-    --blue-light: #d0ebff;
-    --page-bg: #f8f9fa;
-    --white: #ffffff;
-    --card-bg: #f1f3f5;
+    --border: {{ palette.ink }};
+    --text: {{ palette.ink }};
+    --muted: {{ palette.sub }};
+    --header-row: {{ palette.th_bg }};
+    --due: {{ palette.due }};
+    --danger: {{ palette.danger }};
+    --ongoing: {{ palette.ongoing }};
+    --ongoing-light: {{ palette.ongoing_light }};
+    --completed: {{ palette.completed }};
+    --completed-light: {{ palette.completed_light }};
+    --blue-light: {{ palette.blue_light }};
+    --page-bg: {{ palette.bg }};
+    --white: {{ palette.paper }};
+    --card-bg: {{ palette.card_bg }};
+    --screen-bg: {{ palette.screen_bg }};
+    --badge-bg: {{ palette.badge_bg }};
+    --sheet-border: {{ palette.sheet_border }};
+    --shadow-overlay: {{ palette.shadow_overlay }};
+    --shadow-soft: {{ palette.shadow_soft }};
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: "Segoe UI", system-ui, -apple-system, "Noto Sans", sans-serif;
-    background: #6c757d;
+    background: var(--screen-bg);
     color: var(--text);
     padding: 28px 16px 60px;
   }
@@ -34,8 +39,8 @@
   .screen-chrome {
     max-width: 860px;
     margin: 0 auto 18px;
-    background: #fff;
-    border: 2px solid #1e1e1e;
+    background: var(--white);
+    border: 2px solid var(--border);
     border-radius: 6px;
     padding: 14px 18px;
   }
@@ -61,7 +66,7 @@
     padding: 6px 12px;
     border: 2px dashed var(--border);
     border-radius: 4px;
-    background: #fff3bf;
+    background: var(--badge-bg);
   }
   .privacy-badge.on { background: var(--ongoing-light); }
 
@@ -71,8 +76,8 @@
     margin: 0 auto 12px;
     padding: 14mm 14mm 12mm;
     background: var(--white);
-    border: 1px solid #adb5bd;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    border: 1px solid var(--sheet-border);
+    box-shadow: 0 6px 24px var(--shadow-overlay);
     font-size: 11.5px;
     line-height: 1.4;
     color: var(--text);
@@ -163,7 +168,7 @@
   .status-box.completed { background: var(--completed-light); }
   .status-box h4 { font-size: 10.5px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
   .status-box ul { list-style: none; font-size: 9.5px; line-height: 1.35; }
-  .status-box li { padding: 1px 0; border-bottom: 1px dotted rgba(30,30,30,0.25); word-break: break-word; }
+  .status-box li { padding: 1px 0; border-bottom: 1px dotted var(--shadow-soft); word-break: break-word; }
   .status-box li:last-child { border-bottom: none; }
 
   .st-footer {
@@ -197,7 +202,7 @@
   }
 
   @media print {
-    body { background: #fff; padding: 0; }
+    body { background: var(--white); padding: 0; }
     .screen-chrome { display: none !important; }
     .a4 {
       width: auto;
