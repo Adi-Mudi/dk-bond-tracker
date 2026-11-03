@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 
 from .status import month_key, tenure_month_map
@@ -69,9 +70,10 @@ def due_reminders(conn, today):
         if row["status"] == "Completed":
             continue
         credit_day = validate_credit_day(row["credit_day"], "ERR-notify-build", context=f"bond {row['id']}")
-        lead_day = credit_day - 2
+        due_day = min(credit_day, calendar.monthrange(today.year, today.month)[1])
+        lead_day = due_day - 2
         is_lead = lead_day >= 1 and today.day == lead_day
-        is_day_of = today.day == credit_day
+        is_day_of = today.day == due_day
         if not is_lead and not is_day_of:
             continue
         try:
@@ -85,9 +87,9 @@ def due_reminders(conn, today):
         if is_day_of:
             key = f"dayof:{row['id']}:{current_month}"
             severity = "due_today"
-            message = f"{row['company']} payment due today (day {credit_day})"
+            message = f"{row['company']} payment due today (day {due_day})"
         else:
-            days_left = credit_day - today.day
+            days_left = due_day - today.day
             key = f"due:{row['id']}:{current_month}"
             severity = "reminder"
             message = f"{row['company']} payment due in {days_left} days (credit day {credit_day})"
