@@ -2,7 +2,7 @@ import calendar
 from datetime import date
 
 from .status import month_key
-from .validators import AppError, add_months, parse_date_value
+from .validators import AppError, add_months, parse_date_value, validate_credit_day
 
 DISPLAY_LABELS = {"Returned": "Received", "Completed": "Matured"}
 HEALTH_ORDER = {"Danger": 0, "On-going": 1, "Matured": 2, "Invalid": 3}
@@ -65,9 +65,7 @@ def _require_tenure(value):
 
 
 def _require_credit_day(value):
-    if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 31:
-        raise AppError("ERR-health-compute", f"credit_day must be an integer in 1-31: {value!r}")
-    return value
+    return validate_credit_day(value, "ERR-health-compute")
 
 
 def _position_value(position, key):
