@@ -1,7 +1,7 @@
 from datetime import date
 
 from .status import credit_day_overdue, tenure_month_map
-from .validators import AppError
+from .validators import AppError, validate_credit_day
 
 
 def daily_sweep(conn, today):
@@ -15,12 +15,7 @@ def daily_sweep(conn, today):
     for row in rows:
         if row["status"] == "Completed":
             continue
-        credit_day = row["credit_day"]
-        if isinstance(credit_day, bool) or not isinstance(credit_day, int) or not 1 <= credit_day <= 31:
-            raise AppError(
-                "ERR-credit-sweep",
-                f"bond {row['id']}: missing or invalid credit_day: {credit_day!r}",
-            )
+        credit_day = validate_credit_day(row["credit_day"], "ERR-credit-sweep", context=f"bond {row['id']}")
         try:
             months = tenure_month_map(conn, row["id"], row["start_date"], row["tenure_months"])
         except AppError as exc:
