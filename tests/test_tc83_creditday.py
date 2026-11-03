@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 
 from src.db import get_conn, init_db
-from src.validators import AppError, date_range_tenure, legacy_position, validate_credit_day
+from src.validators import AppError, date_range_tenure, validate_credit_day
 
 
 @pytest.mark.parametrize("credit_day", [1, 31])
@@ -53,20 +53,12 @@ def test_schema_check_rejects_credit_day_zero_and_32(tmp_path):
                 )
 
 
-def test_legacy_start_month_maps_to_first_day_of_month():
-    start, end, tenure, credit_day = legacy_position("2025-09", 15)
+def test_date_range_start_month_maps_to_first_day_of_month():
+    start, end, tenure, credit_day = date_range_tenure("2025-09-01", "2026-12-01", 1)
     assert start == date(2025, 9, 1)
     assert end == date(2026, 12, 1)
     assert tenure == 15
     assert credit_day == 1
-
-
-def test_legacy_start_day_31_clamps_credit_day_to_28():
-    start, end, tenure, credit_day = legacy_position(date(2025, 1, 31), 15)
-    assert start == date(2025, 1, 31)
-    assert end == date(2026, 4, 30)
-    assert tenure == 15
-    assert credit_day == 28
 
 
 
