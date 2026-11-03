@@ -1,6 +1,7 @@
 import calendar
 from datetime import date
 
+from .ledger import paid_map
 from .validators import AppError, add_months, parse_date_value, validate_credit_day
 
 
@@ -42,19 +43,7 @@ def _due_window(start_date, tenure_months):
 
 def tenure_month_map(conn, bond_id, start_date, tenure_months):
     window = _due_window(start_date, tenure_months)
-    paid_map = {}
-    rows = conn.execute(
-        "SELECT month, amount, paid FROM payment_ledger WHERE bond_id = ? ORDER BY month",
-        (bond_id,),
-    ).fetchall()
-    for row in rows:
-        amount = row["amount"]
-        try:
-            numeric = float(amount) if amount is not None else 0.0
-        except (TypeError, ValueError):
-            numeric = 0.0
-        paid_map[row["month"]] = bool(row["paid"]) and amount is not None and numeric > 0
-    return {key: paid_map.get(key, False) for key in window}
+    return paid_map(conn, bond_id, window)
 
 
 def compute_row_status(months, tenure_months, today):

@@ -1,4 +1,5 @@
 from .queries import status_overview
+from .status import month_key
 from .validators import AppError, add_months, parse_date_value
 
 TDS_RATE = 0.10
@@ -234,7 +235,7 @@ def payout_schedule(conn, bond_id, cycle):
         amount = None if monthly_amount is None else monthly_amount * covered
         instances.append(
             {
-                "month": f"{start.year + (start.month - 1 + offset) // 12:04d}-{(start.month - 1 + offset) % 12 + 1:02d}",
+                "month": month_key(add_months(start, offset)),
                 "offset": offset,
                 "months_covered": covered,
                 "partial": covered < step,
