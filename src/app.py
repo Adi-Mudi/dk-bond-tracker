@@ -152,8 +152,13 @@ def create_app(db_path=None):
     app = Flask(__name__)
     app.config["DB_PATH"] = str(db_path) if db_path else str(DEFAULT_DB_PATH)
     app.secret_key = os.environ.get("FLASK_SECRET_KEY") or os.urandom(32)
-    db_file = Path(app.config["DB_PATH"])
-    _ensure_db(db_file)
+
+    def app_db():
+        path = Path(app.config["DB_PATH"])
+        _ensure_db(path)
+        return path
+
+    db_file = app_db()
     _startup_alerts(db_file, date.today())
 
     def render_unexpected(error_text):
@@ -306,8 +311,7 @@ def create_app(db_path=None):
     def index():
         if request.method == "POST":
             return entry_guard()
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         try:
             with get_conn(db_file) as conn:
                 context = dashboard_model(conn)
@@ -319,8 +323,7 @@ def create_app(db_path=None):
     def grid():
         if request.method == "POST":
             return entry_guard()
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         try:
             with get_conn(db_file) as conn:
                 model = grid_model(conn, date.today())
@@ -338,8 +341,7 @@ def create_app(db_path=None):
 
     @app.route("/payment/<int:bond_id>/<month>", methods=["GET", "POST"])
     def payment_edit(bond_id, month):
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "GET":
             try:
                 with get_conn(db_file) as conn:
@@ -378,15 +380,7 @@ def create_app(db_path=None):
                     amount_value = float(ledger["amount"] or 0.0)
                     paid_flag = bool(ledger["paid"]) and amount_value > 0
             except AppError as exc:
-                return (
-                    render_template(
-                        "error.html",
-                        code=exc.code,
-                        message=exc.message,
-                        title="Payment edit failed",
-                    ),
-                    400,
-                )
+                return error_page(exc.code, exc.message, "Payment edit failed", 400)
             return render_template(
                 "payment_edit.html",
                 bond=dict(bond),
@@ -434,21 +428,12 @@ def create_app(db_path=None):
                     "UPDATE bonds SET status = ? WHERE id = ?", (status, bond_id)
                 )
         except AppError as exc:
-            return (
-                render_template(
-                    "error.html",
-                    code=exc.code,
-                    message=exc.message,
-                    title="Payment save failed",
-                ),
-                400,
-            )
+            return error_page(exc.code, exc.message, "Payment save failed", 400)
         return redirect(url_for("grid"))
 
     @app.route("/add", methods=["GET", "POST"])
     def add_position():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "GET":
             return render_template("add_position.html", form={}, error=None, code=None)
         form = request.form
@@ -508,8 +493,7 @@ def create_app(db_path=None):
 
     @app.route("/goals", methods=["GET", "POST"])
     def goals_page():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "POST":
             try:
                 with get_conn(db_file) as conn:
@@ -544,8 +528,7 @@ def create_app(db_path=None):
 
     @app.route("/goals/<int:goal_id>/edit", methods=["POST"])
     def goals_edit(goal_id):
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         try:
             with get_conn(db_file) as conn:
                 update_goal(
@@ -563,8 +546,7 @@ def create_app(db_path=None):
 
     @app.route("/goals/<int:goal_id>/delete", methods=["POST"])
     def goals_delete(goal_id):
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         try:
             with get_conn(db_file) as conn:
                 delete_goal(conn, goal_id)
@@ -637,8 +619,7 @@ def create_app(db_path=None):
 
     @app.route("/watch", methods=["GET", "POST"])
     def watch_list():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "POST":
             form = request.form
             company = str(form.get("company", "")).strip()
@@ -746,15 +727,7 @@ def create_app(db_path=None):
         try:
             candidates = watch_candidates(db_file)
         except AppError as exc:
-            return (
-                render_template(
-                    "error.html",
-                    code=exc.code,
-                    message=exc.message,
-                    title="Watchlist failed",
-                ),
-                500,
-            )
+            return error_page(exc.code, exc.message, "Watchlist failed", 500)
         return render_template(
             "watch.html",
             candidates=candidates,
@@ -766,8 +739,7 @@ def create_app(db_path=None):
 
     @app.route("/watch/<int:candidate_id>/move", methods=["POST"])
     def watch_move(candidate_id):
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         form = request.form
         try:
             credit_raw = str(form.get("credit_day", "")).strip()
@@ -851,8 +823,7 @@ def create_app(db_path=None):
 
     @app.route("/notifications", methods=["GET", "POST"])
     def notifications_page():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "POST":
             inapp_on = request.form.get("inapp") in ("on", "1", "true", "yes")
             email_on = request.form.get("email") in ("on", "1", "true", "yes")
@@ -890,8 +861,7 @@ def create_app(db_path=None):
 
     @app.route("/notifications/read_all", methods=["POST"])
     def notifications_read_all():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         with get_conn(db_file) as conn:
             mark_all_read(conn)
         return redirect(url_for("notifications_page"))
@@ -907,11 +877,23 @@ def create_app(db_path=None):
             status,
         )
 
+    ERROR_STATUS = {
+        "ERR-active-position": 409,
+        "ERR-add-insert": 409,
+        "ERR-watch-dup": 409,
+        "ERR-entry-guard": 403,
+    }
+
+    @app.errorhandler(AppError)
+    def handle_app_error(exc):
+        return error_page(
+            exc.code, exc.message, "Request failed", ERROR_STATUS.get(exc.code, 500)
+        )
+
     @app.route("/export.csv")
     def export_csv_route():
         scope = request.args.get("scope", "")
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if scope == "full":
             try:
                 with get_conn(db_file) as conn:
@@ -953,8 +935,7 @@ def create_app(db_path=None):
         return response
 
     def generate_share():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         selected = request.form.getlist("sections")
         sections = {key: key in selected for key in SECTION_KEYS}
         include_amounts = request.form.get("include_amounts") in ("on", "1", "true", "yes")
@@ -996,8 +977,7 @@ def create_app(db_path=None):
 
     @app.route("/print")
     def print_statement():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         privacy = str(request.args.get("privacy", "")).lower() in ("1", "on", "true", "yes")
         try:
             with get_conn(db_file) as conn:
@@ -1008,8 +988,7 @@ def create_app(db_path=None):
 
     @app.route("/payout")
     def payout_page():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         raw_bond = str(request.args.get("bond_id", "")).strip()
         try:
             bond_id = int(raw_bond)
@@ -1311,8 +1290,7 @@ def create_app(db_path=None):
 
     @app.route("/portfolio", methods=["GET", "POST"])
     def portfolio_page():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "POST":
             return _add_portfolio_position(db_file)
         tab = str(request.args.get("tab") or "holdings")
@@ -1332,8 +1310,7 @@ def create_app(db_path=None):
 
     @app.route("/portfolio/<int:bond_id>/detail")
     def portfolio_position_detail(bond_id):
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         try:
             with get_conn(db_file) as conn:
                 detail = position_detail(conn, bond_id)
@@ -1343,8 +1320,7 @@ def create_app(db_path=None):
 
     @app.route("/portfolio/invalid/<int:bond_id>/remove", methods=["POST"])
     def portfolio_invalid_remove(bond_id):
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         try:
             with get_conn(db_file) as conn:
                 row = conn.execute(
@@ -1412,8 +1388,7 @@ def create_app(db_path=None):
 
     @app.route("/settings", methods=["GET", "POST"])
     def settings_page():
-        db_file = Path(app.config["DB_PATH"])
-        _ensure_db(db_file)
+        db_file = app_db()
         if request.method == "POST":
             try:
                 values = settings_from_form(request.form)
