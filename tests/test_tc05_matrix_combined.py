@@ -51,9 +51,6 @@ def test_tc05_combined_matrix_totals_and_overview(db_path):
         overview = status_overview(conn, date(2026, 6, 15))
         assert len(overview) == 5
         assert [row["status"] for row in overview][:3] == ["Danger", "Danger", "On-going"]
-        colors = {"Danger": "red", "On-going": "orange", "Completed": "green"}
-        for row in overview:
-            assert row["color"] == colors[row["status"]]
 
 
 def test_tc05_zero_and_missing_rows_never_counted(db_path):

@@ -18,8 +18,6 @@ from .status import (
 from .validators import AppError, add_months, parse_date_value, safe_float
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
-STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green", "Invalid": "grey"}
-
 
 def _parse_month(month):
     if isinstance(month, str) and MONTH_PATTERN.match(month.strip()):
@@ -41,63 +39,6 @@ def _require_bond(conn, bond_id):
     if row is None:
         raise AppError("ERR-ledger-insert", f"bond not found: {bond_id!r}")
     return row
-
-
-def insert_payment(conn, bond_id, month, amount):
-    _require_bond(conn, bond_id)
-    key = _parse_month(month)
-    value = _positive_amount(amount)
-    existing = conn.execute(
-        "SELECT id, amount, paid FROM payment_ledger WHERE bond_id = ? AND month = ?",
-        (bond_id, key),
-    ).fetchone()
-    if existing is None:
-        conn.execute(
-            "INSERT INTO payment_ledger (bond_id, month, amount, paid) VALUES (?, ?, ?, 1)",
-            (bond_id, key, value),
-        )
-        return {"bond_id": bond_id, "month": key, "amount": value, "paid": 1, "action": "inserted"}
-    existing_amount = existing["amount"]
-    already_paid = bool(existing["paid"]) and existing_amount is not None and float(existing_amount) > 0
-    if already_paid:
-        raise AppError(
-            "ERR-ledger-insert",
-            f"payment already recorded for bond {bond_id} month {key}; "
-            "use the correction path (AF-11)",
-        )
-    conn.execute(
-        "UPDATE payment_ledger SET amount = ?, paid = 1 WHERE id = ?",
-        (value, existing["id"]),
-    )
-    return {"bond_id": bond_id, "month": key, "amount": value, "paid": 1, "action": "updated"}
-
-
-def void_payment(conn, bond_id, month):
-    if not isinstance(month, str) or not MONTH_PATTERN.match(month.strip()):
-        raise AppError(
-            "ERR-ledger-edit",
-            f"ledger row not found for bond {bond_id} month {month!r}",
-        )
-    key = month.strip()
-    row = conn.execute(
-        "SELECT id FROM payment_ledger WHERE bond_id = ? AND month = ?",
-        (bond_id, key),
-    ).fetchone()
-    if row is None:
-        raise AppError(
-            "ERR-ledger-edit",
-            f"ledger row not found for bond {bond_id} month {key}",
-        )
-    cursor = conn.execute(
-        "UPDATE payment_ledger SET amount = 0, paid = 0 WHERE id = ?",
-        (row["id"],),
-    )
-    if cursor.rowcount != 1:
-        raise AppError(
-            "ERR-ledger-edit",
-            f"ledger update for bond {bond_id} month {key} affected {cursor.rowcount} rows",
-        )
-    return {"bond_id": bond_id, "month": key, "amount": 0.0, "paid": 0}
 
 
 def bond_month_totals(conn, bond_id):
@@ -159,7 +100,6 @@ def status_overview(conn, today=None):
             status = "Invalid"
         entry = dict(row)
         entry["status"] = status
-        entry["color"] = STATUS_COLORS[status]
         entries.append(entry)
     return sort_rows(entries)
 
@@ -315,39 +255,6 @@ def returns_history(conn, today=None):
         )
     rows.reverse()
     return {"rows": rows, "active_count": len(active_by_month.get(current, set()))}
-
-
-def active_bonds_in_month(conn, today=None):
-    today_value = _resolve_today(today)
-    if today_value is None:
-        raise AppError("ERR-query-month-returns", "current month could not be resolved")
-    current = month_key(today_value)
-    try:
-        rows = conn.execute(
-            "SELECT id, company, start_date, tenure_months FROM bonds"
-        ).fetchall()
-    except Exception as exc:
-        raise AppError("ERR-query-month-returns", f"active-bond scan failed: {exc}") from exc
-    active = []
-    for row in rows:
-        try:
-            start = parse_date_value(row["start_date"], "start_date")
-            tenure = int(row["tenure_months"])
-        except (AppError, TypeError, ValueError) as exc:
-            raise AppError(
-                "ERR-active-bonds",
-                f"bond {row['id']}: unparseable row metadata: {exc}",
-            ) from exc
-        if tenure < 1:
-            raise AppError(
-                "ERR-active-bonds",
-                f"bond {row['id']}: tenure_months must be positive: {row['tenure_months']!r}",
-            )
-        first = month_key(start)
-        last = month_key(add_months(start, tenure - 1))
-        if first <= current <= last:
-            active.append({"id": row["id"], "company": row["company"]})
-    return active
 
 
 def _history_window(conn, current, code="ERR-query-history", skip_bad_dates=False):

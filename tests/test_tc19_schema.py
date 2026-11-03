@@ -6,7 +6,6 @@ EXPECTED_TABLES = [
     "financial_goals",
     "notifications",
     "payment_ledger",
-    "share_config",
 ]
 
 

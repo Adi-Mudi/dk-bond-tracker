@@ -67,7 +67,7 @@ from src.queries import (
     this_month_returns,
 )
 from src.share import SECTION_KEYS, build_share_snapshot, share_csv
-from src.status import compute_row_status_daywise, month_key, tenure_month_map
+from src.status import compute_row_status_daywise, month_key, recompute_all, tenure_month_map
 from src.validators import (
     AppError,
     active_position_lock,
@@ -1428,7 +1428,19 @@ def create_app(db_path=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="dk-bond-tracker")
     parser.add_argument("--db", dest="db_path", default=str(DEFAULT_DB_PATH), metavar="SQLITE")
+    parser.add_argument(
+        "--recompute",
+        action="store_true",
+        help="recompute stored bond statuses for today and exit",
+    )
     args = parser.parse_args(argv)
+    if args.recompute:
+        db_file = Path(args.db_path)
+        _ensure_db(db_file)
+        with get_conn(db_file) as conn:
+            changed = recompute_all(conn, date.today())
+        print(f"recomputed: changed={len(changed)}")
+        return 0
     create_app(args.db_path).run(
         host="127.0.0.1", port=int(os.environ.get("PORT", "5000"))
     )

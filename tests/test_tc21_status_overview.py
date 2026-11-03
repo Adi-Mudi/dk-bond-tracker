@@ -2,7 +2,7 @@ from datetime import date
 
 from conftest import add_bond, pay_range
 from src.db import get_conn
-from src.queries import insert_payment, status_overview
+from src.queries import save_payment, status_overview
 from src.status import recompute_all
 
 
@@ -27,7 +27,7 @@ def test_tc21_overview_colors_red_orange_green(db_path):
     with get_conn(db_path) as conn:
         seed_overview_bonds(conn)
         overview = status_overview(conn, date(2025, 4, 3))
-        assert [row["color"] for row in overview] == ["red", "orange", "green"]
+        assert [row["status"] for row in overview] == ["Danger", "On-going", "Completed"]
 
 
 def test_tc21_overview_includes_every_bond(db_path):
@@ -73,7 +73,7 @@ def test_tc21_payment_insert_keeps_ledger_schema_and_single_row(db_path):
         bond_id = add_bond(conn, "LedgerClaim", "INE0000000021L", "2025-01-01", 6)
         columns_before = [row[1] for row in conn.execute("PRAGMA table_info(payment_ledger)")]
         count_before = conn.execute("SELECT COUNT(*) AS n FROM payment_ledger").fetchone()["n"]
-        insert_payment(conn, bond_id, "2025-01", 1000.0)
+        save_payment(conn, bond_id, "2025-01", 1000.0, 1)
         columns_after = [row[1] for row in conn.execute("PRAGMA table_info(payment_ledger)")]
         count_after = conn.execute("SELECT COUNT(*) AS n FROM payment_ledger").fetchone()["n"]
         assert columns_after == columns_before
