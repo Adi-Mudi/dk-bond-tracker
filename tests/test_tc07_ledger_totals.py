@@ -1,17 +1,17 @@
 import pytest
 
-from conftest import add_bond, add_payment
+from conftest import add_bond
 from src.db import get_conn, init_db
-from src.queries import bond_month_totals, insert_payment, portfolio_totals, void_payment
+from src.queries import bond_month_totals, portfolio_totals, save_payment
 from src.validators import AppError
 
 
 def test_tc07_bond_totals_k_and_l(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000007", "2025-01-01", 3, maturity=120000.0)
-        insert_payment(conn, bond_id, "2025-01", 10000.0)
-        insert_payment(conn, bond_id, "2025-02", 10000.0)
-        insert_payment(conn, bond_id, "2025-03", 10000.0)
+        save_payment(conn, bond_id, "2025-01", 10000.0, 1)
+        save_payment(conn, bond_id, "2025-02", 10000.0, 1)
+        save_payment(conn, bond_id, "2025-03", 10000.0, 1)
         totals = bond_month_totals(conn, bond_id)
         assert totals["k"] == 30000.0
         assert totals["l"] == -90000.0
@@ -23,7 +23,7 @@ def test_tc07_bond_totals_k_and_l(db_path):
 def test_tc07_insert_creates_exactly_one_row(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000071", "2025-09-01", 12)
-        result = insert_payment(conn, bond_id, "2025-09", 10000.0)
+        result = save_payment(conn, bond_id, "2025-09", 10000.0, 1)
         assert result["action"] == "inserted"
         rows = conn.execute(
             "SELECT bond_id, month, amount, paid FROM payment_ledger WHERE bond_id = ?",
@@ -36,12 +36,12 @@ def test_tc07_insert_creates_exactly_one_row(db_path):
         assert rows[0]["paid"] == 1
 
 
-def test_tc07_upsert_unpaid_row_and_reject_paid_duplicate(db_path):
+def test_tc07_correction_updates_the_single_row(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000072", "2025-09-01", 12)
-        add_payment(conn, bond_id, "2025-09", 0.0, paid=0)
-        result = insert_payment(conn, bond_id, "2025-09", 5000.0)
-        assert result["action"] == "updated"
+        save_payment(conn, bond_id, "2025-09", 0.0, 0)
+        result = save_payment(conn, bond_id, "2025-09", 5000.0, 1)
+        assert result["action"] == "corrected"
         rows = conn.execute(
             "SELECT amount, paid FROM payment_ledger WHERE bond_id = ? AND month = ?",
             (bond_id, "2025-09"),
@@ -49,18 +49,14 @@ def test_tc07_upsert_unpaid_row_and_reject_paid_duplicate(db_path):
         assert len(rows) == 1
         assert rows[0]["amount"] == 5000.0
         assert rows[0]["paid"] == 1
-        with pytest.raises(AppError) as exc_info:
-            insert_payment(conn, bond_id, "2025-09", 1.0)
-        assert exc_info.value.code == "ERR-ledger-insert"
-        assert "AF-11" in exc_info.value.message
 
 
 def test_tc07_void_keeps_row_and_drops_from_totals(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000073", "2025-01-01", 3, maturity=25000.0)
-        insert_payment(conn, bond_id, "2025-01", 10000.0)
-        insert_payment(conn, bond_id, "2025-02", 15000.0)
-        result = void_payment(conn, bond_id, "2025-01")
+        save_payment(conn, bond_id, "2025-01", 10000.0, 1)
+        save_payment(conn, bond_id, "2025-02", 15000.0, 1)
+        result = save_payment(conn, bond_id, "2025-01", 0, 0)
         assert result["paid"] == 0
         rows = conn.execute(
             "SELECT amount, paid FROM payment_ledger WHERE bond_id = ? AND month = ?",
@@ -74,26 +70,18 @@ def test_tc07_void_keeps_row_and_drops_from_totals(db_path):
         assert totals["l"] == -10000.0
 
 
-def test_tc07_void_missing_row_raises(db_path):
-    with get_conn(db_path) as conn:
-        bond_id = add_bond(conn, "Alpha", "INE0000000074", "2025-01-01", 3)
-        with pytest.raises(AppError) as exc_info:
-            void_payment(conn, bond_id, "2025-06")
-        assert exc_info.value.code == "ERR-ledger-edit"
-
-
-def test_tc07_insert_validation_errors(db_path):
+def test_tc07_save_validation_errors(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000075", "2025-01-01", 3)
         with pytest.raises(AppError) as exc_info:
-            insert_payment(conn, bond_id, "2025-01", 0)
+            save_payment(conn, bond_id, "2025-01", -1, 1)
         assert exc_info.value.code == "ERR-ledger-insert"
         with pytest.raises(AppError):
-            insert_payment(conn, bond_id, "2025-13", 100.0)
+            save_payment(conn, bond_id, "2025-13", 100.0, 1)
         with pytest.raises(AppError):
-            insert_payment(conn, bond_id, "not-a-month", 100.0)
+            save_payment(conn, bond_id, "not-a-month", 100.0, 1)
         with pytest.raises(AppError):
-            insert_payment(conn, 9999, "2025-01", 100.0)
+            save_payment(conn, 9999, "2025-01", 100.0, 1)
 
 
 def test_tc07_empty_portfolio_returns_genuine_zeros(tmp_path):

@@ -152,7 +152,7 @@ if [ "${1:-}" = "--check" ]; then
 fi
 
 if [ ! -f "${ROOT}/requirements.txt" ]; then
-  printf 'flask==3.1.3\nopenpyxl==3.1.5\npytest==9.2.0\n' > "${ROOT}/requirements.txt"
+  printf 'flask==3.1.3\n' > "${ROOT}/requirements.txt"
 fi
 
 rm -rf "${PRODUCT_DIR}"
