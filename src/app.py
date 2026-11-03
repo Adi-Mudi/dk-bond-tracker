@@ -35,6 +35,7 @@ from src.export_csv import (
 from src.forms import parse_position_form
 from src.goals import add_goal, delete_goal, list_goals, update_goal
 from src.ledger import ledger_by_bond
+from src.prefs import set_pref
 from src.lock import check_add_allowed
 from src.mailer import send_alert_email
 from src.notifications import (
@@ -121,10 +122,7 @@ def _startup_alerts(db_file, today):
             notify(conn, "warn", f"daily sweep failed: {exc}")
             events = []
         else:
-            conn.execute(
-                "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
-                ("last_sweep", today.isoformat()),
-            )
+            set_pref(conn, "last_sweep", today.isoformat())
         for event in events:
             message = (
                 f"{event['company']} credit day {event['credit_day']} "
@@ -815,14 +813,8 @@ def create_app(db_path=None):
             inapp_on = request.form.get("inapp") in ("on", "1", "true", "yes")
             email_on = request.form.get("email") in ("on", "1", "true", "yes")
             with get_conn(db_file) as conn:
-                conn.execute(
-                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
-                    ("alert_channel_inapp", "1" if inapp_on else "0"),
-                )
-                conn.execute(
-                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
-                    ("alert_channel_email", "1" if email_on else "0"),
-                )
+                set_pref(conn, "alert_channel_inapp", "1" if inapp_on else "0")
+                set_pref(conn, "alert_channel_email", "1" if email_on else "0")
             flash("Alert channels saved", "success")
             return redirect(url_for("notifications_page"))
         with get_conn(db_file) as conn:
@@ -1383,10 +1375,7 @@ def create_app(db_path=None):
                 )
             with get_conn(db_file) as conn:
                 for key, value in values.items():
-                    conn.execute(
-                        "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
-                        (key, value),
-                    )
+                    set_pref(conn, key, value)
             flash("Settings saved", "success")
             return redirect(url_for("settings_page"))
         return render_template(
@@ -1427,14 +1416,8 @@ def create_app(db_path=None):
             db_file = Path(app.config["DB_PATH"])
             _ensure_db(db_file)
             with get_conn(db_file) as conn:
-                conn.execute(
-                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
-                    ("email_test_last_status", status),
-                )
-                conn.execute(
-                    "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
-                    ("email_test_last_at", date.today().isoformat()),
-                )
+                set_pref(conn, "email_test_last_status", status)
+                set_pref(conn, "email_test_last_at", date.today().isoformat())
         except Exception as exc:
             print(f"email test status persist failed: {exc}", file=sys.stderr)
         return jsonify({"status": status, "message": message, "detail": detail})
