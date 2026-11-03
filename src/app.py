@@ -32,6 +32,7 @@ from src.export_csv import (
     current_view_rows,
     full_ledger_csv,
 )
+from src.forms import parse_position_form
 from src.goals import add_goal, delete_goal, list_goals, update_goal
 from src.lock import check_add_allowed
 from src.mailer import send_alert_email
@@ -467,36 +468,14 @@ def create_app(db_path=None):
                         ),
                         409,
                     )
-                if not company:
-                    raise AppError("ERR-add-fields", "company is required")
-                if not isin:
-                    raise AppError("ERR-add-fields", "ISIN is required")
-                amount_raw = str(form.get("amount", "")).strip()
-                try:
-                    amount = float(amount_raw)
-                except ValueError as exc:
-                    raise AppError(
-                        "ERR-add-fields", f"amount must be a number: {amount_raw!r}"
-                    ) from exc
-                if amount < 0:
-                    raise AppError(
-                        "ERR-add-fields", f"amount must not be negative: {amount_raw!r}"
-                    )
-                credit_raw = str(form.get("credit_day", "")).strip()
-                try:
-                    credit_value = int(credit_raw)
-                except ValueError as exc:
-                    raise AppError(
-                        "ERR-add-fields", f"credit day must be an integer in 1-31: {credit_raw!r}"
-                    ) from exc
-                start_date, end_date, tenure_months, credit_day = date_range_tenure(
-                    form.get("start_date", ""), form.get("end_date", ""), credit_value
-                )
-                if tenure_months < 1:
-                    raise AppError(
-                        "ERR-date-range",
-                        f"tenure must span at least one whole month: {tenure_months}",
-                    )
+                parsed = parse_position_form(form)
+                company = parsed["company"]
+                isin = parsed["isin"]
+                amount = parsed["amount"]
+                start_date = parsed["start_date"]
+                end_date = parsed["end_date"]
+                tenure_months = parsed["tenure_months"]
+                credit_day = parsed["credit_day"]
                 try:
                     insert_position(
                         conn,
@@ -1240,61 +1219,17 @@ def create_app(db_path=None):
         isin = str(form.get("isin", "")).strip()
         try:
             with get_conn(db_file) as conn:
-                if not company:
-                    raise AppError("ERR-add-fields", "company is required")
-                if not isin:
-                    raise AppError("ERR-add-fields", "ISIN is required")
-                amount_raw = str(form.get("amount", "")).strip()
-                try:
-                    amount = float(amount_raw)
-                except ValueError as exc:
-                    raise AppError(
-                        "ERR-add-fields", f"amount must be a number: {amount_raw!r}"
-                    ) from exc
-                if amount < 0:
-                    raise AppError(
-                        "ERR-add-fields",
-                        f"amount must not be negative: {amount_raw!r}",
-                    )
-                credit_raw = str(form.get("credit_day", "")).strip()
-                try:
-                    credit_value = int(credit_raw)
-                except ValueError as exc:
-                    raise AppError(
-                        "ERR-add-fields",
-                        f"credit day must be an integer in 1-31: {credit_raw!r}",
-                    ) from exc
-                start_date, end_date, tenure_months, credit_day = date_range_tenure(
-                    form.get("start_date", ""), form.get("end_date", ""), credit_value
-                )
-                if tenure_months < 1:
-                    raise AppError(
-                        "ERR-date-range",
-                        f"tenure must span at least one whole month: {tenure_months}",
-                    )
-                payout_cycle = _portfolio_optional_text(form, "payout_cycle")
-                if payout_cycle is not None and payout_cycle not in (
-                    "monthly",
-                    "quarterly",
-                    "annual",
-                ):
-                    raise AppError(
-                        "ERR-add-fields",
-                        f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
-                    )
-                issuer_type = _portfolio_optional_text(form, "issuer_type")
-                if issuer_type is not None and issuer_type not in (
-                    "corporate_bond",
-                    "ncd",
-                    "sdi",
-                    "government",
-                    "fd",
-                ):
-                    raise AppError(
-                        "ERR-add-fields",
-                        "issuer_type must be one of corporate_bond, ncd, sdi, "
-                        f"government, fd: {issuer_type!r}",
-                    )
+                parsed = parse_position_form(form)
+                company = parsed["company"]
+                isin = parsed["isin"]
+                amount = parsed["amount"]
+                start_date = parsed["start_date"]
+                end_date = parsed["end_date"]
+                tenure_months = parsed["tenure_months"]
+                credit_day = parsed["credit_day"]
+                issuer_type = parsed["issuer_type"]
+                payout_cycle = parsed["payout_cycle"]
+                secured = parsed["secured"]
                 rating = _portfolio_optional_text(form, "rating")
                 rating_agency = _portfolio_optional_text(form, "rating_agency")
                 coupon_pct = percent_value(form.get("coupon_pct", ""), "coupon_pct", "ERR-add-fields")
