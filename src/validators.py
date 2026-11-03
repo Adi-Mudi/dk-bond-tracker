@@ -66,6 +66,13 @@ def active_position_lock(conn, company, isin):
     check_add_allowed(company, isin, conn)
 
 
+def safe_float(value, default=0.0):
+    try:
+        return float(value) if value is not None else default
+    except (TypeError, ValueError):
+        return default
+
+
 def percent_value(raw, field, code, required=True):
     text = str(raw if raw is not None else "").strip()
     if not text:

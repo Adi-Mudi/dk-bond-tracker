@@ -6,7 +6,7 @@ from .notifications import list_notifications
 from .print_palette import PRINT_PALETTE
 from .queries import portfolio_totals, status_overview, summary_counts, this_month_returns
 from .status import month_key
-from .validators import AppError
+from .validators import AppError, safe_float
 
 STATUS_MARKS = {"Danger": "● D", "On-going": "○ O", "Completed": "● C", "Invalid": "✕ I"}
 STATUS_KEYS = {"Danger": "danger", "On-going": "ongoing", "Completed": "completed", "Invalid": "invalid"}
@@ -32,10 +32,7 @@ def _expected_amount(conn, bond_id, month):
         (bond_id, month),
     ).fetchone()
     if row is not None:
-        try:
-            return float(row["amount"] or 0.0)
-        except (TypeError, ValueError):
-            return 0.0
+        return safe_float(row["amount"])
     prior = conn.execute(
         "SELECT amount FROM payment_ledger "
         "WHERE bond_id = ? AND month < ? AND amount > 0 "
@@ -43,10 +40,7 @@ def _expected_amount(conn, bond_id, month):
         (bond_id, month),
     ).fetchone()
     if prior is not None:
-        try:
-            return float(prior["amount"] or 0.0)
-        except (TypeError, ValueError):
-            return 0.0
+        return safe_float(prior["amount"])
     return 0.0
 
 
