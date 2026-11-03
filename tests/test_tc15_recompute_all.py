@@ -2,7 +2,7 @@ from datetime import date
 
 from conftest import add_bond, bond_status, pay_range
 from src.db import get_conn
-from src.queries import insert_payment, void_payment
+from src.queries import save_payment
 from src.status import recompute_all
 
 
@@ -12,7 +12,7 @@ def test_tc15_void_flips_ongoing_to_danger(db_path):
         pay_range(conn, bond_id, "2025-01", 4)
         recompute_all(conn, date(2025, 4, 10))
         assert bond_status(conn, bond_id) == "On-going"
-        void_payment(conn, bond_id, "2025-02")
+        save_payment(conn, bond_id, "2025-02", 0, 0)
         changed = recompute_all(conn, date(2025, 4, 10))
         assert changed == [
             {"bond_id": bond_id, "company": "Alpha", "from": "On-going", "to": "Danger"}
@@ -25,7 +25,7 @@ def test_tc15_zeroed_old_row_also_yields_danger(db_path):
         bond_id = add_bond(conn, "Beta", "INE000000015B", "2025-01-01", 12)
         pay_range(conn, bond_id, "2025-01", 5)
         recompute_all(conn, date(2025, 5, 10))
-        void_payment(conn, bond_id, "2025-02")
+        save_payment(conn, bond_id, "2025-02", 0, 0)
         conn.execute(
             "UPDATE payment_ledger SET amount = 0, paid = 0 "
             "WHERE bond_id = ? AND month = ?",
@@ -41,11 +41,11 @@ def test_tc15_full_tenure_reaches_completed_after_earlier_gaps(db_path):
         pay_range(conn, bond_id, "2025-01", 3)
         recompute_all(conn, date(2025, 3, 10))
         assert bond_status(conn, bond_id) == "On-going"
-        void_payment(conn, bond_id, "2025-02")
+        save_payment(conn, bond_id, "2025-02", 0, 0)
         recompute_all(conn, date(2025, 3, 10))
         assert bond_status(conn, bond_id) == "Danger"
-        insert_payment(conn, bond_id, "2025-02", 1000.0)
-        insert_payment(conn, bond_id, "2025-04", 1000.0)
+        save_payment(conn, bond_id, "2025-02", 1000.0, 1)
+        save_payment(conn, bond_id, "2025-04", 1000.0, 1)
         changed = recompute_all(conn, date(2025, 4, 10))
         assert changed == [
             {"bond_id": bond_id, "company": "Gamma", "from": "Danger", "to": "Completed"}
@@ -75,10 +75,10 @@ def test_tc15_status_is_live_after_each_ledger_change(db_path):
         pay_range(conn, bond_id, "2025-01", 2)
         recompute_all(conn, date(2025, 2, 10))
         assert bond_status(conn, bond_id) == "On-going"
-        insert_payment(conn, bond_id, "2025-03", 1000.0)
-        void_payment(conn, bond_id, "2025-01")
+        save_payment(conn, bond_id, "2025-03", 1000.0, 1)
+        save_payment(conn, bond_id, "2025-01", 0, 0)
         recompute_all(conn, date(2025, 3, 10))
         assert bond_status(conn, bond_id) == "Danger"
-        insert_payment(conn, bond_id, "2025-01", 1000.0)
+        save_payment(conn, bond_id, "2025-01", 1000.0, 1)
         recompute_all(conn, date(2025, 3, 10))
         assert bond_status(conn, bond_id) == "On-going"

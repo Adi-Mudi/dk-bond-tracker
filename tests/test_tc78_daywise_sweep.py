@@ -5,7 +5,7 @@ import pytest
 from conftest import add_bond, bond_status
 from src.alerts import daily_sweep
 from src.db import get_conn
-from src.queries import grid_model, insert_payment, status_overview, summary_counts
+from src.queries import grid_model, save_payment, status_overview, summary_counts
 from src.status import compute_row_status_daywise, recompute_all
 from src.validators import AppError
 
@@ -13,7 +13,7 @@ from src.validators import AppError
 def test_tc78_day6_unpaid_flips_danger_same_day(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000078", "2026-09-01", 12, credit_day=5)
-        insert_payment(conn, bond_id, "2026-09", 1000.0)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
         conn.execute(
             "UPDATE bonds SET status = 'On-going' WHERE id = ?",
             (bond_id,),
@@ -34,7 +34,7 @@ def test_tc78_day6_unpaid_flips_danger_same_day(db_path):
 def test_tc78_day4_unpaid_is_not_danger_from_current_month(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Alpha", "INE0000000784", "2026-09-01", 12, credit_day=5)
-        insert_payment(conn, bond_id, "2026-09", 1000.0)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
         events = daily_sweep(conn, date(2026, 10, 4))
         assert events == []
         assert bond_status(conn, bond_id) == "On-going"
@@ -43,8 +43,8 @@ def test_tc78_day4_unpaid_is_not_danger_from_current_month(db_path):
 def test_tc78_paid_month_stays_ongoing_across_days(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Beta", "INE0000000078", "2026-09-01", 12, credit_day=5)
-        insert_payment(conn, bond_id, "2026-09", 1000.0)
-        insert_payment(conn, bond_id, "2026-10", 1000.0)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
+        save_payment(conn, bond_id, "2026-10", 1000.0, 1)
         for day in (6, 15, 28, 30):
             events = daily_sweep(conn, date(2026, 10, day))
             assert events == []
@@ -54,8 +54,8 @@ def test_tc78_paid_month_stays_ongoing_across_days(db_path):
 def test_tc78_completed_position_untouched_even_with_unpaid_future_rows(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Gamma", "INE0000000785", "2026-08-01", 2, credit_day=5)
-        insert_payment(conn, bond_id, "2026-08", 1000.0)
-        insert_payment(conn, bond_id, "2026-09", 1000.0)
+        save_payment(conn, bond_id, "2026-08", 1000.0, 1)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
         conn.execute(
             "INSERT INTO payment_ledger (bond_id, month, amount, paid) VALUES (?, ?, ?, ?)",
             (bond_id, "2026-10", 0.0, 0),
@@ -70,8 +70,8 @@ def test_tc78_completed_position_untouched_even_with_unpaid_future_rows(db_path)
 def test_tc78_ledger_completed_guard_even_if_stored_status_stale(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Delta", "INE0000000786", "2026-08-01", 2, credit_day=5, status="On-going")
-        insert_payment(conn, bond_id, "2026-08", 1000.0)
-        insert_payment(conn, bond_id, "2026-09", 1000.0)
+        save_payment(conn, bond_id, "2026-08", 1000.0, 1)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
         events = daily_sweep(conn, date(2026, 10, 6))
         assert events == []
         assert bond_status(conn, bond_id) == "On-going"
@@ -115,7 +115,7 @@ def test_tc78_sweep_rejects_missing_credit_day(db_path):
 def test_tc78_old_unpaid_month_keeps_danger_without_new_event(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Eta", "INE0000000789", "2026-08-01", 12, credit_day=5)
-        insert_payment(conn, bond_id, "2026-08", 1000.0)
+        save_payment(conn, bond_id, "2026-08", 1000.0, 1)
         conn.execute("UPDATE bonds SET status = 'Danger' WHERE id = ?", (bond_id,))
         events = daily_sweep(conn, date(2026, 10, 6))
         assert len(events) == 1
@@ -127,7 +127,7 @@ def test_tc78_old_unpaid_month_keeps_danger_without_new_event(db_path):
 def test_tc78_summary_counts_overview_and_grid_agree_in_active_daywise_danger(db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "SyncCo", "INE000000078A", "2026-09-01", 12, credit_day=5)
-        insert_payment(conn, bond_id, "2026-09", 1000.0)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
         conn.execute("UPDATE bonds SET status = 'On-going' WHERE id = ?", (bond_id,))
         today = date(2026, 10, 6)
         events = daily_sweep(conn, today)

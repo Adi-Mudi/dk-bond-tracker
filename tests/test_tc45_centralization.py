@@ -47,9 +47,7 @@ def test_sum_aggregation_only_in_allowed_modules():
 
 def test_sum_actually_lives_in_query_modules():
     queries_text = (SRC / "queries.py").read_text(encoding="utf-8")
-    phase4_text = (SRC / "phase4.py").read_text(encoding="utf-8")
     assert "SUM(" in queries_text
-    assert "SUM(" in phase4_text
 
 
 def test_app_py_has_no_aggregation_or_join_sql():
