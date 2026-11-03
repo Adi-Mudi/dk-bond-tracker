@@ -56,11 +56,12 @@ def tenure_from_range(start_value, end_value):
     return (end.year - start.year) * 12 + (end.month - start.month)
 
 
-def validate_credit_day(value):
-    if isinstance(value, bool) or not isinstance(value, int):
-        raise AppError("ERR-date-range", f"credit_day must be an integer in 1-31: {value!r}")
-    if value < 1 or value > 31:
-        raise AppError("ERR-date-range", f"credit_day must be in 1-31: {value}")
+def validate_credit_day(value, code="ERR-date-range", context=None):
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1 or value > 31:
+        message = f"credit_day must be an integer in 1-31: {value!r}"
+        if context is not None:
+            message = f"{context}: {message}"
+        raise AppError(code, message)
     return value
 
 
