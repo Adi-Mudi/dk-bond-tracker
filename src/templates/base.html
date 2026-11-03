@@ -85,6 +85,10 @@
     var stateLabel = document.getElementById("privacyState");
     function applyPrivacy(on) {
       body.classList.toggle("privacy-on", on);
+      document.querySelectorAll(".privacy-toggle").forEach(function (btn) {
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.classList.toggle("active", on);
+      });
       if (stateLabel) {
         stateLabel.textContent = on ? "ON" : "OFF";
       }
