@@ -5,6 +5,7 @@ import pytest
 from conftest import add_bond, add_payment, pay_range
 from src.app import create_app
 from src.db import get_conn
+from src.print import monthly_print_model
 from src.validators import add_months
 
 SECTION_IDS = (
@@ -195,3 +196,20 @@ def test_tc84_empty_portfolio_renders_sections(client, db_path):
     assert "no payments this month" in html
     assert "no alerts this month" in html
     assert "none" in html
+
+
+def test_tc142_due_date_clamps_credit_day_31_in_april(db_path):
+    with get_conn(db_path) as conn:
+        add_bond(conn, "April Co", "INE0000001421", "2026-03-01", 12, credit_day=31)
+        model = monthly_print_model(conn, date(2026, 4, 15))
+    row = next(r for r in model["rows"] if r["company"] == "April Co")
+    assert row["credit_day"] == 31
+    assert row["due_date"] == "2026-04-30"
+
+
+def test_tc142_due_date_clamps_credit_day_30_in_february(db_path):
+    with get_conn(db_path) as conn:
+        add_bond(conn, "Feb Co", "INE0000001422", "2026-01-01", 12, credit_day=30)
+        model = monthly_print_model(conn, date(2026, 2, 10))
+    row = next(r for r in model["rows"] if r["company"] == "Feb Co")
+    assert row["due_date"] == "2026-02-28"

@@ -51,7 +51,8 @@ def _expected_amount(conn, bond_id, month):
 
 
 def _due_date(today, credit_day):
-    return date(today.year, today.month, int(credit_day)).isoformat()
+    day = min(int(credit_day), calendar.monthrange(today.year, today.month)[1])
+    return date(today.year, today.month, day).isoformat()
 
 
 def _last_sweep(conn, today):
