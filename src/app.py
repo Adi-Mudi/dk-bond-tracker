@@ -34,7 +34,7 @@ from src.export_csv import (
 )
 from src.forms import parse_position_form
 from src.goals import add_goal, delete_goal, list_goals, update_goal
-from src.ledger import ledger_by_bond
+from src.ledger import insert_position, ledger_by_bond, save_payment
 from src.prefs import set_pref
 from src.lock import check_add_allowed
 from src.mailer import send_alert_email
@@ -53,14 +53,12 @@ from src.queries import (
     MONTH_PATTERN,
     chart_data,
     grid_model,
-    insert_position,
     month_label,
     portfolio_snapshot,
     portfolio_totals,
     position_detail,
     received_by_bond,
     returns_history,
-    save_payment,
     status_overview,
     summary_amounts,
     summary_counts,
@@ -70,7 +68,6 @@ from src.share import SECTION_KEYS, build_share_snapshot, share_csv
 from src.status import compute_row_status_daywise, month_key, recompute_all, tenure_month_map
 from src.validators import (
     AppError,
-    active_position_lock,
     add_months,
     date_range_tenure,
     parse_date_value,
@@ -106,9 +103,6 @@ def _ensure_db(db_file):
 def _attempt_email(conn, event):
     try:
         send_alert_email(event)
-    except AppError as exc:
-        notify(conn, "warn", f"email failed: {exc}")
-        print(f"email failed: {exc}", file=sys.stderr)
     except Exception as exc:
         notify(conn, "warn", f"email failed: {exc}")
         print(f"email failed: {exc}", file=sys.stderr)
@@ -427,7 +421,7 @@ def create_app(db_path=None):
         try:
             with get_conn(db_file) as conn:
                 try:
-                    active_position_lock(conn, company, isin)
+                    check_add_allowed(company, isin, conn)
                 except AppError as exc:
                     return (
                         render_template(
@@ -756,8 +750,6 @@ def create_app(db_path=None):
                         "ERR-move-watching",
                         f"already in Portfolio: {row['company']} is {row['watch_state']}",
                     )
-                from src.lock import check_add_allowed
-
                 check_add_allowed(row["company"], row["isin"], conn)
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "

@@ -5,7 +5,7 @@ import pytest
 from conftest import add_bond, add_payment, bond_count, bond_status
 from src.app import create_app
 from src.db import get_conn
-from src.queries import save_payment
+from src.ledger import save_payment
 from src.validators import AppError, add_months
 
 
