@@ -5,7 +5,8 @@ import pytest
 from conftest import add_bond, bond_status
 from src.alerts import daily_sweep
 from src.db import get_conn
-from src.queries import grid_model, save_payment, status_overview, summary_counts
+from src.ledger import save_payment
+from src.queries import grid_model, status_overview, summary_counts
 from src.status import compute_row_status_daywise, recompute_all
 from src.validators import AppError
 

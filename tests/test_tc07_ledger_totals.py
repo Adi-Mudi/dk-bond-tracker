@@ -2,7 +2,8 @@ import pytest
 
 from conftest import add_bond
 from src.db import get_conn, init_db
-from src.queries import bond_month_totals, portfolio_totals, save_payment
+from src.ledger import save_payment
+from src.queries import bond_month_totals, portfolio_totals
 from src.validators import AppError
 
 

@@ -60,12 +60,6 @@ def date_range_tenure(start_value, end_value, credit_day):
     return start, end, tenure, credit
 
 
-def active_position_lock(conn, company, isin):
-    from .lock import check_add_allowed
-
-    check_add_allowed(company, isin, conn)
-
-
 def safe_float(value, default=0.0):
     try:
         return float(value) if value is not None else default
