@@ -15,7 +15,7 @@ from .status import (
     month_key,
     tenure_month_map,
 )
-from .validators import AppError, add_months, parse_date_value
+from .validators import AppError, add_months, parse_date_value, safe_float
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 STATUS_COLORS = {"Danger": "red", "On-going": "orange", "Completed": "green", "Invalid": "grey"}
@@ -259,33 +259,7 @@ def returns_history(conn, today=None):
     if today_value is None:
         raise AppError("ERR-query-returns", "current month could not be resolved")
     current = month_key(today_value)
-    candidates = []
-    try:
-        ledger_row = conn.execute("SELECT MIN(month) AS earliest FROM payment_ledger").fetchone()
-    except Exception as exc:
-        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
-    if ledger_row is not None and ledger_row["earliest"]:
-        earliest = str(ledger_row["earliest"]).strip()
-        if MONTH_PATTERN.match(earliest):
-            candidates.append(earliest)
-    try:
-        start_rows = conn.execute("SELECT start_date FROM bonds").fetchall()
-    except Exception as exc:
-        raise AppError("ERR-query-returns", f"returns window derivation failed: {exc}") from exc
-    for row in start_rows:
-        try:
-            candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
-        except AppError:
-            continue
-    if candidates:
-        start = min(candidates)
-        if start > current:
-            start = current
-        window = _month_keys_span(start, current)
-        if len(window) > HISTORY_MONTH_CAP:
-            window = window[-HISTORY_MONTH_CAP:]
-    else:
-        window = []
+    window = _history_window(conn, current, code="ERR-query-returns", skip_bad_dates=True)
     try:
         ledger_rows = conn.execute(
             "SELECT month, SUM(amount) AS total FROM payment_ledger "
@@ -302,18 +276,12 @@ def returns_history(conn, today=None):
     except Exception as exc:
         raise AppError("ERR-query-returns", f"returns aggregation failed: {exc}") from exc
 
-    def safe_total(value):
-        try:
-            return float(value or 0.0)
-        except (TypeError, ValueError):
-            return 0.0
-
     interest_by_month = {}
     for row in ledger_rows:
         month = str(row["month"] or "").strip()
         if not MONTH_PATTERN.match(month):
             continue
-        interest_by_month[month] = safe_total(row["total"])
+        interest_by_month[month] = safe_float(row["total"])
     paid_pairs = {
         (row["bond_id"], str(row["month"] or "").strip())
         for row in paid_rows
@@ -382,18 +350,25 @@ def active_bonds_in_month(conn, today=None):
     return active
 
 
-def _history_window(conn, current):
+def _history_window(conn, current, code="ERR-query-history", skip_bad_dates=False):
     candidates = []
     try:
         ledger_row = conn.execute("SELECT MIN(month) AS earliest FROM payment_ledger").fetchone()
         if ledger_row is not None and ledger_row["earliest"]:
-            candidates.append(str(ledger_row["earliest"]).strip())
+            earliest = str(ledger_row["earliest"]).strip()
+            if MONTH_PATTERN.match(earliest):
+                candidates.append(earliest)
         for row in conn.execute("SELECT start_date FROM bonds").fetchall():
-            candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
+            try:
+                candidates.append(month_key(parse_date_value(row["start_date"], "start_date")))
+            except AppError:
+                if skip_bad_dates:
+                    continue
+                raise
     except AppError as exc:
-        raise AppError("ERR-query-history", f"window derivation failed: {exc.message}") from exc
+        raise AppError(code, f"window derivation failed: {exc.message}") from exc
     except Exception as exc:
-        raise AppError("ERR-query-history", f"window derivation failed: {exc}") from exc
+        raise AppError(code, f"window derivation failed: {exc}") from exc
     if not candidates:
         return []
     start = min(candidates)
@@ -445,20 +420,14 @@ def chart_data(conn, today=None):
     received_by_bond = {}
     received_by_month = {}
     for row in ledger_rows:
-        try:
-            ledger_value = float(row["amount"])
-        except (TypeError, ValueError):
-            ledger_value = 0.0
+        ledger_value = safe_float(row["amount"])
         received_by_bond[row["bond_id"]] = received_by_bond.get(row["bond_id"], 0.0) + ledger_value
         received_by_month[row["month"]] = received_by_month.get(row["month"], 0.0) + ledger_value
     bars = []
     invested_by_month = {}
     for row in bond_rows:
         label = row["company"] or row["name"] or f"Bond {row['id']}"
-        try:
-            invested = float(row["amount"] or 0)
-        except (TypeError, ValueError):
-            invested = 0.0
+        invested = safe_float(row["amount"])
         bars.append(
             {
                 "bond": label,
@@ -698,19 +667,12 @@ def received_by_bond(conn):
     return totals
 
 
-def _safe_invested(amount):
-    try:
-        return float(amount or 0.0)
-    except (TypeError, ValueError):
-        return 0.0
-
-
 def portfolio_snapshot(conn):
     return [
         {
             "id": entry["id"],
             "company": entry["company"],
-            "invested": _safe_invested(entry["amount"]),
+            "invested": safe_float(entry["amount"]),
         }
         for entry in status_overview(conn)
     ]
@@ -737,10 +699,7 @@ def position_detail(conn, bond_id, today=None):
         "SELECT month, amount, paid FROM payment_ledger WHERE bond_id = ? ORDER BY month",
         (bond_id,),
     ).fetchall():
-        try:
-            amount = float(entry["amount"] or 0.0)
-        except (TypeError, ValueError):
-            amount = 0.0
+        amount = safe_float(entry["amount"])
         paid = bool(entry["paid"])
         entries[entry["month"]] = {"amount": entry["amount"], "paid": paid}
         payments.append({"month": entry["month"], "amount": amount, "paid": paid})
