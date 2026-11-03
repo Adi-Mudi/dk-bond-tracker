@@ -1,19 +1,9 @@
 {% extends "base.html" %}
+{% from "_macros.html" import money, money_text %}
 {% block head %}
 <style>
   .payout-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 10px 0 14px; }
-  .btn {
-    display: inline-block;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 7px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    background: var(--blue-light);
-    color: var(--text);
-    text-decoration: none;
-    cursor: pointer;
-  }
+  .payout-toolbar .btn { padding: 7px 14px; }
   .btn.active { background: var(--paid); }
   .payout-meta {
     border: 1.5px solid var(--border);
@@ -46,18 +36,18 @@
 <p class="table-note" style="margin-top:0;">ISIN <span class="mono">{{ schedule.isin }}</span> &#183; start {{ schedule.start_month }} &#183; tenure {{ schedule.tenure_months }} months &#183; cycle: {{ schedule.cycle }} (every {{ schedule.step_months }} month(s))</p>
 
 <div class="payout-toolbar">
-  <a class="btn{% if schedule.cycle == 'monthly' %} active{% endif %}" href="/payout?bond_id={{ schedule.bond_id }}&cycle=monthly" id="cycle-monthly">monthly</a>
-  <a class="btn{% if schedule.cycle == 'quarterly' %} active{% endif %}" href="/payout?bond_id={{ schedule.bond_id }}&cycle=quarterly" id="cycle-quarterly">quarterly</a>
-  <a class="btn{% if schedule.cycle == 'yearly' %} active{% endif %}" href="/payout?bond_id={{ schedule.bond_id }}&cycle=yearly" id="cycle-yearly">yearly</a>
-  <a class="btn" href="/" id="payout-dashboard-link">back to dashboard</a>
+  <a class="btn btn-secondary{% if schedule.cycle == 'monthly' %} active{% endif %}" href="/payout?bond_id={{ schedule.bond_id }}&cycle=monthly" id="cycle-monthly">monthly</a>
+  <a class="btn btn-secondary{% if schedule.cycle == 'quarterly' %} active{% endif %}" href="/payout?bond_id={{ schedule.bond_id }}&cycle=quarterly" id="cycle-quarterly">quarterly</a>
+  <a class="btn btn-secondary{% if schedule.cycle == 'yearly' %} active{% endif %}" href="/payout?bond_id={{ schedule.bond_id }}&cycle=yearly" id="cycle-yearly">yearly</a>
+  <a class="btn btn-secondary" href="/" id="payout-dashboard-link">back to dashboard</a>
 </div>
 
 <div class="payout-meta">
-  <span>Per-month interest: <strong id="payout-monthly-amount">{% if schedule.monthly_amount is not none %}<span class="money">&#8377;{{ "%.2f"|format(schedule.monthly_amount) }}</span>{% else %}not recorded{% endif %}</strong></span>
+  <span>Per-month interest: <strong id="payout-monthly-amount">{% if schedule.monthly_amount is not none %}{{ money(schedule.monthly_amount) }}{% else %}not recorded{% endif %}</strong></span>
   <span>Instances: <strong id="payout-instance-count">{{ schedule.instance_count }}</strong></span>
-  <span>Gross total: <strong id="payout-total-amount">{% if schedule.total_amount is not none %}<span class="money">&#8377;{{ "%.2f"|format(schedule.total_amount) }}</span>{% else %}&#8212;{% endif %}</strong></span>
-  <span>TDS total (10%): <strong id="payout-total-tds">{% if schedule.total_tds is not none %}<span class="money">&#8377;{{ "%.2f"|format(schedule.total_tds) }}</span>{% else %}&#8212;{% endif %}</strong></span>
-  <span>Net total: <strong id="payout-total-net">{% if schedule.total_net is not none %}<span class="money">&#8377;{{ "%.2f"|format(schedule.total_net) }}</span>{% else %}&#8212;{% endif %}</strong></span>
+  <span>Gross total: <strong id="payout-total-amount">{% if schedule.total_amount is not none %}{{ money(schedule.total_amount) }}{% else %}&#8212;{% endif %}</strong></span>
+  <span>TDS total (10%): <strong id="payout-total-tds">{% if schedule.total_tds is not none %}{{ money(schedule.total_tds) }}{% else %}&#8212;{% endif %}</strong></span>
+  <span>Net total: <strong id="payout-total-net">{% if schedule.total_net is not none %}{{ money(schedule.total_net) }}{% else %}&#8212;{% endif %}</strong></span>
 </div>
 
 <div class="table-wrap">
@@ -77,9 +67,9 @@
       <tr class="{% if item.partial %}partial-row{% endif %}" data-month="{{ item.month }}" data-offset="{{ item.offset }}">
         <td class="payout-month">{{ item.month }}</td>
         <td class="num payout-covered">{{ item.months_covered }}</td>
-        <td class="num payout-amount">{% if item.amount is not none %}<span class="money" data-amount="{{ "%.2f"|format(item.amount) }}">&#8377;{{ "%.2f"|format(item.amount) }}</span>{% else %}&#8212;{% endif %}</td>
-        <td class="num payout-tds">{% if item.tds is not none %}<span class="money" data-amount="{{ "%.2f"|format(item.tds) }}">&#8377;{{ "%.2f"|format(item.tds) }}</span>{% else %}&#8212;{% endif %}</td>
-        <td class="num payout-net">{% if item.net is not none %}<span class="money" data-amount="{{ "%.2f"|format(item.net) }}">&#8377;{{ "%.2f"|format(item.net) }}</span>{% else %}&#8212;{% endif %}</td>
+        <td class="num payout-amount">{% if item.amount is not none %}{{ money(item.amount) }}{% else %}&#8212;{% endif %}</td>
+        <td class="num payout-tds">{% if item.tds is not none %}{{ money(item.tds) }}{% else %}&#8212;{% endif %}</td>
+        <td class="num payout-net">{% if item.net is not none %}{{ money(item.net) }}{% else %}&#8212;{% endif %}</td>
         <td>{% if item.partial %}<span class="partial-badge" id="partial-{{ item.month }}">partial cycle &#8212; remainder of tenure</span>{% else %}&#8212;{% endif %}</td>
       </tr>
       {% else %}
