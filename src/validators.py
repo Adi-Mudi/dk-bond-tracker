@@ -1,5 +1,4 @@
 import calendar
-import re
 from datetime import date, datetime
 
 
@@ -8,18 +7,6 @@ class AppError(Exception):
         super().__init__(f"{code}: {message}")
         self.code = code
         self.message = message
-
-
-def raise_app_error(code, message):
-    raise AppError(code, message)
-
-
-def normalize_header(text):
-    return " ".join(str(text).split())
-
-
-def header_key(text):
-    return re.sub(r"[^a-z0-9]", "", normalize_header(text).lower())
 
 
 def parse_date_value(value, field):
@@ -73,32 +60,10 @@ def date_range_tenure(start_value, end_value, credit_day):
     return start, end, tenure, credit
 
 
-def legacy_position(start_value, tenure_value):
-    start = parse_date_value(start_value, "start_month")
-    if isinstance(tenure_value, bool) or not isinstance(tenure_value, (int, float)):
-        raise AppError("ERR-date-range", f"tenure_months must be a number: {tenure_value!r}")
-    if float(tenure_value) != int(tenure_value):
-        raise AppError("ERR-date-range", f"tenure_months must be a whole number: {tenure_value!r}")
-    tenure = int(tenure_value)
-    if tenure < 1:
-        raise AppError("ERR-date-range", f"tenure_months must be positive: {tenure}")
-    end = add_months(start, tenure)
-    credit = min(start.day, 28)
-    return start, end, tenure, credit
-
-
 def active_position_lock(conn, company, isin):
     from .lock import check_add_allowed
 
     check_add_allowed(company, isin, conn)
-
-
-def is_blank(value):
-    if value is None:
-        return True
-    if isinstance(value, str):
-        return not value.strip()
-    return False
 
 
 def percent_value(raw, field, code, required=True):
@@ -114,52 +79,3 @@ def percent_value(raw, field, code, required=True):
     if value < 0:
         raise AppError(code, f"{field} must not be negative: {raw!r}")
     return value
-
-
-FIRST_DATA_ROW = 2
-MASTER_FIELDS = (
-    "company",
-    "isin",
-    "status",
-    "tenure_months",
-    "start_month",
-    "investment",
-    "maturity",
-)
-
-
-def find_duplicate_isins(bonds):
-    if bonds is None:
-        raise AppError("ERR-duplicate-check", "bond set unavailable")
-    grouped = {}
-    for position, bond in enumerate(bonds):
-        raw = bond.get("isin")
-        if is_blank(raw):
-            continue
-        key = str(raw).strip().upper()
-        entry = grouped.setdefault(key, {"rows": [], "values": []})
-        entry["rows"].append(bond.get("row", position + FIRST_DATA_ROW))
-        entry["values"].append(raw)
-    duplicates = []
-    for key, entry in grouped.items():
-        if len(entry["rows"]) > 1:
-            duplicates.append({"isin": key, "occurrences": entry["rows"], "values": entry["values"]})
-    return duplicates
-
-
-def validate_extracted(bonds, grid):
-    duplicates = find_duplicate_isins(bonds)
-    if duplicates:
-        details = []
-        for duplicate in duplicates:
-            rows = ", ".join(str(row) for row in duplicate["occurrences"])
-            values = ", ".join(repr(value) for value in duplicate["values"])
-            details.append(f"{duplicate['isin']} at rows {rows} (values: {values})")
-        raise AppError("ERR-04", "duplicate ISIN: " + "; ".join(details))
-    for position, bond in enumerate(bonds):
-        missing = [field for field in MASTER_FIELDS if is_blank(bond.get(field))]
-        if missing:
-            row_number = bond.get("row", position + FIRST_DATA_ROW)
-            raise AppError("ERR-05", f"row {row_number}: missing {', '.join(missing)}")
-    if len(grid) != len(bonds):
-        raise AppError("ERR-05", f"grid rows {len(grid)} != bond rows {len(bonds)}")
