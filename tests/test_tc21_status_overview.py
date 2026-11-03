@@ -2,7 +2,8 @@ from datetime import date
 
 from conftest import add_bond, pay_range
 from src.db import get_conn
-from src.queries import save_payment, status_overview
+from src.ledger import save_payment
+from src.queries import status_overview
 from src.status import recompute_all
 
 
