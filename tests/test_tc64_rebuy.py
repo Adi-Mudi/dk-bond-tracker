@@ -6,7 +6,8 @@ import pytest
 from conftest import add_payment, bond_count
 from src.app import create_app
 from src.db import get_conn
-from src.validators import active_position_lock, add_months
+from src.lock import check_add_allowed
+from src.validators import add_months
 
 _TODAY = date.today()
 _START = _TODAY - timedelta(days=40)
@@ -43,7 +44,7 @@ def complete_first_position(db_path, bond_id):
         for offset in range(3):
             month = add_months(_START, offset)
             add_payment(conn, bond_id, f"{month.year:04d}-{month.month:02d}", 1000.0)
-        assert active_position_lock(conn, "RebuyCo", "INE0000000641") is None
+        assert check_add_allowed("RebuyCo", "INE0000000641", conn)
 
 
 def test_tc64_completed_company_can_be_rebought_then_relocks(client, db_path):
