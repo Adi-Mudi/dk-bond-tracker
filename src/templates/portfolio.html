@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import money, money_text %}
 {% block head %}
 <style>
   a.tab {
@@ -149,8 +150,8 @@
               <td class="money">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
               <td class="money">{% if row.yield_pct is not none %}{{ "%.1f"|format(row.yield_pct) }}%{% else %}&#8212;{% endif %}</td>
               <td>{% if row.frequency %}{{ row.frequency|capitalize }}{% else %}&#8212;{% endif %}</td>
-              <td class="num money">&#8377;{{ "%.2f"|format(row.invested) }}</td>
-              <td class="num money">&#8377;{{ "%.2f"|format(row.received) }}</td>
+              <td class="num money">{{ money_text(row.invested) }}</td>
+              <td class="num money">{{ money_text(row.received) }}</td>
               <td>{{ row.next_payout }}</td>
               <td>
                 <span class="chip chip-{{ row.health|lower|replace('-', '') }}" data-status="{{ row.health }}">{{ row.health }}</span>
@@ -291,9 +292,9 @@
               </td>
               {% for cell in row.cells %}
               {% if cell.kind == "received" %}
-              <td class="money"><button type="button" class="payout-cell money" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1">&#8377;{{ "%.2f"|format(cell.amount) }} &#10003;</button></td>
+              <td class="money"><button type="button" class="payout-cell money" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1">{{ money_text(cell.amount) }} &#10003;</button></td>
               {% elif cell.kind == "pending" %}
-              <td class="money"><button type="button" class="payout-cell money pending" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{% if cell.amount is not none %}{{ "%.2f"|format(cell.amount) }}{% endif %}" data-received="0">{% if cell.amount is not none %}&#8377;{{ "%.2f"|format(cell.amount) }} &#183; pending{% else %}pending{% endif %}</button></td>
+              <td class="money"><button type="button" class="payout-cell money pending" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{% if cell.amount is not none %}{{ "%.2f"|format(cell.amount) }}{% endif %}" data-received="0">{% if cell.amount is not none %}{{ money_text(cell.amount) }} &#183; pending{% else %}pending{% endif %}</button></td>
               {% elif cell.kind == "missed" %}
               <td><button type="button" class="payout-cell chip chip-danger" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0">Missed</button></td>
               {% elif cell.kind == "matured" %}

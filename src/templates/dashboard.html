@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import money, money_text %}
 {% block content %}
 <h1>Dashboard</h1>
 
@@ -11,20 +12,20 @@
 <div class="stat-row" id="summary-cards">
   <div class="stat-card primary" id="card-total">
     <div class="stat-label">Total Invested</div>
-    <div class="stat-value"><span class="value money" id="total-invested" data-amount="{{ "%.2f"|format(total_invested) }}">&#8377;{{ "%.2f"|format(total_invested) }}</span></div>
+    <div class="stat-value">{{ money(total_invested, "total-invested", "value") }}</div>
   </div>
   <div class="stat-card" id="card-received">
     <div class="stat-label">Received</div>
-    <div class="stat-value"><span class="value money" id="received-total" data-amount="{{ "%.2f"|format(received_total) }}">&#8377;{{ "%.2f"|format(received_total) }}</span></div>
+    <div class="stat-value">{{ money(received_total, "received-total", "value") }}</div>
   </div>
   <div class="stat-card" id="card-next-payout">
     <div class="stat-label">Next Payout</div>
     <div class="stat-value">
-      <span class="value money" id="next-payout-amount" data-amount="{{ "%.2f"|format(next_payout_amount) }}">&#8377;{{ "%.2f"|format(next_payout_amount) }}</span>{% if next_payout_date %} <span class="stat-sub" id="next-payout-date">&#183; {{ next_payout_date }}</span>{% endif %}
+      {{ money(next_payout_amount, "next-payout-amount", "value") }}{% if next_payout_date %} <span class="stat-sub" id="next-payout-date">&#183; {{ next_payout_date }}</span>{% endif %}
     </div>
   </div>
 </div>
-<p class="caption outstanding-line">Outstanding <span class="value money" id="outstanding-total" data-amount="{{ "%.2f"|format(outstanding) }}">&#8377;{{ "%.2f"|format(outstanding) }}</span></p>
+<p class="caption outstanding-line">Outstanding {{ money(outstanding, "outstanding-total", "value") }}</p>
 {% if counts.invalid %}
 <p class="caption" id="invalid-rows-note">{{ counts.invalid }} position{% if counts.invalid != 1 %}s{% endif %} need review — open Portfolio to fix or remove</p>
 {% endif %}
@@ -42,7 +43,7 @@
   <div class="chart-row" data-status="{{ bar.status_slug }}">
     <div class="chart-label">{{ bar.company }}</div>
     <div class="bar-space"><div class="bar" style="width: {{ bar.bar_width }}%"><span style="width: {{ bar.recv_width }}%"></span></div></div>
-    <span class="value money" id="bar-received-{{ loop.index }}" data-amount="{{ "%.2f"|format(bar.received) }}">&#8377;{{ "%.2f"|format(bar.received) }}</span>
+    {{ money(bar.received, "bar-received-" ~ loop.index, "value") }}
     <span class="chip {{ bar.chip_class }}" id="bar-chip-{{ loop.index }}">{{ bar.status }}</span>
   </div>
   {% else %}
@@ -73,9 +74,9 @@
         {% for row in returns.rows %}
         <tr{% if row.is_current %} class="current-month-row"{% endif %}>
           <td>{{ row.label }}{% if row.is_current %} <span class="chip chip-watching" id="returns-current-chip">Current</span>{% endif %}</td>
-          <td class="num money" data-amount="{{ "%.2f"|format(row.interest) }}">&#8377;{{ "%.2f"|format(row.interest) }}</td>
+          <td class="num money" data-amount="{{ "%.2f"|format(row.interest) }}">{{ money_text(row.interest) }}</td>
           <td class="num">{{ row.paid_count }} &#183; {{ row.pending_count }}</td>
-          <td class="num money" data-amount="{{ "%.2f"|format(row.cumulative) }}">&#8377;{{ "%.2f"|format(row.cumulative) }}</td>
+          <td class="num money" data-amount="{{ "%.2f"|format(row.cumulative) }}">{{ money_text(row.cumulative) }}</td>
         </tr>
         {% endfor %}
       </tbody>

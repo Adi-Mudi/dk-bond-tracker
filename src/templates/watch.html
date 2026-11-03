@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import money, money_text %}
 {% block head %}
 <style>
   .move-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 8px; align-items: end; }
@@ -211,7 +212,7 @@
         {% for item in snapshot %}
         <tr>
           <td><span class="co-name">{{ item.company }}</span></td>
-          <td class="num"><span class="value money" id="snapshot-invested-{{ item.id }}" data-amount="{{ "%.2f"|format(item.invested) }}">&#8377;{{ "%.2f"|format(item.invested) }}</span></td>
+          <td class="num">{{ money(item.invested, "snapshot-invested-" ~ item.id, "value") }}</td>
         </tr>
         {% endfor %}
       </tbody>
