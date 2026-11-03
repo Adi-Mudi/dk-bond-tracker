@@ -47,11 +47,6 @@ SCHEMA_STATEMENTS = (
         key TEXT UNIQUE,
         value TEXT
     )""",
-    """CREATE TABLE IF NOT EXISTS share_config (
-        id INTEGER PRIMARY KEY,
-        section TEXT,
-        included INTEGER DEFAULT 0
-    )""",
 )
 
 
