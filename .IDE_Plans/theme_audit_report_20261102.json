@@ -1,0 +1,348 @@
+{
+  "topic": "theme_audit",
+  "date": "20261102",
+  "author": "kimi-code",
+  "overall_status": "COMPLETED_WITH_FINDINGS",
+  "scope": {
+    "files_reviewed": [
+      "src/static/theme.css",
+      "src/static/theme.js",
+      "src/static/app.js",
+      "src/templates/base.html",
+      "src/templates/dashboard.html",
+      "src/templates/grid.html",
+      "src/templates/portfolio.html",
+      "src/templates/watch.html",
+      "src/templates/goals.html",
+      "src/templates/settings.html",
+      "src/templates/share.html",
+      "src/templates/add_position.html",
+      "src/templates/payment_edit.html",
+      "src/templates/payout.html",
+      "src/templates/monthly_print.html",
+      "src/share.py",
+      "src/app.py"
+    ],
+    "themes_found": ["system", "light", "dark"],
+    "theme_definition_location": "src/static/theme.css (CSS custom properties, one block per theme)",
+    "theme_selection_location": "src/app.py:82 THEMES tuple; persisted in localStorage 'dk-theme'; applied as html[data-theme] by src/templates/base.html:8-9 and src/static/theme.js",
+    "centralization_verdict": "Core palette IS centralized in theme.css variables and most UI consumes them. Gaps: per-template <style> blocks hard-code a few colors; share.py snapshot and monthly_print.html carry their own fixed palettes; no color-scheme declaration anywhere."
+  },
+  "duplicate_check": {
+    "source": "gh issue list --state all --repo Adi-Mudi/dk-bond-tracker",
+    "result": "0 issues total (open or closed)",
+    "conclusion": "No previously reported issues exist, so no finding can be marked a potential duplicate. All findings below are NEW."
+  },
+  "findings": [
+    {
+      "id": "T1",
+      "severity": "MAJOR",
+      "category": "low_contrast_placeholders",
+      "title": "Input placeholder text nearly unreadable in dark theme",
+      "cause": "No ::placeholder rule and no color-scheme declaration anywhere. Inputs get background var(--card) #161b22 in dark theme, while the UA default placeholder color stays light-scheme. Current Chromium UA stylesheet uses a fixed color: #757575 for placeholders (not rgba(0,0,0,0.6) as first assumed).",
+      "measured_contrast": "#757575 on #161b22 = 3.75:1 (needs 4.5:1); Firefox graytext ~4.38:1 marginal fail",
+      "exact_colors": "Chrome UA placeholder #757575 on --card #161b22",
+      "fix_location": "src/static/theme.css:324 (add ::placeholder rule using var(--muted); add color-scheme: light dark)",
+      "affected_inputs": [
+        "src/templates/watch.html:66",
+        "src/templates/watch.html:96",
+        "src/templates/watch.html:109",
+        "src/templates/settings.html:46",
+        "src/templates/settings.html:50",
+        "src/templates/settings.html:63",
+        "src/templates/settings.html:67",
+        "src/templates/add_position.html:70",
+        "src/templates/add_position.html:74",
+        "src/templates/add_position.html:78",
+        "src/templates/portfolio.html:181",
+        "src/templates/portfolio.html:185",
+        "src/templates/portfolio.html:189",
+        "src/templates/portfolio.html:206",
+        "src/templates/portfolio.html:210",
+        "src/templates/portfolio.html:214",
+        "src/templates/portfolio.html:218",
+        "src/templates/portfolio.html:222",
+        "src/templates/portfolio.html:253"
+      ],
+      "duplicate_of": null
+    },
+    {
+      "id": "T2",
+      "severity": "HIGH",
+      "category": "poor_blue_text_contrast",
+      "title": "Share page Generate button hover: white text on light blue",
+      "cause": "Hover sets background var(--blue) #4dabf7 with color var(--white) #ffffff in light theme.",
+      "measured_contrast": "2.48:1 (needs 4.5:1)",
+      "exact_colors": "#ffffff text on #4dabf7 background",
+      "fix_location": "src/templates/share.html:13",
+      "fix_note": "Round 3 correction (R1): --on-accent alone does NOT fix light theme -- it is #ffffff there, still 2.48:1 on #4dabf7. Correct fix: background var(--accent) + color var(--on-accent) -> 5.17:1 light / 7.49:1 dark.",
+      "duplicate_of": null
+    },
+    {
+      "id": "T3",
+      "severity": "MAJOR",
+      "category": "poor_contrast",
+      "title": "Notification dropdown header text fails contrast in BOTH themes",
+      "cause": ".alert-dropdown-v3 .dd-head uses color var(--muted) on background var(--bar-muted).",
+      "measured_contrast": "light 3.28:1 (#6b7280 on #d1d5db), dark 3.97:1 (#8b949e on #30363d); both below 4.5:1 for 11px text",
+      "exact_colors": "light #6b7280 on #d1d5db; dark #8b949e on #30363d",
+      "fix_location": "src/static/theme.css:452-454",
+      "duplicate_of": null
+    },
+    {
+      "id": "T4",
+      "severity": "MAJOR",
+      "category": "incorrect_border_color",
+      "title": "Portfolio drawer facts table hard-codes a light border",
+      "cause": "border-bottom: 1px solid #dee2e6 is hard-coded; in dark theme it renders as a bright light-gray line on the dark drawer instead of var(--border) #30363d.",
+      "exact_colors": "#dee2e6 (should be var(--border): #e5e7eb light / #30363d dark)",
+      "fix_location": "src/templates/portfolio.html:42",
+      "duplicate_of": null
+    },
+    {
+      "id": "T5",
+      "severity": "MINOR",
+      "category": "poor_contrast",
+      "title": "Completed/Matured chip text marginally fails contrast in light theme",
+      "cause": "--matured-fg on --matured-bg for 12px semibold chip text.",
+      "measured_contrast": "light 4.39:1 (#6b7280 on #f3f4f6), dark 4.95:1 pass",
+      "exact_colors": "light #6b7280 on #f3f4f6",
+      "fix_location": "src/static/theme.css:15-16 (used by .chip-matured :307 and .chip-completed :403)",
+      "duplicate_of": null
+    },
+    {
+      "id": "T6",
+      "severity": "MINOR",
+      "category": "poor_contrast",
+      "title": "Danger chip text marginally fails contrast in light theme",
+      "cause": "--danger-fg on --danger-bg for 12px semibold chip text.",
+      "measured_contrast": "light 4.41:1 (#dc2626 on #fef2f2), dark 6.80:1 pass for .chip-danger; .chip-invalid drops to 4.42:1 dark due to opacity (see N4)",
+      "exact_colors": "light #dc2626 on #fef2f2",
+      "fix_location": "src/static/theme.css:11-12 (used by .chip-danger :305, .chip-invalid :309)",
+      "duplicate_of": null
+    },
+    {
+      "id": "T7",
+      "severity": "MINOR",
+      "category": "unthemed_control",
+      "title": "Payment edit checkbox accent hard-coded blue",
+      "cause": "accent-color: #4dabf7 instead of var(--accent) (theme.css:344 already uses var(--accent) for other checkboxes).",
+      "exact_colors": "#4dabf7 (should be var(--accent): #2563eb light / #58a6ff dark)",
+      "fix_location": "src/templates/payment_edit.html:26",
+      "duplicate_of": null
+    },
+    {
+      "id": "T8",
+      "severity": "MINOR",
+      "category": "unthemed_control",
+      "title": "Share page checkboxes use the wrong blue token",
+      "cause": "accent-color: var(--blue) uses the cell-background token #4dabf7 instead of --accent, so light-theme checkboxes are a different blue from every button/toggle.",
+      "exact_colors": "var(--blue) = #4dabf7 light / #58a6ff dark (should be var(--accent))",
+      "fix_location": "src/templates/share.html:9",
+      "duplicate_of": null
+    },
+    {
+      "id": "T9",
+      "severity": "MINOR",
+      "category": "unthemed_control",
+      "title": "Native form controls and scrollbars not themed in dark mode",
+      "cause": "No color-scheme declaration anywhere, so select dropdown popups, date-picker indicators (add_position.html uses input[type=date]) and scrollbars render in light-scheme colors while the page is dark.",
+      "exact_colors": "UA light-scheme defaults on dark surfaces",
+      "fix_location": "src/static/theme.css:1 (add color-scheme: light dark)",
+      "duplicate_of": null
+    },
+    {
+      "id": "T10",
+      "severity": "MINOR",
+      "category": "hardcoded_color",
+      "title": "Grid future-cell text color hard-coded",
+      "cause": "color: #adb5bd instead of var(--muted). Light theme contrast vs --card-bg is 1.87:1; currently the cell only renders a non-breaking space so no text is visible today, but any future content would be unreadable.",
+      "measured_contrast": "1.87:1 in light theme (#adb5bd on #f1f3f5)",
+      "exact_colors": "#adb5bd (should be var(--muted))",
+      "fix_location": "src/templates/grid.html:17",
+      "duplicate_of": null
+    },
+    {
+      "id": "T11",
+      "severity": "MINOR",
+      "category": "hardcoded_color",
+      "title": "Grid legend copy hard-codes light-theme hex values",
+      "cause": "Legend text says 'paid (green #d3f9d8)' and 'due (light red #ffc9c9)'; in dark theme the actual swatches are #10251a and #2b1519, so the labels are wrong.",
+      "exact_colors": "#d3f9d8 and #ffc9c9 (dark-theme actuals: #10251a, #2b1519)",
+      "fix_location": "src/templates/grid.html:67-68",
+      "duplicate_of": null
+    },
+    {
+      "id": "T12",
+      "severity": "MAJOR",
+      "category": "unthemed_control",
+      "title": "Links use browser default colors that fail the dark theme",
+      "cause": "No global anchor color rule, so links fall back to the UA default: unvisited -webkit-link #0000EE, visited #551A8B. These do not adapt to data-theme.",
+      "measured_contrast": "dark #0000EE on #161b22 = 1.84:1 unvisited, #551A8B on #161b22 = 1.57:1 visited (both FAIL); light theme passes",
+      "exact_colors": "UA #0000EE (unvisited) / #551A8B (visited) on dark surfaces #161b22",
+      "fix_location": "src/static/theme.css (add a { color: var(--accent) } rule); example src/templates/goals.html:37,42",
+      "round3_correction": "R1: original cause (inherits --text) and INFO severity were wrong; links use UA link colors and are near-invisible in dark theme.",
+      "duplicate_of": null
+    },
+    {
+      "id": "T13",
+      "severity": "INFO",
+      "category": "hardcoded_color",
+      "title": "Card shadows hard-coded rgba(30,30,30,0.08)",
+      "cause": "Per-template shadows bypass theme variables; in dark theme the shadow is effectively invisible.",
+      "exact_colors": "rgba(30,30,30,0.08)",
+      "fix_location": "src/templates/add_position.html:10, src/templates/payment_edit.html:10",
+      "duplicate_of": null
+    },
+    {
+      "id": "T14",
+      "severity": "INFO",
+      "category": "by_design_hardcoded",
+      "title": "Generated share snapshot carries its own fixed light palette",
+      "cause": "share.py embeds a standalone print-styled palette rather than reusing theme tokens. Acceptable for an offline print artifact, but it duplicates palette values with no single source.",
+      "exact_colors": "#1e1e1e, #f8f9fa, #ffffff, #adb5bd, #495057, #e9ecef, #ced4da, #fff",
+      "fix_location": "src/share.py:26-38",
+      "duplicate_of": null
+    },
+    {
+      "id": "T15",
+      "severity": "INFO",
+      "category": "by_design_hardcoded",
+      "title": "Monthly print view carries its own fixed light palette",
+      "cause": "Print output is intentionally fixed to paper-light colors; same duplication note as T14.",
+      "exact_colors": "#1e1e1e, #495057, #e9ecef, #ffc9c9, #ff8787, #ff922b, #ffe8cc, #69db7c, #d3f9d8, #d0ebff, #f8f9fa, #ffffff, #f1f3f5, #6c757d, #fff3bf, #adb5bd, rgba(30,30,30,0.25), rgba(0,0,0,0.35)",
+      "fix_location": "src/templates/monthly_print.html:9-22,29,37-38,64,74-75,166,200",
+      "duplicate_of": null
+    },
+    {
+      "id": "T16",
+      "severity": "INFO",
+      "category": "unthemed_control",
+      "title": "Settings theme radio ignores stored theme on first paint",
+      "cause": "The 'system' radio is hard-coded checked regardless of localStorage; theme.js corrects it after load, so there is a brief wrong checked state.",
+      "exact_colors": "n/a (state bug, not color)",
+      "fix_location": "src/templates/settings.html:26",
+      "duplicate_of": null
+    },
+    {
+      "id": "N1",
+      "severity": "MINOR",
+      "category": "hardcoded_color",
+      "title": "Central stylesheet hard-codes four black shadows",
+      "cause": "theme.css itself hard-codes box-shadow colors instead of theme tokens — same single-source-of-truth gap as T13, including invisible-in-dark-theme behavior. Found in review.",
+      "exact_colors": "rgba(0,0,0,.05) at :187,:197,:271; rgba(0,0,0,.12) at :442",
+      "fix_location": "src/static/theme.css:187,197,271,442",
+      "duplicate_of": null
+    },
+    {
+      "id": "N2",
+      "severity": "HIGH",
+      "category": "stale_shipped_build",
+      "title": "Shipped v1.0 build has the pre-fix dark --white token",
+      "cause": "product/dk_bond_tracker_v1.0/src/static/theme.css still carries dark --white: #ffffff (the #161b22 surface fix from commit cd22dff never made it into the shipped copy). In the shipped dark theme every var(--white) surface (share panel, payout meta, payment-edit card, add-position card, position drawer, payout-cell hover, payment inputs) renders true white under #e6edf3 text.",
+      "measured_contrast": "1.18:1 (unreadable) in the shipped dark theme",
+      "exact_colors": "shipped dark --white: #ffffff with --text #e6edf3 (src fixed value: #161b22)",
+      "fix_location": "product/dk_bond_tracker_v1.0/src/static/theme.css:56,90 — rebuild/repackage the product",
+      "duplicate_of": null
+    },
+    {
+      "id": "N3",
+      "severity": "MAJOR",
+      "category": "poor_contrast",
+      "title": "Watchlist fact labels fail contrast in light theme",
+      "cause": ".fact-label uses var(--muted) inside .details-row td whose background is var(--header-row).",
+      "measured_contrast": "light 4.08:1 (#6b7280 on #e9ecef, FAIL), dark 4.95:1 pass",
+      "exact_colors": "light #6b7280 on #e9ecef",
+      "fix_location": "src/templates/watch.html:20,22",
+      "duplicate_of": null
+    },
+    {
+      "id": "N4",
+      "severity": "MAJOR",
+      "category": "poor_contrast",
+      "title": "Invalid chip fails contrast in BOTH themes due to opacity",
+      "cause": ".chip-invalid applies opacity: 0.75 on top of the danger token pair, dragging effective contrast below threshold.",
+      "measured_contrast": "light 3.27:1 (#dc2626@0.75 over #fef2f2), dark 4.42:1 (#ff7b72@0.75 over #2b1519); both FAIL",
+      "exact_colors": "light #dc2626 on #fef2f2 at opacity 0.75; dark #ff7b72 on #2b1519 at opacity 0.75",
+      "fix_location": "src/static/theme.css:309",
+      "duplicate_of": null
+    },
+    {
+      "id": "N5",
+      "severity": "MAJOR",
+      "category": "poor_contrast",
+      "title": "On-going token pair fails contrast in light theme",
+      "cause": "--ongoing-fg #16a34a on --ongoing-bg #f0fdf4, used by .chip-ongoing (theme.css:306, 12px semibold) and .banner-success (theme.css:509-512, 13px, live via app.js:93 + settings.html:82). Dark passes at 8.37:1.",
+      "measured_contrast": "light 3.15:1 (FAIL, worse than T5 4.39 and T6 4.41); dark 8.37:1 pass",
+      "exact_colors": "light #16a34a on #f0fdf4",
+      "fix_location": "src/static/theme.css:13-14,306,509-512",
+      "found_by": "R1 round 3",
+      "duplicate_of": null
+    },
+    {
+      "id": "N6",
+      "severity": "MINOR",
+      "category": "fix_correctness",
+      "title": "color-scheme: light dark at :root follows the OS, not the selected theme",
+      "cause": "The T1/T9 recommended fix (color-scheme: light dark on :root) makes UA controls follow OS preference; a light-OS user who manually picks Dark still gets light select popups, date indicators and scrollbars.",
+      "measured_contrast": "n/a (fix-correctness finding)",
+      "exact_colors": "n/a",
+      "fix_location": "src/static/theme.css — scope it: html[data-theme=\"dark\"] { color-scheme: dark } html[data-theme=\"light\"] { color-scheme: light } html[data-theme=\"system\"] { color-scheme: light dark }",
+      "found_by": "R1 round 3",
+      "duplicate_of": null
+    }
+  ],
+  "github_issues": {
+    "created": "2026-11-02",
+    "note": "One issue per group of related findings, created in priority order; no code was modified",
+    "mapping": {
+      "#1": ["N2"],
+      "#2": ["T2"],
+      "#3": ["T1", "T9"],
+      "#4": ["T3"],
+      "#5": ["N3", "T5", "T6", "N4"],
+      "#6": ["T4"],
+      "#7": ["T7", "T8"],
+      "#8": ["T10", "T11"],
+      "#9": ["T12"],
+      "#10": ["T13", "N1"],
+      "#11": ["T14", "T15"],
+      "#12": ["T16"]
+    }
+  },
+  "review": {
+    "reviewer": "explore subagent (read-only), independent recomputation of all ratios",
+    "date": "20261102",
+    "verdict": "AGREED",
+    "summary": "15 of 16 findings confirmed with exact ratios and line references; duplicate check reproduced (gh issue list --state all -> []); one new finding N1 added. T1 corrected: Chromium UA placeholder is a fixed #757575 (3.75:1 on dark), so it is a MAJOR contrast failure rather than invisible text; the fix (::placeholder rule + color-scheme) is unchanged. T1 re-ranked CRITICAL -> MAJOR, making T2 the top-severity item.",
+    "recomputed_ratios_confirmed": ["T2 2.48:1", "T3 3.28:1 / 3.97:1", "T5 4.39:1 / 4.95:1", "T6 4.41:1 / 6.80:1", "T10 1.87:1", "verified_ok set all reproduced"],
+    "round2": {
+      "scope": "repo-wide: root scripts/launchers, shipped product build vs src, design mockups, by-design re-verification, expanded T1/T3/T9 detail, --white token-flip audit, report self-consistency",
+      "verdict": "AGREED",
+      "new_findings": ["N2 stale shipped build (HIGH)", "N3 watchlist fact labels (MAJOR)", "N4 chip-invalid opacity (MAJOR)"],
+      "addenda": ["T2: fix token should be --on-accent, not --white", "T6: dark pass does not hold for .chip-invalid (4.42:1)", "T1: category label corrected to low_contrast_placeholders"],
+      "verified": ["root scripts and scripts/ contain no color/theme handling", "monthly_print.html and share.py confirmed standalone (no theme inheritance possible)", "shipped build matches src except theme.css --white", "gh issue list --state all still empty", "report JSON valid and internally consistent"],
+      "control_inventory_for_color_scheme_fix": "10 selects (add_position:92; portfolio:226,235,246; settings:37,54; watch:78,89,100,172), 8 date inputs (add_position:84,88; goals:78,122; portfolio:198,202; watch:164,168), 13 checkboxes, 5 radios, 1 readonly input; no textarea/meter/progress",
+      "round3": {
+        "reviewer": "R1 per .fleet config: kimi CLI, opencode-go/deepseek-v4.1-flash (deepseek family), spawned visibly via herdr-app tab.new, terminal t3z, baseline cd22dff",
+        "verdict": "NOT-AGREED on report v1; corrections applied -> v2",
+        "confirmed": "17 of 20 findings CONFIRMED with exact ratios and file:line; all required ratio recomputations reproduced; N2 stronger than reported (the .zip is stale too, build 00:31 vs fix commit 00:51); no missed hard-coded colors in app UI files",
+        "corrected": [
+          "T2: proposed --on-accent swap does not fix light theme (#ffffff on #4dabf7 still 2.48:1); correct fix is background var(--accent) + color var(--on-accent) (5.17/7.49)",
+          "T12: cause and severity wrong - links use UA -webkit-link #0000EE / visited #551A8B, not inherited text; dark 1.84:1 / 1.57:1, near-invisible; INFO -> MAJOR"
+        ],
+        "new_findings": ["N5 ongoing token pair 3.15:1 light (chip-ongoing + banner-success)", "N6 color-scheme recipe must be scoped to html[data-theme], not :root"],
+        "minor_notes": ["T15 exact_colors omits #fff used at monthly_print.html:37,200", "T1 Firefox graytext clause outdated", "verified_ok scope list omits notifications.html/error.html/attribute_facts.html (verified clean)"]
+      }
+    }
+  },
+  "verified_ok": [
+    "btn-primary / accent buttons: 5.17:1 light, 7.49:1 dark",
+    "watching chips: 4.75:1 light, 8.10:1 dark",
+    "muted text on cards: 4.83:1 light, 5.62:1 dark",
+    "warn chips: 4.84:1 light",
+    "danger chips dark: 6.80:1",
+    "theme switcher, tabs, sidebar nav, banners, progress bars all consume theme variables",
+    "no hard-coded colors in app.js or dashboard/watch/notifications/error templates"
+  ]
+}
