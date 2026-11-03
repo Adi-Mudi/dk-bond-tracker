@@ -34,6 +34,7 @@ from src.export_csv import (
 )
 from src.forms import parse_position_form
 from src.goals import add_goal, delete_goal, list_goals, update_goal
+from src.ledger import ledger_by_bond
 from src.lock import check_add_allowed
 from src.mailer import send_alert_email
 from src.notifications import (
@@ -73,6 +74,7 @@ from src.validators import (
     date_range_tenure,
     parse_date_value,
     percent_value,
+    safe_float,
 )
 
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
@@ -223,10 +225,10 @@ def create_app(db_path=None):
         upcoming = [key for key in unpaid if key >= current]
         month = upcoming[0] if upcoming else unpaid[0]
         entry = months_map.get(month, {})
-        amount = float(entry.get("amount") or 0.0)
+        amount = safe_float(entry.get("amount"))
         if amount <= 0 and row["interest_payout"] is not None:
             try:
-                amount = float(row["interest_payout"]) / int(tenure)
+                amount = safe_float(row["interest_payout"]) / int(tenure)
             except (TypeError, ValueError):
                 amount = 0.0
         credit = int(row["credit_day"] or 1)
@@ -251,26 +253,11 @@ def create_app(db_path=None):
         received_map = received_by_bond(conn)
         current = month_key(date.today())
         holdings = status_overview(conn)
-        ledger = conn.execute(
-            "SELECT bond_id, month, amount, paid FROM payment_ledger"
-        ).fetchall()
-        months_by_bond = {}
-        for row in ledger:
-            entry = months_by_bond.setdefault(row["bond_id"], {})
-            try:
-                ledger_amount = float(row["amount"] or 0.0)
-                ledger_paid = bool(row["paid"]) and row["amount"] is not None and ledger_amount > 0
-            except (TypeError, ValueError):
-                ledger_amount = 0.0
-                ledger_paid = False
-            entry[row["month"]] = {"paid": ledger_paid, "amount": ledger_amount}
+        months_by_bond = ledger_by_bond(conn)
         bars = []
         next_payout = None
         for row in holdings:
-            try:
-                invested = float(row["amount"] or 0.0)
-            except (TypeError, ValueError):
-                invested = 0.0
+            invested = safe_float(row["amount"])
             months_map = months_by_bond.get(row["id"], {})
             received = received_map.get(row["id"], 0.0)
             status_label = display_label(row["status"])
@@ -1116,15 +1103,12 @@ def create_app(db_path=None):
                         continue
                     if entry_paid(entry):
                         cells.append(
-                            {"kind": "received", "month": key, "amount": float(entry["amount"])}
+                            {"kind": "received", "month": key, "amount": safe_float(entry["amount"])}
                         )
                         continue
                     amount_value = 0.0
                     if entry is not None:
-                        try:
-                            amount_value = float(entry["amount"] or 0.0)
-                        except (TypeError, ValueError):
-                            amount_value = 0.0
+                        amount_value = safe_float(entry["amount"])
                     if amount_value > 0:
                         cells.append({"kind": "pending", "month": key, "amount": amount_value})
                     elif month_due_passed(key, row["credit_day"], today):
@@ -1153,15 +1137,7 @@ def create_app(db_path=None):
             "FROM bonds WHERE watch_state = 'holding' "
             "ORDER BY id"
         ).fetchall()
-        ledger_rows = conn.execute(
-            "SELECT bond_id, month, amount, paid FROM payment_ledger ORDER BY bond_id, month"
-        ).fetchall()
-        ledger_by_bond = {}
-        for entry in ledger_rows:
-            ledger_by_bond.setdefault(entry["bond_id"], {})[entry["month"]] = {
-                "amount": entry["amount"],
-                "paid": entry["paid"],
-            }
+        months_by_bond = ledger_by_bond(conn)
         context = {
             "tab": tab,
             "holdings": [],
@@ -1172,9 +1148,9 @@ def create_app(db_path=None):
             "code": code,
         }
         if tab == "holdings":
-            context["holdings"] = _portfolio_holdings(conn, bond_rows, ledger_by_bond, today)
+            context["holdings"] = _portfolio_holdings(conn, bond_rows, months_by_bond, today)
         elif bond_rows:
-            rows, months = _portfolio_payouts(bond_rows, ledger_by_bond, today)
+            rows, months = _portfolio_payouts(bond_rows, months_by_bond, today)
             context["payouts"] = rows
             context["months"] = months
         return context
