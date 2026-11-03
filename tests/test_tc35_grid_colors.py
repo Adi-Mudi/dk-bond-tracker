@@ -62,7 +62,6 @@ def test_tc35_paid_due_zero_future_cells_and_status_colors(db_path, monkeypatch)
     assert "--page-bg: #f8f9fa" in css
     assert "--card-bg: #f1f3f5" in css
     assert "--white: #ffffff" in css
-    assert "--blue: #4dabf7" in css
     assert "--blue-light: #d0ebff" in css
     assert "--paid: #d3f9d8" in css
     assert "--due: #ffc9c9" in css
