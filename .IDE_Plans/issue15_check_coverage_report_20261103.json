@@ -1,0 +1,50 @@
+{
+  "header": {
+    "topic": "issue15_check_coverage_upgrade",
+    "date": "20261103",
+    "author": "pm-kimi-code",
+    "overall_status": "DONE",
+    "github_issue": 15,
+    "branch": "upgrade-check-coverage",
+    "base": "dev",
+    "commit": "40fd796"
+  },
+  "items": [
+    {
+      "id": "S1",
+      "status": "DONE",
+      "what": "Generated-file heredocs refactored into write_generated_files <dest_dir>; normal build behavior byte-identical (heredoc blobs compared against dev)",
+      "evidence": "reviewer check (a), blob 79e221e comparison"
+    },
+    {
+      "id": "S2",
+      "status": "DONE",
+      "what": "--check now covers tests/ tree (both directions, same exclusions), generated files (rendered to mktemp, cmp vs shipped), zip freshness (exists + theme.css content + file count)",
+      "evidence": "git show 40fd796 (+98/-63, 1 file); worker + reviewer probes"
+    },
+    {
+      "id": "S3",
+      "status": "DONE",
+      "what": "All three new detections proven: tests edit -> DRIFT exit 1; generated edit -> DRIFT exit 1; deleted zip -> MISSING exit 1; rebuild restores exit 0",
+      "evidence": "worker evidence runs; reviewer reproduced"
+    },
+    {
+      "id": "S4",
+      "status": "DONE",
+      "what": "sort -z removed everywhere (GNU-only dependency gone)",
+      "evidence": "grep clean; reviewer portability check (d)"
+    },
+    {
+      "id": "S5",
+      "status": "DONE",
+      "what": "Tests: scripts/test_local.sh 408 passed, 5 deselected",
+      "evidence": "worker run"
+    },
+    {
+      "id": "S6",
+      "status": "DONE",
+      "what": "Review gate 3 (DEEP): AGREED, zero CRITICAL/MAJOR; 4 MINOR + 1 NIT recorded (QB-013); worker --no-verify root-caused to the hook self-heal missing --extract (fixed globally during this batch)",
+      "evidence": "dk_bond_tracker_issue_fixes_review_log.jsonl"
+    }
+  ]
+}
