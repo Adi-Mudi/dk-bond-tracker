@@ -207,6 +207,7 @@ def test_tc133_attribute_parity_roundtrip_candidate_move_holdings_strip(client, 
     response = client.post(
         f"/watch/{candidate_id}/move",
         data={
+            "purchase_date": add_months(base, -2).isoformat(),
             "start_date": add_months(base, -1).isoformat(),
             "end_date": add_months(base, 12).isoformat(),
             "credit_day": "5",
@@ -248,7 +249,8 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
     )
     assert response.status_code == 302
     html = client.get("/watch").get_data(as_text=True)
-    assert "Purchase date (start date)" in html
+    assert "Purchase date" in html
+    assert "Start date (interest accrual / dated date)" in html
     assert "End date" in html
     assert "Credit day — when the amount is credited each month" in html
     assert ">Broker</label>" in html
@@ -264,7 +266,8 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
     )
     assert panel, "move panel must exist as a hidden row below its candidate"
     panel_html = panel.group(1)
-    assert "Purchase date (start date)" in panel_html
+    assert "Purchase date" in panel_html
+    assert "Start date (interest accrual / dated date)" in panel_html
     assert "End date" in panel_html
     assert "Credit day — when the amount is credited each month" in panel_html
     assert "Broker" in panel_html

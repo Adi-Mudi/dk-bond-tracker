@@ -35,6 +35,7 @@ def make_candidate(client, db_path, company="Alpha Ltd", isin="INE9000A0200", **
 
 def valid_move(**overrides):
     data = {
+        "purchase_date": "2026-08-01",
         "start_date": "2026-08-01",
         "end_date": "2028-08-01",
         "credit_day": "5",
@@ -85,6 +86,8 @@ def expected_seed_months(start):
     [
         ("start_date", "", "start_date"),
         ("start_date", "not-a-date", "start_date"),
+        ("purchase_date", "", "purchase_date"),
+        ("purchase_date", "not-a-date", "purchase_date"),
         ("end_date", "", "end_date"),
         ("credit_day", "", "credit day must be an integer in 1-31"),
         ("credit_day", "abc", "credit day must be an integer in 1-31"),
