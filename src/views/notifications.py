@@ -2,16 +2,10 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from src.db import get_conn
 from src.notifications import list_notifications, mark_all_read
-from src.prefs import set_pref
+from src.prefs import alert_prefs_map, set_pref
 from src.views.common import app_db
 
 bp = Blueprint("notifications", __name__)
-
-
-def alert_prefs_map(db_file):
-    with get_conn(db_file) as conn:
-        rows = conn.execute("SELECT key, value FROM alert_prefs").fetchall()
-    return {row["key"]: row["value"] for row in rows}
 
 
 @bp.route("/notifications", methods=["GET", "POST"])
