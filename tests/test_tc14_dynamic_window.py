@@ -74,7 +74,7 @@ def test_tc14_route_headers_extend_to_simulated_current_and_schema_unchanged(
         def today(cls):
             return date(2027, 8, 15)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         add_bond(conn, "WindowCo", "INE0000000141", "2025-09-01", 15)
     before_tables, before_columns = table_snapshot(db_path)

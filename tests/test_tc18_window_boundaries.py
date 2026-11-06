@@ -43,7 +43,7 @@ def test_tc18_bond_starting_feb2031_renders_full_row(db_path, monkeypatch):
         def today(cls):
             return date(2031, 3, 10)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         add_bond(conn, "FarCo", "INE0000000181", "2031-02-01", 6)
     app = create_app(str(db_path))

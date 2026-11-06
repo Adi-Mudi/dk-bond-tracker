@@ -51,7 +51,7 @@ def test_tc36_headers_run_continuous_through_simulated_aug2027(db_path, monkeypa
         def today(cls):
             return date(2027, 8, 15)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         add_bond(conn, "BorderCo", "INE0000000361", "2025-09-01", 40)
     before = schema_snapshot(db_path)
@@ -77,7 +77,7 @@ def test_tc36_future_columns_render_neutral(db_path, monkeypatch):
         def today(cls):
             return date(2027, 8, 15)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "NeutralCo", "INE0000000362", "2027-06-01", 10, credit_day=5)
     app = create_app(str(db_path))
@@ -104,7 +104,7 @@ def test_tc36_schema_unchanged_after_render(db_path, monkeypatch):
         def today(cls):
             return date(2027, 8, 15)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         add_bond(conn, "SchemaCo", "INE0000000363", "2026-01-01", 24)
     before = schema_snapshot(db_path)
