@@ -165,7 +165,7 @@
         <td><button type="button" class="btn btn-sm details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
         <td>
           <button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button>
-          <form class="inline-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" onsubmit="return confirm('Delete candidate {{ candidate.company }}? This cannot be undone.');">
+          <form class="inline-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-confirm-message='{{ ("Delete candidate " ~ candidate.company ~ "? This cannot be undone.")|tojson }}' onsubmit="return confirm(JSON.parse(this.dataset.confirmMessage));">
             <button class="btn btn-sm" type="submit" id="delete-candidate-{{ candidate.id }}">Delete</button>
           </form>
         </td>
