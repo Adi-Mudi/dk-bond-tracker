@@ -132,15 +132,7 @@ def grid():
         with get_conn(db_file) as conn:
             model = grid_model(conn, date.today())
     except AppError as exc:
-        return (
-            render_template(
-                "error.html",
-                code="ERR-render-grid",
-                message=str(exc),
-                title="Month grid render failed",
-            ),
-            500,
-        )
+        return error_page("ERR-render-grid", str(exc), "Month grid render failed", 500)
     return render_template("grid.html", **model)
 
 
