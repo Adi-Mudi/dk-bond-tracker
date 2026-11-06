@@ -3,6 +3,7 @@ from pathlib import Path
 
 SRC = Path(__file__).resolve().parents[1] / "src"
 TEMPLATES = SRC / "templates"
+VIEWS = SRC / "views"
 
 SUM_ALLOWED = {"queries.py", "phase4.py"}
 AGG_TOKENS = ("SUM(", "SELECT COUNT", "GROUP BY", "JOIN")
@@ -27,7 +28,7 @@ def test_status_logic_defined_only_in_status_module():
 
 
 def test_status_imports_not_redefined_in_callers():
-    for caller in ("app.py", "queries.py"):
+    for caller in ("queries.py", "views/dashboard.py"):
         text = (SRC / caller).read_text(encoding="utf-8")
         assert "compute_row_status_daywise" in text
         assert "def compute_row_status" not in text
@@ -56,10 +57,19 @@ def test_app_py_has_no_aggregation_or_join_sql():
         assert token not in text, token
 
 
-def test_app_py_executes_are_point_lookups_from_query_modules():
-    text = (SRC / "app.py").read_text(encoding="utf-8")
+def test_route_modules_have_no_aggregation_or_join_sql():
+    offenders = []
+    for path in sorted(VIEWS.glob("*.py")):
+        text = path.read_text(encoding="utf-8")
+        for token in AGG_TOKENS:
+            if token in text:
+                offenders.append(f"{path.name}: {token}")
+    assert offenders == []
+
+
+def test_route_modules_execute_point_lookups_from_query_modules():
+    text = (VIEWS / "dashboard.py").read_text(encoding="utf-8")
     assert "conn.execute(" in text
     assert "from src.queries import (" in text
     assert "status_overview" in text
     assert "summary_amounts" in text
-    assert "chart_data" in text

@@ -44,7 +44,7 @@ def seed_alpha_beta_gamma(db_path):
 
 
 def test_tc75_initial_order_is_danger_ongoing_completed(client, db_path, monkeypatch):
-    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 10)))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(date(2026, 10, 10)))
     seed_alpha_beta_gamma(db_path)
     html = client.get("/grid").get_data(as_text=True)
     assert company_order(html) == ["Beta", "Alpha", "Gamma"]
@@ -52,7 +52,7 @@ def test_tc75_initial_order_is_danger_ongoing_completed(client, db_path, monkeyp
 
 
 def test_tc75_order_changes_on_next_get_after_status_flips(client, db_path, monkeypatch):
-    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 10)))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(date(2026, 10, 10)))
     alpha_id, beta_id, gamma_id = seed_alpha_beta_gamma(db_path)
     before = client.get("/grid").get_data(as_text=True)
     assert company_order(before) == ["Beta", "Alpha", "Gamma"]
@@ -71,7 +71,7 @@ def test_tc75_order_changes_on_next_get_after_status_flips(client, db_path, monk
 
 
 def test_tc75_sweep_flip_moves_new_danger_row_to_top(client, db_path, monkeypatch):
-    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 10)))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(date(2026, 10, 10)))
     with get_conn(db_path) as conn:
         alpha_id = add_bond(conn, "Alpha", "INE0000000754", "2026-10-01", 6, credit_day=15)
         beta_id = add_bond(conn, "Beta", "INE0000000755", "2026-10-01", 6, credit_day=15)
@@ -84,7 +84,7 @@ def test_tc75_sweep_flip_moves_new_danger_row_to_top(client, db_path, monkeypatc
     with get_conn(db_path) as conn:
         events = daily_sweep(conn, date(2026, 10, 20))
     assert [event["company"] for event in events] == ["Beta"]
-    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 20)))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(date(2026, 10, 20)))
     second = client.get("/grid").get_data(as_text=True)
     assert company_order(second) == ["Beta", "Alpha", "Gamma"]
     assert status_order(second)[0] == "Danger"
@@ -92,7 +92,7 @@ def test_tc75_sweep_flip_moves_new_danger_row_to_top(client, db_path, monkeypatc
 
 
 def test_tc75_sort_is_stable_within_status_band(client, db_path, monkeypatch):
-    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 10)))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(date(2026, 10, 10)))
     with get_conn(db_path) as conn:
         add_bond(conn, "Zulu", "INE0000000757", "2026-10-01", 6, credit_day=15)
         add_bond(conn, "Mike", "INE0000000758", "2026-10-01", 6, credit_day=15)

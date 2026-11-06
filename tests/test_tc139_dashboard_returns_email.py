@@ -160,7 +160,7 @@ def test_tc139_134_email_test_route_success_and_failure(client, db_path, monkeyp
         calls.append(event)
         return {"status": "sent"}
 
-    monkeypatch.setattr("src.app.send_alert_email", fake_send)
+    monkeypatch.setattr("src.views.settings.send_alert_email", fake_send)
     response = client.post(
         "/settings/email/test",
         data={"smtp_host": "smtp.gmail.com", "smtp_port": "587", "smtp_security": "TLS"},
@@ -197,7 +197,7 @@ def test_tc139_134_email_test_route_never_500s_on_send_error(client, db_path, mo
     def failing_send(event):
         raise AppError("ERR-smtp-unconfigured", "SMTP_USER is not set")
 
-    monkeypatch.setattr("src.app.send_alert_email", failing_send)
+    monkeypatch.setattr("src.views.settings.send_alert_email", failing_send)
     response = client.post(
         "/settings/email/test",
         data={"smtp_host": "smtp.office365.com", "smtp_port": "587", "smtp_security": "STARTTLS"},
@@ -210,7 +210,7 @@ def test_tc139_134_email_test_route_never_500s_on_send_error(client, db_path, mo
 
 
 def test_tc139_135_returns_history_math_and_received_equality(client, db_path, monkeypatch):
-    monkeypatch.setattr("src.app.date", make_sim_date(SIM_TODAY))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(SIM_TODAY))
     monkeypatch.setattr("src.queries.date", make_sim_date(SIM_TODAY))
     with get_conn(db_path) as conn:
         bond_a = add_bond(conn, "AlphaCo", "INE0000001399", "2026-08-01", 6, credit_day=5)
@@ -255,7 +255,8 @@ def test_tc139_135_returns_history_math_and_received_equality(client, db_path, m
 
 
 def test_tc139_135_goals_kpi_link_navigates_view_and_tab(client, db_path, monkeypatch):
-    monkeypatch.setattr("src.app.date", make_sim_date(SIM_TODAY))
+    monkeypatch.setattr("src.views.dashboard.date", make_sim_date(SIM_TODAY))
+    monkeypatch.setattr("src.views.goals.date", make_sim_date(SIM_TODAY))
     monkeypatch.setattr("src.queries.date", make_sim_date(SIM_TODAY))
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "KpiCo", "INE00000013A2", "2026-10-01", 6, credit_day=5)
