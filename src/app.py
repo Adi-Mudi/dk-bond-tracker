@@ -23,6 +23,8 @@ from src.engine import (
     list_months_through_current,
     month_due_passed,
     payout_date_label,
+    purchase_date_label,
+    purchase_qty_value,
     sort_rows,
     tenure_window,
 )
@@ -1029,6 +1031,8 @@ def create_app(db_path=None):
                     "received": received_by_bond_map.get(row["id"], 0.0),
                     "next_payout": next_payout,
                     "health": health,
+                    "purchase_date": purchase_date_label(row["purchase_date"]),
+                    "qty": purchase_qty_value(row["qty"]),
                 }
             )
         return sort_rows(holdings)
@@ -1109,7 +1113,7 @@ def create_app(db_path=None):
         bond_rows = conn.execute(
             "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
             "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker, "
-            "amount, start_date, end_date, tenure_months, credit_day "
+            "amount, start_date, end_date, tenure_months, credit_day, purchase_date, qty "
             "FROM bonds WHERE watch_state = 'holding' "
             "ORDER BY id"
         ).fetchall()

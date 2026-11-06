@@ -238,12 +238,12 @@ def test_tc87_watchlist_has_broker_column_before_source_note(client):
     assert "Axis Direct" in html
 
 
-def test_tc87_holdings_table_stays_nine_columns(client):
+def test_tc87_holdings_table_stays_ten_columns(client):
     response = client.get("/portfolio")
     html = response.get_data(as_text=True)
     table = html[html.index('<table id="holdings-table">'):]
     table = table[: table.index("</thead>")]
-    assert table.count("</th>") == 9
+    assert table.count("</th>") == 10
 
 
 def test_tc87_invalid_row_detail_drawer_still_returns_json(client, db_path):
