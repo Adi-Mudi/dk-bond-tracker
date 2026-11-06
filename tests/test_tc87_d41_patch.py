@@ -72,7 +72,12 @@ def test_tc87_move_same_month_rejected_no_row_inserted(client, db_path):
         ).fetchone()["id"]
     response = client.post(
         f"/watch/{candidate_id}/move",
-        data={"start_date": "2026-11-14", "end_date": "2026-11-30", "credit_day": "5"},
+        data={
+            "purchase_date": "2026-11-14",
+            "start_date": "2026-11-14",
+            "end_date": "2026-11-30",
+            "credit_day": "5",
+        },
         follow_redirects=False,
     )
     assert response.status_code == 400
@@ -140,6 +145,7 @@ def test_tc87_broker_roundtrip_candidate_move_detail(client, db_path):
     response = client.post(
         f"/watch/{candidate_id}/move",
         data={
+            "purchase_date": "2026-10-01",
             "start_date": "2026-10-01",
             "end_date": "2027-03-31",
             "credit_day": "5",
@@ -193,6 +199,7 @@ def test_tc87_move_requires_broker(client, db_path):
     response = client.post(
         f"/watch/{candidate_id}/move",
         data={
+            "purchase_date": "2026-10-01",
             "start_date": "2026-10-01",
             "end_date": "2027-03-31",
             "credit_day": "5",
@@ -214,7 +221,8 @@ def test_tc87_move_requires_broker(client, db_path):
 def test_tc87_labels_present_on_watch_moves(client):
     watch_post(client)
     watch_html = client.get("/watch").get_data(as_text=True)
-    assert "Purchase date (start date)" in watch_html
+    assert "Purchase date" in watch_html
+    assert "Start date (interest accrual / dated date)" in watch_html
     assert "End date" in watch_html
     assert "Credit day — when the amount is credited each month" in watch_html
     portfolio_html = client.get("/portfolio").get_data(as_text=True)
@@ -365,6 +373,7 @@ def test_tc87_f225_blank_broker_stores_null_on_watch_path_and_blocks_move(client
     response = client.post(
         f"/watch/{candidate_id}/move",
         data={
+            "purchase_date": "2026-10-01",
             "start_date": "2026-10-01",
             "end_date": "2027-03-31",
             "credit_day": "5",

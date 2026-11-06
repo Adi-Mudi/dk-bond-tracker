@@ -318,6 +318,7 @@ def test_tc139_136_credit_day_31_accepted_on_current_schema(client, db_path):
     ok = client.post(
         f"/watch/{ok_id}/move",
         data={
+            "purchase_date": "2026-11-01",
             "start_date": "2026-11-01",
             "end_date": "2027-04-01",
             "credit_day": "31",
@@ -336,6 +337,7 @@ def test_tc139_136_credit_day_31_accepted_on_current_schema(client, db_path):
         response = client.post(
             f"/watch/{bad_id}/move",
             data={
+                "purchase_date": "2026-11-01",
                 "start_date": "2026-11-01",
                 "end_date": "2027-04-01",
                 "credit_day": bad,

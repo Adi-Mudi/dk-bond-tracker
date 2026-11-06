@@ -86,6 +86,7 @@ def _ensure_columns(conn):
         "secured INT DEFAULT 1",
         "watch_state TEXT NOT NULL DEFAULT 'holding' CHECK (watch_state IN ('holding','watching'))",
         "broker TEXT",
+        "purchase_date TEXT",
     ):
         name = column.split()[0]
         if name not in bond_columns:

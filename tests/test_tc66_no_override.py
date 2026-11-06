@@ -9,6 +9,7 @@ CANDIDATE_ISIN = "INE0000NEW66"
 HOLDING_ISIN = "IN1234567890"
 BLOCKED_MESSAGE = "Cannot add position: Beta Finance Ltd has an active position (On-going) — no override"
 MOVE_DATA = {
+    "purchase_date": "2026-11-01",
     "start_date": "2026-11-01",
     "end_date": "2027-11-01",
     "credit_day": "5",

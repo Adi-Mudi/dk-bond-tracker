@@ -673,6 +673,7 @@ def create_app(db_path=None):
             start_date, end_date, tenure_months, credit_day = date_range_tenure(
                 form.get("start_date", ""), form.get("end_date", ""), credit_value
             )
+            purchase_date = parse_date_value(form.get("purchase_date", ""), "purchase_date")
             if tenure_months < 1:
                 raise AppError(
                     "ERR-date-range",
@@ -698,7 +699,7 @@ def create_app(db_path=None):
                 check_add_allowed(row["company"], row["isin"], conn)
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
-                    "credit_day = ?, amount = ?, qty = ?, broker = ?, "
+                    "credit_day = ?, amount = ?, qty = ?, broker = ?, purchase_date = ?, "
                     "watch_state = 'holding' "
                     "WHERE id = ? AND watch_state = 'watching'",
                     (
@@ -709,6 +710,7 @@ def create_app(db_path=None):
                         invested,
                         int(quantity),
                         broker,
+                        purchase_date.isoformat(),
                         candidate_id,
                     ),
                 )

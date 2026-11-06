@@ -116,6 +116,7 @@ def test_tc68_tc59_new_company_rendered_on_every_surface(client, db_path):
     moved = client.post(
         f"/watch/{new_id}/move",
         data={
+            "purchase_date": "2026-11-01",
             "start_date": "2026-11-01",
             "end_date": "2027-11-01",
             "credit_day": "5",
