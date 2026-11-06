@@ -3,7 +3,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.app import APP_VERSION, BUILD_NOTES, create_app
+from src.app import create_app
+from src.views.common import APP_VERSION, BUILD_NOTES
 
 
 def test_tc99_about_shows_version_build_notes_offline_badge(db_path):

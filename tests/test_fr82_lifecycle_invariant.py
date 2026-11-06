@@ -67,9 +67,10 @@ def _ordered_strings(path):
 
 
 def strings_by_module():
+    root = SRC_DIR.parent
     return {
-        path.name: "\n".join(_ordered_strings(path))
-        for path in sorted(SRC_DIR.glob("*.py"))
+        path.relative_to(root).as_posix(): "\n".join(_ordered_strings(path))
+        for path in sorted(SRC_DIR.rglob("*.py"))
     }
 
 
@@ -134,9 +135,9 @@ def companies_rows(db_path, company):
 def test_fr82_ac1_exactly_one_holding_write_site_in_source():
     modules = strings_by_module()
     holding_sites = matches_by_module(HOLDING_WRITE, modules)
-    assert holding_sites == {"app.py": 1}, (
+    assert holding_sites == {"src/views/watch.py": 1}, (
         "FR-82: expected exactly one write site setting watch_state='holding' "
-        f"(the watch move handler in src/app.py); found {holding_sites}"
+        f"(the watch move handler in src/views/watch.py); found {holding_sites}"
     )
     assert matches_by_module(WATCHING_WRITE, modules) == {}, (
         "FR-82: no UPDATE may set watch_state='watching'; candidates are born watching"
@@ -154,7 +155,7 @@ def test_fr82_ac1_candidate_insert_always_names_watch_state_watching():
         f"found {len(inserts)} ({[name for name, _c, _v in inserts]})"
     )
     name, columns, values = inserts[0]
-    assert name == "app.py"
+    assert name == "src/views/watch.py"
     column_list = [column.strip().lower() for column in columns.split(",")]
     assert "watch_state" in column_list, (
         "FR-82: candidate INSERT must name watch_state explicitly (never rely on the "

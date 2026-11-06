@@ -29,7 +29,7 @@ def test_tc35_paid_due_zero_future_cells_and_status_colors(db_path, monkeypatch)
         def today(cls):
             return date(2026, 10, 10)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         danger_id = add_bond(conn, "DangerCo", "INE0000000351", "2026-07-01", 6, credit_day=5)
         add_payment(conn, danger_id, "2026-07", 1000.0)
@@ -91,7 +91,7 @@ def test_tc35_zero_amount_cell_never_renders_green(db_path, monkeypatch):
         def today(cls):
             return date(2026, 10, 10)
 
-    monkeypatch.setattr("src.app.date", SimDate)
+    monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "ZeroCo", "INE0000000354", "2026-07-01", 6, credit_day=5)
         conn.execute(
