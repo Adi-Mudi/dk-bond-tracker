@@ -75,32 +75,3 @@ def save_payment(conn, bond_id, month, amount, paid):
         )
     return {"bond_id": bond_id, "month": key, "amount": value, "paid": flag, "action": action}
 
-
-def insert_position(conn, company, isin, amount, start_date, end_date, tenure_months, credit_day):
-    if isinstance(amount, bool) or not isinstance(amount, (int, float)):
-        raise AppError("ERR-add-insert", f"amount must be a number: {amount!r}")
-    value = float(amount)
-    if value < 0:
-        raise AppError("ERR-add-insert", f"amount must not be negative: {amount!r}")
-    cursor = conn.execute(
-        "INSERT INTO bonds (company, isin, name, amount, maturity, start_date, end_date, "
-        "tenure_months, credit_day, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            company,
-            isin,
-            company,
-            value,
-            None,
-            start_date.isoformat(),
-            end_date.isoformat(),
-            int(tenure_months),
-            int(credit_day),
-            "On-going",
-        ),
-    )
-    if cursor.rowcount != 1:
-        raise AppError(
-            "ERR-add-insert",
-            f"position insert for {company} affected {cursor.rowcount} rows",
-        )
-    return cursor.lastrowid

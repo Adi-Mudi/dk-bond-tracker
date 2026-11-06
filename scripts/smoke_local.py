@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory() as tmp:
     app = create_app(str(db))
     c = app.test_client()
 
-    for route in ["/", "/grid", "/add", "/goals", "/watch", "/notifications",
+    for route in ["/", "/grid", "/goals", "/watch", "/notifications",
                   "/share", "/print", "/portfolio", "/settings"]:
         r = c.get(route)
         check(f"GET {route}", r.status_code == 200, f"status={r.status_code}")

@@ -32,9 +32,8 @@ from src.export_csv import (
     current_view_rows,
     full_ledger_csv,
 )
-from src.forms import parse_position_form
 from src.goals import add_goal, delete_goal, list_goals, update_goal
-from src.ledger import insert_position, ledger_by_bond, save_payment
+from src.ledger import ledger_by_bond, save_payment
 from src.prefs import set_pref
 from src.lock import check_add_allowed
 from src.mailer import send_alert_email
@@ -409,66 +408,6 @@ def create_app(db_path=None):
         except AppError as exc:
             return error_page(exc.code, exc.message, "Payment save failed", 400)
         return redirect(url_for("grid"))
-
-    @app.route("/add", methods=["GET", "POST"])
-    def add_position():
-        db_file = app_db()
-        if request.method == "GET":
-            return render_template("add_position.html", form={}, error=None, code=None)
-        form = request.form
-        company = str(form.get("company", "")).strip()
-        isin = str(form.get("isin", "")).strip()
-        try:
-            with get_conn(db_file) as conn:
-                try:
-                    check_add_allowed(company, isin, conn)
-                except AppError as exc:
-                    return (
-                        render_template(
-                            "add_position.html",
-                            form=form,
-                            error=f"{exc.message} — no override",
-                            code=exc.code,
-                        ),
-                        409,
-                    )
-                parsed = parse_position_form(form)
-                company = parsed["company"]
-                isin = parsed["isin"]
-                amount = parsed["amount"]
-                start_date = parsed["start_date"]
-                end_date = parsed["end_date"]
-                tenure_months = parsed["tenure_months"]
-                credit_day = parsed["credit_day"]
-                try:
-                    insert_position(
-                        conn,
-                        company,
-                        isin,
-                        amount,
-                        start_date,
-                        end_date,
-                        tenure_months,
-                        credit_day,
-                    )
-                except sqlite3.IntegrityError as exc:
-                    raise AppError(
-                        "ERR-add-insert",
-                        f"position insert rejected (duplicate ISIN {isin}): {exc}",
-                    ) from exc
-        except AppError as exc:
-            status_code = 409 if exc.code in ("ERR-active-position", "ERR-add-insert") else 400
-            return (
-                render_template(
-                    "add_position.html",
-                    form=form,
-                    error=exc.message,
-                    code=exc.code,
-                ),
-                status_code,
-            )
-        flash(f"Position added: {company}", "success")
-        return redirect(url_for("watch_list"))
 
     @app.route("/goals", methods=["GET", "POST"])
     def goals_page():
@@ -1139,120 +1078,9 @@ def create_app(db_path=None):
             context["months"] = months
         return context
 
-    def _portfolio_optional_text(form, field):
-        raw = str(form.get(field, "")).strip()
-        return raw or None
-
-    def _portfolio_optional_float(form, field):
-        raw = str(form.get(field, "")).strip()
-        if not raw:
-            return None
-        try:
-            return float(raw)
-        except ValueError as exc:
-            raise AppError("ERR-add-fields", f"{field} must be a number: {raw!r}") from exc
-
-    def _add_portfolio_position(db_file):
-        form = request.form
-        company = str(form.get("company", "")).strip()
-        isin = str(form.get("isin", "")).strip()
-        try:
-            with get_conn(db_file) as conn:
-                parsed = parse_position_form(form)
-                company = parsed["company"]
-                isin = parsed["isin"]
-                amount = parsed["amount"]
-                start_date = parsed["start_date"]
-                end_date = parsed["end_date"]
-                tenure_months = parsed["tenure_months"]
-                credit_day = parsed["credit_day"]
-                issuer_type = parsed["issuer_type"]
-                payout_cycle = parsed["payout_cycle"]
-                secured = parsed["secured"]
-                rating = _portfolio_optional_text(form, "rating")
-                rating_agency = _portfolio_optional_text(form, "rating_agency")
-                coupon_pct = percent_value(form.get("coupon_pct", ""), "coupon_pct", "ERR-add-fields")
-                expected_yield_pct = percent_value(
-                    form.get("expected_yield_pct", ""), "expected_yield_pct", "ERR-add-fields"
-                )
-                face_value = _portfolio_optional_float(form, "face_value")
-                broker = str(form.get("broker", "")).strip() or None
-                secured = 1 if str(form.get("secured", "1")) == "1" else 0
-                check_add_allowed(company, isin, conn)
-                try:
-                    cursor = conn.execute(
-                        "INSERT INTO bonds (company, isin, name, amount, start_date, end_date, "
-                        "tenure_months, credit_day, status, watch_state, rating, rating_agency, "
-                        "coupon_pct, expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        (
-                            company,
-                            isin,
-                            company,
-                            float(amount),
-                            start_date.isoformat(),
-                            end_date.isoformat(),
-                            int(tenure_months),
-                            int(credit_day),
-                            "On-going",
-                            "holding",
-                            rating,
-                            rating_agency,
-                            coupon_pct,
-                            expected_yield_pct,
-                            payout_cycle,
-                            issuer_type,
-                            secured,
-                            face_value,
-                            broker,
-                        ),
-                    )
-                except sqlite3.IntegrityError as exc:
-                    raise AppError(
-                        "ERR-add-insert",
-                        f"position insert rejected (duplicate ISIN {isin}): {exc}",
-                    ) from exc
-                if cursor.rowcount != 1:
-                    raise AppError(
-                        "ERR-add-insert",
-                        f"position insert for {company} affected {cursor.rowcount} rows",
-                    )
-                bond_id = cursor.lastrowid
-                current_key = month_key(date.today())
-                for key in tenure_window(start_date, tenure_months):
-                    if key > current_key:
-                        break
-                    conn.execute(
-                        "INSERT OR IGNORE INTO payment_ledger (bond_id, month, amount, paid) "
-                        "VALUES (?, ?, 0, 0)",
-                        (bond_id, key),
-                    )
-        except AppError as exc:
-            status_code = 409 if exc.code in ("ERR-active-position", "ERR-add-insert") else 400
-            try:
-                with get_conn(db_file) as conn:
-                    context = _portfolio_context(
-                        conn, date.today(), "holdings", form, exc.message, exc.code
-                    )
-            except AppError:
-                context = {
-                    "tab": "holdings",
-                    "holdings": [],
-                    "months": [],
-                    "payouts": [],
-                    "form": form,
-                    "error": exc.message,
-                    "code": exc.code,
-                }
-            return render_template("portfolio.html", **context), status_code
-        flash(f"Position added: {company}", "success")
-        return redirect(url_for("portfolio_page", tab="holdings"))
-
-    @app.route("/portfolio", methods=["GET", "POST"])
+    @app.route("/portfolio")
     def portfolio_page():
         db_file = app_db()
-        if request.method == "POST":
-            return _add_portfolio_position(db_file)
         tab = str(request.args.get("tab") or "holdings")
         if tab not in ("holdings", "payouts"):
             return error_page(
