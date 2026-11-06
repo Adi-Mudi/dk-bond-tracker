@@ -3,12 +3,9 @@ import re
 from datetime import date
 
 from .engine import (
-    derive_health,
-    display_label,
-    entry_paid,
-    payout_date_label,
     purchase_date_label,
     purchase_qty_value,
+    row_health_state,
     sort_rows,
     tenure_window,
 )
@@ -529,26 +526,9 @@ def position_detail(conn, bond_id, today=None):
         entries[entry["month"]] = {"amount": entry["amount"], "paid": paid}
         payments.append({"month": entry["month"], "amount": amount, "paid": paid})
     received = sum(item["amount"] for item in payments if item["paid"] and item["amount"] > 0)
-    bad_amount = False
-    try:
-        invested = float(row["amount"] or 0.0)
-    except (TypeError, ValueError):
-        invested = 0.0
-        bad_amount = True
-    try:
-        health = display_label(derive_health(row, entries, today_value))
-        next_payout = None
-        if health != "Matured":
-            for key in tenure_window(row["start_date"], row["tenure_months"]):
-                if not entry_paid(entries.get(key)):
-                    next_payout = payout_date_label(key, row["credit_day"])
-                    break
-    except AppError:
-        health = "Invalid"
-        next_payout = None
-    if bad_amount:
-        health = "Invalid"
-        next_payout = None
+    invested, health, next_payout, bad_amount = row_health_state(
+        row, entries, today_value, None
+    )
     return {
         "id": row["id"],
         "company": row["company"],
