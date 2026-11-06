@@ -18,6 +18,7 @@
     background: var(--card);
     color: var(--text);
   }
+  .move-form input[readonly] { background: var(--bg); color: var(--muted); }
   .move-actions { display: flex; gap: 8px; align-items: flex-end; }
   .details-row td { height: auto; padding: 12px; background: var(--header-row); }
   .facts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px; }
@@ -109,11 +110,15 @@
       </div>
       <div class="field">
         <label for="c-invested">Invested <span class="rupee"></span></label>
-        <input type="number" id="c-invested" name="watch_investment" step="any" min="0" placeholder="0.00" value="{{ form.get('watch_investment', '') }}">
+        <input type="number" id="c-invested" name="watch_investment" step="any" min="0" placeholder="0.00" value="{{ form.get('watch_investment', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
       </div>
       <div class="field">
         <label for="c-qty">Quantity (no. of bonds)</label>
-        <input type="number" id="c-qty" name="qty" step="1" min="1" placeholder="1" value="{{ form.get('qty', '') }}">
+        <input type="number" id="c-qty" name="qty" step="1" min="1" placeholder="1" value="{{ form.get('qty', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
+      </div>
+      <div class="field">
+        <label for="c-perbond">Per-bond price (auto)</label>
+        <input type="text" id="c-perbond" readonly placeholder="0.00">
       </div>
       <div class="field">
         <label for="c-source">Source note</label>
@@ -193,11 +198,15 @@
             </div>
             <div class="move-field">
               <label for="move-amount-{{ candidate.id }}">Invested amount</label>
-              <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required>
+              <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
             </div>
             <div class="move-field">
               <label for="move-qty-{{ candidate.id }}">Quantity (no. of bonds)</label>
-              <input type="number" id="move-qty-{{ candidate.id }}" name="qty" step="1" min="1" value="{{ candidate.qty if candidate.qty is not none else '' }}" required>
+              <input type="number" id="move-qty-{{ candidate.id }}" name="qty" step="1" min="1" value="{{ candidate.qty if candidate.qty is not none else '' }}" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
+            </div>
+            <div class="move-field">
+              <label for="move-perbond-{{ candidate.id }}">Per-bond price (auto)</label>
+              <input type="text" id="move-perbond-{{ candidate.id }}" readonly placeholder="0.00">
             </div>
             <div class="move-field">
               <label for="move-broker-{{ candidate.id }}">Broker</label>
