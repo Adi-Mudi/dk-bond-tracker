@@ -321,6 +321,9 @@ def test_tc139_136_credit_day_31_accepted_on_current_schema(client, db_path):
             "start_date": "2026-11-01",
             "end_date": "2027-04-01",
             "credit_day": "31",
+            "qty": "10",
+            "amount": "25000",
+            "broker": "Zerodha",
         },
     )
     assert ok.status_code == 302
@@ -336,6 +339,9 @@ def test_tc139_136_credit_day_31_accepted_on_current_schema(client, db_path):
                 "start_date": "2026-11-01",
                 "end_date": "2027-04-01",
                 "credit_day": bad,
+                "qty": "10",
+                "amount": "25000",
+                "broker": "Zerodha",
             },
         )
         assert response.status_code == 400

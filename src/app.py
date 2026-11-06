@@ -73,6 +73,7 @@ from src.validators import (
     parse_date_value,
     percent_value,
     safe_float,
+    validate_positive_int,
 )
 
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "bonds.db"
@@ -498,7 +499,7 @@ def create_app(db_path=None):
             rows = conn.execute(
                 "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, "
                 "broker, rating_agency, issuer_type, secured, face_value, payout_cycle, "
-                "watch_investment "
+                "qty, watch_investment "
                 "FROM bonds WHERE watch_state = 'watching' ORDER BY company COLLATE NOCASE, id"
             ).fetchall()
         candidates = []
@@ -677,7 +678,11 @@ def create_app(db_path=None):
                     "ERR-date-range",
                     f"tenure must span at least one whole month: {tenure_months}",
                 )
+            quantity = validate_positive_int(form.get("qty", ""), "qty", "ERR-move-watching")
+            invested = percent_value(form.get("amount", ""), "amount", "ERR-move-watching")
             broker = str(form.get("broker", "")).strip()
+            if not broker:
+                raise AppError("ERR-move-watching", "broker is required")
             with get_conn(db_file) as conn:
                 row = conn.execute(
                     "SELECT id, company, isin, watch_state FROM bonds WHERE id = ?",
@@ -693,8 +698,7 @@ def create_app(db_path=None):
                 check_add_allowed(row["company"], row["isin"], conn)
                 cursor = conn.execute(
                     "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
-                    "credit_day = ?, broker = CASE WHEN ? != '' THEN ? ELSE broker END, "
-                    "amount = COALESCE(amount, watch_investment), "
+                    "credit_day = ?, amount = ?, qty = ?, broker = ?, "
                     "watch_state = 'holding' "
                     "WHERE id = ? AND watch_state = 'watching'",
                     (
@@ -702,7 +706,8 @@ def create_app(db_path=None):
                         end_date.isoformat(),
                         int(tenure_months),
                         int(credit_day),
-                        broker,
+                        invested,
+                        int(quantity),
                         broker,
                         candidate_id,
                     ),
@@ -711,6 +716,15 @@ def create_app(db_path=None):
                     raise AppError(
                         "ERR-move-watching",
                         f"move affected {cursor.rowcount} rows for candidate {candidate_id}",
+                    )
+                current_key = month_key(date.today())
+                for key in tenure_window(start_date, tenure_months):
+                    if key > current_key:
+                        break
+                    conn.execute(
+                        "INSERT OR IGNORE INTO payment_ledger (bond_id, month, amount, paid) "
+                        "VALUES (?, ?, 0, 0)",
+                        (candidate_id, key),
                     )
                 moved_company = row["company"]
         except AppError as exc:

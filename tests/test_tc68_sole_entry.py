@@ -115,7 +115,14 @@ def test_tc68_tc59_new_company_rendered_on_every_surface(client, db_path):
         ).fetchone()["id"]
     moved = client.post(
         f"/watch/{new_id}/move",
-        data={"start_date": "2026-11-01", "end_date": "2027-11-01", "credit_day": "5"},
+        data={
+            "start_date": "2026-11-01",
+            "end_date": "2027-11-01",
+            "credit_day": "5",
+            "qty": "50",
+            "amount": "50000",
+            "broker": "HDFC Securities",
+        },
     )
     assert moved.status_code == 302
     assert current_bond_count(db_path) == 1

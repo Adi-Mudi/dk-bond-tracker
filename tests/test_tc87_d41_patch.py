@@ -139,7 +139,14 @@ def test_tc87_broker_roundtrip_candidate_move_detail(client, db_path):
         ).fetchone()["id"]
     response = client.post(
         f"/watch/{candidate_id}/move",
-        data={"start_date": "2026-10-01", "end_date": "2027-03-31", "credit_day": "5"},
+        data={
+            "start_date": "2026-10-01",
+            "end_date": "2027-03-31",
+            "credit_day": "5",
+            "qty": "50",
+            "amount": "50000",
+            "broker": "HDFC Securities",
+        },
         follow_redirects=False,
     )
     assert response.status_code == 302
@@ -177,7 +184,7 @@ def test_tc87_direct_add_route_removed(client, db_path):
     assert row is None
 
 
-def test_tc87_move_without_broker_keeps_candidate_broker(client, db_path):
+def test_tc87_move_requires_broker(client, db_path):
     watch_post(client, broker="Kotak Securities")
     with get_conn(db_path) as conn:
         candidate_id = conn.execute(
@@ -185,15 +192,23 @@ def test_tc87_move_without_broker_keeps_candidate_broker(client, db_path):
         ).fetchone()["id"]
     response = client.post(
         f"/watch/{candidate_id}/move",
-        data={"start_date": "2026-10-01", "end_date": "2027-03-31", "credit_day": "5"},
+        data={
+            "start_date": "2026-10-01",
+            "end_date": "2027-03-31",
+            "credit_day": "5",
+            "qty": "50",
+            "amount": "50000",
+        },
         follow_redirects=False,
     )
-    assert response.status_code == 302
+    assert response.status_code == 400
+    assert "broker is required" in response.get_data(as_text=True)
     with get_conn(db_path) as conn:
         row = conn.execute(
-            "SELECT broker FROM bonds WHERE id = ?", (candidate_id,)
+            "SELECT broker, watch_state FROM bonds WHERE id = ?", (candidate_id,)
         ).fetchone()
     assert row["broker"] == "Kotak Securities"
+    assert row["watch_state"] == "watching"
 
 
 def test_tc87_labels_present_on_watch_moves(client):
@@ -340,7 +355,7 @@ def test_tc87_f224a_payouts_invalid_row_shows_remove_and_post_works(client, db_p
     assert row is None
 
 
-def test_tc87_f225_blank_broker_stores_null_on_watch_and_move_paths(client, db_path):
+def test_tc87_f225_blank_broker_stores_null_on_watch_path_and_blocks_move(client, db_path):
     response = watch_post(client, broker="   ")
     assert response.status_code == 302
     with get_conn(db_path) as conn:
@@ -353,17 +368,20 @@ def test_tc87_f225_blank_broker_stores_null_on_watch_and_move_paths(client, db_p
             "start_date": "2026-10-01",
             "end_date": "2027-03-31",
             "credit_day": "5",
+            "qty": "50",
+            "amount": "50000",
             "broker": "  ",
         },
         follow_redirects=False,
     )
-    assert response.status_code == 302
+    assert response.status_code == 400
+    assert "broker is required" in response.get_data(as_text=True)
     with get_conn(db_path) as conn:
         row = conn.execute(
             "SELECT broker, watch_state FROM bonds WHERE id = ?", (candidate_id,)
         ).fetchone()
     assert row["broker"] is None
-    assert row["watch_state"] == "holding"
+    assert row["watch_state"] == "watching"
 
 
 def test_tc87_amount_fault_dashboard_note_and_removable(client, db_path):
