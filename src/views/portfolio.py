@@ -9,9 +9,9 @@ from src.engine import (
     entry_paid,
     list_months_through_current,
     month_due_passed,
-    payout_date_label,
     purchase_date_label,
     purchase_qty_value,
+    row_health_state,
     sort_rows,
     tenure_window,
 )
@@ -49,26 +49,7 @@ def portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
     holdings = []
     for row in bond_rows:
         entries = ledger_by_bond.get(row["id"], {})
-        bad_amount = False
-        try:
-            invested = float(row["amount"] or 0.0)
-        except (TypeError, ValueError):
-            invested = 0.0
-            bad_amount = True
-        try:
-            health = display_label(derive_health(row, entries, today))
-            next_payout = "—"
-            if health != "Matured":
-                for key in tenure_window(row["start_date"], row["tenure_months"]):
-                    if not entry_paid(entries.get(key)):
-                        next_payout = payout_date_label(key, row["credit_day"])
-                        break
-        except AppError:
-            health = "Invalid"
-            next_payout = "—"
-        if bad_amount:
-            health = "Invalid"
-            next_payout = "—"
+        invested, health, next_payout, bad_amount = row_health_state(row, entries, today, "—")
         holdings.append(
             {
                 "id": row["id"],
