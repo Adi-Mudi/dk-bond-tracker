@@ -52,6 +52,18 @@ def validate_credit_day(value, code="ERR-date-range", context=None):
     return value
 
 
+def validate_positive_int(value, field, code="ERR-date-range"):
+    if isinstance(value, str):
+        text = value.strip()
+        try:
+            value = int(text)
+        except ValueError as exc:
+            raise AppError(code, f"{field} must be a positive integer: {text!r}") from exc
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise AppError(code, f"{field} must be a positive integer: {value!r}")
+    return value
+
+
 def date_range_tenure(start_value, end_value, credit_day):
     start = parse_date_value(start_value, "start_date")
     end = parse_date_value(end_value, "end_date")
