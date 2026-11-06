@@ -55,6 +55,18 @@
     });
   }
 
+  function perBond(totalId, qtyId, outId) {
+    var total = parseFloat(document.getElementById(totalId).value);
+    var qty = parseFloat(document.getElementById(qtyId).value);
+    var out = document.getElementById(outId);
+    if (isFinite(total) && isFinite(qty) && qty > 0 && total >= 0) {
+      out.value = (total / qty).toFixed(2);
+    } else {
+      out.value = '';
+    }
+  }
+  window.perBond = perBond;
+
   var sendTestButton = document.getElementById('s-send-test');
   if (sendTestButton) {
     sendTestButton.addEventListener('click', function () {
