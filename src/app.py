@@ -595,6 +595,12 @@ def create_app(db_path=None):
                     "ERR-watch-add",
                     required=False,
                 )
+                qty_raw = str(form.get("qty", "")).strip()
+                qty = (
+                    validate_positive_int(qty_raw, "qty", "ERR-watch-add")
+                    if qty_raw
+                    else None
+                )
                 with get_conn(db_file) as conn:
                     duplicate = conn.execute(
                         "SELECT company, isin, watch_state FROM bonds "
@@ -610,8 +616,8 @@ def create_app(db_path=None):
                     cursor = conn.execute(
                         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
                         "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
-                        "secured, face_value, payout_cycle, watch_investment) "
-                        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?)",
+                        "secured, face_value, payout_cycle, qty, watch_investment) "
+                        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?)",
                         (
                             company,
                             isin,
@@ -625,6 +631,7 @@ def create_app(db_path=None):
                             secured,
                             face_value,
                             payout_cycle,
+                            qty,
                             watch_investment,
                         ),
                     )
