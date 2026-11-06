@@ -12,6 +12,7 @@ CANDIDATE_ISIN = "INE0000NEW99"
 BASE_MESSAGE = "Cannot add position: Beta Finance Ltd has an active position (On-going)"
 BLOCKED_MESSAGE = BASE_MESSAGE + " — no override"
 MOVE_DATA = {
+    "purchase_date": "2026-11-01",
     "start_date": "2026-11-01",
     "end_date": "2027-11-01",
     "credit_day": "5",
