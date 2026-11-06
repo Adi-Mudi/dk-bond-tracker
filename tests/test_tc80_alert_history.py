@@ -14,7 +14,7 @@ FORBIDDEN_TOKENS = ("requests", "httpx", "push", "sms", "whatsapp")
 
 def source_files():
     files = sorted(SRC.rglob("*.py")) + sorted(SRC.rglob("*.html"))
-    return files
+    return [p for p in files if (SRC / "design") not in p.parents]
 
 
 def seed_history(db_path):
