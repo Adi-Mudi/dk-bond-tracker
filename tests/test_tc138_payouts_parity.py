@@ -273,9 +273,12 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
     panel_index = html.index(f'id="move-panel-{candidate_id}" hidden')
     assert toggle_index < panel_index
     action_cell = re.search(
-        r'<td><button type="button" class="btn btn-sm move-toggle" '
+        r'<td>\s*<button type="button" class="btn btn-sm move-toggle" '
         + f'data-panel="move-panel-{candidate_id}"'
-        + r'[^>]*>Move to Portfolio</button></td>',
+        + r'[^>]*>Move to Portfolio</button>.*?'
+        + f'action="/watch/{candidate_id}/delete"'
+        + r'.*?</td>',
         html,
+        re.S,
     )
-    assert action_cell, "Action cell must carry only the Move to Portfolio toggle"
+    assert action_cell, "Action cell must carry the Move to Portfolio toggle and the Delete control"

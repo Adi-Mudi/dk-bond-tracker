@@ -566,3 +566,14 @@ def position_detail(conn, bond_id, today=None):
         "source_note": row["name"] or "",
         "payments": payments,
     }
+
+
+def delete_candidate(conn, bond_id):
+    conn.execute("DELETE FROM payment_ledger WHERE bond_id = ?", (bond_id,))
+    cursor = conn.execute("DELETE FROM bonds WHERE id = ?", (bond_id,))
+    if cursor.rowcount != 1:
+        raise AppError(
+            "ERR-watch-delete",
+            f"delete for candidate {bond_id} affected {cursor.rowcount} rows",
+        )
+    return bond_id
