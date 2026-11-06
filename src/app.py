@@ -51,6 +51,7 @@ from src.print import monthly_print_model
 from src.queries import (
     MONTH_PATTERN,
     chart_data,
+    delete_candidate,
     grid_model,
     month_label,
     portfolio_snapshot,
@@ -730,6 +731,35 @@ def create_app(db_path=None):
                 409 if exc.code == "ERR-active-position" else 400,
             )
         flash(f"Moved to Portfolio: {moved_company}", "success")
+        return redirect(url_for("watch_list"))
+
+    @app.route("/watch/<int:candidate_id>/delete", methods=["POST"])
+    def watch_delete(candidate_id):
+        db_file = app_db()
+        try:
+            with get_conn(db_file) as conn:
+                row = conn.execute(
+                    "SELECT id, company, watch_state FROM bonds WHERE id = ?",
+                    (candidate_id,),
+                ).fetchone()
+                if row is None:
+                    return error_page(
+                        "ERR-watch-delete",
+                        f"candidate not found: {candidate_id}",
+                        "Delete failed",
+                        404,
+                    )
+                if row["watch_state"] != "watching":
+                    raise AppError(
+                        "ERR-watch-delete",
+                        f"cannot delete {row['company']}: "
+                        f"{row['watch_state']} rows are never deleted",
+                    )
+                delete_candidate(conn, candidate_id)
+                company = row["company"]
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "Delete failed", 409)
+        flash(f"Candidate deleted: {company}", "success")
         return redirect(url_for("watch_list"))
 
     def alert_prefs_map(db_file):
