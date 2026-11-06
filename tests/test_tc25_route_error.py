@@ -28,7 +28,7 @@ def test_tc25_dashboard_query_failure_surfaces_named_error_page(db_path, monkeyp
     def broken_summary_counts(conn, today=None):
         raise AppError("ERR-query-counts", "status computation failed: fixture fault")
 
-    monkeypatch.setattr("src.app.summary_counts", broken_summary_counts)
+    monkeypatch.setattr("src.views.dashboard.summary_counts", broken_summary_counts)
     app = create_app(str(db_path))
     app.config["TESTING"] = True
     response = app.test_client().get("/")
