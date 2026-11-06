@@ -149,6 +149,30 @@ def derive_health(position, ledger_entries, today):
     return "On-going"
 
 
+def row_health_state(row, entries, today, missing_next_payout):
+    bad_amount = False
+    try:
+        invested = float(row["amount"] or 0.0)
+    except (TypeError, ValueError):
+        invested = 0.0
+        bad_amount = True
+    try:
+        health = display_label(derive_health(row, entries, today))
+        next_payout = missing_next_payout
+        if health != "Matured":
+            for key in tenure_window(row["start_date"], row["tenure_months"]):
+                if not entry_paid(entries.get(key)):
+                    next_payout = payout_date_label(key, row["credit_day"])
+                    break
+    except AppError:
+        health = "Invalid"
+        next_payout = missing_next_payout
+    if bad_amount:
+        health = "Invalid"
+        next_payout = missing_next_payout
+    return invested, health, next_payout, bad_amount
+
+
 def row_sort_key(row):
     value = _row_value(row, "health")
     if value is None:
