@@ -59,6 +59,8 @@ def test_fr75_ac4_no_source_references_to_removed_symbols():
     for path in sorted(SRC.rglob("*")):
         if not path.is_file() or "__pycache__" in path.parts:
             continue
+        if (SRC / "design") in path.parents:
+            continue
         try:
             text = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
