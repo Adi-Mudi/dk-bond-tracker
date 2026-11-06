@@ -51,7 +51,7 @@ def strip_value(strip_html, label):
 
 
 def single_strip(html):
-    match = re.search(r'<td colspan="9" class="attr-strip">(.*?)</td>', html, re.S)
+    match = re.search(r'<td colspan="10" class="attr-strip">(.*?)</td>', html, re.S)
     assert match, "holdings attribute strip missing"
     return match.group(1)
 

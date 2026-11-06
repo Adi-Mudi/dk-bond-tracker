@@ -130,6 +130,7 @@
             <tr>
               <th>Company/ISIN</th>
               <th>Rating</th>
+              <th class="num">Qty</th>
               <th>Coupon</th>
               <th>Yield</th>
               <th>Frequency</th>
@@ -142,8 +143,9 @@
           <tbody>
             {% for row in holdings %}
             <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}" data-id="{{ row.id }}" class="position-row" tabindex="0">
-              <td><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span></td>
+              <td><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
               <td>{% if row.rating %}{{ row.rating }}{% else %}&#8212;{% endif %}</td>
+              <td class="num">{% if row.qty is none %}—{% else %}{{ row.qty }}{% endif %}</td>
               <td class="money">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
               <td class="money">{% if row.yield_pct is not none %}{{ "%.1f"|format(row.yield_pct) }}%{% else %}&#8212;{% endif %}</td>
               <td>{% if row.frequency %}{{ row.frequency|capitalize }}{% else %}&#8212;{% endif %}</td>
@@ -160,10 +162,10 @@
                 {% endif %}
               </td>
             </tr>
-            <tr><td colspan="9" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
+            <tr><td colspan="10" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
             {% else %}
             <tr>
-              <td colspan="9" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
+              <td colspan="10" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -369,6 +371,8 @@
       factRow("Issuer type", data.issuer_type ? (issuerLabels[data.issuer_type] || data.issuer_type) : "") +
       factRow("Secured", securedText) +
       (data.face_value === null || data.face_value === undefined ? factRow("Face value", "") : moneyFactRow("Face value", data.face_value)) +
+      factRow("Purchase date", data.purchase_date) +
+      factRow("Quantity", data.qty) +
       factRow("Payout cycle", data.frequency ? (cycleLabels[data.frequency] || data.frequency) : "") +
       factRow("Broker", data.broker) +
       factRow("Source note", data.source_note) +

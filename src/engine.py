@@ -24,6 +24,25 @@ def payout_date_label(month, credit_day):
     return f"{day:02d} {calendar.month_abbr[int(month_number)]} {year}"
 
 
+def purchase_date_label(value):
+    if not value:
+        return None
+    try:
+        return parse_date_value(value, "purchase_date").strftime("%d %b %Y")
+    except AppError:
+        return str(value)
+
+
+def purchase_qty_value(value):
+    if value is None:
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return int(number) if number.is_integer() else number
+
+
 def month_due_passed(month, credit_day, today):
     current = month_key(today)
     if month < current:
