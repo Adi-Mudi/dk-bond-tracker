@@ -1,3 +1,6 @@
+import html.parser
+import json
+
 import pytest
 
 from src.app import create_app
@@ -117,3 +120,56 @@ def test_fr76_unknown_candidate_delete_returns_404(client, db_path):
     body = response.get_data(as_text=True)
     assert "ERR-watch-delete" in body
     assert "not found" in body
+
+
+class _DeleteFormAttrs(html.parser.HTMLParser):
+    def __init__(self, form_id):
+        super().__init__(convert_charrefs=True)
+        self._form_id = form_id
+        self.attrs = {}
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "form":
+            attributes = dict(attrs)
+            if attributes.get("id") == self._form_id:
+                self.attrs = attributes
+
+
+def render_delete_form(client, db_path, company, isin):
+    with get_conn(db_path) as conn:
+        bond_id = seed_candidate(conn, company, isin)
+
+    page = client.get("/watch").get_data(as_text=True)
+    reader = _DeleteFormAttrs(f"delete-form-{bond_id}")
+    reader.feed(page)
+    return page, reader.attrs
+
+
+def test_fr76_ac2_confirm_message_survives_apostrophe(client, db_path):
+    company = "D'Mello Finance"
+    page, attrs = render_delete_form(client, db_path, company, "INE000000076A")
+
+    handler = attrs["onsubmit"]
+    assert "return confirm(" in handler
+    assert company not in handler
+    assert json.loads(attrs["data-confirm-message"]) == (
+        f"Delete candidate {company}? This cannot be undone."
+    )
+    assert "confirm('Delete candidate" not in page
+
+
+def test_fr76_ac2_confirm_message_survives_backslash(client, db_path):
+    company = "Back\\slash Investments"
+    page, attrs = render_delete_form(client, db_path, company, "INE000000076A")
+
+    handler = attrs["onsubmit"]
+    assert "return confirm(" in handler
+    assert company not in handler
+    assert json.loads(attrs["data-confirm-message"]) == (
+        f"Delete candidate {company}? This cannot be undone."
+    )
+    assert "confirm('Delete candidate" not in page
+
+
+def test_fr76_ac2_delete_route_is_post_only(client):
+    assert client.get("/watch/1/delete").status_code == 405
