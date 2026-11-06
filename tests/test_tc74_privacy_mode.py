@@ -94,7 +94,7 @@ def test_tc74_grid_has_no_unmasked_money_and_privacy_chrome(client, db_path):
 
 def test_tc74_privacy_toggle_inline_js_and_localstorage_key_on_every_surface(client, db_path):
     seed_sample(db_path)
-    for path in ("/", "/grid", "/watch", "/add", "/notifications"):
+    for path in ("/", "/grid", "/watch", "/notifications"):
         html = client.get(path).get_data(as_text=True)
         assert 'id="privacyToggle"' in html, path
         assert "privacy_mode" in html, path

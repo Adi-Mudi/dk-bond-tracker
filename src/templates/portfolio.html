@@ -123,9 +123,6 @@
     <div id="panel-holdings" class="panel active">
       <div class="view-header">
         <h2>Position registry</h2>
-        <div class="header-actions">
-          <a class="btn btn-primary" href="#add-position">+ Add Position</a>
-        </div>
       </div>
       <div class="table-wrap">
         <table id="holdings-table">
@@ -171,97 +168,6 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
-
-      <div class="card section-gap" id="add-position">
-        <h2>Add Position</h2>
-        <form method="post" action="/portfolio">
-          <div class="form-grid">
-            <div class="field">
-              <label for="f-company">Company</label>
-              <input type="text" id="f-company" name="company" placeholder="e.g. Alpha Securities Ltd" value="{{ form.get('company', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-isin">ISIN</label>
-              <input type="text" id="f-isin" name="isin" placeholder="INE9000A01002" value="{{ form.get('isin', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-amount">Invested &#8377;</label>
-              <input type="number" id="f-amount" name="amount" step="0.01" min="0" placeholder="0.00" value="{{ form.get('amount', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-credit">Credit day — when the amount is credited each month</label>
-              <input type="number" id="f-credit" name="credit_day" min="1" max="31" value="{{ form.get('credit_day', '15') }}">
-              <p class="caption">Credit day drives day-wise alerts.</p>
-            </div>
-            <div class="field">
-              <label for="f-start">Purchase date (start date)</label>
-              <input type="date" id="f-start" name="start_date" value="{{ form.get('start_date', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-end">End date</label>
-              <input type="date" id="f-end" name="end_date" value="{{ form.get('end_date', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-tenure">Tenure (auto-calculated)</label>
-              <input type="text" id="f-tenure" readonly placeholder="auto-calculated from start and end date">
-            </div>
-            <div class="field">
-              <label for="f-rating">Rating</label>
-              <input type="text" id="f-rating" name="rating" placeholder="AA" value="{{ form.get('rating', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-rating-agency">Rating agency</label>
-              <input type="text" id="f-rating-agency" name="rating_agency" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-coupon">Coupon %</label>
-              <input type="number" id="f-coupon" name="coupon_pct" step="any" placeholder="8.5" value="{{ form.get('coupon_pct', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-yield">Expected yield %</label>
-              <input type="number" id="f-yield" name="expected_yield_pct" step="any" placeholder="9.1" value="{{ form.get('expected_yield_pct', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-cycle">Payout cycle</label>
-              <select id="f-cycle" name="payout_cycle">
-                <option value=""{% if not form.get('payout_cycle') %} selected{% endif %}>&#8212;</option>
-                <option value="monthly"{% if form.get('payout_cycle') == 'monthly' %} selected{% endif %}>Monthly</option>
-                <option value="quarterly"{% if form.get('payout_cycle') == 'quarterly' %} selected{% endif %}>Quarterly</option>
-                <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="f-issuer">Issuer type</label>
-              <select id="f-issuer" name="issuer_type">
-                <option value=""{% if not form.get('issuer_type') %} selected{% endif %}>&#8212;</option>
-                <option value="corporate_bond"{% if form.get('issuer_type') == 'corporate_bond' %} selected{% endif %}>Corporate bond</option>
-                <option value="ncd"{% if form.get('issuer_type') == 'ncd' %} selected{% endif %}>NCD</option>
-                <option value="sdi"{% if form.get('issuer_type') == 'sdi' %} selected{% endif %}>SDI</option>
-                <option value="government"{% if form.get('issuer_type') == 'government' %} selected{% endif %}>Government</option>
-                <option value="fd"{% if form.get('issuer_type') == 'fd' %} selected{% endif %}>FD</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="f-secured">Secured</label>
-              <select id="f-secured" name="secured">
-                <option value="1"{% if form.get('secured', '1') == '1' %} selected{% endif %}>Secured</option>
-                <option value="0"{% if form.get('secured') == '0' %} selected{% endif %}>Not secured</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="f-face">Face value</label>
-              <input type="number" id="f-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
-            </div>
-            <div class="field">
-              <label for="f-broker">Broker</label>
-              <input type="text" id="f-broker" name="broker" value="{{ form.get('broker', '') }}">
-            </div>
-          </div>
-          <div class="section-gap">
-            <button class="btn btn-primary" type="submit">Add Position</button>
-          </div>
-        </form>
       </div>
     </div>
     {% else %}

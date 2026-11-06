@@ -14,7 +14,7 @@ def client(db_path):
 
 ADD_LIKE_FORM = {
     "company": "Sneaky Co",
-    "isin": "INE0000000681",
+    "isin": "INE9000A0681",
     "amount": "1000",
     "start_date": "2026-11-01",
     "end_date": "2027-11-01",
@@ -86,27 +86,38 @@ def test_tc68_post_to_watch_route_creates_candidate_never_holding(client, db_pat
 
 
 def test_tc68_only_add_path_is_the_watch_list_form(client, db_path):
-    get_form = client.get("/add")
-    assert get_form.status_code == 200
-    assert 'id="add-company"' in get_form.get_data(as_text=True)
-    response = client.post("/add", data=ADD_LIKE_FORM)
-    assert response.status_code == 302
-    assert response.headers["Location"] == "/watch"
-    follow = client.get(response.headers["Location"])
-    assert follow.status_code == 200
-    html = follow.get_data(as_text=True)
-    assert "Sneaky Co" in html
-    assert "Position added: Sneaky Co" in html
-    assert current_bond_count(db_path) == 1
-    grid = client.get("/grid").get_data(as_text=True)
-    assert "Sneaky Co" in grid
-    dashboard = client.get("/").get_data(as_text=True)
-    assert "Sneaky Co" in dashboard
+    assert client.get("/add").status_code == 404
+    assert client.post("/add", data=ADD_LIKE_FORM).status_code == 404
+    assert client.post("/portfolio", data=ADD_LIKE_FORM).status_code == 405
+    watch = client.get("/watch")
+    assert watch.status_code == 200
+    html = watch.get_data(as_text=True)
+    assert 'id="add-candidate-form"' in html
+    assert 'id="add-candidate-submit"' in html
+    assert current_bond_count(db_path) == 0
 
 
 def test_tc68_tc59_new_company_rendered_on_every_surface(client, db_path):
-    response = client.post("/add", data=ADD_LIKE_FORM)
-    assert response.status_code == 302
+    created = client.post(
+        "/watch",
+        data={
+            "company": "Sneaky Co",
+            "isin": ADD_LIKE_FORM["isin"],
+            "rating": "AA",
+            "coupon_pct": "8.0",
+            "expected_yield_pct": "8.5",
+        },
+    )
+    assert created.status_code == 302
+    with get_conn(db_path) as conn:
+        new_id = conn.execute(
+            "SELECT id FROM bonds WHERE isin = ?", (ADD_LIKE_FORM["isin"],)
+        ).fetchone()["id"]
+    moved = client.post(
+        f"/watch/{new_id}/move",
+        data={"start_date": "2026-11-01", "end_date": "2027-11-01", "credit_day": "5"},
+    )
+    assert moved.status_code == 302
     assert current_bond_count(db_path) == 1
     grid = client.get("/grid").get_data(as_text=True)
     dashboard = client.get("/").get_data(as_text=True)
