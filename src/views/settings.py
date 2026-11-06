@@ -15,7 +15,7 @@ from src.views.common import (
     EMAIL_TEST_SUCCESS_MESSAGE,
     app_db,
 )
-from src.views.notifications import alert_prefs_map
+from src.prefs import alert_prefs_map
 
 bp = Blueprint("settings", __name__)
 
