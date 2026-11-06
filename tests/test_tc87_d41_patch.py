@@ -153,7 +153,7 @@ def test_tc87_broker_roundtrip_candidate_move_detail(client, db_path):
     assert row["watch_state"] == "holding"
 
 
-def test_tc87_add_position_persists_broker(client, db_path):
+def test_tc87_direct_add_route_removed(client, db_path):
     response = client.post(
         "/portfolio",
         data={
@@ -169,13 +169,12 @@ def test_tc87_add_position_persists_broker(client, db_path):
         },
         follow_redirects=False,
     )
-    assert response.status_code == 302
+    assert response.status_code == 405
     with get_conn(db_path) as conn:
-        bond_id = conn.execute(
+        row = conn.execute(
             "SELECT id FROM bonds WHERE isin = 'INE9000A01777'"
-        ).fetchone()["id"]
-    detail = client.get(f"/portfolio/{bond_id}/detail").get_json()
-    assert detail["broker"] == "ICICI Direct"
+        ).fetchone()
+    assert row is None
 
 
 def test_tc87_move_without_broker_keeps_candidate_broker(client, db_path):
@@ -197,16 +196,14 @@ def test_tc87_move_without_broker_keeps_candidate_broker(client, db_path):
     assert row["broker"] == "Kotak Securities"
 
 
-def test_tc87_labels_present_on_watch_and_portfolio(client):
+def test_tc87_labels_present_on_watch_moves(client):
     watch_post(client)
     watch_html = client.get("/watch").get_data(as_text=True)
     assert "Purchase date (start date)" in watch_html
     assert "End date" in watch_html
     assert "Credit day — when the amount is credited each month" in watch_html
     portfolio_html = client.get("/portfolio").get_data(as_text=True)
-    assert "Purchase date (start date)" in portfolio_html
-    assert "End date" in portfolio_html
-    assert "Credit day — when the amount is credited each month" in portfolio_html
+    assert 'id="add-position"' not in portfolio_html
 
 
 def test_tc87_watchlist_has_broker_column_before_source_note(client):
@@ -271,42 +268,39 @@ def test_tc87_f221_non_numeric_amount_surfaces_stay_200_invalid_row(client, db_p
     assert detail["invested"] == 0.0
 
 
-def test_tc87_f222_portfolio_add_percent_empty_rejected_zero_rows(client, db_path):
+def test_tc87_f222_watch_percent_empty_rejected_zero_rows(client, db_path):
     base = {
-        "amount": "50000",
-        "credit_day": "15",
-        "start_date": "2026-10-01",
-        "end_date": "2027-03-31",
+        "rating": "AA",
         "coupon_pct": "7.5",
         "expected_yield_pct": "8.0",
     }
     empty_coupon = dict(
-        base, company="Pct Co One", isin="INE9000A01661", coupon_pct=""
+        base, company="Pct Co One", isin="INE9000A0661", coupon_pct=""
     )
-    response = client.post("/portfolio", data=empty_coupon, follow_redirects=False)
+    response = client.post("/watch", data=empty_coupon, follow_redirects=False)
     assert response.status_code == 400
-    assert "coupon_pct is required" in response.get_data(as_text=True)
+    assert "coupon is required" in response.get_data(as_text=True)
     empty_yield = dict(
-        base, company="Pct Co Two", isin="INE9000A01662", expected_yield_pct=""
+        base, company="Pct Co Two", isin="INE9000A0662", expected_yield_pct=""
     )
-    response = client.post("/portfolio", data=empty_yield, follow_redirects=False)
+    response = client.post("/watch", data=empty_yield, follow_redirects=False)
     assert response.status_code == 400
-    assert "expected_yield_pct is required" in response.get_data(as_text=True)
+    assert "est yield is required" in response.get_data(as_text=True)
     with get_conn(db_path) as conn:
         count = conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
     assert count == 0
     zeros = dict(
         base,
         company="Pct Co Zero",
-        isin="INE9000A01663",
+        isin="INE9000A0663",
         coupon_pct="0.00",
         expected_yield_pct="0.00",
     )
-    response = client.post("/portfolio", data=zeros, follow_redirects=False)
+    response = client.post("/watch", data=zeros, follow_redirects=False)
     assert response.status_code == 302
     with get_conn(db_path) as conn:
         row = conn.execute(
-            "SELECT coupon_pct, expected_yield_pct FROM bonds WHERE isin = 'INE9000A01663'"
+            "SELECT coupon_pct, expected_yield_pct FROM bonds WHERE isin = 'INE9000A0663'"
         ).fetchone()
     assert row["coupon_pct"] == 0.0
     assert row["expected_yield_pct"] == 0.0
@@ -346,35 +340,30 @@ def test_tc87_f224a_payouts_invalid_row_shows_remove_and_post_works(client, db_p
     assert row is None
 
 
-def test_tc87_f225_blank_broker_stores_null_on_both_insert_paths(client, db_path):
+def test_tc87_f225_blank_broker_stores_null_on_watch_and_move_paths(client, db_path):
     response = watch_post(client, broker="   ")
     assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        candidate_id = conn.execute(
+            "SELECT id FROM bonds WHERE isin = 'INE9000A0100'"
+        ).fetchone()["id"]
     response = client.post(
-        "/portfolio",
+        f"/watch/{candidate_id}/move",
         data={
-            "company": "Blank Brk Co",
-            "isin": "INE9000A01997",
-            "amount": "50000",
-            "credit_day": "15",
             "start_date": "2026-10-01",
             "end_date": "2027-03-31",
-            "coupon_pct": "7.5",
-            "expected_yield_pct": "8.0",
+            "credit_day": "5",
             "broker": "  ",
         },
         follow_redirects=False,
     )
     assert response.status_code == 302
     with get_conn(db_path) as conn:
-        total = conn.execute(
-            "SELECT COUNT(*) AS n FROM bonds WHERE isin IN ('INE9000A0100', 'INE9000A01997')"
-        ).fetchone()["n"]
-        nulls = conn.execute(
-            "SELECT COUNT(*) AS n FROM bonds WHERE broker IS NULL "
-            "AND isin IN ('INE9000A0100', 'INE9000A01997')"
-        ).fetchone()["n"]
-    assert total == 2
-    assert nulls == 2
+        row = conn.execute(
+            "SELECT broker, watch_state FROM bonds WHERE id = ?", (candidate_id,)
+        ).fetchone()
+    assert row["broker"] is None
+    assert row["watch_state"] == "holding"
 
 
 def test_tc87_amount_fault_dashboard_note_and_removable(client, db_path):
