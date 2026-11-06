@@ -22,6 +22,7 @@
   .facts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px; }
   .fact-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
   .fact-value { font-size: 14px; }
+  .inline-form { display: inline; }
 </style>
 {% endblock %}
 {% block content %}
@@ -152,7 +153,12 @@
         <td class="caption">{{ candidate.broker or "" }}</td>
         <td class="caption">{{ candidate.source_note or "" }}</td>
         <td><button type="button" class="btn btn-sm details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
-        <td><button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button></td>
+        <td>
+          <button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button>
+          <form class="inline-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" onsubmit="return confirm('Delete candidate {{ candidate.company }}? This cannot be undone.');">
+            <button class="btn btn-sm" type="submit" id="delete-candidate-{{ candidate.id }}">Delete</button>
+          </form>
+        </td>
       </tr>
       <tr class="details-row" id="details-{{ candidate.id }}" hidden>
         <td colspan="8">{{ details_facts(candidate) }}</td>
