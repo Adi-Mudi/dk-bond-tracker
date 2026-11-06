@@ -286,43 +286,67 @@ def test_tc139_136_credit_day_31_accepted_on_current_schema(client, db_path):
     assert re.search(r"credit_day\s*<=\s*31", schema)
     with get_conn(db_path) as conn:
         before = conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
-    ok = client.post(
-        "/portfolio",
+    create_ok = client.post(
+        "/watch",
         data={
             "company": "ThirtyOneCo",
-            "isin": "INE00000013A3",
-            "amount": "100000",
+            "isin": "INE9000A0131",
+            "rating": "AA",
+            "coupon_pct": "9.5",
+            "expected_yield_pct": "10.5",
+        },
+    )
+    assert create_ok.status_code == 302
+    create_bad = client.post(
+        "/watch",
+        data={
+            "company": "BadDayCo",
+            "isin": "INE9000A0132",
+            "rating": "AA",
+            "coupon_pct": "9.5",
+            "expected_yield_pct": "10.5",
+        },
+    )
+    assert create_bad.status_code == 302
+    with get_conn(db_path) as conn:
+        ok_id = conn.execute(
+            "SELECT id FROM bonds WHERE isin = 'INE9000A0131'"
+        ).fetchone()["id"]
+        bad_id = conn.execute(
+            "SELECT id FROM bonds WHERE isin = 'INE9000A0132'"
+        ).fetchone()["id"]
+    ok = client.post(
+        f"/watch/{ok_id}/move",
+        data={
             "start_date": "2026-11-01",
             "end_date": "2027-04-01",
             "credit_day": "31",
-            "coupon_pct": "9.5",
-            "expected_yield_pct": "10.5",
         },
     )
     assert ok.status_code == 302
     with get_conn(db_path) as conn:
         row = conn.execute(
-            "SELECT credit_day FROM bonds WHERE isin = 'INE00000013A3'"
+            "SELECT credit_day FROM bonds WHERE isin = 'INE9000A0131'"
         ).fetchone()
     assert row is not None and row["credit_day"] == 31
     for bad in ("0", "32"):
         response = client.post(
-            "/portfolio",
+            f"/watch/{bad_id}/move",
             data={
-                "company": "BadDayCo",
-                "isin": "INE00000013A4",
-                "amount": "100000",
                 "start_date": "2026-11-01",
                 "end_date": "2027-04-01",
                 "credit_day": bad,
-                "coupon_pct": "9.5",
-                "expected_yield_pct": "10.5",
             },
         )
         assert response.status_code == 400
     with get_conn(db_path) as conn:
         after = conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
-    assert after == before + 1
+        bad_row = conn.execute(
+            "SELECT credit_day, watch_state FROM bonds WHERE id = ?", (bad_id,)
+        ).fetchone()
+    assert after == before + 2
+    assert bad_row["credit_day"] is None
+    assert bad_row["watch_state"] == "watching"
 
 
 def test_tc139_136_legacy_check_migrates_in_place(tmp_path):
