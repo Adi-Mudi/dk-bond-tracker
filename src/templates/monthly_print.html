@@ -1,3 +1,4 @@
+{% from "_macros.html" import money %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,13 +220,6 @@
 </style>
 </head>
 <body{% if privacy %} class="privacy-on"{% endif %}>
-{% macro money(value) -%}
-{%- if privacy -%}
-<span class="money">••••</span>
-{%- else -%}
-<span class="money" data-amount="{{ "%.2f"|format(value) }}">₹{{ "%.2f"|format(value) }}</span>
-{%- endif -%}
-{%- endmacro %}
 <div class="screen-chrome">
   <h1>Monthly Print — A4 statement</h1>
   <p>Dedicated print-optimized statement (D25 / FR-37): month header, portfolio summary, this-month payment table, status list, alerts footer. Figures computed live at render time.</p>
@@ -257,22 +251,22 @@
       </div>
       <div class="card">
         <div class="k">Total investment</div>
-        <div class="v">{{ money(summary.total_investment) }}</div>
+        <div class="v">{{ money(summary.total_investment, privacy=privacy) }}</div>
         <div class="note">Sum of principal</div>
       </div>
       <div class="card">
         <div class="k">Till return</div>
-        <div class="v">{{ money(summary.till_return) }}</div>
+        <div class="v">{{ money(summary.till_return, privacy=privacy) }}</div>
         <div class="note">Sum of paid ledger rows</div>
       </div>
       <div class="card danger-side">
         <div class="k">Balance</div>
-        <div class="v">{{ money(summary.balance) }}</div>
+        <div class="v">{{ money(summary.balance, privacy=privacy) }}</div>
         <div class="note">Till return − maturity total</div>
       </div>
       <div class="card received">
         <div class="k">This-month received</div>
-        <div class="v">{{ money(summary.this_month) }}</div>
+        <div class="v">{{ money(summary.this_month, privacy=privacy) }}</div>
         <div class="note">Paid credits, {{ header.month_label }}</div>
       </div>
     </div>
@@ -299,7 +293,7 @@
           <td>{{ row.isin }}</td>
           <td class="day">{{ row.credit_day }}</td>
           <td>{{ row.due_date }}</td>
-          <td class="num">{{ money(row.amount) }}</td>
+          <td class="num">{{ money(row.amount, privacy=privacy) }}</td>
           <td><span class="mark">{{ row.mark }}</span> {{ row.status }} — {{ notes[row.status] }}</td>
         </tr>
         {% else %}
