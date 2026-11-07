@@ -281,11 +281,16 @@ _CSV_RENDERERS = {
 }
 
 
-def build_share_snapshot(conn, sections, include_amounts, privacy_on=False):
+def _prepare_share(conn, sections, include_amounts, privacy_on):
     selected = _selected_sections(sections)
     show = bool(include_amounts) and not bool(privacy_on)
+    data = {key: _load_section(conn, key) for key in selected}
+    return selected, show, data
+
+
+def build_share_snapshot(conn, sections, include_amounts, privacy_on=False):
     try:
-        data = {key: _load_section(conn, key) for key in selected}
+        selected, show, data = _prepare_share(conn, sections, include_amounts, privacy_on)
         return _render_snapshot_html(selected, data, show)
     except AppError:
         raise
@@ -294,10 +299,8 @@ def build_share_snapshot(conn, sections, include_amounts, privacy_on=False):
 
 
 def share_csv(conn, sections, include_amounts=True, privacy_on=False):
-    selected = _selected_sections(sections)
-    show = bool(include_amounts) and not bool(privacy_on)
     try:
-        data = {key: _load_section(conn, key) for key in selected}
+        selected, show, data = _prepare_share(conn, sections, include_amounts, privacy_on)
         records = []
         for key in selected:
             records.extend(_CSV_RENDERERS[key](data[key], show))
