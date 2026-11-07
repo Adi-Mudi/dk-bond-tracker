@@ -22,6 +22,9 @@ bp = Blueprint("watch", __name__)
 
 ISIN_PATTERN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 
+WATCH_ISSUER_TYPES = ("corporate_bond", "ncd", "sdi", "government", "fd")
+WATCH_PAYOUT_CYCLES = ("monthly", "quarterly", "annual")
+
 
 def watch_candidates(db_file):
     with get_conn(db_file) as conn:
@@ -49,106 +52,116 @@ def watch_percent(raw, field):
     return percent_value(raw, field, "ERR-watch-add")
 
 
+def watch_form_values(form):
+    company = str(form.get("company", "")).strip()
+    isin = str(form.get("isin", "")).strip().upper()
+    rating = str(form.get("rating", "")).strip()
+    source_note = str(form.get("source_note", "")).strip()
+    broker = str(form.get("broker", "")).strip() or None
+    coupon = watch_percent(form.get("coupon_pct", ""), "coupon")
+    est_yield = watch_percent(form.get("expected_yield_pct", ""), "est yield")
+    if not company:
+        raise AppError("ERR-watch-add", "company is required")
+    if not isin:
+        raise AppError("ERR-watch-add", "ISIN is required")
+    if not ISIN_PATTERN.match(isin):
+        raise AppError(
+            "ERR-watch-add",
+            f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A01001)",
+        )
+    if not rating:
+        raise AppError("ERR-watch-add", "rating is required")
+    rating_agency = str(form.get("rating_agency", "")).strip() or None
+    issuer_type = str(form.get("issuer_type", "")).strip() or None
+    if issuer_type is not None and issuer_type not in WATCH_ISSUER_TYPES:
+        raise AppError(
+            "ERR-watch-add",
+            f"issuer_type must be one of corporate_bond, ncd, sdi, "
+            f"government, fd: {issuer_type!r}",
+        )
+    payout_cycle = str(form.get("payout_cycle", "")).strip() or None
+    if payout_cycle is not None and payout_cycle not in WATCH_PAYOUT_CYCLES:
+        raise AppError(
+            "ERR-watch-add",
+            f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
+        )
+    secured = 1 if str(form.get("secured", "1")) == "1" else 0
+    face_value = percent_value(
+        form.get("face_value", ""), "face_value", "ERR-watch-add", required=False
+    )
+    watch_investment = percent_value(
+        form.get("watch_investment", ""),
+        "watch_investment",
+        "ERR-watch-add",
+        required=False,
+    )
+    qty_raw = str(form.get("qty", "")).strip()
+    qty = validate_positive_int(qty_raw, "qty", "ERR-watch-add") if qty_raw else None
+    return {
+        "company": company,
+        "isin": isin,
+        "rating": rating,
+        "source_note": source_note,
+        "broker": broker,
+        "coupon": coupon,
+        "est_yield": est_yield,
+        "rating_agency": rating_agency,
+        "issuer_type": issuer_type,
+        "payout_cycle": payout_cycle,
+        "secured": secured,
+        "face_value": face_value,
+        "watch_investment": watch_investment,
+        "qty": qty,
+    }
+
+
+def watch_insert_candidate(conn, values):
+    duplicate = conn.execute(
+        "SELECT company, isin, watch_state FROM bonds "
+        "WHERE lower(trim(company)) = lower(?) OR upper(trim(isin)) = upper(?)",
+        (values["company"], values["isin"]),
+    ).fetchone()
+    if duplicate is not None:
+        raise AppError(
+            "ERR-watch-dup",
+            f"duplicate candidate rejected: {duplicate['company']} "
+            f"({duplicate['isin']}) already exists as {duplicate['watch_state']}",
+        )
+    cursor = conn.execute(
+        "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
+        "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
+        "secured, face_value, payout_cycle, qty, watch_investment) "
+        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            values["company"],
+            values["isin"],
+            values["source_note"],
+            values["rating"],
+            values["coupon"],
+            values["est_yield"],
+            values["broker"],
+            values["rating_agency"],
+            values["issuer_type"],
+            values["secured"],
+            values["face_value"],
+            values["payout_cycle"],
+            values["qty"],
+            values["watch_investment"],
+        ),
+    )
+    if cursor.rowcount != 1:
+        raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
+
+
 @bp.route("/watch", methods=["GET", "POST"])
 def watch_list():
     db_file = app_db()
     if request.method == "POST":
         form = request.form
-        company = str(form.get("company", "")).strip()
-        isin = str(form.get("isin", "")).strip().upper()
-        rating = str(form.get("rating", "")).strip()
-        source_note = str(form.get("source_note", "")).strip()
-        broker = str(form.get("broker", "")).strip() or None
         try:
-            coupon = watch_percent(form.get("coupon_pct", ""), "coupon")
-            est_yield = watch_percent(form.get("expected_yield_pct", ""), "est yield")
-            if not company:
-                raise AppError("ERR-watch-add", "company is required")
-            if not isin:
-                raise AppError("ERR-watch-add", "ISIN is required")
-            if not ISIN_PATTERN.match(isin):
-                raise AppError(
-                    "ERR-watch-add",
-                    f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A01001)",
-                )
-            if not rating:
-                raise AppError("ERR-watch-add", "rating is required")
-            rating_agency = str(form.get("rating_agency", "")).strip() or None
-            issuer_type = str(form.get("issuer_type", "")).strip() or None
-            if issuer_type is not None and issuer_type not in (
-                "corporate_bond",
-                "ncd",
-                "sdi",
-                "government",
-                "fd",
-            ):
-                raise AppError(
-                    "ERR-watch-add",
-                    f"issuer_type must be one of corporate_bond, ncd, sdi, "
-                    f"government, fd: {issuer_type!r}",
-                )
-            payout_cycle = str(form.get("payout_cycle", "")).strip() or None
-            if payout_cycle is not None and payout_cycle not in (
-                "monthly",
-                "quarterly",
-                "annual",
-            ):
-                raise AppError(
-                    "ERR-watch-add",
-                    f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
-                )
-            secured = 1 if str(form.get("secured", "1")) == "1" else 0
-            face_value = percent_value(
-                form.get("face_value", ""), "face_value", "ERR-watch-add", required=False
-            )
-            watch_investment = percent_value(
-                form.get("watch_investment", ""),
-                "watch_investment",
-                "ERR-watch-add",
-                required=False,
-            )
-            qty_raw = str(form.get("qty", "")).strip()
-            qty = (
-                validate_positive_int(qty_raw, "qty", "ERR-watch-add")
-                if qty_raw
-                else None
-            )
+            values = watch_form_values(form)
             with get_conn(db_file) as conn:
-                duplicate = conn.execute(
-                    "SELECT company, isin, watch_state FROM bonds "
-                    "WHERE lower(trim(company)) = lower(?) OR upper(trim(isin)) = upper(?)",
-                    (company, isin),
-                ).fetchone()
-                if duplicate is not None:
-                    raise AppError(
-                        "ERR-watch-dup",
-                        f"duplicate candidate rejected: {duplicate['company']} "
-                        f"({duplicate['isin']}) already exists as {duplicate['watch_state']}",
-                    )
-                cursor = conn.execute(
-                    "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
-                    "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
-                    "secured, face_value, payout_cycle, qty, watch_investment) "
-                    "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (
-                        company,
-                        isin,
-                        source_note,
-                        rating,
-                        coupon,
-                        est_yield,
-                        broker,
-                        rating_agency,
-                        issuer_type,
-                        secured,
-                        face_value,
-                        payout_cycle,
-                        qty,
-                        watch_investment,
-                    ),
-                )
-                if cursor.rowcount != 1:
-                    raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
+                watch_insert_candidate(conn, values)
         except AppError as exc:
             return (
                 render_template(
@@ -161,7 +174,7 @@ def watch_list():
                 ),
                 409 if exc.code == "ERR-watch-dup" else 400,
             )
-        flash(f"Candidate added: {company}", "success")
+        flash(f"Candidate added: {values['company']}", "success")
         return redirect(url_for("watch.watch_list"))
     try:
         candidates = watch_candidates(db_file)

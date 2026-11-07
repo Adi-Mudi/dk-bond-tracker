@@ -79,7 +79,7 @@ def portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
     return sort_rows(holdings)
 
 
-def portfolio_payouts(bond_rows, ledger_by_bond, today):
+def payout_prepare(bond_rows, ledger_by_bond, today):
     prepared = []
     first_keys = []
     for row in bond_rows:
@@ -97,6 +97,10 @@ def portfolio_payouts(bond_rows, ledger_by_bond, today):
             )
         except AppError:
             prepared.append((row, [], entries, "Invalid", True))
+    return prepared, first_keys
+
+
+def payout_months(today, first_keys):
     current_key = month_key(today)
     months = [
         key
@@ -104,39 +108,52 @@ def portfolio_payouts(bond_rows, ledger_by_bond, today):
         if key <= current_key
     ]
     months.reverse()
+    return months
+
+
+def payout_invalid_cells(months):
+    cells = []
+    for index, _key in enumerate(months):
+        if index == 0:
+            cells.append({"kind": "chip", "text": "Invalid", "chip": "chip-invalid"})
+        else:
+            cells.append({"kind": "text", "text": "—"})
+    return cells
+
+
+def payout_cell(key, window_set, entry, health, credit_day, today):
+    if health == "Matured":
+        return {"kind": "matured"}
+    if key not in window_set:
+        return {"kind": "text", "text": "—"}
+    if entry_paid(entry):
+        return {"kind": "received", "month": key, "amount": safe_float(entry["amount"])}
+    amount_value = 0.0
+    if entry is not None:
+        amount_value = safe_float(entry["amount"])
+    if amount_value > 0:
+        return {"kind": "pending", "month": key, "amount": amount_value}
+    if month_due_passed(key, credit_day, today):
+        return {"kind": "missed", "month": key}
+    return {"kind": "pending", "month": key, "amount": None}
+
+
+def payout_row_cells(row, months, window, entries, health, invalid, today):
+    if invalid:
+        return payout_invalid_cells(months)
+    window_set = set(window)
+    return [
+        payout_cell(key, window_set, entries.get(key), health, row["credit_day"], today)
+        for key in months
+    ]
+
+
+def portfolio_payouts(bond_rows, ledger_by_bond, today):
+    prepared, first_keys = payout_prepare(bond_rows, ledger_by_bond, today)
+    months = payout_months(today, first_keys)
     rows = []
     for row, window, entries, health, invalid in prepared:
-        window_set = set(window)
-        cells = []
-        if invalid:
-            for index, _key in enumerate(months):
-                if index == 0:
-                    cells.append({"kind": "chip", "text": "Invalid", "chip": "chip-invalid"})
-                else:
-                    cells.append({"kind": "text", "text": "—"})
-        else:
-            for key in months:
-                entry = entries.get(key)
-                if health == "Matured":
-                    cells.append({"kind": "matured"})
-                    continue
-                if key not in window_set:
-                    cells.append({"kind": "text", "text": "—"})
-                    continue
-                if entry_paid(entry):
-                    cells.append(
-                        {"kind": "received", "month": key, "amount": safe_float(entry["amount"])}
-                    )
-                    continue
-                amount_value = 0.0
-                if entry is not None:
-                    amount_value = safe_float(entry["amount"])
-                if amount_value > 0:
-                    cells.append({"kind": "pending", "month": key, "amount": amount_value})
-                elif month_due_passed(key, row["credit_day"], today):
-                    cells.append({"kind": "missed", "month": key})
-                else:
-                    cells.append({"kind": "pending", "month": key, "amount": None})
+        cells = payout_row_cells(row, months, window, entries, health, invalid, today)
         rows.append(
             {
                 "id": row["id"],
