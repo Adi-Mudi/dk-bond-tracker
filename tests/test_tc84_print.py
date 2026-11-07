@@ -153,9 +153,9 @@ def test_tc84_privacy_off_shows_real_amounts(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
     assert "privacy-on" not in html.split("<body", 1)[1].split(">", 1)[0]
-    assert "₹180000.00" in html
+    assert "&#8377;180000.00" in html
     assert 'data-amount="180000.00"' in html
-    assert "₹900.00" in html
+    assert "&#8377;900.00" in html
     assert "••••" in html
 
 
