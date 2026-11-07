@@ -31,20 +31,30 @@ def goals_error_page(db_file, exc, form, today):
     )
 
 
+def _goal_form_fields(form):
+    return (
+        form.get("name", ""),
+        form.get("target_amount", ""),
+        form.get("target_end_date", ""),
+        form.get("saved_amount", ""),
+    )
+
+
 @bp.route("/goals", methods=["GET", "POST"])
 def goals_page():
     db_file = app_db()
     today = date.today()
     if request.method == "POST":
         try:
+            name, target_amount, target_end_date, saved_amount = _goal_form_fields(request.form)
             with get_conn(db_file) as conn:
                 add_goal(
                     conn,
-                    request.form.get("name", ""),
-                    request.form.get("target_amount", ""),
-                    request.form.get("target_end_date", ""),
+                    name,
+                    target_amount,
+                    target_end_date,
                     request.form.get("note", ""),
-                    request.form.get("saved_amount", ""),
+                    saved_amount,
                 )
         except AppError as exc:
             return goals_error_page(db_file, exc, request.form, today)
@@ -72,14 +82,15 @@ def goals_page():
 def goals_edit(goal_id):
     db_file = app_db()
     try:
+        name, target_amount, target_end_date, saved_amount = _goal_form_fields(request.form)
         with get_conn(db_file) as conn:
             update_goal(
                 conn,
                 goal_id,
-                request.form.get("name", ""),
-                request.form.get("target_amount", ""),
-                request.form.get("target_end_date", ""),
-                request.form.get("saved_amount", ""),
+                name,
+                target_amount,
+                target_end_date,
+                saved_amount,
             )
     except AppError as exc:
         return goals_error_page(db_file, exc, request.form, date.today())
