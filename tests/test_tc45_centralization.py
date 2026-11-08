@@ -10,7 +10,7 @@ AGG_TOKENS = ("SUM(", "SELECT COUNT", "GROUP BY", "JOIN")
 
 
 def python_sources():
-    return sorted(SRC.glob("*.py"))
+    return sorted(SRC.rglob("*.py"))
 
 
 def test_status_logic_defined_only_in_status_module():
@@ -28,17 +28,20 @@ def test_status_logic_defined_only_in_status_module():
 
 
 def test_status_imports_not_redefined_in_callers():
-    for caller in ("queries.py", "views/dashboard.py"):
-        text = (SRC / caller).read_text(encoding="utf-8")
-        assert "compute_row_status_daywise" in text
-        assert "def compute_row_status" not in text
+    callers = [*sorted((SRC / "queries").glob("*.py")), SRC / "views" / "dashboard.py"]
+    for path in callers:
+        assert "def compute_row_status" not in path.read_text(encoding="utf-8")
+    dashboard_text = (SRC / "views" / "dashboard.py").read_text(encoding="utf-8")
+    assert "compute_row_status_daywise" in dashboard_text
+    summary_text = (SRC / "queries" / "summary.py").read_text(encoding="utf-8")
+    assert "compute_row_status_daywise" in summary_text
 
 
 def test_sum_aggregation_only_in_allowed_modules():
     offenders = []
     for path in python_sources():
         text = path.read_text(encoding="utf-8")
-        if "SUM(" in text and path.name not in SUM_ALLOWED:
+        if "SUM(" in text and path.name not in SUM_ALLOWED and (SRC / "queries") not in path.parents:
             offenders.append(path.name)
     for path in sorted(TEMPLATES.glob("*.html")):
         if "SUM(" in path.read_text(encoding="utf-8"):
@@ -47,8 +50,11 @@ def test_sum_aggregation_only_in_allowed_modules():
 
 
 def test_sum_actually_lives_in_query_modules():
-    queries_text = (SRC / "queries.py").read_text(encoding="utf-8")
-    assert "SUM(" in queries_text
+    package_texts = [
+        path.read_text(encoding="utf-8")
+        for path in sorted((SRC / "queries").glob("*.py"))
+    ]
+    assert any("SUM(" in text for text in package_texts)
 
 
 def test_app_py_has_no_aggregation_or_join_sql():
