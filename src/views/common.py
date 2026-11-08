@@ -36,12 +36,4 @@ def error_page(code, message, title, status):
 
 
 def entry_guard():
-    return (
-        render_template(
-            "error.html",
-            code="ERR-entry-guard",
-            message=ENTRY_GUARD_MESSAGE,
-            title="Add position rejected",
-        ),
-        403,
-    )
+    return error_page("ERR-entry-guard", ENTRY_GUARD_MESSAGE, "Add position rejected", 403)
