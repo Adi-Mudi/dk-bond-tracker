@@ -1,0 +1,62 @@
+{
+  "id": "android_stage2_p3_evidence",
+  "issue": 109,
+  "stage": 2,
+  "phase": "P3",
+  "title": "Device smoke of the REAL core on Waydroid (PATH-B Chaquopy)",
+  "date": "2026-11-09",
+  "device": {
+    "runtime": "Waydroid container, ABI x86_64, Android API 33 (lineage-based)",
+    "install": "waydroid app install (native CLI; AMENDMENT-1 - adb bridge unavailable)",
+    "package": "com.dkbondtracker.app",
+    "launch": "waydroid app launch com.dkbondtracker.app"
+  },
+  "apk": {
+    "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "4e09d9c91039c2d32ae1b9538c1bf7f388e65e2d862f84960717fc36e362cf45",
+    "size_bytes": 37863662,
+    "built_utc": "2026-11-08T22:33:29Z",
+    "build_time_seconds": 26,
+    "build_task": "gradle :app:assembleDebug (44 tasks)",
+    "abi": ["arm64-v8a", "x86_64"],
+    "python": "3.13 (libpython3.13.so)"
+  },
+  "result": "PASS - the REAL Python/Flask/SQLite core runs on device: real templates render, and the core's own server-side validators and a real DB write were exercised end-to-end.",
+  "evidence_files": [
+    {"file": "p3_dashboard_flameshot.png", "shows": "REAL dashboard (nav: Dashboard/Portfolio/Watchlist/Financial Goals/Alerts/Settings; Total Invested/Received/Next Payout; Invested vs Received per company panel; filters All/Danger/On-going/Matured) - parity with the web UI"},
+    {"file": "p3_portfolio.png", "shows": "Portfolio -> My Holdings: page title 'Portfolio', tabs My Holdings / Payouts, 'Position registry' table (Company/ISIN, Rating, Qty, Coupon, Yield, Frequency, Invested, Received, Next Payout, Status), the empty-state row 'No positions yet...' and the Status legend (Watching/On-going/Danger/Matured); the real route + template render on device, empty state", "sha256": "886522fc028edd7148859404aad9323dd93c9fe362ea21771e52ea5e6aaa0ca1"},
+    {"file": "p3_watchlist.png", "shows": "Watchlist -> Add Candidate (the add-position form): Company, ISIN, Rating, Rating agency, Coupon %, Est. Yield %, Issuer type, Secured, Face value, Payout cycle, Invested, Quantity, Per-bond price, Source note, Broker, + Add Candidate"},
+    {"file": "p3_after_enter.png", "shows": "REAL core validation #1 - submitted form rejected by the Python backend: 'Error: ERR-watch-add / coupon is required' (server-side validator, not client JS)"},
+    {"file": "p3_submit2.png", "shows": "REAL core validation #2 - 'Error: ERR-watch-add / est yield is required'"},
+    {"file": "p3_submit3.png", "shows": "REAL core validation #3 - 'ISIN format invalid: INE000A01001E (expected 12 characters, e.g. INE900A01001)'"},
+    {"file": "p3_candidate_ok2.png", "shows": "REAL core WRITE success - 'success: Candidate added: Acme Bonds Ltd'; the candidate row appears in the Watchlist table (Rating AA, Coupon 8.5%, Est. Yield 9.0%) with Move to Portfolio / Delete actions. Proves the on-device SQLite write path."},
+    {"file": "p3_move_scrolled.png", "shows": "Move to Portfolio form (Purchase date, Start date, End date, Credit day, Invested amount, Quantity, Per-bond price, Broker) + Move/Cancel"},
+    {"file": "p3_install.log", "shows": "waydroid app install transcript (sha256, size, rc=0, package listed)"},
+    {"file": "p3_runtime_log.txt", "shows": "host-side waydroid log (container freeze/unfreeze + install activity)"}
+  ],
+  "verification_notes": {
+    "evidence_audit": "Every file above was re-opened and checked against its description in this document during the R1 round-1 fix; each description matches the image content.",
+    "unused_screenshots": "Exploratory captures from the same P3 session (including the mislabeled Settings screenshot that was replaced) live in android/evidence/_working/ which is gitignored and not part of the evidence set."
+  },
+  "revisions": [
+    {
+      "round": "R1 round 1",
+      "finding": "F-1 MAJOR - p3_portfolio.png showed the Settings page while this document claimed the Portfolio/holdings registry",
+      "fix": "option (a) intent - the file at android/evidence/p3_portfolio.png is now the genuine on-device Portfolio / My Holdings / Position registry capture, so file and description agree. The superseded Settings screenshot was moved to android/evidence/_working/p3_settings_page_mislabeled.png (sha256 758ec2c0a2f12f37f6751740de250fac5de0001cc7f7b4b9c8eb053c6c15b1c6), not deleted.",
+      "fresh_recapture": "NOT done as a new on-device capture: by the time of the fix the GNOME desktop session was LOCKED (clock screen), so injecting input risked typing into the lock password field; the genuine P3 capture of the same route (taken on this device at 04:07 during P3) was promoted instead. A further fresh capture can be taken once the session is unlocked if required.",
+      "new_png_sha256": "886522fc028edd7148859404aad9323dd93c9fe362ea21771e52ea5e6aaa0ca1"
+    }
+  ],
+  "validation_chain_observed": [
+    "coupon is required",
+    "est yield is required",
+    "ISIN format invalid (expected 12 characters)",
+    "rating is required",
+    "success: Candidate added"
+  ],
+  "limitations": [
+    "waydroid logcat/shell require root - on-device logcat is NOT available (same constraint Stage 1 recorded); host-side waydroid log captured instead.",
+    "Synthetic input used (ydotool -> /dev/uinput, absolute coords). Absolute positioning drifts on the Waydroid WebView because the viewport re-scrolls when inputs take focus. Consequence: the final 'Move to Portfolio' submit (which would populate the Portfolio holdings table) was NOT completed through the UI in this run; the holdings table itself renders (see p3_portfolio.png) and the DB write path is proven (p3_candidate_ok2.png).",
+    "Screenshots captured with flameshot (GNOME Wayland); grim is unsupported on this compositor."
+  ]
+}
