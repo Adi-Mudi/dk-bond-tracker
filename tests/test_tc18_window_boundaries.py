@@ -73,9 +73,9 @@ def test_tc18_status_scan_for_feb2031_bond_uses_same_rules(db_path):
 
 def test_tc18_derivation_sources_contain_no_hardcoded_window():
     texts = [
-        (SRC / "queries.py").read_text(encoding="utf-8"),
-        (SRC / "app.py").read_text(encoding="utf-8"),
-    ]
+        path.read_text(encoding="utf-8")
+        for path in sorted((SRC / "queries").glob("*.py"))
+    ] + [(SRC / "app.py").read_text(encoding="utf-8")]
     for text in texts:
         assert "2027" not in text
         assert "2031" not in text
