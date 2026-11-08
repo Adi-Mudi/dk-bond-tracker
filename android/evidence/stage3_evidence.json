@@ -1,0 +1,89 @@
+{
+  "id": "android_stage3_p3_evidence",
+  "issue": 109,
+  "stage": 3,
+  "phase": "P3",
+  "title": "Mobile UI pass — before/after evidence at phone + desktop viewports",
+  "date": "2026-11-09",
+  "design_skills_consulted": {
+    "source": ".agents/skills/ (D5)",
+    "used": [
+      "frontend-design — restraint; responsive down to mobile is a quality floor; spend boldness once; do not decorate",
+      "ui-styling — mobile-first responsive; max-width queries; accessible touch targets; use design tokens",
+      "design-system — reuse the existing semantic CSS variables; never hardcode raw hex"
+    ],
+    "chosen_patterns": [
+      "max-width media queries at 768px (mobile) with a 640-768px refinement band; desktop >=769px untouched",
+      "sidebar (fixed 220px column) -> full-width static top bar with horizontally scrollable nav",
+      "4-column form grid -> 1 column (2 columns at 640-768px)",
+      "stat cards stack full-width; view-header/header-actions wrap",
+      "wide tables keep .table-wrap horizontal scroll with a 640px min-width so columns stay readable",
+      "touch targets >=40px for buttons, nav links, tabs, check rows",
+      "reused existing tokens (--card, --border, --accent, --muted, --watching-bg...); zero new hardcoded colors"
+    ]
+  },
+  "changed_files": [
+    {"file": "src/static/theme.css", "change": "appended two responsive media-query blocks (+103 lines); every pre-existing desktop rule untouched", "sha256": "01ecccd727332c1031708a50440c8bd3e29d287735ba0ed658ce9ed1a45a5ec6", "lines_added": 103}
+  ],
+  "capture_method": {
+    "primary_intended": "on-device screenshots of the running APK on Waydroid at 390x844 (waydroid CLI per AMENDMENT-1)",
+    "used_fallback": "headless Google Chrome (CDP) rendering the real Flask app served from repo src/ at an emulated 390x844 viewport",
+    "why_fallback": "the local GNOME graphics session was LOCKED for the whole of P1-P3 (loginctl LockedHint=yes, org.gnome.ScreenSaver.GetActive=true, lock shield visible at 04:43 and 04:54). A locked screen shows only the shield, so no on-device screenshot is possible and synthetic input would type into the lock password field. This is the contingency the stage brief pre-authorised ('if session locked, capture via WebView window resize and SAY SO').",
+    "note": "the same responsive CSS is what the APK's WebView renders; the bundled asset was verified identical (see apk.bundled_theme_css_sha256)"
+  },
+  "device": {
+    "runtime": "Waydroid container, x86_64, Android API 33 (lineage-based)",
+    "session": "RUNNING",
+    "package": "com.dkbondtracker.app",
+    "install": "waydroid app install (native CLI, AMENDMENT-1); 'DK Bond Tracker' present in waydroid app list",
+    "on_device_screenshot": "NOT POSSIBLE (graphics session locked; no adb bridge, no root for waydroid shell/logcat)"
+  },
+  "apk": {
+    "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "2b3c5005a8288ad5fd76898da69216dd35990d89b717d81a8296887b8f38d809",
+    "size_bytes": 37863474,
+    "build_task": "gradle :app:assembleDebug (44 tasks)",
+    "build_result": "BUILD SUCCESSFUL in 22s",
+    "abi": ["arm64-v8a", "x86_64"],
+    "bundled_theme_css_sha256": "01ecccd727332c1031708a50440c8bd3e29d287735ba0ed658ce9ed1a45a5ec6",
+    "bundled_theme_css_note": "assets/chaquopy/app.imy :: src/static/theme.css is byte-identical to the repo file after the pass — the APK carries the new responsive UI"
+  },
+  "viewports": {
+    "phone": "390x844 (within the C1 acceptance band 360-412dp)",
+    "desktop": "1280x900 (C2 parity spot-check)"
+  },
+  "flows": [
+    "dashboard: /",
+    "add-position watchlist: /watch",
+    "add-position move-to-portfolio panel: /watch (revealed)",
+    "holdings: /portfolio",
+    "alerts: /notifications"
+  ],
+  "before_after_pairs": [
+    {"flow": "dashboard", "before": "before/dashboard.png", "before_sha256": "3cdf972617c6ca1a48cef967d59d63fbfd9acc20dd5214033d465d6d9fa51fd4", "after": "after/dashboard.png", "after_sha256": "2a2e0a0f70d9d21b12efde3951688574dd1818a39ee76c22674a1b4b244b21c9"},
+    {"flow": "watchlist", "before": "before/watchlist.png", "before_sha256": "1c83c85652d936b85efc7df11ec71bd43bb7ac7e9104d8b5c4cef60ddfd496b7", "after": "after/watchlist.png", "after_sha256": "76f600e8bb3d88dd455e67059905305272f5615c6744e82b10ad6c84c10025f7"},
+    {"flow": "watchlist_move", "before": "before/watchlist_move.png", "before_sha256": "cfa80e6350d6c998f152d67c35ae6ac3440d8054805af912166e5d872255eb93", "after": "after/watchlist_move.png", "after_sha256": "90bd86f54e5547b6458eeb03845c076f8e50650a64a088bc7cbacdf2be744c77"},
+    {"flow": "holdings", "before": "before/holdings.png", "before_sha256": "0523dd2a412f041a9770bb471807c4846d10b4302ec8b7027c8d823c2e2c8903", "after": "after/holdings.png", "after_sha256": "7998a8a1bf2944fdf15a0367fa959483fd3c15c1872fb34dc3ab1f874690fc1f"},
+    {"flow": "alerts", "before": "before/alerts.png", "before_sha256": "4c735f2e520d7be2e7a71c6bb282f32eac1728328ee96d7f51e11195a45b8f67", "after": "after/alerts.png", "after_sha256": "b5fbb202b7f5bb207a944971d1e350d1c9859e2cf5d516a520ea181bae6a83fa"}
+  ],
+  "desktop_parity": {
+    "method": "same 4 pages captured at 1280x900 before and after the change; sha256 compared",
+    "result": "IDENTICAL on all 4 pages (dashboard dd65f06637f0abb92a6a23c36107f5aee0c241d19c3968680af56b88458e9575, holdings 06820eed4a20b69c3af16cbf2fcce8475a3a1a7a9181032a8aa8ea0445cb3c62, alerts 88509eee902d72da9191e469ef118ec5a3180b62c4526212e1809fbbbe5de9f0, watchlist 3ef4bae25208d858ce628d3417c33f7e7759b949aa1b6475dfc132c240281ea0)",
+    "conclusion": "C2 desktop parity holds — the pass is pixel-identical at >=769px"
+  },
+  "observations": {
+    "before": "at 390px the fixed 220px sidebar consumed >55% of the width and pushed all content off-screen; the 4-column Add Candidate form crushed inputs to ~55px; stat cards overflowed; tables squeezed columns to ~130px",
+    "after": "nav is a full-width top bar; content is full-width; stat cards stack; the form and the move panel have usable input widths; tables scroll horizontally with readable columns"
+  },
+  "web_suite": {
+    "command": ".venv/bin/python -m pytest tests -q -m 'not remote'",
+    "result": "494 passed, 5 deselected (499 collected)",
+    "before": "494 passed, 5 deselected",
+    "after": "494 passed, 5 deselected"
+  },
+  "limitations": [
+    "No on-device screenshot: graphics session locked throughout; adb bridge unavailable; waydroid shell/logcat need root (not available).",
+    "The 5 'remote'-marked tests are deselected locally (that is the '499' collection total: 494 local + 5 remote).",
+    "mobile-mcp was not usable: it needs an adb device and none is exposed for this Waydroid container."
+  ]
+}
