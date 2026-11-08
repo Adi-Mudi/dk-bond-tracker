@@ -1,0 +1,121 @@
+================================================================================
+P3 — PATH-B (Chaquopy Gradle, Python 3.11) EVIDENCE LOG
+DK Bond Tracker Android Stage 1 spike — branch android-stage1-spike
+issue #109 / plan android_stage1_spike_plan_20261109_0225_v1.0 (phase P3)
+date: 2026-11-09 (UTC 2026-11-08T21:38Z .. 21:46Z)
+worker: W1 (reports to C1)
+================================================================================
+
+1. OBJECTIVE
+--------------------------------------------------------------------------------
+Build a minimal native-Android Gradle app that starts the existing Flask app
+through Chaquopy (CPython 3.11 embedded in the APK), serves it on 127.0.0.1 and
+shows it in an Android WebView; install on Waydroid and capture on-device proof.
+(src/ unmodified.)
+
+2. TOOLCHAIN USED (all user-space under android/spike/)
+--------------------------------------------------------------------------------
+Chaquopy        17.2.0            (com.chaquo.python gradle plugin, from Maven Central)
+Android Gradle  8.7.2             (AGP)
+Gradle          8.9               tools/gradle-8.9   (GRADLE_USER_HOME = android/spike/.gradle-home)
+JDK             Temurin 17.0.21   tools/jdk17
+Android SDK     34 (build-tools 34.0.0, platforms;android-34) — no NDK needed (Chaquopy ships prebuilt libs)
+app python      3.11  (Chaquopy runtime libpython3.11.so)
+build python    /home/divakaran/.local/bin/python3.11 (3.11.15) via chaquopy buildPython
+                (Chaquopy needs a build-machine Python matching the app version for
+                 pip install of requirements + bytecode compilation)
+
+3. PROJECT LAYOUT (android/spike/path_b/)
+--------------------------------------------------------------------------------
+settings.gradle            pluginManagement (google, mavenCentral, gradlePluginPortal)
+build.gradle               com.android.application 8.7.2 + com.chaquo.python 17.2.0
+gradle.properties          jvmargs + android.useAndroidX
+app/build.gradle           compileSdk 34, minSdk 24, abiFilters x86_64,
+                           chaquopy { version "3.11"; buildPython(...); pip { install("flask") } }
+app/src/main/AndroidManifest.xml   INTERNET only; usesCleartextTraffic=true;
+                                   application = com.chaquo.python.android.PyApplication
+app/src/main/java/.../MainActivity.java
+                           WebView + Python.start -> server.start(filesDir) -> poll
+                           127.0.0.1:5000 -> loadUrl("http://127.0.0.1:5000/")
+app/src/main/python/server.py       threads a werkzeug make_server("127.0.0.1", 5000, create_app(db))
+app/src/main/python/src/**          COPY of repo src/ (rsync; repo src/ untouched)
+build_path_b.sh            reproducible build script
+(note: APPLICATION ID was changed to com.dkbondtracker.pathb — see failure mode 1)
+
+4. BUILD RESULTS
+--------------------------------------------------------------------------------
+build 1  (21:38:50Z)  BUILD SUCCESSFUL in 56s   (44 actionable tasks: 44 executed)
+                       -> app-debug.apk 22,678,855 B
+build 2  (21:41:58Z)  BUILD SUCCESSFUL in 12s   (incremental, after applicationId change)
+                       -> PATH_B_BUILD_SECONDS=13
+APK (final)  path_b/dkbt_path_b-debug-0.1.apk
+             size 22,678,855 bytes (~21.6 MiB)
+             sha256 740c3106eec6b95d852c8e779633bdbdb35c666e8ae2f67f7531249df6530dad
+             package com.dkbondtracker.pathb  versionName 0.1  versionCode 1
+             minSdk 24  targetSdk 34  compileSdk 34
+             uses-permission android.permission.INTERNET ONLY  (AND-07 / TC-AND-08)
+             activity com.dkbondtracker.spike.MainActivity
+             native-code x86_64
+             native   libpython3.11.so, libpython3.so, libchaquopy_java.so,
+                      libcrypto/ssl/sqlite3 (*_chaquopy / *_python)
+             python   assets/chaquopy/app.imy (zip, 69 entries: server.pyc, src/*.pyc,
+                      src/templates/*, src/static/*) + assets/chaquopy/bootstrap-native/x86_64/*.cpython-311.so
+             NO NDK used, NO C compilation of Python: Chaquopy downloads prebuilt
+             runtime + Android wheels (flask) at build time.
+
+5. ON-DEVICE PROOF (Waydroid, x86_64, Android API 33)
+--------------------------------------------------------------------------------
+install   waydroid app install path_b/dkbt_path_b-debug-0.1.apk  -> rc=0
+          waydroid app list -> "DK Bond Tracker / packageName: com.dkbondtracker.pathb"
+launch    waydroid app launch com.dkbondtracker.pathb             -> rc=0
+process   host ps: pid 3394520 started Mon Nov 9 03:13:35 2026  args "com.dkbondtracker.pathb"
+          (the PATH-A app is a SEPARATE process, pid 3371486 com.dkbondtracker.spike,
+           started 03:04:28 — so the PATH-B proof is not the PATH-A app)
+screenshots  evidence/p3_path_b_screenshot.png and _screenshot2.png
+          both show the DK Bond Tracker Flask dashboard rendered in the WebView
+          (dark theme; sidebar Dashboard/Portfolio/Watchlist/Financial Goals/Alerts/
+          Settings; "Total Invested / Received / Next Payout ₹0.00"; "Invested vs
+          Received per company" panel with All/Danger/On-going/Matured filters)
+          -> Chaquopy started the Flask server AND the WebView loaded it.
+
+6. FAILURE MODES
+--------------------------------------------------------------------------------
+1) Same-package install did not replace the running PATH-A app.
+   Cause: p4a produced versionCode 10241 while Chaquopy produced versionCode 1 ->
+   Android rejects the downgrade; `waydroid app install` still returned rc=0.
+   `waydroid app remove` fails with code -3, and non-root cannot signal the
+   container's app process (kill -> EPERM).
+   FIX: rebuild PATH-B with applicationId com.dkbondtracker.pathb so both APKs can
+   coexist and the proof is unambiguous.
+2) Screen/DPMS blanking produced all-black captures (no GNOME top bar visible).
+   `waydroid show-full-ui` also exited immediately in that window. Retrying the
+   capture once the session was active produced correct images. No code impact.
+3) (environment, same as P2) no waydroid logcat/shell (root), no grim (no
+   wlr-screencopy), GNOME D-Bus screenshot blocked, no adb (container has no IPv4).
+   Proof method = flameshot full-screen with the Waydroid window in front.
+
+7. SCOPE / SOURCE INTEGRITY
+--------------------------------------------------------------------------------
+git diff dev -- src/  -> EMPTY (repo src/ and tests/ unmodified)
+no push / no PR / no commit (P4 is C1's).
+
+8. FILES ADDED (under android/ ; android/spike/.gitignore keeps heavy/derived dirs out)
+--------------------------------------------------------------------------------
+android/spike/path_b/settings.gradle
+android/spike/path_b/build.gradle
+android/spike/path_b/gradle.properties
+android/spike/path_b/app/build.gradle
+android/spike/path_b/app/src/main/AndroidManifest.xml
+android/spike/path_b/app/src/main/java/com/dkbondtracker/spike/MainActivity.java
+android/spike/path_b/app/src/main/python/server.py
+android/spike/path_b/app/src/main/python/src/**   (copy of repo src/, gitignored)
+android/spike/path_b/build_path_b.sh
+android/spike/path_b/build_start.txt
+android/spike/path_b/dkbt_path_b-debug-0.1.apk   (gitignored via *.apk)
+android/spike/capture_live.sh
+android/spike/logs/p3_path_b_build.log
+android/spike/logs/p3_path_b_evidence.log         (this file)
+android/spike/logs/p3_path_b_waydroid_logcat.log
+android/spike/evidence/p3_path_b_screenshot.png
+android/spike/evidence/p3_path_b_screenshot2.png
+================================================================================
