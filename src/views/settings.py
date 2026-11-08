@@ -6,7 +6,7 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 
 from src.db import get_conn
 from src.mailer import send_alert_email
-from src.prefs import set_pref
+from src.prefs import alert_prefs_map, set_pref
 from src.validators import AppError
 from src.views.common import (
     APP_VERSION,
@@ -15,7 +15,6 @@ from src.views.common import (
     EMAIL_TEST_SUCCESS_MESSAGE,
     app_db,
 )
-from src.prefs import alert_prefs_map
 
 bp = Blueprint("settings", __name__)
 

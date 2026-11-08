@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DK Bond Tracker — Add Position Workflow Design v1 (draft)</title>
+<style>
+  :root, html[data-theme="light"] {
+    --bg: #f8f9fa; --card: #ffffff; --text: #111827; --muted: #6b7280;
+    --border: #e5e7eb; --accent: #2563eb; --on-accent: #ffffff; --accent-hover: #1d4ed8;
+    --danger-fg: #dc2626; --danger-bg: #fef2f2; --ongoing-fg: #16a34a; --ongoing-bg: #f0fdf4;
+    --watching-fg: #2563eb; --watching-bg: #eff6ff; --warn-fg: #b45309; --warn-bg: #fffbeb;
+    --bar-muted: #d1d5db; --header-row: #e9ecef;
+  }
+  html[data-theme="dark"] {
+    --bg: #0d1117; --card: #161b22; --text: #e6edf3; --muted: #8b949e;
+    --border: #30363d; --accent: #58a6ff; --on-accent: #0d1117; --accent-hover: #79c0ff;
+    --danger-fg: #ff7b72; --danger-bg: #2b1519; --ongoing-fg: #56d364; --ongoing-bg: #10251a;
+    --watching-fg: #79c0ff; --watching-bg: #12233d; --warn-fg: #e3b341; --warn-bg: #201a08;
+    --bar-muted: #30363d; --header-row: #21262d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; padding: 24px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto 20px; }
+  h1 { font-size: 20px; }
+  .theme-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .theme-switch button { font: inherit; font-size: 12px; border: none; background: var(--card); color: var(--muted); padding: 6px 12px; cursor: pointer; }
+  .theme-switch button.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .section { max-width: 1100px; margin: 0 auto 36px; }
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .section-note { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+  .decision-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--watching-bg); color: var(--watching-fg); margin-left: 8px; vertical-align: 1px; }
+  .removed-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--danger-bg); color: var(--danger-fg); margin-left: 8px; vertical-align: 1px; }
+  .screen { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .screen-head { padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; background: var(--header-row); }
+  .screen-body { padding: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .card h3 { font-size: 14px; margin-bottom: 10px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .field input, .field select { font: inherit; font-size: 13px; width: 100%; height: 34px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); }
+  .req { color: var(--danger-fg); font-weight: 700; }
+  .opt { color: var(--muted); font-size: 10px; font-weight: 600; }
+  .btn { font: inherit; font-size: 13px; border-radius: 6px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn-danger { background: var(--danger-bg); border-color: var(--danger-fg); color: var(--danger-fg); font-weight: 600; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); padding: 8px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .chip-watching { color: var(--watching-fg); background: var(--watching-bg); }
+  .chip-ongoing { color: var(--ongoing-fg); background: var(--ongoing-bg); }
+  .chip-danger { color: var(--danger-fg); background: var(--danger-bg); }
+  .flow { display: flex; align-items: center; gap: 10px; margin: 8px 0 14px; flex-wrap: wrap; }
+  .flow-step { border: 1.5px solid var(--accent); border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; background: var(--watching-bg); }
+  .flow-arrow { font-size: 16px; color: var(--muted); font-weight: 700; }
+  .modal-backdrop { background: color-mix(in srgb, var(--text) 30%, transparent); border-radius: 8px; padding: 24px; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 10px; max-width: 560px; margin: 0 auto; padding: 18px 20px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+  .modal h3 { font-size: 15px; margin-bottom: 2px; }
+  .modal .sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .divider { border-top: 1px dashed var(--border); margin: 12px 0; }
+  .legend { font-size: 11.5px; color: var(--muted); margin-top: 8px; }
+  .removed-box { border: 1.5px dashed var(--danger-fg); border-radius: 8px; padding: 14px; background: var(--danger-bg); color: var(--danger-fg); font-size: 12.5px; font-weight: 600; text-align: center; }
+  .actions-cell { white-space: nowrap; }
+  .actions-cell .btn { margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Add Position Workflow — Design v1 (draft, brainstorm v1.1)</h1>
+  <div class="theme-switch">
+    <button class="active" onclick="setTheme('light', this)">Light</button>
+    <button onclick="setTheme('dark', this)">Dark</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">The flow at a glance <span class="decision-tag">D2 + D3 + D5</span></div>
+  <div class="section-note">One entry point. Positions are born in the Watchlist; Portfolio receives them only after purchase details are recorded.</div>
+  <div class="flow">
+    <div class="flow-step">1&nbsp;· Watchlist: Add Candidate<br><span style="font-weight:400">(pre-purchase, optional info)</span></div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">2&nbsp;· Watchlist: candidate sits here<br><span style="font-weight:400">(deletable any time)</span></div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">3&nbsp;· Move form: purchase details<br><span style="font-weight:400">(required: purchase date, quantity, end date, credit day, invested amount, broker)</span></div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">4&nbsp;· Portfolio: holding<br><span style="font-weight:400">(status engine takes over)</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Screen 1 — Watchlist page (upgraded) <span class="decision-tag">D2 upgraded form</span> <span class="decision-tag">D4 delete</span></div>
+  <div class="section-note">The existing Add Candidate form stays the single entry point (fields as today, all optional except company/ISIN/rating). Each candidate row gains <b>Delete</b> and <b>Move to Portfolio</b> actions.</div>
+  <div class="screen">
+    <div class="screen-head">Watchlist &nbsp;·&nbsp; 3 candidates</div>
+    <div class="screen-body">
+
+      <div class="card">
+        <h3>Add Candidate</h3>
+        <div class="form-grid">
+          <div class="field"><label>Company <span class="req">*</span></label><input value="Alpha Securities Ltd"></div>
+          <div class="field"><label>ISIN <span class="req">*</span></label><input value="INE9000A01001"></div>
+          <div class="field"><label>Rating <span class="req">*</span></label><input value="AA"></div>
+          <div class="field"><label>Rating agency <span class="opt">optional</span></label><input value="CRISIL"></div>
+          <div class="field"><label>Coupon % <span class="opt">optional</span></label><input value="8.5"></div>
+          <div class="field"><label>Expected yield % <span class="opt">optional</span></label><input value="9.1"></div>
+          <div class="field"><label>Payout cycle <span class="opt">optional</span></label><select><option>monthly</option><option>quarterly</option><option>annual</option></select></div>
+          <div class="field"><label>Issuer type <span class="opt">optional</span></label><select><option>corporate_bond</option></select></div>
+          <div class="field"><label>Face value <span class="opt">optional</span></label><input value="1000.00"></div>
+          <div class="field"><label>Total investment <span class="opt">optional</span></label><input id="w-total" value="200000.00" oninput="perBond('w-total','w-qty','w-perbond')"></div>
+          <div class="field"><label>Quantity (no. of bonds) <span class="opt">optional</span></label><input id="w-qty" value="200" oninput="perBond('w-total','w-qty','w-perbond')"></div>
+          <div class="field"><label>Per-bond price <span class="opt">auto-calculated</span></label><input id="w-perbond" value="1000.00" readonly style="background:var(--watching-bg); font-weight:600;"></div>
+          <div class="field"><label>Source note <span class="opt">optional</span></label><input value="broker tip"></div>
+          <div class="field"><label>Broker <span class="opt">optional</span></label><input value="Zerodha"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn btn-primary">Add to Watchlist</button></div>
+        <div class="legend">Pre-purchase stage: nothing here creates a holding. Optional fields can be left empty and completed later. <b>Quantity lives here already</b> (phase 1): when Total investment AND Quantity are both filled, <b>Per-bond price = Total investment &#247; Quantity</b> is auto-calculated (try editing the two fields — it recomputes live). Per-bond price is a derived display, never stored.</div>
+      </div>
+
+      <table>
+        <thead><tr><th>Company</th><th>ISIN</th><th>Rating</th><th>Watch investment</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Alpha Securities Ltd</td><td>INE9000A01001</td><td>AA</td><td>&#8377;200,000.00</td>
+            <td><span class="chip chip-watching">watching</span></td>
+            <td class="actions-cell"><button class="btn btn-sm btn-primary">Move to Portfolio</button><button class="btn btn-sm btn-danger">Delete</button></td>
+          </tr>
+          <tr>
+            <td>Beta Finserve Ltd</td><td>INE123B07801</td><td>A+</td><td>&#8377;150,000.00</td>
+            <td><span class="chip chip-watching">watching</span></td>
+            <td class="actions-cell"><button class="btn btn-sm btn-primary">Move to Portfolio</button><button class="btn btn-sm btn-danger">Delete</button></td>
+          </tr>
+          <tr>
+            <td>Gamma Credit Ltd</td><td>INE456C01017</td><td>AA+</td><td>&#8377;100,000.00</td>
+            <td><span class="chip chip-watching">watching</span></td>
+            <td class="actions-cell"><button class="btn btn-sm btn-primary">Move to Portfolio</button><button class="btn btn-sm btn-danger">Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="legend">Delete = hard delete with confirm dialog (D4). Bonds never purchased simply disappear from the list.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Screen 2 — "Move to Portfolio" purchase-details form <span class="decision-tag">D5 single form</span> <span class="decision-tag">D6 lean required set</span> <span class="decision-tag">D7 two dates</span></div>
+  <div class="section-note">Opens when you click <b>Move to Portfolio</b> on a candidate. Required = the lean set known only after purchase. The candidate's pre-filled optional info carries over from the Watchlist.</div>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <h3>Move to Portfolio — Alpha Securities Ltd</h3>
+      <div class="sub mono">INE9000A01001 · watching &#8594; holding</div>
+      <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="field"><label>Purchase date <span class="req">*</span></label><input value="2026-11-03"></div>
+        <div class="field"><label>Start date (interest accrual / dated date) <span class="req">*</span></label><input value="2026-11-05"></div>
+        <div class="field"><label>End date (maturity) <span class="req">*</span></label><input value="2028-11-05"></div>
+        <div class="field"><label>Credit day of month <span class="req">*</span></label><input value="5"></div>
+        <div class="field"><label>Invested amount <span class="req">*</span></label><input id="m-total" value="200000.00" oninput="perBond('m-total','m-qty','m-perbond')"></div>
+        <div class="field"><label>Quantity (no. of bonds) <span class="req">*</span></label><input id="m-qty" value="200" oninput="perBond('m-total','m-qty','m-perbond')"></div>
+        <div class="field"><label>Per-bond price <span class="opt">auto-calculated</span></label><input id="m-perbond" value="1000.00" readonly style="background:var(--watching-bg); font-weight:600;"></div>
+        <div class="field"><label>Broker <span class="req">*</span></label><input value="Zerodha"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="field"><label>Coupon % <span class="opt">carried from watchlist</span></label><input value="8.5"></div>
+        <div class="field"><label>Payout cycle <span class="opt">carried</span></label><input value="monthly"></div>
+        <div class="field"><label>Face value <span class="opt">carried</span></label><input value="1000.00"></div>
+      </div>
+      <div style="margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn">Cancel</button>
+        <button class="btn btn-primary">Confirm move to Portfolio</button>
+      </div>
+      <div class="legend"><b>Why two dates:</b> the bond's interest cycle starts on its <i>dated date</i> (issuer-set), while <i>purchase date</i> is when you bought — they differ on secondary-market buys (settlement T+1). Tenure is auto-calculated from start &#8594; end date, as today. <b>Quantity × face value</b> gives the bond's maturity value; invested amount is what you actually paid (with quantity recorded separately, per-bond cost and totals can both be tracked).</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Screen 3 — Portfolio page (after removal) <span class="removed-tag">D1 removed</span> <span class="removed-tag">D8 dead paths deleted</span></div>
+  <div class="section-note">The Portfolio page keeps only what a holding needs. The Add Position card and its backend handler are gone; the only way in is the Watchlist move.</div>
+  <div class="screen">
+    <div class="screen-head">Portfolio &nbsp;·&nbsp; tabs: Holdings | Payouts</div>
+    <div class="screen-body">
+      <div class="removed-box" style="margin-bottom:14px;">[ + Add Position card — REMOVED. No direct-add form, no /portfolio POST handler, no /add route, no add_position.html page. ]</div>
+      <table>
+        <thead><tr><th>Company</th><th>ISIN</th><th>Rating</th><th>Qty</th><th>Invested</th><th>Received</th><th>Next payout</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Alpha Securities Ltd<br><span style="font-size:11px;color:var(--muted);">purchased 03 Nov 2026 · 200 units</span></td>
+            <td>INE9000A01001</td><td>AA</td><td>200</td><td>&#8377;200,000.00</td><td>&#8377;1,416.67</td><td>05 Dec 2026</td>
+            <td><span class="chip chip-ongoing">On-going</span></td>
+          </tr>
+          <tr>
+            <td>Delta Steel Ltd<br><span style="font-size:11px;color:var(--muted);">purchased 15 Jun 2025 · 500 units</span></td>
+            <td>INE789D08012</td><td>A</td><td>500</td><td>&#8377;500,000.00</td><td>&#8377;0.00</td><td>—</td>
+            <td><span class="chip chip-danger">Danger</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="legend">Holdings show the purchase date and quantity as secondary line info (new fields become visible here).</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">What gets deleted <span class="decision-tag">D8</span></div>
+  <div class="section-note">Everything below stops existing; the Watchlist add-candidate form is the only creation path left.</div>
+  <div class="card">
+    <ul style="margin-left:18px; font-size:13px;">
+      <li>Portfolio inline Add Position card — <span class="mono">portfolio.html:126,175-261</span></li>
+      <li>Portfolio POST handler <span class="mono">_add_portfolio_position</span> — <span class="mono">app.py:1237-1375</span></li>
+      <li>Legacy <span class="mono">/add</span> route — <span class="mono">app.py:447-528</span> (creates holdings despite its "Watch List" title — buggy dead path)</li>
+      <li>Legacy page <span class="mono">add_position.html</span></li>
+      <li>Watchlist gains: <span class="mono">DELETE /watch/&lt;id&gt;</span> route (new)</li>
+      <li>Bonds table gains: <span class="mono">purchase_date</span> column (new, set at move time)</li>
+      <li>Bonds table <span class="mono">qty</span> column already exists in the schema (unused today) — becomes live at move time</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  function setTheme(value, btn) {
+    document.documentElement.setAttribute('data-theme', value);
+    document.querySelectorAll('.theme-switch button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+  }
+  function perBond(totalId, qtyId, outId) {
+    var total = parseFloat(document.getElementById(totalId).value);
+    var qty = parseFloat(document.getElementById(qtyId).value);
+    var out = document.getElementById(outId);
+    if (isFinite(total) && isFinite(qty) && qty > 0 && total >= 0) {
+      out.value = (total / qty).toFixed(2);
+    } else {
+      out.value = '';
+    }
+  }
+</script>
+</body>
+</html>
