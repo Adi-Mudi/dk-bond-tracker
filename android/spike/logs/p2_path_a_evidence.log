@@ -1,0 +1,149 @@
+================================================================================
+P2 — PATH-A (python-for-android webview bootstrap) EVIDENCE LOG
+DK Bond Tracker Android Stage 1 spike — branch android-stage1-spike
+issue #109 / plan android_stage1_spike_plan_20261109_0225_v1.0 (phases P2)
+date: 2026-11-09 (UTC 2026-11-08T21:04Z .. 21:37Z)
+worker: W1 (reports to C1)
+================================================================================
+
+1. OBJECTIVE
+--------------------------------------------------------------------------------
+Build a minimal webview-bootstrap APK with python-for-android (p4a) wrapping the
+existing Flask app (src/ unmodified), install it on Waydroid, and capture
+on-device proof that the Flask/Jinja UI renders.
+
+2. TOOLCHAIN USED (all user-space under android/spike/, no apt/sudo)
+--------------------------------------------------------------------------------
+JDK             Temurin 17.0.21+9      tools/jdk17            (host JDK 25 incompatible with AGP/p4a)
+Android SDK     platform-tools 37.0.1, build-tools 34.0.0, platforms;android-34
+                ndk;25.2.9519653       android-sdk/           (min==max NDK major in p4a = 25)
+host python     3.14.4                 (system)
+p4a venv        android/spike/.venv-p4a  -> python-for-android 2026.05.09, buildozer 1.6.0, Cython 0.29.37
+gradle          Gradle 8.9             tools/gradle-8.9
+storage dir     android/spike/.p4a-storage (recipes + dist; kept out of the project cwd)
+target runtime  CPython 3.14 (libpython3.14.so bundled by p4a's python3 recipe)
+
+3. BUILD ATTEMPTS AND FAILURE MODES (root causes + fixes)
+--------------------------------------------------------------------------------
+Attempt 1  (21:04:39Z, log: logs/p2_path_a_build.log first section)
+  FAIL: libffi recipe -> ./autogen.sh -> "exec: autoreconf: not found"
+  ROOT CAUSE: host has no autoconf/automake/libtool (and no m4).
+  FIX (applied): local recipe override tools/local-recipes/libffi/ that downloads
+       the libffi RELEASE tarball (ships a pre-generated ./configure) and skips
+       autogen.sh/autoreconf — this is what the shipped, proven PATH-A build uses.
+
+  FOLLOW-UP FINDING (C1 asked for the autotools-from-source route; now COMPLETE):
+       GNU autotools build cleanly non-root into android/spike/tools/autotools
+       (script android/spike/build_autotools.sh, log logs/autotools_build.log):
+         m4 1.4.21 -> autoconf 2.72 -> automake 1.17 (aclocal 1.17) -> libtool 2.4.7
+       KEY DETAIL: m4 1.4.19 (my first attempt) does NOT compile on this host's
+       gcc/glibc (gnulib error in gl_oset.h); m4 1.4.20/1.4.21 do. Its configure
+       needs m4 already on PATH — the built prefix supplies it for the later pkgs.
+       VERIFIED END-TO-END: with that prefix on PATH, the STOCK p4a libffi recipe
+       flow succeeds on a pristine checkout —
+         libffi v3.4.2 git archive (no ./configure) -> apply remove-version-info.patch
+         -> autoreconf -vif -> rc=0, ./configure generated, -avoid-version present.
+       => with autotools present the libffi override is NOT needed. (A host with
+       neither autotools nor the override still fails at libffi, as first observed.)
+       NOTE: the second override (android --no-isolation) is needed REGARDLESS —
+       it is a pip build-isolation issue, unrelated to autotools.
+
+Attempt 2  (21:15:07Z)
+  FAIL: IsADirectoryError: '.p4a'  (p4a reads a config file named .p4a in its cwd)
+  ROOT CAUSE: storage dir was named <cwd>/.p4a -> collided with p4a's config file.
+  FIX: storage dir moved to android/spike/.p4a-storage (outside cwd);
+
+Attempt 3  (21:17:02Z)
+  FAIL: android recipe -> Python build backend -> "No module named 'Cython'"
+  ROOT CAUSE: p4a's internal 'android' recipe builds with pip build ISOLATION and
+              its setup.py imports Cython at import time; the isolated env only
+              gets setuptools. (p4a installs Cython into the host env via
+              hostpython_prerequisites, but isolation hides it.)
+  FIX: local recipe override tools/local-recipes/android/ with
+       extra_build_args = ['--no-isolation'] (copied from the built-in recipe so
+       its IncludedFilesBehaviour 'src' dir resolves).
+
+Attempt 4  (21:29:06Z -> 21:31:03Z)
+  SUCCESS. p4a apk reported: "# Android package renamed to dkbt_path_a-debug-0.1.apk"
+  PATH_A_BUILD_SECONDS=117  (warm recipe cache; recipes hostpython3/libffi/
+  openssl/sqlite3/python3/flask/pyjnius/android already built)
+
+Timing summary
+  one-time toolchain setup (downloads + p4a venv + recipes cold build): ~25 min wall clock
+  successful p4a apk invocation (warm): 117 s
+  cold path (attempts 1+3+4 recipe builds): ~15 min of p4a build time
+
+4. APK ARTIFACT
+--------------------------------------------------------------------------------
+file        path_a/dkbt_path_a-debug-0.1.apk
+size        13,086,365 bytes (~13 MB)
+sha256      19d90107f9837e561beda319cf57d402fd97685b1409a4ef6831fca2e133ac19
+package     com.dkbondtracker.spike   versionName 0.1
+sdk         minSdk 24  targetSdk 34  compileSdk 34
+permissions android.permission.INTERNET  (ONLY — satisfies AND-07 / TC-AND-08)
+activity    org.kivy.android.PythonActivity
+abi         native-code: x86_64   (Waydroid image arch = x86_64)
+contents    assets/private.tar holds main.pyc + src/** (compiled .pyc),
+            src/templates/*.html (15), src/static/* (3) -> the whole Jinja UI ships
+native      lib/x86_64/libpython3.14.so, libffi.so, libsqlite3.so, libssl.so,
+            libcrypto.so, libmain.so, libpybundle.so, libpythonbin.so
+
+core-integrity check (TC-AND-02 style)
+  path_a/app/src (the exact tree fed to p4a) is byte-identical to repo src/
+  (diff -r --exclude=*.pyc --exclude=__pycache__ -> IDENTICAL). p4a then compiled
+  .py -> .pyc inside the copy; repo src/ itself untouched.
+
+5. ON-DEVICE PROOF (Waydroid, container ABI x86_64, Android API 33)
+--------------------------------------------------------------------------------
+install     waydroid app install path_a/dkbt_path_a-debug-0.1.apk   -> rc=0
+            waydroid app list  -> "Name: DK Bond Tracker / packageName: com.dkbondtracker.spike"
+launch      waydroid app launch com.dkbondtracker.spike             -> rc=0
+process     host ps shows the app alive in the container:
+            pid 3371486  args "com.dkbondtracker.spike"
+screenshots evidence/p2_path_a_screenshot.png   (Alerts page rendered in the app window)
+            evidence/p2_path_a_screenshot2.png  (repeat capture, time advanced 9:36 -> 9:37)
+            both show the Flask/Jinja UI: sidebar (Dashboard/Portfolio/Watchlist/
+            Financial Goals/Alerts/Settings), theme buttons, "Hide amounts",
+            Notifications badge, Alerts content cards, "Save channels" button.
+            -> the WebView loaded http://127.0.0.1:5000/ successfully.
+
+6. DEVICE-PROOF CONSTRAINT (environment limitation, recorded for R1)
+--------------------------------------------------------------------------------
+The brief's suggested proof commands are all unavailable in this environment:
+  - `waydroid logcat`          -> "needs root access"
+  - `waydroid shell`           -> "needs root access"
+  - `grim` (wlr-screencopy)    -> "compositor doesn't support wlr-screencopy-unstable-v1"
+  - GNOME D-Bus Screenshot / ScreenshotWindow / Introspect -> "AccessDenied: not allowed"
+  - `waydroid adb connect`     -> "Unknown container IP address" (bridge 192.168.240.1/24 up,
+                                  container has NO IPv4 lease; ARP 192.168.240.112 FAILED)
+WORKING METHOD (used): restart the Waydroid UI client so its window is on top, then
+  `flameshot full -p <png>` (flameshot is the only working Wayland screen grabber here).
+  helper: android/spike/capture_ui.sh ; used by android/spike/run_on_waydroid.sh
+NOTE: flameshot captures the whole screen, so the Waydroid window must be in front;
+      the first probe capture (full desktop) was overwritten — no desktop content kept.
+
+7. SCOPE / SOURCE INTEGRITY
+--------------------------------------------------------------------------------
+git diff dev -- src/   -> EMPTY (repo src/ and tests/ unmodified)
+no push / no PR / no commit performed (P4 is C1's).
+
+8. FILES ADDED (all under android/ ; android/spike/.gitignore keeps heavy/derived
+   dirs out of the commit)
+--------------------------------------------------------------------------------
+android/spike/path_a/app/main.py                  p4a entry point (Flask + wsgiref on 127.0.0.1:5000)
+android/spike/path_a/build_path_a.sh              reproducible p4a build script
+android/spike/tools/local-recipes/libffi/__init__.py    libffi override (release tarball, no autotools)
+android/spike/tools/local-recipes/libffi/remove-version-info.patch
+android/spike/tools/local-recipes/libffi/Application.mk
+android/spike/tools/local-recipes/android/__init__.py   android recipe override (--no-isolation)
+android/spike/tools/local-recipes/android/src/**        (copied from the built-in recipe)
+android/spike/run_on_waydroid.sh                  install/launch/logcat/screenshot driver
+android/spike/capture_ui.sh                       UI-restart + flameshot capture helper
+android/spike/build_autotools.sh                  abandoned autotools attempt (superseded by the follow-up finding above)
+android/spike/logs/p2_path_a_build.log            full build log (all attempts)
+android/spike/logs/p2_path_a_evidence.log         this file
+android/spike/logs/p2_sdk_install.log             SDK/NDK install log
+android/spike/logs/autotools_build.log            autotools-from-source build log (succeeded)
+android/spike/logs/p4a_apk_help.txt               p4a CLI reference
+android/spike/evidence/p2_path_a_screenshot*.png  device proof
+================================================================================
