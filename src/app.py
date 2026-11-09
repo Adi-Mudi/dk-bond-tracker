@@ -31,6 +31,7 @@ from src.views.exports import bp as exports_bp
 from src.views.goals import bp as goals_bp
 from src.views.notifications import bp as notifications_bp
 from src.views.portfolio import bp as portfolio_bp
+from src.views.search import bp as search_bp
 from src.views.settings import bp as settings_bp
 from src.views.watch import bp as watch_bp
 
@@ -111,6 +112,7 @@ def create_app(db_path=None):
     app.register_blueprint(goals_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(search_bp)
     app.register_blueprint(exports_bp)
 
     def render_unexpected(error_text):
