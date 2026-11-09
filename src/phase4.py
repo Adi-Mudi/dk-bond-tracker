@@ -12,6 +12,15 @@ PNL_L2_NOTE = (
 )
 
 
+def tds_breakdown(net_amount, tds_applied=True):
+    net = round(float(net_amount))
+    if not tds_applied:
+        return {"net": net, "tds": 0, "gross": net}
+    gross = round(net / 0.9)
+    tds = round(net / 9)
+    return {"net": net, "tds": tds, "gross": gross}
+
+
 def payment_cycle_of(payment_type):
     text = str(payment_type or "").strip().lower()
     if not text:
