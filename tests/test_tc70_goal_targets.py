@@ -98,24 +98,24 @@ def test_months_until_full_month_boundary():
     assert months_until(date(2026, 9, 30), date(2026, 10, 30)) == -1
 
 
-def test_edit_updates_target_amount_and_end_date(client):
+def test_edit_cannot_change_locked_target_amount_or_end_date(client):
     http, db_path = client
     http.post(
         "/goals",
-        data={"name": "editable", "target_amount": "1000", "target_end_date": "2030-01-01"},
+        data={"name": "locked", "target_amount": "1000", "target_end_date": "2030-01-01"},
     )
     response = http.post(
         "/goals/1/edit",
-        data={"name": "editable v2", "target_amount": "5000", "target_end_date": "2036-10-01"},
+        data={"name": "locked v2", "target_amount": "5000", "target_end_date": "2036-10-01"},
     )
     assert response.status_code == 302
     with get_conn(db_path) as conn:
         row = conn.execute(
             "SELECT name, target_amount, target_end_date FROM financial_goals WHERE id = 1"
         ).fetchone()
-    assert row["name"] == "editable v2"
-    assert row["target_amount"] == 5000.0
-    assert row["target_end_date"] == "2036-10-01"
+    assert row["name"] == "locked v2"
+    assert row["target_amount"] == 1000.0
+    assert row["target_end_date"] == "2030-01-01"
 
 
 def test_negative_target_rejected_with_named_error(client):

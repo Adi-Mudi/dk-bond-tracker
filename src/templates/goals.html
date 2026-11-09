@@ -57,6 +57,7 @@
     cursor: pointer;
   }
   .checkin-month.on { background: var(--paid); color: var(--ongoing-fg); font-weight: 700; }
+  .checkin-month.off .checkin-mark { color: var(--danger-fg); font-weight: 700; }
   .intent-note { display: block; margin-top: 6px; }
 </style>
 {% endblock %}
@@ -210,7 +211,7 @@
     <form class="checkin-form" method="post" action="/goals/{{ goal.id }}/checkin">
       <input type="hidden" name="month" value="{{ month.key }}">
       <input type="hidden" name="invested" value="{% if month.invested %}{% else %}on{% endif %}">
-      <button type="submit" class="checkin-month{% if month.invested %} on{% endif %}" id="checkin-{{ goal.id }}-{{ month.key }}" aria-pressed="{{ 'true' if month.invested else 'false' }}">{{ month.label }}{% if month.invested %} &#10003;{% else %} &#8226;{% endif %}</button>
+      <button type="submit" class="checkin-month{% if month.invested %} on{% else %} off{% endif %}" id="checkin-{{ goal.id }}-{{ month.key }}" aria-pressed="{{ 'true' if month.invested else 'false' }}">{{ month.label }}{% if month.invested %} &#10003;{% else %} <span class="checkin-mark">&#10007;</span>{% endif %}</button>
     </form>
     {% endfor %}
   </div>
