@@ -114,6 +114,11 @@ Build the signed release APK (one command):
 Output: `android/app/build/outputs/apk/release/app-release.apk`, signed with the
 keystore above.
 
+Rebuilds are NOT sha256-identical (zip metadata differs per build); to verify a
+build is ours, check the signer cert sha256
+`9e2d58a2518d70da9b9829659c94e35962bb6792fe590dcc99e6fe7fa418de47` and the
+size class (~36 MB) instead of the APK sha256.
+
 `app/build.gradle` reads the signing material from `keystore.properties` only
 when that file exists; otherwise it falls back to these CI environment
 variables, so no secret is ever written into the tracked tree:
