@@ -1,6 +1,8 @@
 import os
 import smtplib
 
+from email.message import EmailMessage
+
 from .validators import AppError
 
 DEFAULT_SMTP_HOST = "smtp.gmail.com"
@@ -68,3 +70,37 @@ def send_alert_email(event):
     except Exception as exc:
         raise AppError("ERR-email-send", f"email send failed for {company} {month}: {exc}") from exc
     return {"status": "sent", "to": recipient, "subject": subject}
+
+
+def send_message(subject, body, attachment=None):
+    host, port, user, app_password, recipient = _config()
+    message = EmailMessage()
+    message["From"] = user
+    message["To"] = recipient
+    message["Subject"] = str(subject or "DK Bond Tracker message")
+    message.set_content(str(body or ""))
+    if attachment:
+        filename, content_type, payload = attachment
+        maintype, _, subtype = str(content_type or "application/octet-stream").partition("/")
+        message.add_attachment(
+            payload,
+            maintype=maintype or "application",
+            subtype=subtype or "octet-stream",
+            filename=str(filename or "attachment"),
+        )
+    try:
+        if port == 465:
+            with smtplib.SMTP_SSL(host, port) as client:
+                client.login(user, app_password)
+                client.send_message(message)
+        else:
+            with smtplib.SMTP(host, port) as client:
+                if _use_starttls(port):
+                    client.starttls()
+                client.login(user, app_password)
+                client.send_message(message)
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError("ERR-email-send", f"message send failed: {exc}") from exc
+    return {"status": "sent", "to": recipient, "subject": str(message["Subject"])}
