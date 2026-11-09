@@ -13,7 +13,8 @@ the product logic: the repository's `src/`.
 | `app/build.gradle` | app module: SDK levels, ABIs, Chaquopy python version + pip |
 | `app/src/main/AndroidManifest.xml` | INTERNET only, allowBackup=false, network security config |
 | `app/src/main/res/xml/network_security_config.xml` | cleartext permitted for 127.0.0.1/localhost only |
-| `app/src/main/java/com/dkbondtracker/app/MainActivity.java` | WebView + Chaquopy bootstrap |
+| `app/src/main/java/com/dkbondtracker/app/MainActivity.java` | WebView + Chaquopy bootstrap + export/share (AND-04) |
+| `app/src/main/java/com/dkbondtracker/app/ExportProvider.java` | read-only ContentProvider that shares files from the app-private `exports` dir |
 | `app/src/main/python/main.py` | thin launcher: starts the real Flask app on 127.0.0.1 |
 | `app/src/main/python/src` | symlink -> `../../../../../src` (the repo's real core) |
 | `gradlew`, `gradle/wrapper` | Gradle 8.9 wrapper (CI builds without a preinstalled gradle) |
@@ -54,6 +55,15 @@ No fallback was needed: Chaquopy 17.2.0 accepted 3.13 and packaged
 - `android:allowBackup="false"`.
 - `android:networkSecurityConfig` permits cleartext to `127.0.0.1` and
   `localhost` only (AND-03), instead of a global `usesCleartextTraffic`.
+- The export `ExportProvider` is `exported="false"` with `grantUriPermissions="true"`; it serves
+  only the app-private `files/exports` directory, read-only, with canonical-path containment, and
+  the `content://` URI reaches `ACTION_SEND` with a read-only grant.
+
+## Export / share (AND-04)
+
+The Settings "Share / Export" card links to `/export.csv?scope=full`. On Android the WebView
+`DownloadListener` fetches that localhost CSV, saves it under `files/exports`, and opens the system
+share sheet through `ExportProvider`; on the web the same link simply downloads the CSV.
 
 ## Build
 
