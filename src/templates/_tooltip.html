@@ -1,0 +1,5 @@
+{% macro tip(ident, kind, text) %}
+{%- set meta = {"blocking": ("Blocking rule", "&#128274;"), "status": ("Status rule", "&#9679;"), "howto": ("How to", "&#9432;"), "warning": ("Warning", "&#9888;")} -%}
+{%- set word, icon = meta[kind] -%}
+<span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-{{ ident }}" data-tip="tip-{{ ident }}">&#9432;</button><span class="tip-bubble tip-{{ kind }}" id="tip-{{ ident }}" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">{{ icon|safe }}</span> {{ word }}</span><span class="tip-text">{{ text }}</span></span></span>
+{%- endmacro %}
