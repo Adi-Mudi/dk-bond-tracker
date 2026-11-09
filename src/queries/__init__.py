@@ -16,6 +16,7 @@ def _default_today():
 
 from .summary import (
     bond_month_totals,
+    goal_derived,
     portfolio_totals,
     status_overview,
     summary_counts,
