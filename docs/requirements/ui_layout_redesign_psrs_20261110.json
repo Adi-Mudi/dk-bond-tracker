@@ -1,0 +1,820 @@
+{
+  "id": "ui_layout_redesign_psrs_20261110",
+  "kind": "psrs",
+  "title": "DK Bond Tracker UI/UX Layout Redesign — V-model spec suite (prd_items + requirements + test_cases + test_bindings)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/123",
+  "derived_from": "Locked Discussion #123 (D-01..D-16 all CONFIRMED) + research doc v1.22 + design outline HTML — documentation only, zero new decisions (Stage 2 rule)",
+  "requirements": [
+    {
+      "id": "UI-01",
+      "text": "Collapsible icon sidebar + single overflow menu + 3-zone pages + bottom tabs ≤5/drawer.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the web app on desktop",
+          "when": "the user clicks the sidebar hide toggle",
+          "then": "the sidebar collapses to icons only and content width increases; expanding restores icons+labels"
+        },
+        {
+          "given": "any page topbar",
+          "when": "the overflow menu is opened",
+          "then": "theme switcher, hide-amounts and notifications appear there exactly once and NOT duplicated in page headers or Settings"
+        },
+        {
+          "given": "the Android app",
+          "when": "the bottom bar renders",
+          "then": "it shows at most 5 tabs and the full navigation is reachable via the drawer"
+        }
+      ]
+    },
+    {
+      "id": "UI-02",
+      "text": "Holdings: pinned key columns, scrolling middle, Detail drawer/page with 6 groups.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "Holdings with ≥3 bonds",
+          "when": "the middle columns overflow the viewport",
+          "then": "Company/ISIN stays pinned left and Status/Detail pinned right while Rating…Next payout scroll; exactly one row per bond with no meta strip"
+        },
+        {
+          "given": "the Holdings list",
+          "when": "the user activates Detail",
+          "then": "desktop opens a side drawer (list still visible, Esc closes) and Android opens a full page (back returns to list), both showing Identity, Investment, Returns, Schedule, Classification and Payment history"
+        }
+      ]
+    },
+    {
+      "id": "UI-03",
+      "text": "Payout cells: green=value only, red=unpaid, amber=due soon, no amounts on unpaid.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a paid month",
+          "when": "the payout matrix/card renders the cell",
+          "then": "it is green and contains ONLY the received value with no 'paid' word and no tick"
+        },
+        {
+          "given": "an unpaid or due-soon month",
+          "when": "the cell renders",
+          "then": "it is red with ONLY 'unpaid' or amber with ONLY 'due soon' and contains NO amount"
+        },
+        {
+          "given": "any payout view",
+          "when": "scanned alongside Dashboard and Portfolio",
+          "then": "status colors use the same semantic tokens everywhere"
+        }
+      ]
+    },
+    {
+      "id": "UI-04",
+      "text": "Watchlist: autocomplete, ISIN locks, rating ≤BBB-, presets, move flow, protected delete, collapsed add, visible errors.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "existing companies in the register",
+          "when": "the user types in the Company field",
+          "then": "matching suggestions appear and the old-ISIN history strip shows for the selected company"
+        },
+        {
+          "given": "an ISIN that already exists",
+          "when": "the user submits Add",
+          "then": "a red popup states the reason with 'View existing'/'Edit ISIN' actions and the field highlights — never a silent reject"
+        },
+        {
+          "given": "the rating dropdown",
+          "when": "opened",
+          "then": "options stop at BBB-; below-investment-grade values are not selectable"
+        },
+        {
+          "given": "a candidate row",
+          "when": "scanned",
+          "then": "actions show only Move and Details; Delete exists only inside Details behind a confirm dialog"
+        },
+        {
+          "given": "a successful Move-to-Portfolio",
+          "when": "the confirm completes",
+          "then": "the bond enters Holdings and the candidate disappears from Watchlist permanently"
+        }
+      ]
+    },
+    {
+      "id": "UI-05",
+      "text": "Goals: locked target, check-ins, consolidated totals, watchlist-only permanent linking, auto-tracking.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a new goal with monthly ₹50,000 over 12 months",
+          "when": "created",
+          "then": "target shows ₹6,00,000 as preview then locks — no edit control exists afterwards"
+        },
+        {
+          "given": "an active goal",
+          "when": "a month is tapped in the check-in strip",
+          "then": "it records invested (green ✓) or not (red ✗) and saved totals update"
+        },
+        {
+          "given": "multiple active goals",
+          "when": "the Goals page opens",
+          "then": "a consolidated monthly commitment and consolidated saved/invested/returns appear above the per-goal cards"
+        },
+        {
+          "given": "the Move-to-Portfolio form with ≥1 active goal",
+          "when": "rendered",
+          "then": "a Goal step/dropdown appears; with zero goals it is absent and the move still succeeds"
+        },
+        {
+          "given": "a bond linked at move",
+          "when": "its Portfolio Detail Goal tab opens",
+          "then": "the goal displays read-only with a permanent badge; no set/change/remove control exists anywhere else"
+        }
+      ]
+    },
+    {
+      "id": "UI-06",
+      "text": "Alerts pure feed with filters/batching/empty state; config relocated to Settings.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "due, overdue and maturity alerts",
+          "when": "the Alerts page opens",
+          "then": "filter chips work, rows group by Today/This week/Older, unread rows are bold with severity bars, and same-type bursts batch into one summary line"
+        },
+        {
+          "given": "zero unread alerts",
+          "when": "the page opens",
+          "then": "the 'All caught up' empty state renders — never a blank list"
+        },
+        {
+          "given": "channel and day-wise settings",
+          "when": "the user wants to change them",
+          "then": "they are found under Settings > Notifications, not on the Alerts feed"
+        }
+      ]
+    },
+    {
+      "id": "UI-07",
+      "text": "Settings task sections + collapsed SMTP Advanced + single theme home + saved feedback.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "Settings on desktop",
+          "when": "opened",
+          "then": "a section sub-nav shows General/Notifications/Share-Export/Data; only the active section renders — no wall of cards"
+        },
+        {
+          "given": "page load",
+          "when": "scanned",
+          "then": "SMTP fields are hidden behind collapsed 'Advanced — Email (SMTP)' and no Appearance radio exists (theme lives only in the top-bar menu)"
+        },
+        {
+          "given": "any settings change",
+          "when": "saved",
+          "then": "an inline '✓ Saved' confirmation appears"
+        }
+      ]
+    },
+    {
+      "id": "UI-08",
+      "text": "Static guide bulb + per-page guidance + semantically tinted accessible tooltips.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any page topbar",
+          "when": "scanned",
+          "then": "the light-bulb icon sits in the same position on every page (web and Android)"
+        },
+        {
+          "given": "the bulb activated",
+          "when": "the guide opens",
+          "then": "it explains the page and its blocking/configuration rules (ISIN lock, rating floor, color meanings) in plain language"
+        },
+        {
+          "given": "a field tooltip",
+          "when": "shown",
+          "then": "it carries the semantic tint (red/green/blue/amber) with icon+word, contrast ≥4.5:1, ≤150 chars; on Android tap reveals and tap-outside dismisses"
+        }
+      ]
+    },
+    {
+      "id": "UI-09",
+      "text": "Global search icon → Holdings+Watchlist results → jump to bond.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the topbar search icon",
+          "when": "activated and a company/ISIN keyword typed",
+          "then": "results from Holdings AND Watchlist appear with status chips"
+        },
+        {
+          "given": "a search result",
+          "when": "selected",
+          "then": "the app navigates to that bond's detail (drawer/page or candidate row)"
+        }
+      ]
+    },
+    {
+      "id": "UI-10",
+      "text": "Group-by selector (None/Goal) + tabbed Move and Detail entry.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "Portfolio",
+          "when": "Group by = None (default)",
+          "then": "the flat D-02 list renders unchanged"
+        },
+        {
+          "given": "Group by = Goal",
+          "when": "applied",
+          "then": "holdings group under goal headers with locked target and mini progress, no-goal bonds under Ungrouped; switching back restores the flat list"
+        },
+        {
+          "given": "the Move-to-Portfolio form",
+          "when": "rendered",
+          "then": "it shows tabs [Purchase details][Financial goal] with the goal tab absent when no goals exist"
+        }
+      ]
+    },
+    {
+      "id": "UI-11",
+      "text": "About & Updates separate page: developer, GitHub, updates, license, disclosed referral.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "navigation",
+          "when": "scanned",
+          "then": "About is its own destination (sidebar below Settings / More on Android), not a Settings section"
+        },
+        {
+          "given": "the About page",
+          "when": "rendered",
+          "then": "it shows developer details, the GitHub link (github.com/Adi-Mudi/dk-bond-tracker), Check-for-updates + auto toggle, What's-new link, license block, and a Support-us block with explicit referral disclosure"
+        }
+      ]
+    },
+    {
+      "id": "UI-12",
+      "text": "Fluid responsive layout with continuous-resizer acceptance.",
+      "category": "non-functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any redesigned screen",
+          "when": "the viewport is dragged continuously from 320px to 1440px",
+          "then": "no horizontal page scroll, no clipped text, no overlapping controls; layout uses %/fr/rem/vw not fixed content widths"
+        },
+        {
+          "given": "touch input on Android",
+          "when": "targets are measured",
+          "then": "every interactive target is ≥48dp at all widths"
+        }
+      ]
+    },
+    {
+      "id": "UI-13",
+      "text": "'Why bonds?' popover + no-recommendation disclaimer on all key surfaces.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the info icon",
+          "when": "activated",
+          "then": "the popover shows fixed-return purpose, >10-12% expectation check, the flip-side (less daily effort than shares), and the red 'We do NOT recommend any bonds' disclaimer"
+        },
+        {
+          "given": "About and Dashboard/Portfolio",
+          "when": "rendered",
+          "then": "the disclaimer is present as footer/section text"
+        }
+      ]
+    },
+    {
+      "id": "UI-14",
+      "text": "TDS derivation: net entry, gross=net/0.9, TDS=net/9, consistent across three surfaces.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the payment editor with TDS toggle ON and net credit ₹6,330",
+          "when": "rendered",
+          "then": "breakdown shows In bank ₹6,330, TDS ₹703, Gross ₹7,033 (net/9 rounding documented)"
+        },
+        {
+          "given": "TDS toggle OFF",
+          "when": "rendered",
+          "then": "gross equals net and TDS shows 0"
+        },
+        {
+          "given": "the same payments",
+          "when": "Dashboard KPI, Portfolio returns and Payouts are compared",
+          "then": "net/TDS/gross values are identical on all three (accuracy gate)"
+        },
+        {
+          "given": "the breakdown",
+          "when": "explained",
+          "then": "text states TDS applies to interest only (never principal) and is a claimable tax credit"
+        }
+      ]
+    },
+    {
+      "id": "UI-15",
+      "text": "Type-first feedback page with screenshot, auto-context, SMTP/GitHub send, offline outbox.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Feedback page",
+          "when": "Bug type selected",
+          "then": "only bug fields appear (≤6 required) with screenshot upload showing a preview before send"
+        },
+        {
+          "given": "any type",
+          "when": "rendered",
+          "then": "context (app version, current page, device) is attached automatically without user input"
+        },
+        {
+          "given": "submit with network",
+          "when": "Email route used",
+          "then": "the message sends via configured SMTP with the screenshot attached; GitHub route opens a prefilled issue on Adi-Mudi/dk-bond-tracker"
+        },
+        {
+          "given": "submit offline",
+          "when": "send fails",
+          "then": "the form saves to a local outbox for retry and the confirmation screen still explains what happens next"
+        }
+      ]
+    },
+    {
+      "id": "UI-16",
+      "text": "Shield Yield logo as app identity on all surfaces.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "concept B assets exported",
+          "when": "web header, Android launcher, About avatar and favicon are inspected",
+          "then": "each shows the blue shield + gold coin + green bars mark at appropriate sizes (48/144/512 PNG + SVG + favicon)"
+        }
+      ]
+    },
+    {
+      "id": "UI-17",
+      "text": "Both surfaces upgraded and tested; full suite green; resizer gate pass.",
+      "category": "non-functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the implementation complete",
+          "when": "pytest runs",
+          "then": "the full existing suite plus new UI/TDS/feedback tests pass locally"
+        },
+        {
+          "given": "the Android build",
+          "when": "assembled and smoke-tested (Waydroid/device)",
+          "then": "the APK carries the redesigned templates and launches to the redesigned UI without crash"
+        },
+        {
+          "given": "each redesigned screen",
+          "when": "continuous-resizer tested 320→1440",
+          "then": "gate passes with zero overflow or clipping"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "UI-01",
+      "area": "chrome",
+      "statement": "The system SHALL present a collapsible icon sidebar on desktop (expanded=icons+labels, minimized=icons only) with a single overflow menu containing theme, hide-amounts and notifications, a 3-zone page structure (KPI row, detail zone, legend), and bottom tabs (max 5) plus drawer navigation on Android.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-01"
+    },
+    {
+      "id": "UI-02",
+      "area": "portfolio",
+      "statement": "The system SHALL render Holdings as one row per bond with Company/ISIN pinned left and Status+Detail pinned right, middle columns horizontally scrollable, and a Detail action opening a side drawer (desktop) or full page (Android) showing six groups: Identity, Investment, Returns, Schedule, Classification, Payment history.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-02"
+    },
+    {
+      "id": "UI-03",
+      "area": "portfolio",
+      "statement": "The system SHALL render payout cells as semantic color blocks with no tick marks: green cell shows ONLY the received value (no 'paid' word), red cell shows ONLY 'unpaid', amber cell shows ONLY 'due soon', and NO amount appears on unpaid/due-soon cells.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-03"
+    },
+    {
+      "id": "UI-04",
+      "area": "watchlist",
+      "statement": "The system SHALL provide a watchlist with company autocomplete, forced-uppercase ISIN with register-wide uniqueness lock, credit rating restricted to AAA…BBB-, Indian rating-agency and broker presets with persisting custom values, old-ISIN history strip, a holdings-style pinned candidate table, Move-to-Portfolio via purchase form with auto-removal, Delete only inside Details with confirmation, a collapsed default '+ Add' form, and a red popup error for every block (never silent).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-04"
+    },
+    {
+      "id": "UI-05",
+      "area": "goals",
+      "statement": "The system SHALL compute each goal's target as monthly amount × months at creation and LOCK it, provide monthly invested/not check-ins, show a consolidated monthly total across active goals, link bonds to goals ONLY at the Watchlist move step (permanent, never unlinkable, read-only in Portfolio), and auto-track linked bonds' invested amounts and returns.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-05"
+    },
+    {
+      "id": "UI-06",
+      "area": "alerts",
+      "statement": "The system SHALL present alerts as a pure feed with filter chips (All/Due/Overdue/Maturity), date grouping, batched bursts, unread emphasis with severity bars, tap-to-bond navigation, mark-all-read/clear, a designed empty state, and SHALL move channel/day-wise configuration to Settings > Notifications.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-06"
+    },
+    {
+      "id": "UI-07",
+      "area": "settings",
+      "statement": "The system SHALL restructure Settings into task-based sections with section navigation (General, Notifications, Share/Export, Data), collapse SMTP configuration behind a collapsed 'Advanced' panel, keep theme control ONLY in the top-bar overflow menu (no duplicate Appearance control), and show inline saved feedback after every change.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-07"
+    },
+    {
+      "id": "UI-08",
+      "area": "guidance",
+      "statement": "The system SHALL provide a static light-bulb guide icon in every topbar opening per-page guidance that explains rules and blocks, and SHALL render field tooltips with semantic tints (red=blocking, green=status, blue=how-to, amber=warning), theme-aware bubbles, contrast ≥4.5:1, ≤150 chars, tap-reveal on touch.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-08"
+    },
+    {
+      "id": "UI-09",
+      "area": "search",
+      "statement": "The system SHALL provide a static search icon in every topbar that searches Holdings and Watchlist by company/ISIN/keyword and jumps to the matched bond.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-09"
+    },
+    {
+      "id": "UI-10",
+      "area": "portfolio",
+      "statement": "The system SHALL provide a Group-by selector in Portfolio (None=default, Goal=grouped headers with locked target + Ungrouped section, switchable anytime) and SHALL use tabbed detail entry: Move form [Purchase details][Financial goal] and Bond Detail [Overview][Payments][Goal read-only].",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-10"
+    },
+    {
+      "id": "UI-11",
+      "area": "about",
+      "statement": "The system SHALL provide a separate About & Updates page (own nav item, not inside Settings) with developer details, GitHub repository link, manual check-for-updates plus automatic check toggle, what's-new link, license section, and a clearly disclosed Support-us referral block.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-11"
+    },
+    {
+      "id": "UI-12",
+      "area": "responsive",
+      "statement": "The system SHALL use fluid layouts only — percentage/fr/rem/vw widths with max-width:100%, flex (1-D) and grid minmax (2-D), mobile-first breakpoints 320→1440, clamp() typography, no horizontal page scroll, touch targets ≥48dp — verified by a continuous-resizer test before any screen is accepted.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-12"
+    },
+    {
+      "id": "UI-13",
+      "area": "education",
+      "statement": "The system SHALL provide a 'Why bonds?' info popover covering fixed-return purpose, the >10-12% expectation check (equity territory), the flip side (bonds need less daily effort), and a prominent disclaimer that the app does NOT recommend any bonds; the disclaimer SHALL also appear in About and as a Dashboard/Portfolio footer line.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-13"
+    },
+    {
+      "id": "UI-14",
+      "area": "tds",
+      "statement": "The system SHALL treat user-entered payment amounts as bank credit (net) and, when the TDS toggle is on, derive gross = net/0.9 and TDS = net/9 (10% of gross interest only, never principal, per s.193/393), displaying the three-way breakdown in the payment editor, Portfolio returns, and the Dashboard KPI with identical values everywhere.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-14"
+    },
+    {
+      "id": "UI-15",
+      "area": "feedback",
+      "statement": "The system SHALL provide a type-first feedback page (Bug/Feature/Question) with ≤6 required fields per type, optional screenshot with preview, auto-attached context (version, page, device), send via configured SMTP email or prefilled GitHub issue, local outbox fallback when offline, and a confirmation screen.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-15"
+    },
+    {
+      "id": "UI-16",
+      "area": "branding",
+      "statement": "The system SHALL use the Shield Yield logo (concept B: blue shield + gold coin + green bars) as the application identity across web header, Android launcher icon, About avatar and favicon.",
+      "priority": "should",
+      "status": "accepted",
+      "decision_id": "D-16"
+    },
+    {
+      "id": "UI-17",
+      "area": "delivery",
+      "statement": "The system SHALL deliver the redesign on BOTH surfaces from the one Flask template codebase — web browser AND Android APK — with the full pytest suite green and the continuous-resizer gate passing on every redesigned screen.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-01"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-UI-01",
+      "title": "Sidebar collapse + single overflow menu + tab cap (UI-01)",
+      "type": "e2e",
+      "steps": "1. Open web dashboard. 2. Click sidebar hide. 3. Inspect overflow menu contents. 4. Count Android bottom tabs.",
+      "expected": "Sidebar icons-only when hidden; theme/hide-amounts/notifications only in overflow; ≤5 tabs",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-02",
+      "title": "Holdings pinned columns + detail drawer/page (UI-02)",
+      "type": "e2e",
+      "steps": "1. Seed 5 bonds. 2. Narrow viewport to force scroll. 3. Verify sticky ends. 4. Click Detail on desktop; open Detail on Android.",
+      "expected": "Ends pinned, one row per bond, drawer on desktop with 6 groups, full page on Android",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-03",
+      "title": "Payout cell color/content rules (UI-03)",
+      "type": "integration",
+      "steps": "1. Seed paid/unpaid/due-soon months. 2. Assert cell classes and text for each state.",
+      "expected": "Green=value only; red='unpaid' only; amber='due soon' only; no amounts on unpaid; no ticks anywhere",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-04",
+      "title": "Watchlist locks, errors, move flow (UI-04)",
+      "type": "e2e",
+      "steps": "1. Type company → suggestions + history strip. 2. Submit duplicate ISIN → popup. 3. Check rating options ceiling. 4. Move candidate → gone from list; Delete only in Details with confirm.",
+      "expected": "All locks and visible-error behaviors match UI-04 acceptance",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-05",
+      "title": "Goals lock/check-ins/linking/auto-track (UI-05)",
+      "type": "integration",
+      "steps": "1. Create goal → verify locked target. 2. Check-in months. 3. Move bond with/without goals. 4. Verify read-only Goal tab + consolidated header.",
+      "expected": "Target immutable; linking only at move; auto totals update",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-06",
+      "title": "Alerts feed filters/batching/empty + config location (UI-06)",
+      "type": "integration",
+      "steps": "1. Seed alert types. 2. Exercise filters, batching, mark-all. 3. Clear all → empty state. 4. Assert channels/rules live in Settings.",
+      "expected": "Feed-only page; all UI-06 behaviors",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-07",
+      "title": "Settings sections + collapsed SMTP + single theme home + saved (UI-07)",
+      "type": "e2e",
+      "steps": "1. Open Settings. 2. Verify sub-nav + section switch. 3. Verify Advanced collapsed and no Appearance radio. 4. Change a pref → ✓ Saved.",
+      "expected": "UI-07 acceptance met",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-08",
+      "title": "Guide bulb + tinted tooltips a11y (UI-08)",
+      "type": "e2e",
+      "steps": "1. Locate bulb on every page. 2. Open guide → rules text. 3. Inspect tooltip tint/contrast/length; tap behavior on Android.",
+      "expected": "UI-08 acceptance met",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-09",
+      "title": "Search across Holdings+Watchlist (UI-09)",
+      "type": "integration",
+      "steps": "1. Seed bonds in both registers. 2. Search keyword. 3. Click result.",
+      "expected": "Combined results with chips; navigation to bond",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-10",
+      "title": "Group-by toggle + tabbed entry (UI-10)",
+      "type": "integration",
+      "steps": "1. Default None. 2. Switch to Goal → headers/Ungrouped. 3. Switch back. 4. Open Move form tabs; Detail tabs.",
+      "expected": "UI-10 acceptance met",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-11",
+      "title": "About page contents + referral disclosure (UI-11)",
+      "type": "e2e",
+      "steps": "1. Open About via nav. 2. Assert developer/GitHub/update/license/support blocks + disclosure text.",
+      "expected": "UI-11 acceptance met; About not inside Settings",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-12",
+      "title": "Continuous-resizer 320→1440 gate (UI-12)",
+      "type": "e2e",
+      "steps": "1. For each redesigned route, drag viewport 320→1440 capturing widths. 2. Assert zero horizontal scroll, no overlap; measure touch targets ≥48dp at 375.",
+      "expected": "Gate passes on every screen",
+      "level": "REMOTE",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-13",
+      "title": "Why-bonds popover + disclaimer surfaces (UI-13)",
+      "type": "e2e",
+      "steps": "1. Open info popover. 2. Assert four content blocks. 3. Assert disclaimer on About + Dashboard/Portfolio footer.",
+      "expected": "UI-13 acceptance met",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-14",
+      "title": "TDS math + cross-surface accuracy gate (UI-14)",
+      "type": "integration",
+      "steps": "1. Save net 6330 with toggle on → assert 6330/703/7033. 2. Toggle off → gross=net. 3. Compare Dashboard vs Portfolio vs Payouts totals.",
+      "expected": "Derived values identical everywhere; interest-only note present",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-15",
+      "title": "Feedback type-first flow + send routes (UI-15)",
+      "type": "e2e",
+      "steps": "1. Select each type → assert field sets. 2. Attach screenshot → preview. 3. SMTP send (test sink) + GitHub prefilled URL. 4. Offline submit → outbox.",
+      "expected": "UI-15 acceptance met",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-16",
+      "title": "Logo B assets present (UI-16)",
+      "type": "integration",
+      "steps": "1. Assert SVG/PNG(48/144/512)/favicon files exist and render in header, launcher, About, favicon.",
+      "expected": "Shield Yield mark used consistently",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-17",
+      "title": "Dual-surface delivery gate (UI-17)",
+      "type": "e2e",
+      "steps": "1. Full pytest suite. 2. Android APK build + Waydroid/device smoke to redesigned UI. 3. TC-UI-12 per screen.",
+      "expected": "Suite green; APK launches redesigned UI; resizer gates pass",
+      "level": "REMOTE",
+      "status": "planned"
+    },
+    {
+      "id": "TC-UI-18",
+      "title": "Regression: existing suite stays green (UI-17)",
+      "type": "regression",
+      "steps": "1. Run full existing tests/ suite unchanged.",
+      "expected": "No regressions from redesign",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "UI-01",
+      "test_case_id": "TC-UI-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-02",
+      "test_case_id": "TC-UI-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-03",
+      "test_case_id": "TC-UI-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-04",
+      "test_case_id": "TC-UI-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-05",
+      "test_case_id": "TC-UI-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-06",
+      "test_case_id": "TC-UI-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-07",
+      "test_case_id": "TC-UI-07",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-08",
+      "test_case_id": "TC-UI-08",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-09",
+      "test_case_id": "TC-UI-09",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-10",
+      "test_case_id": "TC-UI-10",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-11",
+      "test_case_id": "TC-UI-11",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-12",
+      "test_case_id": "TC-UI-12",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-13",
+      "test_case_id": "TC-UI-13",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-14",
+      "test_case_id": "TC-UI-14",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-15",
+      "test_case_id": "TC-UI-15",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-16",
+      "test_case_id": "TC-UI-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-17",
+      "test_case_id": "TC-UI-17",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "UI-17",
+      "test_case_id": "TC-UI-18",
+      "covers": "partial"
+    }
+  ],
+  "carry_over": [],
+  "changelog": [
+    {
+      "date": "2026-11-10",
+      "entry": "v1.0 — authored from Discussion #123 (D-01..D-16) + research v1.22; 17 requirements, 18 test cases, 18 bindings; documentation only"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.1 — reordered requirements before prd_items so extractor keeps acceptance-bearing requirement nodes (dedup kept prd statement nodes with empty acs)"
+    }
+  ]
+}
