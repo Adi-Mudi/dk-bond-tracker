@@ -18,7 +18,7 @@ from src.views.common import (
 
 bp = Blueprint("settings", __name__)
 
-SECTIONS = ("general", "notifications", "share", "data", "about")
+SECTIONS = ("general", "notifications", "share", "data")
 
 
 def active_section(raw):

@@ -8,7 +8,18 @@ from src.app import create_app
 pytestmark = pytest.mark.remote
 
 WIDTHS = (320, 360, 375, 414, 480, 768, 1024, 1440)
-CORE_ROUTES = ("/", "/grid", "/portfolio", "/watch", "/goals", "/notifications", "/settings")
+CORE_ROUTES = (
+    "/",
+    "/grid",
+    "/portfolio",
+    "/watch",
+    "/goals",
+    "/notifications",
+    "/settings",
+    "/about",
+    "/feedback",
+    "/search",
+)
 SCROLL_CONTAINER_CLASSES = {"table-wrap"}
 VOID_TAGS = {
     "area",
@@ -263,3 +274,31 @@ def test_every_table_sits_inside_a_horizontal_scroll_container(client):
         for node in walk(root):
             if node.tag == "table":
                 assert inside_scroll_container(node), route
+
+
+def test_gate_flags_an_unguarded_fixed_width(client):
+    html = (
+        "<!doctype html><html><head><style>.wide-only { width: 4800px; }</style></head>"
+        '<body><div class="wide-only">x</div></body></html>'
+    )
+    findings = overflow_findings(client, html, 320)
+    assert findings, "an unguarded fixed width must be reported"
+    assert "wide-only" in findings[0]
+
+
+def test_gate_ignores_a_guarded_fixed_width(client):
+    html = (
+        "<!doctype html><html><head>"
+        "<style>.ok-only { width: 4800px; overflow-x: auto; }</style></head>"
+        '<body><div class="ok-only">x</div></body></html>'
+    )
+    assert overflow_findings(client, html, 320) == []
+
+
+def test_gate_ignores_a_width_inside_a_scroll_container(client):
+    html = (
+        "<!doctype html><html><head>"
+        "<style>#inside-table { min-width: 4800px; }</style></head>"
+        '<body><div class="table-wrap"><table id="inside-table"></table></div></body></html>'
+    )
+    assert overflow_findings(client, html, 320) == []
