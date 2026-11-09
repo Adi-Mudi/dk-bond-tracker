@@ -7,6 +7,7 @@ from flask import Blueprint, redirect, render_template, request, url_for
 from src.db import get_conn
 from src.engine import display_label
 from src.ledger import ledger_by_bond, save_payment
+from src.phase4 import tds_breakdown
 from src.queries import (
     MONTH_PATTERN,
     grid_model,
@@ -102,6 +103,8 @@ def dashboard_model(conn, today):
         "counts": counts,
         "total_invested": total_invested,
         "received_total": received_total,
+        "received_tds": amounts["received_tds"],
+        "received_gross": amounts["received_gross"],
         "outstanding": received_total - total_invested,
         "next_payout_amount": next_payout["amount"] if next_payout else 0.0,
         "next_payout_date": next_payout["date_label"] if next_payout else None,
@@ -176,6 +179,7 @@ def payment_edit(bond_id, month):
             if ledger is not None:
                 amount_value = float(ledger["amount"] or 0.0)
                 paid_flag = bool(ledger["paid"]) and amount_value > 0
+            breakdown = tds_breakdown(amount_value)
         except AppError as exc:
             return error_page(exc.code, exc.message, "Payment edit failed", 400)
         return render_template(
@@ -186,6 +190,8 @@ def payment_edit(bond_id, month):
             state=state,
             amount=amount_value,
             paid=paid_flag,
+            tds=breakdown["tds"],
+            gross=breakdown["gross"],
         )
     try:
         amount_raw = request.form.get("amount", "")

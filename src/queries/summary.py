@@ -105,18 +105,23 @@ def summary_counts(conn, today=None):
 
 
 def summary_amounts(conn, today=None):
+    from ..phase4 import tds_breakdown
+
     try:
         totals = portfolio_totals(conn)
     except AppError as exc:
         raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc.message}") from exc
     except Exception as exc:
         raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc}") from exc
+    breakdown = tds_breakdown(totals["till_return"])
     today_value = _resolve_today(today)
     if today_value is None:
         return {
             "total_investment": totals["total_investment"],
             "till_return": totals["till_return"],
             "balance": totals["balance"],
+            "received_tds": breakdown["tds"],
+            "received_gross": breakdown["gross"],
             "month": None,
             "month_message": "current month could not be resolved",
         }
@@ -124,6 +129,8 @@ def summary_amounts(conn, today=None):
         "total_investment": totals["total_investment"],
         "till_return": totals["till_return"],
         "balance": totals["balance"],
+        "received_tds": breakdown["tds"],
+        "received_gross": breakdown["gross"],
         "month": month_key(today_value),
         "month_message": None,
     }
