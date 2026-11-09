@@ -37,7 +37,9 @@
     "smoke_command": "DKBT_SMOKE_OUT=<repo>/android/evidence/issue113/tc bash android/device_smoke.sh",
     "smoke_result": "PASS (rc=0)",
     "summary": "android/evidence/issue113/tc/device_smoke.json",
-    "share_sheet_proof": "tc_and_05_share_sheet.png shows the ACTION_SEND chooser ('No apps can perform this action.'); the chooser is launched only after a successful fetch+save, so its presence proves the whole path"
+    "share_sheet_proof": "tc_and_05_share_sheet.png shows the ACTION_SEND chooser; it is launched only after a successful fetch+save, so its presence proves the whole write path",
+    "chooser_no_targets_note": "the sheet reads 'No apps can perform this action.' - this is a BARE-IMAGE environment fact, NOT a product failure: the Waydroid lineage image ships no share-target app for text/csv. The sheet still opens, which is exactly the AND-04 acceptance",
+    "fail_signal": "if the sheet does NOT open, the export FAILED - a fetch/save error shows an in-app Toast and never fires ACTION_SEND; the smoke exit gate requires tc_and_05_share_sheet.png and TC-AND-05 reads FAIL without it"
   },
   "tc_coverage": {
     "TC-AND-05": {
@@ -64,8 +66,9 @@
     "provider is zero-comment and ~85 lines"
   ],
   "limitations": [
-    "the Waydroid image has no share-target apps, so the chooser shows 'No apps can perform this action.' - the sheet still opens (that is the AND-04 acceptance)",
-    "reading the saved CSV back (run-as) and dumping the chooser (dumpsys) need root/adb, which is unavailable; covered by the host contract (no storage permission) and the in-app failure Toast path",
+    "the Waydroid image has no share-target apps, so the chooser shows 'No apps can perform this action.' - the sheet still opens, which is the AND-04 acceptance; a sheet that does NOT open is a FAIL",
+    "no run-as-free file check exists in this environment: 'waydroid shell' needs root, adb has no device, and the host-side container path (~/.local/share/waydroid/data/data/<pkg>) is not readable by the host user (container uid mismatch) - all three were tried. So the on-device proof covers the WRITE path (chooser) end-to-end; the provider READ path rests on the wiring test plus code review",
+    "reading the saved CSV back (run-as) and dumping the chooser via dumpsys need root/adb, which is unavailable",
     "the smoke drives the WebView by keyboard; the Export CSV link is the 26th focusable element on the Settings page (DKBT_EXPORT_TAB overrides)"
   ],
   "reproduce": [
