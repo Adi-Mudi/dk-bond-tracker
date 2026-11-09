@@ -77,6 +77,10 @@ def _ensure_columns(conn):
     goal_columns = {row[1] for row in conn.execute("PRAGMA table_info(financial_goals)")}
     if "saved_amount" not in goal_columns:
         conn.execute("ALTER TABLE financial_goals ADD COLUMN saved_amount REAL DEFAULT 0")
+    for column in ("monthly_amount REAL", "start_date TEXT", "checkins TEXT"):
+        name = column.split()[0]
+        if name not in goal_columns:
+            conn.execute(f"ALTER TABLE financial_goals ADD COLUMN {column}")
     ledger_columns = {row[1] for row in conn.execute("PRAGMA table_info(payment_ledger)")}
     if "tds_applied" not in ledger_columns:
         conn.execute(
@@ -93,6 +97,7 @@ def _ensure_columns(conn):
         "watch_state TEXT NOT NULL DEFAULT 'holding' CHECK (watch_state IN ('holding','watching'))",
         "broker TEXT",
         "purchase_date TEXT",
+        "goal_id INTEGER",
     ):
         name = column.split()[0]
         if name not in bond_columns:
