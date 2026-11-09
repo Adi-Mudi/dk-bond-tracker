@@ -68,7 +68,7 @@
     <a class="settings-nav-item{% if active == 'notifications' %} active{% endif %}" id="nav-notifications" href="/settings?section=notifications#section-notifications">Notifications</a>
     <a class="settings-nav-item{% if active == 'share' %} active{% endif %}" id="nav-share" href="/settings?section=share#section-share">Share / Export</a>
     <a class="settings-nav-item{% if active == 'data' %} active{% endif %}" id="nav-data" href="/settings?section=data#section-data">Data</a>
-    <a class="settings-nav-item pointer{% if active == 'about' %} active{% endif %}" id="nav-about" href="/settings?section=about#section-about">About &#8594;</a>
+    <a class="settings-nav-item pointer" id="nav-about" href="/about">About &#8594;</a>
   </nav>
 
   <div class="settings-content" id="settings-content">
@@ -188,17 +188,6 @@
         </div>
       </section>
 
-      <section class="settings-section" id="section-about"{% if active != 'about' %} hidden{% endif %}>
-        <div class="card" id="about-card">
-          <h2>About</h2>
-          <p id="app-version">Version {{ app_version }}</p>
-          <p id="build-notes-line">{{ build_notes }}</p>
-          <p id="offline-badge" class="banner banner-info">100% offline — no accounts, no cloud</p>
-          <p id="data-dir-wrap" hidden><code id="data-dir-path">{{ data_dir }}</code></p>
-          <button type="button" class="btn btn-sm" id="reveal-data-folder">Open local data folder</button>
-        </div>
-      </section>
-
       <div class="section-gap">
         <button class="btn btn-primary" type="submit" id="save-settings">Save settings</button>
         <span class="saved-flag" id="settings-saved"{% if not saved %} hidden{% endif %}>&#10003; Saved</span>
@@ -209,13 +198,6 @@
 </div>
 <script>
 (function () {
-  var btn = document.getElementById("reveal-data-folder");
-  var wrap = document.getElementById("data-dir-wrap");
-  if (btn && wrap) {
-    btn.addEventListener("click", function () {
-      wrap.hidden = false;
-    });
-  }
   var form = document.getElementById("settings-form");
   var dirty = document.getElementById("settings-dirty");
   var saved = document.getElementById("settings-saved");

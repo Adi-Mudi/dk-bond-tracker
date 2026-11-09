@@ -38,4 +38,5 @@ def about_page():
         build_notes=BUILD_NOTES,
         last_checked=last_checked,
         auto_check=auto_check,
+        data_dir=str(db_file.parent),
     )
