@@ -28,7 +28,7 @@ COVERAGE = {
     "TC-AND-02": {"tier": "host", "check": "test_tc_and_02_core_not_forked + test_tc_and_02_bundled_assets_byte_identical"},
     "TC-AND-03": {"tier": "host+device", "check": "test_tc_and_03_db_path_is_app_private + device_smoke.sh::app_private_db"},
     "TC-AND-04": {"tier": "host+device", "check": "test_tc_and_04_network_security_config + device_smoke.sh::dashboard_launch"},
-    "TC-AND-05": {"tier": "host+device", "check": "test_tc_and_05_no_storage_permission + device_smoke.sh::share_export_ui"},
+    "TC-AND-05": {"tier": "host+device", "check": "test_tc_and_05_no_storage_permission + device_smoke.sh::share_export_ui", "device_status": "BLOCKED", "blocked_by": "issue #113 (AND-04 share-sheet export)"},
     "TC-AND-06": {"tier": "host+device", "check": "test_tc_and_06_no_push_channels + device_smoke.sh::alerts_parity"},
     "TC-AND-07": {"tier": "device", "check": "device_smoke.sh::relaunch_durability"},
     "TC-AND-08": {"tier": "host", "check": "test_tc_and_08_manifest_permissions_are_internet_only"},

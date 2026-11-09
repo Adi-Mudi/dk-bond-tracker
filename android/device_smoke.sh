@@ -274,6 +274,7 @@ summary = {
                       "note": "render proves the WebView loaded 127.0.0.1; cleartext logcat needs root waydroid logcat (unavailable)"},
         "TC-AND-05": {"tier": "device", "result": "BLOCKED",
                       "reason": "no in-app export/share trigger and no Android ACTION_SEND/FileProvider in MainActivity.java; nearest surface captured",
+                      "tracked_by": "issue #113 (AND-04 Android share-sheet export)",
                       "evidence": "tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png"},
         "TC-AND-06": {"tier": "device",
                       "result": "PASS" if caps.get("tc_and_06_alerts_parity.png") else "FAIL",

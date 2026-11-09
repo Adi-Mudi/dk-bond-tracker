@@ -47,7 +47,7 @@
     {"tc": "TC-AND-02", "tier": "host", "check": "test_tc_and_02_core_not_forked + test_tc_and_02_bundled_assets_byte_identical", "result": "PASS", "evidence": "app.imy templates/static byte-identical to repo; python source set is a symlink to src/"},
     {"tc": "TC-AND-03", "tier": "host+device", "check": "test_tc_and_03_db_path_is_app_private + device_smoke.sh", "result": "PASS(host) / BLOCKED(device)", "evidence": "main.py writes Path(getFilesDir())/bonds.db; run-as not available for the device assertion"},
     {"tc": "TC-AND-04", "tier": "host+device", "check": "test_tc_and_04_network_security_config + device render", "result": "PASS(host) / PASS(render)", "evidence": "netsec config permits 127.0.0.1+localhost only; dashboard renders on device; cleartext logcat needs root"},
-    {"tc": "TC-AND-05", "tier": "host+device", "check": "test_tc_and_05_no_storage_permission + device export flow", "result": "PASS(manifest) / BLOCKED(export)", "evidence": "no storage permission; NO in-app export trigger and no Android share sheet (see findings)"},
+    {"tc": "TC-AND-05", "tier": "host+device", "check": "test_tc_and_05_no_storage_permission + device export flow", "result": "PASS(manifest) / BLOCKED(export)", "evidence": "manifest has no storage permission (PASS); device steps 1-3 (trigger export -> share sheet) have no implementation, so they are BLOCKED by issue #113 - AND-04 Android share-sheet export, scheduled after Stage 4 merges and before Stage 5 close. Honest BLOCKED (deferred to its own slice per one-issue-at-a-time), NOT a Stage-4 failure"},
     {"tc": "TC-AND-06", "tier": "host+device", "check": "test_tc_and_06_no_push_channels + alerts render", "result": "PASS", "evidence": "tc/tc_and_06_alerts_parity.png; no SMS/WhatsApp/push tokens in the tree"},
     {"tc": "TC-AND-07", "tier": "device", "check": "device_smoke.sh container-restart kill + dashboard compare", "result": "PASS", "evidence": "tc/tc_and_07_dashboard_after_restart.png vs tc/tc_and_01_dashboard_launch.png (content diff 0.0027%)"},
     {"tc": "TC-AND-08", "tier": "host", "check": "test_tc_and_08_manifest_permissions_are_internet_only (+ aapt2 dump permissions on the APK)", "result": "PASS", "evidence": "aapt2: uses-permission: android.permission.INTERNET only"},
@@ -65,7 +65,7 @@
     {
       "id": "F1",
       "severity": "MAJOR",
-      "status": "REPORTED - not fixed (out of Stage-4 scope; product gap, not a test bug)",
+      "status": "DEFERRED to issue #113 (AND-04 Android share-sheet export) - PM decision option (b) + D15; per one-issue-at-a-time the requirement moves to its own slice after Stage 4 merges and before Stage 5 close; no Stage-4 implementation (D12); not a test bug",
       "title": "AND-04 / TC-AND-05 export+share is not implemented",
       "evidence": [
         "no template links to /export.csv or /share anywhere in src/templates (desktop src is identical)",
