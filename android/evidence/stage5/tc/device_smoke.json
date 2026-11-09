@@ -1,0 +1,129 @@
+{
+ "id": "android_stage4_device_smoke",
+ "package": "com.dkbondtracker.app",
+ "apk_sha256": "47d9ee7889d366b042b1fd65a4428331887430f1a95cda317907555d6945f49d",
+ "captures": {
+  "p1_wipe_proof_watchlist_empty.png": {
+   "sha16": "f6a686c22186be41",
+   "bytes": 90142
+  },
+  "p2_fresh_alerts_empty_badge0.png": {
+   "sha16": "8da26f29a6aae67c",
+   "bytes": 64990
+  },
+  "p3_alerts_after_candidate_restart.png": {
+   "sha16": "9d12fb23712000e1",
+   "bytes": 65125
+  },
+  "p3_candidate_added.png": {
+   "sha16": "1e46e1f92ea300a2",
+   "bytes": 97869
+  },
+  "p3_company_typed.png": {
+   "sha16": "33f51a5f5a198904",
+   "bytes": 101727
+  },
+  "p3_form_filled.png": {
+   "sha16": "5f1c69b1b061bad7",
+   "bytes": 91955
+  },
+  "p3_privacy_off_watchlist.png": {
+   "sha16": "5e4d319e68abf081",
+   "bytes": 90725
+  },
+  "p3_watchlist_candidate_present.png": {
+   "sha16": "d45d7a8b0c071b31",
+   "bytes": 96930
+  },
+  "probeA_after_launch.png": {
+   "sha16": "5f6c98e13f872fd4",
+   "bytes": 71087
+  },
+  "probeB_goto3.png": {
+   "sha16": "f6a686c22186be41",
+   "bytes": 90142
+  },
+  "probeC_goto5.png": {
+   "sha16": "8da26f29a6aae67c",
+   "bytes": 64990
+  },
+  "probeD_goto1.png": {
+   "sha16": "1592355c63443821",
+   "bytes": 71230
+  },
+  "probe_mouse_watchlist.png": {
+   "sha16": "28624634a2749e4d",
+   "bytes": 86886
+  },
+  "tc_and_01_dashboard_launch.png": {
+   "sha16": "9f8662a7644975f8",
+   "bytes": 97746
+  },
+  "tc_and_04_webview_localhost.png": {
+   "sha16": "9f8662a7644975f8",
+   "bytes": 97746
+  },
+  "tc_and_05_settings_share_export.png": {
+   "sha16": "dfcd6e838394f16a",
+   "bytes": 73717
+  },
+  "tc_and_05_share_sheet.png": {
+   "sha16": "06d913d65855c172",
+   "bytes": 61981
+  },
+  "tc_and_05_watchlist_add_form.png": {
+   "sha16": "af5072f72de9d9bb",
+   "bytes": 97639
+  },
+  "tc_and_06_alerts_parity.png": {
+   "sha16": "e13cfb7e07a863e2",
+   "bytes": 65768
+  },
+  "tc_and_07_dashboard_after_restart.png": {
+   "sha16": "8201ada9319dfcb9",
+   "bytes": 75573
+  }
+ },
+ "assertions": {
+  "three_flows_render_distinct_pages": true,
+  "durability_content_diff_ratio": 0.22265625,
+  "durability_within_2pct": false
+ },
+ "tc_results": {
+  "TC-AND-01": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_01_dashboard_launch.png"
+  },
+  "TC-AND-03": {
+   "tier": "device",
+   "result": "BLOCKED (env: no run-as); host contract covers",
+   "reason": "app-private DB path needs adb/run-as or root waydroid shell (neither available); the host contract covers it - android/tests/test_tc_and_host.py::test_tc_and_03_db_path_is_app_private"
+  },
+  "TC-AND-04": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_04_webview_localhost.png",
+   "note": "render proves the WebView loaded 127.0.0.1; cleartext logcat needs root waydroid logcat (unavailable)"
+  },
+  "TC-AND-05": {
+   "tier": "device",
+   "result": "PASS",
+   "reason": "Export CSV link -> WebView onDownloadStart -> save to app-private files -> content:// via ExportProvider -> ACTION_SEND chooser; the chooser opens only after a successful save, so its presence proves the whole path",
+   "evidence": "tc_and_05_share_sheet.png, tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png",
+   "needs_root": "reading the saved CSV back (run-as) and dumping the chooser via dumpsys need root/adb (unavailable); covered by the host contract (no storage permission) and the in-app failure Toast path"
+  },
+  "TC-AND-06": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_06_alerts_parity.png"
+  },
+  "TC-AND-07": {
+   "tier": "device",
+   "result": "PARTIAL",
+   "reason": "dashboard rendered after a real container restart (session stop/start kills the app process); compared to the fresh-launch dashboard",
+   "evidence": "tc_and_07_dashboard_after_restart.png vs tc_and_01_dashboard_launch.png",
+   "content_diff_ratio": 0.22265625
+  }
+ }
+}

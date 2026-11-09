@@ -10,7 +10,7 @@ the product logic: the repository's `src/`.
 | Path | Purpose |
 | --- | --- |
 | `settings.gradle`, `build.gradle`, `gradle.properties` | Gradle root: AGP 8.7.2 + Chaquopy 17.2.0 |
-| `app/build.gradle` | app module: SDK levels, ABIs, Chaquopy python version + pip |
+| `app/build.gradle` | app module: SDK levels, ABIs, Chaquopy python version + pip, release signing |
 | `app/src/main/AndroidManifest.xml` | INTERNET only, allowBackup=false, network security config |
 | `app/src/main/res/xml/network_security_config.xml` | cleartext permitted for 127.0.0.1/localhost only |
 | `app/src/main/java/com/dkbondtracker/app/MainActivity.java` | WebView + Chaquopy bootstrap + export/share (AND-04) |
@@ -19,6 +19,7 @@ the product logic: the repository's `src/`.
 | `app/src/main/python/src` | symlink -> `../../../../../src` (the repo's real core) |
 | `gradlew`, `gradle/wrapper` | Gradle 8.9 wrapper (CI builds without a preinstalled gradle) |
 | `build_debug.sh` | sets the local toolchain env and runs `:app:assembleDebug` |
+| `build_release.sh` | same toolchain env, runs `:app:assembleRelease` (signed release APK) |
 
 ## Real core, no copies (D2)
 
@@ -83,11 +84,62 @@ or manually:
 
 APK: `android/app/build/outputs/apk/debug/app-debug.apk`.
 
+## Release build (signed)
+
+The release APK is signed with a **local** keystore that is never committed
+(`*.jks`, `*.keystore` and `keystore.properties` are gitignored in
+`android/.gitignore`).
+
+One-time keystore + local properties (create once, keep out of git):
+
+    cd android
+    spike/tools/jdk17/bin/keytool -genkeypair \
+      -keystore spike/dkbt-release.jks -alias dkbt \
+      -keyalg RSA -keysize 2048 -validity 10000 -storetype PKCS12 \
+      -dname "CN=DK Bond Tracker, OU=<unit>, O=<org>, L=<city>, S=<state>, C=<cc>"
+
+    cat > keystore.properties <<'EOF'
+    storeFile=spike/dkbt-release.jks
+    storePassword=<store password>
+    keyAlias=dkbt
+    keyPassword=<key password>
+    EOF
+
+Build the signed release APK (one command):
+
+    bash android/build_release.sh
+    # override the build python if needed:
+    DKBT_BUILD_PYTHON=/path/to/python3.13 bash android/build_release.sh
+
+Output: `android/app/build/outputs/apk/release/app-release.apk`, signed with the
+keystore above.
+
+`app/build.gradle` reads the signing material from `keystore.properties` only
+when that file exists; otherwise it falls back to these CI environment
+variables, so no secret is ever written into the tracked tree:
+
+    DKBT_RELEASE_KEYSTORE_FILE, DKBT_RELEASE_STORE_PASSWORD,
+    DKBT_RELEASE_KEY_ALIAS, DKBT_RELEASE_KEY_PASSWORD
+
+Verify the signer and run the on-device smoke pass:
+
+    android/spike/tools/jdk17/bin/java -jar \
+      android/spike/android-sdk/build-tools/34.0.0/lib/apksigner.jar \
+      verify --print-certs android/app/build/outputs/apk/release/app-release.apk
+
+    DKBT_APK=android/app/build/outputs/apk/release/app-release.apk \
+      DKBT_CLEAN=1 bash android/device_smoke.sh
+
+(`DKBT_CLEAN=1` removes an existing install first, so the pass starts from a
+fresh app.)
+
 ## Notes
 
 - `local.properties`, `.gradle/`, `build/` and the pip cache are gitignored;
   the python `src` entry is a symlink, not a copy, so nothing under `src/` is
   modified.
-- The bundled `src/design/` assets ride along because they live in the repo
-  `src/` tree; they are inert at runtime.
+- The bundled `src/design/` assets are excluded from Chaquopy packaging
+  (`chaquopy { sourceSets { main { exclude "src/design/**" } } }` in
+  `app/build.gradle`); they are inert at runtime and dropping them saves ~96 KB
+  of APK size.
 - `gradlew` and `gradle-wrapper.jar` are the standard Gradle-generated wrapper.
