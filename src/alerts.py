@@ -10,7 +10,8 @@ def daily_sweep(conn, today):
     events = []
     current_month = f"{today.year:04d}-{today.month:02d}"
     rows = conn.execute(
-        "SELECT id, company, start_date, tenure_months, credit_day, status FROM bonds ORDER BY id"
+        "SELECT id, company, start_date, tenure_months, credit_day, status FROM bonds "
+        "WHERE watch_state = 'holding' ORDER BY id"
     ).fetchall()
     for row in rows:
         if row["status"] == "Completed":

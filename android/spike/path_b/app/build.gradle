@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
+}
+
+def buildPythonPath = providers.gradleProperty('dkbt.buildPython')
+        .getOrElse('/home/user/.local/bin/python3.11')
+
+android {
+    namespace 'com.dkbondtracker.spike'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.dkbondtracker.pathb"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "0.1"
+        ndk {
+            abiFilters "x86_64"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+chaquopy {
+    defaultConfig {
+        version = "3.11"
+        buildPython(buildPythonPath)
+        pip {
+            install("flask")
+        }
+    }
+}

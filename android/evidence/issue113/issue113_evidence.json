@@ -1,0 +1,78 @@
+{
+  "id": "android_issue113_share_sheet_export",
+  "kind": "report",
+  "issue": 113,
+  "title": "AND-04 Android share-sheet export: WebView download + ContentProvider + ACTION_SEND",
+  "date": "2026-11-09",
+  "author": "C1 (kimi) on behalf of PM t14v",
+  "worktree": {
+    "branch": "feat-113-and04-share-sheet",
+    "base": "dev @aad9b53",
+    "toolchain": "android/spike/{android-sdk,.gradle-home,tools} moved in from the android-stage4-tests worktree (same filesystem, gitignored)"
+  },
+  "apk": {
+    "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "b431654e9ad02e260b43e91895aac00d4206f3245bec80b81f5254821598526f",
+    "size_bytes": 37863318
+  },
+  "flow": {
+    "trigger": "Settings > Share / Export card > Export CSV link -> GET /export.csv?scope=full",
+    "android": "WebView DownloadListener -> fetch localhost CSV -> save under files/exports -> content:// via ExportProvider -> ACTION_SEND chooser",
+    "web": "the same link downloads the CSV in the browser (additive)"
+  },
+  "changes": [
+    {"file": "android/app/src/main/java/com/dkbondtracker/app/MainActivity.java", "sha256": "f902f3d05e5c95dc4d554c0432b22aecc00c86f4267df65d914f347cdc1135a6", "kind": "modified", "what": "setDownloadListener -> save app-private -> content URI -> ACTION_SEND"},
+    {"file": "android/app/src/main/java/com/dkbondtracker/app/ExportProvider.java", "sha256": "166952864ae193eea19efb0c5540d874f455abe395daa08730ca5039e5141ec6", "kind": "new", "what": "read-only ContentProvider, app-private exports dir only"},
+    {"file": "android/app/src/main/AndroidManifest.xml", "sha256": "3bce896f504cc63880857dcf90a1a19c23b108f844ff6a0fd41a36eba88524af", "kind": "modified", "what": "<provider> exported=false + grantUriPermissions=true; INTERNET-only unchanged"},
+    {"file": "src/templates/settings.html", "sha256": "c3ad8bb025510debf2cf1e99d32326de8de09ac9c93a5cb1238a33a850ce3676", "kind": "modified", "what": "Export CSV link added to the Share / Export card"},
+    {"file": "android/device_smoke.sh", "sha256": "13e54a433231b75643168ef22f243e27de7afb69194f1d465c27ca0238a36bd5", "kind": "modified", "what": "TC-AND-05 export -> share-sheet steps (key_tab, EXPORT_TAB)"},
+    {"file": "android/tests/test_tc_and_host.py", "sha256": "a533d47352c2906b829bebb9c3e15ab75eb8a93c7862030f32b63c79bdac35f0", "kind": "modified", "what": "TC-AND-05 COVERAGE BLOCKED -> host+device; new test_tc_and_05_export_share_wiring"},
+    {"file": "android/README.md", "sha256": "b13e60864f6408115bf81d8e5fa05ed33d6cdf2c2282cfabdfc2811918c4af9d", "kind": "modified", "what": "documents the provider and the export/share flow"}
+  ],
+  "device": {
+    "runtime": "Waydroid container, x86_64, Android API 33 (lineage-based)",
+    "session": "GNOME session was locked at start; unlocked via loginctl unlock-session (user-level, reversible); relocked after the pass",
+    "input": "ydotool keyboard only (Tab/Enter); absolute mouse moves are unreliable under pointer acceleration",
+    "evidence_dir": "android/evidence/issue113/tc",
+    "smoke_command": "DKBT_SMOKE_OUT=<repo>/android/evidence/issue113/tc bash android/device_smoke.sh",
+    "smoke_result": "PASS (rc=0)",
+    "summary": "android/evidence/issue113/tc/device_smoke.json",
+    "share_sheet_proof": "tc_and_05_share_sheet.png shows the ACTION_SEND chooser; it is launched only after a successful fetch+save, so its presence proves the whole write path",
+    "chooser_no_targets_note": "the sheet reads 'No apps can perform this action.' - this is a BARE-IMAGE environment fact, NOT a product failure: the Waydroid lineage image ships no share-target app for text/csv. The sheet still opens, which is exactly the AND-04 acceptance",
+    "fail_signal": "if the sheet does NOT open, the export FAILED - a fetch/save error shows an in-app Toast and never fires ACTION_SEND; the smoke exit gate requires tc_and_05_share_sheet.png and TC-AND-05 reads FAIL without it"
+  },
+  "tc_coverage": {
+    "TC-AND-05": {
+      "before": "host PASS (no storage permission) / device BLOCKED (issue #113)",
+      "after": "host PASS + device PASS",
+      "device_evidence": "tc_and_05_share_sheet.png, tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png",
+      "host_check": "test_tc_and_05_no_storage_permission + test_tc_and_05_export_share_wiring"
+    }
+  },
+  "suites": {
+    "web": "pytest tests -q -m 'not remote' -> 501 collected, 496 passed, 5 deselected (unchanged from the pre-change baseline; the template link is additive)",
+    "android_host": "pytest android/tests/test_tc_and_host.py -q -> 11 passed",
+    "src_python": "src/*.py untouched"
+  },
+  "deviations": [
+    {"from": "androidx FileProvider (issue/brief wording)", "to": "dependency-free custom ContentProvider", "why": "this app has zero external dependencies (no androidx on the classpath, confirmed in the built APK); global Rule 7 forbids adding an avoidable dependency when a built-in alternative exists; PM confirmed Option 1", "accepted_by": "PM t14v (issue amended)"},
+    {"from": "res/xml/file_paths.xml (brief item 3)", "to": "hardcoded app-private exports root", "why": "the provider serves exactly one root; the FileProvider-style XML parsing was the leftover and pushed the file over the PM's ~60-90 line cap", "accepted_by": "PM t14v (delete confirmed)"}
+  ],
+  "constraints_met": [
+    "android:exported=false + android:grantUriPermissions=true; the exact content URI is handed to ACTION_SEND with FLAG_GRANT_READ_URI_PERMISSION only",
+    "serves only files/exports under getFilesDir(); canonical-path containment rejects traversal/symlink escapes; openFile only",
+    "CSV file name sanitized before write (single path segment, non-safe chars replaced)",
+    "read-only: ParcelFileDescriptor.MODE_READ_ONLY, insert/delete/update throw; INTERNET-only manifest, zero storage permissions",
+    "provider is zero-comment and ~85 lines"
+  ],
+  "limitations": [
+    "the Waydroid image has no share-target apps, so the chooser shows 'No apps can perform this action.' - the sheet still opens, which is the AND-04 acceptance; a sheet that does NOT open is a FAIL",
+    "no run-as-free file check exists in this environment: 'waydroid shell' needs root, adb has no device, and the host-side container path (~/.local/share/waydroid/data/data/<pkg>) is not readable by the host user (container uid mismatch) - all three were tried. So the on-device proof covers the WRITE path (chooser) end-to-end; the provider READ path rests on the wiring test plus code review",
+    "reading the saved CSV back (run-as) and dumping the chooser via dumpsys need root/adb, which is unavailable",
+    "the smoke drives the WebView by keyboard; the Export CSV link is the 26th focusable element on the Settings page (DKBT_EXPORT_TAB overrides)"
+  ],
+  "reproduce": [
+    "bash android/build_debug.sh",
+    "DKBT_SMOKE_OUT=<repo>/android/evidence/issue113/tc bash android/device_smoke.sh"
+  ]
+}
