@@ -166,6 +166,21 @@ fi
 waydroid status 2>&1 | head -3
 ensure_ui_client
 
+if [ "${DKBT_COLD_START:-1}" = "1" ]; then
+  say "cold start: restarting the container so the launch capture is a DETERMINISTIC COLD START"
+  say "  root-free mechanism: waydroid session stop -> session start -> wait for Android boot"
+  say "  reason: install+launch alone does NOT reset the WebView, so the app can resume its last-visited page instead of the Dashboard"
+  timeout 90 waydroid session stop >/dev/null 2>&1
+  sleep 5
+  if start_session && wait_android_boot; then
+    say "cold start complete: container restarted and Android booted"
+  else
+    say "WARN: cold start did not complete cleanly; continuing"
+  fi
+  sleep 8
+  ensure_ui_client
+fi
+
 say "installing APK (TC-AND-01)"
 if [ "${DKBT_CLEAN:-0}" = "1" ]; then
   say "clean install requested: removing existing app data"
