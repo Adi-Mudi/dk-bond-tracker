@@ -27,22 +27,24 @@ def test_tc113_header_has_three_theme_segments(db_path):
     assert tuple(values) == THEME_VALUES
 
 
-def test_tc113_settings_has_same_three_radio_modes(db_path):
+def test_tc113_settings_has_no_theme_radio_and_points_to_top_bar(db_path):
     app = create_app(str(db_path))
     html = app.test_client().get("/settings").get_data(as_text=True)
-    values = _radio_values(html)
-    assert tuple(values) == THEME_VALUES
+    assert _radio_values(html) == []
+    assert 'id="theme-pointer"' in html
+    assert "top-bar overflow icon" in html
 
 
-def test_tc113_header_and_settings_stay_in_sync(db_path):
+def test_tc113_theme_has_one_home_header_segments_only(db_path):
     app = create_app(str(db_path))
     client = app.test_client()
     home = client.get("/").get_data(as_text=True)
     settings = client.get("/settings").get_data(as_text=True)
-    assert _seg_values(home) == _radio_values(settings)
-    assert 'data-theme-value="system" checked' in settings
+    assert tuple(_seg_values(home)) == THEME_VALUES
+    assert _radio_values(settings) == []
+    assert 'id="theme-pointer"' in settings
     js = (ROOT / "src" / "static" / "theme.js").read_text(encoding="utf-8")
-    assert "themeSegments" in js and "themeRadios" in js
+    assert "themeSegments" in js
 
 
 def test_tc111_boot_script_sets_theme_before_paint(db_path):
