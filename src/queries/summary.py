@@ -44,6 +44,41 @@ def portfolio_totals(conn):
     }
 
 
+def goal_derived(conn):
+    try:
+        returns_by_bond = {}
+        for row in conn.execute(
+            "SELECT bond_id, SUM(amount) AS received FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY bond_id"
+        ).fetchall():
+            returns_by_bond[row["bond_id"]] = safe_float(row["received"])
+        bond_rows = conn.execute(
+            "SELECT id, goal_id, company, isin, amount FROM bonds "
+            "WHERE goal_id IS NOT NULL AND watch_state = 'holding' ORDER BY id"
+        ).fetchall()
+    except Exception as exc:
+        raise AppError("ERR-goals-op", f"derived: query failed: {exc}") from exc
+    derived = {}
+    for row in bond_rows:
+        entry = derived.setdefault(
+            row["goal_id"], {"invested": 0.0, "returns": 0.0, "bonds": []}
+        )
+        invested = safe_float(row["amount"])
+        received = returns_by_bond.get(row["id"], 0.0)
+        entry["invested"] += invested
+        entry["returns"] += received
+        entry["bonds"].append(
+            {
+                "id": row["id"],
+                "company": row["company"] or "",
+                "isin": row["isin"] or "",
+                "invested": invested,
+                "returns": received,
+            }
+        )
+    return derived
+
+
 def status_overview(conn, today=None):
     if today is None:
         today = _default_today()
