@@ -1,0 +1,97 @@
+{
+ "id": "android_stage4_device_smoke",
+ "package": "com.dkbondtracker.app",
+ "apk_sha256": "47d9ee7889d366b042b1fd65a4428331887430f1a95cda317907555d6945f49d",
+ "captures": {
+  "p1_wipe_proof_watchlist_empty.png": {
+   "sha16": "f6a686c22186be41",
+   "bytes": 90142
+  },
+  "p2_fresh_alerts_empty_badge0.png": {
+   "sha16": "8da26f29a6aae67c",
+   "bytes": 64990
+  },
+  "p3_alerts_after_candidate_restart.png": {
+   "sha16": "9d12fb23712000e1",
+   "bytes": 65125
+  },
+  "p3_candidate_added.png": {
+   "sha16": "1e46e1f92ea300a2",
+   "bytes": 97869
+  },
+  "p3_watchlist_candidate_present.png": {
+   "sha16": "d45d7a8b0c071b31",
+   "bytes": 96930
+  },
+  "tc_and_01_dashboard_launch.png": {
+   "sha16": "f27cbf80e2d0a070",
+   "bytes": 75506
+  },
+  "tc_and_04_webview_localhost.png": {
+   "sha16": "f27cbf80e2d0a070",
+   "bytes": 75506
+  },
+  "tc_and_05_settings_share_export.png": {
+   "sha16": "1f7425b1c1ba3cf0",
+   "bytes": 72725
+  },
+  "tc_and_05_share_sheet.png": {
+   "sha16": "75e386606e04ea08",
+   "bytes": 61870
+  },
+  "tc_and_05_watchlist_add_form.png": {
+   "sha16": "779077ccbd1190bc",
+   "bytes": 96650
+  },
+  "tc_and_06_alerts_parity.png": {
+   "sha16": "126c8a9017cba3a4",
+   "bytes": 64865
+  },
+  "tc_and_07_dashboard_after_restart.png": {
+   "sha16": "2a5f81f4ef00d8aa",
+   "bytes": 75603
+  }
+ },
+ "assertions": {
+  "three_flows_render_distinct_pages": true,
+  "durability_content_diff_ratio": 0.0,
+  "durability_within_2pct": true
+ },
+ "tc_results": {
+  "TC-AND-01": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_01_dashboard_launch.png"
+  },
+  "TC-AND-03": {
+   "tier": "device",
+   "result": "BLOCKED (env: no run-as); host contract covers",
+   "reason": "app-private DB path needs adb/run-as or root waydroid shell (neither available); the host contract covers it - android/tests/test_tc_and_host.py::test_tc_and_03_db_path_is_app_private"
+  },
+  "TC-AND-04": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_04_webview_localhost.png",
+   "note": "render proves the WebView loaded 127.0.0.1; cleartext logcat needs root waydroid logcat (unavailable)"
+  },
+  "TC-AND-05": {
+   "tier": "device",
+   "result": "PASS",
+   "reason": "Export CSV link -> WebView onDownloadStart -> save to app-private files -> content:// via ExportProvider -> ACTION_SEND chooser; the chooser opens only after a successful save, so its presence proves the whole path",
+   "evidence": "tc_and_05_share_sheet.png, tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png",
+   "needs_root": "reading the saved CSV back (run-as) and dumping the chooser via dumpsys need root/adb (unavailable); covered by the host contract (no storage permission) and the in-app failure Toast path"
+  },
+  "TC-AND-06": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_06_alerts_parity.png"
+  },
+  "TC-AND-07": {
+   "tier": "device",
+   "result": "PASS",
+   "reason": "dashboard rendered after a real container restart (session stop/start kills the app process); compared to the fresh-launch dashboard",
+   "evidence": "tc_and_07_dashboard_after_restart.png vs tc_and_01_dashboard_launch.png",
+   "content_diff_ratio": 0.0
+  }
+ }
+}
