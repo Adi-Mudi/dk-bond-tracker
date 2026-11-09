@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Search — DK Bond Tracker{% endblock %}
+{% block page_title %}Search{% endblock %}
+{% block content %}
+<h1>Search</h1>
+
+<form method="get" action="/search" class="search-page-form" role="search" id="searchPageForm">
+  <input type="search" name="q" id="searchPageInput" value="{{ query }}" placeholder="Search holdings &amp; watchlist (company / ISIN)" autocomplete="off" aria-label="Search holdings and watchlist">
+  <button class="btn btn-primary" type="submit" id="searchPageSubmit">Search</button>
+</form>
+
+{% if not query %}
+<p class="caption" id="search-prompt">Type a company name or an ISIN to search holdings and the watchlist together.</p>
+{% elif total == 0 %}
+<div class="search-no-results" id="search-no-results">
+  <div class="sn-icon" aria-hidden="true">&#128269;</div>
+  <strong>No matches for &ldquo;{{ query }}&rdquo;</strong>
+  <p class="caption">Try a shorter company name, a partial ISIN, or check the spelling. Holdings and watchlist are searched together.</p>
+</div>
+{% else %}
+<p class="caption" id="search-count">{{ total }} match{% if total != 1 %}es{% endif %} for &ldquo;{{ query }}&rdquo;</p>
+{% for group in groups %}
+<section class="search-group" data-source="{{ group.source }}">
+  <h2 class="search-group-title">{{ group.source }}</h2>
+  {% for hit in group.hits %}
+  <a class="search-hit" href="{{ hit.href }}" id="search-hit-{{ group.kind }}-{{ hit.id }}">
+    <span class="sh-body"><span class="sh-name">{{ hit.company }}</span><span class="sh-isin">{{ hit.isin }}</span></span>
+    <span class="chip {{ hit.chip_class }}">{{ hit.chip }}</span>
+  </a>
+  {% endfor %}
+</section>
+{% endfor %}
+{% endif %}
+{% endblock %}
