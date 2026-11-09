@@ -169,7 +169,48 @@ def portfolio_payouts(bond_rows, ledger_by_bond, today):
     )
 
 
-def portfolio_context(conn, today, tab, form, error, code):
+def _goal_groups(conn, holdings):
+    goals = conn.execute(
+        "SELECT id, name, target_amount FROM financial_goals ORDER BY id"
+    ).fetchall()
+    groups = []
+    for goal in goals:
+        groups.append(
+            {
+                "key": "goal-%d" % goal["id"],
+                "label": goal["name"] or "Goal",
+                "locked_target": goal["target_amount"],
+                "holdings": [],
+            }
+        )
+    groups.append(
+        {
+            "key": "ungrouped",
+            "label": "Ungrouped",
+            "locked_target": None,
+            "holdings": list(holdings),
+        }
+    )
+    return [group for group in groups if group["holdings"]]
+
+
+def _rows_flat(holdings, groups):
+    flat = []
+    for group in groups:
+        flat.append(
+            {
+                "kind": "group",
+                "label": group["label"],
+                "locked_target": group["locked_target"],
+                "count": len(group["holdings"]),
+            }
+        )
+        for holding in group["holdings"]:
+            flat.append({"kind": "row", "row": holding})
+    return flat
+
+
+def portfolio_context(conn, today, tab, form, error, code, group_by="none"):
     bond_rows = conn.execute(
         "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
         "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker, "
@@ -181,14 +222,23 @@ def portfolio_context(conn, today, tab, form, error, code):
     context = {
         "tab": tab,
         "holdings": [],
+        "rows_flat": [],
         "months": [],
         "payouts": [],
         "form": form,
         "error": error,
         "code": code,
+        "group_by": group_by,
     }
     if tab == "holdings":
-        context["holdings"] = portfolio_holdings(conn, bond_rows, months_by_bond, today)
+        holdings = portfolio_holdings(conn, bond_rows, months_by_bond, today)
+        context["holdings"] = holdings
+        if group_by == "goal":
+            context["rows_flat"] = _rows_flat(holdings, _goal_groups(conn, holdings))
+        else:
+            context["rows_flat"] = [
+                {"kind": "row", "row": holding} for holding in holdings
+            ]
     elif bond_rows:
         rows, months = portfolio_payouts(bond_rows, months_by_bond, today)
         context["payouts"] = rows
@@ -207,12 +257,28 @@ def portfolio_page():
             "Portfolio tab failed",
             400,
         )
+    group_by = str(request.args.get("group") or "none")
+    if group_by not in ("none", "goal"):
+        group_by = "none"
     try:
         with get_conn(db_file) as conn:
-            context = portfolio_context(conn, date.today(), tab, {}, None, None)
+            context = portfolio_context(
+                conn, date.today(), tab, {}, None, None, group_by
+            )
     except AppError as exc:
         return error_page(exc.code, exc.message, "Portfolio render failed", 500)
     return render_template("portfolio.html", **context)
+
+
+@bp.route("/portfolio/<int:bond_id>")
+def portfolio_detail_page(bond_id):
+    db_file = app_db()
+    try:
+        with get_conn(db_file) as conn:
+            detail = position_detail(conn, bond_id)
+    except AppError as exc:
+        return error_page(exc.code, exc.message, "Position detail failed", 404)
+    return render_template("portfolio_detail.html", detail=detail)
 
 
 @bp.route("/portfolio/<int:bond_id>/detail")

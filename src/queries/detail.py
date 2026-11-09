@@ -1,8 +1,17 @@
 import re
 
 from . import _resolve_today
-from ..engine import purchase_date_label, purchase_qty_value, row_health_state
+from ..engine import (
+    entry_paid,
+    month_due_passed,
+    purchase_date_label,
+    purchase_qty_value,
+    row_health_state,
+    tenure_window,
+)
+from ..status import month_key
 from ..validators import AppError, safe_float
+from .grid import month_label
 from .summary import status_overview
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
@@ -27,6 +36,45 @@ def portfolio_snapshot(conn):
         }
         for entry in status_overview(conn)
     ]
+
+
+def _month_state(entry, key, credit_day, today):
+    if entry is not None:
+        try:
+            paid = entry_paid(entry)
+        except AppError:
+            paid = False
+        amount = safe_float(entry["amount"])
+        if paid and amount > 0:
+            return "paid", amount
+        if month_due_passed(key, credit_day, today):
+            return "unpaid", None
+        return "soon", None
+    if month_due_passed(key, credit_day, today):
+        return "unpaid", None
+    return "soon", None
+
+
+def _payment_months(row, entries, today):
+    try:
+        window = tenure_window(row["start_date"], row["tenure_months"])
+    except AppError:
+        return []
+    current = month_key(today)
+    keys = [key for key in window if key <= current]
+    if not keys:
+        return []
+    chips = []
+    for key in keys:
+        try:
+            state, amount = _month_state(entries.get(key), key, row["credit_day"], today)
+        except AppError:
+            return []
+        chips.append(
+            {"key": key, "label": month_label(key), "state": state, "amount": amount}
+        )
+    chips.reverse()
+    return chips
 
 
 def position_detail(conn, bond_id, today=None):
@@ -79,6 +127,10 @@ def position_detail(conn, bond_id, today=None):
         "source_note": row["name"] or "",
         "purchase_date": purchase_date_label(row["purchase_date"]),
         "qty": purchase_qty_value(row["qty"]),
+        "credit_day": row["credit_day"],
+        "end_date": row["end_date"],
+        "tenure_months": row["tenure_months"],
+        "payment_months": _payment_months(row, entries, today_value),
         "payments": payments,
     }
 
