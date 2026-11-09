@@ -154,6 +154,11 @@ waydroid status 2>&1 | head -3
 ensure_ui_client
 
 say "installing APK (TC-AND-01)"
+if [ "${DKBT_CLEAN:-0}" = "1" ]; then
+  say "clean install requested: removing existing app data"
+  timeout 60 waydroid app remove "$PKG" >/dev/null 2>&1
+  sleep 3
+fi
 waydroid app install "$APK" >"$OUT/install.log" 2>&1
 INSTALL_RC=$?
 say "install rc=$INSTALL_RC"
