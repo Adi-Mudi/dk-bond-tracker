@@ -61,6 +61,7 @@
   .field-error { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--danger-fg); }
   .field-error-icon { font-weight: 700; }
   .error-popup { border-width: 2px; }
+  .error-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   .history-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
   .details-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
   .move-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
@@ -133,6 +134,16 @@
 <div class="banner banner-error error-popup" id="watch-error" role="alert">
   <div class="banner-title"><span class="field-error-icon" aria-hidden="true">&#9888;</span> Error: {{ error_code }}</div>
   <div id="watch-error-message">{{ error }}</div>
+  {% if duplicate %}
+  <div class="error-actions" id="watch-error-actions">
+    {% if duplicate.watch_state == "holding" %}
+    <a class="btn btn-sm" id="dup-view-existing" href="/portfolio/{{ duplicate.id }}">View existing</a>
+    {% else %}
+    <a class="btn btn-sm" id="dup-view-existing" href="#candidate-{{ duplicate.id }}">View existing</a>
+    {% endif %}
+    <button type="button" class="btn btn-sm" id="dup-edit-isin" aria-controls="c-isin">Edit ISIN</button>
+  </div>
+  {% endif %}
 </div>
 {% endif %}
 
@@ -289,7 +300,7 @@
     </thead>
     <tbody>
       {% for candidate in candidates %}
-      <tr class="candidate-row">
+      <tr class="candidate-row" id="candidate-{{ candidate.id }}">
         <td>
           <span class="co-name">{{ candidate.company }} <span class="chip chip-watching">Watching</span></span>
           <span class="co-isin">{{ candidate.isin }}</span>
@@ -467,6 +478,17 @@
       });
     });
   });
+  var editIsin = document.getElementById("dup-edit-isin");
+  if (editIsin) {
+    editIsin.addEventListener("click", function () {
+      var isin = document.getElementById("c-isin");
+      if (!isin) {
+        return;
+      }
+      isin.focus();
+      isin.select();
+    });
+  }
 })();
 </script>
 <script>

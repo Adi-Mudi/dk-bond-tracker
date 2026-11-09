@@ -48,7 +48,7 @@ def move_payload(**overrides):
 
 
 def candidate_row(html):
-    match = re.search(r'<tr class="candidate-row">(.*?)</tr>', html, re.S)
+    match = re.search(r'<tr class="candidate-row"[^>]*>(.*?)</tr>', html, re.S)
     assert match, "candidate row must render"
     return match.group(1)
 
@@ -124,17 +124,68 @@ def test_ui04_duplicate_popup_with_inline_alert_and_aria_invalid(client, db_path
     assert 'id="add-candidate-panel" hidden' not in html
 
 
-def test_ui04_register_lock_marks_isin_field_on_any_duplicate(client, db_path):
+def test_ui04_duplicate_highlights_isin_match_and_company_only(client, db_path):
+    assert client.post("/watch", data=CANDIDATE).status_code == 302
+    isin_dup = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    assert isin_dup.status_code == 409
+    isin_html = isin_dup.get_data(as_text=True)
+    assert 'id="c-isin-error" role="alert"' in isin_html
+    assert 'id="c-isin" name="isin"' in isin_html
+    assert 'aria-invalid="true"' in isin_html
+
     with get_conn(db_path) as conn:
         add_bond(conn, "Taken Co", "INE4000A1004", "2026-01-01", 12)
-    response = client.post(
+    company_dup = client.post(
         "/watch",
         data={**CANDIDATE, "company": "Taken Co", "isin": "INE4000A1005"},
     )
+    assert company_dup.status_code == 409
+    company_html = company_dup.get_data(as_text=True)
+    assert 'id="c-company-error" role="alert"' in company_html
+    assert 'id="c-isin-error" role="alert"' not in company_html
+
+
+def test_ui04_duplicate_holding_offers_view_existing_to_portfolio_detail(client, db_path):
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "Held Dup Co", "INE4000A1010", "2026-01-01", 12)
+    response = client.post(
+        "/watch",
+        data={**CANDIDATE, "company": "Held Dup Co", "isin": "INE4000A1010"},
+    )
     assert response.status_code == 409
     html = response.get_data(as_text=True)
-    assert 'id="c-isin-error" role="alert"' in html
-    assert 'aria-invalid="true"' in html
+    assert 'id="dup-view-existing"' in html
+    assert f'href="/portfolio/{bond_id}"' in html
+    assert "View existing" in html
+    assert 'id="dup-edit-isin"' in html
+    assert "Edit ISIN" in html
+    assert 'aria-controls="c-isin"' in html
+    assert "isin.focus()" in TEMPLATE
+    assert "isin.select()" in TEMPLATE
+
+
+def test_ui04_duplicate_watching_offers_view_existing_to_candidate_row(client, db_path):
+    assert client.post("/watch", data=CANDIDATE).status_code == 302
+    bond_id = candidate_id(db_path)
+    response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    assert response.status_code == 409
+    html = response.get_data(as_text=True)
+    assert f'id="candidate-{bond_id}"' in html
+    assert f'href="#candidate-{bond_id}"' in html
+    assert 'id="dup-view-existing"' in html
+    assert 'id="dup-edit-isin"' in html
+
+
+def test_ui04_error_banner_actions_only_on_duplicate(client, db_path):
+    response = client.post(
+        "/watch",
+        data={**CANDIDATE, "isin": "not-an-isin"},
+    )
+    assert response.status_code == 400
+    html = response.get_data(as_text=True)
+    assert 'id="watch-error"' in html
+    assert 'id="dup-view-existing"' not in html
+    assert 'id="dup-edit-isin"' not in html
 
 
 def test_ui04_rating_options_ceiling_bbb_minus_only(client, db_path):
