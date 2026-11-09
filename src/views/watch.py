@@ -122,13 +122,17 @@ def error_field(code, message):
     return None
 
 
-def watch_context(db_file, form=None, error=None, error_code=None, form_open=False):
+def watch_context(db_file, form=None, error=None, error_code=None, form_open=False, duplicate=None):
+    field = error_field(error_code, error)
+    if duplicate and duplicate.get("field"):
+        field = duplicate["field"]
     return {
         "candidates": watch_candidates(db_file),
         "snapshot": watch_snapshot(db_file),
         "error": error,
         "error_code": error_code,
-        "error_field": error_field(error_code, error),
+        "error_field": field,
+        "duplicate": duplicate,
         "form": form or {},
         "form_open": form_open,
         "options": watch_options(db_file),
@@ -233,16 +237,27 @@ def watch_form_values(form):
 
 def watch_insert_candidate(conn, values):
     duplicate = conn.execute(
-        "SELECT company, isin, watch_state FROM bonds "
-        "WHERE lower(trim(company)) = lower(?) OR upper(trim(isin)) = upper(?)",
-        (values["company"], values["isin"]),
+        "SELECT id, company, isin, watch_state, "
+        "(upper(trim(isin)) = upper(?)) AS isin_match "
+        "FROM bonds "
+        "WHERE lower(trim(company)) = lower(?) OR upper(trim(isin)) = upper(?) "
+        "ORDER BY id",
+        (values["isin"], values["company"], values["isin"]),
     ).fetchone()
     if duplicate is not None:
-        raise AppError(
+        error = AppError(
             "ERR-watch-dup",
             f"duplicate candidate rejected: {duplicate['company']} "
             f"({duplicate['isin']}) already exists as {duplicate['watch_state']}",
         )
+        error.duplicate = {
+            "id": duplicate["id"],
+            "company": duplicate["company"],
+            "isin": duplicate["isin"],
+            "watch_state": duplicate["watch_state"],
+            "field": "isin" if duplicate["isin_match"] else "company",
+        }
+        raise error
     cursor = conn.execute(
         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
         "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
@@ -285,7 +300,12 @@ def watch_list():
                 render_template(
                     "watch.html",
                     **watch_context(
-                        db_file, form=form, error=exc.message, error_code=exc.code, form_open=True
+                        db_file,
+                        form=form,
+                        error=exc.message,
+                        error_code=exc.code,
+                        form_open=True,
+                        duplicate=getattr(exc, "duplicate", None),
                     ),
                 ),
                 409 if exc.code == "ERR-watch-dup" else 400,
