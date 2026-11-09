@@ -76,12 +76,17 @@
     },
     {
       "id": "F2",
-      "severity": "INFO",
-      "status": "REPORTED",
-      "title": "Alert feed on the device carries repeated WARN entries from leftover stage data",
+      "severity": "MAJOR",
+      "status": "CONFIRMED product bug - REPORTED, not fixed (out of Stage-4 scope; PM to open the issue)",
+      "title": "daily_sweep scans watch candidates whose credit_day is intentionally NULL, then aborts the whole sweep",
       "evidence": [
-        "ERR-credit-sweep / ERR-notify-build: 'bond 1: credit_day must be an integer in 1-31' (2026-11-08 23:38 .. 2026-11-09 00:05)",
-        "the app degrades to an in-app WARN alert instead of crashing; the bad row comes from an earlier stage install, not from this run"
+        "src/views/watch.py:131 - the candidate INSERT omits credit_day; candidates are watch_state='watching' with credit_day NULL by design",
+        "src/alerts.py:13 - SELECT id, company, start_date, tenure_months, credit_day, status FROM bonds ORDER BY id has NO watch_state filter",
+        "src/alerts.py:18 - validate_credit_day(NULL) raises ERR-credit-sweep; the loop raises on the first bad row, so no other bond is evaluated",
+        "every other consumer filters watch_state='holding' (lock.py:21, grid.py:31, history.py:43, summary.py:50, queries/detail.py:44)",
+        "sqlite: a NULL CHECK result passes, so 'credit_day INTEGER CHECK (credit_day >= 1 AND credit_day <= 31)' does not block the row (0 is rejected, NULL is accepted)",
+        "device: every app start appends WARN alerts 'daily sweep failed: ERR-credit-sweep: bond 1: credit_day must be an integer in 1-31: None'",
+        "the forms are NOT at fault: forms.py:29 _credit_value does int(raw), and watch.py:198-206 the move handler requires an integer credit_day"
       ]
     }
   ],
