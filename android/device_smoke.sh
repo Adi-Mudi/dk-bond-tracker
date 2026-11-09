@@ -15,6 +15,7 @@ export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
 export YDOTOOL_SOCKET="${YDOTOOL_SOCKET:-$XDG_RUNTIME_DIR/.ydotool_socket}"
 mkdir -p "$TMP_AREA" "$OUT"
+rm -f "$OUT"/tc_and_*.png "$OUT"/device_smoke.json
 export TMPDIR="$TMP_AREA"
 
 if [ "${DKBT_INHIBITED:-0}" != "1" ] && command -v systemd-inhibit >/dev/null 2>&1; then
@@ -68,6 +69,7 @@ shot() {
   ensure_unlocked
   close_notifications
   sleep 1
+  rm -f "$path"
   timeout 40 flameshot full -p "$path" >/dev/null 2>&1
   if [ -s "$path" ]; then
     say "capture ok: $(basename "$path") ($(stat -c %s "$path") bytes)"

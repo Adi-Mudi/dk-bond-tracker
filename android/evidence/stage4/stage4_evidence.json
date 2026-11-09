@@ -48,7 +48,7 @@
     {"tc": "TC-AND-03", "tier": "host+device", "check": "test_tc_and_03_db_path_is_app_private + device_smoke.sh", "result": "PASS(host) / BLOCKED (env: no run-as); host contract covers", "evidence": "host contract covers it: main.py writes Path(getFilesDir())/bonds.db and MainActivity uses getFilesDir() with no external-storage call; the DEVICE assertion (locate the file via run-as) is BLOCKED because there is no adb bridge and no root waydroid shell - NOT a product failure"},
     {"tc": "TC-AND-04", "tier": "host+device", "check": "test_tc_and_04_network_security_config + device render", "result": "PASS(host) / PASS(render)", "evidence": "netsec config permits 127.0.0.1+localhost only; dashboard renders on device; cleartext logcat needs root"},
     {"tc": "TC-AND-05", "tier": "host+device", "check": "test_tc_and_05_no_storage_permission + device export flow", "result": "PASS(manifest) / BLOCKED (issue #113)", "evidence": "manifest has no storage permission (PASS); the device export steps (trigger export -> share sheet) are BLOCKED (issue #113 - AND-04 Android share-sheet export, scheduled after Stage 4 merges and before Stage 5 close). Honest BLOCKED, NOT a Stage-4 failure"},
-    {"tc": "TC-AND-06", "tier": "host+device", "check": "test_tc_and_06_no_push_channels + alerts render", "result": "PASS", "evidence": "tc/tc_and_06_alerts_parity.png; no SMS/WhatsApp/push tokens in the tree"},
+    {"tc": "TC-AND-06", "tier": "host+device", "check": "test_tc_and_06_no_push_channels + alerts render", "result": "PASS", "evidence": "tc/tc_and_06_alerts_parity.png; no SMS/WhatsApp/push tokens in the tree; the rendered feed also exposes F2 (spurious ERR-credit-sweep WARNs), deferred to issue #114"},
     {"tc": "TC-AND-07", "tier": "device", "check": "device_smoke.sh container-restart kill + dashboard compare", "result": "PASS", "evidence": "tc/tc_and_07_dashboard_after_restart.png vs tc/tc_and_01_dashboard_launch.png (content diff 0.0027%)"},
     {"tc": "TC-AND-08", "tier": "host", "check": "test_tc_and_08_manifest_permissions_are_internet_only (+ aapt2 dump permissions on the APK)", "result": "PASS", "evidence": "aapt2: uses-permission: android.permission.INTERNET only"},
     {"tc": "TC-AND-09", "tier": "host", "check": "pytest tests -q -m 'not remote'", "result": "PASS", "evidence": "web_suite_499.log -> 494 passed, 5 deselected"}
@@ -59,7 +59,8 @@
     "command": "bash android/device_smoke.sh",
     "result": "PASS",
     "summary": "tc/device_smoke.json",
-    "assertions": {"distinct_pages": true, "durability_content_diff_ratio": 0.0000266}
+    "provenance": "the capture set, distinct_pages and durability_content_diff_ratio below come from ONE clean re-run after the idempotency fix: the script clears prior tc_and_*.png at start and removes each target before capturing, so there are fixed target names and no _1 duplicates, and the durability comparison uses the run OWN captures. R1 round-1 flagged the earlier false-confidence path (a second run compared the base-name captures of a previous run); that is fixed and the numbers below are the single clean rerun set",
+    "assertions": {"distinct_pages": true, "durability_content_diff_ratio": 0.0000277}
   },
   "findings": [
     {
@@ -77,7 +78,7 @@
     {
       "id": "F2",
       "severity": "MAJOR",
-      "status": "CONFIRMED product bug - REPORTED, not fixed (out of Stage-4 scope; PM to open the issue)",
+      "status": "DEFERRED to issue #114 (P1, type:bug, area:web) - per one-issue-at-a-time the fix moves to its own slice, after Stage 4 merges and alongside #113, before Stage 5 close; no Stage-4 implementation (D12); PM-accepted as a genuine product bug (root cause accepted)",
       "title": "daily_sweep scans watch candidates whose credit_day is intentionally NULL, then aborts the whole sweep",
       "evidence": [
         "src/views/watch.py:131 - the candidate INSERT omits credit_day; candidates are watch_state='watching' with credit_day NULL by design",
