@@ -1,0 +1,94 @@
+{
+  "id": "android_stage4_evidence",
+  "kind": "report",
+  "issue": 109,
+  "stage": 4,
+  "title": "Stage 4 - Android test suite (TC-AND + on-device confirm)",
+  "date": "2026-11-09",
+  "author": "C1 (kimi) on behalf of PM t14v",
+  "plan": "01_excel_dashboard/.IDE_Plans/android_stage4_tests_plan_20261109_2335_v1.0.json",
+  "worktree": {
+    "branch": "android-stage4-tests",
+    "base": "dev post-merge e50d7fe",
+    "head_at_start": "e50d7fe"
+  },
+  "device": {
+    "runtime": "Waydroid container, x86_64, Android API 33 (lineage-based)",
+    "install": "waydroid app install (native CLI, AMENDMENT-1)",
+    "launch": "waydroid app launch com.dkbondtracker.app",
+    "input": "ydotool (Linux uinput); pointer acceleration makes absolute mouse moves unreliable, so WebView navigation is keyboard Tab + Enter",
+    "capture": "flameshot full; the flameshot 'Capture saved' banner is dismissed via org.freedesktop.Notifications CloseNotification (python-dbus) before each capture",
+    "ui_client": "waydroid show-full-ui"
+  },
+  "d1_on_device_confirm": {
+    "requirement": "R1 remedy: ONE on-device capture per flow (minimum dashboard + alerts + add-form) as the FIRST device activity",
+    "session_lock": "the GNOME session was LOCKED (lock shield with a password field visible) at the start; it was dismissed with loginctl unlock-session (user-level, no password needed, reversible). A repeat lock later in the pass was handled by the smoke script itself.",
+    "captures": [
+      {"file": "d1_device_dashboard.png", "shows": "Dashboard on device: Total Invested / Received / Next Payout, Invested vs Received panel, empty state"},
+      {"file": "d1_device_alerts.png", "shows": "Alerts on device: Day-wise rules, Alert feed (WARN entries), Channels (in-app + email)"},
+      {"file": "d1_device_add_form.png", "shows": "Watchlist / Add Candidate form on device with the persisted candidate row"}
+    ],
+    "result": "PASS - the Stage-3 viewport caveat is closed: real on-device screenshots of the running APK (not browser-viewport fallbacks)"
+  },
+  "apk": {
+    "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "047f3afd777eb3339884cbf1f6678b19a176cc0671c755b1dc2b60edd56bdef5",
+    "size_bytes": 37863482,
+    "built_utc": "2026-11-09T05:17Z",
+    "build_script": "android/build_debug.sh (Chaquopy 3.13, abiFilters arm64-v8a + x86_64)",
+    "note": "stage3 shipped sha 2b3c5005 (37863474 bytes); this is a fresh reproducible build of the same source tree, so the bytes differ slightly"
+  },
+  "artifacts": [
+    {"file": "android/tests/test_tc_and_host.py", "sha256": "8caa62b20a5bc7768207bda39e18a401cc8767d746078f8b98d3dd9d3a62298d", "purpose": "device-independent pytest checks for TC-AND"},
+    {"file": "android/device_smoke.sh", "sha256": "c5723b30302aafa36550339e5b5e9baea9699c1125b1d82770dbe75895341bc5", "purpose": "D5 single-command waydroid-CLI device pass"}
+  ],
+  "tc_coverage_matrix": [
+    {"tc": "TC-AND-01", "tier": "device", "check": "device_smoke.sh install+launch+capture", "result": "PASS", "evidence": "tc/tc_and_01_dashboard_launch.png"},
+    {"tc": "TC-AND-02", "tier": "host", "check": "test_tc_and_02_core_not_forked + test_tc_and_02_bundled_assets_byte_identical", "result": "PASS", "evidence": "app.imy templates/static byte-identical to repo; python source set is a symlink to src/"},
+    {"tc": "TC-AND-03", "tier": "host+device", "check": "test_tc_and_03_db_path_is_app_private + device_smoke.sh", "result": "PASS(host) / BLOCKED(device)", "evidence": "main.py writes Path(getFilesDir())/bonds.db; run-as not available for the device assertion"},
+    {"tc": "TC-AND-04", "tier": "host+device", "check": "test_tc_and_04_network_security_config + device render", "result": "PASS(host) / PASS(render)", "evidence": "netsec config permits 127.0.0.1+localhost only; dashboard renders on device; cleartext logcat needs root"},
+    {"tc": "TC-AND-05", "tier": "host+device", "check": "test_tc_and_05_no_storage_permission + device export flow", "result": "PASS(manifest) / BLOCKED(export)", "evidence": "no storage permission; NO in-app export trigger and no Android share sheet (see findings)"},
+    {"tc": "TC-AND-06", "tier": "host+device", "check": "test_tc_and_06_no_push_channels + alerts render", "result": "PASS", "evidence": "tc/tc_and_06_alerts_parity.png; no SMS/WhatsApp/push tokens in the tree"},
+    {"tc": "TC-AND-07", "tier": "device", "check": "device_smoke.sh container-restart kill + dashboard compare", "result": "PASS", "evidence": "tc/tc_and_07_dashboard_after_restart.png vs tc/tc_and_01_dashboard_launch.png (content diff 0.0027%)"},
+    {"tc": "TC-AND-08", "tier": "host", "check": "test_tc_and_08_manifest_permissions_are_internet_only (+ aapt2 dump permissions on the APK)", "result": "PASS", "evidence": "aapt2: uses-permission: android.permission.INTERNET only"},
+    {"tc": "TC-AND-09", "tier": "host", "check": "pytest tests -q -m 'not remote'", "result": "PASS", "evidence": "web_suite_499.log -> 494 passed, 5 deselected"}
+  ],
+  "web_suite": {"collected": 499, "passed": 494, "deselected": 5, "log": "web_suite_499.log"},
+  "host_tests": {"file": "android/tests/test_tc_and_host.py", "passed": 10, "failed": 0, "log": "tc_and_host_tests.log"},
+  "device_smoke": {
+    "command": "bash android/device_smoke.sh",
+    "result": "PASS",
+    "summary": "tc/device_smoke.json",
+    "assertions": {"distinct_pages": true, "durability_content_diff_ratio": 0.0000266}
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "MAJOR",
+      "status": "REPORTED - not fixed (out of Stage-4 scope; product gap, not a test bug)",
+      "title": "AND-04 / TC-AND-05 export+share is not implemented",
+      "evidence": [
+        "no template links to /export.csv or /share anywhere in src/templates (desktop src is identical)",
+        "src/views/exports.py registers /export.csv, /share, /share/generate, /print, but no UI reaches them",
+        "MainActivity.java is WebView-only: no ACTION_SEND, no FileProvider, no setDownloadListener",
+        "the Settings 'Share / Export' card renders section checkboxes with no action button (tc/tc_and_05_settings_share_export.png)"
+      ]
+    },
+    {
+      "id": "F2",
+      "severity": "INFO",
+      "status": "REPORTED",
+      "title": "Alert feed on the device carries repeated WARN entries from leftover stage data",
+      "evidence": [
+        "ERR-credit-sweep / ERR-notify-build: 'bond 1: credit_day must be an integer in 1-31' (2026-11-08 23:38 .. 2026-11-09 00:05)",
+        "the app degrades to an in-app WARN alert instead of crashing; the bad row comes from an earlier stage install, not from this run"
+      ]
+    }
+  ],
+  "limitations": [
+    "no adb bridge and no root: waydroid shell / waydroid logcat are unavailable, so TC-AND-03 (run-as) and the TC-AND-04 cleartext-logcat assertion are covered by static contracts + render evidence instead",
+    "no 'am force-stop': TC-AND-07 uses a full container restart (waydroid session stop/start), which does kill the app process (the Notifications badge grew across the restart), as the force-kill equivalent",
+    "the GNOME session blanks after 300s idle; the smoke script runs under systemd-inhibit --what=idle and dismisses any lock shield before each capture",
+    "device tests stay LOCAL (no CI device runner), per the stage plan non-goals"
+  ]
+}
