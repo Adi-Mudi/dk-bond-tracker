@@ -90,7 +90,13 @@
   <section class="dt-panel" id="dt-goal">
     <div class="detail-group" id="grp-goal">
       <div class="group-title">Financial goal (read-only)</div>
-      <p class="readonly-note" id="detail-goal-note">{% if detail.goal_name %}{{ detail.goal_name }}{% else %}No goal linked to this bond{% endif %}</p>
+      {% if detail.goal_name %}
+      <p class="readonly-note" id="detail-goal-note">{{ detail.goal_name }}</p>
+      <p class="caption"><span class="chip chip-ongoing" id="detail-goal-badge">&#128274; permanent</span>{% if detail.goal_target is not none %} &#183; locked target {{ money_text(detail.goal_target) }}{% endif %}</p>
+      {% else %}
+      <p class="readonly-note" id="detail-goal-note">No goal linked to this bond</p>
+      <p class="caption" id="detail-goal-note-help">A goal is chosen only in the Move-to-Portfolio form &#8212; there is no set, change or remove control here.</p>
+      {% endif %}
     </div>
   </section>
 </div>

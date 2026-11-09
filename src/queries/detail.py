@@ -85,7 +85,7 @@ def position_detail(conn, bond_id, today=None):
         "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
         "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, "
         "amount, start_date, end_date, tenure_months, credit_day, watch_state, broker, "
-        "purchase_date, qty "
+        "purchase_date, qty, goal_id "
         "FROM bonds WHERE id = ?",
         (bond_id,),
     ).fetchone()
@@ -95,6 +95,12 @@ def position_detail(conn, bond_id, today=None):
         raise AppError(
             "ERR-position-detail", f"position {bond_id} is a candidate, not a holding"
         )
+    goal = None
+    if row["goal_id"] is not None:
+        goal = conn.execute(
+            "SELECT id, name, target_amount FROM financial_goals WHERE id = ?",
+            (row["goal_id"],),
+        ).fetchone()
     entries = {}
     payments = []
     for entry in conn.execute(
@@ -156,6 +162,9 @@ def position_detail(conn, bond_id, today=None):
         "tenure_months": row["tenure_months"],
         "payment_months": _payment_months(row, entries, today_value),
         "payments": payments,
+        "goal_id": row["goal_id"],
+        "goal_name": (goal["name"] if goal is not None else None),
+        "goal_target": (goal["target_amount"] if goal is not None else None),
     }
 
 
