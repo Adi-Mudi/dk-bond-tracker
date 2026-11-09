@@ -29,9 +29,12 @@
     td { border-bottom: 1px solid var(--border); }
   </style>
   <link rel="stylesheet" href="/static/theme.css">
+  <link rel="stylesheet" href="/static/guide.css">
   {% block head %}{% endblock %}
 </head>
 <body data-page="{{ request.path }}">
+{% from "_guide.html" import page_guide %}
+{% from "_tooltip.html" import tip %}
 <div class="app-shell">
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-head">
@@ -53,10 +56,20 @@
   <button type="button" class="icon-btn drawer-btn" id="drawerToggle" aria-controls="sidebar" aria-expanded="false" title="Menu" aria-label="Open menu">&#9776;</button>
   <div class="page-title" id="pageTitle">{% block page_title %}DK Bond Tracker{% endblock %}</div>
   <div class="topbar-actions">
-    <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
-    </button>
-    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Page guide — walkthrough + rules" aria-label="Page guide">
+    <button type="button" class="icon-btn" id="whyBondsBtn" title="Why bonds?" aria-label="Why bonds?" aria-haspopup="dialog" aria-expanded="false">i</button>
+    <div class="search-wrap" id="searchWrap">
+      <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds" aria-haspopup="true" aria-expanded="false" aria-controls="searchPanel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </button>
+      <div class="search-panel" id="searchPanel" hidden>
+        <form method="get" action="/search" id="searchForm" role="search">
+          <input type="search" id="searchInput" name="q" class="search-input" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list" placeholder="Search holdings &amp; watchlist (company / ISIN)" autocomplete="off" aria-label="Search holdings and watchlist">
+        </form>
+        <ul id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></ul>
+        <p class="caption" id="searchHint">Type to search both lists together — press / to open search from anywhere.</p>
+      </div>
+    </div>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Page guide — walkthrough + rules" aria-label="Page guide" aria-haspopup="dialog" aria-expanded="false">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg>
     </button>
     <div class="overflow" id="overflow">
@@ -97,10 +110,46 @@
 <main class="main">
   {% block content %}{% endblock %}
   <footer class="app-footer">
-    <p class="disclaimer-line">DK Bond Tracker is a personal tracking tool — <strong>not investment advice</strong>. We do NOT recommend any bonds; every investment decision is your own.</p>
+    <div class="disclaimer-footer" id="app-disclaimer">
+      <p class="disclaimer-line"><strong>DK Bond Tracker is a personal tracking tool — it is not investment advice.</strong> It is information-only, offers no recommendation of any bond, broker or product, and creates no advisory relationship. Investments carry the risk of loss, including loss of principal, and past performance does not guarantee future returns. Every investment decision is your own.</p>
+    </div>
   </footer>
 </main>
 </div>
+</div>
+
+<div class="guide-popover" id="pageGuide" role="dialog" aria-modal="true" aria-label="Page guide" hidden>
+  <div class="guide-inner">
+    {{ page_guide(request.path) }}
+    <div class="guide-sub legend">Colour-coded field tooltips &#8212; hover, tap or focus the marker:</div>
+    <ul class="guide-tips" id="guide-tips">
+      <li>{{ tip("isin-lock", "blocking", "Same ISIN cannot be entered twice.") }}<span>Blocked entries always explain the reason.</span></li>
+      <li>{{ tip("status-green", "status", "Green cell = payment received.") }}<span>Green, amber and red mean the same thing everywhere.</span></li>
+      <li>{{ tip("goal-link", "howto", "Pick a goal while moving a bond out of the Watchlist; the link is permanent.") }}<span>Actions the app can help you with.</span></li>
+      <li>{{ tip("rating-ceiling", "warning", "Rating below BBB- is not allowed.") }}<span>Something to double-check before you continue.</span></li>
+    </ul>
+    <div class="guide-foot">
+      <button type="button" class="btn btn-sm" id="guideClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="why-popover" id="whyBonds" role="dialog" aria-modal="true" aria-label="Why bonds?" hidden>
+  <div class="why-inner">
+    <div class="why-title">Why bonds?</div>
+    <div class="why-body">
+      <p><strong>Fixed, predictable returns.</strong> That is what bonds are for — you know the coupon and the schedule up front. The share market can move a lot in either direction; bonds do not promise equity-level gains and are not built for them.</p>
+      <div class="why-point"><strong>Expectation check:</strong> if you are looking for more than roughly <strong>10&#8211;12% returns</strong>, that is the share market's territory — not bonds. Choose bonds for fixed returns; choose equity only if you accept its risk for higher expectations.</div>
+      <div class="why-flip"><strong>Flip side:</strong> if you have been putting daily effort into shares and still are not beating 10&#8211;12% — or you are losing — bonds deserve a serious look. Fixed returns, and you only need to analyse a few things <strong>once</strong>, not watch the market every day.</div>
+    </div>
+    <div class="disclaimer-box" id="why-disclaimer">
+      <strong>We do not recommend any bonds.</strong> This app is a personal tracking tool, information-only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal. Every investment decision is your own.
+    </div>
+    <div class="guide-foot">
+      <a class="btn btn-sm" id="why-about-link" href="/settings?section=about">About &amp; disclaimer</a>
+      <button type="button" class="btn btn-sm" id="whyClose">Close</button>
+    </div>
+  </div>
 </div>
 
 <nav class="bottom-tabs" aria-label="Primary">
@@ -210,5 +259,6 @@
 </script>
 <script src="/static/theme.js"></script>
 <script src="/static/app.js"></script>
+<script src="/static/guide.js"></script>
 </body>
 </html>

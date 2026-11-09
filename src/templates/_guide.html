@@ -1,0 +1,51 @@
+{% macro rule(kind, word, icon, text) %}
+<div class="guide-rule guide-{{ kind }}"><span class="guide-icon" aria-hidden="true">{{ icon|safe }}</span><span><span class="guide-word">{{ word }}</span> &#8212; {{ text }}</span></div>
+{% endmacro %}
+
+{% macro page_guide(path) %}
+{% if path == "/" %}
+<div class="guide-title">Dashboard guide</div>
+<div class="guide-sub">Everything you own, at a glance.</div>
+{{ rule("status", "Colour dots", "&#9679;", "Green = received, amber = due soon, red = overdue. The same colours appear on every screen.") }}
+{{ rule("howto", "Filter chips", "&#9432;", "Use All, Danger, On-going or Matured to narrow the company bars.") }}
+{{ rule("howto", "Returns history", "&#9432;", "Shows completed months plus the current month only; future months are never listed.") }}
+{{ rule("warning", "Hide amounts", "&#9888;", "Privacy mode lives in the top-bar overflow menu and masks every amount on the page.") }}
+{% elif path == "/portfolio" %}
+<div class="guide-title">Portfolio guide</div>
+<div class="guide-sub">Your holdings, one row per bond.</div>
+{{ rule("howto", "Detail view", "&#9432;", "Open Detail for identity, investment, returns, schedule, classification and payment history.") }}
+{{ rule("howto", "Pinned columns", "&#9432;", "Company / ISIN and Status stay pinned while the middle columns scroll sideways.") }}
+{{ rule("status", "Payout months", "&#9679;", "Green shows the amount received, red means unpaid, amber means due soon.") }}
+{{ rule("warning", "Removing rows", "&#9888;", "Positions are kept for your records; remove a row only when its dates need review.") }}
+{% elif path == "/watch" %}
+<div class="guide-title">Watchlist guide</div>
+<div class="guide-sub">Bonds you may buy later.</div>
+{{ rule("blocking", "One ISIN, one entry", "&#128274;", "The same ISIN can never be registered twice, anywhere in the register.") }}
+{{ rule("blocking", "Investment grade only", "&#128274;", "Credit ratings below BBB- cannot be selected.") }}
+{{ rule("blocking", "Company already watched", "&#128274;", "Blocked while that same bond is still active in the watchlist.") }}
+{{ rule("howto", "Move to Portfolio", "&#9432;", "Fill in the purchase details to turn a candidate into a holding.") }}
+{% elif path == "/goals" %}
+<div class="guide-title">Goals guide</div>
+<div class="guide-sub">Savings targets linked to your bonds.</div>
+{{ rule("howto", "Target is locked", "&#9432;", "The target is worked out once from monthly amount times months, then locked.") }}
+{{ rule("status", "Progress", "&#9679;", "Progress adds your monthly check-ins to the bonds linked to that goal.") }}
+{{ rule("howto", "Linked bonds", "&#9432;", "A bond links to a goal when you move it out of the Watchlist.") }}
+{% elif path == "/notifications" %}
+<div class="guide-title">Alerts guide</div>
+<div class="guide-sub">One feed for due, overdue and maturity alerts.</div>
+{{ rule("howto", "Filters", "&#9432;", "All, Due, Overdue and Maturity narrow the feed; each row jumps to its bond.") }}
+{{ rule("status", "Unread", "&#9679;", "Unread rows are bold with a coloured left bar; Mark all read clears the badge.") }}
+{{ rule("howto", "Settings", "&#9432;", "Channels and day-wise rules live in Settings, not on this page.") }}
+{% elif path == "/settings" %}
+<div class="guide-title">Settings guide</div>
+<div class="guide-sub">One section at a time.</div>
+{{ rule("howto", "Sections", "&#9432;", "General, Notifications, Share / Export, Data and About each show on their own.") }}
+{{ rule("howto", "Theme", "&#9432;", "The theme switcher lives in the top-bar overflow menu, one home only.") }}
+{{ rule("status", "Saved", "&#9679;", "A tick appears after every change that saves successfully.") }}
+{% else %}
+<div class="guide-title">Page guide</div>
+<div class="guide-sub">This page in plain language.</div>
+{{ rule("howto", "Getting around", "&#9432;", "Use the sidebar, the top-bar icons and the bottom tabs to move between pages.") }}
+{{ rule("status", "Colours", "&#9679;", "Green means received, amber means due soon, red means overdue.") }}
+{% endif %}
+{% endmacro %}
