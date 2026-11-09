@@ -1,4 +1,44 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+  .feed-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .toolbar-spacer { flex: 1 1 auto; }
+  .filter-chip-feed {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--muted);
+    background: var(--card);
+  }
+  .filter-chip-feed.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .feed-group { margin-bottom: 16px; }
+  .feed-group-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .alert-card { text-decoration: none; color: var(--text); }
+  .alert-card .alert-message { font-weight: 400; }
+  .alert-card.unread .alert-message { font-weight: 700; }
+  .alert-card .alert-members { display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
+  .alert-card.alert-danger, .alert-card.alert-due_today { border-left-color: var(--c-red); }
+  .alert-card.alert-reminder, .alert-card.alert-warn { border-left-color: var(--c-amber); }
+  .alert-card.alert-maturity_soon { border-left-color: var(--c-blue); }
+  .alert-card.alert-info { border-left-color: var(--muted); }
+  .feed-empty { text-align: center; padding: 28px 12px; }
+  .feed-empty-icon { font-size: 1.6rem; color: var(--c-green); }
+  .feed-empty strong { display: block; margin: 6px 0 4px; font-size: 1rem; }
+</style>
+{% endblock %}
 {% block content %}
 <h1>Alerts</h1>
 
@@ -13,34 +53,47 @@
 {% endif %}
 {% endwith %}
 
-<div class="card" id="day-wise-rules">
-  <h2>Day-wise rules</h2>
-  <p id="day-wise-rule-text">If Received amount is not entered on the credit day → status becomes Danger same day.</p>
+<div class="feed-toolbar" id="alert-toolbar">
+  {% for key, label in filter_labels %}
+  <a class="filter-chip-feed{% if key == active_filter %} active{% endif %}" id="feed-filter-{{ key }}" href="/notifications?filter={{ key }}">{{ label }}{% if counts[key] %} ({{ counts[key] }}){% endif %}</a>
+  {% endfor %}
+  <span class="toolbar-spacer"></span>
+  <form method="post" action="/notifications/read_all" class="inline-form">
+    <button class="btn btn-sm" type="submit" id="mark-all-read">Mark all read</button>
+  </form>
+  <form method="post" action="/notifications/clear" class="inline-form">
+    <button class="btn btn-sm" type="submit" id="clear-read">Clear</button>
+  </form>
 </div>
 
 <div class="card alert-feed" id="alert-feed">
-  <h2>Alert feed</h2>
-  {% if feed %}
-  {% for item in feed %}
-  <div class="alert-card alert-{{ item.severity }}" data-severity="{{ item.severity }}" data-order="{{ loop.index0 }}" id="alert-{{ item.id }}">
-    <span class="alert-severity">{{ item.severity }}</span>
-    <span class="alert-message">{{ item.message }}</span>
-    <span class="alert-time">{{ item.created_at }}</span>
+  {% for group in groups %}
+  <section class="feed-group" data-group="{{ group.name }}">
+    <h2 class="feed-group-title">{{ group.name }}</h2>
+    {% for row in group.rows %}
+    {% if row.batch %}
+    <a class="alert-card alert-{{ row.severity }}{% if row.read == 0 %} unread{% endif %}" data-severity="{{ row.severity }}" id="alert-batch-{{ group.name|lower|replace(' ', '-') }}-{{ row.severity }}" href="{{ row.link }}">
+      <span class="alert-severity">{{ row.severity }}</span>
+      <span class="alert-message">{{ row.count }} {{ row.label }}<span class="alert-members">{{ row.messages|join(" · ") }}</span></span>
+      <span class="alert-time">{{ row.timestamp }}</span>
+    </a>
+    {% else %}
+    <a class="alert-card alert-{{ row.severity }}{% if row.read == 0 %} unread{% endif %}" data-severity="{{ row.severity }}" id="alert-{{ row.id }}" href="{{ row.link }}">
+      <span class="alert-severity">{{ row.severity }}</span>
+      <span class="alert-message">{{ row.message }}</span>
+      <span class="alert-time">{{ row.timestamp }}</span>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </section>
+  {% else %}
+  <div class="feed-empty" id="alert-feed-empty">
+    <div class="feed-empty-icon" aria-hidden="true">&#10003;</div>
+    <strong>All caught up</strong>
+    <p class="caption">No alerts need your attention. New due, overdue and maturity alerts land here.</p>
   </div>
   {% endfor %}
-  {% else %}
-  <p id="alert-feed-empty">No alerts yet — day-wise rules will appear here.</p>
-  {% endif %}
 </div>
 
-<form method="post" action="/notifications" id="alert-channels-form">
-  <div class="card" id="alert-channels">
-    <h2>Channels</h2>
-    <label class="check-row"><input type="checkbox" name="inapp"{% if prefs.get('alert_channel_inapp', '1') == '1' %} checked{% endif %}> In-app notification</label>
-    <label class="check-row"><input type="checkbox" name="email"{% if prefs.get('alert_channel_email', '1') == '1' %} checked{% endif %}> Email (personal SMTP, personal → personal)</label>
-    <div class="section-gap">
-      <button class="btn btn-primary" type="submit" id="save-channels">Save channels</button>
-    </div>
-  </div>
-</form>
+<p class="caption" id="alerts-config-pointer">Alert channels and day-wise rules live in <a href="/settings">Settings</a>.</p>
 {% endblock %}
