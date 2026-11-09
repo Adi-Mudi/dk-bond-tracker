@@ -273,3 +273,54 @@ def test_ui14_payment_toggle_persists_per_row(client, db_path):
     assert 'name="tds" checked' in editor
     assert 'id="tds-amount" data-amount="1000.00"' in editor
     assert 'id="tds-gross" data-amount="10000.00"' in editor
+
+
+def test_ui14_ledger_defaults_tds_applied_on(client, db_path):
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "DefaultCo", "INE0000001393", "2026-07-01", 6, credit_day=5)
+        conn.execute(
+            "INSERT INTO payment_ledger (bond_id, month, amount, paid) VALUES (?, ?, ?, ?)",
+            (bond_id, "2026-07", 9000.0, 1),
+        )
+        row = conn.execute(
+            "SELECT tds_applied FROM payment_ledger WHERE bond_id = ? AND month = ?",
+            (bond_id, "2026-07"),
+        ).fetchone()
+    assert row["tds_applied"] == 1
+
+
+def test_ui14_payout_quick_entry_sends_tds_defaulting_on(client, db_path):
+    today = date.today()
+    base = today.replace(day=1)
+    off_month = add_months(base, -2)
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "QuickCo", "INE0000001392", off_month.isoformat(), 6, credit_day=5)
+        conn.execute(
+            "INSERT INTO payment_ledger (bond_id, month, amount, paid, tds_applied) VALUES (?, ?, ?, 1, 0)",
+            (bond_id, f"{off_month.year:04d}-{off_month.month:02d}", 9000.0),
+        )
+    html = client.get("/portfolio?tab=payouts").get_data(as_text=True)
+    assert 'payload.set("tds"' in html
+    assert "payout-tds" in html
+    off_cell = payout_cell(html, bond_id, f"{off_month.year:04d}-{off_month.month:02d}")
+    assert 'data-tds="0"' in off_cell
+    default_cell = payout_cell(html, bond_id, f"{base.year:04d}-{base.month:02d}")
+    assert 'data-tds="1"' in default_cell
+
+
+def test_ui14_full_detail_page_returns_block_matches_drawer(client, db_path):
+    today = date.today()
+    base = today.replace(day=1)
+    paid_month = add_months(base, -2)
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "FullCo", "INE0000001394", paid_month.isoformat(), 6, credit_day=5)
+        add_payment(conn, bond_id, f"{paid_month.year:04d}-{paid_month.month:02d}", 9000.0)
+    html = client.get(f"/portfolio/{bond_id}").get_data(as_text=True)
+    assert 'id="grp-returns"' in html
+    assert "Received in bank" in html
+    assert "TDS deducted to govt" in html
+    assert "Gross returns" in html
+    assert "claimable tax credit (Form 16A)" in html
+    assert 'id="detail-received" data-amount="9000.00"' in html
+    assert 'id="detail-tds" data-amount="1000.00"' in html
+    assert 'id="detail-gross" data-amount="10000.00"' in html

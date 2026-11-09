@@ -263,11 +263,11 @@
               </td>
               {% for cell in row.cells %}
               {% if cell.kind == "received" %}
-              <td><button type="button" class="payout-cell money month paid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1"><span class="m-amt">{{ money_text(cell.amount) }}</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-amt">{{ money_text(cell.amount) }}</span></button></td>
               {% elif cell.kind == "pending" %}
-              <td><button type="button" class="payout-cell month soon" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-received="0"><span class="m-status">due soon</span></button></td>
+              <td><button type="button" class="payout-cell month soon" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-received="0" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-status">due soon</span></button></td>
               {% elif cell.kind == "missed" %}
-              <td><button type="button" class="payout-cell month unpaid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0"><span class="m-status">unpaid</span></button></td>
+              <td><button type="button" class="payout-cell month unpaid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-status">unpaid</span></button></td>
               {% elif cell.kind == "matured" %}
               <td><span class="chip chip-matured">Matured</span></td>
               {% elif cell.kind == "chip" %}
@@ -571,9 +571,10 @@
         }
         var amount = cell.getAttribute("data-amount") || "";
         var received = cell.getAttribute("data-received") === "1";
+        var tdsApplied = cell.getAttribute("data-tds") !== "0";
         var editor = document.createElement("span");
         editor.className = "payout-editor";
-        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox"' + (received ? " checked" : "") + '> Received?</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
+        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox" class="payout-received"' + (received ? " checked" : "") + '> Received?</label><label class="check-inline"><input type="checkbox" class="payout-tds"' + (tdsApplied ? " checked" : "") + '> TDS 10%</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
         td.appendChild(editor);
         cell.hidden = true;
         editor.querySelector(".payout-cancel").addEventListener("click", function () {
@@ -582,11 +583,15 @@
         });
         editor.querySelector(".payout-save").addEventListener("click", function () {
           var value = editor.querySelector("input[type=\"number\"]").value;
-          var flag = editor.querySelector("input[type=\"checkbox\"]").checked;
+          var flag = editor.querySelector(".payout-received").checked;
+          var tdsFlag = editor.querySelector(".payout-tds").checked;
           var payload = new URLSearchParams();
           payload.set("amount", value === "" ? "0" : value);
           if (flag) {
             payload.set("paid", "on");
+          }
+          if (tdsFlag) {
+            payload.set("tds", "on");
           }
           fetch("/payment/" + cell.getAttribute("data-bond") + "/" + cell.getAttribute("data-month"), {
             method: "POST",
