@@ -1,0 +1,73 @@
+{
+ "id": "android_stage4_device_smoke",
+ "package": "com.dkbondtracker.app",
+ "apk_sha256": "047f3afd777eb3339884cbf1f6678b19a176cc0671c755b1dc2b60edd56bdef5",
+ "captures": {
+  "tc_and_01_dashboard_launch.png": {
+   "sha16": "b130c86c7b880f42",
+   "bytes": 76392
+  },
+  "tc_and_04_webview_localhost.png": {
+   "sha16": "b130c86c7b880f42",
+   "bytes": 76392
+  },
+  "tc_and_05_settings_share_export.png": {
+   "sha16": "bcc30ce46c8612b1",
+   "bytes": 67363
+  },
+  "tc_and_05_watchlist_add_form.png": {
+   "sha16": "99dae10b09a6a8d8",
+   "bytes": 97169
+  },
+  "tc_and_06_alerts_parity.png": {
+   "sha16": "62a454b86deb78cc",
+   "bytes": 131895
+  },
+  "tc_and_07_dashboard_after_restart.png": {
+   "sha16": "ace8940a392bf30d",
+   "bytes": 76457
+  }
+ },
+ "assertions": {
+  "three_flows_render_distinct_pages": true,
+  "durability_content_diff_ratio": 2.7669270833333332e-05,
+  "durability_within_2pct": true
+ },
+ "tc_results": {
+  "TC-AND-01": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_01_dashboard_launch.png"
+  },
+  "TC-AND-03": {
+   "tier": "device",
+   "result": "BLOCKED (env: no run-as); host contract covers",
+   "reason": "app-private DB path needs adb/run-as or root waydroid shell (neither available); the host contract covers it - android/tests/test_tc_and_host.py::test_tc_and_03_db_path_is_app_private"
+  },
+  "TC-AND-04": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_04_webview_localhost.png",
+   "note": "render proves the WebView loaded 127.0.0.1; cleartext logcat needs root waydroid logcat (unavailable)"
+  },
+  "TC-AND-05": {
+   "tier": "device",
+   "result": "BLOCKED (issue #113)",
+   "reason": "no in-app export/share trigger and no Android ACTION_SEND/FileProvider in MainActivity.java; nearest surface captured",
+   "tracked_by": "issue #113 (AND-04 Android share-sheet export)",
+   "evidence": "tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png"
+  },
+  "TC-AND-06": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_06_alerts_parity.png"
+  },
+  "TC-AND-07": {
+   "tier": "device",
+   "result": "PASS",
+   "reason": "dashboard rendered after a real container restart (session stop/start kills the app process); compared to the fresh-launch dashboard",
+   "evidence": "tc_and_07_dashboard_after_restart.png vs tc_and_01_dashboard_launch.png",
+   "content_diff_ratio": 2.7669270833333332e-05
+  }
+ }
+}
