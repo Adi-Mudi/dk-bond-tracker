@@ -266,7 +266,7 @@ summary = {
         "TC-AND-01": {"tier": "device",
                       "result": "PASS" if caps.get("tc_and_01_dashboard_launch.png") else "FAIL",
                       "evidence": "tc_and_01_dashboard_launch.png"},
-        "TC-AND-03": {"tier": "device", "result": "BLOCKED (environment)",
+        "TC-AND-03": {"tier": "device", "result": "BLOCKED (env: no run-as); host contract covers",
                       "reason": "app-private DB path needs adb/run-as or root waydroid shell (neither available); the host contract covers it - android/tests/test_tc_and_host.py::test_tc_and_03_db_path_is_app_private"},
         "TC-AND-04": {"tier": "device",
                       "result": "PASS" if caps.get("tc_and_04_webview_localhost.png") else "FAIL",
