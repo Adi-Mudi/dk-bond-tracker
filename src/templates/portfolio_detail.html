@@ -41,9 +41,12 @@
       <dl class="group-facts">
         <dt>Coupon</dt><dd>{% if detail.coupon_pct is not none %}{{ "%.1f"|format(detail.coupon_pct) }}%{% else %}&#8212;{% endif %}</dd>
         <dt>Yield</dt><dd>{% if detail.expected_yield_pct is not none %}{{ "%.1f"|format(detail.expected_yield_pct) }}%{% else %}&#8212;{% endif %}</dd>
-        <dt>Received</dt><dd>{{ money(detail.received, "detail-received", "value") }}</dd>
+        <dt>Received in bank</dt><dd>{{ money(detail.received, "detail-received", "value") }}</dd>
+        <dt>TDS deducted to govt</dt><dd>{{ money(detail.tds, "detail-tds", "value") }}</dd>
+        <dt>Gross returns</dt><dd>{{ money(detail.gross, "detail-gross", "value") }}</dd>
         <dt>Balance</dt><dd>{{ money(detail.invested - detail.received, "detail-balance", "value") }}</dd>
       </dl>
+      <p class="caption" id="grp-returns-note">TDS applies to interest only (s.193) &#8212; claimable tax credit (Form 16A).</p>
     </div>
     <div class="detail-group" id="grp-schedule">
       <div class="group-title">4 &middot; Schedule</div>

@@ -102,7 +102,7 @@ def test_tc07_totals_are_query_derived_not_stored(db_path):
         ledger_columns = [
             row[1] for row in conn.execute("PRAGMA table_info(payment_ledger)").fetchall()
         ]
-        assert ledger_columns == ["id", "bond_id", "month", "amount", "paid"]
+        assert ledger_columns == ["id", "bond_id", "month", "amount", "paid", "tds_applied"]
         bond_columns = [
             row[1].lower()
             for row in conn.execute("PRAGMA table_info(bonds)").fetchall()

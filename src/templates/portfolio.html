@@ -85,6 +85,27 @@
     color: var(--muted);
   }
   .check-inline input { width: 14px; height: 14px; accent-color: var(--accent); }
+  .payouts-table th:first-child,
+  .payouts-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--white);
+    z-index: 2;
+    box-shadow: 1px 0 0 var(--border);
+  }
+  .month {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .month.paid { background: var(--paid); color: var(--ongoing-fg); }
+  .month.unpaid { background: var(--due); color: var(--danger-fg); font-weight: 700; }
+  .month.soon { background: var(--warn-bg); color: var(--warn-fg); font-weight: 700; }
+  .month.neutral { background: var(--card-bg); color: var(--muted); }
   .attr-strip { background: var(--header-row); font-size: 12px; }
   .attr-row b { font-weight: 700; }
   .holdings-scroll { overflow-x: auto; }
@@ -220,7 +241,7 @@
       <div class="empty-note" id="payouts-empty">No positions yet. Payouts appear here once a position is added.</div>
       {% else %}
       <div class="table-wrap">
-        <table id="payouts-table">
+        <table id="payouts-table" class="payouts-table">
           <thead>
             <tr>
               <th>Company/ISIN</th>
@@ -242,17 +263,17 @@
               </td>
               {% for cell in row.cells %}
               {% if cell.kind == "received" %}
-              <td class="money"><button type="button" class="payout-cell money" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1">{{ money_text(cell.amount) }} &#10003;</button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-amt">{{ money_text(cell.amount) }}</span></button></td>
               {% elif cell.kind == "pending" %}
-              <td class="money"><button type="button" class="payout-cell money pending" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{% if cell.amount is not none %}{{ "%.2f"|format(cell.amount) }}{% endif %}" data-received="0">{% if cell.amount is not none %}{{ money_text(cell.amount) }} &#183; pending{% else %}pending{% endif %}</button></td>
+              <td><button type="button" class="payout-cell month soon" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-received="0" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-status">due soon</span></button></td>
               {% elif cell.kind == "missed" %}
-              <td><button type="button" class="payout-cell chip chip-danger" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0">Missed</button></td>
+              <td><button type="button" class="payout-cell month unpaid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-status">unpaid</span></button></td>
               {% elif cell.kind == "matured" %}
               <td><span class="chip chip-matured">Matured</span></td>
               {% elif cell.kind == "chip" %}
               <td><span class="chip {{ cell.chip }}">{{ cell.text }}</span></td>
               {% else %}
-              <td>{{ cell.text }}</td>
+              <td><span class="month neutral" id="cell-{{ row.id }}-{{ cell.month }}"><span class="m-status">{{ cell.text }}</span></span></td>
               {% endif %}
               {% endfor %}
             </tr>
@@ -454,8 +475,11 @@
       '<div class="detail-group" id="grp-returns"><div class="group-title">3 &#183; Returns</div><table class="drawer-facts">' +
       factRow("Coupon", pct(data.coupon_pct)) +
       factRow("Yield", pct(data.expected_yield_pct)) +
-      moneyFactRow("Received", data.received) +
-      "</table></div>" +
+      moneyFactRow("Received in bank (net)", data.received) +
+      moneyFactRow("TDS deducted to govt", data.tds) +
+      moneyFactRow("Gross returns", data.gross) +
+      "</table>" +
+      '<p class="caption" id="grp-returns-note">TDS applies to interest only (s.193) &#8212; claimable tax credit (Form 16A).</p></div>' +
       '<div class="detail-group" id="grp-schedule"><div class="group-title">4 &#183; Schedule</div><table class="drawer-facts">' +
       factRow("Payout cycle", data.frequency ? (cycleLabels[data.frequency] || data.frequency) : "") +
       factRow("Credit day", data.credit_day) +
@@ -547,9 +571,10 @@
         }
         var amount = cell.getAttribute("data-amount") || "";
         var received = cell.getAttribute("data-received") === "1";
+        var tdsApplied = cell.getAttribute("data-tds") !== "0";
         var editor = document.createElement("span");
         editor.className = "payout-editor";
-        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox"' + (received ? " checked" : "") + '> Received?</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
+        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox" class="payout-received"' + (received ? " checked" : "") + '> Received?</label><label class="check-inline"><input type="checkbox" class="payout-tds"' + (tdsApplied ? " checked" : "") + '> TDS 10%</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
         td.appendChild(editor);
         cell.hidden = true;
         editor.querySelector(".payout-cancel").addEventListener("click", function () {
@@ -558,11 +583,15 @@
         });
         editor.querySelector(".payout-save").addEventListener("click", function () {
           var value = editor.querySelector("input[type=\"number\"]").value;
-          var flag = editor.querySelector("input[type=\"checkbox\"]").checked;
+          var flag = editor.querySelector(".payout-received").checked;
+          var tdsFlag = editor.querySelector(".payout-tds").checked;
           var payload = new URLSearchParams();
           payload.set("amount", value === "" ? "0" : value);
           if (flag) {
             payload.set("paid", "on");
+          }
+          if (tdsFlag) {
+            payload.set("tds", "on");
           }
           fetch("/payment/" + cell.getAttribute("data-bond") + "/" + cell.getAttribute("data-month"), {
             method: "POST",

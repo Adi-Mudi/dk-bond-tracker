@@ -78,6 +78,8 @@ def _payment_months(row, entries, today):
 
 
 def position_detail(conn, bond_id, today=None):
+    from ..phase4 import tds_breakdown
+
     today_value = _resolve_today(today)
     row = conn.execute(
         "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
@@ -96,14 +98,34 @@ def position_detail(conn, bond_id, today=None):
     entries = {}
     payments = []
     for entry in conn.execute(
-        "SELECT month, amount, paid FROM payment_ledger WHERE bond_id = ? ORDER BY month",
+        "SELECT month, amount, paid, tds_applied FROM payment_ledger WHERE bond_id = ? ORDER BY month",
         (bond_id,),
     ).fetchall():
         amount = safe_float(entry["amount"])
         paid = bool(entry["paid"])
-        entries[entry["month"]] = {"amount": entry["amount"], "paid": paid}
-        payments.append({"month": entry["month"], "amount": amount, "paid": paid})
-    received = sum(item["amount"] for item in payments if item["paid"] and item["amount"] > 0)
+        tds_applied = bool(entry["tds_applied"])
+        entries[entry["month"]] = {
+            "amount": entry["amount"],
+            "paid": paid,
+            "tds_applied": tds_applied,
+        }
+        payments.append(
+            {
+                "month": entry["month"],
+                "amount": amount,
+                "paid": paid,
+                "tds_applied": tds_applied,
+            }
+        )
+    received = 0.0
+    tds_total = 0
+    gross_total = 0
+    for item in payments:
+        if item["paid"] and item["amount"] > 0:
+            received += item["amount"]
+            part = tds_breakdown(item["amount"], item["tds_applied"])
+            tds_total += part["tds"]
+            gross_total += part["gross"]
     invested, health, next_payout, bad_amount = row_health_state(
         row, entries, today_value, None
     )
@@ -121,6 +143,8 @@ def position_detail(conn, bond_id, today=None):
         "face_value": row["face_value"],
         "invested": invested,
         "received": received,
+        "tds": tds_total,
+        "gross": gross_total,
         "next_payout": next_payout,
         "status": health,
         "broker": row["broker"] or "",

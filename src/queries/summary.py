@@ -1,7 +1,7 @@
 from . import _resolve_today, _default_today
 from ..engine import sort_rows
 from ..status import compute_row_status_daywise, month_key, tenure_month_map
-from ..validators import AppError
+from ..validators import AppError, safe_float
 
 
 def bond_month_totals(conn, bond_id):
@@ -104,6 +104,23 @@ def summary_counts(conn, today=None):
     return counts
 
 
+def received_tds_gross(conn):
+    from ..phase4 import tds_breakdown
+
+    tds_total = 0
+    gross_total = 0
+    for row in conn.execute(
+        "SELECT amount, tds_applied FROM payment_ledger WHERE paid = 1 AND amount > 0"
+    ).fetchall():
+        amount = safe_float(row["amount"])
+        if amount <= 0:
+            continue
+        breakdown = tds_breakdown(amount, bool(row["tds_applied"]))
+        tds_total += breakdown["tds"]
+        gross_total += breakdown["gross"]
+    return {"tds": tds_total, "gross": gross_total}
+
+
 def summary_amounts(conn, today=None):
     try:
         totals = portfolio_totals(conn)
@@ -111,12 +128,15 @@ def summary_amounts(conn, today=None):
         raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc.message}") from exc
     except Exception as exc:
         raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc}") from exc
+    breakdown = received_tds_gross(conn)
     today_value = _resolve_today(today)
     if today_value is None:
         return {
             "total_investment": totals["total_investment"],
             "till_return": totals["till_return"],
             "balance": totals["balance"],
+            "received_tds": breakdown["tds"],
+            "received_gross": breakdown["gross"],
             "month": None,
             "month_message": "current month could not be resolved",
         }
@@ -124,6 +144,8 @@ def summary_amounts(conn, today=None):
         "total_investment": totals["total_investment"],
         "till_return": totals["till_return"],
         "balance": totals["balance"],
+        "received_tds": breakdown["tds"],
+        "received_gross": breakdown["gross"],
         "month": month_key(today_value),
         "month_message": None,
     }
