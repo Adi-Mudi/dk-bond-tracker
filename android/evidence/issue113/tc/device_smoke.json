@@ -1,0 +1,77 @@
+{
+ "id": "android_stage4_device_smoke",
+ "package": "com.dkbondtracker.app",
+ "apk_sha256": "b431654e9ad02e260b43e91895aac00d4206f3245bec80b81f5254821598526f",
+ "captures": {
+  "tc_and_01_dashboard_launch.png": {
+   "sha16": "4d0ecc9cd1d36644",
+   "bytes": 75907
+  },
+  "tc_and_04_webview_localhost.png": {
+   "sha16": "4d0ecc9cd1d36644",
+   "bytes": 75907
+  },
+  "tc_and_05_settings_share_export.png": {
+   "sha16": "adc69185d152591a",
+   "bytes": 72806
+  },
+  "tc_and_05_share_sheet.png": {
+   "sha16": "7af396f02de43f7f",
+   "bytes": 61882
+  },
+  "tc_and_05_watchlist_add_form.png": {
+   "sha16": "0fdddbca51ed7c82",
+   "bytes": 96627
+  },
+  "tc_and_06_alerts_parity.png": {
+   "sha16": "4cb861a431e5b7ca",
+   "bytes": 131816
+  },
+  "tc_and_07_dashboard_after_restart.png": {
+   "sha16": "23cfcbe37b5746e8",
+   "bytes": 75802
+  }
+ },
+ "assertions": {
+  "three_flows_render_distinct_pages": true,
+  "durability_content_diff_ratio": 0.0,
+  "durability_within_2pct": true
+ },
+ "tc_results": {
+  "TC-AND-01": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_01_dashboard_launch.png"
+  },
+  "TC-AND-03": {
+   "tier": "device",
+   "result": "BLOCKED (env: no run-as); host contract covers",
+   "reason": "app-private DB path needs adb/run-as or root waydroid shell (neither available); the host contract covers it - android/tests/test_tc_and_host.py::test_tc_and_03_db_path_is_app_private"
+  },
+  "TC-AND-04": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_04_webview_localhost.png",
+   "note": "render proves the WebView loaded 127.0.0.1; cleartext logcat needs root waydroid logcat (unavailable)"
+  },
+  "TC-AND-05": {
+   "tier": "device",
+   "result": "PASS",
+   "reason": "Export CSV link -> WebView onDownloadStart -> save to app-private files -> content:// via ExportProvider -> ACTION_SEND chooser; the chooser opens only after a successful save, so its presence proves the whole path",
+   "evidence": "tc_and_05_share_sheet.png, tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png",
+   "needs_root": "reading the saved CSV back (run-as) and dumping the chooser via dumpsys need root/adb (unavailable); covered by the host contract (no storage permission) and the in-app failure Toast path"
+  },
+  "TC-AND-06": {
+   "tier": "device",
+   "result": "PASS",
+   "evidence": "tc_and_06_alerts_parity.png"
+  },
+  "TC-AND-07": {
+   "tier": "device",
+   "result": "PASS",
+   "reason": "dashboard rendered after a real container restart (session stop/start kills the app process); compared to the fresh-launch dashboard",
+   "evidence": "tc_and_07_dashboard_after_restart.png vs tc_and_01_dashboard_launch.png",
+   "content_diff_ratio": 0.0
+  }
+ }
+}

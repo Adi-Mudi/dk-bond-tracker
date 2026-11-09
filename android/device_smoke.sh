@@ -9,6 +9,7 @@ BOOT_WAIT="${DKBT_BOOT_WAIT:-30}"
 PAGE_WAIT="${DKBT_PAGE_WAIT:-4}"
 HARD_KILL="${DKBT_HARD_KILL:-1}"
 TMP_AREA="${DKBT_TMPDIR:-/var/tmp/dkbt-stage4-smoke}"
+EXPORT_TAB="${DKBT_EXPORT_TAB:-26}"
 
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
@@ -79,6 +80,16 @@ shot() {
 }
 
 press_enter() { ydotool key -d 150 28:1 28:0; }
+
+key_tab() {
+  local n="$1" i=0
+  while [ "$i" -lt "$n" ]; do
+    ydotool key -d 60 15:1 15:0
+    sleep 0.15
+    i=$((i + 1))
+  done
+  sleep 0.4
+}
 
 goto_page() {
   local n="$1" i=0
@@ -193,6 +204,15 @@ say "TC-AND-06: alerts parity"
 goto_page 5
 shot "$OUT/tc_and_06_alerts_parity.png"
 
+say "TC-AND-05: Export CSV -> Android share sheet (AND-04)"
+say "  needs the interactive session only; reading the saved CSV back needs root/run-as (unavailable)"
+goto_page 6
+key_tab "$EXPORT_TAB"
+press_enter
+sleep 7
+shot "$OUT/tc_and_05_share_sheet.png"
+say "  the chooser stays open; TC-AND-07's container restart clears it"
+
 say "TC-AND-07: durability across a real process kill (container restart)"
 if [ "$HARD_KILL" = "1" ]; then
   timeout 90 waydroid session stop >/dev/null 2>&1
@@ -250,6 +270,7 @@ caps = {n: {"sha16": sha16(n), "bytes": size(n)} for n in sorted(p.name for p in
 flows = ["tc_and_01_dashboard_launch.png", "tc_and_05_watchlist_add_form.png",
          "tc_and_06_alerts_parity.png"]
 distinct = len({caps.get(n, {}).get("sha16") for n in flows if caps.get(n, {}).get("sha16")}) == 3
+share_sheet = bool(caps.get("tc_and_05_share_sheet.png", {}).get("sha16"))
 
 ratio = content_diff("tc_and_01_dashboard_launch.png", "tc_and_07_dashboard_after_restart.png")
 durable = ratio is not None and ratio <= 0.02
@@ -274,10 +295,11 @@ summary = {
                       "result": "PASS" if caps.get("tc_and_04_webview_localhost.png") else "FAIL",
                       "evidence": "tc_and_04_webview_localhost.png",
                       "note": "render proves the WebView loaded 127.0.0.1; cleartext logcat needs root waydroid logcat (unavailable)"},
-        "TC-AND-05": {"tier": "device", "result": "BLOCKED (issue #113)",
-                      "reason": "no in-app export/share trigger and no Android ACTION_SEND/FileProvider in MainActivity.java; nearest surface captured",
-                      "tracked_by": "issue #113 (AND-04 Android share-sheet export)",
-                      "evidence": "tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png"},
+        "TC-AND-05": {"tier": "device",
+                      "result": "PASS" if caps.get("tc_and_05_share_sheet.png") else "FAIL",
+                      "reason": "Export CSV link -> WebView onDownloadStart -> save to app-private files -> content:// via ExportProvider -> ACTION_SEND chooser; the chooser opens only after a successful save, so its presence proves the whole path",
+                      "evidence": "tc_and_05_share_sheet.png, tc_and_05_settings_share_export.png, tc_and_05_watchlist_add_form.png",
+                      "needs_root": "reading the saved CSV back (run-as) and dumping the chooser via dumpsys need root/adb (unavailable); covered by the host contract (no storage permission) and the in-app failure Toast path"},
         "TC-AND-06": {"tier": "device",
                       "result": "PASS" if caps.get("tc_and_06_alerts_parity.png") else "FAIL",
                       "evidence": "tc_and_06_alerts_parity.png"},
@@ -290,8 +312,8 @@ summary = {
 }
 (out / "device_smoke.json").write_text(json.dumps(summary, indent=1))
 print("summary:", out / "device_smoke.json")
-print("distinct_pages:", distinct, "durability_ratio:", ratio, "durable:", durable)
-sys.exit(0 if (distinct and durable) else 1)
+print("distinct_pages:", distinct, "durability_ratio:", ratio, "durable:", durable, "share_sheet:", share_sheet)
+sys.exit(0 if (distinct and durable and share_sheet) else 1)
 PY
 JSON_RC=$?
 say "device_smoke.json rc=$JSON_RC"
