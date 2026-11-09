@@ -2,8 +2,9 @@ import calendar
 
 from . import _resolve_today
 from ..engine import sort_rows
+from ..ledger import ledger_by_bond
 from ..status import compute_row_status_daywise, month_key, tenure_month_map
-from ..validators import AppError, add_months, parse_date_value
+from ..validators import AppError, add_months, parse_date_value, safe_float
 from .summary import _month_keys_span, status_overview
 
 
@@ -64,15 +65,18 @@ def grid_model(conn, today=None):
         row = entry["row"]
         status = "Invalid"
         window = {}
+        amounts = {}
         if not entry["invalid"]:
             try:
                 window = tenure_month_map(conn, row["id"], row["start_date"], entry["tenure"])
+                amounts = ledger_by_bond(conn, [row["id"]]).get(row["id"], {})
                 status = compute_row_status_daywise(
                     window, entry["tenure"], row["credit_day"], today_value
                 )
             except AppError:
                 status = "Invalid"
                 window = {}
+                amounts = {}
         cells = []
         for key in months:
             if key not in window:
@@ -83,7 +87,10 @@ def grid_model(conn, today=None):
                 state = "due"
             else:
                 state = "future"
-            cells.append({"month": key, "state": state, "bond_id": row["id"]})
+            amount = safe_float(amounts.get(key, {}).get("amount")) if state == "paid" else None
+            cells.append(
+                {"month": key, "state": state, "bond_id": row["id"], "amount": amount}
+            )
         model_rows.append(
             {
                 "id": row["id"],
