@@ -103,6 +103,7 @@ def test_ui03_portfolio_payouts_cells_follow_green_red_amber_rule(client, db_pat
     soon = payout_cell(html, bond_id, pending_month)
     assert "month soon" in soon
     assert "due soon" in visible_text(soon)
+    assert "data-amount" not in soon
     assert "8000" not in visible_text(soon)
 
     unpaid = payout_cell(html, bond_id, missed_month)
@@ -111,7 +112,7 @@ def test_ui03_portfolio_payouts_cells_follow_green_red_amber_rule(client, db_pat
     assert "Missed" not in unpaid
 
 
-def test_ui03_portfolio_payouts_neutral_cells_carry_status_text(client, db_path):
+def test_ui03_portfolio_payouts_prestart_cells_show_neutral_dash(client, db_path):
     today = date.today()
     base = today.replace(day=1)
     early = add_months(base, -5)
@@ -123,7 +124,8 @@ def test_ui03_portfolio_payouts_neutral_cells_carry_status_text(client, db_path)
     early_month = f"{early.year:04d}-{early.month:02d}"
     cell = payout_cell(html, late_id, early_month)
     assert "month neutral" in cell
-    assert "not due yet" in visible_text(cell)
+    assert visible_text(cell) == "\u2014"
+    assert "not due yet" not in cell
 
 
 def test_ui03_payout_matrices_have_sticky_company_column(client, db_path):
@@ -178,7 +180,7 @@ def test_ui14_dashboard_kpi_shows_net_plus_tds_equals_gross(client, db_path):
 def test_ui14_accuracy_gate_dashboard_portfolio_payouts_agree(client, db_path):
     today = date.today()
     base = today.replace(day=1)
-    net_total = 0.0
+    off_month = base
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "AgreeCo", "INE0000001387", add_months(base, -3).isoformat(), 10, credit_day=5)
         conn.execute(
@@ -188,23 +190,38 @@ def test_ui14_accuracy_gate_dashboard_portfolio_payouts_agree(client, db_path):
         for offset in range(3):
             month = add_months(base, -3 + offset)
             add_payment(conn, bond_id, f"{month.year:04d}-{month.month:02d}", 9000.0)
-            net_total += 9000.0
+        conn.execute(
+            "INSERT INTO payment_ledger (bond_id, month, amount, paid, tds_applied) VALUES (?, ?, ?, 1, 0)",
+            (bond_id, f"{off_month.year:04d}-{off_month.month:02d}", 5000.0),
+        )
 
-    expected = tds_breakdown(net_total)
+    net_total = 32000.0
+    expected_tds = 3000
+    expected_gross = 35000
 
     dashboard = client.get("/").get_data(as_text=True)
     assert f'id="received-total" data-amount="{net_total:.2f}"' in dashboard
-    assert f'id="received-tds" data-amount="{expected["tds"]:.2f}"' in dashboard
-    assert f'id="received-gross" data-amount="{expected["gross"]:.2f}"' in dashboard
+    assert f'id="received-tds" data-amount="{expected_tds:.2f}"' in dashboard
+    assert f'id="received-gross" data-amount="{expected_gross:.2f}"' in dashboard
 
     detail = client.get(f"/portfolio/{bond_id}/detail").get_json()
     assert detail["received"] == net_total
-    assert detail["tds"] == expected["tds"]
-    assert detail["gross"] == expected["gross"]
-    assert tds_breakdown(detail["received"]) == {
-        "net": round(net_total),
-        "tds": detail["tds"],
-        "gross": detail["gross"],
+    assert detail["tds"] == expected_tds
+    assert detail["gross"] == expected_gross
+    off_rows = [row for row in detail["payments"] if row["tds_applied"] is False]
+    assert len(off_rows) == 1
+    assert off_rows[0]["amount"] == 5000.0
+    assert tds_breakdown(off_rows[0]["amount"], off_rows[0]["tds_applied"]) == {
+        "net": 5000,
+        "tds": 0,
+        "gross": 5000,
+    }
+    on_rows = [row for row in detail["payments"] if row["tds_applied"] is True]
+    assert len(on_rows) == 3
+    assert tds_breakdown(on_rows[0]["amount"], on_rows[0]["tds_applied"]) == {
+        "net": 9000,
+        "tds": 1000,
+        "gross": 10000,
     }
 
     with get_conn(db_path) as conn:
@@ -216,3 +233,43 @@ def test_ui14_accuracy_gate_dashboard_portfolio_payouts_agree(client, db_path):
     assert instance_breakdown["gross"] == instance["amount"]
     assert schedule["total_amount"] == 90000.0
     assert tds_breakdown(schedule["total_net"])["gross"] == schedule["total_amount"]
+
+
+def test_ui14_payment_toggle_persists_per_row(client, db_path):
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "ToggleCo", "INE0000001390", "2026-07-01", 6, credit_day=5)
+
+    response = client.post(
+        f"/payment/{bond_id}/2026-07",
+        data={"amount": "9000", "paid": "on"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        row = conn.execute(
+            "SELECT amount, paid, tds_applied FROM payment_ledger WHERE bond_id = ? AND month = ?",
+            (bond_id, "2026-07"),
+        ).fetchone()
+    assert row["tds_applied"] == 0
+    editor = client.get(f"/payment/{bond_id}/2026-07").get_data(as_text=True)
+    assert 'name="tds"' in editor
+    assert 'name="tds" checked' not in editor
+    assert 'id="tds-amount" data-amount="0.00"' in editor
+    assert 'id="tds-gross" data-amount="9000.00"' in editor
+
+    response = client.post(
+        f"/payment/{bond_id}/2026-07",
+        data={"amount": "9000", "paid": "on", "tds": "on"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        row = conn.execute(
+            "SELECT tds_applied FROM payment_ledger WHERE bond_id = ? AND month = ?",
+            (bond_id, "2026-07"),
+        ).fetchone()
+    assert row["tds_applied"] == 1
+    editor = client.get(f"/payment/{bond_id}/2026-07").get_data(as_text=True)
+    assert 'name="tds" checked' in editor
+    assert 'id="tds-amount" data-amount="1000.00"' in editor
+    assert 'id="tds-gross" data-amount="10000.00"' in editor

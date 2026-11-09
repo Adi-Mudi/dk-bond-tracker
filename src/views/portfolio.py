@@ -125,7 +125,7 @@ def payout_cell(key, window_set, entry, health, credit_day, today):
     if health == "Matured":
         return {"kind": "matured"}
     if key not in window_set:
-        return {"kind": "text", "month": key, "text": "not due yet"}
+        return {"kind": "text", "month": key, "text": "—"}
     if entry_paid(entry):
         return {"kind": "received", "month": key, "amount": safe_float(entry["amount"])}
     amount_value = 0.0

@@ -26,6 +26,7 @@ SCHEMA_STATEMENTS = (
         month TEXT,
         amount REAL,
         paid INTEGER DEFAULT 0,
+        tds_applied INTEGER NOT NULL DEFAULT 1,
         UNIQUE (bond_id, month)
     )""",
     """CREATE TABLE IF NOT EXISTS financial_goals (
@@ -76,6 +77,11 @@ def _ensure_columns(conn):
     goal_columns = {row[1] for row in conn.execute("PRAGMA table_info(financial_goals)")}
     if "saved_amount" not in goal_columns:
         conn.execute("ALTER TABLE financial_goals ADD COLUMN saved_amount REAL DEFAULT 0")
+    ledger_columns = {row[1] for row in conn.execute("PRAGMA table_info(payment_ledger)")}
+    if "tds_applied" not in ledger_columns:
+        conn.execute(
+            "ALTER TABLE payment_ledger ADD COLUMN tds_applied INTEGER NOT NULL DEFAULT 1"
+        )
     for column in (
         "rating TEXT",
         "rating_agency TEXT",
