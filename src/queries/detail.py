@@ -78,6 +78,8 @@ def _payment_months(row, entries, today):
 
 
 def position_detail(conn, bond_id, today=None):
+    from ..phase4 import tds_breakdown
+
     today_value = _resolve_today(today)
     row = conn.execute(
         "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
@@ -104,6 +106,7 @@ def position_detail(conn, bond_id, today=None):
         entries[entry["month"]] = {"amount": entry["amount"], "paid": paid}
         payments.append({"month": entry["month"], "amount": amount, "paid": paid})
     received = sum(item["amount"] for item in payments if item["paid"] and item["amount"] > 0)
+    breakdown = tds_breakdown(received)
     invested, health, next_payout, bad_amount = row_health_state(
         row, entries, today_value, None
     )
@@ -121,6 +124,8 @@ def position_detail(conn, bond_id, today=None):
         "face_value": row["face_value"],
         "invested": invested,
         "received": received,
+        "tds": breakdown["tds"],
+        "gross": breakdown["gross"],
         "next_payout": next_payout,
         "status": health,
         "broker": row["broker"] or "",

@@ -14,11 +14,20 @@
   }
   .field .checkbox-line { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
   .field input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+  .tds-breakdown {
+    margin-top: 12px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--warn-bg);
+    font-size: 13px;
+  }
+  .tds-line { margin-bottom: 4px; }
 </style>
 {% endblock %}
 {% block content %}
 <h1 style="font-size:18px;margin-bottom:12px;">Payment Edit</h1>
-<p class="table-note" style="margin-top:0;">Opened from a Month Grid cell. Save recomputes the row and bond status (live query, no open/save event).</p>
+<p class="table-note" style="margin-top:0;">Opened from a Month Grid cell. Enter the amount that actually landed in your bank (after TDS). Save recomputes the row and bond status (live query, no open/save event).</p>
 <div class="payment-edit-card">
   <h4>{{ bond.company }} &#8212; {{ month_label }}</h4>
   <div class="ctx mono">{{ bond.isin }} &#183; {{ state }}</div>
@@ -26,7 +35,7 @@
   <form method="post" action="/payment/{{ bond.id }}/{{ month }}">
     <div class="field-row">
       <div class="field">
-        <label for="pay-amount">Amount (INR)</label>
+        <label for="pay-amount">Amount credited in your bank (after TDS)</label>
         <input type="text" id="pay-amount" name="amount" class="money-input" value="{{ "%.2f"|format(amount) }}">
       </div>
       <div class="field">
@@ -36,7 +45,51 @@
         </div>
       </div>
     </div>
+    <div class="field">
+      <div class="checkbox-line">
+        <input type="checkbox" id="tds-toggle" checked>
+        <label for="tds-toggle" style="margin:0;">TDS deducted (10% of interest)</label>
+      </div>
+    </div>
+    <div class="tds-breakdown" id="tds-breakdown">
+      <div class="tds-line">Net (you entered): <b id="tds-net" data-amount="{{ "%.2f"|format(amount) }}">&#8377;{{ "%.2f"|format(amount) }}</b></div>
+      <div class="tds-line">Deductions (TDS 10% of interest): <b id="tds-amount" data-amount="{{ "%.2f"|format(tds) }}" style="color:var(--warn-fg)">&#8377;{{ "%.2f"|format(tds) }}</b></div>
+      <div class="tds-line">Gross (net / 0.9): <b id="tds-gross" data-amount="{{ "%.2f"|format(gross) }}">&#8377;{{ "%.2f"|format(gross) }}</b></div>
+    </div>
+    <p class="table-note" id="tds-explainer">You entered the NET credit; gross = net / 0.9 and TDS = net / 9. TDS applies to interest only (s.193), never to principal. The deducted amount is your claimable tax credit (Form 16A) &#8212; declare it in your ITR. Official TDS deposits round to the nearest Rs 10 (s.288B); this app shows exact whole-rupee values for clarity.</p>
     <button class="btn btn-secondary" type="submit">Save</button>
   </form>
 </div>
+<script>
+(function () {
+  var netInput = document.getElementById("pay-amount");
+  var toggle = document.getElementById("tds-toggle");
+  var netOut = document.getElementById("tds-net");
+  var tdsOut = document.getElementById("tds-amount");
+  var grossOut = document.getElementById("tds-gross");
+  if (!netInput || !toggle || !netOut || !tdsOut || !grossOut) {
+    return;
+  }
+  function rupees(value) {
+    return "\u20b9" + Number(value).toFixed(2);
+  }
+  function refresh() {
+    var net = parseFloat(netInput.value);
+    if (isNaN(net)) {
+      net = 0;
+    }
+    var tds = toggle.checked ? Math.round(net / 9) : 0;
+    var gross = toggle.checked ? Math.round(net / 0.9) : net;
+    netOut.textContent = rupees(net);
+    tdsOut.textContent = rupees(tds);
+    grossOut.textContent = rupees(gross);
+    netOut.setAttribute("data-amount", net.toFixed(2));
+    tdsOut.setAttribute("data-amount", tds.toFixed(2));
+    grossOut.setAttribute("data-amount", gross.toFixed(2));
+  }
+  netInput.addEventListener("input", refresh);
+  toggle.addEventListener("change", refresh);
+  refresh();
+})();
+</script>
 {% endblock %}

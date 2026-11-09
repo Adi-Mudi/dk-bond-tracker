@@ -113,11 +113,11 @@ def payout_months(today, first_keys):
 
 def payout_invalid_cells(months):
     cells = []
-    for index, _key in enumerate(months):
+    for index, key in enumerate(months):
         if index == 0:
-            cells.append({"kind": "chip", "text": "Invalid", "chip": "chip-invalid"})
+            cells.append({"kind": "chip", "month": key, "text": "Invalid", "chip": "chip-invalid"})
         else:
-            cells.append({"kind": "text", "text": "—"})
+            cells.append({"kind": "text", "month": key, "text": "—"})
     return cells
 
 
@@ -125,7 +125,7 @@ def payout_cell(key, window_set, entry, health, credit_day, today):
     if health == "Matured":
         return {"kind": "matured"}
     if key not in window_set:
-        return {"kind": "text", "text": "—"}
+        return {"kind": "text", "month": key, "text": "not due yet"}
     if entry_paid(entry):
         return {"kind": "received", "month": key, "amount": safe_float(entry["amount"])}
     amount_value = 0.0
