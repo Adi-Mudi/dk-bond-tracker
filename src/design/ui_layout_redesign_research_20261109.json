@@ -1,0 +1,140 @@
+{
+  "id": "UI_Layout_Redesign_research_20261109",
+  "kind": "research",
+  "title": "UI Layout Redesign — Community Research & Issue Collection (Web + Android)",
+  "version": "v1.0",
+  "status": "OPEN",
+  "date": "2026-11-09",
+  "branch": "ui-layout-redesign",
+  "project": "01_excel_dashboard",
+  "purpose": "Collect layout issues reported by the owner from the Android build, gather community best practices and skill guidance on what a finance-tracker layout should and should not include, and prepare inputs for the redesign discussion. No design decisions are made in this document — decisions happen in the discussion that follows.",
+  "inputs": {
+    "user_report": "4 screenshots (Q1-Q4) from the installed Android APK, owner verdict: layout is not clean, collapsed, not user-friendly; full redesign needed for both Android app and web app",
+    "skills_used": ["ui-ux-pro-max (design-system + ux + web domain searches)", "community web research (8 searches)"]
+  },
+  "reported_issues": [
+    {
+      "id": "Q1",
+      "screen": "Portfolio > My Holdings > Position registry",
+      "severity": "High",
+      "problem": "Table rows are collapsed and cluttered. Company name wraps awkwardly, ISIN + purchase date + units crammed into one cell, a full-width gray attribute strip (Rating agency / Issuer type / Secured / Face value / Payout cycle / Broker) repeats under every row and eats vertical space. Not clean, not user-friendly.",
+      "owner_expectation": "Clean, user-friendly layout and arrangement of holdings data."
+    },
+    {
+      "id": "Q2",
+      "screen": "Portfolio > Payouts (month columns matrix)",
+      "severity": "High",
+      "problem": "Received payments are shown as black tick marks (✓). Owner rejects ticks: every payment received should be marked GREEN; payment not received should be marked pending/danger in RED. This must follow the app's centralized color-coding theme (same pattern used everywhere).",
+      "owner_expectation": "Centralized semantic color coding only: green = received, red/danger = unpaid/pending. No ad-hoc tick marks."
+    },
+    {
+      "id": "Q3",
+      "screen": "Watchlist (Add Candidate form + candidate table)",
+      "severity": "High",
+      "problems": [
+        "Add Candidate form is a dense multi-row grid of 15+ fields — visually collapsed, no clear structure.",
+        "No autocomplete: typing an existing company name should show suggestions (system already locks duplicate ISIN and rejects incomplete company entries — the guard exists, UX does not).",
+        "ISIN and similar fields should auto-uppercase as the user types.",
+        "Credit rating should be a predefined select (full rating scale A..D / AAA..D) — not free text.",
+        "Candidate table bottom section is totally collapsed — buttons (Details / Move to Portfolio / Delete) wrap and stack badly, Action column overflows.",
+        "If a candidate has been invested (moved to Portfolio), it should no longer remain in the Watchlist."
+      ],
+      "owner_expectation": "Clear form structure, friendly input assistance, rating dropdown, clean table with proper action layout, invested items auto-removed from watchlist."
+    },
+    {
+      "id": "Q4",
+      "screen": "Global header + Settings page",
+      "severity": "Medium",
+      "problems": [
+        "Header is crowded: theme switcher (System/Light/Dark), Hide amounts, Notifications badge (68) all compete for space.",
+        "Theme choice is duplicated — header toggle AND Settings > Appearance radio group say the same thing.",
+        "Owner wants a hide/unhide menu layout: user can collapse the menu to gain more viewing space, expand when needed.",
+        "Redesign must apply to BOTH the Android app and the web app (one shared UI)."
+      ],
+      "owner_expectation": "Space-saving collapsible/hideable menu, de-duplicated controls, clean header; unified redesign for web + Android."
+    }
+  ],
+  "community_research": {
+    "summary": "11 sources: investment-dashboard UX guides (Medium/Lollypop/Aufait/KG Hub/Wolfpixel/Eleken), responsive-table references (James Ross/Setproduct/Ramotion/Appnroll/DEV), form-design (CXL/Adam Silver/Jotform), semantic-color systems (Eleken/GitHub design systems/Paleta/Carbon research), sidebar-navigation (Setproduct/DataCamp/arxiv dashboard patterns).",
+    "should_include": [
+      "3-5 KPI cards at top of dashboard (value + trend/color indicator), then charts, then detail tables — clear 3-zone hierarchy (top: attention numbers, middle: trends, bottom: detail)",
+      "Per-holding CARD as primary container on mobile: name, current value, gain/loss with color indicator — progressive disclosure for the rest (tap to expand)",
+      "Semantic status colors as TOKENS, one central helper: green = paid/received, amber = pending/due-soon, red = overdue/danger — applied identically in grid, payouts, badges, dashboard",
+      "Color + icon/text together (never color alone — accessibility + colorblind): green check icon + 'Paid' text, red dot + 'Unpaid'",
+      "Responsive table strategy: cards below ~768px, table on desktop; tap-row-to-expand for hidden columns (fits <= 8 columns)",
+      "Collapsible sidebar on desktop; below 768px: off-canvas drawer (~80-85% width) or bottom tab bar with 3-5 primary destinations + 'More' sheet",
+      "Form best practice: single-column on mobile, visible labels, autocomplete suggestions from existing companies (debounced), sensible defaults, inputmode=numeric for amounts",
+      "Predefined selects for bounded domains (credit rating scale, payout cycle, secured) — better than free text; auto-uppercase for ISIN",
+      "Tabular figures (fixed-width digits) for all money columns so numbers align",
+      "Hideable/collapsible navigation to reclaim content space (Vercel pattern: resizable hideable sidebar; every desktop destination gets a mobile home)"
+    ],
+    "should_not_include": [
+      "No dense multi-column tables shrunk onto phones (a 6-column table with horizontal scroll on mobile is a surrender, not a solution)",
+      "No gray full-width meta strips repeated under every row — use progressive disclosure (expand row/card)",
+      "No ad-hoc status glyphs (bare ticks, bare dots) outside the semantic color system",
+      "No duplicated controls (theme switcher in header AND in settings)",
+      "No widget/cram fest: every widget must map to a user decision — if it can't, it doesn't ship; avoid too many charts/tables competing for attention",
+      "No placeholder-as-label inputs; no free-text fields for values that have a fixed scale",
+      "No header clutter: every pixel of navigation is a pixel taken from data",
+      "No hover-only interactions on touch (Android): use tap-to-reveal",
+      "No color-only status (fails accessibility); no red used as decoration"
+    ],
+    "sources": [
+      "https://medium.com/@david.pham_1649/investment-dashboard-ux-how-to-design-portfolio-interfaces-that-users-actually-trust-b6a06503bfe5",
+      "https://lollypop.design/blog/2026/may/investment-dashboard-ux-design-guide/",
+      "https://www.aufaitux.com/blog/dashboard-design-principles/",
+      "https://www.aufaitux.com/blog/dashboard-design-examples-inspiration-best-practices/",
+      "https://www.wolfpixel.agency/blogs/dashboard-design-best-practices",
+      "https://www.eleken.co/blog-posts/financial-dashboard-examples",
+      "https://medium.com/design-bootcamp/designing-user-friendly-data-tables-for-mobile-devices-c470c82403ad",
+      "https://www.jamesrossjr.com/blog/responsive-data-tables",
+      "https://www.setproduct.com/blog/data-table-ui-design",
+      "https://www.ramotion.com/blog/mobile-tables-design/",
+      "https://www.urbangekodesign.com/industries/fintech/mobile-first-responsive-web-design/",
+      "https://cxl.com/blog/form-design-best-practices/",
+      "https://adamsilver.io/blog/form-design-from-zero-to-hero-all-in-one-blog-post/",
+      "https://www.eleken.co/blog-posts/badge-ui-design",
+      "https://jonathanspooner.com/posts/every-color-is-a-decision-a-developers-guide-to-purposeful-color-in-web-applications",
+      "https://usepaleta.com/blog-semantic-ui-colors",
+      "https://www.setproduct.com/blog/sidebar-navigation-ui-design",
+      "https://www.datacamp.com/tutorial/dashboard-design-tutorial",
+      "https://www.designrush.com/agency/ui-ux-design/dashboard/trends/dashboard-design-principles",
+      "https://github.com/common-origin/common-origin-design-system/issues/257"
+    ]
+  },
+  "skill_guidance": {
+    "source": "ui-ux-pro-max skill (project)",
+    "design_system_suggestion": {
+      "note": "Skill auto-suggested Glassmorphism + Caveat/Quicksand handwriting fonts — REJECTED as unfit for a finance tracker (handwriting font harms trust and number legibility). Useful parts extracted below.",
+      "keep": [
+        "Trust blue primary + profit green accent (fintech convergence: blue = navigation/trust, green = positive outcomes, red = real problems only)",
+        "Destructive red token #DC2626 reserved for genuine alerts",
+        "Anti-pattern: pure white backgrounds — use subtle surface tinting",
+        "Light + dark mode both required with 4.5:1 text contrast"
+      ],
+      "typography_direction": "Professional sans-serif with tabular figures for money — NOT the skill's handwriting suggestion (to be confirmed in discussion)"
+    },
+    "ux_rules_applied": [
+      "Tables on mobile: horizontal scroll OR card layout — never let wide tables break the viewport",
+      "Mobile-first: design 375px first, enhance at breakpoints",
+      "Touch targets >= 48dp on Android",
+      "Autocomplete: show predictions as user types (debounced fetch + dropdown)",
+      "Every input needs a visible label; submit needs loading/success/error feedback",
+      "Status color must be paired with icon/text; contrast 4.5:1 body / 3:1 non-text",
+      "Bottom tabs max 5 items; extras go to More/Settings",
+      "Back behavior must be predictable (Android), modals need clear close"
+    ]
+  },
+  "proposed_direction_for_discussion": [
+    "1. One centralized semantic status system (green/amber/red tokens + icon + label) used by grid, payouts, badges, dashboard — kills the tick-mark problem (Q2)",
+    "2. Holdings: desktop table with expandable rows; mobile = card stack with progressive disclosure — kills the gray meta strips (Q1)",
+    "3. Payouts matrix: keep table on desktop (frozen first column + horizontal scroll), mobile = per-bond cards with month chips colored by status; cells colored green/red/amber instead of ticks (Q1/Q2)",
+    "4. Watchlist: rebuild form single-column mobile / two-column desktop with autocomplete on Company, auto-uppercase ISIN, predefined rating select; candidate table → card layout on mobile; invested candidates auto-move out of watchlist (Q3)",
+    "5. Navigation: hideable sidebar (desktop) + drawer or bottom-tabs (mobile) with 3-5 primary destinations; single theme control (move to user menu, remove duplication); notifications + hide-amounts move into a compact overflow menu (Q4)",
+    "6. Same templates serve web and Android (WebView) — one redesign, both surfaces; verify at 375px / 768px / 1440px"
+  ],
+  "next_step": "DISCUSS with owner: review Q1-Q4 + community include/exclude lists, confirm direction items 1-6, then author design artifacts (wireframes) and issues.",
+  "changelog": [
+    {"date": "2026-11-09", "entry": "v1.0 — created on branch ui-layout-redesign: Q1-Q4 issue collection, community research (include/exclude), skill guidance, proposed direction for discussion"}
+  ]
+}
