@@ -157,14 +157,20 @@ def goals_checkin(goal_id):
 def goals_edit(goal_id):
     db_file = app_db()
     try:
-        name, target_amount, target_end_date, saved_amount = _goal_form_fields(request.form)
+        name, _target, _end, saved_amount = _goal_form_fields(request.form)
         with get_conn(db_file) as conn:
+            stored = conn.execute(
+                "SELECT target_amount, target_end_date FROM financial_goals WHERE id = ?",
+                (goal_id,),
+            ).fetchone()
+            if stored is None:
+                raise AppError("ERR-goals-op", f"update: goal not found: {goal_id!r}")
             update_goal(
                 conn,
                 goal_id,
                 name,
-                target_amount,
-                target_end_date,
+                stored["target_amount"],
+                stored["target_end_date"],
                 saved_amount,
             )
     except AppError as exc:

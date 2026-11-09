@@ -328,12 +328,13 @@
       </tr>
       <tr class="move-row" id="move-panel-{{ candidate.id }}" hidden>
         <td colspan="8">
+          <form method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
           <div class="move-tabs" role="tablist">
             <button type="button" class="move-tab active" data-mtab="purchase" id="move-tab-purchase-{{ candidate.id }}">Purchase details</button>
             {% if goals %}<button type="button" class="move-tab" data-mtab="goal" id="move-tab-goal-{{ candidate.id }}">Financial goal</button>{% endif %}
           </div>
           <div class="move-panel active" id="move-panel-purchase-{{ candidate.id }}" data-mpanel="purchase">
-            <form class="move-form" method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
+            <div class="move-form">
               <div class="move-field">
                 <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
                 <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
@@ -374,14 +375,21 @@
                 <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
                 <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
               </div>
-            </form>
+            </div>
           </div>
           {% if goals %}
           <div class="move-panel" id="move-panel-goal-{{ candidate.id }}" data-mpanel="goal">
-            <p class="caption">Active goals: {% for goal in goals %}{{ goal.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-            <p class="caption">Goal linking is set at purchase once the register link ships; nothing is stored for this move yet.</p>
+            <div class="move-field">
+              <label for="move-goal-{{ candidate.id }}">Financial goal (optional)</label>
+              <select id="move-goal-{{ candidate.id }}" name="goal_id">
+                <option value="">&#8212; none &#8212;</option>
+                {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <p class="caption">Set once here &#8212; the link is permanent: a linked bond can never be moved to another goal or unlinked from Portfolio.</p>
           </div>
           {% endif %}
+          </form>
         </td>
       </tr>
       {% else %}

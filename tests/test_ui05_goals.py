@@ -199,3 +199,128 @@ def test_ui05_portfolio_detail_page_goal_tab_read_only_when_unlinked(client, db_
     detail = client.get(f"/portfolio/{bond_id}/detail").get_json()
     assert detail["goal_id"] is None
     assert detail["goal_name"] is None
+
+
+MOVE_PAYLOAD = {
+    "purchase_date": "2026-08-01",
+    "start_date": "2026-08-01",
+    "end_date": "2028-08-01",
+    "credit_day": "5",
+    "qty": "100",
+    "amount": "100000",
+    "broker": "Zerodha",
+}
+
+
+def make_candidate(client, db_path, isin="INE5000A2001"):
+    client.post(
+        "/watch",
+        data={
+            "company": "Move Co",
+            "isin": isin,
+            "rating": "AA",
+            "coupon_pct": "8.0",
+            "expected_yield_pct": "8.5",
+            "broker": "Zerodha",
+        },
+        follow_redirects=False,
+    )
+    with get_conn(db_path) as conn:
+        return conn.execute("SELECT id FROM bonds WHERE isin = ?", (isin,)).fetchone()["id"]
+
+
+def moved_row(db_path, candidate):
+    with get_conn(db_path) as conn:
+        return conn.execute(
+            "SELECT watch_state, goal_id FROM bonds WHERE id = ?", (candidate,)
+        ).fetchone()
+
+
+def test_ui05_move_form_goal_picker_hidden_without_goals(client, db_path):
+    make_candidate(client, db_path)
+    html = client.get("/watch").get_data(as_text=True)
+    assert 'data-mtab="goal"' not in html
+    assert 'name="goal_id"' not in html
+
+
+def test_ui05_move_form_goal_picker_present_with_goals(client, db_path):
+    create_goal(client, name="House down-payment")
+    make_candidate(client, db_path)
+    html = client.get("/watch").get_data(as_text=True)
+    assert 'data-mtab="goal"' in html
+    assert 'name="goal_id"' in html
+    assert "House down-payment" in html
+    assert "the link is permanent" in html
+
+
+def test_ui05_move_writes_goal_link(client, db_path):
+    create_goal(client, name="House down-payment")
+    candidate = make_candidate(client, db_path)
+    response = client.post(
+        f"/watch/{candidate}/move",
+        data=dict(MOVE_PAYLOAD, goal_id="1"),
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    row = moved_row(db_path, candidate)
+    assert row["watch_state"] == "holding"
+    assert row["goal_id"] == 1
+    html = client.get("/goals").get_data(as_text=True)
+    assert 'id="goal-bonds-1"' in html
+    assert 'id="goal-invested-value-1" data-amount="100000.00"' in html
+
+
+def test_ui05_move_with_blank_goal_leaves_link_null(client, db_path):
+    create_goal(client, name="House down-payment")
+    candidate = make_candidate(client, db_path)
+    response = client.post(
+        f"/watch/{candidate}/move",
+        data=dict(MOVE_PAYLOAD, goal_id=""),
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    assert moved_row(db_path, candidate)["goal_id"] is None
+
+
+def test_ui05_move_with_absent_goal_field_leaves_link_null(client, db_path):
+    create_goal(client, name="House down-payment")
+    candidate = make_candidate(client, db_path)
+    response = client.post(
+        f"/watch/{candidate}/move", data=MOVE_PAYLOAD, follow_redirects=False
+    )
+    assert response.status_code == 302
+    assert moved_row(db_path, candidate)["goal_id"] is None
+
+
+def test_ui05_move_with_unknown_goal_is_named_error_not_500(client, db_path):
+    create_goal(client, name="House down-payment")
+    candidate = make_candidate(client, db_path)
+    response = client.post(
+        f"/watch/{candidate}/move",
+        data=dict(MOVE_PAYLOAD, goal_id="9999"),
+        follow_redirects=False,
+    )
+    assert response.status_code == 400
+    assert b"ERR-move-watching" in response.data
+    assert b"financial goal not found" in response.data
+    row = moved_row(db_path, candidate)
+    assert row["watch_state"] == "watching"
+    assert row["goal_id"] is None
+
+
+def test_ui05_checkin_negative_state_renders_red_cross(client, db_path):
+    create_goal(client)
+    html = client.get("/goals").get_data(as_text=True)
+    assert "checkin-month off" in html
+    assert 'class="checkin-mark">&#10007;</span>' in html
+    assert "&#8226;" not in html
+    assert ".checkin-month.off .checkin-mark" in html
+    assert "var(--danger-fg)" in html
+
+
+def test_ui05_checkin_invested_state_renders_green_tick(client, db_path):
+    create_goal(client)
+    client.post("/goals/1/checkin", data={"month": "2026-01", "invested": "on"})
+    html = client.get("/goals").get_data(as_text=True)
+    assert "checkin-month on" in html
+    assert "&#10003;" in html
