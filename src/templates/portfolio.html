@@ -265,7 +265,7 @@
               {% if cell.kind == "received" %}
               <td><button type="button" class="payout-cell money month paid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1"><span class="m-amt">{{ money_text(cell.amount) }}</span></button></td>
               {% elif cell.kind == "pending" %}
-              <td><button type="button" class="payout-cell month soon" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{% if cell.amount is not none %}{{ "%.2f"|format(cell.amount) }}{% endif %}" data-received="0"><span class="m-status">due soon</span></button></td>
+              <td><button type="button" class="payout-cell month soon" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-received="0"><span class="m-status">due soon</span></button></td>
               {% elif cell.kind == "missed" %}
               <td><button type="button" class="payout-cell month unpaid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0"><span class="m-status">unpaid</span></button></td>
               {% elif cell.kind == "matured" %}

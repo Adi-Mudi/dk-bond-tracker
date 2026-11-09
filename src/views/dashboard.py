@@ -155,7 +155,7 @@ def payment_edit(bond_id, month):
                         "ERR-ledger-edit", f"bond not found: {bond_id!r}"
                     )
                 ledger = conn.execute(
-                    "SELECT amount, paid FROM payment_ledger "
+                    "SELECT amount, paid, tds_applied FROM payment_ledger "
                     "WHERE bond_id = ? AND month = ?",
                     (bond_id, month),
                 ).fetchone()
@@ -176,10 +176,12 @@ def payment_edit(bond_id, month):
                 state = "future month (not yet due)"
             amount_value = 0.0
             paid_flag = False
+            tds_applied = True
             if ledger is not None:
                 amount_value = float(ledger["amount"] or 0.0)
                 paid_flag = bool(ledger["paid"]) and amount_value > 0
-            breakdown = tds_breakdown(amount_value)
+                tds_applied = bool(ledger["tds_applied"])
+            breakdown = tds_breakdown(amount_value, tds_applied)
         except AppError as exc:
             return error_page(exc.code, exc.message, "Payment edit failed", 400)
         return render_template(
@@ -190,6 +192,7 @@ def payment_edit(bond_id, month):
             state=state,
             amount=amount_value,
             paid=paid_flag,
+            tds_applied=tds_applied,
             tds=breakdown["tds"],
             gross=breakdown["gross"],
         )
@@ -203,6 +206,7 @@ def payment_edit(bond_id, month):
                 f"amount must be a number: {amount_raw!r}",
             ) from exc
         paid = request.form.get("paid") in ("on", "1", "true", "yes")
+        tds_applied = request.form.get("tds") in ("on", "1", "true", "yes")
         with get_conn(db_file) as conn:
             bond = conn.execute(
                 "SELECT start_date, tenure_months, credit_day FROM bonds WHERE id = ?",
@@ -217,7 +221,7 @@ def payment_edit(bond_id, month):
                         "ERR-ledger-edit",
                         f"month outside the payment window: {month!r}",
                     )
-            save_payment(conn, bond_id, month, amount, paid)
+            save_payment(conn, bond_id, month, amount, paid, tds_applied)
             if bond is None:
                 raise AppError("ERR-ledger-edit", f"bond not found: {bond_id!r}")
             today = date.today()
