@@ -6,6 +6,17 @@ plugins {
 def buildPythonPath = providers.gradleProperty('dkbt.buildPython')
         .getOrElse('/home/divakaran/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13')
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+def releaseSigningAvailable = keystorePropertiesFile.exists() || System.getenv("DKBT_RELEASE_KEYSTORE_FILE") != null
+def releaseRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+if (releaseRequested && !releaseSigningAvailable) {
+    throw new GradleException("Release signing is not configured: create android/keystore.properties or set the DKBT_RELEASE_* environment variables")
+}
+
 android {
     namespace 'com.dkbondtracker.app'
     compileSdk 34
@@ -26,9 +37,30 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    signingConfigs {
+        if (releaseSigningAvailable) {
+            release {
+                if (keystorePropertiesFile.exists()) {
+                    storeFile rootProject.file(keystoreProperties['storeFile'])
+                    storePassword keystoreProperties['storePassword']
+                    keyAlias keystoreProperties['keyAlias']
+                    keyPassword keystoreProperties['keyPassword']
+                } else {
+                    storeFile file(System.getenv("DKBT_RELEASE_KEYSTORE_FILE"))
+                    storePassword System.getenv("DKBT_RELEASE_STORE_PASSWORD")
+                    keyAlias System.getenv("DKBT_RELEASE_KEY_ALIAS")
+                    keyPassword System.getenv("DKBT_RELEASE_KEY_PASSWORD")
+                }
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            if (releaseSigningAvailable) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
@@ -39,6 +71,11 @@ chaquopy {
         buildPython(buildPythonPath)
         pip {
             install("flask")
+        }
+    }
+    sourceSets {
+        main {
+            exclude "src/design/**"
         }
     }
 }

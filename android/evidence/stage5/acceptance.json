@@ -1,0 +1,222 @@
+{
+  "id": "android_stage5_acceptance",
+  "kind": "report",
+  "issue": 109,
+  "stage": 5,
+  "title": "Stage 5 — Release acceptance pack: AND-01..08 mapped to concrete evidence",
+  "date": "2026-11-09",
+  "author": "C1 (kimi) on behalf of PM t14v",
+  "plan": "01_excel_dashboard/.IDE_Plans/android_stage5_release_plan_20261109_1200_v1.0.json",
+  "repo": "https://github.com/Adi-Mudi/dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/106",
+  "base": "dev @ 994a9dd (all Android merges through #113/#119 in)",
+  "release_artifact": {
+    "apk_path": "android/app/build/outputs/apk/release/app-release.apk",
+    "apk_sha256": "47d9ee7889d366b042b1fd65a4428331887430f1a95cda317907555d6945f49d",
+    "apk_size_bytes": 37758042,
+    "build_script": "android/build_release.sh",
+    "build_task": "gradle :app:assembleRelease (Chaquopy 3.13, abiFilters arm64-v8a + x86_64)",
+    "signing": {
+      "alias": "dkbt",
+      "signer_dn": "CN=DK Bond Tracker, OU=DKBT, O=DKBT, L=Chennai, ST=Tamil Nadu, C=IN",
+      "signer_sha256": "9e2d58a2518d70da9b9829659c94e35962bb6792fe590dcc99e6fe7fa418de47",
+      "keystore_path": "android/spike/dkbt-release.jks",
+      "keystore_gitignored": true,
+      "properties_path": "android/keystore.properties",
+      "properties_gitignored": true,
+      "verify_cmd": "apksigner verify --print-certs app-release.apk",
+      "not_debug_signed": true,
+      "rebuild_note": "rebuilds are NOT sha256-identical (zip metadata differs per build); verify the signer cert sha256 9e2d58a2518d70da9b9829659c94e35962bb6792fe590dcc99e6fe7fa418de47 + size class (~36 MB) instead of the APK sha256"
+    }
+  },
+  "e4_slim": {
+    "mechanism": "chaquopy { sourceSets { main { exclude \"src/design/**\" } } } in android/app/build.gradle",
+    "before": {"apk_bytes": 37856346, "apk_sha256": "63f903ec51a7127906efeefad90e7e5e59176c6af4a20f33e16ab71a3a74854c", "app_imy_bytes": 243623, "design_entries": 12},
+    "after": {"apk_bytes": 37758042, "apk_sha256": "47d9ee7889d366b042b1fd65a4428331887430f1a95cda317907555d6945f49d", "app_imy_bytes": 142022, "design_entries": 0},
+    "delta_apk_bytes": -98304,
+    "safety_check": "18 bundled src/templates + src/static files byte-identical to the repo; src/design is inert at runtime (no src/ code references it)"
+  },
+  "device": {
+    "runtime": "Waydroid container, x86_64, Android API 33 (lineage-based)",
+    "install": "waydroid app install (native CLI; no adb bridge, no root shell)",
+    "launch": "waydroid app launch com.dkbondtracker.app",
+    "input": "ydotool (Tab/Enter navigation, typed text)",
+    "capture": "flameshot full; notification banner dismissed before each capture",
+    "capture_dir": "android/evidence/stage5/tc/"
+  },
+  "clean_data_evidence": {
+    "problem": "DKBT_CLEAN=1 (waydroid app remove) does NOT wipe app data; the Stage-2/3 database survived reinstalls (leftover 'Acme Bonds Ltd' candidate + 32 stale pre-#114 WARN pairs dated 00:22-01:55).",
+    "reinforcement": "waydroid app remove has no data-wipe flag; host-side wipe needs sudo (the app data dir is mode 0700, uid 10127); no adb bridge and no in-app reset exist.",
+    "wipe": "The user ran the host-side removal of ~/.local/share/waydroid/data/data/com.dkbondtracker.app with the container stopped; the directory is confirmed gone.",
+    "fresh_state_captures": [
+      {"file": "p1_wipe_proof_watchlist_empty.png", "shows": "Watchlist: 'no candidates yet — add the first one above' + 'no held positions yet' (wipe proof)"},
+      {"file": "p2_fresh_alerts_empty_badge0.png", "shows": "Alerts: 'No alerts yet — day-wise rules will appear here.' + Notifications badge 0"},
+      {"file": "tc_and_01_dashboard_launch.png", "shows": "fresh launch Dashboard: Total Invested / Received / Next Payout all Rs 0.00, 'no holdings yet', badge 0"},
+      {"file": "tc_and_04_webview_localhost.png", "shows": "same fresh Dashboard (WebView rendered by the on-device Flask app)"}
+    ],
+    "candidate_present_captures": [
+      {"file": "p3_candidate_added.png", "shows": "Add Candidate result: candidate created through the real on-device UI form"},
+      {"file": "p3_watchlist_candidate_present.png", "shows": "Watchlist row 'AcmeBonds / Watching / INE900A01001 / AA / 8.5% / 9.0%' with Details / Move to Portfolio / Delete (taken AFTER a real container restart -> durability evidence)"}
+    ],
+    "d7_114_zero_warn_money_shot": {
+      "file": "p3_alerts_after_candidate_restart.png",
+      "shows": "Alerts 'No alerts yet — day-wise rules will appear here.' + Notifications badge 0, captured AFTER a real app-process restart with the 'watching' candidate present",
+      "means": "zero WARN pairs with a candidate present — the #114/D7 acceptance, live on the release build",
+      "corroboration": "alerts feed stayed empty; a candidate with credit_day NULL no longer triggers 'daily sweep failed' / 'due reminder failed'"
+    }
+  },
+  "device_smoke": {
+    "command": "DKBT_APK=<release apk> DKBT_CLEAN=1 bash android/device_smoke.sh",
+    "result_artifact": "tc/device_smoke.json",
+    "assertions": {"three_flows_render_distinct_pages": true, "share_sheet_present": true, "durability_within_2pct": true, "durability_content_diff_ratio": 0.0},
+    "exit": "0 (DEVICE SMOKE: PASS)",
+    "hardening": "device_smoke.sh now forces a DETERMINISTIC COLD START before install/launch (root-free mechanism: waydroid session stop -> session start -> wait for Android boot; the mechanism is echoed in the script output). Reason: install+launch alone does NOT reset the WebView, so the app could resume its last-visited page and the automated 'launch dashboard' capture caught the Watchlist instead of the Dashboard. After the hardening the launch capture and the after-restart capture are the same Dashboard and the pixel diff is 0.0.",
+    "prior_failures_explained": "the two earlier reds were harness artifacts, never data loss: (1) the launch capture caught the Watchlist (app resumed its last page) vs the Dashboard; (2) both frames were the Dashboard but rendered at a different window scale after the container restart (~0.28 diff). The scale mode is tracked as issue #116.",
+    "durability_independent_evidence": "the candidate added before a restart survived it (p3_watchlist_candidate_present.png was captured after the restart) - the app-private SQLite file is the persistence unit and it held."
+  },
+  "requirements": [
+    {
+      "id": "AND-01",
+      "text_ref": "psrs requirements[AND-01] — installable APK from src/ via the spike wrapper, src unmodified",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "pr", "ref": "PR #110 android-stage1-spike (commit b875a68, merge c33f432) — OP1 wrapper decision PATH-B (Chaquopy) + PATH-A fallback"},
+        {"kind": "pr", "ref": "PR #111 android-stage2-skeleton (commit 46d72ba, merge bb44a7c) — Gradle+Chaquopy project packaging the real src core"},
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_02_core_not_forked — python src is a symlink to repo src, only main.py added"},
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_02_bundled_assets_byte_identical — bundled templates/static byte-identical"},
+        {"kind": "screenshot", "ref": "tc/tc_and_01_dashboard_launch.png — fresh launch renders the Dashboard on the release build"},
+        {"kind": "artifact", "ref": "release APK sha256 47d9ee78… (signed, see release_artifact)"}
+      ]
+    },
+    {
+      "id": "AND-02",
+      "text_ref": "psrs requirements[AND-02] — single SQLite DB in app-private storage",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_03_db_path_is_app_private — main.py writes Path(getFilesDir())/bonds.db; no external-storage API"},
+        {"kind": "device", "ref": "the app data lives at ~/.local/share/waydroid/data/data/com.dkbondtracker.app (mode 0700, app uid) — app-private, outside any shared storage"},
+        {"kind": "note", "ref": "device sub-assertion (locate the file via run-as) is BLOCKED by environment (no adb/run-as, no root shell) — host contract covers it; NOT a product failure"}
+      ]
+    },
+    {
+      "id": "AND-03",
+      "text_ref": "psrs requirements[AND-03] — existing HTML/Jinja UI in a WebView served by local Flask on 127.0.0.1; cleartext-localhost + INTERNET",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_04_network_security_config — cleartext permitted for 127.0.0.1/localhost only; no global usesCleartextTraffic"},
+        {"kind": "screenshot", "ref": "tc/tc_and_04_webview_localhost.png — the fresh Dashboard rendered inside the WebView (localhost Flask app)"},
+        {"kind": "note", "ref": "on-device cleartext logcat needs root waydroid logcat (unavailable); render proves the load path"}
+      ]
+    },
+    {
+      "id": "AND-04",
+      "text_ref": "psrs requirements[AND-04] — export/share db + CSV via the Android share sheet, no storage permissions",
+      "recommended_status": "implemented",
+      "already_flipped": true,
+      "evidence": [
+        {"kind": "pr", "ref": "PR #119 feat-113-and04-share-sheet (commit 0f78c08, merge 994a9dd) — WebView download -> ExportProvider -> ACTION_SEND"},
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_05_no_storage_permission + test_tc_and_05_export_share_wiring"},
+        {"kind": "screenshot", "ref": "tc/tc_and_05_share_sheet.png + tc/tc_and_05_settings_share_export.png + tc/tc_and_05_watchlist_add_form.png"},
+        {"kind": "note", "ref": "reading the saved CSV back needs run-as (unavailable); the chooser only opens after a successful save+content:// grant"}
+      ]
+    },
+    {
+      "id": "AND-05",
+      "text_ref": "psrs requirements[AND-05] — in-app alerts with web parity; no SMS/web-push",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_06_no_push_channels — no SMS/WhatsApp/push tokens anywhere"},
+        {"kind": "pr", "ref": "PR #117 fix-114-alerts-sweep (commit 3a6d225, merge aad9b53) — startup bond queries scoped to watch_state='holding'"},
+        {"kind": "test", "ref": "tests/test_tc78_daywise_sweep.py::test_tc78_watch_candidate_does_not_abort_startup_alerts — candidate present => zero spurious WARN"},
+        {"kind": "screenshot", "ref": "tc/p3_alerts_after_candidate_restart.png — zero WARN pairs with a candidate present, live on the release build (#114/D7 money shot)"},
+        {"kind": "screenshot", "ref": "tc/tc_and_06_alerts_parity.png — Alerts parity surface on the release build"}
+      ]
+    },
+    {
+      "id": "AND-06",
+      "text_ref": "psrs requirements[AND-06] — data preserved across process kill and relaunch",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "screenshot", "ref": "tc/p3_watchlist_candidate_present.png — the candidate added before the restart is still present after it (real container stop/start)"},
+        {"kind": "screenshot", "ref": "tc/tc_and_07_dashboard_after_restart.png — Dashboard renders after the container restart (Rs 0.00, 'no holdings yet')"},
+        {"kind": "note", "ref": "device_smoke.sh's durability pixel-diff is window-scale sensitive (issue #116); the page-reset mode was fixed by the cold-start hardening (see device_smoke.hardening)"}
+      ]
+    },
+    {
+      "id": "AND-07",
+      "text_ref": "psrs requirements[AND-07] — no permissions beyond INTERNET",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "test", "ref": "android/tests/test_tc_and_host.py::test_tc_and_08_manifest_permissions_are_internet_only + test_tc_and_08_merged_manifest_permissions"},
+        {"kind": "artifact", "ref": "release APK manifest: exactly android.permission.INTERNET"}
+      ]
+    },
+    {
+      "id": "AND-08",
+      "text_ref": "psrs requirements[AND-08] — host suite green before shared-logic/port steps",
+      "recommended_status": "implemented",
+      "evidence": [
+        {"kind": "test", "ref": "web suite: pytest tests -m 'not remote' -> 496 passed, 5 deselected = 501 collected"},
+        {"kind": "test", "ref": "android host suite: android/tests/test_tc_and_host.py -> 9 passed, 2 skipped (APK/manifest-dependent, pre-build)"},
+        {"kind": "log", "ref": "android/evidence/stage4/tc_and_host_tests.log, web_suite_499.log (stage-4 record)"}
+      ]
+    }
+  ],
+  "test_cases": [
+    {"id": "TC-AND-01", "recommended_status": "passed", "evidence": "device_smoke.sh install+launch => tc/tc_and_01_dashboard_launch.png (fresh Dashboard)"},
+    {"id": "TC-AND-02", "recommended_status": "passed", "evidence": "test_tc_and_02_core_not_forked + test_tc_and_02_bundled_assets_byte_identical"},
+    {"id": "TC-AND-03", "recommended_status": "passed", "evidence": "test_tc_and_03_db_path_is_app_private (host); device sub-assertion env-BLOCKED (no run-as), non-blocking, host contract covers"},
+    {"id": "TC-AND-04", "recommended_status": "passed", "evidence": "test_tc_and_04_network_security_config + tc/tc_and_04_webview_localhost.png"},
+    {"id": "TC-AND-05", "recommended_status": "passed", "already_flipped": true, "evidence": "test_tc_and_05_no_storage_permission + test_tc_and_05_export_share_wiring + tc/tc_and_05_share_sheet.png"},
+    {"id": "TC-AND-06", "recommended_status": "passed", "evidence": "test_tc_and_06_no_push_channels + tc/tc_and_06_alerts_parity.png + tc/p3_alerts_after_candidate_restart.png"},
+    {"id": "TC-AND-07", "recommended_status": "passed", "evidence": "device_smoke.sh cold-start run: durability ratio 0.0 (PASS); candidate persisted across a real container restart (tc/p3_watchlist_candidate_present.png)"},
+    {"id": "TC-AND-08", "recommended_status": "passed", "evidence": "test_tc_and_08_manifest_permissions_are_internet_only (+ merged manifest)"},
+    {"id": "TC-AND-09", "recommended_status": "passed", "evidence": "web suite 501 collected (496 passed, 5 deselected)"}
+  ],
+  "recommended_psrs_flips": {
+    "note": "PM executes the flips in docs/requirements/dk_bond_tracker_android_psrs_20261109.json (this task does not edit the psrs). AND-04 (requirements+prd_items) and TC-AND-05 are ALREADY flipped — leave them.",
+    "requirements_status": [
+      {"id": "AND-01", "from": "planned", "to": "implemented"},
+      {"id": "AND-02", "from": "planned", "to": "implemented"},
+      {"id": "AND-03", "from": "planned", "to": "implemented"},
+      {"id": "AND-05", "from": "planned", "to": "implemented"},
+      {"id": "AND-06", "from": "planned", "to": "implemented"},
+      {"id": "AND-07", "from": "planned", "to": "implemented"},
+      {"id": "AND-08", "from": "planned", "to": "implemented"}
+    ],
+    "prd_items_status": [
+      {"id": "AND-01", "from": "planned", "to": "implemented"},
+      {"id": "AND-02", "from": "planned", "to": "implemented"},
+      {"id": "AND-03", "from": "planned", "to": "implemented"},
+      {"id": "AND-05", "from": "planned", "to": "implemented"},
+      {"id": "AND-06", "from": "planned", "to": "implemented"},
+      {"id": "AND-07", "from": "planned", "to": "implemented"},
+      {"id": "AND-08", "from": "planned", "to": "implemented"}
+    ],
+    "test_cases_status": [
+      {"id": "TC-AND-01", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-02", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-03", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-04", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-06", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-07", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-08", "from": "planned", "to": "passed"},
+      {"id": "TC-AND-09", "from": "planned", "to": "passed"}
+    ],
+    "caveat": "TC-AND-03 device sub-assertion and TC-AND-04 logcat sub-assertion are environment-BLOCKED (no run-as / no root logcat); both are covered by the host contract. PM may record them as passed-with-note."
+  },
+  "files_changed_this_stage": [
+    "android/app/build.gradle (release signingConfig + release-signing guard + Chaquopy src/design exclude)",
+    "android/README.md (Release build (signed) section)",
+    "android/build_release.sh (new)",
+    "android/evidence/stage5/acceptance.json (new, this file)",
+    "android/evidence/stage5/tc/* (device captures + device_smoke.json)"
+  ],
+  "notes": [
+    "Release APK is signed with OUR local keystore (verified by apksigner cert digest); the debug keystore is not used.",
+    "No secret value is committed: keystore + keystore.properties are gitignored; build.gradle reads them defensively (clear error if a release build is requested without signing material).",
+    "E4 slimming removed only inert src/design; all runtime assets byte-identical.",
+    "The device pass is a genuine clean-data pass: fresh database, empty Watchlist/Alerts, badge 0, then a candidate added through the real UI and a process restart re-verified zero WARN.",
+    "device_smoke.sh now forces a deterministic cold start before install/launch, so the release gate is honest-green (durability ratio 0.0); issue #116 stays for the pixel-diff scale mode only, and no new issue was raised."
+  ]
+}
