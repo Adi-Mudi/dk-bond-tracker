@@ -6,7 +6,7 @@ from src.app import create_app
 from src.db import get_conn
 from src.prefs import get_pref
 
-SECTIONS = ("general", "notifications", "share", "data", "about")
+SECTIONS = ("general", "notifications", "share", "data")
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def test_ui07_subnav_renders_all_sections_and_marks_active(client, db_path):
     for key in SECTIONS:
         assert f'id="nav-{key}"' in html
         assert f'id="section-{key}"' in html
-    assert hidden_sections(html) == {"notifications", "share", "data", "about"}
+    assert hidden_sections(html) == {"notifications", "share", "data"}
     assert active_nav(html) == "general"
 
 
@@ -144,16 +144,21 @@ def test_ui07_sticky_subnav_on_desktop(client, db_path):
     assert "@media (max-width: 768px)" in html
 
 
-def test_ui07_about_section_keeps_about_content(client, db_path):
-    html = client.get("/settings?section=about").get_data(as_text=True)
-    assert 'id="about-card"' in html
-    assert 'id="app-version"' in html
-    assert 'id="offline-badge"' in html
-    assert 'id="reveal-data-folder"' in html
-    assert 'id="data-dir-wrap" hidden' in html
+def test_ui07_about_moved_to_its_own_page(client, db_path):
+    settings = client.get("/settings").get_data(as_text=True)
+    assert 'id="about-card"' not in settings
+    assert 'id="section-about"' not in settings
+    assert 'id="nav-about"' in settings
+    assert 'href="/about"' in settings
+    about = client.get("/about").get_data(as_text=True)
+    assert 'id="about-app-card"' in about
+    assert 'id="app-version"' in about
+    assert 'id="offline-badge"' in about
+    assert 'id="reveal-data-folder"' in about
+    assert 'id="data-dir-wrap" hidden' in about
 
 
-def test_ui07_settings_error_keeps_section_and_about(client, db_path):
+def test_ui07_settings_error_keeps_section_and_error(client, db_path):
     response = client.post(
         "/settings",
         data={"section": "general", "smtp_host": "smtp.example.com", "smtp_port": "nope"},
@@ -162,5 +167,5 @@ def test_ui07_settings_error_keeps_section_and_about(client, db_path):
     assert response.status_code == 400
     html = response.get_data(as_text=True)
     assert "ERR-settings-save" in html
-    assert 'id="about-card"' in html
+    assert 'id="about-card"' not in html
     assert active_nav(html) == "general"
