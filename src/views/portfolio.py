@@ -126,16 +126,27 @@ def payout_cell(key, window_set, entry, health, credit_day, today):
         return {"kind": "matured"}
     if key not in window_set:
         return {"kind": "text", "month": key, "text": "—"}
+    tds_applied = bool(entry.get("tds_applied", True)) if entry is not None else True
     if entry_paid(entry):
-        return {"kind": "received", "month": key, "amount": safe_float(entry["amount"])}
+        return {
+            "kind": "received",
+            "month": key,
+            "amount": safe_float(entry["amount"]),
+            "tds_applied": tds_applied,
+        }
     amount_value = 0.0
     if entry is not None:
         amount_value = safe_float(entry["amount"])
     if amount_value > 0:
-        return {"kind": "pending", "month": key, "amount": amount_value}
+        return {
+            "kind": "pending",
+            "month": key,
+            "amount": amount_value,
+            "tds_applied": tds_applied,
+        }
     if month_due_passed(key, credit_day, today):
-        return {"kind": "missed", "month": key}
-    return {"kind": "pending", "month": key, "amount": None}
+        return {"kind": "missed", "month": key, "tds_applied": tds_applied}
+    return {"kind": "pending", "month": key, "amount": None, "tds_applied": tds_applied}
 
 
 def payout_row_cells(row, months, window, entries, health, invalid, today):
