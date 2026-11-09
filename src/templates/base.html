@@ -31,9 +31,12 @@
   {% block head %}{% endblock %}
 </head>
 <body data-page="{{ request.path }}">
-<div class="content">
-<aside class="sidebar">
-  <div class="brand">DK Bond Tracker</div>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="brand">DK Bond Tracker</span>
+    <button type="button" class="collapse-btn" id="sidebarToggle" aria-controls="sidebar" aria-expanded="true" title="Hide menu">&#9664;<span class="collapse-label"> hide</span></button>
+  </div>
   <nav aria-label="Main">
     <a href="/">Dashboard</a>
     <a href="/portfolio">Portfolio</a>
@@ -44,41 +47,68 @@
   </nav>
 </aside>
 
-<main class="main">
-  <div class="view-header">
-    <div class="header-actions">
-      <div class="theme-switch" role="group" aria-label="Theme">
-        {% for value, label in themes %}
-        <button type="button" class="btn btn-sm theme-seg" data-theme-value="{{ value }}">{{ label.split(' (')[0] if value != 'system' else 'System' }}</button>
-        {% endfor %}
-      </div>
-      <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
-      <div class="bell-wrap" id="notificationsBell" title="Notifications" tabindex="0">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-        <span>Notifications</span>
-        <span class="bell-badge-v3" id="unreadCount">{{ unread_count }}</span>
-        <div class="alert-dropdown-v3" id="notificationDropdown">
-          <div class="dd-head">Alert history (in-app, timestamped)</div>
-          {% for item in recent_notifications %}
-          <div class="alert-item-v3 sev-{{ item.severity }}">
-            <span class="msg">{{ item.message }}</span>
-            <span class="ts">{{ item.timestamp }}</span>
-          </div>
-          {% else %}
-          <div class="alert-item-v3"><span class="msg">no alerts yet</span><span class="ts"></span></div>
+<div class="app-body">
+<header class="topbar">
+  <button type="button" class="icon-btn drawer-btn" id="drawerToggle" aria-controls="sidebar" aria-expanded="false" title="Menu" aria-label="Open menu">&#9776;</button>
+  <div class="page-title" id="pageTitle">{% block page_title %}DK Bond Tracker{% endblock %}</div>
+  <div class="topbar-actions">
+    <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    </button>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Page guide — walkthrough + rules" aria-label="Page guide">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg>
+    </button>
+    <div class="overflow" id="overflow">
+      <button type="button" class="icon-btn" id="overflowToggle" aria-haspopup="true" aria-expanded="false" aria-controls="overflowPanel" title="More options" aria-label="More options">&#8943;</button>
+      <div class="overflow-panel" id="overflowPanel">
+        <div class="theme-switch" role="group" aria-label="Theme">
+          {% for value, label in themes %}
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="{{ value }}">{{ label.split(' (')[0] if value != 'system' else 'System' }}</button>
           {% endfor %}
-          <div class="dd-actions">
-            <form method="post" action="/notifications/read_all">
-              <button class="mark-read-btn" type="submit">mark all read</button>
-            </form>
+        </div>
+        <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
+        <div class="bell-wrap" id="notificationsBell" title="Notifications" tabindex="0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <span>Notifications</span>
+          <span class="bell-badge-v3" id="unreadCount">{{ unread_count }}</span>
+          <div class="alert-dropdown-v3" id="notificationDropdown">
+            <div class="dd-head">Alert history (in-app, timestamped)</div>
+            {% for item in recent_notifications %}
+            <div class="alert-item-v3 sev-{{ item.severity }}">
+              <span class="msg">{{ item.message }}</span>
+              <span class="ts">{{ item.timestamp }}</span>
+            </div>
+            {% else %}
+            <div class="alert-item-v3"><span class="msg">no alerts yet</span><span class="ts"></span></div>
+            {% endfor %}
+            <div class="dd-actions">
+              <form method="post" action="/notifications/read_all">
+                <button class="mark-read-btn" type="submit">mark all read</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</header>
+<main class="main">
   {% block content %}{% endblock %}
+  <footer class="app-footer">
+    <p class="disclaimer-line">DK Bond Tracker is a personal tracking tool — <strong>not investment advice</strong>. We do NOT recommend any bonds; every investment decision is your own.</p>
+  </footer>
 </main>
 </div>
+</div>
+
+<nav class="bottom-tabs" aria-label="Primary">
+  <a class="bottom-tab" href="/"><span class="tab-ico" aria-hidden="true">&#9638;</span>Dashboard</a>
+  <a class="bottom-tab" href="/portfolio"><span class="tab-ico" aria-hidden="true">&#9636;</span>Portfolio</a>
+  <a class="bottom-tab" href="/watch"><span class="tab-ico" aria-hidden="true">&#9678;</span>Watchlist</a>
+  <a class="bottom-tab" href="/goals"><span class="tab-ico" aria-hidden="true">&#9670;</span>Goals</a>
+  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true">&#9776;</span>More</button>
+</nav>
+
 <script>
   (function () {
     var body = document.body;
@@ -110,6 +140,68 @@
         } catch (err) {
           return;
         }
+      });
+    }
+  })();
+</script>
+<script>
+  (function () {
+    var body = document.body;
+    var sidebarToggle = document.getElementById("sidebarToggle");
+    function setCollapsed(on) {
+      body.classList.toggle("sidebar-collapsed", on);
+      if (sidebarToggle) {
+        sidebarToggle.setAttribute("aria-expanded", on ? "false" : "true");
+      }
+      try {
+        window.localStorage.setItem("dk-sidebar", on ? "collapsed" : "expanded");
+      } catch (err) {
+        return;
+      }
+    }
+    var storedSidebar = null;
+    try {
+      storedSidebar = window.localStorage.getItem("dk-sidebar");
+    } catch (err) {
+      storedSidebar = null;
+    }
+    setCollapsed(storedSidebar === "collapsed");
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener("click", function () {
+        setCollapsed(!body.classList.contains("sidebar-collapsed"));
+      });
+    }
+    var overflow = document.getElementById("overflow");
+    var overflowToggle = document.getElementById("overflowToggle");
+    if (overflow && overflowToggle) {
+      overflowToggle.addEventListener("click", function (event) {
+        event.stopPropagation();
+        var open = overflow.classList.toggle("open");
+        overflowToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      document.addEventListener("click", function (event) {
+        if (!overflow.contains(event.target)) {
+          overflow.classList.remove("open");
+          overflowToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+    var drawerToggle = document.getElementById("drawerToggle");
+    function setDrawer(open) {
+      body.classList.toggle("drawer-open", open);
+      if (drawerToggle) {
+        drawerToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+    }
+    if (drawerToggle) {
+      drawerToggle.addEventListener("click", function () {
+        setDrawer(!body.classList.contains("drawer-open"));
+      });
+    }
+    var moreTab = document.getElementById("moreTab");
+    if (moreTab) {
+      moreTab.addEventListener("click", function () {
+        setDrawer(true);
       });
     }
   })();
