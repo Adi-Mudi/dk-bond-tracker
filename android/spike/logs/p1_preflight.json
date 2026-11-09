@@ -1,0 +1,54 @@
+{
+  "id": "android_spike_p1_preflight_20261109",
+  "kind": "spike_log",
+  "phase": "P1",
+  "title": "Stage 1 OP1 spike — P1 provision & preflight",
+  "date": "2026-11-09",
+  "branch": "android-stage1-spike",
+  "base": "dev",
+  "base_rev": "9b98c8f",
+  "worktree": {
+    "path": "android-stage1-spike",
+    "clean_at_start": true,
+    "store_symlink": "../01_excel_dashboard/db-store/store (present)",
+    "fleet_dir": ".fleet real dir (present)",
+    "docs_dir": "present (gitignored copy)"
+  },
+  "toolchain": {
+    "adb": "37.0.1-15733141 (/home/divakaran/.local/share/platform-tools/adb)",
+    "java": "openjdk 25.0.4.1 2026-08-18 (ONLY JDK present; no JDK 17)",
+    "gradle": "not installed",
+    "sdkmanager": "not installed",
+    "ANDROID_HOME": "unset",
+    "android_sdk": "absent",
+    "host_python": "3.14.4",
+    "venv_python": "/mnt/Just_Do_It/02_Devp_Soft/01_Adi-Mudi/04_Bonds/01_excel_dashboard/.venv/bin/python (3.14.4)"
+  },
+  "device": {
+    "waydroid": "installed (/usr/bin/waydroid)",
+    "session": "RUNNING",
+    "container": "RUNNING (FROZEN unless a UI client is attached; unfrozen via 'waydroid show-full-ui')",
+    "vendor_type": "MAINLINE",
+    "container_ip": "UNKNOWN (waydroid0 bridge 192.168.240.1/24 up, no dhcp lease; adb bridge unavailable)",
+    "adb_devices": "empty (no device via adb)",
+    "workaround": "use waydroid's native app control: 'waydroid app install <apk>', 'waydroid app launch <pkg>', 'waydroid logcat' (verified: waydroid app list returns built-in apps)",
+    "android_apps_listed": "Files, Contacts, Recorder, Gallery, Browser"
+  },
+  "budget": {
+    "disk_mnt": "471G available on /mnt/Just_Do_It",
+    "disk_root": "21G available on / (80% used)",
+    "network_pypi": "reachable (HTTP 200)",
+    "network_maven_google": "reachable"
+  },
+  "test_baseline": {
+    "cmd": ".venv/bin/python -m pytest -q (from worktree cwd)",
+    "result": "499 passed in 12.96s",
+    "when": "start of P1"
+  },
+  "notes": [
+    "No Android SDK/NDK/gradle present -> PATH-A (python-for-android) and PATH-B (Chaquopy) both require SDK setup; toolchain downloads pre-authorized by user.",
+    "JDK 25 only may be incompatible with AGP 8.x (expects JDK 17); likely need a JDK 17 (non-apt tarball preferred to avoid system changes).",
+    "Waydroid adb bridge down -> on-device proof uses waydroid app install/launch/logcat (+ screenshot of the UI window)."
+  ],
+  "status": "DONE"
+}

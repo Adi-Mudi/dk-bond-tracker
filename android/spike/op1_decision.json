@@ -1,0 +1,124 @@
+{
+  "id": "android_op1_decision_20261109",
+  "kind": "decision",
+  "issue": 109,
+  "initiative": "dk-bond-tracker-android",
+  "stage": 1,
+  "phase": "P4",
+  "date": "2026-11-09",
+  "branch": "android-stage1-spike",
+  "title": "OP1 resolved — Android wrapper technology for the existing Flask/SQLite core",
+  "decision": "PATH-B (Chaquopy). Chaquopy is the primary wrapper for the Android port; PATH-A (python-for-android webview bootstrap) is kept as a proven fallback.",
+  "decision_line": "D6-style: OP1 = PATH-B Chaquopy — chosen because it builds the working APK in 56 s with no NDK, no host autotools and no source compilation of CPython (Gradle + pip only), versus PATH-A's ~15 min cold build that needed an NDK plus three host-specific recipe overrides; both paths install and render the unmodified Flask UI on device.",
+  "both_paths_verified": true,
+  "acceptance": {
+    "A1_both_evaluated": "PASS — both paths produced an installable APK with logged build results",
+    "A2_device_proof": "PASS — BOTH APKs install on Waydroid and load the Flask/Jinja UI (screenshots)",
+    "A3_decision_recorded": "PASS — this document + comment on issue #109",
+    "A4_src_unmodified": "PASS — git diff dev -- src/ EMPTY",
+    "A5_suite_499": "PASS — 499 passed (start and end of the spike)"
+  },
+  "comparison": [
+    {
+      "factor": "build_time_first",
+      "path_a": "~15 min p4a cold recipe build (+ ~25 min one-time toolchain setup) = ~40 min",
+      "path_b": "56 s (44 tasks); 13 s incremental",
+      "winner": "path_b"
+    },
+    {
+      "factor": "apk_size",
+      "path_a": "13,086,365 B (~12.5 MiB)",
+      "path_b": "22,678,855 B (~21.6 MiB)",
+      "winner": "path_a"
+    },
+    {
+      "factor": "host_toolchain",
+      "path_a": "JDK17 + Android SDK + NDK 25 + host autotools; compiles CPython/OpenSSL/SQLite from source",
+      "path_b": "JDK17 + Android SDK only; NO NDK, NO C compilation (prebuilt runtime + Android wheels)",
+      "winner": "path_b"
+    },
+    {
+      "factor": "build_integration",
+      "path_a": "buildozer/p4a CLI + 3 local recipe overrides (libffi, android, ndk version pin)",
+      "path_b": "declarative Gradle (AGP 8.7.2) + Chaquopy plugin (17.2.0) + pip",
+      "winner": "path_b"
+    },
+    {
+      "factor": "python_runtime",
+      "path_a": "CPython 3.14 (built from source)",
+      "path_b": "CPython 3.11 (prebuilt); Chaquopy supports up to 3.13",
+      "winner": "path_a (but both satisfy requires-python >=3.10)"
+    },
+    {
+      "factor": "sqlite",
+      "path_a": "libsqlite3.so compiled from source",
+      "path_b": "prebuilt sqlite3 in the Chaquopy runtime",
+      "winner": "tie"
+    },
+    {
+      "factor": "src_invasiveness",
+      "path_a": "none (repo src/ copied; .pyc generated in the copy only)",
+      "path_b": "none (repo src/ copied; .pyc generated in the copy only)",
+      "winner": "tie"
+    },
+    {
+      "factor": "permissions",
+      "path_a": "INTERNET only (minSdk 24 / targetSdk 34, x86_64)",
+      "path_b": "INTERNET only (minSdk 24 / targetSdk 34, x86_64)",
+      "winner": "tie"
+    },
+    {
+      "factor": "failure_modes_hit",
+      "path_a": "3 (missing host autotools -> libffi recipe override; .p4a dir-name collision; Cython build isolation -> --no-isolation)",
+      "path_b": "1 minor (same-package versionCode downgrade -> distinct applicationId; screen-blanking on capture)",
+      "winner": "path_b"
+    },
+    {
+      "factor": "licence_maintenance",
+      "path_a": "python-for-android (Kivy project), permissive, webview bootstrap documented",
+      "path_b": "Chaquopy MIT (open-sourced by Anaconda, v12.0.1+), actively maintained, Maven-hosted",
+      "winner": "tie"
+    },
+    {
+      "factor": "reproducibility",
+      "path_a": "high but depends on recipe overrides + NDK major-version pin",
+      "path_b": "high — prebuilt runtime + pip + Gradle dependencies are declarative",
+      "winner": "path_b"
+    }
+  ],
+  "why_path_b": [
+    "Much cheaper and more reliable build: 56 s vs ~15 min, and no NDK and no host autotools, so no host-specific recipe surgery (PATH-A needed 3 workarounds rooted in this machine's missing autotools and p4a internals).",
+    "Gradle-native: integrates with standard Android tooling, CI, release signing and future Play packaging instead of a bespoke p4a/buildozer pipeline.",
+    "Deterministic: a prebuilt CPython runtime and prebuilt Android wheels replace compiling CPython, OpenSSL and SQLite from source at build time.",
+    "Both paths already proved the deliverable is achievable; the tie-breakers are build cost, build integration and reproducibility, all of which favour Chaquopy.",
+    "Licence is clear: Chaquopy is MIT."
+  ],
+  "tradeoffs_accepted": [
+    "APK is larger: 22.7 MB vs 13.1 MB (+~75%). Acceptable for a personal offline app.",
+    "Python is 3.11 vs 3.14. Both satisfy requires-python >=3.10. Stage 2 should pin Chaquopy to Python 3.13 to satisfy the 16KB-page-size advice recorded in the foundation report (Android 15+ / Play).",
+    "Adds one third-party Gradle plugin dependency (MIT)."
+  ],
+  "fallback": "PATH-A (p4a webview) is proven working (smaller APK, newer Python) and stays available if Chaquopy hits a blocker later (e.g. a missing native wheel or a subprocess limitation for the on-device pytest story in Stage 4).",
+  "stage2_recommendations": [
+    "Use Chaquopy; pin app Python to 3.13 (16KB page-size readiness) and abiFilters to arm64-v8a (+ x86_64 for local Waydroid smoke).",
+    "Keep the WebView + 127.0.0.1 Flask pattern proven here; add the network-security-config for localhost per AND-03/M1.",
+    "Reuse android/spike/path_b/ as the skeleton seed for the Stage 2 android/ project."
+  ],
+  "evidence": {
+    "p1_preflight": "android/spike/logs/p1_preflight.json",
+    "path_a_build_log": "android/spike/logs/p2_path_a_build.log",
+    "path_a_evidence_log": "android/spike/logs/p2_path_a_evidence.log",
+    "path_a_screenshots": ["android/spike/evidence/p2_path_a_screenshot.png", "android/spike/evidence/p2_path_a_screenshot2.png"],
+    "path_a_apk": {"path": "android/spike/path_a/dkbt_path_a-debug-0.1.apk", "sha256": "19d90107f9837e561beda319cf57d402fd97685b1409a4ef6831fca2e133ac19", "size": 13086365, "package": "com.dkbondtracker.spike"},
+    "path_b_build_log": "android/spike/logs/p3_path_b_build.log",
+    "path_b_evidence_log": "android/spike/logs/p3_path_b_evidence.log",
+    "path_b_screenshots": ["android/spike/evidence/p3_path_b_screenshot.png", "android/spike/evidence/p3_path_b_screenshot2.png"],
+    "path_b_apk": {"path": "android/spike/path_b/dkbt_path_b-debug-0.1.apk", "sha256": "740c3106eec6b95d852c8e779633bdbdb35c666e8ae2f67f7531249df6530dad", "size": 22678855, "package": "com.dkbondtracker.pathb"}
+  },
+  "device": {
+    "runtime": "Waydroid container, ABI x86_64, Android API 33",
+    "install_path": "waydroid app install (native CLI; AMENDMENT-1 — adb bridge unavailable, container has no IPv4 lease)",
+    "proof_constraint": "waydroid logcat/shell require root; grim lacks wlr-screencopy; screenshot via flameshot with the Waydroid window in front"
+  },
+  "status": "CONFIRMED"
+}
