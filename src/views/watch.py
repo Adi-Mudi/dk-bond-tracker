@@ -346,6 +346,7 @@ def watch_move(candidate_id):
         broker = str(form.get("broker", "")).strip()
         if not broker:
             raise AppError("ERR-move-watching", "broker is required")
+        goal_raw = str(form.get("goal_id", "") or "").strip()
         with get_conn(db_file) as conn:
             row = conn.execute(
                 "SELECT id, company, isin, watch_state FROM bonds WHERE id = ?",
@@ -358,11 +359,26 @@ def watch_move(candidate_id):
                     "ERR-move-watching",
                     f"already in Portfolio: {row['company']} is {row['watch_state']}",
                 )
+            goal_id = None
+            if goal_raw:
+                try:
+                    goal_id = int(goal_raw)
+                except ValueError as exc:
+                    raise AppError(
+                        "ERR-move-watching",
+                        f"financial goal must be an integer id: {goal_raw!r}",
+                    ) from exc
+                if conn.execute(
+                    "SELECT id FROM financial_goals WHERE id = ?", (goal_id,)
+                ).fetchone() is None:
+                    raise AppError(
+                        "ERR-move-watching", f"financial goal not found: {goal_id!r}"
+                    )
             check_add_allowed(row["company"], row["isin"], conn)
             cursor = conn.execute(
                 "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
                 "credit_day = ?, amount = ?, qty = ?, broker = ?, purchase_date = ?, "
-                "watch_state = 'holding' "
+                "goal_id = ?, watch_state = 'holding' "
                 "WHERE id = ? AND watch_state = 'watching'",
                 (
                     start_date.isoformat(),
@@ -373,6 +389,7 @@ def watch_move(candidate_id):
                     int(quantity),
                     broker,
                     purchase_date.isoformat(),
+                    goal_id,
                     candidate_id,
                 ),
             )
