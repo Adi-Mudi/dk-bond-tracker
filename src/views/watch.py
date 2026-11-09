@@ -1,3 +1,4 @@
+import json
 import re
 
 from datetime import date
@@ -7,6 +8,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from src.db import get_conn
 from src.engine import tenure_window
 from src.lock import check_add_allowed
+from src.prefs import get_pref, set_pref
 from src.queries import delete_candidate, portfolio_snapshot
 from src.status import month_key
 from src.validators import (
@@ -24,6 +26,115 @@ ISIN_PATTERN = re.compile(r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$")
 
 WATCH_ISSUER_TYPES = ("corporate_bond", "ncd", "sdi", "government", "fd")
 WATCH_PAYOUT_CYCLES = ("monthly", "quarterly", "annual")
+WATCH_RATINGS = ("AAA", "AA+", "AA", "AA-", "A+", "A", "A-", "BBB+", "BBB", "BBB-")
+WATCH_AGENCIES = ("CRISIL", "ICRA", "CARE", "India Ratings", "Brickwork", "Infomerics")
+WATCH_BROKERS = (
+    "ICICI Direct",
+    "HDFC Sec",
+    "Zerodha",
+    "Groww",
+    "5paisa",
+    "Upstox",
+    "Angel One",
+    "Kotak",
+    "Axis Direct",
+    "SBI Sec",
+)
+CUSTOM_AGENCIES_KEY = "watch_custom_agencies"
+CUSTOM_BROKERS_KEY = "watch_custom_brokers"
+
+
+def _custom_values(conn, key):
+    raw = get_pref(conn, key)
+    if not raw:
+        return []
+    try:
+        data = json.loads(raw)
+    except (TypeError, ValueError):
+        return []
+    if not isinstance(data, list):
+        return []
+    return [str(item) for item in data]
+
+
+def _remember_custom(conn, key, value, presets):
+    if not value or value in presets:
+        return
+    values = _custom_values(conn, key)
+    if value in values:
+        return
+    values.append(value)
+    set_pref(conn, key, json.dumps(values))
+
+
+def watch_options(db_file):
+    with get_conn(db_file) as conn:
+        agencies = _custom_values(conn, CUSTOM_AGENCIES_KEY)
+        brokers = _custom_values(conn, CUSTOM_BROKERS_KEY)
+    return {
+        "ratings": list(WATCH_RATINGS),
+        "agencies": list(WATCH_AGENCIES)
+        + [item for item in agencies if item not in WATCH_AGENCIES],
+        "brokers": list(WATCH_BROKERS)
+        + [item for item in brokers if item not in WATCH_BROKERS],
+    }
+
+
+def watch_register(db_file):
+    with get_conn(db_file) as conn:
+        rows = conn.execute(
+            "SELECT company, isin, watch_state FROM bonds "
+            "WHERE company IS NOT NULL AND trim(company) <> '' "
+            "ORDER BY company COLLATE NOCASE, id"
+        ).fetchall()
+    grouped = {}
+    order = []
+    for row in rows:
+        name = row["company"]
+        key = name.strip().lower()
+        if key not in grouped:
+            grouped[key] = {"company": name, "isins": []}
+            order.append(key)
+        grouped[key]["isins"].append(
+            {"isin": row["isin"] or "", "state": row["watch_state"] or ""}
+        )
+    return [grouped[key] for key in order]
+
+
+def watch_goals(db_file):
+    with get_conn(db_file) as conn:
+        rows = conn.execute(
+            "SELECT id, name, target_amount FROM financial_goals ORDER BY id"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def error_field(code, message):
+    text = str(message or "").lower()
+    if code == "ERR-watch-dup":
+        return "isin"
+    if "isin" in text:
+        return "isin"
+    if "company" in text:
+        return "company"
+    if "rating" in text:
+        return "rating"
+    return None
+
+
+def watch_context(db_file, form=None, error=None, error_code=None, form_open=False):
+    return {
+        "candidates": watch_candidates(db_file),
+        "snapshot": watch_snapshot(db_file),
+        "error": error,
+        "error_code": error_code,
+        "error_field": error_field(error_code, error),
+        "form": form or {},
+        "form_open": form_open,
+        "options": watch_options(db_file),
+        "register": watch_register(db_file),
+        "goals": watch_goals(db_file),
+    }
 
 
 def watch_candidates(db_file):
@@ -71,6 +182,11 @@ def watch_form_values(form):
         )
     if not rating:
         raise AppError("ERR-watch-add", "rating is required")
+    if rating not in WATCH_RATINGS:
+        raise AppError(
+            "ERR-watch-add",
+            f"rating must be investment grade AAA to BBB-: {rating!r}",
+        )
     rating_agency = str(form.get("rating_agency", "")).strip() or None
     issuer_type = str(form.get("issuer_type", "")).strip() or None
     if issuer_type is not None and issuer_type not in WATCH_ISSUER_TYPES:
@@ -162,32 +278,25 @@ def watch_list():
             values = watch_form_values(form)
             with get_conn(db_file) as conn:
                 watch_insert_candidate(conn, values)
+                _remember_custom(conn, CUSTOM_AGENCIES_KEY, values["rating_agency"], WATCH_AGENCIES)
+                _remember_custom(conn, CUSTOM_BROKERS_KEY, values["broker"], WATCH_BROKERS)
         except AppError as exc:
             return (
                 render_template(
                     "watch.html",
-                    candidates=watch_candidates(db_file),
-                    snapshot=watch_snapshot(db_file),
-                    error=exc.message,
-                    error_code=exc.code,
-                    form=form,
+                    **watch_context(
+                        db_file, form=form, error=exc.message, error_code=exc.code, form_open=True
+                    ),
                 ),
                 409 if exc.code == "ERR-watch-dup" else 400,
             )
         flash(f"Candidate added: {values['company']}", "success")
         return redirect(url_for("watch.watch_list"))
     try:
-        candidates = watch_candidates(db_file)
+        context = watch_context(db_file)
     except AppError as exc:
         return error_page(exc.code, exc.message, "Watchlist failed", 500)
-    return render_template(
-        "watch.html",
-        candidates=candidates,
-        snapshot=watch_snapshot(db_file),
-        error=None,
-        error_code=None,
-        form={},
-    )
+    return render_template("watch.html", **context)
 
 
 @bp.route("/watch/<int:candidate_id>/move", methods=["POST"])
@@ -271,11 +380,7 @@ def watch_move(candidate_id):
         return (
             render_template(
                 "watch.html",
-                candidates=watch_candidates(db_file),
-                snapshot=watch_snapshot(db_file),
-                error=message,
-                error_code=exc.code,
-                form=form,
+                **watch_context(db_file, form=form, error=message, error_code=exc.code),
             ),
             409 if exc.code == "ERR-active-position" else 400,
         )
