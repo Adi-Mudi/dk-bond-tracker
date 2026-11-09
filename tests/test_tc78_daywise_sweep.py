@@ -4,11 +4,21 @@ import pytest
 
 from conftest import add_bond, bond_status
 from src.alerts import daily_sweep
+from src.app import create_app
 from src.db import get_conn
 from src.ledger import save_payment
 from src.queries import grid_model, status_overview, summary_counts
 from src.status import compute_row_status_daywise, recompute_all
 from src.validators import AppError
+
+
+def make_sim_date(frozen):
+    class SimDate(date):
+        @classmethod
+        def today(cls):
+            return frozen
+
+    return SimDate
 
 
 def test_tc78_day6_unpaid_flips_danger_same_day(db_path):
@@ -151,3 +161,59 @@ def test_tc78_summary_counts_overview_and_grid_agree_in_active_daywise_danger(db
         grid_row = next(row for row in model["rows"] if row["id"] == bond_id)
         assert grid_row["status"] == "Danger"
         assert counts["danger"] == sum(1 for row in overview if row["status"] == "Danger")
+
+
+def test_tc78_watch_candidate_does_not_abort_sweep(db_path):
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "INSERT INTO bonds (company, isin, name, watch_state) "
+            "VALUES (?, ?, ?, 'watching')",
+            ("Candidate Co", "INE0000000115", "Candidate Co"),
+        )
+        bond_id = add_bond(conn, "Alpha", "INE0000000078", "2026-09-01", 12, credit_day=5)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
+        conn.execute("UPDATE bonds SET status = 'On-going' WHERE id = ?", (bond_id,))
+        events = daily_sweep(conn, date(2026, 10, 6))
+        assert events == [
+            {
+                "bond_id": bond_id,
+                "company": "Alpha",
+                "month": "2026-10",
+                "credit_day": 5,
+                "severity": "danger",
+            }
+        ]
+        assert bond_status(conn, bond_id) == "Danger"
+        candidate = conn.execute(
+            "SELECT watch_state, credit_day, status FROM bonds WHERE isin = ?",
+            ("INE0000000115",),
+        ).fetchone()
+        assert candidate["watch_state"] == "watching"
+        assert candidate["credit_day"] is None
+        assert candidate["status"] == "On-going"
+
+
+def test_tc78_watch_candidate_does_not_abort_startup_alerts(db_path, monkeypatch):
+    monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 6)))
+    for name in ("SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_APP_PASSWORD", "ALERT_TO"):
+        monkeypatch.delenv(name, raising=False)
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "INSERT INTO bonds (company, isin, name, end_date, watch_state) "
+            "VALUES (?, ?, ?, ?, 'watching')",
+            ("Candidate Co", "INE0000000116", "Candidate Co", "2026-11-05"),
+        )
+        bond_id = add_bond(conn, "Alpha", "INE0000000078", "2026-09-01", 12, credit_day=5)
+        save_payment(conn, bond_id, "2026-09", 1000.0, 1)
+        conn.execute("UPDATE bonds SET status = 'On-going' WHERE id = ?", (bond_id,))
+    create_app(str(db_path))
+    with get_conn(db_path) as conn:
+        messages = [
+            dict(row)
+            for row in conn.execute("SELECT severity, message FROM notifications").fetchall()
+        ]
+        assert bond_status(conn, bond_id) == "Danger"
+    assert not any("daily sweep failed" in row["message"] for row in messages)
+    assert not any("due reminder failed" in row["message"] for row in messages)
+    assert not any("Candidate Co" in row["message"] for row in messages)
+    assert any(row["severity"] == "danger" and "Alpha" in row["message"] for row in messages)

@@ -64,7 +64,8 @@ def due_reminders(conn, today):
     created = []
     current_month = month_key(today)
     rows = conn.execute(
-        "SELECT id, company, start_date, tenure_months, credit_day, status FROM bonds ORDER BY id"
+        "SELECT id, company, start_date, tenure_months, credit_day, status FROM bonds "
+        "WHERE watch_state = 'holding' ORDER BY id"
     ).fetchall()
     for row in rows:
         if row["status"] == "Completed":
@@ -112,7 +113,8 @@ def maturity_reminders(conn, today, horizons=(30, 7, 1)):
         raise AppError("ERR-notify-build", f"today must be a date: {today!r}")
     created = []
     rows = conn.execute(
-        "SELECT id, company, start_date, end_date, tenure_months, status FROM bonds ORDER BY id"
+        "SELECT id, company, start_date, end_date, tenure_months, status FROM bonds "
+        "WHERE watch_state = 'holding' ORDER BY id"
     ).fetchall()
     for row in rows:
         if row["status"] == "Completed":
