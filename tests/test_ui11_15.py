@@ -52,22 +52,18 @@ def test_ui11_about_blocks_all_render(client, db_path):
 
 def test_ui11_placeholders_are_clearly_marked(client, db_path):
     html = client.get("/about").get_data(as_text=True)
-    assert "PLACEHOLDER" in html
     assert "LICENSE file to be added" in html
-    assert "PLACEHOLDER-referral-link" in html
-    assert "owner supplies the real referral URL later" in html
+    assert "example.invalid" not in html
+    assert "PLACEHOLDER-referral-link" not in html
 
 
-def test_ui11_referral_disclosure_is_plain_text_adjacent_to_the_link(client, db_path):
+def test_ui11_referral_link_left_empty_until_owner_supplies_url(client, db_path):
     html = client.get("/about").get_data(as_text=True)
     disclosure = "I may earn a commission from purchases made through these links"
     assert disclosure in html
     block = referral_block(html)
-    link_at = block.index('id="referral-link"')
-    disclosure_at = block.index('id="referral-disclosure"')
-    assert link_at < disclosure_at
-    assert disclosure_at - link_at < 400
-    assert "<details" not in block
+    assert 'id="referral-link"' not in block, "no link until the real URL arrives"
+    assert "example.invalid" not in block
     assert "<footer" not in block
 
 
