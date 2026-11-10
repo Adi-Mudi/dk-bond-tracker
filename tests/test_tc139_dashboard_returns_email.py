@@ -156,7 +156,7 @@ def test_tc139_134_email_presets_and_setup_guide_markup(client, db_path):
 def test_tc139_134_email_test_route_success_and_failure(client, db_path, monkeypatch):
     calls = []
 
-    def fake_send(event):
+    def fake_send(event, conn=None):
         calls.append(event)
         return {"status": "sent"}
 
@@ -194,7 +194,7 @@ def test_tc139_134_email_test_route_success_and_failure(client, db_path, monkeyp
 
 
 def test_tc139_134_email_test_route_never_500s_on_send_error(client, db_path, monkeypatch):
-    def failing_send(event):
+    def failing_send(event, conn=None):
         raise AppError("ERR-smtp-unconfigured", "SMTP_USER is not set")
 
     monkeypatch.setattr("src.views.settings.send_alert_email", failing_send)
