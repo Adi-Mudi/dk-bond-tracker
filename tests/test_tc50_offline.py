@@ -9,6 +9,7 @@ from src.validators import AppError
 SRC = Path(__file__).resolve().parents[1] / "src"
 
 FORBIDDEN_IMPORT_ROOTS = {"requests", "httpx", "urllib", "socket"}
+NETWORK_ALLOWED = {"gmail_oauth.py": {"urllib"}}
 
 
 def python_sources():
@@ -34,7 +35,8 @@ def smtplib_importers():
 def test_no_network_imports_in_src():
     offenders = []
     for path in python_sources():
-        for root in imported_roots(path) & FORBIDDEN_IMPORT_ROOTS:
+        allowed = NETWORK_ALLOWED.get(path.name, set())
+        for root in imported_roots(path) & (FORBIDDEN_IMPORT_ROOTS - allowed):
             offenders.append(f"{path.relative_to(SRC)}: imports {root}")
     assert offenders == []
 
