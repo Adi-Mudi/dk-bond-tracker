@@ -179,14 +179,14 @@ def test_ui09_search_json_endpoint_groups_by_source(client, db_path):
     assert hit["href"].startswith("/portfolio/")
 
 
-def test_ui13_disclaimer_in_popover_and_in_persistent_footer(client, db_path):
+def test_ui13_disclaimer_in_popover_not_in_footer(client, db_path):
     for path in ("/", "/portfolio", "/notifications", "/settings"):
         html = client.get(path).get_data(as_text=True)
         assert 'id="whyBondsBtn"' in html, path
         assert 'id="whyBonds"' in html, path
         assert 'class="disclaimer-box" id="why-disclaimer"' in html, path
-        assert 'id="app-disclaimer"' in html, path
-        assert 'class="disclaimer-line"' in html, path
+        assert 'id="app-disclaimer"' not in html, path
+        assert 'class="disclaimer-line"' not in html, path
         for phrase in DISCLAIMER_PHRASES:
             assert phrase in html, (path, phrase)
 
@@ -206,13 +206,14 @@ def test_ui13_disclaimer_is_separate_from_any_referral(client, db_path):
     html = client.get("/").get_data(as_text=True)
     assert "referral" not in html.lower()
     assert "disclaimer-box" in html
-    assert "app-disclaimer" in html
+    assert 'id="app-disclaimer"' not in html
 
 
 def test_ui13_disclaimer_not_only_in_the_popover(client, db_path):
-    html = client.get("/portfolio").get_data(as_text=True)
-    popover_index = html.index('id="why-disclaimer"')
-    footer_index = html.index('id="app-disclaimer"')
-    assert popover_index != footer_index
+    about = client.get("/about").get_data(as_text=True)
+    assert 'id="about-disclaimer"' in about
+    portfolio = client.get("/portfolio").get_data(as_text=True)
+    assert 'id="why-disclaimer"' in portfolio
     for phrase in DISCLAIMER_PHRASES:
-        assert phrase in html[footer_index:], phrase
+        assert phrase in about, phrase
+        assert phrase in portfolio, phrase
