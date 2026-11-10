@@ -85,9 +85,58 @@
     color: var(--muted);
   }
   .check-inline input { width: 14px; height: 14px; accent-color: var(--accent); }
+  .payouts-table th:first-child,
+  .payouts-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--white);
+    z-index: 2;
+    box-shadow: 1px 0 0 var(--border);
+  }
+  .month {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .month.paid { background: var(--paid); color: var(--ongoing-fg); }
+  .month.unpaid { background: var(--due); color: var(--danger-fg); font-weight: 700; }
+  .month.soon { background: var(--warn-bg); color: var(--warn-fg); font-weight: 700; }
+  .month.neutral { background: var(--card-bg); color: var(--muted); }
   .attr-strip { background: var(--header-row); font-size: 12px; }
   .attr-row b { font-weight: 700; }
+  .holdings-scroll { overflow-x: auto; }
+  #holdings-table { min-width: 760px; }
+  #holdings-table td.cell-sticky { position: sticky; background: var(--card); z-index: 1; }
+  #holdings-table thead th.cell-sticky { position: sticky; background: var(--card); z-index: 3; }
+  #holdings-table .cell-left { left: 0; border-right: 1px solid var(--border); }
+  #holdings-table .cell-right { right: 0; border-left: 1px solid var(--border); }
+  #holdings-table td.cell-left { z-index: 2; }
+  #holdings-table td.cell-right { z-index: 2; }
+  #holdings-table thead th.cell-left { left: 0; z-index: 4; }
+  #holdings-table thead th.cell-right { right: 0; z-index: 5; }
+  .detail-link { font-size: 12px; font-weight: 700; margin-left: 6px; white-space: nowrap; }
+  .group-head-row .group-head { background: var(--bg); font-weight: 700; }
+  .group-head .group-name { margin-right: 8px; }
+  .group-by-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .group-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .group-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 </style>
+{% include "_detail_styles.html" %}
 {% endblock %}
 {% block content %}
 {% from "attribute_facts.html" import attribute_strip %}
@@ -121,14 +170,16 @@
   <div id="portfolio-panels">
     {% if tab == "holdings" %}
     <div id="panel-holdings" class="panel active">
-      <div class="view-header">
-        <h2>Position registry</h2>
+      <div class="group-by-row" id="group-by-row">
+        <span class="caption">Group by</span>
+        <a class="group-btn{% if group_by != 'goal' %} active{% endif %}" id="group-none" href="/portfolio?group=none">None (default)</a>
+        <a class="group-btn{% if group_by == 'goal' %} active{% endif %}" id="group-goal" href="/portfolio?group=goal">Goal</a>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap holdings-scroll" id="holdings-scroll" tabindex="0" role="region" aria-label="Holdings table — scroll horizontally for more columns">
         <table id="holdings-table">
           <thead>
             <tr>
-              <th>Company/ISIN</th>
+              <th class="cell-sticky cell-left">Company/ISIN</th>
               <th>Rating</th>
               <th class="num">Qty</th>
               <th>Coupon</th>
@@ -137,13 +188,23 @@
               <th class="num">Invested &#8377;</th>
               <th class="num">Received &#8377;</th>
               <th>Next Payout</th>
-              <th>Status</th>
+              <th class="cell-sticky cell-right">Status</th>
             </tr>
           </thead>
           <tbody>
-            {% for row in holdings %}
+            {% for entry in rows_flat %}
+            {% if entry.kind == "group" %}
+            <tr class="group-head-row" data-group="{{ entry.label|lower }}">
+              <td colspan="10" class="group-head">
+                <span class="group-name">{{ entry.label }}</span>
+                {% if entry.locked_target is not none %}<span class="chip chip-watching">&#128274; {{ money_text(entry.locked_target) }}</span>{% endif %}
+                <span class="caption">{{ entry.count }} bond{% if entry.count != 1 %}s{% endif %}</span>
+              </td>
+            </tr>
+            {% else %}
+            {% set row = entry.row %}
             <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}" data-id="{{ row.id }}" class="position-row" tabindex="0">
-              <td><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
+              <td class="cell-sticky cell-left"><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
               <td>{% if row.rating %}{{ row.rating }}{% else %}&#8212;{% endif %}</td>
               <td class="num">{% if row.qty is none %}—{% else %}{{ row.qty }}{% endif %}</td>
               <td class="money">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
@@ -152,8 +213,9 @@
               <td class="num money">{{ money_text(row.invested) }}</td>
               <td class="num money">{{ money_text(row.received) }}</td>
               <td>{{ row.next_payout }}</td>
-              <td>
+              <td class="cell-sticky cell-right">
                 <span class="chip chip-{{ row.health|lower|replace('-', '') }}" data-status="{{ row.health }}">{{ row.health }}</span>
+                <a class="detail-link" href="/portfolio/{{ row.id }}" data-id="{{ row.id }}">Detail &#8594;</a>
                 {% if row.health == "Invalid" %}
                 <span class="caption invalid-note">dates need review</span>
                 <form method="post" action="/portfolio/invalid/{{ row.id }}/remove" class="invalid-remove">
@@ -162,7 +224,8 @@
                 {% endif %}
               </td>
             </tr>
-            <tr><td colspan="10" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
+            <tr class="attr-row-hidden" hidden><td colspan="10" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
+            {% endif %}
             {% else %}
             <tr>
               <td colspan="10" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
@@ -178,7 +241,7 @@
       <div class="empty-note" id="payouts-empty">No positions yet. Payouts appear here once a position is added.</div>
       {% else %}
       <div class="table-wrap">
-        <table id="payouts-table">
+        <table id="payouts-table" class="payouts-table">
           <thead>
             <tr>
               <th>Company/ISIN</th>
@@ -200,17 +263,17 @@
               </td>
               {% for cell in row.cells %}
               {% if cell.kind == "received" %}
-              <td class="money"><button type="button" class="payout-cell money" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1">{{ money_text(cell.amount) }} &#10003;</button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{{ "%.2f"|format(cell.amount) }}" data-received="1" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-amt">{{ money_text(cell.amount) }}</span></button></td>
               {% elif cell.kind == "pending" %}
-              <td class="money"><button type="button" class="payout-cell money pending" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="{% if cell.amount is not none %}{{ "%.2f"|format(cell.amount) }}{% endif %}" data-received="0">{% if cell.amount is not none %}{{ money_text(cell.amount) }} &#183; pending{% else %}pending{% endif %}</button></td>
+              <td><button type="button" class="payout-cell month soon" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-received="0" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-status">due soon</span></button></td>
               {% elif cell.kind == "missed" %}
-              <td><button type="button" class="payout-cell chip chip-danger" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0">Missed</button></td>
+              <td><button type="button" class="payout-cell month unpaid" id="cell-{{ row.id }}-{{ cell.month }}" data-bond="{{ row.id }}" data-month="{{ cell.month }}" data-amount="" data-received="0" data-tds="{{ 1 if cell.tds_applied else 0 }}"><span class="m-status">unpaid</span></button></td>
               {% elif cell.kind == "matured" %}
               <td><span class="chip chip-matured">Matured</span></td>
               {% elif cell.kind == "chip" %}
               <td><span class="chip {{ cell.chip }}">{{ cell.text }}</span></td>
               {% else %}
-              <td>{{ cell.text }}</td>
+              <td><span class="month neutral" id="cell-{{ row.id }}-{{ cell.month }}"><span class="m-status">{{ cell.text }}</span></span></td>
               {% endif %}
               {% endfor %}
             </tr>
@@ -273,6 +336,9 @@
             bindTabs();
             if (typeof window.bindPayoutCells === "function") {
               window.bindPayoutCells();
+            }
+            if (typeof window.bindPortfolioRows === "function") {
+              window.bindPortfolioRows();
             }
           })
           .catch(function () {
@@ -345,43 +411,98 @@
   function moneyFactRow(label, value) {
     return "<tr><th>" + esc(label) + "</th><td>" + moneySpan(value) + "</td></tr>";
   }
-  function paymentsTable(payments) {
-    if (!payments || !payments.length) {
-      return '<p class="empty-note" id="drawer-payments-empty">no payments recorded yet</p>';
+  function chipHtml(chip) {
+    var name = '<span class="m-name">' + esc(chip.label) + "</span>";
+    if (chip.state === "paid") {
+      return '<div class="month-chip month-paid" data-month="' + esc(chip.key) + '">' + name +
+        '<span class="m-amt">' + moneySpan(chip.amount) + "</span></div>";
     }
-    var rows = payments.map(function (payment) {
-      return "<tr><td>" + esc(payment.month) + "</td><td>" + moneySpan(payment.amount) +
-        "</td><td>" + (payment.paid ? "paid" : "unpaid") + "</td></tr>";
-    }).join("");
-    return '<div class="table-wrap"><table id="drawer-payments"><thead><tr><th>Month</th>' +
-      '<th class="num">Amount</th><th>State</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
+    if (chip.state === "unpaid") {
+      return '<div class="month-chip month-unpaid" data-month="' + esc(chip.key) + '">' + name +
+        '<span class="m-status">unpaid</span></div>';
+    }
+    return '<div class="month-chip month-soon" data-month="' + esc(chip.key) + '">' + name +
+      '<span class="m-status">due soon</span></div>';
+  }
+  function monthChips(chips) {
+    if (!chips || !chips.length) {
+      return '<p class="readonly-note" id="detail-months-empty">no payments recorded yet</p>';
+    }
+    return '<div class="detail-months" id="detail-months">' + chips.map(chipHtml).join("") + "</div>";
+  }
+  function activateDetailTabs(root) {
+    var tabs = root.querySelectorAll(".dt-tab");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var name = tab.getAttribute("data-dtab");
+        tabs.forEach(function (other) {
+          other.classList.toggle("active", other === tab);
+        });
+        root.querySelectorAll(".dt-panel").forEach(function (panel) {
+          panel.classList.toggle("active", panel.id === "dt-" + name);
+        });
+      });
+    });
   }
   function render(data) {
     var issuerLabels = { corporate_bond: "Corporate Bond", ncd: "NCD", sdi: "SDI", government: "Government", fd: "FD" };
     var cycleLabels = { monthly: "Monthly", quarterly: "Quarterly", annual: "Annual" };
-    var securedText = data.secured === null || data.secured === undefined ? "" : (Number(data.secured) === 1 ? "Secured" : "Not secured");
+    var securedText = data.secured === null || data.secured === undefined ? "—" : (Number(data.secured) === 1 ? "Secured" : "Not secured");
+    var statusSlug = String(data.status || "").toLowerCase().replace("-", "");
     title.textContent = data.company || "Position detail";
     body.innerHTML =
-      '<div class="card"><h3>Details</h3><table class="drawer-facts">' +
+      '<div class="detail-page" id="detail-page" data-company="' + esc(data.company) + '">' +
+      '<div class="detail-head"><h1>' + esc(data.company) + '</h1>' +
+      '<span class="chip chip-' + esc(statusSlug) + '" data-status="' + esc(data.status) + '">' + esc(data.status) + '</span>' +
+      (data.isin ? '<span class="co-isin">' + esc(data.isin) + "</span>" : "") + "</div>" +
+      '<div class="detail-tabs" id="detail-tabs" role="tablist">' +
+      '<button type="button" class="dt-tab active" data-dtab="overview">Overview</button>' +
+      '<button type="button" class="dt-tab" data-dtab="payments">Payments</button>' +
+      '<button type="button" class="dt-tab" data-dtab="goal">Goal</button></div>' +
+      '<section class="dt-panel active" id="dt-overview">' +
+      '<div class="detail-group" id="grp-identity"><div class="group-title">1 &#183; Identity</div><table class="drawer-facts">' +
       factRow("ISIN", data.isin) +
       factRow("Rating", data.rating) +
       factRow("Rating agency", data.rating_agency) +
-      factRow("Coupon", pct(data.coupon_pct)) +
-      factRow("Yield", pct(data.expected_yield_pct)) +
-      factRow("Issuer type", data.issuer_type ? (issuerLabels[data.issuer_type] || data.issuer_type) : "") +
-      factRow("Secured", securedText) +
-      (data.face_value === null || data.face_value === undefined ? factRow("Face value", "") : moneyFactRow("Face value", data.face_value)) +
-      factRow("Purchase date", data.purchase_date) +
-      factRow("Quantity", data.qty) +
-      factRow("Payout cycle", data.frequency ? (cycleLabels[data.frequency] || data.frequency) : "") +
-      factRow("Broker", data.broker) +
-      factRow("Source note", data.source_note) +
-      moneyFactRow("Invested", data.invested) +
-      moneyFactRow("Received", data.received) +
-      factRow("Next payout", data.next_payout) +
       factRow("Status", data.status) +
       "</table></div>" +
-      '<div class="card"><h3>Payment history</h3>' + paymentsTable(data.payments) + "</div>";
+      '<div class="detail-group" id="grp-investment"><div class="group-title">2 &#183; Investment</div><table class="drawer-facts">' +
+      factRow("Purchase date", data.purchase_date) +
+      factRow("Quantity", data.qty) +
+      moneyFactRow("Invested", data.invested) +
+      (data.face_value === null || data.face_value === undefined ? factRow("Face value", "") : moneyFactRow("Face value", data.face_value)) +
+      "</table></div>" +
+      '<div class="detail-group" id="grp-returns"><div class="group-title">3 &#183; Returns</div><table class="drawer-facts">' +
+      factRow("Coupon", pct(data.coupon_pct)) +
+      factRow("Yield", pct(data.expected_yield_pct)) +
+      moneyFactRow("Received in bank (net)", data.received) +
+      moneyFactRow("TDS deducted to govt", data.tds) +
+      moneyFactRow("Gross returns", data.gross) +
+      "</table>" +
+      '<p class="caption" id="grp-returns-note">TDS applies to interest only (s.193) &#8212; claimable tax credit (Form 16A).</p></div>' +
+      '<div class="detail-group" id="grp-schedule"><div class="group-title">4 &#183; Schedule</div><table class="drawer-facts">' +
+      factRow("Payout cycle", data.frequency ? (cycleLabels[data.frequency] || data.frequency) : "") +
+      factRow("Credit day", data.credit_day) +
+      factRow("Next payout", data.next_payout) +
+      factRow("End date", data.end_date) +
+      "</table></div>" +
+      '<div class="detail-group" id="grp-classification"><div class="group-title">5 &#183; Classification</div><table class="drawer-facts">' +
+      factRow("Issuer type", data.issuer_type ? (issuerLabels[data.issuer_type] || data.issuer_type) : "") +
+      factRow("Secured", securedText) +
+      factRow("Broker", data.broker) +
+      factRow("Source note", data.source_note) +
+      "</table></div></section>" +
+      '<section class="dt-panel" id="dt-payments"><div class="detail-group" id="grp-payment-history">' +
+      '<div class="group-title">6 &#183; Payment history</div>' + monthChips(data.payment_months) + "</div></section>" +
+      '<section class="dt-panel" id="dt-goal"><div class="detail-group" id="grp-goal">' +
+      '<div class="group-title">Financial goal (read-only)</div>' +
+      (data.goal_name
+        ? '<p class="readonly-note" id="detail-goal-note">' + esc(data.goal_name) + "</p>" +
+          '<p class="caption"><span class="chip chip-ongoing" id="detail-goal-badge">&#128274; permanent</span></p>'
+        : '<p class="readonly-note" id="detail-goal-note">No goal linked to this bond</p>') +
+      "</div></section>" +
+      "</div>";
+    activateDetailTabs(body);
   }
   function openDrawer(id) {
     fetch("/portfolio/" + id + "/detail", { credentials: "same-origin" })
@@ -413,9 +534,28 @@
         }
       });
     });
+    document.querySelectorAll("a.detail-link").forEach(function (link) {
+      link.addEventListener("click", function (event) {
+        event.stopPropagation();
+        if (!window.matchMedia || !window.matchMedia("(min-width: 768px)").matches) {
+          return;
+        }
+        event.preventDefault();
+        openDrawer(link.getAttribute("data-id"));
+      });
+      link.addEventListener("keydown", function (event) {
+        event.stopPropagation();
+      });
+    });
   }
+  window.bindPortfolioRows = bindRows;
   closeBtn.addEventListener("click", function () {
     drawer.hidden = true;
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      drawer.hidden = true;
+    }
   });
   bindRows();
 })();
@@ -435,9 +575,10 @@
         }
         var amount = cell.getAttribute("data-amount") || "";
         var received = cell.getAttribute("data-received") === "1";
+        var tdsApplied = cell.getAttribute("data-tds") !== "0";
         var editor = document.createElement("span");
         editor.className = "payout-editor";
-        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox"' + (received ? " checked" : "") + '> Received?</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
+        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox" class="payout-received"' + (received ? " checked" : "") + '> Received?</label><label class="check-inline"><input type="checkbox" class="payout-tds"' + (tdsApplied ? " checked" : "") + '> TDS 10%</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
         td.appendChild(editor);
         cell.hidden = true;
         editor.querySelector(".payout-cancel").addEventListener("click", function () {
@@ -446,11 +587,15 @@
         });
         editor.querySelector(".payout-save").addEventListener("click", function () {
           var value = editor.querySelector("input[type=\"number\"]").value;
-          var flag = editor.querySelector("input[type=\"checkbox\"]").checked;
+          var flag = editor.querySelector(".payout-received").checked;
+          var tdsFlag = editor.querySelector(".payout-tds").checked;
           var payload = new URLSearchParams();
           payload.set("amount", value === "" ? "0" : value);
           if (flag) {
             payload.set("paid", "on");
+          }
+          if (tdsFlag) {
+            payload.set("tds", "on");
           }
           fetch("/payment/" + cell.getAttribute("data-bond") + "/" + cell.getAttribute("data-month"), {
             method: "POST",
