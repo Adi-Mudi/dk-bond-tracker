@@ -120,18 +120,19 @@ def test_ui01_bottom_tabs_at_most_five(client):
     assert 1 <= count <= 5
 
 
-def test_ui01_disclaimer_footer_present(client):
+def test_ui01_disclaimer_footer_removed(client):
     html = client.get("/").get_data(as_text=True)
-    assert 'class="disclaimer-line"' in html
-    assert "not investment advice" in html
+    assert 'id="app-disclaimer"' not in html
+    assert 'class="disclaimer-line"' not in html
+    assert 'class="disclaimer-box" id="why-disclaimer"' in html
 
 
 def test_ui01_dashboard_three_zones(client):
     html = client.get("/").get_data(as_text=True)
     assert 'class="zone kpi-zone"' in html
     assert 'class="zone detail-zone"' in html
-    assert 'class="zone legend-zone"' in html
-    assert 'id="status-legend"' in html
+    assert 'class="zone legend-zone"' not in html
+    assert 'id="status-legend"' not in html
 
 
 def test_ui01_new_css_rules_have_no_fixed_px_content_widths():

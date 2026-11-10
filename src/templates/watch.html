@@ -64,19 +64,6 @@
   .error-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   .history-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
   .details-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
-  .move-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
-  .move-tab {
-    font: inherit;
-    font-size: 12px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 6px 10px;
-    min-height: 2.25rem;
-    color: var(--muted);
-    cursor: pointer;
-  }
-  .move-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
   .move-panel { display: none; }
   .move-panel.active { display: block; }
   .confirm-dialog[hidden] {
@@ -332,10 +319,6 @@
       <tr class="move-row" id="move-panel-{{ candidate.id }}" hidden>
         <td colspan="8">
           <form method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
-          <div class="move-tabs" role="tablist">
-            <button type="button" class="move-tab active" data-mtab="purchase" id="move-tab-purchase-{{ candidate.id }}">Purchase details</button>
-            {% if goals %}<button type="button" class="move-tab" data-mtab="goal" id="move-tab-goal-{{ candidate.id }}">Financial goal</button>{% endif %}
-          </div>
           <div class="move-panel active" id="move-panel-purchase-{{ candidate.id }}" data-mpanel="purchase">
             <div class="move-form">
               <div class="move-field">
@@ -374,24 +357,22 @@
                 <label for="move-broker-{{ candidate.id }}">Broker</label>
                 <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
               </div>
+              {% if goals %}
+              <div class="move-field">
+                <label for="move-goal-{{ candidate.id }}">Financial goal (optional)</label>
+                <select id="move-goal-{{ candidate.id }}" name="goal_id">
+                  <option value="">&#8212; none &#8212;</option>
+                  {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
+                </select>
+                <p class="caption">Set once &#8212; the link is permanent: a linked bond can never be moved to another goal or unlinked.</p>
+              </div>
+              {% endif %}
               <div class="move-actions">
                 <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
                 <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
               </div>
             </div>
           </div>
-          {% if goals %}
-          <div class="move-panel" id="move-panel-goal-{{ candidate.id }}" data-mpanel="goal">
-            <div class="move-field">
-              <label for="move-goal-{{ candidate.id }}">Financial goal (optional)</label>
-              <select id="move-goal-{{ candidate.id }}" name="goal_id">
-                <option value="">&#8212; none &#8212;</option>
-                {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
-              </select>
-            </div>
-            <p class="caption">Set once here &#8212; the link is permanent: a linked bond can never be moved to another goal or unlinked from Portfolio.</p>
-          </div>
-          {% endif %}
           </form>
         </td>
       </tr>
@@ -473,20 +454,6 @@
   document.querySelectorAll(".move-cancel").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.getElementById(btn.getAttribute("data-panel")).hidden = true;
-    });
-  });
-  document.querySelectorAll(".move-row").forEach(function (row) {
-    var tabs = row.querySelectorAll(".move-tab");
-    tabs.forEach(function (tab) {
-      tab.addEventListener("click", function () {
-        var name = tab.getAttribute("data-mtab");
-        tabs.forEach(function (other) {
-          other.classList.toggle("active", other === tab);
-        });
-        row.querySelectorAll(".move-panel").forEach(function (panels) {
-          panels.classList.toggle("active", panels.getAttribute("data-mpanel") === name);
-        });
-      });
     });
   });
   var editIsin = document.getElementById("dup-edit-isin");
