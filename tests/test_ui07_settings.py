@@ -153,9 +153,8 @@ def test_ui07_about_moved_to_its_own_page(client, db_path):
     about = client.get("/about").get_data(as_text=True)
     assert 'id="about-app-card"' in about
     assert 'id="app-version"' in about
-    assert 'id="offline-badge"' in about
-    assert 'id="reveal-data-folder"' in about
-    assert 'id="data-dir-wrap" hidden' in about
+    assert 'id="offline-badge"' not in about
+    assert 'id="reveal-data-folder"' not in about
 
 
 def test_ui07_settings_error_keeps_section_and_error(client, db_path):
