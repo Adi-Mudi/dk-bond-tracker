@@ -18,6 +18,13 @@ from src.views.common import (
 
 bp = Blueprint("settings", __name__)
 
+SECTIONS = ("general", "notifications", "share", "data")
+
+
+def active_section(raw):
+    key = str(raw or "").strip().lower()
+    return key if key in SECTIONS else "general"
+
 
 def settings_from_form(form):
     host = str(form.get("smtp_host", "")).strip()
@@ -52,6 +59,8 @@ def settings_from_form(form):
         "share_section_holdings": "1" if form.get("share_holdings") in checked else "0",
         "share_section_payouts": "1" if form.get("share_payouts") in checked else "0",
         "share_section_goals": "1" if form.get("share_goals") in checked else "0",
+        "alert_channel_inapp": "1" if form.get("alert_inapp") in checked else "0",
+        "alert_channel_email": "1" if form.get("alert_email") in checked else "0",
     }
 
 
@@ -59,6 +68,7 @@ def settings_from_form(form):
 def settings_page():
     db_file = app_db()
     if request.method == "POST":
+        section = active_section(request.form.get("section"))
         try:
             values = settings_from_form(request.form)
         except AppError as exc:
@@ -71,6 +81,8 @@ def settings_page():
                     app_version=APP_VERSION,
                     build_notes=BUILD_NOTES,
                     data_dir=str(db_file.parent),
+                    active=section,
+                    saved=False,
                 ),
                 400,
             )
@@ -78,7 +90,7 @@ def settings_page():
             for key, value in values.items():
                 set_pref(conn, key, value)
         flash("Settings saved", "success")
-        return redirect(url_for("settings.settings_page"))
+        return redirect(url_for("settings.settings_page", section=section, saved=1))
     return render_template(
         "settings.html",
         prefs=alert_prefs_map(db_file),
@@ -87,6 +99,8 @@ def settings_page():
         app_version=APP_VERSION,
         build_notes=BUILD_NOTES,
         data_dir=str(db_file.parent),
+        active=active_section(request.args.get("section")),
+        saved=request.args.get("saved") == "1",
     )
 
 

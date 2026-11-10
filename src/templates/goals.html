@@ -2,18 +2,36 @@
 {% from "_macros.html" import money, money_text %}
 {% block head %}
 <style>
-  .goal-form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
-  .goal-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
-  .goal-actions .edit-row-input {
-    font: inherit;
-    font-size: 12px;
-    height: 30px;
-    padding: 4px 6px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+  .goal-create-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     background: var(--card);
-    color: var(--text);
-    width: 130px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .goal-create-title { font-weight: 700; font-size: 13px; }
+  .goal-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: start; }
+  .goal-target-preview {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--warn-bg);
+    font-size: 13px;
+  }
+  .goal-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .locked-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--paid);
+    color: var(--ongoing-fg);
+    font-size: 11px;
+    font-weight: 700;
   }
   .legacy-badge {
     display: inline-block;
@@ -25,7 +43,22 @@
     font-size: 11px;
     font-weight: 700;
   }
-  .inline-form { display: inline; }
+  .goal-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+  .checkin-strip { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .checkin-form { display: inline; }
+  .checkin-month {
+    min-width: 52px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .checkin-month.on { background: var(--paid); color: var(--ongoing-fg); font-weight: 700; }
+  .checkin-month.off .checkin-mark { color: var(--danger-fg); font-weight: 700; }
+  .intent-note { display: block; margin-top: 6px; }
 </style>
 {% endblock %}
 {% block content %}
@@ -41,6 +74,28 @@
     <div class="stat-label">Total received</div>
     <div class="stat-value money" id="total-received-kpi" data-amount="{{ "%.2f"|format(total_received) }}">{{ money_text(total_received) }}</div>
     <p class="caption"><a href="/#returns" id="returns-link-total">View full returns history on Dashboard &#8594;</a></p>
+  </div>
+</div>
+
+<div class="stat-row" id="goals-consolidated">
+  <div class="stat-card" id="consolidated-monthly-card">
+    <div class="stat-label">Monthly commitment (all goals)</div>
+    <div class="stat-value money" id="consolidated-monthly" data-amount="{{ "%.2f"|format(consolidated.monthly_commitment) }}">{{ money_text(consolidated.monthly_commitment) }}</div>
+    <div class="stat-sub">{{ goals|length }} goal{% if goals|length != 1 %}s{% endif %}</div>
+  </div>
+  <div class="stat-card" id="consolidated-saved-card">
+    <div class="stat-label">Saved (all goals)</div>
+    <div class="stat-value money" id="consolidated-saved" data-amount="{{ "%.2f"|format(consolidated.saved) }}">{{ money_text(consolidated.saved) }}</div>
+  </div>
+  <div class="stat-card" id="consolidated-invested-card">
+    <div class="stat-label">Invested via bonds</div>
+    <div class="stat-value money" id="consolidated-invested" data-amount="{{ "%.2f"|format(consolidated.invested) }}">{{ money_text(consolidated.invested) }}</div>
+    <div class="stat-sub">auto</div>
+  </div>
+  <div class="stat-card" id="consolidated-returns-card">
+    <div class="stat-label">Returns received</div>
+    <div class="stat-value money" id="consolidated-returns" data-amount="{{ "%.2f"|format(consolidated.returns) }}">{{ money_text(consolidated.returns) }}</div>
+    <div class="stat-sub">auto</div>
   </div>
 </div>
 
@@ -62,20 +117,30 @@
 </div>
 {% endif %}
 
-<div class="card">
-  <h2>Add goal</h2>
-  <form method="post" action="/goals" id="add-goal-form">
+<div class="goal-create-bar" id="goal-create-bar">
+  <span class="goal-create-title">Financial Goals ({{ goals|length }})</span>
+  <span style="flex:1"></span>
+  <button type="button" class="btn btn-primary" id="goal-create-toggle" aria-expanded="false" aria-controls="add-goal-form">+ New goal</button>
+</div>
+
+<form method="post" action="/goals" id="add-goal-form" hidden>
+  <div class="card">
+    <h2>New goal</h2>
     <div class="goal-form-grid">
       <div class="field">
-        <label for="goal-name">Name</label>
+        <label for="goal-name">Goal name *</label>
         <input type="text" id="goal-name" name="name" value="{{ form.get('name', '') }}">
       </div>
       <div class="field">
-        <label for="goal-target">Target amount (INR)</label>
-        <input type="text" id="goal-target" name="target_amount" value="{{ form.get('target_amount', '') }}">
+        <label for="goal-monthly">Monthly savings (INR) *</label>
+        <input type="text" id="goal-monthly" name="monthly_amount" value="{{ form.get('monthly_amount', '') }}">
       </div>
       <div class="field">
-        <label for="goal-end">Target end date</label>
+        <label for="goal-start">Start date *</label>
+        <input type="date" id="goal-start" name="start_date" value="{{ form.get('start_date', '') }}">
+      </div>
+      <div class="field">
+        <label for="goal-end">End date *</label>
         <input type="date" id="goal-end" name="target_end_date" value="{{ form.get('target_end_date', '') }}">
       </div>
       <div class="field">
@@ -87,52 +152,151 @@
         <input type="text" id="goal-note" name="note" value="{{ form.get('note', '') }}">
       </div>
     </div>
+    <div class="goal-target-preview" id="goal-target-preview">Target (auto): enter monthly amount and both dates</div>
     <div class="section-gap">
-      <button class="btn btn-primary" type="submit" id="add-goal-submit">Add goal</button>
+      <button class="btn btn-primary" type="submit" id="add-goal-submit">Create goal</button>
     </div>
-  </form>
-</div>
+    <p class="caption">Target = monthly savings &#215; months. It is auto-calculated at create and LOCKED &#8212; there is no edit control afterwards.</p>
+  </div>
+</form>
 
 {% for goal in goals %}
 <div class="card" id="goal-card-{{ goal.id }}">
-  <h2>{{ goal.name }}</h2>
-  <div class="goal-rows">
+  <div class="goal-card-head">
+    <h2>{{ goal.name }}</h2>
+    {% if goal.is_legacy %}
+    <span class="legacy-badge" id="legacy-{{ goal.id }}">legacy schedule</span>
+    {% else %}
+    <span class="locked-badge" id="locked-{{ goal.id }}">&#128274; {{ money_text(goal.target_amount or 0) }} locked</span>
+    {% endif %}
+    <span class="chip chip-{{ 'ongoing' if goal.progress_pct is not none and goal.progress_pct >= 100 else 'watching' }}" id="chip-progress-{{ goal.id }}">{% if goal.progress_pct is not none %}{{ goal.progress_pct }}%{% else %}&#8212;{% endif %}</span>
+  </div>
+  <div class="progress"><span style="width: {% if goal.progress_pct is not none %}{{ [goal.progress_pct, 100]|min }}{% else %}0{% endif %}%"></span></div>
+  <p class="caption"><span id="progress-{{ goal.id }}">{% if goal.progress_pct is not none %}{{ goal.progress_pct }}%{% else %}&#8212;{% endif %}</span>{% if goal.progress_pct is not none %} of target (saved + invested via bonds + returns){% endif %}{% if goal.note %} &#183; {{ goal.note }}{% endif %}</p>
+
+  <div class="goal-facts">
     <div>
       <div class="stat-label">Target</div>
       <div class="stat-value money" id="goal-target-value-{{ goal.id }}" data-amount="{{ "%.2f"|format(goal.target_amount or 0) }}">{{ money_text(goal.target_amount or 0) }}</div>
+    </div>
+    <div>
+      <div class="stat-label">Planned / month</div>
+      <div class="stat-value money" id="goal-monthly-value-{{ goal.id }}" data-amount="{{ "%.2f"|format(goal.monthly_amount) }}">{{ money_text(goal.monthly_amount) }}</div>
     </div>
     <div>
       <div class="stat-label">Saved</div>
       <div class="stat-value money" id="goal-saved-value-{{ goal.id }}" data-amount="{{ "%.2f"|format(goal.saved_amount) }}">{{ money_text(goal.saved_amount) }}</div>
     </div>
     <div>
-      <div class="stat-label">Target end date</div>
-      <div class="stat-value">{% if goal.is_legacy %}<span class="legacy-badge" id="legacy-{{ goal.id }}">legacy schedule</span>{% else %}{{ goal.target_end_date }}{% endif %}</div>
+      <div class="stat-label">Invested via bonds</div>
+      <div class="stat-value money" id="goal-invested-value-{{ goal.id }}" data-amount="{{ "%.2f"|format(goal.invested_via_bonds) }}">{{ money_text(goal.invested_via_bonds) }}</div>
+    </div>
+    <div>
+      <div class="stat-label">Returns received</div>
+      <div class="stat-value money" id="goal-returns-value-{{ goal.id }}" data-amount="{{ "%.2f"|format(goal.returns_received) }}">{{ money_text(goal.returns_received) }}</div>
+    </div>
+    <div>
+      <div class="stat-label">End date</div>
+      <div class="stat-value" id="goal-end-value-{{ goal.id }}">{% if goal.is_legacy %}&#8212;{% else %}{{ goal.target_end_date }}{% endif %}</div>
     </div>
     <div>
       <div class="stat-label">Months remaining</div>
       <div class="stat-value" id="months-remaining-{{ goal.id }}">{% if goal.months_remaining is none %}&#8212;{% else %}{{ goal.months_remaining }}{% endif %}</div>
     </div>
   </div>
-  <div class="progress"><span style="width: {% if goal.progress_pct is not none %}{{ [goal.progress_pct, 100]|min }}{% else %}0{% endif %}%"></span></div>
-  <p class="caption"><span id="progress-{{ goal.id }}">{% if goal.progress_pct is not none %}{{ goal.progress_pct }}%{% else %}&#8212;{% endif %}</span>{% if goal.progress_pct is not none %} saved{% endif %}{% if goal.note %} &#183; {{ goal.note }}{% endif %}</p>
-  <div class="goal-actions">
-    <form class="inline-form" method="post" action="/goals/{{ goal.id }}/edit" id="edit-goal-form-{{ goal.id }}">
-      <input class="edit-row-input" type="text" name="name" value="{{ goal.name }}" title="name" aria-label="name">
-      <input class="edit-row-input" type="text" name="target_amount" value="{{ "%.2f"|format(goal.target_amount or 0) }}" title="target amount" aria-label="target amount">
-      <input class="edit-row-input" type="date" name="target_end_date" value="{{ goal.target_end_date or '' }}" title="target end date" aria-label="target end date">
-      <input class="edit-row-input" type="text" name="saved_amount" value="{{ "%.2f"|format(goal.saved_amount) }}" title="saved so far" aria-label="saved so far">
-      <button class="btn btn-sm" type="submit" id="edit-goal-{{ goal.id }}">Save</button>
+
+  <div class="zone-title" style="margin-top:14px">Monthly check-in &#8212; INTENT LOG (not the progress authority)</div>
+  <div class="checkin-strip" id="checkin-strip-{{ goal.id }}">
+    {% for month in goal.checkin_months %}
+    <form class="checkin-form" method="post" action="/goals/{{ goal.id }}/checkin">
+      <input type="hidden" name="month" value="{{ month.key }}">
+      <input type="hidden" name="invested" value="{% if month.invested %}{% else %}on{% endif %}">
+      <button type="submit" class="checkin-month{% if month.invested %} on{% else %} off{% endif %}" id="checkin-{{ goal.id }}-{{ month.key }}" aria-pressed="{{ 'true' if month.invested else 'false' }}">{{ month.label }}{% if month.invested %} &#10003;{% else %} <span class="checkin-mark">&#10007;</span>{% endif %}</button>
     </form>
-    <form class="inline-form" method="post" action="/goals/{{ goal.id }}/delete">
-      <button class="btn btn-sm" type="submit" id="delete-goal-{{ goal.id }}">Delete</button>
-    </form>
+    {% endfor %}
   </div>
+  <p class="caption intent-note" id="intent-note-{{ goal.id }}">You marked {{ goal.checkin_count }} month{% if goal.checkin_count != 1 %}s{% endif %} as invested. This log records your intent only &#8212; the derived figures above (invested via bonds, returns) are the authority and are never changed by a check-in.</p>
+
+  <div class="zone-title" style="margin-top:14px">Linked bonds (auto-tracked &#183; linked at purchase, permanent)</div>
+  {% if goal.linked_bonds %}
+  <div class="table-wrap">
+    <table id="goal-bonds-{{ goal.id }}">
+      <thead>
+        <tr><th>Bond</th><th class="num">Invested</th><th class="num">Returns</th></tr>
+      </thead>
+      <tbody>
+        {% for bond in goal.linked_bonds %}
+        <tr>
+          <td><span class="co-name">{{ bond.company }}</span><span class="co-isin">{{ bond.isin }}</span></td>
+          <td class="num money">{{ money_text(bond.invested) }}</td>
+          <td class="num money">{{ money_text(bond.returns) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="caption" id="goal-bonds-empty-{{ goal.id }}">No bonds linked yet. A bond joins this goal when you pick it in the Move-to-Portfolio form &#8212; the link is permanent (never unlinkable).</p>
+  {% endif %}
 </div>
 {% else %}
 <div class="card">
   <h2>No goals yet</h2>
-  <p class="caption" id="goals-empty">no goals yet — add the first one above</p>
+  <p class="caption" id="goals-empty">no goals yet &#8212; use + New goal to add the first one</p>
 </div>
 {% endfor %}
+
+<script>
+(function () {
+  var toggle = document.getElementById("goal-create-toggle");
+  var form = document.getElementById("add-goal-form");
+  if (toggle && form) {
+    toggle.addEventListener("click", function () {
+      var opening = form.hasAttribute("hidden");
+      if (opening) {
+        form.removeAttribute("hidden");
+      } else {
+        form.setAttribute("hidden", "");
+      }
+      toggle.setAttribute("aria-expanded", opening ? "true" : "false");
+    });
+  }
+  var monthly = document.getElementById("goal-monthly");
+  var start = document.getElementById("goal-start");
+  var end = document.getElementById("goal-end");
+  var preview = document.getElementById("goal-target-preview");
+  function monthsBetween(a, b) {
+    var s = new Date(a);
+    var e = new Date(b);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) {
+      return 0;
+    }
+    var total = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+    if (e.getDate() < s.getDate()) {
+      total -= 1;
+    }
+    return total;
+  }
+  function refresh() {
+    if (!monthly || !start || !end || !preview) {
+      return;
+    }
+    var amount = parseFloat(monthly.value);
+    var count = monthsBetween(start.value, end.value);
+    if (!(amount > 0) || count < 1) {
+      preview.textContent = "Target (auto): enter monthly amount and both dates";
+      return;
+    }
+    preview.textContent = "Target (auto): " + (amount * count).toFixed(0) + " = " +
+      amount.toFixed(0) + " x " + count + " months - LOCKED after create, never editable";
+  }
+  [monthly, start, end].forEach(function (input) {
+    if (input) {
+      input.addEventListener("input", refresh);
+      input.addEventListener("change", refresh);
+    }
+  });
+  refresh();
+})();
+</script>
 {% endblock %}
