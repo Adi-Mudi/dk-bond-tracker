@@ -90,6 +90,26 @@
         </div>
         <div class="card" id="email-card">
           <h2>Email</h2>
+          <div class="gmail-connect" id="gmail-connect" style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+            <h3>Gmail (OAuth — recommended)</h3>
+            <p class="caption">Connect your Google account from the browser — no SMTP password needed. Tokens stay on this device only.</p>
+            <div class="field">
+              <label for="g-client-id">OAuth Client ID</label>
+              <input type="text" id="g-client-id" name="gmail_client_id" placeholder="xxxx.apps.googleusercontent.com" value="{{ prefs.get('gmail_client_id', '') }}">
+            </div>
+            <div class="field">
+              <label for="g-client-secret">OAuth Client Secret</label>
+              <input type="password" id="g-client-secret" name="gmail_client_secret" placeholder="GOCSPX-..." value="" autocomplete="new-password">
+              <p class="caption">Stored only on this device. Leave blank to keep the saved secret.</p>
+            </div>
+            <p class="caption" id="gmail-status">Status: {{ ("Connected as " + (prefs.get("gmail_user") or "your account")) if prefs.get("gmail_refresh_token") else "Not connected" }}</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a class="btn btn-primary" id="g-connect" href="/gmail/connect">Connect Gmail (opens browser)</a>
+              {% if prefs.get("gmail_refresh_token") %}
+              <form method="post" action="/gmail/disconnect" style="display:inline;"><button type="submit" class="btn">Disconnect</button></form>
+              {% endif %}
+            </div>
+          </div>
           <details class="advanced-email" id="advanced-email">
             <summary>Advanced &#8212; Email (SMTP)</summary>
             <p class="caption">Personal account &#8212; personal SMTP, personal &#8594; personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>

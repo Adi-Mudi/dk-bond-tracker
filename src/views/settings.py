@@ -56,6 +56,8 @@ def settings_from_form(form):
         "smtp_from": sender,
         "smtp_recipient": recipient,
         "smtp_app_password": str(form.get("smtp_app_password", "")).strip(),
+        "gmail_client_id": str(form.get("gmail_client_id", "")).strip(),
+        "gmail_client_secret": str(form.get("gmail_client_secret", "")).strip(),
         "privacy_on_startup": "1" if form.get("privacy_on_startup") in checked else "0",
         "share_section_holdings": "1" if form.get("share_holdings") in checked else "0",
         "share_section_payouts": "1" if form.get("share_payouts") in checked else "0",
@@ -89,7 +91,7 @@ def settings_page():
             )
         with get_conn(db_file) as conn:
             for key, value in values.items():
-                if key == "smtp_app_password" and not str(value).strip():
+                if key in ("smtp_app_password", "gmail_client_secret") and not str(value).strip():
                     continue
                 set_pref(conn, key, value)
         flash("Settings saved", "success")

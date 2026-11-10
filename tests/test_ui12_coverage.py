@@ -29,6 +29,8 @@ OUTSIDE_GATE = {
     "/print": "printLayoutNotInRedesignList",
     "/share": "shareSnapshotNotInRedesignList",
     "/payout": "needsBondIdQueryArgument",
+    "/gmail/connect": "oauthRedirectNotAScreen",
+    "/auth/google/callback": "oauthCallbackRedirectNotAScreen",
 }
 DECLARED_WIDTHS = (320, 360, 375, 414, 480, 768, 1024, 1440)
 
