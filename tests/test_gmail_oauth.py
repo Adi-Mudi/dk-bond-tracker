@@ -214,3 +214,31 @@ def test_connect_requires_client_id(db_path):
     assert resp.status_code == 200
     with get_conn(db_path) as conn:
         assert (get_pref(conn, "gmail_refresh_token", "") or "") == ""
+
+
+def test_alert_send_works_with_only_gmail_prefs(db_path, monkeypatch):
+    for key in ("SMTP_USER", "SMTP_APP_PASSWORD", "ALERT_TO", "SMTP_HOST", "SMTP_PORT"):
+        monkeypatch.delenv(key, raising=False)
+    with get_conn(db_path) as conn:
+        set_pref(conn, "gmail_refresh_token", "rt")
+        set_pref(conn, "gmail_client_id", "cid")
+        set_pref(conn, "gmail_client_secret", "sec")
+        set_pref(conn, "gmail_access_token", "at-live")
+        set_pref(conn, "gmail_token_expiry", (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat())
+        set_pref(conn, "gmail_user", "user@example.com")
+    with get_conn(db_path) as conn2:
+        calls = {}
+
+        def fake_send_raw(access, mime_bytes):
+            calls["access"] = access
+            calls["mime"] = mime_bytes
+            return {"id": "alert1"}
+
+        monkeypatch.setattr(gmail_oauth, "send_raw", fake_send_raw)
+        from src.mailer import send_alert_email
+
+        result = send_alert_email({"company": "Acme", "month": "2026-11", "severity": "due", "credit_day": 5}, conn=conn2)
+
+    assert result["via"] == "gmail-api"
+    assert calls["access"] == "at-live"
+    assert b"Acme" in calls["mime"]

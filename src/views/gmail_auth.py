@@ -75,10 +75,3 @@ def gmail_disconnect():
             set_pref(conn, key, "")
     flash("Gmail disconnected — tokens cleared from this device.", "success")
     return redirect(url_for("settings.settings_page", section="general") + "#email-card")
-
-
-def gmail_status(conn):
-    refresh_token = get_pref(conn, "gmail_refresh_token", "") or ""
-    if not refresh_token:
-        return {"connected": False, "email": ""}
-    return {"connected": True, "email": get_pref(conn, "gmail_user", "") or ""}
