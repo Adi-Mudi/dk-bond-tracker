@@ -16,20 +16,17 @@ def test_tc99_about_shows_version_build_notes_offline_badge(db_path):
     assert 'id="app-version"' in html
     assert BUILD_NOTES in html
     assert 'id="build-notes-line"' in html
-    assert "100% offline — no accounts, no cloud" in html
-    assert 'id="offline-badge"' in html
+    assert "100% offline" not in html
+    assert 'id="offline-badge"' not in html
 
 
-def test_tc99_reveal_button_and_hidden_data_dir(db_path):
+def test_tc99_reveal_button_removed(db_path):
     app = create_app(str(db_path))
     client = app.test_client()
     html = client.get("/about").get_data(as_text=True)
-    assert 'id="reveal-data-folder"' in html
-    assert 'id="data-dir-wrap" hidden' in html
-    assert 'id="data-dir-path"' in html
-    assert str(db_path.parent) in html
-    assert "reveal-data-folder" in html
-    assert "wrap.hidden = false" in html
+    assert 'id="reveal-data-folder"' not in html
+    assert 'id="data-dir-wrap"' not in html
+    assert "100% offline" not in html
 
 
 def test_tc99_settings_no_longer_inlines_about(db_path):
