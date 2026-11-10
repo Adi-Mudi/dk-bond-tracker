@@ -75,7 +75,6 @@ def _gmail_send(msg, conn):
 def send_alert_email(event, conn=None):
     if not isinstance(event, dict):
         raise AppError("ERR-email-send", f"alert event must be a dict: {event!r}")
-    host, port, user, app_password, recipient = _config(conn)
     company = str(event.get("company") or "")
     month = str(event.get("month") or "")
     severity = str(event.get("severity") or "alert")
@@ -90,11 +89,14 @@ def send_alert_email(event, conn=None):
     )
     if _gmail_ready(conn):
         msg = EmailMessage()
-        msg["From"] = user or (_pref(conn, "smtp_from") or "me")
-        msg["To"] = recipient or (_pref(conn, "smtp_recipient") or msg["From"])
+        sender = _pref(conn, "gmail_user") or _pref(conn, "smtp_from") or "me"
+        recipient = _pref(conn, "smtp_recipient") or sender
+        msg["From"] = sender
+        msg["To"] = recipient
         msg["Subject"] = subject
         msg.set_content(body)
         return _gmail_send(msg, conn)
+    host, port, user, app_password, recipient = _config(conn)
     message = f"From: {user}\r\nTo: {recipient}\r\nSubject: {subject}\r\n\r\n{body}"
     try:
         if port == 465:
@@ -115,10 +117,18 @@ def send_alert_email(event, conn=None):
 
 
 def send_message(subject, body, attachment=None, conn=None):
-    host, port, user, app_password, recipient = _config(conn) if not _gmail_ready(conn) else (None, None, None, None, None)
+    gmail_mode = _gmail_ready(conn)
+    host = port = user = app_password = recipient = None
+    if not gmail_mode:
+        host, port, user, app_password, recipient = _config(conn)
     message = EmailMessage()
-    message["From"] = user or (_pref(conn, "smtp_from") or "me")
-    message["To"] = recipient or (_pref(conn, "smtp_recipient") or message["From"])
+    if gmail_mode:
+        sender = _pref(conn, "gmail_user") or _pref(conn, "smtp_from") or "me"
+        message["From"] = sender
+        message["To"] = _pref(conn, "smtp_recipient") or sender
+    else:
+        message["From"] = user
+        message["To"] = recipient
     message["Subject"] = str(subject or "DK Bond Tracker message")
     message.set_content(str(body or ""))
     if attachment:
