@@ -30,6 +30,7 @@ from src.views.about import bp as about_bp
 from src.views.dashboard import bp as dashboard_bp
 from src.views.exports import bp as exports_bp
 from src.views.feedback import bp as feedback_bp
+from src.views.gmail_auth import bp as gmail_auth_bp
 from src.views.goals import bp as goals_bp
 from src.views.notifications import bp as notifications_bp
 from src.views.portfolio import bp as portfolio_bp
@@ -118,6 +119,7 @@ def create_app(db_path=None):
     app.register_blueprint(exports_bp)
     app.register_blueprint(about_bp)
     app.register_blueprint(feedback_bp)
+    app.register_blueprint(gmail_auth_bp)
 
     def render_unexpected(error_text):
         endpoint = request.endpoint or "unknown"
