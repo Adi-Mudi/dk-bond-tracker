@@ -266,16 +266,16 @@ def test_ui04_candidate_table_sticky_ends_and_scroll_region(client, db_path):
     assert html.count('class="candidate-row"') == 1
 
 
-def test_ui04_move_tabs_purchase_always_and_goal_when_goals_exist(client, db_path):
+def test_ui04_move_form_has_no_tabs_goal_is_plain_field(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
     html = client.get("/watch").get_data(as_text=True)
-    assert 'data-mtab="purchase"' in html
-    assert "Purchase details" in html
-    assert 'data-mtab="goal"' not in html
+    assert 'data-mtab=' not in html, "owner removed tabs — goal must be a plain field"
+    assert 'name="goal_id"' not in html, "goal field hidden while zero goals"
     with get_conn(db_path) as conn:
         conn.execute("INSERT INTO financial_goals (name, target_amount) VALUES ('House', 600000)")
     html = client.get("/watch").get_data(as_text=True)
-    assert 'data-mtab="goal"' in html
+    assert 'data-mtab=' not in html
+    assert 'name="goal_id"' in html
     assert "Financial goal" in html
     assert "House" in html
 
