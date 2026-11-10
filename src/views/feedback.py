@@ -176,7 +176,8 @@ def feedback_page():
                     upload.mimetype or "application/octet-stream",
                     payload,
                 )
-        send_message(item["subject"], body, attachment)
+        with get_conn(db_file) as conn:
+            send_message(item["subject"], body, attachment, conn=conn)
     except AppError as exc:
         pending = queue_feedback(db_file, item)
         return render_form(
@@ -202,7 +203,8 @@ def feedback_retry():
     sent = 0
     for item in items:
         try:
-            send_message(item.get("subject"), item.get("body"))
+            with get_conn(db_file) as conn:
+                send_message(item.get("subject"), item.get("body"), conn=conn)
         except AppError:
             remaining.append(item)
         else:

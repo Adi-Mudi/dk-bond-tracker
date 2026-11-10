@@ -165,7 +165,7 @@ def test_ui15_email_route_falls_back_to_local_outbox_when_smtp_unconfigured(
 def test_ui15_email_route_sends_via_smtp_with_screenshot(client, db_path, monkeypatch):
     calls = []
 
-    def fake_send(subject, body, attachment=None):
+    def fake_send(subject, body, attachment=None, conn=None):
         calls.append((subject, body, attachment))
         return {"status": "sent"}
 
@@ -228,7 +228,7 @@ def test_ui15_outbox_retry_flushes_when_email_works(client, db_path, monkeypatch
     sent = []
     monkeypatch.setattr(
         "src.views.feedback.send_message",
-        lambda subject, body, attachment=None: sent.append(subject) or {"status": "sent"},
+        lambda subject, body, attachment=None, conn=None: sent.append(subject) or {"status": "sent"},
     )
     response = client.post("/feedback/retry", follow_redirects=True)
     assert sent == ["[question] DK Bond Tracker feedback: Queued ask"]
@@ -250,7 +250,7 @@ def test_ui15_validation_error_is_named(client, db_path):
 def test_ui15_confirmation_screen_explains_next_steps(client, db_path, monkeypatch):
     monkeypatch.setattr(
         "src.views.feedback.send_message",
-        lambda subject, body, attachment=None: {"status": "sent"},
+        lambda subject, body, attachment=None, conn=None: {"status": "sent"},
     )
     response = client.post(
         "/feedback?type=question",

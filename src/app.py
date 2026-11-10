@@ -59,7 +59,7 @@ def _ensure_db(db_file):
 
 def _attempt_email(conn, event):
     try:
-        send_alert_email(event)
+        send_alert_email(event, conn=conn)
     except Exception as exc:
         notify(conn, "warn", f"email failed: {exc}")
         print(f"email failed: {exc}", file=sys.stderr)
