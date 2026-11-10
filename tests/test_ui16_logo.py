@@ -155,24 +155,28 @@ def test_ui16_full_master_mark_fills_the_canvas():
 
 
 def test_ui16_base_html_wires_the_icon_set_with_cache_bust():
-    assert 'href="/static/img/logo/favicon.svg?v=2"' in BASE_HTML
-    assert 'href="/static/img/logo/favicon-32.png?v=2"' in BASE_HTML
-    assert 'href="/static/img/logo/apple-touch-icon-180.png?v=2"' in BASE_HTML
-    assert 'href="/static/site.webmanifest?v=2"' in BASE_HTML
-    assert '<link rel="icon" type="image/svg+xml"' in BASE_HTML
-    assert '<link rel="apple-touch-icon"' in BASE_HTML
+    brand = (Path("src/templates") / "_brand.html").read_text(encoding="utf-8")
+    assert 'href="/static/img/logo/favicon.svg?v=2"' in brand
+    assert 'href="/static/img/logo/favicon-32.png?v=2"' in brand
+    assert 'apple-touch-icon' in brand
+    assert 'rel="manifest"' in brand
+    assert "{{ brand_head() }}" in BASE_HTML
 
 
 def test_ui16_header_lockup_uses_the_simplified_mark():
-    assert 'src="/static/img/logo/logo-mark.svg?v=2"' in BASE_HTML
+    brand = (Path("src/templates") / "_brand.html").read_text(encoding="utf-8")
+    assert 'src="/static/img/logo/logo-mark.svg?v=2"' in brand
+    assert "{{ brand_mark(24) }}" in BASE_HTML
     assert "brand-mark" in BASE_HTML
     assert "logo-maskable" not in BASE_HTML
     assert "icon-512-maskable" not in BASE_HTML
 
 
 def test_ui16_about_page_shows_the_logo_avatar():
-    assert 'src="/static/img/logo/logo-512.png?v=2"' in ABOUT_HTML
-    assert 'id="about-avatar"' in ABOUT_HTML
+    brand = (Path("src/templates") / "_brand.html").read_text(encoding="utf-8")
+    assert 'src="/static/img/logo/logo-512.png?v=2"' in brand
+    assert "brand_avatar" in ABOUT_HTML
+    assert 'id="about-avatar"' in brand
 
 
 def test_ui16_manifest_marks_the_maskable_purpose():
