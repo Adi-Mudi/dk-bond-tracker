@@ -24,7 +24,6 @@ NEW_FLUID_SELECTORS = (
     ".bottom-tab",
     ".app-footer",
     ".stat-row",
-    ".status-legend",
     ".sidebar nav a::before",
     ".sidebar-head",
     ".collapse-btn",
