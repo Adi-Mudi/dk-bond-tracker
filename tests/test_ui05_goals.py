@@ -239,7 +239,7 @@ def moved_row(db_path, candidate):
 def test_ui05_move_form_goal_picker_hidden_without_goals(client, db_path):
     make_candidate(client, db_path)
     html = client.get("/watch").get_data(as_text=True)
-    assert 'data-mtab="goal"' not in html
+    assert 'data-mtab=' not in html
     assert 'name="goal_id"' not in html
 
 
@@ -247,7 +247,7 @@ def test_ui05_move_form_goal_picker_present_with_goals(client, db_path):
     create_goal(client, name="House down-payment")
     make_candidate(client, db_path)
     html = client.get("/watch").get_data(as_text=True)
-    assert 'data-mtab="goal"' in html
+    assert 'data-mtab=' not in html
     assert 'name="goal_id"' in html
     assert "House down-payment" in html
     assert "the link is permanent" in html
