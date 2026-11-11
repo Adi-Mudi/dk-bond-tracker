@@ -9,20 +9,30 @@ def smoke_text():
     return SMOKE.read_text(encoding="utf-8")
 
 
-def test_clean_install_is_the_default():
+def test_state_reset_is_the_default_not_uninstall():
     text = smoke_text()
-    match = re.search(r'if \[ "\$\{DKBT_CLEAN:-(\d)\}" = "1" \]', text)
-    assert match, "DKBT_CLEAN guard missing"
-    assert match.group(1) == "1", "clean install must default to on (core rule: uninstall before testing)"
+    match = re.search(r'if \[ "\$\{DKBT_RESET:-(\d)\}" = "1" \]', text)
+    assert match, "DKBT_RESET guard missing"
+    assert match.group(1) == "1", "pm clear reset must default on"
+    assert 'waydroid shell -- pm clear "$PKG"' in text
 
 
-def test_clean_install_removes_the_package_before_installing():
+def test_uninstall_only_runs_in_explicit_fresh_mode():
     text = smoke_text()
+    match = re.search(r'if \[ "\$\{DKBT_FRESH:-(\d)\}" = "1" \]', text)
+    assert match, "DKBT_FRESH guard missing"
+    assert match.group(1) == "0", "full uninstall must be opt-in"
+    fresh_block_start = text.index('DKBT_FRESH')
     remove_at = text.index('waydroid app remove "$PKG"')
     install_at = text.index('waydroid app install "$APK"')
-    assert remove_at < install_at, "uninstall must run before install"
+    assert fresh_block_start < remove_at < install_at
 
 
-def test_clean_install_fails_loudly_when_the_package_survives():
+def test_fresh_mode_fails_loudly_and_suggests_the_pm_uninstall():
     text = smoke_text()
     assert "still installed after remove" in text
+    assert "pm uninstall --user 0" in text
+
+
+def test_clean_flag_is_gone():
+    assert "DKBT_CLEAN" not in smoke_text()

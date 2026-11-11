@@ -182,16 +182,21 @@ if [ "${DKBT_COLD_START:-1}" = "1" ]; then
 fi
 
 say "installing APK (TC-AND-01)"
-if [ "${DKBT_CLEAN:-1}" = "1" ]; then
-  say "clean install (core rule): uninstalling any existing build and its data"
+if [ "${DKBT_FRESH:-0}" = "1" ]; then
+  say "fresh mode requested: uninstalling the package (only for package changes)"
   timeout 60 waydroid app remove "$PKG" >/dev/null 2>&1
   for _ in 1 2 3 4 5 6; do
     if ! waydroid app list 2>/dev/null | grep -q "$PKG"; then break; fi
     sleep 2
   done
   if waydroid app list 2>/dev/null | grep -q "$PKG"; then
-    fail "clean install failed: $PKG still installed after remove"
+    fail "fresh install failed: $PKG still installed after remove (use: sudo waydroid shell -- pm uninstall --user 0 $PKG)"
   fi
+fi
+
+if [ "${DKBT_RESET:-1}" = "1" ] && waydroid app list 2>/dev/null | grep -q "$PKG"; then
+  say "reset state: clearing app data (pm clear; Android Test Orchestrator practice)"
+  timeout 45 waydroid shell -- pm clear "$PKG" >/dev/null 2>&1
 fi
 waydroid app install "$APK" >"$OUT/install.log" 2>&1
 INSTALL_RC=$?
