@@ -87,7 +87,8 @@ def test_tc139_132_dashboard_tabs_and_filter_chips_markup(client, db_path):
         assert f'id="{chip_id}"' in html
         assert f">{label}</button>" in html
     assert 'class="btn btn-sm filter-chip active" data-filter="all"' in html
-    assert "Sorted by priority" in html
+    assert "Sorted by priority" not in html
+    assert "chart-legend" not in html
     app_js = client.get("/static/app.js").get_data(as_text=True)
     assert "activateDashboardTab" in app_js
     assert "data-dtab" in app_js
