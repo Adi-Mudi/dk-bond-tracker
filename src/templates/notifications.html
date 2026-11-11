@@ -73,13 +73,13 @@
     {% for row in group.rows %}
     {% if row.batch %}
     <a class="alert-card alert-{{ row.severity }}{% if row.read == 0 %} unread{% endif %}" data-severity="{{ row.severity }}" id="alert-batch-{{ group.name|lower|replace(' ', '-') }}-{{ row.severity }}" href="{{ row.link }}">
-      <span class="alert-severity">{{ row.severity }}</span>
+      <span class="alert-severity">{{ row.severity_label }}</span>
       <span class="alert-message">{{ row.count }} {{ row.label }}<span class="alert-members">{{ row.messages|join(" · ") }}</span></span>
       <span class="alert-time">{{ row.timestamp }}</span>
     </a>
     {% else %}
     <a class="alert-card alert-{{ row.severity }}{% if row.read == 0 %} unread{% endif %}" data-severity="{{ row.severity }}" id="alert-{{ row.id }}" href="{{ row.link }}">
-      <span class="alert-severity">{{ row.severity }}</span>
+      <span class="alert-severity">{{ row.severity_label }}</span>
       <span class="alert-message">{{ row.message }}</span>
       <span class="alert-time">{{ row.timestamp }}</span>
     </a>

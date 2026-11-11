@@ -17,6 +17,14 @@ SEVERITY_RANK = {
     "warn": 4,
     "info": 5,
 }
+SEVERITY_LABELS = {
+    "danger": "Overdue",
+    "due_today": "Due today",
+    "reminder": "Reminder",
+    "maturity_soon": "Maturity soon",
+    "warn": "Warning",
+    "info": "Info",
+}
 FILTERS = ("all", "due", "overdue", "maturity")
 FILTER_SEVERITIES = {
     "due": ("due_today", "reminder"),
@@ -89,6 +97,7 @@ def feed_items(conn, today, links, watermark):
             {
                 "id": row.get("id"),
                 "severity": row.get("severity") or "info",
+                "severity_label": SEVERITY_LABELS.get(row.get("severity") or "info", "Info"),
                 "message": row.get("message") or "",
                 "read": int(row.get("read") or 0),
                 "timestamp": (row.get("created_at") or "")[:19],
@@ -122,6 +131,7 @@ def batch_groups(items):
                     {
                         "batch": True,
                         "severity": head["severity"],
+                        "severity_label": SEVERITY_LABELS.get(head["severity"], "Info"),
                         "count": len(run),
                         "label": BATCH_LABELS.get(head["severity"], "alerts"),
                         "messages": [entry["message"] for entry in run],
