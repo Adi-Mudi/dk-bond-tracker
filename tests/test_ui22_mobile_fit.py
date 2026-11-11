@@ -90,3 +90,23 @@ def test_payment_toggle_rows_are_tall_enough_to_tap():
 def test_guard_detects_missing_min_height():
     sample = ".checkin-month { padding: 2px 10px; }"
     assert min_height_rem(body_for(rules_of(sample), ".checkin-month")) == 0.0
+
+
+def test_settings_checkbox_rows_are_tall_enough_to_tap():
+    rules = rules_of((STATIC / "theme.css").read_text(encoding="utf-8"))
+    row = body_for(rules, ".check-row")
+    assert row is not None
+    assert min_height_rem(row) >= 2.0
+    box = body_for(rules, ".check-row input")
+    assert box is not None
+    assert "width: 1.25rem" in box and "height: 1.25rem" in box
+
+
+def test_share_checkbox_rows_are_tall_enough_to_tap():
+    rules = rules_of((TEMPLATES / "share.html").read_text(encoding="utf-8"))
+    label = body_for(rules, ".share-checks label")
+    assert label is not None
+    assert min_height_rem(label) >= 2.0
+    box = body_for(rules, ".share-checks input")
+    assert box is not None
+    assert "width: 1.25rem" in box and "height: 1.25rem" in box
