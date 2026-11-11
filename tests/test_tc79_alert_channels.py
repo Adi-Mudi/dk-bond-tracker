@@ -107,8 +107,9 @@ def test_tc79_unconfigured_smtp_keeps_app_alive_with_warn_notification(
     assert any(row["severity"] == "danger" and "QuietCo" in row["message"] for row in rows)
     warn_rows = [row for row in rows if row["severity"] == "warn"]
     assert len(warn_rows) == 1
-    assert warn_rows[0]["message"].startswith("email failed:")
-    assert "ERR-smtp-unconfigured" in warn_rows[0]["message"]
+    assert "could not be sent" in warn_rows[0]["message"]
+    assert "Settings" in warn_rows[0]["message"]
+    assert "ERR-" not in warn_rows[0]["message"]
     response = app.test_client().get("/")
     assert response.status_code == 200
 
