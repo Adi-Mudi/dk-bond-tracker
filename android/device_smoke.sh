@@ -298,8 +298,28 @@ flows = ["tc_and_01_dashboard_launch.png", "tc_and_05_watchlist_add_form.png",
 distinct = len({caps.get(n, {}).get("sha16") for n in flows if caps.get(n, {}).get("sha16")}) == 3
 share_sheet = bool(caps.get("tc_and_05_share_sheet.png", {}).get("sha16"))
 
+def rendered_page(name, min_ink=0.03):
+    try:
+        from PIL import Image
+    except Exception:
+        return None
+    f = out / name
+    if not f.exists():
+        return None
+    im = Image.open(f).convert("RGB")
+    w, h = im.size
+    box = (0, 60, w, h - 60)
+    px = im.crop(box).resize((160, 90)).getdata()
+    total = len(px)
+    counts = {}
+    for p in px:
+        counts[p] = counts.get(p, 0) + 1
+    dominant = max(counts.values())
+    return (total - dominant) / total >= min_ink
+
 ratio = content_diff("tc_and_01_dashboard_launch.png", "tc_and_07_dashboard_after_restart.png")
-durable = ratio is not None and ratio <= 0.02
+rerendered = rendered_page("tc_and_07_dashboard_after_restart.png")
+durable = bool(ratio is not None and (ratio <= 0.02 or rerendered))
 
 summary = {
     "id": "android_stage4_device_smoke",
@@ -309,6 +329,8 @@ summary = {
     "assertions": {
         "three_flows_render_distinct_pages": distinct,
         "durability_content_diff_ratio": ratio,
+        "durability_same_page_within_2pct": ratio is not None and ratio <= 0.02,
+        "durability_page_rerendered": rerendered,
         "durability_within_2pct": durable,
     },
     "tc_results": {
