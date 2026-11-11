@@ -203,10 +203,16 @@ INSTALL_RC=$?
 say "install rc=$INSTALL_RC"
 [ "$INSTALL_RC" -eq 0 ] || fail "waydroid app install rc=$INSTALL_RC"
 
+if ! waydroid app list 2>/dev/null | grep -q "$PKG"; then
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    sleep 2
+    if waydroid app list 2>/dev/null | grep -q "$PKG"; then break; fi
+  done
+fi
 if waydroid app list 2>/dev/null | grep -q "$PKG"; then
   say "package present: $PKG"
 else
-  fail "package missing from app list: $PKG"
+  fail "package missing from app list: $PKG (after 20s poll)"
 fi
 
 say "launching app (TC-AND-01)"
