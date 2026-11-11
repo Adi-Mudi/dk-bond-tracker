@@ -62,7 +62,7 @@ def _attempt_email(conn, event):
     try:
         send_alert_email(event, conn=conn)
     except Exception as exc:
-        notify(conn, "warn", f"email failed: {exc}")
+        notify(conn, "warn", "Email alerts could not be sent \u2014 check Settings \u25b8 Notifications")
         print(f"email failed: {exc}", file=sys.stderr)
 
 
@@ -71,7 +71,8 @@ def _startup_alerts(db_file, today):
         try:
             events = daily_sweep(conn, today)
         except AppError as exc:
-            notify(conn, "warn", f"daily sweep failed: {exc}")
+            notify(conn, "warn", "Alert refresh hit a problem \u2014 check Settings \u25b8 Notifications")
+            print(f"daily sweep failed: {exc}", file=sys.stderr)
             events = []
         else:
             set_pref(conn, "last_sweep", today.isoformat())
@@ -87,14 +88,16 @@ def _startup_alerts(db_file, today):
         try:
             reminders = due_reminders(conn, today)
         except AppError as exc:
-            notify(conn, "warn", f"due reminder failed: {exc}")
+            notify(conn, "warn", "Payout reminders could not be refreshed \u2014 check Settings \u25b8 Notifications")
+            print(f"due reminder failed: {exc}", file=sys.stderr)
             reminders = []
         for reminder in reminders:
             _attempt_email(conn, reminder)
         try:
             maturities = maturity_reminders(conn, today)
         except AppError as exc:
-            notify(conn, "warn", f"maturity reminder failed: {exc}")
+            notify(conn, "warn", "Maturity reminders could not be refreshed \u2014 check Settings \u25b8 Notifications")
+            print(f"maturity reminder failed: {exc}", file=sys.stderr)
             maturities = []
         for maturity_event in maturities:
             _attempt_email(conn, maturity_event)
