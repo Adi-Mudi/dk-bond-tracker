@@ -27,9 +27,15 @@ def test_blank_restart_screen_cannot_pass():
     assert "min_ink=0.03" in body
 
 
-def test_install_presence_is_polled_not_single_shot():
+def test_install_presence_is_polled_before_the_warning_path():
     body = (ROOT / "android" / "device_smoke.sh").read_text(encoding="utf-8")
-    assert "after 20s poll" in body
     poll_at = body.index("for _ in 1 2 3 4 5 6 7 8 9 10; do")
     check_at = body.index('say "package present')
-    assert poll_at < check_at
+    warn_at = body.index("WARN: package not listed by app list")
+    assert poll_at < check_at < warn_at
+
+
+def test_stale_app_list_does_not_fail_a_successful_install():
+    body = (ROOT / "android" / "device_smoke.sh").read_text(encoding="utf-8")
+    assert "WARN: package not listed by app list" in body
+    assert 'fail "package missing from app list' not in body
