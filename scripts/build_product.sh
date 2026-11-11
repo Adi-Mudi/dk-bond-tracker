@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="1.0.2"
+VERSION="1.0.3"
 NAME="dk_bond_tracker_v${VERSION}"
 PRODUCT_DIR="${ROOT}/product/${NAME}"
 ZIP_PATH="${ROOT}/product/${NAME}.zip"
