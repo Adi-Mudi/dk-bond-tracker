@@ -7,6 +7,7 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -28,6 +29,7 @@ from src.bond_master.base import (
     SOURCE_PRIORITY,
 )
 from src.bond_master.cache import BondMasterCache
+from src.bond_master.normalize import is_investment_grade
 from src.bond_master.service import build_default_service
 from src.db import get_conn
 from src.engine import tenure_window
@@ -110,18 +112,25 @@ FETCH_STATE_LABELS = {
     FETCH_OFFLINE: "Offline",
     FETCH_DOWNGRADE: "Downgraded",
 }
-OFFLINE_FAILURE_CODES = (
+OFFLINE_REACH_FAILURE_CODES = (
     FAILURE_OFFLINE,
     FAILURE_UNREACHABLE,
     FAILURE_TIMEOUT,
+)
+OFFLINE_BLOCKED_FAILURE_CODES = (
     FAILURE_BLOCKED,
     FAILURE_RATE_LIMITED,
 )
+OFFLINE_FAILURE_CODES = OFFLINE_REACH_FAILURE_CODES + OFFLINE_BLOCKED_FAILURE_CODES
 DOWNGRADE_FAILURE_CODES = (
     FAILURE_OFFLINE,
     FAILURE_UNREACHABLE,
     FAILURE_TIMEOUT,
     FAILURE_BLOCKED,
+)
+RATING_GATE_MESSAGE = (
+    "The application supports only AAA to BBB- investment-grade bonds "
+    "- this fetched bond cannot be added."
 )
 
 
@@ -177,14 +186,35 @@ def fetch_state(result, events=()):
     return FETCH_NOT_FOUND
 
 
-def fetch_message(state):
+def fetch_message(state, failure_code=None):
     if state == FETCH_NOT_FOUND:
         return "metadata not found - enter manually"
     if state == FETCH_OFFLINE:
-        return "could not reach the source - nothing is blocked"
+        if failure_code in OFFLINE_BLOCKED_FAILURE_CODES:
+            return "The source blocked or rate-limited the request"
+        return "Could not reach the source"
     if state == FETCH_DOWNGRADE:
         return "filled from a lesser-confidence source"
     return ""
+
+
+def rating_gate(payload):
+    if not payload:
+        return None
+    facts = payload.get("facts") or {}
+    if not facts:
+        return None
+    rating = str(facts.get("rating") or "").strip()
+    if is_investment_grade(rating):
+        return None
+    return RATING_GATE_MESSAGE
+
+
+def autofetch_refusal(isin):
+    stored = session.get(AUTOFETCH_SESSION_KEY) or {}
+    if stored.get("isin") != isin:
+        return None
+    return rating_gate(stored.get("payload"))
 
 
 def _source_names(sources):
@@ -225,6 +255,7 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
             if cached_row.get(field) is not None
         }
         asof = str(cached_row.get("fetched_at") or "")
+    failure_code = result.failure_code if result is not None else None
     return {
         "state": state,
         "states": FETCH_STATES,
@@ -235,7 +266,7 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
         "source_names": _source_names(sources),
         "cached": cached,
         "asof": asof,
-        "message": fetch_message(state),
+        "message": fetch_message(state, failure_code),
         "values": {},
         "sources_by_field": {},
     }
@@ -365,6 +396,8 @@ def watch_goals(db_file):
 
 def error_field(code, message):
     text = str(message or "").lower()
+    if code == "ERR-watch-rating-gate":
+        return "rating"
     if code == "ERR-watch-dup":
         return "isin"
     if "isin" in text:
@@ -553,6 +586,9 @@ def watch_list():
     if request.method == "POST":
         form = request.form
         try:
+            refusal = autofetch_refusal(str(form.get("isin", "")).strip().upper())
+            if refusal:
+                raise AppError("ERR-watch-rating-gate", refusal)
             values = watch_form_values(form)
             with get_conn(db_file) as conn:
                 watch_insert_candidate(conn, values)
@@ -586,6 +622,36 @@ def watch_list():
     except AppError as exc:
         return error_page(exc.code, exc.message, "Watchlist failed", 500)
     return render_template("watch.html", **context)
+
+
+@bp.route("/watch/refresh", methods=["POST"])
+def watch_refresh():
+    db_file = app_db()
+    cache = _bond_cache()
+    remaining = cache.cooldown_remaining()
+    if remaining > 0:
+        return (
+            jsonify(
+                {
+                    "trigger": "manual",
+                    "status": "cooldown",
+                    "remaining": round(remaining, 1),
+                    "message": f"Refresh blocked - {remaining:.0f}s cooldown remaining",
+                }
+            ),
+            429,
+        )
+    from src.bond_master import service as bond_service
+
+    summary = bond_service.refresh_all(db_file, trigger="manual")
+    return jsonify(
+        {
+            "trigger": "manual",
+            "status": "refreshed",
+            "summary": summary,
+            "message": "Bond master refresh finished",
+        }
+    )
 
 
 @bp.route("/watch/<int:candidate_id>/move", methods=["POST"])

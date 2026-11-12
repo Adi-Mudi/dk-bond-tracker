@@ -166,8 +166,10 @@
 
 <div class="add-bar" id="add-bar">
   <span class="add-bar-title">Candidates ({{ candidates|length }})</span>
+  <button type="button" class="icon-btn" id="watch-refresh" title="Refresh the bond master" aria-label="Refresh the bond master">&#8635;</button>
   <button type="button" class="btn btn-primary btn-sm" id="add-candidate-toggle" aria-expanded="{% if form_open %}true{% else %}false{% endif %}" aria-controls="add-candidate-form">+ Add</button>
 </div>
+<div class="caption" id="watch-refresh-status" role="status" aria-live="polite"></div>
 
 <div class="card" id="add-candidate-panel"{% if not form_open %} hidden{% endif %}>
   <h2>Add Candidate</h2>
@@ -196,7 +198,7 @@
       </div>
       <div class="banner banner-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}>
         <div>
-          <strong>Could not reach the source</strong>
+          <strong>{{ fetch.message }}</strong>
           <p>{% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.</p>
           {% if fetch.cached %}
           <div class="fetch-source-list">
@@ -751,6 +753,37 @@
   if (button) {
     button.addEventListener("click", runFetch);
   }
+})();
+</script>
+<script>
+(function () {
+  var button = document.getElementById("watch-refresh");
+  var status = document.getElementById("watch-refresh-status");
+  if (!button) {
+    return;
+  }
+  button.addEventListener("click", function () {
+    button.disabled = true;
+    fetch("/watch/refresh", { method: "POST", headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { data: data };
+        });
+      })
+      .then(function (result) {
+        if (status) {
+          status.textContent = (result.data && result.data.message) || "";
+        }
+      })
+      .catch(function () {
+        if (status) {
+          status.textContent = "Refresh failed - nothing is blocked.";
+        }
+      })
+      .then(function () {
+        button.disabled = false;
+      });
+  });
 })();
 </script>
 {% endblock %}
