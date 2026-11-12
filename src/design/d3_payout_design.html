@@ -137,6 +137,10 @@
   .suggest-line b { font-variant-numeric: tabular-nums; }
   .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0 24px; }
   .totals-row td { font-weight: 700; border-top: 2px solid var(--border); }
+  .chip-liquid { color: var(--ongoing-fg); background: var(--ongoing-bg); }
+  .chip-active { color: var(--watching-fg); background: var(--watching-bg); }
+  .chip-thin { color: var(--warn-fg); background: var(--warn-bg); }
+  .liq-line { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
 </style>
 </head>
 <body data-page="/portfolio">
@@ -339,6 +343,7 @@
               <th class="num">Invested &#8377;</th>
               <th class="num">Received &#8377;</th>
               <th>Next Payout</th>
+              <th>Liquidity</th>
               <th class="cell-sticky cell-right">Status</th>
             </tr>
           </thead>
@@ -353,6 +358,14 @@
               <td class="num money">&#8377;40000.00</td>
               <td class="num money">&#8377;2727.00</td>
               <td>10 Dec 2026</td>
+              <td>
+
+                <span class="chip chip-thin">THIN</span>
+
+                <span class="liq-line">Traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026</span>
+
+              </td>
+
               <td class="cell-sticky cell-right">
                 <span class="chip chip-danger" data-status="Danger">Danger</span>
                 <a class="detail-link" href="#" data-id="1">Detail &#8594;</a>
@@ -368,6 +381,14 @@
               <td class="num money">&#8377;100000.00</td>
               <td class="num money">&#8377;8100.00</td>
               <td>01 Mar 2027</td>
+              <td>
+
+                <span class="chip chip-liquid">LIQUID</span>
+
+                <span class="liq-line">Traded on 28 of the last 30 sessions, &#8377;12.4 Cr total, last trade 11 Nov 2026</span>
+
+              </td>
+
               <td class="cell-sticky cell-right">
                 <span class="chip chip-ongoing" data-status="On-going">On-going</span>
                 <a class="detail-link" href="#" data-id="2">Detail &#8594;</a>
@@ -383,6 +404,14 @@
               <td class="num money">&#8377;50000.00</td>
               <td class="num money">&#8377;3975.00</td>
               <td>30 Sep 2027</td>
+              <td>
+
+                <span class="chip chip-active">ACTIVE</span>
+
+                <span class="liq-line">Traded on 9 of the last 30 sessions, &#8377;64.2 L total, last trade 8 Nov 2026</span>
+
+              </td>
+
               <td class="cell-sticky cell-right">
                 <span class="chip chip-ongoing" data-status="On-going">On-going</span>
                 <a class="detail-link" href="#" data-id="3">Detail &#8594;</a>
@@ -398,6 +427,14 @@
               <td class="num money">&#8377;60000.00</td>
               <td class="num money">&#8377;4537.50</td>
               <td>20 Nov 2026</td>
+              <td>
+
+                <span class="chip chip-liquid">LIQUID</span>
+
+                <span class="liq-line">Traded on 21 of the last 30 sessions, &#8377;9.7 Cr total, last trade 11 Nov 2026</span>
+
+              </td>
+
               <td class="cell-sticky cell-right">
                 <span class="chip chip-ongoing" data-status="On-going">On-going</span>
                 <a class="detail-link" href="#" data-id="4">Detail &#8594;</a>
@@ -413,6 +450,14 @@
               <td class="num money">&#8377;25000.00</td>
               <td class="num money">&#8377;2312.52</td>
               <td>15 Dec 2026</td>
+              <td>
+
+                <span class="chip chip-thin">THIN</span>
+
+                <span class="liq-line">Traded on 1 of the last 30 sessions, &#8377;0.2 L total, last trade 2 Sep 2026</span>
+
+              </td>
+
               <td class="cell-sticky cell-right">
                 <span class="chip chip-ongoing" data-status="On-going">On-going</span>
                 <a class="detail-link" href="#" data-id="5">Detail &#8594;</a>
@@ -428,6 +473,14 @@
               <td class="num money">&#8377;40000.00</td>
               <td class="num money">&#8377;14160.00</td>
               <td>&#8212;</td>
+              <td>
+
+                <span class="chip chip-danger">NO TRADES</span>
+
+                <span class="liq-line">Traded on 0 of the last 30 sessions, no trade since 12 Jun 2026</span>
+
+              </td>
+
               <td class="cell-sticky cell-right">
                 <span class="chip chip-matured" data-status="Matured">Matured</span>
                 <a class="detail-link" href="#" data-id="6">Detail &#8594;</a>
@@ -436,6 +489,7 @@
           </tbody>
         </table>
       </div>
+      <p class="table-note" id="liquidity-rule">Liquidity comes from the NSE daily bhavcopy: 45 calendar days kept, scored over the latest 30 sessions. LIQUID = traded on 15 or more days, ACTIVE = 5&ndash;14, THIN = 1&ndash;4, NO TRADES = 0. It sits in its own column so it never overwrites the position status &mdash; a bond can be On-going and illiquid at the same time. Refreshed on demand, at most once a day, never on app start; offline it shows the last known value with its as-of date.</p>
     </div>
 
 

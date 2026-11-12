@@ -286,6 +286,14 @@
   .chip { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 999px; font-size: 10px; font-weight: 750; border: 1.5px solid currentColor; }
   .chip-danger { background: var(--danger-bg); color: var(--danger-fg); }
   .chip-neutral { background: var(--matured-bg); color: var(--matured-fg); }
+  .chip-liquid { background: var(--ongoing-bg); color: var(--ongoing-fg); }
+  .chip-active { background: var(--watching-bg); color: var(--watching-fg); }
+  .chip-thin { background: var(--warn-bg); color: var(--warn-fg); }
+  .liq-line { display: block; font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  .liq-sync { border: 1.5px solid var(--border); background: var(--card); color: var(--muted);
+    border-radius: 999px; font: inherit; font-size: 10px; font-weight: 750; padding: 2px 7px; cursor: pointer; }
+  .liq-sync:hover { border-color: var(--accent); color: var(--accent); }
+  .warn-line { display: block; font-size: 10.5px; font-weight: 700; color: var(--warn-fg); margin-bottom: 4px; }
   .ack { display: flex; gap: 7px; align-items: flex-start; margin-top: 9px; padding: 8px 9px; border-radius: 7px; background: var(--card); border: 1.5px solid var(--danger-fg); color: var(--danger-fg); }
   .ack input { width: 17px; height: 17px; margin-top: 1px; accent-color: var(--danger-fg); }
   .ack label { font-size: 12px; font-weight: 650; }
@@ -507,6 +515,7 @@
                         <span class="caption" id="w-isin-help">12 characters &middot; ISO 6166 check digit</span>
                         <button class="link-btn" type="button" data-role="fetch-link">Fetch details</button>
                       </span>
+                      <span class="liq-line" id="w-liq-preview">Liquidity preview &mdash; traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026 <span class="chip chip-thin">THIN</span></span>
                       <div class="error-msg" id="w-isin-error">Enter a 12-character ISIN, for example INE134E08LD7.</div>
                     </div>
                     <div class="field">
@@ -611,19 +620,46 @@
                     <thead>
                       <tr>
                         <th>Company / ISIN</th><th>Rating</th><th>Coupon</th><th>Est. Yield</th>
+                        <th>Liquidity</th>
                         <th>Broker</th><th>Source note</th><th>Details</th><th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td><span class="co-name">Beta Infra Pvt Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE901A01002</span></td>
-                        <td>A</td><td>9.1%</td><td>9.6%</td><td>Kotak Securities</td><td></td>
+                        <td>A</td><td>9.1%</td><td>9.6%</td>
+
+                          <td>
+
+                            <span class="chip chip-thin">THIN</span>
+
+                            <span class="liq-line">Traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026</span>
+
+                            <button class="liq-sync" type="button" data-role="sync-liquidity" data-isin="INE901A01002" title="Refresh liquidity for this ISIN">&#8635; Sync</button>
+
+                            <span class="warn-line">Thin &mdash; may be hard to sell. Buy only if you can hold to maturity.</span>
+
+                          </td>
+
+                        <td>Kotak Securities</td><td></td>
                         <td><button class="btn btn-sm" type="button">Details</button></td>
                         <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
                       </tr>
                       <tr>
                         <td><span class="co-name">Cyan Energy Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE902A01003</span></td>
-                        <td>AAA</td><td>7.4%</td><td>7.8%</td><td>HDFC Securities</td><td></td>
+                        <td>AAA</td><td>7.4%</td><td>7.8%</td>
+
+                          <td>
+
+                            <span class="chip chip-liquid">LIQUID</span>
+
+                            <span class="liq-line">Traded on 24 of the last 30 sessions, &#8377;18.4 Cr total, last trade 11 Nov 2026</span>
+
+                            <button class="liq-sync" type="button" data-role="sync-liquidity" data-isin="INE902A01003" title="Refresh liquidity for this ISIN">&#8635; Sync</button>
+
+                          </td>
+
+                        <td>HDFC Securities</td><td></td>
                         <td><button class="btn btn-sm" type="button">Details</button></td>
                         <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
                       </tr>
@@ -633,6 +669,7 @@
               </section>
 
               <p class="caption table-note">Watchlist holds candidates only. &lsquo;Move to Portfolio&rsquo; creates the position and locks the company while it is On-going or Danger.</p>
+<p class="caption table-note">Liquidity is measured from the NSE daily bhavcopy: 45 calendar days kept, scored over the latest 30 sessions. LIQUID = traded on 15 or more days, ACTIVE = 5&ndash;14, THIN = 1&ndash;4, NO TRADES = 0. A bond with no trade, or no trade for 60 days, is flagged as an exit risk &mdash; it is a separate warning from the position status.</p>
             </main>
           </div>
         </div>
@@ -744,6 +781,7 @@
                       <span class="caption" id="m-isin-help">12 characters &middot; ISO 6166 check digit</span>
                       <button class="link-btn" type="button" data-role="fetch-link">Fetch details</button>
                     </span>
+                    <span class="liq-line" id="m-liq-preview">Liquidity preview &mdash; traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026 <span class="chip chip-thin">THIN</span></span>
                     <div class="error-msg" id="m-isin-error">Enter a 12-character ISIN, for example INE134E08LD7.</div>
                   </div>
                   <div class="field">
@@ -848,19 +886,46 @@
                   <thead>
                     <tr>
                       <th>Company / ISIN</th><th>Rating</th><th>Coupon</th><th>Est. Yield</th>
+                      <th>Liquidity</th>
                       <th>Broker</th><th>Source note</th><th>Details</th><th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td><span class="co-name">Beta Infra Pvt Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE901A01002</span></td>
-                      <td>A</td><td>9.1%</td><td>9.6%</td><td>Kotak Securities</td><td></td>
+                      <td>A</td><td>9.1%</td><td>9.6%</td>
+
+                        <td>
+
+                          <span class="chip chip-thin">THIN</span>
+
+                          <span class="liq-line">Traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026</span>
+
+                          <button class="liq-sync" type="button" data-role="sync-liquidity" data-isin="INE901A01002" title="Refresh liquidity for this ISIN">&#8635; Sync</button>
+
+                          <span class="warn-line">Thin &mdash; may be hard to sell. Buy only if you can hold to maturity.</span>
+
+                        </td>
+
+                      <td>Kotak Securities</td><td></td>
                       <td><button class="btn btn-sm" type="button">Details</button></td>
                       <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
                     </tr>
                     <tr>
                       <td><span class="co-name">Cyan Energy Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE902A01003</span></td>
-                      <td>AAA</td><td>7.4%</td><td>7.8%</td><td>HDFC Securities</td><td></td>
+                      <td>AAA</td><td>7.4%</td><td>7.8%</td>
+
+                        <td>
+
+                          <span class="chip chip-liquid">LIQUID</span>
+
+                          <span class="liq-line">Traded on 24 of the last 30 sessions, &#8377;18.4 Cr total, last trade 11 Nov 2026</span>
+
+                          <button class="liq-sync" type="button" data-role="sync-liquidity" data-isin="INE902A01003" title="Refresh liquidity for this ISIN">&#8635; Sync</button>
+
+                        </td>
+
+                      <td>HDFC Securities</td><td></td>
                       <td><button class="btn btn-sm" type="button">Details</button></td>
                       <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
                     </tr>
@@ -870,6 +935,7 @@
             </section>
 
             <p class="caption table-note">Watchlist holds candidates only. &lsquo;Move to Portfolio&rsquo; creates the position and locks the company while it is On-going or Danger.</p>
+<p class="caption table-note">Liquidity is measured from the NSE daily bhavcopy: 45 calendar days kept, scored over the latest 30 sessions. LIQUID = traded on 15 or more days, ACTIVE = 5&ndash;14, THIN = 1&ndash;4, NO TRADES = 0. A bond with no trade, or no trade for 60 days, is flagged as an exit risk &mdash; it is a separate warning from the position status.</p>
           </main>
 
           <nav class="bottom-tabs" aria-label="Primary">
