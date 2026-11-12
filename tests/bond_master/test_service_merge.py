@@ -127,3 +127,65 @@ def test_af01_2_merge_never_raises_when_nothing_is_found(tmp_path):
     service = make_service(tmp_path, adapters)
     result = service.lookup(ISIN)
     assert result.has_facts() is False
+
+
+def test_f5_merge_keeps_only_the_grade_when_the_agency_column_is_populated(tmp_path):
+    adapters = {
+        "NSDL": FakeAdapter(
+            "NSDL",
+            FetchResult(
+                isin=ISIN,
+                company="Acme Ltd",
+                rating="CRISIL AA+",
+                rating_agency="ICRA",
+                sources={"company": "NSDL", "rating": "NSDL", "rating_agency": "NSDL"},
+            ),
+        ),
+    }
+    service = make_service(tmp_path, adapters)
+    result = service.lookup(ISIN)
+    assert result.rating == "AA+"
+    assert result.rating_agency == "ICRA"
+    assert result.source_of("rating") == "NSDL"
+    assert result.source_of("rating_agency") == "NSDL"
+
+
+def test_f5_merge_resolves_the_embedded_agency_when_the_column_is_empty(tmp_path):
+    adapters = {
+        "RBI": FakeAdapter(
+            "RBI",
+            FetchResult(
+                isin=ISIN,
+                company="Acme Ltd",
+                rating="CARE BBB+",
+                sources={"company": "RBI", "rating": "RBI"},
+            ),
+        ),
+    }
+    service = make_service(tmp_path, adapters)
+    result = service.lookup(ISIN)
+    assert result.rating == "BBB+"
+    assert result.rating_agency == "CARE"
+    assert result.source_of("rating") == "RBI"
+    assert result.source_of("rating_agency") == "RBI"
+
+
+def test_f5_merge_is_idempotent_for_already_clean_values(tmp_path):
+    adapters = {
+        "NSDL": FakeAdapter(
+            "NSDL",
+            FetchResult(
+                isin=ISIN,
+                company="Acme Ltd",
+                rating="AA+",
+                rating_agency="CRISIL",
+                sources={"company": "NSDL", "rating": "NSDL", "rating_agency": "NSDL"},
+            ),
+        ),
+    }
+    service = make_service(tmp_path, adapters)
+    result = service.lookup(ISIN)
+    assert result.rating == "AA+"
+    assert result.rating_agency == "CRISIL"
+    assert result.source_of("rating") == "NSDL"
+    assert result.source_of("rating_agency") == "NSDL"

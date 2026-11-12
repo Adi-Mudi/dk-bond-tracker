@@ -25,10 +25,30 @@ def offline_builder(calls):
 
 def test_af10_1_auto_refresh_runs_exactly_once_per_process(db_path, monkeypatch):
     calls = []
+    clock = [1000.0]
+    cache = BondMasterCache(db_path, clock=lambda: clock[0])
     monkeypatch.setattr(svc, "_AUTO_REFRESH_DONE", False)
     monkeypatch.setattr(svc, "_CACHES", {})
+    monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
     monkeypatch.setattr(svc, "build_default_service", offline_builder(calls))
     refresh_all(str(db_path), "auto")
+    clock[0] += 61.0
+    refresh_all(str(db_path), "auto")
+    assert len(calls) == 1
+
+
+def test_fix2_auto_inside_a_cooldown_does_not_burn_the_process_flag(db_path, monkeypatch):
+    calls = []
+    clock = [1000.0]
+    cache = BondMasterCache(db_path, clock=lambda: clock[0])
+    cache.begin_refresh()
+    monkeypatch.setattr(svc, "_AUTO_REFRESH_DONE", False)
+    monkeypatch.setattr(svc, "_CACHES", {})
+    monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
+    monkeypatch.setattr(svc, "build_default_service", offline_builder(calls))
+    refresh_all(str(db_path), "auto")
+    assert calls == []
+    clock[0] += 61.0
     refresh_all(str(db_path), "auto")
     assert len(calls) == 1
 

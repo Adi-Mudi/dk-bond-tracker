@@ -21,7 +21,7 @@ from .base import (
 )
 from .cache import BondMasterCache, CooldownActive
 from .health import SourceEvent, health_view
-from .normalize import normalize_isin
+from .normalize import normalize_isin, split_rating
 from .snapshot import SNAPSHOT_SOURCE, snapshot_lookup
 
 DEFAULT_RETRIES = 2
@@ -92,7 +92,26 @@ def _absorb(values, sources, source, result):
         sources[field] = result.source_of(field) or source
 
 
+def _clean_rating(values, sources):
+    if "rating" not in values and "rating_agency" not in values:
+        return
+    grade, agency = split_rating(values.get("rating"), values.get("rating_agency"))
+    if grade is None:
+        values.pop("rating", None)
+        sources.pop("rating", None)
+    else:
+        values["rating"] = grade
+    if agency is None:
+        values.pop("rating_agency", None)
+        sources.pop("rating_agency", None)
+    else:
+        values["rating_agency"] = agency
+        if "rating_agency" not in sources:
+            sources["rating_agency"] = sources.get("rating")
+
+
 def _merged_result(isin, values, sources):
+    _clean_rating(values, sources)
     return FetchResult(isin=isin, sources=sources, **values)
 
 
@@ -342,9 +361,9 @@ def _summary(service, cache):
 def refresh_all(db_path, trigger="manual"):
     try:
         cache = shared_cache(db_path)
-        if trigger == "auto" and not _claim_auto(db_path):
-            return _summary(None, cache)
         if not cache.refresh_allowed():
+            return _summary(None, cache)
+        if trigger == "auto" and not _claim_auto(db_path):
             return _summary(None, cache)
         cache.begin_refresh()
         service = build_default_service(cache, None)

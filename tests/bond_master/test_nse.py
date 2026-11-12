@@ -171,3 +171,30 @@ def test_bytes_payload_is_decoded():
 
 def test_without_a_transport_no_request_is_made():
     assert nse.NseAdapter().fetch(ISIN).failure_code == FAILURE_UNREACHABLE
+
+
+NSE_HEADER = (
+    "ISIN,ISSUER NAME,COUPON (%),PAYOUT CYCLE,FACE VALUE,RATING,RATING AGENCY,"
+    "ISSUER TYPE,SECURED,LISTING STATUS,MATURITY DATE\n"
+)
+
+
+def test_f5_embedded_agency_is_stripped_even_with_a_populated_agency_column():
+    row = "INE205A07DV2,Acme Infra Ltd,8.75,annual,1000,CRISIL AA+,ICRA,ncd,Yes,Listed,2030-03-31\n"
+    result = nse.NseAdapter(transport=transport_for(NSE_HEADER + row)).fetch(ISIN)
+    assert result.rating == "AA+"
+    assert result.rating_agency == "ICRA"
+
+
+def test_f5_empty_agency_column_still_resolves_the_embedded_agency():
+    row = "INE205A07DV2,Acme Infra Ltd,8.75,annual,1000,CRISIL AA+,,ncd,Yes,Listed,2030-03-31\n"
+    result = nse.NseAdapter(transport=transport_for(NSE_HEADER + row)).fetch(ISIN)
+    assert result.rating == "AA+"
+    assert result.rating_agency == "CRISIL"
+
+
+def test_f5_the_grade_modifier_survives_the_agency_split():
+    row = "INE205A07DV2,Acme Infra Ltd,8.75,annual,1000,CARE BBB-,,ncd,Yes,Listed,2030-03-31\n"
+    result = nse.NseAdapter(transport=transport_for(NSE_HEADER + row)).fetch(ISIN)
+    assert result.rating == "BBB-"
+    assert result.rating_agency == "CARE"
