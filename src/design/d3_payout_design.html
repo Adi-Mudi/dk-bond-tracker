@@ -137,6 +137,16 @@
   .suggest-line b { font-variant-numeric: tabular-nums; }
   .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0 24px; }
   .totals-row td { font-weight: 700; border-top: 2px solid var(--border); }
+  .perf-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .perf-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .perf-card .label { font-size: 10.5px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .perf-card .value { font-size: 18px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .perf-card .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .perf-chart { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+  .perf-chart .chart-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .perf-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .perf-legend .key { display: inline-flex; align-items: center; gap: 5px; }
+  .perf-legend .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
   .detail-page { display: flex; flex-direction: column; gap: 0.75rem; }
   .detail-head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
   .detail-head h1 { margin: 0; }
@@ -266,6 +276,7 @@
     <a class="tab" href="#" data-tab="holdings">My Holdings</a>
     <a class="tab" href="#" data-tab="payouts">Payouts</a>
     <a class="tab active" href="#" data-tab="tax">Tax</a>
+    <a class="tab" href="#" data-tab="performance">Performance</a>
   </div>
 
   <div id="portfolio-panels">
@@ -563,6 +574,113 @@
     </div>
 
 
+    <div id="panel-performance" class="panel">
+      <div class="perf-cards">
+        <div class="perf-card">
+          <div class="label">Total invested</div>
+          <div class="value">&#8377;315000.00</div>
+          <div class="sub">6 bonds</div>
+        </div>
+        <div class="perf-card">
+          <div class="label">Total received (net)</div>
+          <div class="value">&#8377;19515.76</div>
+          <div class="sub">gross &#8377;19818.76 &#183; TDS &#8377;303.00</div>
+        </div>
+        <div class="perf-card">
+          <div class="label">Accrued interest (net, unpaid)</div>
+          <div class="value">&#8377;8229.24</div>
+          <div class="sub">simple months &#183; approximate</div>
+        </div>
+        <div class="perf-card">
+          <div class="label">Total P&amp;L</div>
+          <div class="value">&#8377;27745.00</div>
+          <div class="sub">8.8% on invested</div>
+        </div>
+        <div class="perf-card">
+          <div class="label">Realised vs unrealised</div>
+          <div class="value">&#8377;19515.76</div>
+          <div class="sub">unrealised &#8377;8229.24</div>
+        </div>
+        <div class="perf-card">
+          <div class="label">Portfolio XIRR</div>
+          <div class="value">9.0%</div>
+          <div class="sub">as of 12 Nov 2026</div>
+        </div>
+      </div>
+
+      <div class="perf-chart">
+        <div class="chart-title">Cumulative invested vs cumulative received</div>
+        <svg width="100%" height="230" viewBox="0 0 820 230" role="img" aria-label="Cumulative invested rises to 315000 rupees by Nov 2026, cumulative received to 19516 rupees">
+          <line x1="46" y1="20" x2="800" y2="20" stroke="var(--border)" stroke-width="1"/>
+          <line x1="46" y1="87" x2="800" y2="87" stroke="var(--border)" stroke-width="1"/>
+          <line x1="46" y1="154" x2="800" y2="154" stroke="var(--border)" stroke-width="1"/>
+          <line x1="46" y1="220" x2="800" y2="220" stroke="var(--border)" stroke-width="1"/>
+          <polyline fill="none" stroke="var(--accent)" stroke-width="2.5" points="46,43 114,36 181,31 248,31 315,27 382,23 449,23 516,20 583,20 650,20 717,20 784,20"/>
+          <polyline fill="none" stroke="var(--ongoing-fg)" stroke-width="2.5" points="46,219 114,219 181,218 248,218 315,216 382,216 449,216 516,215 583,215 650,214 717,214 784,214"/>
+          <text x="10" y="24" font-size="10" fill="var(--muted)">&#8377;3.15 L</text>
+          <text x="10" y="158" font-size="10" fill="var(--muted)">&#8377;0</text>
+          <text x="40" y="228" font-size="10" fill="var(--muted)">Dec-2025</text>
+          <text x="740" y="228" font-size="10" fill="var(--muted)">Nov-2026</text>
+        </svg>
+        <div class="perf-legend">
+          <span class="key"><span class="dot" style="background:var(--accent)"></span>Cumulative invested</span>
+          <span class="key"><span class="dot" style="background:var(--ongoing-fg)"></span>Cumulative received</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="performance-table">
+          <thead>
+            <tr>
+              <th>Bond</th>
+              <th class="num">Invested</th>
+              <th class="num">Received</th>
+              <th class="num">Accrued</th>
+              <th class="num">Total P&amp;L</th>
+              <th class="num">Return %</th>
+              <th class="num">XIRR</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="co-name">Tata Capital Financial Services Ltd</span><span class="co-isin">INE306N07LT3</span></td>
+              <td class="num money">&#8377;40000.00</td><td class="num money">&#8377;4720.00</td><td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;4720.00</td><td class="num money">11.8%</td><td class="num money">12.0%</td>
+              <td><span class="chip chip-matured">Matured</span></td></tr>
+            <tr><td><span class="co-name">HDFC Bank Ltd</span><span class="co-isin">INE040A08AD3</span></td>
+              <td class="num money">&#8377;100000.00</td><td class="num money">&#8377;4050.00</td><td class="num money">&#8377;4050.00</td>
+              <td class="num money">&#8377;8100.00</td><td class="num money">8.1%</td><td class="num money">8.2%</td>
+              <td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td><span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07LD7</span></td>
+              <td class="num money">&#8377;60000.00</td><td class="num money">&#8377;2887.50</td><td class="num money">&#8377;2092.50</td>
+              <td class="num money">&#8377;4980.00</td><td class="num money">8.3%</td><td class="num money">8.4%</td>
+              <td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td><span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07HC9</span></td>
+              <td class="num money">&#8377;25000.00</td><td class="num money">&#8377;1156.26</td><td class="num money">&#8377;1168.74</td>
+              <td class="num money">&#8377;2325.00</td><td class="num money">9.3%</td><td class="num money">9.4%</td>
+              <td><span class="chip chip-ongoing">On-going</span></td></tr>
+            <tr><td><span class="co-name">Vedanta Ltd</span><span class="co-isin">INE205A07DV2</span></td>
+              <td class="num money">&#8377;40000.00</td><td class="num money">&#8377;2727.00</td><td class="num money">&#8377;918.00</td>
+              <td class="num money">&#8377;3645.00</td><td class="num money">9.1%</td><td class="num money">9.2%</td>
+              <td><span class="chip chip-danger">Danger</span></td></tr>
+            <tr><td><span class="co-name">LIC Housing Finance Ltd</span><span class="co-isin">INE115A07PZ5</span></td>
+              <td class="num money">&#8377;50000.00</td><td class="num money">&#8377;3975.00</td><td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;3975.00</td><td class="num money">8.0%</td><td class="num money">7.9%</td>
+              <td><span class="chip chip-ongoing">On-going</span></td></tr>
+          </tbody>
+          <tfoot>
+            <tr class="totals-row">
+              <td>Total &#183; portfolio</td>
+              <td class="num money">&#8377;315000.00</td><td class="num money">&#8377;19515.76</td><td class="num money">&#8377;8229.24</td>
+              <td class="num money">&#8377;27745.00</td><td class="num money">8.8%</td><td class="num money">9.0%</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="table-note">One formula set, the same numbers as on the bond detail page. Book-value basis &#8212; market value is deferred until a price source is settled. Accrued interest uses simple months and is labelled approximate. Sortable by Total P&amp;L, Return % and XIRR; My Holdings stays the management view.</p>
+    </div>
+
     <div id="panel-tax" class="panel active">
       <div class="table-wrap">
         <table id="tax-table">
@@ -736,14 +854,33 @@
 
   <section class="dt-panel" id="dt-performance">
     <div class="detail-group">
-    <div class="group-title">Performance</div>
-    <dl class="group-facts">
-      <dt>Book value</dt><dd class="money">&#8377;40000.00</dd>
-      <dt>Accrued interest</dt><dd class="money">&#8377;1766.88</dd>
-      <dt>Received</dt><dd class="money">&#8377;2727.00</dd>
-      <dt>Return so far</dt><dd class="money">&#8377;1233.88 &#183; 3.1%</dd>
-    </dl>
-    <p class="caption" style="margin-top:6px;">One formula set, the same on this page and on the Portfolio Performance tab. Market value is deferred until a price source is settled.</p>
+      <div class="group-title">Performance</div>
+      <dl class="group-facts">
+        <dt>Book value</dt><dd class="money">&#8377;40000.00</dd>
+        <dt>Received (net)</dt><dd class="money">&#8377;2727.00</dd>
+        <dt>Accrued interest (net)</dt><dd class="money">&#8377;918.00</dd>
+        <dt>Realised</dt><dd class="money">&#8377;2727.00</dd>
+        <dt>Unrealised</dt><dd class="money">&#8377;918.00</dd>
+        <dt>Total P&amp;L</dt><dd class="money">&#8377;3645.00 &#183; 9.1%</dd>
+        <dt>XIRR</dt><dd class="money">9.2%</dd>
+      </dl>
+      <p class="caption" style="margin-top:6px;">One formula set, the same on this page and on the Portfolio Performance tab. Market value is deferred until a price source is settled, so the numbers here are book-value based.</p>
+    </div>
+
+    <div class="detail-group">
+      <div class="group-title">Interest-rate risk</div>
+      <dl class="group-facts">
+        <dt>Cash flows</dt><dd>4 &#215; &#8377;1010.00 coupon, &#8377;40000.00 principal at maturity</dd>
+        <dt>Assumed yield</dt><dd>10.10% &#183; the coupon, not a market yield</dd>
+        <dt>Price per 100</dt><dd class="money">100.00</dd>
+        <dt>Macaulay duration</dt><dd>1.86 years</dd>
+        <dt>Modified duration</dt><dd>1.69 years</dd>
+        <dt>Convexity</dt><dd>3.12</dd>
+        <dt>DV01</dt><dd class="money">&#8377;676.40 per &#8377;10000 for a 1% move</dd>
+        <dt>+100 bps shock</dt><dd>price 98.31 &#183; value &#8377;39324.00</dd>
+        <dt>&#8722;100 bps shock</dt><dd>price 101.69 &#183; value &#8377;40676.00</dd>
+      </dl>
+      <p class="caption" style="margin-top:6px;">Computed from the same cash-flow engine as the performance numbers, with the coupon as the assumed yield. Approximate: there is no market curve yet, so no key-rate duration and no spread.</p>
     </div>
   </section>
 </div>
