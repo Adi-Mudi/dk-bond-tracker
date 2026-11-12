@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block page_title %}Send feedback{% endblock %}
+{% block head %}
+<style>
+  .feedback-types { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .feedback-context { background: var(--card-bg); border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .assist { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .inline-form { display: inline; }
+  .screenshot-preview[hidden] { display: none; }
+  .screenshot-preview { display: block; max-width: 100%; margin-top: 8px; border: 1px solid var(--border); border-radius: 6px; }
+  .chip-danger { background: var(--danger-bg); color: var(--danger-fg); }
+  .chip-info { background: var(--watching-bg); color: var(--watching-fg); }
+  .chip-neutral { background: var(--card-bg); color: var(--muted); }
+</style>
+{% endblock %}
+{% block content %}
+<h1>Send feedback</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if sent %}
+<div class="card" id="feedback-confirmation">
+  {% if route_taken == "github" %}
+  <h2 id="confirmation-title">One more step &#8212; open the prefilled issue</h2>
+  <p id="confirmation-text">GitHub prefills the title and body from your report. Attach the screenshot there &#8212; GitHub is where the work is tracked.</p>
+  <p><a class="btn btn-primary" id="github-issue-link" rel="noopener" href="https://github.com/Adi-Mudi/dk-bond-tracker/issues/new?title={{ github_title|urlencode }}&amp;labels={{ github_label|urlencode }}&amp;body={{ github_body|urlencode }}">Open GitHub issue &#8594;</a></p>
+  {% elif route_taken == "outbox" %}
+  <h2 id="confirmation-title">Saved locally &#8212; we will retry</h2>
+  <p id="confirmation-text">Your email is not configured right now, so this report went to the local outbox ({{ pending }} waiting). It stays on this device and is retried when email works again.</p>
+  <form method="post" action="/feedback/retry" class="inline-form">
+    <button class="btn btn-secondary" type="submit" id="feedback-retry">Retry queued reports</button>
+  </form>
+  {% else %}
+  <h2 id="confirmation-title">&#10003; Thanks &#8212; your report is in.</h2>
+  <p id="confirmation-text">Bugs are reviewed first; features are considered in planning. You can track progress on GitHub Issues.</p>
+  {% endif %}
+  <p><a class="btn btn-secondary" id="feedback-again" href="/feedback">Send another report</a></p>
+</div>
+
+{% else %}
+{% if error %}
+<div class="banner banner-error" id="feedback-error">
+  <div class="banner-title">Error: {{ error_code }}</div>
+  <div id="feedback-error-message">{{ error }}</div>
+</div>
+{% endif %}
+
+{% if pending %}
+<p class="caption" id="feedback-outbox-notice">{{ pending }} report(s) are waiting in the local outbox.</p>
+{% endif %}
+
+<div class="card" id="feedback-card">
+  <h2>Send feedback</h2>
+  <div class="feedback-types" id="feedback-types" role="group" aria-label="Feedback type">
+    <a class="chip{% if kind == 'bug' %} chip-danger{% else %} chip-neutral{% endif %}" id="type-bug" href="/feedback?type=bug">Bug report</a>
+    <a class="chip{% if kind == 'feature' %} chip-info{% else %} chip-neutral{% endif %}" id="type-feature" href="/feedback?type=feature">Feature request</a>
+    <a class="chip{% if kind == 'question' %} chip-info{% else %} chip-neutral{% endif %}" id="type-question" href="/feedback?type=question">Question</a>
+  </div>
+
+  <form method="post" action="/feedback?type={{ kind }}" id="feedback-form" enctype="multipart/form-data">
+    <input type="hidden" name="type" value="{{ kind }}">
+    <input type="hidden" name="context_page" value="{{ context.page }}">
+
+    <div class="field">
+      <label for="fb-title">Title *</label>
+      <input type="text" id="fb-title" name="title" required>
+    </div>
+
+    {% if kind == "bug" %}
+    <div class="field">
+      <label for="fb-what-happened">What happened? *</label>
+      <input type="text" id="fb-what-happened" name="what_happened" required>
+    </div>
+    <div class="field">
+      <label for="fb-steps">Steps to reproduce *</label>
+      <input type="text" id="fb-steps" name="steps" required>
+    </div>
+    <div class="field">
+      <label for="fb-expected">Expected vs actual *</label>
+      <input type="text" id="fb-expected" name="expected_actual" required>
+    </div>
+    <div class="field">
+      <label for="fb-severity">Severity / blocking *</label>
+      <select id="fb-severity" name="severity" required>
+        {% for level in severities %}<option value="{{ level }}">{{ level }}</option>{% endfor %}
+      </select>
+    </div>
+    {% elif kind == "feature" %}
+    <div class="field">
+      <label for="fb-problem">Problem it solves *</label>
+      <input type="text" id="fb-problem" name="problem" required>
+    </div>
+    <div class="field">
+      <label for="fb-solution">Proposed solution *</label>
+      <input type="text" id="fb-solution" name="solution" required>
+    </div>
+    {% else %}
+    <div class="field">
+      <label for="fb-question">Your question *</label>
+      <input type="text" id="fb-question" name="question" required>
+    </div>
+    {% endif %}
+
+    <div class="field">
+      <label for="fb-screenshot">Screenshot (optional)</label>
+      <input type="file" id="fb-screenshot" name="screenshot" accept="image/*">
+      <p class="assist">Review your image first &#8212; it may contain amounts you want to hide.</p>
+      <img id="fb-preview" class="screenshot-preview" alt="Screenshot preview" hidden>
+    </div>
+
+    <div class="feedback-context" id="feedback-context">
+      Auto-attached: app v{{ context.version }} &#183; page: {{ context.page }} &#183; device: {{ context.device }}
+    </div>
+
+    <div class="section-gap">
+      <button class="btn btn-primary" type="submit" name="route" value="email" id="feedback-send-email">Email to developer</button>
+      <button class="btn btn-secondary" type="submit" name="route" value="github" id="feedback-send-github">Open GitHub issue &#8594;</button>
+    </div>
+    <p class="caption" id="feedback-route-note">Email uses your configured SMTP (attaches the screenshot). GitHub prefills title + body on Adi-Mudi/dk-bond-tracker (you attach the image there). Offline: the form saves to a local outbox and retries.</p>
+  </form>
+</div>
+{% endif %}
+
+<script>
+(function () {
+  var input = document.getElementById("fb-screenshot");
+  var preview = document.getElementById("fb-preview");
+  if (!input || !preview) {
+    return;
+  }
+  input.addEventListener("change", function () {
+    var file = input.files && input.files[0];
+    if (!file) {
+      preview.hidden = true;
+      preview.removeAttribute("src");
+      return;
+    }
+    var reader = new FileReader();
+    reader.addEventListener("load", function () {
+      preview.src = reader.result;
+      preview.hidden = false;
+    });
+    reader.readAsDataURL(file);
+  });
+})();
+</script>
+{% endblock %}

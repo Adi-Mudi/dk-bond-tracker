@@ -87,7 +87,8 @@ def test_tc139_132_dashboard_tabs_and_filter_chips_markup(client, db_path):
         assert f'id="{chip_id}"' in html
         assert f">{label}</button>" in html
     assert 'class="btn btn-sm filter-chip active" data-filter="all"' in html
-    assert "Sorted by priority" in html
+    assert "Sorted by priority" not in html
+    assert "chart-legend" not in html
     app_js = client.get("/static/app.js").get_data(as_text=True)
     assert "activateDashboardTab" in app_js
     assert "data-dtab" in app_js
@@ -156,7 +157,7 @@ def test_tc139_134_email_presets_and_setup_guide_markup(client, db_path):
 def test_tc139_134_email_test_route_success_and_failure(client, db_path, monkeypatch):
     calls = []
 
-    def fake_send(event):
+    def fake_send(event, conn=None):
         calls.append(event)
         return {"status": "sent"}
 
@@ -194,7 +195,7 @@ def test_tc139_134_email_test_route_success_and_failure(client, db_path, monkeyp
 
 
 def test_tc139_134_email_test_route_never_500s_on_send_error(client, db_path, monkeypatch):
-    def failing_send(event):
+    def failing_send(event, conn=None):
         raise AppError("ERR-smtp-unconfigured", "SMTP_USER is not set")
 
     monkeypatch.setattr("src.views.settings.send_alert_email", failing_send)

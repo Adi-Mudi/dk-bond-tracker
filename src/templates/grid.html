@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import money_text %}
 {% block head %}
 <style>
   .sort-badge-v3 {
@@ -11,18 +12,26 @@
     font-size: 12.5px;
     font-weight: 800;
   }
-  .grid-table td.cell { position: relative; text-align: center; min-width: 64px; }
+  .grid-table td.cell { position: relative; text-align: center; min-width: 4rem; font-size: 12px; }
   .grid-table td.cell-paid { background: var(--paid); }
   .grid-table td.cell-due { background: var(--due); font-weight: 700; }
   .grid-table td.cell-future { background: var(--card-bg); color: var(--muted); }
-  .grid-table td.cell-paid::after { content: "paid"; }
-  .grid-table td.cell-due::after { content: "due"; }
-  .grid-table td.cell-future::after { content: "\00a0"; }
+  .grid-table td.cell-paid .cell-text { color: var(--ongoing-fg); }
+  .grid-table td.cell-due .cell-text { color: var(--danger-fg); }
+  .grid-table td.cell-future .cell-text { color: var(--muted); font-weight: 400; }
   .grid-table td.cell a.cell-hit { position: absolute; inset: 0; }
+  .grid-table th:first-child,
+  .grid-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--white);
+    z-index: 2;
+    box-shadow: 1px 0 0 var(--border);
+  }
   .grid-table th.month-col { text-align: center; }
   .grid-table th.month-col.now { background: var(--current-month); }
   .grid-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); margin-top: 8px; }
-  .grid-legend .swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--border); vertical-align: middle; margin-right: 4px; }
+  .grid-legend .swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--border); vertical-align: middle; margin-right: 0.25rem; }
   .swatch-paid { background: var(--paid); }
   .swatch-due { background: var(--due); }
   .swatch-future { background: var(--card-bg); }
@@ -31,7 +40,6 @@
 {% block content %}
 <h1 style="font-size:18px;margin-bottom:12px;">Payout Grid</h1>
 
-<div class="sort-badge-v3" id="autosort-badge">Auto-sort: Danger &#8594; On-going &#8594; Matured (Danger top, On-going middle, Matured bottom; D20 / FR-31)</div>
 <p class="table-note" style="margin-top:0;">Months across, dynamic headers derived from the data (no hardcoded window). Click any cell &#8594; edit payment (amount, paid flag).</p>
 
 {% if not rows %}
@@ -56,7 +64,7 @@
         <td class="mono">{{ row.isin }}</td>
         <td><span class="chip chip-{{ row.status|lower|replace('-', '') }}" data-status="{{ row.status }}">{{ row.status }}</span></td>
         {% for cell in row.cells %}
-        <td class="cell cell-{{ cell.state }}" data-bond="{{ cell.bond_id }}" data-month="{{ cell.month }}"><a class="cell-hit" href="/payment/{{ cell.bond_id }}/{{ cell.month }}" aria-label="Edit payment {{ cell.bond_id }} {{ cell.month }}"></a></td>
+        <td class="cell cell-{{ cell.state }}" data-bond="{{ cell.bond_id }}" data-month="{{ cell.month }}">{% if cell.state == "paid" and cell.amount is not none %}<span class="cell-text money">{{ money_text(cell.amount) }}</span>{% elif cell.state == "due" %}<span class="cell-text">unpaid</span>{% elif cell.state == "future" %}<span class="cell-text neutral">not due yet</span>{% endif %}<a class="cell-hit" href="/payment/{{ cell.bond_id }}/{{ cell.month }}" aria-label="Edit payment {{ cell.bond_id }} {{ cell.month }}"></a></td>
         {% endfor %}
       </tr>
       {% endfor %}
@@ -64,10 +72,10 @@
   </table>
 </div>
 <div class="grid-legend">
-  <span><span class="swatch swatch-paid"></span>paid</span>
-  <span><span class="swatch swatch-due"></span>due</span>
+  <span><span class="swatch swatch-paid"></span>received value only</span>
+  <span><span class="swatch swatch-due"></span>unpaid</span>
   <span><span class="swatch swatch-future"></span>future / outside window (neutral)</span>
 </div>
-<p class="table-note">Cell colors: paid green, unpaid past or current month tinted red (zero amount stays unpaid), future months neutral. Row statuses recompute from the ledger on every render.</p>
+<p class="table-note">Cell rule: green shows ONLY the received value (no "paid" word); unpaid past or current month tinted red shows ONLY "unpaid"; future months neutral with no amount. No amount appears on unpaid cells because the actual payout is unknown until credit (cycle + TDS). Row statuses recompute from the ledger on every render.</p>
 {% endif %}
 {% endblock %}

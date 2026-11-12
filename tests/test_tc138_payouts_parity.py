@@ -107,7 +107,9 @@ def test_tc129_payout_edit_saves_via_existing_payment_route_and_status_rerederiv
     cell_index = payouts.index(cell_marker)
     cell_slice = payouts[cell_index : cell_index + 400]
     assert 'data-amount="7500.00" data-received="1"' in cell_slice
-    assert "7500.00 &#10003;" in cell_slice
+    assert "&#8377;7500.00" in cell_slice
+    assert "&#10003;" not in cell_slice
+    assert ">paid<" not in cell_slice
     holdings_after = client.get("/portfolio").get_data(as_text=True)
     assert 'data-isin="INE1290000001" data-status="On-going"' in holdings_after
     response = client.post(
@@ -128,7 +130,7 @@ def test_tc129_payout_edit_saves_via_existing_payment_route_and_status_rerederiv
     cleared_index = payouts_after.index(f'id="cell-{bond_id}-{month_key(add_months(base, -1))}"')
     cleared_slice = payouts_after[cleared_index : cleared_index + 400]
     assert 'data-amount="" data-received="0"' in cleared_slice
-    assert ">Missed<" in cleared_slice
+    assert ">unpaid<" in cleared_slice
     holdings_cleared = client.get("/portfolio").get_data(as_text=True)
     assert 'data-isin="INE1290000001" data-status="Danger"' in holdings_cleared
 

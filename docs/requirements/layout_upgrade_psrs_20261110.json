@@ -1,0 +1,61 @@
+{
+  "id": "layout_upgrade_psrs_20261110",
+  "kind": "psrs",
+  "title": "Layout Upgrade & Permanent Fix — V-model spec delta (prd_items + requirements + test_cases + test_bindings)",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "01_excel_dashboard",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/172",
+  "derived_from": "Discussion #172 (D-01/D-02 ratified, D-03 = PM multi-width audit) + community layout research — documentation only, zero new decisions",
+  "requirements": [
+    {"id": "UI-U1", "text": "Card, form and table shells SHALL respond to their own width via CSS container queries (container-type + @container rules), not only to viewport breakpoints.", "category": "functional", "check_method": "integration", "status": "accepted", "acceptance_criteria": [
+      {"given": "theme.css", "when": "inspected", "then": "container-type is declared on card/form/table shell selectors and at least one @container rule adjusts padding or columns"},
+      {"given": "a shell placed in a narrow parent on a wide viewport", "when": "rendered", "then": "the shell restyles by container width (asserted via CSS presence test + resizer gate)"}
+    ]},
+    {"id": "UI-U2", "text": "Headings and section spacing SHALL use clamp() fluid sizing instead of breakpoint-jumping fixed sizes.", "category": "functional", "check_method": "integration", "status": "accepted", "acceptance_criteria": [
+      {"given": "theme.css", "when": "inspected", "then": "h1/h2/page-title and major section paddings use clamp(min, preferred, max)"},
+      {"given": "viewport 320px and 1440px", "when": "pages render", "then": "type scales smoothly with no clipped or oversized headings (resizer gate)"}
+    ]},
+    {"id": "UI-U3", "text": "Layout code SHALL contain zero fixed-pixel widths for structural elements (sidebar, chart labels, chips, columns); only non-layout tokens (borders, dots, icons) may use px.", "category": "non-functional", "check_method": "integration", "status": "accepted", "acceptance_criteria": [
+      {"given": "theme.css + templates", "when": "scanned by the fixed-px sweep test", "then": "no structural width:Npx outside an allowlist (border/1px/icon sizes); chart-label and sidebar remnants converted to %/fr/rem with min/max"},
+      {"given": "the sweep test", "when": "run", "then": "it fails if a new structural fixed-px width appears (regression guard)"}
+    ]},
+    {"id": "UI-U4", "text": "KPI rows, form grids and detail groups SHALL use CSS Grid auto-fit/minmax skeletons so columns self-collapse across widths; dead CSS from removed components (F43) SHALL be removed.", "category": "functional", "check_method": "integration", "status": "accepted", "acceptance_criteria": [
+      {"given": "templates/theme.css", "when": "inspected", "then": "kpi-row, form grids and detail groups use repeat(auto-fit, minmax(...)) or equivalent grid skeletons"},
+      {"given": "theme.css", "when": "scanned", "then": "no rules referencing removed components (move-tabs, legend-zone, disclaimer-footer) remain"}
+    ]},
+    {"id": "UI-U5", "text": "After the upgrade, EVERY layout SHALL be verified working across the full width matrix (320-1440) on both surfaces — the permanent fix is proven by the continuous-resizer gate, coverage pin, full suite and Waydroid smoke all green.", "category": "non-functional", "check_method": "integration", "status": "accepted", "acceptance_criteria": [
+      {"given": "the upgraded build", "when": "resizer gate runs over all redesigned routes at 8 widths", "then": "zero overflow failures"},
+      {"given": "full pytest suite", "when": "run", "then": "all tests pass including new fixed-px and container-query tests"},
+      {"given": "Waydroid smoke on the rebuilt APK", "when": "run", "then": "DEVICE SMOKE: PASS — all screens render on the Android surface"},
+      {"given": "PM multi-width visual audit (D-03)", "when": "run", "then": "every page inspected at 320/375/768/1440 — no visual defects remain"}
+    ]}
+  ],
+  "prd_items": [
+    {"id": "UI-U1", "area": "layout", "statement": "Container-query shells for cards/forms/tables.", "priority": "must", "status": "accepted", "decision_id": "D-02"},
+    {"id": "UI-U2", "area": "layout", "statement": "clamp() fluid headings and spacing.", "priority": "must", "status": "accepted", "decision_id": "D-02"},
+    {"id": "UI-U3", "area": "layout", "statement": "Zero structural fixed-pixel widths + sweep guard test.", "priority": "must", "status": "accepted", "decision_id": "D-02"},
+    {"id": "UI-U4", "area": "layout", "statement": "Grid auto-fit/minmax skeletons + dead-CSS removal (F43).", "priority": "must", "status": "accepted", "decision_id": "D-02"},
+    {"id": "UI-U5", "area": "verification", "statement": "Full multi-width verification of every layout on both surfaces.", "priority": "must", "status": "accepted", "decision_id": "D-03"}
+  ],
+  "test_cases": [
+    {"id": "TC-U1", "title": "Container queries present on shells (UI-U1)", "type": "unit", "steps": "Parse theme.css: assert container-type and >=1 @container rule on card/form/table selectors.", "expected": "Container-query rules exist and target the shells", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-U2", "title": "clamp() fluid type present (UI-U2)", "type": "unit", "steps": "Parse theme.css: assert clamp( on h1/h2/page-title and section padding rules.", "expected": "clamp() used for headings + spacing", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-U3", "title": "Fixed-px structural sweep (UI-U3)", "type": "unit", "steps": "Scan theme.css + template style blocks for width:Npx outside allowlist (border/icon sizes).", "expected": "No structural fixed widths; test fails on regression", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-U4", "title": "Grid skeletons + dead CSS gone (UI-U4)", "type": "unit", "steps": "Assert auto-fit/minmax on kpi/form/detail; assert no move-tabs/legend-zone/disclaimer-footer rules remain.", "expected": "Grid skeletons present; dead CSS absent", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-U5", "title": "Resizer gate full matrix (UI-U5)", "type": "e2e", "steps": "Run test_resizer_gate over all redesigned routes at 320/360/375/414/480/768/1024/1440.", "expected": "Zero overflow at every width", "level": "REMOTE", "status": "planned"},
+    {"id": "TC-U6", "title": "Full suite + Waydroid smoke (UI-U5)", "type": "e2e", "steps": "pytest full suite; build APK; device_smoke.sh.", "expected": "All tests pass; DEVICE SMOKE: PASS", "level": "REMOTE", "status": "planned"}
+  ],
+  "test_bindings": [
+    {"requirement_id": "UI-U1", "test_case_id": "TC-U1", "covers": "full"},
+    {"requirement_id": "UI-U2", "test_case_id": "TC-U2", "covers": "full"},
+    {"requirement_id": "UI-U3", "test_case_id": "TC-U3", "covers": "full"},
+    {"requirement_id": "UI-U4", "test_case_id": "TC-U4", "covers": "full"},
+    {"requirement_id": "UI-U5", "test_case_id": "TC-U5", "covers": "partial"},
+    {"requirement_id": "UI-U5", "test_case_id": "TC-U6", "covers": "full"}
+  ],
+  "carry_over": [],
+  "changelog": [
+    {"date": "2026-11-10", "entry": "v1.0 — authored from Discussion #172 (D-01/D-02/D-03); 5 requirements, 6 test cases, 6 bindings"}
+  ]
+}

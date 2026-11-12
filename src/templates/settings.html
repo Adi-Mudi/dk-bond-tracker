@@ -1,4 +1,45 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+  .settings-layout { display: flex; gap: 18px; align-items: flex-start; }
+  .settings-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 10.625rem;
+    flex: 0 0 auto;
+    font-size: 13px;
+    position: sticky;
+    top: 16px;
+  }
+  .settings-nav-title { font-size: 13px; margin-bottom: 4px; }
+  .settings-nav-item { padding: 7px 9px; border-radius: 6px; text-decoration: none; color: var(--text); }
+  .settings-nav-item.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .settings-nav-item.pointer { color: var(--muted); font-size: 11px; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 9px; }
+  .settings-content { flex: 1; min-width: 0; }
+  .settings-section { margin-bottom: 12px; }
+  .theme-pointer { background: var(--card-bg); border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; color: var(--muted); font-size: 13px; }
+  .saved-flag { color: var(--ongoing-fg); font-weight: 700; margin-left: 0.625rem; }
+  .dirty-flag { color: var(--warn-fg); font-weight: 700; margin-left: 0.625rem; }
+  .advanced-email { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--warn-bg); }
+  .advanced-email summary { min-height: 2.5rem; display: flex; align-items: center; font-weight: 700; font-size: 13px; cursor: pointer; }
+  @media (max-width: 768px) {
+    .settings-layout { flex-direction: column; gap: 10px; align-items: stretch; }
+    .settings-nav {
+      position: static;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      width: 100%;
+      border-right: none;
+      padding-right: 0;
+    }
+    .settings-nav-title { display: none; }
+    .settings-nav-item { white-space: nowrap; }
+    .settings-nav-item.pointer { border-top: none; margin-top: 0; padding-top: 7px; }
+  }
+</style>
+{% endblock %}
 {% block content %}
 <h1>Settings</h1>
 
@@ -20,122 +61,205 @@
 </div>
 {% endif %}
 
-<div class="card" id="appearance-card">
-  <h2>Appearance</h2>
-  {% for value, label in themes %}
-  <label class="check-row"><input type="radio" name="theme-choice" data-theme-value="{{ value }}"{% if value == 'system' %} checked{% endif %}> {{ label }}</label>
-  {% endfor %}
-  <p class="caption">Theme is saved on this device.</p>
+<div class="settings-layout" id="settings-layout">
+  <nav class="settings-nav" id="settings-nav" aria-label="Settings sections">
+    <b class="settings-nav-title">Settings</b>
+    <a class="settings-nav-item{% if active == 'general' %} active{% endif %}" id="nav-general" href="/settings?section=general#section-general">General</a>
+    <a class="settings-nav-item{% if active == 'notifications' %} active{% endif %}" id="nav-notifications" href="/settings?section=notifications#section-notifications">Notifications</a>
+    <a class="settings-nav-item{% if active == 'share' %} active{% endif %}" id="nav-share" href="/settings?section=share#section-share">Share / Export</a>
+    <a class="settings-nav-item{% if active == 'data' %} active{% endif %}" id="nav-data" href="/settings?section=data#section-data">Data</a>
+    <a class="settings-nav-item pointer" id="nav-about" href="/about">About &#8594;</a>
+  </nav>
+
+  <div class="settings-content" id="settings-content">
+    <form method="post" action="/settings" id="settings-form">
+      <input type="hidden" name="section" value="{{ active }}">
+
+      <section class="settings-section" id="section-general"{% if active != 'general' %} hidden{% endif %}>
+        <div class="card" id="currency-card">
+          <h2>General</h2>
+          <p>Currency: INR (&#8377;)</p>
+        </div>
+        <div class="card" id="privacy-card">
+          <h2>Privacy</h2>
+          <label class="check-row"><input type="checkbox" name="privacy_on_startup"{% if prefs.get('privacy_on_startup') == '1' %} checked{% endif %}> Hide amounts by default</label>
+        </div>
+        <div class="card" id="theme-card">
+          <h2>Theme</h2>
+          <p class="theme-pointer" id="theme-pointer">Theme is set from the <b>top-bar overflow icon</b> &#8212; one home only, no duplicate control here.</p>
+        </div>
+        <div class="card" id="email-card">
+          <h2>Email</h2>
+          <div class="gmail-connect" id="gmail-connect" style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+            <h3>Gmail (OAuth — recommended)</h3>
+            <p class="caption">Connect your Google account from the browser — no SMTP password needed. Tokens stay on this device only.</p>
+            <div class="field">
+              <label for="g-client-id">OAuth Client ID</label>
+              <input type="text" id="g-client-id" name="gmail_client_id" placeholder="xxxx.apps.googleusercontent.com" value="{{ prefs.get('gmail_client_id', '') }}">
+            </div>
+            <div class="field">
+              <label for="g-client-secret">OAuth Client Secret</label>
+              <input type="password" id="g-client-secret" name="gmail_client_secret" placeholder="GOCSPX-..." value="" autocomplete="new-password">
+              <p class="caption">Stored only on this device. Leave blank to keep the saved secret.</p>
+            </div>
+            <p class="caption" id="gmail-status">Status: {{ ("Connected as " + (prefs.get("gmail_user") or "your account")) if prefs.get("gmail_refresh_token") else "Not connected" }}</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a class="btn btn-primary" id="g-connect" href="/gmail/connect">Connect Gmail (opens browser)</a>
+              {% if prefs.get("gmail_refresh_token") %}
+              <form method="post" action="/gmail/disconnect" style="display:inline;"><button type="submit" class="btn">Disconnect</button></form>
+              {% endif %}
+            </div>
+          </div>
+          <details class="advanced-email" id="advanced-email">
+            <summary>Advanced &#8212; Email (SMTP)</summary>
+            <p class="caption">Personal account &#8212; personal SMTP, personal &#8594; personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="s-provider">Provider</label>
+                <select id="s-provider">
+                  <option value="gmail" selected>Gmail</option>
+                  <option value="outlook">Outlook / Microsoft 365</option>
+                  <option value="custom">Custom</option>
+                </select>
+                <p class="caption">Picking a provider fills host, port and security.</p>
+              </div>
+              <div class="field">
+                <label for="s-host">SMTP host</label>
+                <input type="text" id="s-host" name="smtp_host" placeholder="smtp.example.com" value="{{ prefs.get('smtp_host', '') }}">
+              </div>
+              <div class="field">
+                <label for="s-port">SMTP port</label>
+                <input type="number" id="s-port" name="smtp_port" placeholder="587" value="{{ prefs.get('smtp_port', '') }}">
+              </div>
+              <div class="field">
+                <label for="s-security">Security</label>
+                <select id="s-security" name="smtp_security">
+                  <option{% if prefs.get('smtp_security', 'TLS') == 'TLS' %} selected{% endif %}>TLS</option>
+                  <option{% if prefs.get('smtp_security') == 'STARTTLS' %} selected{% endif %}>STARTTLS</option>
+                  <option{% if prefs.get('smtp_security') == 'SSL' %} selected{% endif %}>SSL</option>
+                  <option{% if prefs.get('smtp_security') == 'None' %} selected{% endif %}>None</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="s-from">From</label>
+                <input type="email" id="s-from" name="smtp_from" placeholder="me@example.com" value="{{ prefs.get('smtp_from', '') }}">
+              </div>
+              <div class="field">
+                <label for="s-to">To</label>
+                <input type="email" id="s-to" name="smtp_to" placeholder="me@example.com" value="{{ prefs.get('smtp_recipient', '') }}">
+              </div>
+              <div class="field">
+                <label for="s-pass">SMTP password (app password)</label>
+                <input type="password" id="s-pass" name="smtp_app_password" placeholder="16-char app password" autocomplete="new-password" value="">
+                <p class="caption">Stored only on this device (local database) — never uploaded. Use an App Password, NOT your login password. Leave blank to keep the saved password.</p>
+              </div>
+            </div>
+            <details class="setup-guide" id="email-setup-guide">
+              <summary>Setup guide</summary>
+              <ol class="guide-list">
+                <li>Gmail: enable 2-Verification on your Google account.</li>
+                <li>Create an App Password at myaccount.google.com (search "App Passwords").</li>
+                <li>Paste the 16-char app password into the SMTP password field — NOT your login password.</li>
+                <li>Outlook / Microsoft 365 personal accounts use the same app-password concept.</li>
+              </ol>
+            </details>
+            <div class="section-gap">
+              <button type="button" class="btn btn-primary" id="s-send-test">Send test email</button>
+              <div id="email-test-banner" class="test-banner" hidden></div>
+            </div>
+            <div class="section-gap">
+              <p class="caption">Troubleshooting</p>
+              <ul class="trouble-list">
+                <li>Wrong port — use 587 with TLS/STARTTLS, or 465 with SSL.</li>
+                <li>TLS required — most providers refuse plain connections.</li>
+                <li>Check the spam folder — test emails often land there.</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="settings-section" id="section-notifications"{% if active != 'notifications' %} hidden{% endif %}>
+        <div class="card" id="settings-alert-channels">
+          <h2>Notifications</h2>
+          <p class="caption">Channels &#8212; how this app reaches you.</p>
+          <label class="check-row"><input type="checkbox" name="alert_inapp"{% if prefs.get('alert_channel_inapp', '1') == '1' %} checked{% endif %}> In-app notification</label>
+          <label class="check-row"><input type="checkbox" name="alert_email"{% if prefs.get('alert_channel_email', '1') == '1' %} checked{% endif %}> Email (personal SMTP, personal &#8594; personal)</label>
+        </div>
+        <div class="card" id="settings-day-wise-rules">
+          <h2>Day-wise rules</h2>
+          <p id="settings-day-wise-rule-text">If Received amount is not entered on the credit day &#8594; status becomes Danger same day.</p>
+          <p class="caption">The alert feed lives on <a href="/notifications" id="settings-alerts-link">Alerts</a>.</p>
+        </div>
+      </section>
+
+      <section class="settings-section" id="section-share"{% if active != 'share' %} hidden{% endif %}>
+        <div class="card" id="share-export-card">
+          <h2>Share / Export</h2>
+          <p class="caption">Customize what to include.</p>
+          <label class="check-row"><input type="checkbox" name="share_holdings"{% if prefs.get('share_section_holdings', '1') == '1' %} checked{% endif %}> Holdings</label>
+          <label class="check-row"><input type="checkbox" name="share_payouts"{% if prefs.get('share_section_payouts', '1') == '1' %} checked{% endif %}> Payouts</label>
+          <label class="check-row"><input type="checkbox" name="share_goals"{% if prefs.get('share_section_goals') == '1' %} checked{% endif %}> Goals</label>
+          <p class="caption section-gap">Export the full ledger as CSV — on Android this opens the share sheet.</p>
+          <a class="btn btn-primary" id="share-export-export-csv" href="/export.csv?scope=full">Export CSV</a>
+        </div>
+      </section>
+
+      <section class="settings-section" id="section-data"{% if active != 'data' %} hidden{% endif %}>
+        <div class="card" id="data-card">
+          <h2>Data</h2>
+          <p>Start empty — no data imported.</p>
+          <p class="caption">Exports: CSV ledger, share snapshot and print view are read-only extracts of your own database.</p>
+        </div>
+      </section>
+
+      <div class="section-gap">
+        <button class="btn btn-primary" type="submit" id="save-settings">Save settings</button>
+        <span class="saved-flag" id="settings-saved"{% if not saved %} hidden{% endif %}>&#10003; Saved</span>
+        <span class="dirty-flag" id="settings-dirty" hidden>Unsaved changes</span>
+      </div>
+    </form>
+  </div>
 </div>
-
-<form method="post" action="/settings" id="settings-form">
-  <div class="card" id="email-card">
-    <h2>Email</h2>
-    <div class="form-grid">
-      <div class="field">
-        <label for="s-provider">Provider</label>
-        <select id="s-provider">
-          <option value="gmail" selected>Gmail</option>
-          <option value="outlook">Outlook / Microsoft 365</option>
-          <option value="custom">Custom</option>
-        </select>
-        <p class="caption">Picking a provider fills host, port and security.</p>
-      </div>
-      <div class="field">
-        <label for="s-host">SMTP host</label>
-        <input type="text" id="s-host" name="smtp_host" placeholder="smtp.example.com" value="{{ prefs.get('smtp_host', '') }}">
-      </div>
-      <div class="field">
-        <label for="s-port">SMTP port</label>
-        <input type="number" id="s-port" name="smtp_port" placeholder="587" value="{{ prefs.get('smtp_port', '') }}">
-      </div>
-      <div class="field">
-        <label for="s-security">Security</label>
-        <select id="s-security" name="smtp_security">
-          <option{% if prefs.get('smtp_security', 'TLS') == 'TLS' %} selected{% endif %}>TLS</option>
-          <option{% if prefs.get('smtp_security') == 'STARTTLS' %} selected{% endif %}>STARTTLS</option>
-          <option{% if prefs.get('smtp_security') == 'SSL' %} selected{% endif %}>SSL</option>
-          <option{% if prefs.get('smtp_security') == 'None' %} selected{% endif %}>None</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="s-from">From</label>
-        <input type="email" id="s-from" name="smtp_from" placeholder="me@example.com" value="{{ prefs.get('smtp_from', '') }}">
-      </div>
-      <div class="field">
-        <label for="s-to">To</label>
-        <input type="email" id="s-to" name="smtp_to" placeholder="me@example.com" value="{{ prefs.get('smtp_recipient', '') }}">
-      </div>
-    </div>
-    <p class="caption section-gap">Personal account — personal SMTP, personal &#8594; personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>
-    <details class="setup-guide" id="email-setup-guide">
-      <summary>Setup guide</summary>
-      <ol class="guide-list">
-        <li>Gmail: enable 2-Verification on your Google account.</li>
-        <li>Create an App Password at myaccount.google.com (search "App Passwords").</li>
-        <li>Paste the 16-char app password into the SMTP password field — NOT your login password.</li>
-        <li>Outlook / Microsoft 365 personal accounts use the same app-password concept.</li>
-      </ol>
-    </details>
-    <div class="section-gap">
-      <button type="button" class="btn btn-primary" id="s-send-test">Send test email</button>
-      <div id="email-test-banner" class="test-banner" hidden></div>
-    </div>
-    <div class="section-gap">
-      <p class="caption">Troubleshooting</p>
-      <ul class="trouble-list">
-        <li>Wrong port — use 587 with TLS/STARTTLS, or 465 with SSL.</li>
-        <li>TLS required — most providers refuse plain connections.</li>
-        <li>Check the spam folder — test emails often land there.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="card" id="privacy-card">
-    <h2>Privacy</h2>
-    <label class="check-row"><input type="checkbox" name="privacy_on_startup"{% if prefs.get('privacy_on_startup') == '1' %} checked{% endif %}> Hide amounts by default</label>
-  </div>
-
-  <div class="card" id="currency-card">
-    <h2>Currency</h2>
-    <p>INR (&#8377;)</p>
-  </div>
-
-  <div class="card" id="share-export-card">
-    <h2>Share / Export</h2>
-    <p class="caption">Customize what to include.</p>
-    <label class="check-row"><input type="checkbox" name="share_holdings"{% if prefs.get('share_section_holdings', '1') == '1' %} checked{% endif %}> Holdings</label>
-    <label class="check-row"><input type="checkbox" name="share_payouts"{% if prefs.get('share_section_payouts', '1') == '1' %} checked{% endif %}> Payouts</label>
-    <label class="check-row"><input type="checkbox" name="share_goals"{% if prefs.get('share_section_goals') == '1' %} checked{% endif %}> Goals</label>
-    <p class="caption section-gap">Export the full ledger as CSV — on Android this opens the share sheet.</p>
-    <a class="btn btn-primary" id="share-export-export-csv" href="/export.csv?scope=full">Export CSV</a>
-  </div>
-
-  <div class="card" id="data-card">
-    <h2>Data</h2>
-    <p>Start empty — no data imported.</p>
-  </div>
-
-  <div class="card" id="about-card">
-    <h2>About</h2>
-    <p id="app-version">Version {{ app_version }}</p>
-    <p id="build-notes-line">{{ build_notes }}</p>
-    <p id="offline-badge" class="banner banner-info">100% offline — no accounts, no cloud</p>
-    <p id="data-dir-wrap" hidden><code id="data-dir-path">{{ data_dir }}</code></p>
-    <button type="button" class="btn btn-sm" id="reveal-data-folder">Open local data folder</button>
-  </div>
-
-  <div class="section-gap">
-    <button class="btn btn-primary" type="submit" id="save-settings">Save settings</button>
-  </div>
-</form>
 <script>
 (function () {
-  var btn = document.getElementById("reveal-data-folder");
-  var wrap = document.getElementById("data-dir-wrap");
-  if (btn && wrap) {
-    btn.addEventListener("click", function () {
-      wrap.hidden = false;
+  var form = document.getElementById("settings-form");
+  var dirty = document.getElementById("settings-dirty");
+  var saved = document.getElementById("settings-saved");
+  function markDirty() {
+    if (dirty) {
+      dirty.hidden = false;
+    }
+    if (saved) {
+      saved.hidden = true;
+    }
+  }
+  if (form) {
+    form.addEventListener("input", markDirty);
+    form.addEventListener("change", markDirty);
+  }
+  var sections = document.querySelectorAll(".settings-section");
+  function showSection(key) {
+    sections.forEach(function (section) {
+      section.hidden = section.id !== "section-" + key;
+    });
+    document.querySelectorAll(".settings-nav-item").forEach(function (item) {
+      item.classList.toggle("active", item.id === "nav-" + key);
+    });
+  }
+  function hashSection() {
+    return (window.location.hash || "").replace("#section-", "");
+  }
+  if (sections.length) {
+    var initial = hashSection();
+    if (initial) {
+      showSection(initial);
+    }
+    window.addEventListener("hashchange", function () {
+      var key = hashSection();
+      if (key) {
+        showSection(key);
+      }
     });
   }
 })();
