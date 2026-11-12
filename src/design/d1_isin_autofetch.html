@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>D1 — ISIN autofetch · Web + Android design</title>
+<script>
+(function () {
+  var stored = localStorage.getItem('dk-theme') || 'system';
+  document.documentElement.setAttribute('data-theme', stored);
+})();
+</script>
+<style>
+  :root, html[data-theme="light"] {
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #5b6472;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --on-accent: #ffffff;
+    --danger-fg: #b91c1c;
+    --danger-bg: #fef2f2;
+    --ongoing-fg: #16a34a;
+    --ongoing-bg: #f0fdf4;
+    --warn-fg: #b45309;
+    --warn-bg: #fffbeb;
+    --watching-fg: #2563eb;
+    --watching-bg: #eff6ff;
+    --matured-fg: #5b6472;
+    --matured-bg: #f3f4f6;
+    --page-bg: #f8f9fa;
+    --card-bg: #f1f3f5;
+    --white: #ffffff;
+    --blue-light: #d0ebff;
+    --header-row: #e9ecef;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(30, 30, 30, 0.06);
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    --bg: #0d1117;
+    --card: #161b22;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent-hover: #79c0ff;
+    --on-accent: #0d1117;
+    --danger-fg: #ff7b72;
+    --danger-bg: #2b1519;
+    --ongoing-fg: #56d364;
+    --ongoing-bg: #10251a;
+    --warn-fg: #e3b341;
+    --warn-bg: #201a08;
+    --watching-fg: #79c0ff;
+    --watching-bg: #12233d;
+    --matured-fg: #8b949e;
+    --matured-bg: #21262d;
+    --page-bg: #0d1117;
+    --card-bg: #161b22;
+    --white: #161b22;
+    --blue-light: #12233d;
+    --header-row: #21262d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    html[data-theme="system"] {
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent-hover: #79c0ff;
+      --on-accent: #0d1117;
+      --danger-fg: #ff7b72;
+      --danger-bg: #2b1519;
+      --ongoing-fg: #56d364;
+      --ongoing-bg: #10251a;
+      --warn-fg: #e3b341;
+      --warn-bg: #201a08;
+      --watching-fg: #79c0ff;
+      --watching-bg: #12233d;
+      --matured-fg: #8b949e;
+      --matured-bg: #21262d;
+      --page-bg: #0d1117;
+      --card-bg: #161b22;
+      --white: #161b22;
+      --blue-light: #12233d;
+      --header-row: #21262d;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    background: var(--bg);
+    color: var(--text);
+  }
+  h1, h2, h3, p { margin: 0; }
+  h1 { font-size: 22px; font-weight: 650; margin-bottom: 14px; }
+  h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+  a { color: var(--accent); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .caption { font-size: 12px; color: var(--muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.04em; }
+
+  /* Review bar */
+  .review-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    background: var(--card);
+    border-bottom: 1.5px solid var(--border);
+    position: sticky; top: 0; z-index: 60;
+  }
+  .review-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .draft-chip {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--warn-fg);
+    background: var(--warn-bg); border: 1.5px solid currentColor;
+    border-radius: 999px; padding: 3px 8px;
+  }
+  .review-title strong { font-size: 14px; }
+  .review-sub { font-size: 12px; color: var(--muted); }
+  .review-controls { margin-left: auto; display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+  .state-pills { display: flex; flex-wrap: wrap; gap: 3px; }
+  .state-pill {
+    border: 1.5px solid var(--border); background: var(--card); cursor: pointer;
+    padding: 4px 9px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; color: var(--muted);
+  }
+  .state-pill[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--watching-bg); }
+  .theme-seg { display: inline-flex; gap: 2px; padding: 3px; border: 1.5px solid var(--border); border-radius: 999px; }
+  .theme-seg button {
+    border: 0; background: transparent; cursor: pointer;
+    padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--muted);
+  }
+  .theme-seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+  /* Stage: web + mobile side by side */
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 390px;
+    gap: 20px;
+    padding: 20px;
+    align-items: start;
+  }
+  .pane { min-width: 0; }
+  .pane-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .pane-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+  .pane-note { font-size: 11.5px; color: var(--muted); }
+  .browser {
+    border: 1.5px solid var(--border); border-radius: 12px;
+    overflow: hidden; background: var(--card); box-shadow: var(--shadow);
+  }
+  .browser-chrome {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 10px; background: var(--card-bg);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .dot.r { background: #ff5f57; } .dot.a { background: #febc2e; } .dot.g { background: #28c840; }
+  .url {
+    margin-left: 8px; font-size: 11.5px; color: var(--muted);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: 2px 10px;
+  }
+  .browser-body { max-height: 840px; overflow: auto; background: var(--bg); }
+  .phone {
+    width: 390px; max-width: 100%;
+    border: 10px solid #1f2937; border-radius: 38px;
+    background: var(--card); overflow: hidden; position: relative;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 92px; height: 16px; border-radius: 0 0 12px 12px;
+    background: #1f2937; z-index: 6;
+  }
+  .phone-body { max-height: 810px; overflow: auto; background: var(--bg); padding-top: 16px; }
+
+  /* App shell */
+  .app { display: flex; min-height: 100%; }
+  .sidebar {
+    width: 200px; flex: 0 0 200px;
+    background: var(--card); border-right: 1.5px solid var(--border);
+    padding: 16px 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13.5px; margin-bottom: 18px; }
+  .brand img { width: 20px; height: 20px; }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav a { display: block; padding: 7px 9px; border-radius: 8px; text-decoration: none; color: var(--text); font-size: 13px; }
+  .nav a:hover { background: var(--card-bg); }
+  .nav a.active { background: var(--watching-bg); color: var(--accent); font-weight: 650; }
+  .app-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px; background: var(--card);
+    border-bottom: 1.5px solid var(--border);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .page-title { font-size: 13px; font-weight: 650; }
+  .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .theme-seg-sm { display: inline-flex; gap: 2px; padding: 2px; border: 1.5px solid var(--border); border-radius: 999px; }
+  .theme-seg-sm button { border: 0; background: transparent; cursor: pointer; padding: 3px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 700; color: var(--muted); }
+  .theme-seg-sm button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .icon-btn { border: 1.5px solid var(--border); background: var(--card); border-radius: 7px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 650; }
+  .notif { display: inline-flex; align-items: center; gap: 5px; border: 1.5px solid var(--border); border-radius: 7px; padding: 4px 8px; font-size: 11px; font-weight: 650; }
+  .notif .badge { display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 3px; border-radius: 999px; background: var(--danger-fg); color: #fff; font-size: 9.5px; font-weight: 800; }
+  .content { width: 100%; max-width: 1000px; margin: 0 auto; padding: 16px 18px 40px; }
+  .card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .add-bar { display: flex; align-items: center; gap: 10px; padding: 9px 11px; margin-bottom: 10px; border: 1px dashed var(--border); border-radius: var(--radius); background: var(--bg); }
+  .add-bar-title { flex: 1 1 auto; font-weight: 700; font-size: 13px; }
+  .form-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 11.5px; color: var(--muted); }
+  .field .control { position: relative; display: flex; align-items: center; }
+  input[type="text"], input[type="number"], input[type="date"], select {
+    width: 100%; min-height: 34px; padding: 5px 8px;
+    border: 1.5px solid var(--border); border-radius: 6px;
+    background: var(--card); color: var(--text);
+  }
+  input[readonly] { background: var(--bg); color: var(--muted); }
+  input:user-invalid { border-color: var(--danger-fg); background: var(--danger-bg); }
+  input:user-valid { border-color: var(--ongoing-fg); }
+  .error-msg { display: none; font-size: 11.5px; color: var(--danger-fg); }
+  input:user-invalid ~ .error-msg { display: block; }
+  .isin-input { padding-right: 36px; }
+  .fetch-btn {
+    position: absolute; right: 3px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; padding: 0;
+    border: 1.5px solid var(--border); border-radius: 5px;
+    background: var(--card); color: var(--accent);
+    cursor: pointer; font-size: 13px; line-height: 1;
+  }
+  .fetch-btn:hover { border-color: var(--accent); background: var(--watching-bg); }
+  .field-help { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .link-btn { border: 0; background: transparent; color: var(--accent); font-size: 11px; font-weight: 650; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+  .fetched-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ongoing-fg); margin-left: 4px; vertical-align: middle; }
+  .source-strip {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin: 12px 0 0; padding: 8px 10px;
+    border: 1.5px solid var(--blue-light); border-radius: 7px;
+    background: var(--watching-bg); color: var(--watching-fg); font-size: 11.5px;
+  }
+  .source-strip[hidden] { display: none; }
+  .source-strip strong { font-weight: 750; }
+  .source-strip .link-btn { color: var(--watching-fg); margin-left: auto; }
+  .tds-scenario {
+    margin: 12px 0 0; padding: 10px 12px;
+    border: 1.5px solid var(--border); border-radius: 7px;
+    background: var(--card); font-size: 12px;
+  }
+  .tds-scenario .head { font-weight: 750; font-size: 13px; margin-bottom: 6px; }
+  .tds-scenario .k { color: var(--muted); margin-right: 8px; }
+  .tds-scenario b { font-variant-numeric: tabular-nums; }
+  .tds-scenario .note { color: var(--muted); font-size: 11.5px; margin-top: 6px; }
+  .banner { display: flex; gap: 9px; padding: 10px 11px; border-radius: 7px; border: 1.5px solid currentColor; margin: 0 0 12px; }
+  .banner[hidden] { display: none; }
+  .banner-danger { background: var(--danger-bg); color: var(--danger-fg); }
+  .banner-warn { background: var(--warn-bg); color: var(--warn-fg); }
+  .banner-info { background: var(--watching-bg); color: var(--watching-fg); }
+  .banner strong { display: block; margin-bottom: 2px; font-size: 13px; }
+  .banner p { font-size: 12px; }
+  .banner .actions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .source-list { display: grid; gap: 3px; margin-top: 7px; }
+  .source-row { display: flex; gap: 7px; font-size: 11.5px; }
+  .source-row .name { min-width: 46px; font-weight: 700; }
+  .source-row .result { margin-left: auto; color: var(--muted); }
+  .spinner { width: 15px; height: 15px; border-radius: 50%; border: 2.5px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite; flex: 0 0 auto; margin-top: 2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .timeline { list-style: none; margin: 7px 0 0; padding: 0; }
+  .timeline li { display: grid; grid-template-columns: 88px 1fr; gap: 7px; padding: 4px 0; border-top: 1px solid var(--border); font-size: 11.5px; }
+  .timeline li:first-child { border-top: 0; }
+  .timeline .when { color: var(--muted); }
+  .timeline .what { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .timeline .rating { font-weight: 750; }
+  .chip { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 999px; font-size: 10px; font-weight: 750; border: 1.5px solid currentColor; }
+  .chip-danger { background: var(--danger-bg); color: var(--danger-fg); }
+  .chip-neutral { background: var(--matured-bg); color: var(--matured-fg); }
+  .ack { display: flex; gap: 7px; align-items: flex-start; margin-top: 9px; padding: 8px 9px; border-radius: 7px; background: var(--card); border: 1.5px solid var(--danger-fg); color: var(--danger-fg); }
+  .ack input { width: 17px; height: 17px; margin-top: 1px; accent-color: var(--danger-fg); }
+  .ack label { font-size: 12px; font-weight: 650; }
+  .form-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+  .form-foot .caption { margin-right: auto; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 34px; padding: 6px 12px; border-radius: 7px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); font-weight: 650; cursor: pointer; }
+  .btn:hover { border-color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-sm { min-height: 28px; padding: 3px 8px; font-size: 11px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .candidates { padding: 0; overflow: hidden; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { font-size: 11.5px; color: var(--muted); font-weight: 650; background: var(--card); }
+  tr:last-child td { border-bottom: 0; }
+  .co-name { display: block; font-weight: 650; }
+  .co-isin { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .status-chip { display: inline-block; margin-top: 4px; padding: 2px 6px; border-radius: 999px; background: var(--watching-bg); color: var(--watching-fg); font-size: 10px; font-weight: 750; }
+  .row-actions { display: flex; flex-direction: column; gap: 4px; align-items: stretch; }
+  .row-actions .btn { min-height: 26px; font-size: 11px; padding: 2px 7px; }
+  .table-note { margin-top: 9px; }
+  .bottom-tabs { display: none; }
+  .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .toast { position: fixed; right: 18px; bottom: 18px; z-index: 80; background: var(--text); color: var(--card); padding: 9px 13px; border-radius: 8px; font-weight: 600; font-size: 13px; }
+  .toast[hidden] { display: none; }
+
+  /* Mobile app inside the phone */
+  .mobile-app { display: block; min-height: 100%; }
+  .mobile-app .sidebar { display: none; }
+  .mobile-app .content { max-width: none; padding: 12px 12px 78px; }
+  .mobile-app .topbar { padding-top: 8px; }
+  .mobile-app .form-grid { grid-template-columns: 1fr; }
+  .mobile-app .btn,
+  .mobile-app input[type="text"],
+  .mobile-app input[type="number"],
+  .mobile-app input[type="date"],
+  .mobile-app select { min-height: 44px; }
+  .mobile-app .fetch-btn { width: 36px; height: 36px; }
+  .mobile-app .card { padding: 12px; }
+  .mobile-app .topbar-actions .theme-seg-sm,
+  .mobile-app .topbar-actions .notif { display: none; }
+  .mobile-app .bottom-tabs {
+    display: flex; position: sticky; bottom: 0; z-index: 30;
+    background: var(--card); border-top: 1.5px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mobile-app .bottom-tab {
+    flex: 1 1 0; border: 0; background: transparent; color: var(--muted);
+    font-size: 10px; font-weight: 650; padding: 6px 2px 5px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .mobile-app .bottom-tab.active { color: var(--accent); }
+  .mobile-app .bottom-tab .ico { font-size: 14px; line-height: 1; }
+
+  @media (max-width: 1100px) {
+    .stage { grid-template-columns: 1fr; }
+    .phone { margin: 0 auto; }
+  }
+  @media (max-width: 600px) {
+    .stage { padding: 10px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .review-controls { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="review-bar">
+  <div class="review-title">
+    <span class="draft-chip">Locked design</span>
+    <strong>D1 — ISIN autofetch</strong>
+    <span class="review-sub">Web + Android &middot; same core, same HTML/CSS</span>
+  </div>
+  <div class="review-controls">
+    <div class="state-pills" role="group" aria-label="Preview state">
+      <button class="state-pill" type="button" data-state="idle" aria-pressed="true">Idle</button>
+      <button class="state-pill" type="button" data-state="checking" aria-pressed="false">Checking</button>
+      <button class="state-pill" type="button" data-state="found" aria-pressed="false">Found</button>
+      <button class="state-pill" type="button" data-state="notfound" aria-pressed="false">Not found</button>
+      <button class="state-pill" type="button" data-state="offline" aria-pressed="false">Offline</button>
+      <button class="state-pill" type="button" data-state="typo" aria-pressed="false">Check digit</button>
+      <button class="state-pill" type="button" data-state="danger" aria-pressed="false">Downgraded</button>
+    </div>
+    <div class="theme-seg" role="group" aria-label="Theme">
+      <button type="button" data-theme-value="system" aria-pressed="true">System</button>
+      <button type="button" data-theme-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-value="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+</header>
+
+<main class="stage">
+  <section class="pane" aria-labelledby="web-label">
+    <div class="pane-head">
+      <span class="pane-label" id="web-label">Web application</span>
+      <span class="pane-note">desktop &middot; sidebar + 4-column form</span>
+    </div>
+    <div class="browser">
+      <div class="browser-chrome" aria-hidden="true">
+        <span class="dot r"></span><span class="dot a"></span><span class="dot g"></span>
+        <span class="url">localhost:5000/watch</span>
+      </div>
+      <div class="browser-body">
+        <div class="app web-app">
+          <aside class="sidebar" aria-label="Main navigation">
+            <div class="brand">
+              <img src="../static/img/logo/logo-mark.svg" alt="" width="20" height="20">
+              DK Bond Tracker
+            </div>
+            <nav class="nav">
+              <a href="#">Dashboard</a>
+              <a href="#">Portfolio</a>
+              <a href="#" class="active" aria-current="page">Watchlist</a>
+              <a href="#">Financial Goals</a>
+              <a href="#">Alerts</a>
+              <a href="#">Settings</a>
+            </nav>
+          </aside>
+          <div class="app-body">
+            <header class="topbar">
+              <div class="page-title">Watchlist</div>
+              <div class="topbar-actions">
+                <div class="theme-seg-sm" role="group" aria-label="Theme">
+                  <button type="button" data-theme-value="system" aria-pressed="true">System</button>
+                  <button type="button" data-theme-value="light" aria-pressed="false">Light</button>
+                  <button type="button" data-theme-value="dark" aria-pressed="false">Dark</button>
+                </div>
+                <button class="icon-btn" type="button">Hide amounts</button>
+                <div class="notif">Notifications <span class="badge">2</span></div>
+              </div>
+            </header>
+            <main class="content">
+              <h1>Watchlist</h1>
+              <div class="add-bar">
+                <span class="add-bar-title">Candidates (2)</span>
+                <button class="btn btn-primary btn-sm" type="button">+ Add</button>
+              </div>
+              <section class="card" aria-labelledby="w-add-title">
+                <h2 id="w-add-title">Add Candidate</h2>
+
+                <div class="banner banner-info" data-role="banner" data-state="checking" hidden>
+                  <span class="spinner" aria-hidden="true"></span>
+                  <div>
+                    <strong>Checking NSDL, RBI, NSE and BSE</strong>
+                    <p>Looking up instrument facts. The form is not blocked.</p>
+                  </div>
+                </div>
+
+                <div class="banner banner-warn" data-role="banner" data-state="notfound" hidden>
+                  <div>
+                    <strong>ISIN not found in the sources we checked</strong>
+                    <div class="source-list">
+                      <div class="source-row"><span class="name">NSDL</span><span>detailed ISIN search</span><span class="result">no record</span></div>
+                      <div class="source-row"><span class="name">RBI</span><span>outstanding G-Secs and SDLs</span><span class="result">no record</span></div>
+                      <div class="source-row"><span class="name">NSE</span><span>debt security master</span><span class="result">no record</span></div>
+                      <div class="source-row"><span class="name">BSE</span><span>debt segment</span><span class="result">no record</span></div>
+                    </div>
+                    <p style="margin-top:6px"><strong>Are you sure this ISIN is correct?</strong> It may be private, unlisted or newly issued.</p>
+                    <div class="actions">
+                      <button class="btn btn-sm" type="button" data-action="edit-isin">Edit ISIN</button>
+                      <button class="btn btn-sm" type="button" data-action="retry">Retry</button>
+                      <button class="btn btn-sm btn-primary" type="button" data-action="manual">Continue manually</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="banner banner-info" data-role="banner" data-state="offline" hidden>
+                  <div>
+                    <strong>Could not reach the source</strong>
+                    <p>NSDL did not respond. Last known data: 11 Nov 2026. Nothing is blocked.</p>
+                    <div class="actions">
+                      <button class="btn btn-sm btn-primary" type="button" data-action="retry">Retry</button>
+                      <button class="btn btn-sm" type="button" data-action="manual">Continue manually</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="banner banner-danger" data-role="banner" data-state="typo" hidden>
+                  <div>
+                    <strong>Check digit failed</strong>
+                    <p>The last character is calculated from the first 11. Expected <b class="mono">7</b>, you typed <b class="mono">9</b>.</p>
+                    <div class="actions">
+                      <button class="btn btn-sm btn-primary" type="button" data-action="edit-isin">Edit ISIN</button>
+                      <button class="btn btn-sm" type="button" data-action="manual">I verified this ISIN &mdash; save anyway</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="banner banner-danger" data-role="banner" data-state="danger" hidden>
+                  <div>
+                    <strong>Rating journey &mdash; danger</strong>
+                    <p>Measured from the bond&rsquo;s issue date, not your purchase date. Any downgrade is danger, even one notch.</p>
+                    <ul class="timeline">
+                      <li><span class="when">14 Jan 2024</span><span class="what"><span class="rating">AAA</span><span class="chip chip-neutral">at issue</span></span></li>
+                      <li><span class="when">12 Mar 2025</span><span class="what"><span class="rating">AA+</span><span class="chip chip-danger">downgrade</span></span></li>
+                      <li><span class="when">5 Sep 2026</span><span class="what"><span class="rating">AA-</span><span class="chip chip-danger">downgrade</span></span></li>
+                    </ul>
+                    <div class="ack">
+                      <input type="checkbox" id="w-ack" data-role="ack">
+                      <label for="w-ack">I understand this bond has been downgraded.</label>
+                    </div>
+                  </div>
+                </div>
+
+                <form id="w-form" novalidate>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="w-company">Company</label>
+                      <input type="text" id="w-company" data-field="company" autocomplete="off">
+                    </div>
+                    <div class="field">
+                      <label for="w-isin">ISIN</label>
+                      <div class="control">
+                        <input type="text" id="w-isin" data-field="isin" class="isin-input mono" maxlength="12" required pattern="[A-Za-z]{2}[A-Za-z0-9]{9}[0-9]" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-describedby="w-isin-help" data-error="w-isin-error">
+                        <button class="fetch-btn" type="button" data-role="fetch" title="Fetch details" aria-label="Fetch details for this ISIN">&#8635;</button>
+                      </div>
+                      <span class="field-help">
+                        <span class="caption" id="w-isin-help">12 characters &middot; ISO 6166 check digit</span>
+                        <button class="link-btn" type="button" data-role="fetch-link">Fetch details</button>
+                      </span>
+                      <div class="error-msg" id="w-isin-error">Enter a 12-character ISIN, for example INE134E08LD7.</div>
+                    </div>
+                    <div class="field">
+                      <label for="w-rating">Rating<span class="fetched-dot" data-role="dot" hidden></span></label>
+                      <select id="w-rating" data-field="rating">
+                        <option value="">&mdash;</option>
+                        <option>AAA</option><option>AA+</option><option>AA</option><option>AA-</option>
+                        <option>A+</option><option>A</option><option>A-</option>
+                        <option>BBB+</option><option>BBB</option><option>BBB-</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="w-agency">Rating agency<span class="fetched-dot" data-role="dot" hidden></span></label>
+                      <input type="text" id="w-agency" data-field="agency" placeholder="CRISIL" autocomplete="off">
+                    </div>
+                    <div class="field">
+                      <label for="w-coupon">Coupon (%)<span class="fetched-dot" data-role="dot" hidden></span></label>
+                      <input type="number" id="w-coupon" data-field="coupon" min="0" step="0.01" inputmode="decimal">
+                    </div>
+                    <div class="field">
+                      <label for="w-yield">Est. Yield (%)</label>
+                      <input type="number" id="w-yield" data-field="yield" min="0" step="0.01" inputmode="decimal">
+                    </div>
+                    <div class="field">
+                      <label for="w-issuer">Issuer type</label>
+                      <select id="w-issuer" data-field="issuer">
+                        <option value="">&mdash;</option>
+                        <option value="corporate_bond">Corporate bond</option>
+                        <option value="ncd">NCD</option>
+                        <option value="sdi">SDI</option>
+                        <option value="government">Government</option>
+                        <option value="fd">FD</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="w-secured">Secured</label>
+                      <select id="w-secured" data-field="secured">
+                        <option value="1">Secured</option>
+                        <option value="0">Not secured</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="w-face">Face value</label>
+                      <input type="number" id="w-face" data-field="face" min="0" step="any" inputmode="decimal" value="1000.00">
+                    </div>
+                    <div class="field">
+                      <label for="w-cycle">Payout cycle</label>
+                      <select id="w-cycle" data-field="cycle">
+                        <option value="">&mdash;</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="semi_annual">Semi-annual</option>
+                        <option value="annual">Annual</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="w-invested">Invested &#8377;</label>
+                      <input type="number" id="w-invested" data-field="invested" min="0" step="any" inputmode="decimal" value="0.00">
+                    </div>
+                    <div class="field">
+                      <label for="w-qty">Quantity (no. of bonds)</label>
+                      <input type="number" id="w-qty" data-field="qty" min="1" step="1" inputmode="numeric" value="1">
+                    </div>
+                    <div class="field">
+                      <label for="w-perbond">Per-bond price (auto)</label>
+                      <input type="text" id="w-perbond" readonly value="0.00">
+                    </div>
+                    <div class="field">
+                      <label for="w-note">Source note</label>
+                      <input type="text" id="w-note" data-field="note" autocomplete="off">
+                    </div>
+                    <div class="field">
+                      <label for="w-broker">Broker</label>
+                      <input type="text" id="w-broker" data-field="broker" autocomplete="off">
+                    </div>
+                  </div>
+
+                  <div class="source-strip" data-role="source-strip" hidden>
+                    <span><strong>Fetched from NSDL</strong> &middot; 12 Nov 2026, 09:42 &middot; instrument facts filled. Position facts are yours.</span>
+                    <button class="link-btn" type="button" data-role="clear">Clear fetched details</button>
+                  </div>
+
+                  <div class="tds-scenario" id="w-tds-scenario">
+                    <div class="head">Payout &amp; TDS scenario &mdash; before you add</div>
+                    <div><span class="k">Fills as you type</span> gross, TDS and net per payout and per year</div>
+                    <div><span class="k">Example</span> Vedanta Ltd, 40 units, quarterly &mdash; per payout gross <b>&#8377;1010.00</b> &#183; TDS <b>&#8377;101.00</b> &#183; net <b>&#8377;909.00</b>; per year gross <b>&#8377;4040.00</b> &#183; TDS <b>&#8377;404.00</b> &#183; net <b>&#8377;3636.00</b></div>
+                    <div><span class="k">Threshold</span> annual interest below &#8377;10,000 &#8212; a deductor may not deduct TDS at all</div>
+                    <p class="note">Arithmetic, not tax advice. The app records what your bank actually deducts.</p>
+                  </div>
+
+                  <div class="form-foot">
+                    <p class="caption">Company and ISIN must be unique across the whole register &mdash; duplicates are rejected at entry.</p>
+                    <button class="btn btn-primary" type="submit" data-role="add">+ Add Candidate</button>
+                  </div>
+                </form>
+              </section>
+
+              <section class="card candidates" aria-labelledby="w-candidates-title">
+                <h2 id="w-candidates-title" class="visually-hidden">Candidates</h2>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Company / ISIN</th><th>Rating</th><th>Coupon</th><th>Est. Yield</th>
+                        <th>Broker</th><th>Source note</th><th>Details</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="co-name">Beta Infra Pvt Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE901A01002</span></td>
+                        <td>A</td><td>9.1%</td><td>9.6%</td><td>Kotak Securities</td><td></td>
+                        <td><button class="btn btn-sm" type="button">Details</button></td>
+                        <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
+                      </tr>
+                      <tr>
+                        <td><span class="co-name">Cyan Energy Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE902A01003</span></td>
+                        <td>AAA</td><td>7.4%</td><td>7.8%</td><td>HDFC Securities</td><td></td>
+                        <td><button class="btn btn-sm" type="button">Details</button></td>
+                        <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <p class="caption table-note">Watchlist holds candidates only. &lsquo;Move to Portfolio&rsquo; creates the position and locks the company while it is On-going or Danger.</p>
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane" aria-labelledby="mobile-label">
+    <div class="pane-head">
+      <span class="pane-label" id="mobile-label">Android application</span>
+      <span class="pane-note">WebView &middot; bottom tabs + single column</span>
+    </div>
+    <div class="phone">
+      <div class="phone-body">
+        <div class="app mobile-app">
+          <header class="topbar">
+            <button class="icon-btn" type="button" aria-label="Open menu">&#9776;</button>
+            <div class="page-title">Watchlist</div>
+            <div class="topbar-actions">
+              <button class="icon-btn" type="button" aria-label="More options">&#8943;</button>
+            </div>
+          </header>
+          <main class="content">
+            <h1>Watchlist</h1>
+            <div class="add-bar">
+              <span class="add-bar-title">Candidates (2)</span>
+              <button class="btn btn-primary btn-sm" type="button">+ Add</button>
+            </div>
+            <section class="card" aria-labelledby="m-add-title">
+              <h2 id="m-add-title">Add Candidate</h2>
+
+              <div class="banner banner-info" data-role="banner" data-state="checking" hidden>
+                <span class="spinner" aria-hidden="true"></span>
+                <div>
+                  <strong>Checking NSDL, RBI, NSE and BSE</strong>
+                  <p>Looking up instrument facts. The form is not blocked.</p>
+                </div>
+              </div>
+
+              <div class="banner banner-warn" data-role="banner" data-state="notfound" hidden>
+                <div>
+                  <strong>ISIN not found in the sources we checked</strong>
+                  <div class="source-list">
+                    <div class="source-row"><span class="name">NSDL</span><span>detailed ISIN search</span><span class="result">no record</span></div>
+                    <div class="source-row"><span class="name">RBI</span><span>outstanding G-Secs and SDLs</span><span class="result">no record</span></div>
+                    <div class="source-row"><span class="name">NSE</span><span>debt security master</span><span class="result">no record</span></div>
+                    <div class="source-row"><span class="name">BSE</span><span>debt segment</span><span class="result">no record</span></div>
+                  </div>
+                  <p style="margin-top:6px"><strong>Are you sure this ISIN is correct?</strong> It may be private, unlisted or newly issued.</p>
+                  <div class="actions">
+                    <button class="btn btn-sm" type="button" data-action="edit-isin">Edit ISIN</button>
+                    <button class="btn btn-sm" type="button" data-action="retry">Retry</button>
+                    <button class="btn btn-sm btn-primary" type="button" data-action="manual">Continue manually</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="banner banner-info" data-role="banner" data-state="offline" hidden>
+                <div>
+                  <strong>Could not reach the source</strong>
+                  <p>NSDL did not respond. Last known data: 11 Nov 2026. Nothing is blocked.</p>
+                  <div class="actions">
+                    <button class="btn btn-sm btn-primary" type="button" data-action="retry">Retry</button>
+                    <button class="btn btn-sm" type="button" data-action="manual">Continue manually</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="banner banner-danger" data-role="banner" data-state="typo" hidden>
+                <div>
+                  <strong>Check digit failed</strong>
+                  <p>The last character is calculated from the first 11. Expected <b class="mono">7</b>, you typed <b class="mono">9</b>.</p>
+                  <div class="actions">
+                    <button class="btn btn-sm btn-primary" type="button" data-action="edit-isin">Edit ISIN</button>
+                    <button class="btn btn-sm" type="button" data-action="manual">I verified this ISIN &mdash; save anyway</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="banner banner-danger" data-role="banner" data-state="danger" hidden>
+                <div>
+                  <strong>Rating journey &mdash; danger</strong>
+                  <p>Measured from the bond&rsquo;s issue date, not your purchase date. Any downgrade is danger, even one notch.</p>
+                  <ul class="timeline">
+                    <li><span class="when">14 Jan 2024</span><span class="what"><span class="rating">AAA</span><span class="chip chip-neutral">at issue</span></span></li>
+                    <li><span class="when">12 Mar 2025</span><span class="what"><span class="rating">AA+</span><span class="chip chip-danger">downgrade</span></span></li>
+                    <li><span class="when">5 Sep 2026</span><span class="what"><span class="rating">AA-</span><span class="chip chip-danger">downgrade</span></span></li>
+                  </ul>
+                  <div class="ack">
+                    <input type="checkbox" id="m-ack" data-role="ack">
+                    <label for="m-ack">I understand this bond has been downgraded.</label>
+                  </div>
+                </div>
+              </div>
+
+              <form id="m-form" novalidate>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="m-company">Company</label>
+                    <input type="text" id="m-company" data-field="company" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label for="m-isin">ISIN</label>
+                    <div class="control">
+                      <input type="text" id="m-isin" data-field="isin" class="isin-input mono" maxlength="12" required pattern="[A-Za-z]{2}[A-Za-z0-9]{9}[0-9]" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-describedby="m-isin-help" data-error="m-isin-error">
+                      <button class="fetch-btn" type="button" data-role="fetch" title="Fetch details" aria-label="Fetch details for this ISIN">&#8635;</button>
+                    </div>
+                    <span class="field-help">
+                      <span class="caption" id="m-isin-help">12 characters &middot; ISO 6166 check digit</span>
+                      <button class="link-btn" type="button" data-role="fetch-link">Fetch details</button>
+                    </span>
+                    <div class="error-msg" id="m-isin-error">Enter a 12-character ISIN, for example INE134E08LD7.</div>
+                  </div>
+                  <div class="field">
+                    <label for="m-rating">Rating<span class="fetched-dot" data-role="dot" hidden></span></label>
+                    <select id="m-rating" data-field="rating">
+                      <option value="">&mdash;</option>
+                      <option>AAA</option><option>AA+</option><option>AA</option><option>AA-</option>
+                      <option>A+</option><option>A</option><option>A-</option>
+                      <option>BBB+</option><option>BBB</option><option>BBB-</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="m-agency">Rating agency<span class="fetched-dot" data-role="dot" hidden></span></label>
+                    <input type="text" id="m-agency" data-field="agency" placeholder="CRISIL" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label for="m-coupon">Coupon (%)<span class="fetched-dot" data-role="dot" hidden></span></label>
+                    <input type="number" id="m-coupon" data-field="coupon" min="0" step="0.01" inputmode="decimal">
+                  </div>
+                  <div class="field">
+                    <label for="m-yield">Est. Yield (%)</label>
+                    <input type="number" id="m-yield" data-field="yield" min="0" step="0.01" inputmode="decimal">
+                  </div>
+                  <div class="field">
+                    <label for="m-issuer">Issuer type</label>
+                    <select id="m-issuer" data-field="issuer">
+                      <option value="">&mdash;</option>
+                      <option value="corporate_bond">Corporate bond</option>
+                      <option value="ncd">NCD</option>
+                      <option value="sdi">SDI</option>
+                      <option value="government">Government</option>
+                      <option value="fd">FD</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="m-secured">Secured</label>
+                    <select id="m-secured" data-field="secured">
+                      <option value="1">Secured</option>
+                      <option value="0">Not secured</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="m-face">Face value</label>
+                    <input type="number" id="m-face" data-field="face" min="0" step="any" inputmode="decimal" value="1000.00">
+                  </div>
+                  <div class="field">
+                    <label for="m-cycle">Payout cycle</label>
+                    <select id="m-cycle" data-field="cycle">
+                      <option value="">&mdash;</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="quarterly">Quarterly</option>
+                      <option value="semi_annual">Semi-annual</option>
+                      <option value="annual">Annual</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="m-invested">Invested &#8377;</label>
+                    <input type="number" id="m-invested" data-field="invested" min="0" step="any" inputmode="decimal" value="0.00">
+                  </div>
+                  <div class="field">
+                    <label for="m-qty">Quantity (no. of bonds)</label>
+                    <input type="number" id="m-qty" data-field="qty" min="1" step="1" inputmode="numeric" value="1">
+                  </div>
+                  <div class="field">
+                    <label for="m-perbond">Per-bond price (auto)</label>
+                    <input type="text" id="m-perbond" readonly value="0.00">
+                  </div>
+                  <div class="field">
+                    <label for="m-note">Source note</label>
+                    <input type="text" id="m-note" data-field="note" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label for="m-broker">Broker</label>
+                    <input type="text" id="m-broker" data-field="broker" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="source-strip" data-role="source-strip" hidden>
+                  <span><strong>Fetched from NSDL</strong> &middot; 12 Nov 2026, 09:42 &middot; instrument facts filled. Position facts are yours.</span>
+                  <button class="link-btn" type="button" data-role="clear">Clear fetched details</button>
+                </div>
+
+                <div class="tds-scenario" id="m-tds-scenario">
+                  <div class="head">Payout &amp; TDS scenario &mdash; before you add</div>
+                  <div><span class="k">Fills as you type</span> gross, TDS and net per payout and per year</div>
+                  <div><span class="k">Example</span> Vedanta Ltd, 40 units, quarterly &mdash; per payout gross <b>&#8377;1010.00</b> &#183; TDS <b>&#8377;101.00</b> &#183; net <b>&#8377;909.00</b>; per year gross <b>&#8377;4040.00</b> &#183; TDS <b>&#8377;404.00</b> &#183; net <b>&#8377;3636.00</b></div>
+                  <div><span class="k">Threshold</span> annual interest below &#8377;10,000 &#8212; a deductor may not deduct TDS at all</div>
+                  <p class="note">Arithmetic, not tax advice. The app records what your bank actually deducts.</p>
+                </div>
+
+                <div class="form-foot">
+                  <p class="caption">Company and ISIN must be unique across the whole register &mdash; duplicates are rejected at entry.</p>
+                  <button class="btn btn-primary" type="submit" data-role="add">+ Add Candidate</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card candidates" aria-labelledby="m-candidates-title">
+              <h2 id="m-candidates-title" class="visually-hidden">Candidates</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Company / ISIN</th><th>Rating</th><th>Coupon</th><th>Est. Yield</th>
+                      <th>Broker</th><th>Source note</th><th>Details</th><th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="co-name">Beta Infra Pvt Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE901A01002</span></td>
+                      <td>A</td><td>9.1%</td><td>9.6%</td><td>Kotak Securities</td><td></td>
+                      <td><button class="btn btn-sm" type="button">Details</button></td>
+                      <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
+                    </tr>
+                    <tr>
+                      <td><span class="co-name">Cyan Energy Ltd</span><span class="status-chip">Watching</span><span class="co-isin">INE902A01003</span></td>
+                      <td>AAA</td><td>7.4%</td><td>7.8%</td><td>HDFC Securities</td><td></td>
+                      <td><button class="btn btn-sm" type="button">Details</button></td>
+                      <td><div class="row-actions"><button class="btn btn-sm" type="button">Move to Portfolio</button><button class="btn btn-sm" type="button">Delete</button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <p class="caption table-note">Watchlist holds candidates only. &lsquo;Move to Portfolio&rsquo; creates the position and locks the company while it is On-going or Danger.</p>
+          </main>
+
+          <nav class="bottom-tabs" aria-label="Primary">
+            <button class="bottom-tab" type="button"><span class="ico" aria-hidden="true">&#9638;</span>Dashboard</button>
+            <button class="bottom-tab" type="button"><span class="ico" aria-hidden="true">&#9636;</span>Portfolio</button>
+            <button class="bottom-tab active" type="button"><span class="ico" aria-hidden="true">&#9678;</span>Watchlist</button>
+            <button class="bottom-tab" type="button"><span class="ico" aria-hidden="true">&#9670;</span>Goals</button>
+            <button class="bottom-tab" type="button"><span class="ico" aria-hidden="true">&#9776;</span>More</button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var themeButtons = Array.prototype.slice.call(document.querySelectorAll('[data-theme-value]'));
+  function applyTheme(value) {
+    root.setAttribute('data-theme', value);
+    localStorage.setItem('dk-theme', value);
+    themeButtons.forEach(function (button) {
+      button.setAttribute('aria-pressed', String(button.dataset.themeValue === value));
+    });
+  }
+  themeButtons.forEach(function (button) {
+    button.addEventListener('click', function () { applyTheme(button.dataset.themeValue); });
+  });
+  applyTheme(root.getAttribute('data-theme') || 'system');
+
+  var panes = ['w', 'm'];
+  var statePills = Array.prototype.slice.call(document.querySelectorAll('.state-pill'));
+
+  function rootOf(prefix) {
+    return document.querySelector(prefix === 'w' ? '.web-app' : '.mobile-app');
+  }
+  function field(prefix, name) {
+    return rootOf(prefix).querySelector('[data-field="' + name + '"]');
+  }
+  function prefixOf(el) {
+    return el.closest('.web-app') ? 'w' : 'm';
+  }
+
+  var announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.className = 'visually-hidden';
+  document.body.appendChild(announcer);
+  function announce(text) {
+    announcer.textContent = '';
+    window.setTimeout(function () { announcer.textContent = text; }, 30);
+  }
+
+  function showState(name) {
+    panes.forEach(function (prefix) {
+      var paneRoot = rootOf(prefix);
+      paneRoot.querySelectorAll('[data-role="banner"]').forEach(function (banner) {
+        banner.hidden = banner.dataset.state !== name;
+      });
+      var strip = paneRoot.querySelector('[data-role="source-strip"]');
+      strip.hidden = name !== 'found';
+      paneRoot.querySelectorAll('[data-role="dot"]').forEach(function (dot) {
+        dot.hidden = name !== 'found';
+      });
+      var add = paneRoot.querySelector('[data-role="add"]');
+      var ack = paneRoot.querySelector('[data-role="ack"]');
+      if (name === 'checking') {
+        add.disabled = true;
+      } else if (name === 'danger') {
+        add.disabled = !(ack && ack.checked);
+      } else {
+        add.disabled = false;
+      }
+    });
+    statePills.forEach(function (pill) {
+      pill.setAttribute('aria-pressed', String(pill.dataset.state === name));
+    });
+  }
+
+  function checkDigit(input) {
+    var value = String(input || '').toUpperCase();
+    if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(value)) return { ok: false, reason: 'shape' };
+    var expanded = '';
+    for (var i = 0; i < 11; i += 1) {
+      var ch = value.charAt(i);
+      expanded += /[A-Z]/.test(ch) ? String(ch.charCodeAt(0) - 55) : ch;
+    }
+    var total = 0;
+    var rev = expanded.split('').reverse();
+    for (var j = 0; j < rev.length; j += 1) {
+      var d = Number(rev[j]);
+      if (j % 2 === 0) {
+        d *= 2;
+        if (d > 9) d -= 9;
+      }
+      total += d;
+    }
+    var expected = (10 - (total % 10)) % 10;
+    return { ok: expected === Number(value.charAt(11)), expected: expected, reason: 'check' };
+  }
+
+  function prefill(prefix) {
+    field(prefix, 'company').value = 'Power Finance Corporation Limited';
+    field(prefix, 'rating').value = 'AAA';
+    field(prefix, 'agency').value = 'CRISIL';
+    field(prefix, 'coupon').value = '7.75';
+    field(prefix, 'cycle').value = 'quarterly';
+    field(prefix, 'issuer').value = 'corporate_bond';
+    field(prefix, 'secured').value = '1';
+    field(prefix, 'face').value = '1000.00';
+  }
+
+  function prefillAll() {
+    panes.forEach(prefill);
+  }
+
+  function clearFetched(prefix) {
+    ['company', 'agency', 'coupon', 'yield', 'note', 'broker'].forEach(function (name) {
+      field(prefix, name).value = '';
+    });
+    field(prefix, 'rating').value = '';
+    field(prefix, 'cycle').value = '';
+    field(prefix, 'issuer').value = '';
+    field(prefix, 'face').value = '1000.00';
+    showState('idle');
+  }
+
+  function syncIsin(value) {
+    panes.forEach(function (prefix) {
+      field(prefix, 'isin').value = value;
+    });
+  }
+
+  function runFetch(prefix) {
+    var value = field(prefix, 'isin').value.trim().toUpperCase();
+    syncIsin(value);
+    var result = checkDigit(value);
+    if (!result.ok) {
+      showState('typo');
+      announce(result.reason === 'shape' ? 'ISIN format is wrong.' : 'Check digit failed. Expected ' + result.expected + '.');
+      return;
+    }
+    showState('checking');
+    announce('Checking the sources for ' + value + '.');
+    window.setTimeout(function () {
+      prefillAll();
+      showState('found');
+      announce('Details found in NSDL. Review both previews and add the candidate.');
+    }, 900);
+  }
+
+  function editIsin(prefix) {
+    showState('idle');
+    var target = field(prefix, 'isin');
+    target.focus();
+    target.select();
+  }
+
+  function retry() {
+    showState('checking');
+    window.setTimeout(function () {
+      prefillAll();
+      showState('found');
+    }, 900);
+  }
+
+  function manual() {
+    showState('idle');
+    panes.forEach(function (prefix) {
+      rootOf(prefix).querySelector('[data-role="add"]').disabled = false;
+    });
+    announce('Manual entry is active. Fill the fields yourself and add the candidate.');
+  }
+
+  document.addEventListener('click', function (event) {
+    var target = event.target;
+    if (target.closest('[data-role="fetch"]') || target.closest('[data-role="fetch-link"]')) {
+      var trigger = target.closest('[data-role="fetch"]') || target.closest('[data-role="fetch-link"]');
+      runFetch(prefixOf(trigger));
+      return;
+    }
+    var clear = target.closest('[data-role="clear"]');
+    if (clear) {
+      clearFetched(prefixOf(clear));
+      return;
+    }
+    var action = target.closest('[data-action]');
+    if (action) {
+      var prefix = prefixOf(action);
+      if (action.dataset.action === 'edit-isin') editIsin(prefix);
+      if (action.dataset.action === 'retry') retry();
+      if (action.dataset.action === 'manual') manual();
+    }
+  });
+
+  document.addEventListener('change', function (event) {
+    var ack = event.target.closest('[data-role="ack"]');
+    if (ack) {
+      var prefix = prefixOf(ack);
+      var add = rootOf(prefix).querySelector('[data-role="add"]');
+      var dangerVisible = !rootOf(prefix).querySelector('[data-state="danger"]').hidden;
+      if (dangerVisible) add.disabled = !ack.checked;
+    }
+  });
+
+  document.addEventListener('input', function (event) {
+    if (event.target.matches('[data-field="isin"]')) {
+      syncIsin(event.target.value.toUpperCase());
+    }
+    if (event.target.matches('[data-field="invested"], [data-field="qty"]')) {
+      var prefix = prefixOf(event.target);
+      var invested = Number(field(prefix, 'invested').value || 0);
+      var qty = Number(field(prefix, 'qty').value || 0);
+      rootOf(prefix).querySelector('[id$="-perbond"]').value = qty > 0 ? (invested / qty).toFixed(2) : '0.00';
+    }
+  });
+
+  statePills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      if (pill.dataset.state === 'found') prefillAll();
+      showState(pill.dataset.state);
+    });
+  });
+
+  document.querySelectorAll('form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var add = form.querySelector('[data-role="add"]');
+      if (add && add.disabled) return;
+      var toast = document.getElementById('toast');
+      toast.textContent = 'Candidate added (mock).';
+      toast.hidden = false;
+      window.setTimeout(function () { toast.hidden = true; }, 2600);
+    });
+  });
+
+  var linkError = function (el, shown) {
+    var errorId = el.dataset.error;
+    if (!errorId) return;
+    var ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter(function (id) {
+      return id && id !== errorId;
+    });
+    if (shown) ids.push(errorId);
+    if (ids.length) el.setAttribute('aria-describedby', ids.join(' '));
+    else el.removeAttribute('aria-describedby');
+  };
+
+  var lastAnnounced = null;
+  function syncValidity(el) {
+    var invalid = el.matches(':user-invalid');
+    el.setAttribute('aria-invalid', String(invalid));
+    linkError(el, invalid);
+    if (invalid && lastAnnounced !== el.id) {
+      lastAnnounced = el.id;
+      var msg = document.getElementById(el.dataset.error);
+      announce(msg ? msg.textContent : 'Please check this field.');
+    }
+    if (!invalid && lastAnnounced === el.id) lastAnnounced = null;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('input, select'), function (el) {
+    el.setAttribute('aria-invalid', 'false');
+    ['blur', 'change', 'input', 'invalid'].forEach(function (eventName) {
+      el.addEventListener(eventName, function () { syncValidity(el); });
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  document.querySelectorAll('.form-grid').forEach(function (grid) {
+    var company = grid.querySelector('[data-field="company"]');
+    var isin = grid.querySelector('[data-field="isin"]');
+    if (!company || !isin) return;
+    var companyField = company.closest('.field');
+    var isinField = isin.closest('.field');
+    if (companyField && isinField && (companyField.compareDocumentPosition(isinField) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+      grid.insertBefore(isinField, companyField);
+    }
+  });
+  document.querySelectorAll('[data-field="invested"], [data-field="qty"]').forEach(function (el) { el.value = ''; });
+  document.querySelectorAll('[id$="-perbond"]').forEach(function (el) { el.value = ''; });
+})();
+</script>
+</body>
+</html>

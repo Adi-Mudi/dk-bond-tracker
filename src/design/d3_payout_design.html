@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D3 — Payout cycle model (Portfolio &gt; Payouts)</title>
+<script>
+(function () {
+  var stored = localStorage.getItem('dk-theme') || 'system';
+  document.documentElement.setAttribute('data-theme', stored);
+})();
+</script>
+<link rel="stylesheet" href="../../src/static/theme.css?v=3">
+<style>
+  [hidden] { display: none !important; }
+  a.tab { text-decoration: none; }
+  tr.position-row { cursor: pointer; }
+  .payout-cell {
+    font: inherit;
+    font-size: 13px;
+    border: 1px dashed transparent;
+    background: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: var(--text);
+    text-align: left;
+  }
+  .payout-cell:hover { border-color: var(--border); background: var(--white); }
+  .payout-cell.pending { color: var(--muted); }
+  .payout-editor {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .payout-editor input[type="number"] {
+    font: inherit;
+    font-size: 13px;
+    height: 30px;
+    width: 6.25rem;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--text);
+  }
+  .check-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .check-inline input { width: 14px; height: 14px; accent-color: var(--accent); }
+  .payouts-table th:first-child,
+  .payouts-table td:first-child {
+    min-width: 11rem;
+    position: sticky;
+    left: 0;
+    background: var(--white);
+    z-index: 2;
+    box-shadow: 1px 0 0 var(--border);
+  }
+  .month {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.875rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .month.paid { background: var(--paid); color: var(--ongoing-fg); }
+  .month.unpaid { background: var(--due); color: var(--danger-fg); font-weight: 700; }
+  .month.soon { background: var(--warn-bg); color: var(--warn-fg); font-weight: 700; }
+  .month.neutral { background: var(--card-bg); color: var(--muted); font-size: 11px; padding: 4px 6px; }
+  .holdings-scroll { overflow-x: auto; }
+  #holdings-table { min-width: 47.5rem; }
+  #holdings-table td.cell-sticky { position: sticky; background: var(--card); z-index: 1; }
+  #holdings-table thead th.cell-sticky { position: sticky; background: var(--card); z-index: 3; }
+  #holdings-table .cell-left { left: 0; border-right: 1px solid var(--border); }
+  #holdings-table .cell-right { right: 0; border-left: 1px solid var(--border); }
+  #holdings-table td.cell-left { z-index: 2; }
+  #holdings-table td.cell-right { z-index: 2; }
+  #holdings-table thead th.cell-left { left: 0; z-index: 4; }
+  #holdings-table thead th.cell-right { right: 0; z-index: 5; }
+  .detail-link { font-size: 12px; font-weight: 700; margin-left: 0.375rem; white-space: nowrap; }
+  .group-by-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .group-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .group-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .field input[type="text"] {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 14px;
+    width: 10rem;
+    background: var(--white);
+    color: var(--text);
+  }
+  .field .checkbox-line { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; min-height: 2.5rem; }
+  .field input[type="checkbox"] { width: 1.25rem; height: 1.25rem; accent-color: var(--accent); }
+  .tds-breakdown {
+    margin-top: 12px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--warn-bg);
+    font-size: 13px;
+  }
+  .tds-line { margin-bottom: 4px; }
+  .suggest-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    font-size: 13px;
+  }
+  .suggest-line b { font-variant-numeric: tabular-nums; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0 24px; }
+  .totals-row td { font-weight: 700; border-top: 2px solid var(--border); }
+</style>
+</head>
+<body data-page="/portfolio">
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="brand"><img class="brand-mark" src="../../src/static/img/logo/logo-mark.svg" alt="" width="24" height="24">DK Bond Tracker</span>
+    <button type="button" class="collapse-btn" id="sidebarToggle" aria-controls="sidebar" aria-expanded="true" title="Hide menu">&#9664;<span class="collapse-label"> hide</span></button>
+  </div>
+  <nav aria-label="Main">
+    <a href="#">Dashboard</a>
+    <a href="#">Portfolio</a>
+    <a href="#">Watchlist</a>
+    <a href="#">Financial Goals</a>
+    <a href="#">Alerts</a>
+    <a href="#">Settings</a>
+    <a href="#">About</a>
+    <a href="#">Feedback</a>
+  </nav>
+</aside>
+
+<div class="app-body">
+<header class="topbar">
+  <button type="button" class="icon-btn drawer-btn" id="drawerToggle" aria-controls="sidebar" aria-expanded="false" title="Menu" aria-label="Open menu">&#9776;</button>
+  <div class="page-title" id="pageTitle">DK Bond Tracker</div>
+  <div class="topbar-actions">
+    <button type="button" class="icon-btn" id="whyBondsBtn" title="Why bonds?" aria-label="Why bonds?">i</button>
+    <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    </button>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Page guide" aria-label="Page guide">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg>
+    </button>
+    <div class="overflow" id="overflow">
+      <button type="button" class="icon-btn" id="overflowToggle" aria-haspopup="true" aria-expanded="false" aria-controls="overflowPanel" title="More options" aria-label="More options">&#8943;</button>
+      <div class="overflow-panel" id="overflowPanel">
+        <div class="theme-switch" role="group" aria-label="Theme">
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+        </div>
+        <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+<h1 style="font-size:18px;margin-bottom:12px;">Portfolio</h1>
+
+<div id="portfolio-body">
+  <div class="tabs">
+    <a class="tab" href="#" data-tab="holdings">My Holdings</a>
+    <a class="tab" href="#" data-tab="payouts">Payouts</a>
+    <a class="tab active" href="#" data-tab="tax">Tax</a>
+  </div>
+
+  <div id="portfolio-panels">
+
+    <div id="panel-payouts" class="panel">
+      <div class="table-wrap">
+        <table id="payouts-table" class="payouts-table">
+          <thead>
+            <tr>
+              <th>Company/ISIN</th>
+              <th data-month="2026-11">Nov-2026</th>
+              <th data-month="2026-10">Oct-2026</th>
+              <th data-month="2026-09">Sep-2026</th>
+              <th data-month="2026-08">Aug-2026</th>
+              <th data-month="2026-07">Jul-2026</th>
+              <th data-month="2026-06">Jun-2026</th>
+              <th data-month="2026-05">May-2026</th>
+              <th data-month="2026-04">Apr-2026</th>
+              <th data-month="2026-03">Mar-2026</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr data-isin="INE205A07DV2" data-health="Danger">
+              <td>
+                <span class="co-name">Vedanta Ltd</span><span class="co-isin">INE205A07DV2</span>
+                <span class="co-purchased">Quarterly &#183; day 10</span>
+              </td>
+              <td><span class="month neutral" id="cell-1-2026-11"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-1-2026-10"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell month unpaid" id="cell-1-2026-09" data-bond="1" data-month="2026-09" data-amount="" data-received="0" data-tds="1"><span class="m-status">unpaid</span></button></td>
+              <td><span class="month neutral" id="cell-1-2026-08"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-1-2026-07"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-1-2026-06" data-bond="1" data-month="2026-06" data-amount="909.00" data-received="1" data-tds="1"><span class="m-amt">&#8377;909.00</span></button></td>
+              <td><span class="month neutral" id="cell-1-2026-05"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-1-2026-04"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-1-2026-03" data-bond="1" data-month="2026-03" data-amount="909.00" data-received="1" data-tds="1"><span class="m-amt">&#8377;909.00</span></button></td>
+            </tr>
+
+            <tr data-isin="INE040A08AD3" data-health="On-going">
+              <td>
+                <span class="co-name">HDFC Bank Ltd</span><span class="co-isin">INE040A08AD3</span>
+                <span class="co-purchased">Semi-annual &#183; day 1</span>
+              </td>
+              <td><span class="month neutral" id="cell-2-2026-11"><span class="m-status">Semi-annual</span></span></td>
+              <td><span class="month neutral" id="cell-2-2026-10"><span class="m-status">Semi-annual</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-2-2026-09" data-bond="2" data-month="2026-09" data-amount="4050.00" data-received="1" data-tds="0"><span class="m-amt">&#8377;4050.00</span></button></td>
+              <td><span class="month neutral" id="cell-2-2026-08"><span class="m-status">Semi-annual</span></span></td>
+              <td><span class="month neutral" id="cell-2-2026-07"><span class="m-status">Semi-annual</span></span></td>
+              <td><span class="month neutral" id="cell-2-2026-06"><span class="m-status">Semi-annual</span></span></td>
+              <td><span class="month neutral" id="cell-2-2026-05"><span class="m-status">Semi-annual</span></span></td>
+              <td><span class="month neutral" id="cell-2-2026-04"><span class="m-status">Semi-annual</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-2-2026-03" data-bond="2" data-month="2026-03" data-amount="4050.00" data-received="1" data-tds="0"><span class="m-amt">&#8377;4050.00</span></button></td>
+            </tr>
+
+            <tr data-isin="INE115A07PZ5" data-health="On-going">
+              <td>
+                <span class="co-name">LIC Housing Finance Ltd</span><span class="co-isin">INE115A07PZ5</span>
+                <span class="co-purchased">Annual &#183; day 30</span>
+              </td>
+              <td><span class="month neutral" id="cell-3-2026-11"><span class="m-status">Annual</span></span></td>
+              <td><span class="month neutral" id="cell-3-2026-10"><span class="m-status">Annual</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-3-2026-09" data-bond="3" data-month="2026-09" data-amount="3975.00" data-received="1" data-tds="0"><span class="m-amt">&#8377;3975.00</span></button></td>
+              <td><span class="month neutral" id="cell-3-2026-08"><span class="m-status">Annual</span></span></td>
+              <td><span class="month neutral" id="cell-3-2026-07"><span class="m-status">Annual</span></span></td>
+              <td><span class="month neutral" id="cell-3-2026-06"><span class="m-status">Annual</span></span></td>
+              <td><span class="month neutral" id="cell-3-2026-05"><span class="m-status">Annual</span></span></td>
+              <td><span class="month neutral" id="cell-3-2026-04"><span class="m-status">Annual</span></span></td>
+              <td><span class="month neutral" id="cell-3-2026-03"><span class="m-status">Annual</span></span></td>
+            </tr>
+
+            <tr data-isin="INE414G07LD7" data-health="On-going">
+              <td>
+                <span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07LD7</span>
+                <span class="co-purchased">Monthly &#183; day 20</span>
+              </td>
+              <td><button type="button" class="payout-cell month soon" id="cell-4-2026-11" data-bond="4" data-month="2026-11" data-received="0" data-tds="0"><span class="m-status">due soon</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-10" data-bond="4" data-month="2026-10" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-09" data-bond="4" data-month="2026-09" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-08" data-bond="4" data-month="2026-08" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-07" data-bond="4" data-month="2026-07" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-06" data-bond="4" data-month="2026-06" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-05" data-bond="4" data-month="2026-05" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-04" data-bond="4" data-month="2026-04" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-4-2026-03" data-bond="4" data-month="2026-03" data-amount="412.50" data-received="1" data-tds="0"><span class="m-amt">&#8377;412.50</span></button></td>
+            </tr>
+
+            <tr data-isin="INE414G07HC9" data-health="On-going">
+              <td>
+                <span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07HC9</span>
+                <span class="co-purchased">Quarterly &#183; day 15</span>
+              </td>
+              <td><span class="month neutral" id="cell-5-2026-11"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-5-2026-10"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-5-2026-09" data-bond="5" data-month="2026-09" data-amount="578.13" data-received="1" data-tds="0"><span class="m-amt">&#8377;578.13</span></button></td>
+              <td><span class="month neutral" id="cell-5-2026-08"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-5-2026-07"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-5-2026-06" data-bond="5" data-month="2026-06" data-amount="578.13" data-received="1" data-tds="0"><span class="m-amt">&#8377;578.13</span></button></td>
+              <td><span class="month neutral" id="cell-5-2026-05"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-5-2026-04"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-5-2026-03" data-bond="5" data-month="2026-03" data-amount="578.13" data-received="1" data-tds="0"><span class="m-amt">&#8377;578.13</span></button></td>
+            </tr>
+
+            <tr data-isin="INE306N07LT3" data-health="Matured">
+              <td>
+                <span class="co-name">Tata Capital Financial Services Ltd</span><span class="co-isin">INE306N07LT3</span>
+                <span class="co-purchased">Quarterly &#183; day 25</span>
+              </td>
+              <td><span class="chip chip-matured">Matured</span></td>
+              <td><span class="month neutral" id="cell-6-2026-10"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-6-2026-09" data-bond="6" data-month="2026-09" data-amount="1180.00" data-received="1" data-tds="0"><span class="m-amt">&#8377;1180.00</span></button></td>
+              <td><span class="month neutral" id="cell-6-2026-08"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-6-2026-07"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-6-2026-06" data-bond="6" data-month="2026-06" data-amount="1180.00" data-received="1" data-tds="0"><span class="m-amt">&#8377;1180.00</span></button></td>
+              <td><span class="month neutral" id="cell-6-2026-05"><span class="m-status">Quarterly</span></span></td>
+              <td><span class="month neutral" id="cell-6-2026-04"><span class="m-status">Quarterly</span></span></td>
+              <td><button type="button" class="payout-cell money month paid" id="cell-6-2026-03" data-bond="6" data-month="2026-03" data-amount="1180.00" data-received="1" data-tds="0"><span class="m-amt">&#8377;1180.00</span></button></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note" id="payout-instance-rule">Payout instances only &#8212; the due month is the coupon period end (monthly = every month, quarterly = Mar/Jun/Sep/Dec, semi-annual = Mar/Sep, annual = Sep). Months that are not a payout month show the bond's cycle instead of an amount, so a blank never looks like a missing entry; those cells cannot be clicked.</p>
+      <p class="caption">Months ordered newest month first (latest month first). Future months are never shown.</p>
+      <p class="caption">Click any month cell to enter or correct the received amount. Newest months appear first.</p>
+      <p class="caption">Danger rows sort to top, On-going next, Matured moves down automatically.</p>
+    </div>
+
+    <div id="panel-holdings" class="panel">
+      <div class="group-by-row" id="group-by-row">
+        <span class="caption">Group by</span>
+        <a class="group-btn active" id="group-none" href="#">None (default)</a>
+        <a class="group-btn" id="group-goal" href="#">Goal</a>
+      </div>
+      <div class="table-wrap holdings-scroll" id="holdings-scroll" tabindex="0" role="region" aria-label="Holdings table &#8212; scroll horizontally for more columns">
+        <table id="holdings-table">
+          <thead>
+            <tr>
+              <th class="cell-sticky cell-left">Company/ISIN</th>
+              <th>Rating</th>
+              <th class="num">Qty</th>
+              <th>Coupon</th>
+              <th>Yield</th>
+              <th>Frequency</th>
+              <th class="num">Invested &#8377;</th>
+              <th class="num">Received &#8377;</th>
+              <th>Next Payout</th>
+              <th class="cell-sticky cell-right">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-isin="INE205A07DV2" data-status="Danger" data-id="1" class="position-row" tabindex="0">
+              <td class="cell-sticky cell-left"><span class="co-name">Vedanta Ltd</span><span class="co-isin">INE205A07DV2</span><span class="co-purchased">purchased 12 Dec 2025 &#183; 40 units</span></td>
+              <td>AA-</td>
+              <td class="num">40</td>
+              <td class="money">10.1%</td>
+              <td class="money">10.1%</td>
+              <td>Quarterly</td>
+              <td class="num money">&#8377;40000.00</td>
+              <td class="num money">&#8377;2727.00</td>
+              <td>10 Dec 2026</td>
+              <td class="cell-sticky cell-right">
+                <span class="chip chip-danger" data-status="Danger">Danger</span>
+                <a class="detail-link" href="#" data-id="1">Detail &#8594;</a>
+              </td>
+            </tr>
+            <tr data-isin="INE040A08AD3" data-status="On-going" data-id="2" class="position-row" tabindex="0">
+              <td class="cell-sticky cell-left"><span class="co-name">HDFC Bank Ltd</span><span class="co-isin">INE040A08AD3</span><span class="co-purchased">purchased 01 Nov 2025 &#183; 100 units</span></td>
+              <td>AAA</td>
+              <td class="num">100</td>
+              <td class="money">8.1%</td>
+              <td class="money">8.1%</td>
+              <td>Semi-annual</td>
+              <td class="num money">&#8377;100000.00</td>
+              <td class="num money">&#8377;8100.00</td>
+              <td>01 Mar 2027</td>
+              <td class="cell-sticky cell-right">
+                <span class="chip chip-ongoing" data-status="On-going">On-going</span>
+                <a class="detail-link" href="#" data-id="2">Detail &#8594;</a>
+              </td>
+            </tr>
+            <tr data-isin="INE115A07PZ5" data-status="On-going" data-id="3" class="position-row" tabindex="0">
+              <td class="cell-sticky cell-left"><span class="co-name">LIC Housing Finance Ltd</span><span class="co-isin">INE115A07PZ5</span><span class="co-purchased">purchased 01 Sep 2025 &#183; 50 units</span></td>
+              <td>AAA</td>
+              <td class="num">50</td>
+              <td class="money">7.9%</td>
+              <td class="money">7.9%</td>
+              <td>Annual</td>
+              <td class="num money">&#8377;50000.00</td>
+              <td class="num money">&#8377;3975.00</td>
+              <td>30 Sep 2027</td>
+              <td class="cell-sticky cell-right">
+                <span class="chip chip-ongoing" data-status="On-going">On-going</span>
+                <a class="detail-link" href="#" data-id="3">Detail &#8594;</a>
+              </td>
+            </tr>
+            <tr data-isin="INE414G07LD7" data-status="On-going" data-id="4" class="position-row" tabindex="0">
+              <td class="cell-sticky cell-left"><span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07LD7</span><span class="co-purchased">purchased 05 Dec 2025 &#183; 60 units</span></td>
+              <td>AA+</td>
+              <td class="num">60</td>
+              <td class="money">8.3%</td>
+              <td class="money">8.3%</td>
+              <td>Monthly</td>
+              <td class="num money">&#8377;60000.00</td>
+              <td class="num money">&#8377;4537.50</td>
+              <td>20 Nov 2026</td>
+              <td class="cell-sticky cell-right">
+                <span class="chip chip-ongoing" data-status="On-going">On-going</span>
+                <a class="detail-link" href="#" data-id="4">Detail &#8594;</a>
+              </td>
+            </tr>
+            <tr data-isin="INE414G07HC9" data-status="On-going" data-id="5" class="position-row" tabindex="0">
+              <td class="cell-sticky cell-left"><span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07HC9</span><span class="co-purchased">purchased 01 Dec 2025 &#183; 25 units</span></td>
+              <td>AA+</td>
+              <td class="num">25</td>
+              <td class="money">9.3%</td>
+              <td class="money">9.3%</td>
+              <td>Quarterly</td>
+              <td class="num money">&#8377;25000.00</td>
+              <td class="num money">&#8377;2312.52</td>
+              <td>15 Dec 2026</td>
+              <td class="cell-sticky cell-right">
+                <span class="chip chip-ongoing" data-status="On-going">On-going</span>
+                <a class="detail-link" href="#" data-id="5">Detail &#8594;</a>
+              </td>
+            </tr>
+            <tr data-isin="INE306N07LT3" data-status="Matured" data-id="6" class="position-row" tabindex="0">
+              <td class="cell-sticky cell-left"><span class="co-name">Tata Capital Financial Services Ltd</span><span class="co-isin">INE306N07LT3</span><span class="co-purchased">purchased 25 Oct 2023 &#183; 40 units</span></td>
+              <td>AAA</td>
+              <td class="num">40</td>
+              <td class="money">11.8%</td>
+              <td class="money">11.8%</td>
+              <td>Quarterly</td>
+              <td class="num money">&#8377;40000.00</td>
+              <td class="num money">&#8377;14160.00</td>
+              <td>&#8212;</td>
+              <td class="cell-sticky cell-right">
+                <span class="chip chip-matured" data-status="Matured">Matured</span>
+                <a class="detail-link" href="#" data-id="6">Detail &#8594;</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div id="panel-tax" class="panel active">
+      <div class="table-wrap">
+        <table id="tax-table">
+          <thead>
+            <tr>
+              <th>Company/ISIN</th>
+              <th class="num">Gross interest</th>
+              <th class="num">TDS deducted</th>
+              <th class="num">Net credited</th>
+              <th>Basis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-isin="INE205A07DV2">
+              <td><span class="co-name">Vedanta Ltd</span><span class="co-isin">INE205A07DV2</span></td>
+              <td class="num money">&#8377;1010.00</td>
+              <td class="num money">&#8377;101.00</td>
+              <td class="num money">&#8377;909.00</td>
+              <td>Standard 10%</td>
+            </tr>
+            <tr data-isin="INE040A08AD3">
+              <td><span class="co-name">HDFC Bank Ltd</span><span class="co-isin">INE040A08AD3</span></td>
+              <td class="num money">&#8377;4050.00</td>
+              <td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;4050.00</td>
+              <td>No TDS</td>
+            </tr>
+            <tr data-isin="INE115A07PZ5">
+              <td><span class="co-name">LIC Housing Finance Ltd</span><span class="co-isin">INE115A07PZ5</span></td>
+              <td class="num money">&#8377;3975.00</td>
+              <td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;3975.00</td>
+              <td>No TDS</td>
+            </tr>
+            <tr data-isin="INE414G07LD7">
+              <td><span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07LD7</span></td>
+              <td class="num money">&#8377;2887.50</td>
+              <td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;2887.50</td>
+              <td>No TDS</td>
+            </tr>
+            <tr data-isin="INE414G07HC9">
+              <td><span class="co-name">Muthoot Finance Ltd</span><span class="co-isin">INE414G07HC9</span></td>
+              <td class="num money">&#8377;1156.26</td>
+              <td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;1156.26</td>
+              <td>No TDS</td>
+            </tr>
+            <tr data-isin="INE306N07LT3">
+              <td><span class="co-name">Tata Capital Financial Services Ltd</span><span class="co-isin">INE306N07LT3</span></td>
+              <td class="num money">&#8377;2360.00</td>
+              <td class="num money">&#8377;0.00</td>
+              <td class="num money">&#8377;2360.00</td>
+              <td>No TDS</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="totals-row">
+              <td>Total &#183; FY 2026-27</td>
+              <td class="num money">&#8377;15438.76</td>
+              <td class="num money">&#8377;101.00</td>
+              <td class="num money">&#8377;15337.76</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="table-note" id="tax-fy-rule">Financial year 2026-27 (1 Apr 2026 &#8211; 31 Mar 2027), paid instances only &#8212; projected payouts are not counted.</p>
+      <p class="caption">TDS is recorded per payment. "No TDS" means nothing was deducted &#8212; usually because the annual interest from that deductor is below &#8377;10,000.</p>
+      <p class="caption">The deducted amount is your claimable credit &#8212; the app does not compute your final tax.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<h1 style="font-size:18px;margin-bottom:12px;">Payment Edit</h1>
+<p class="table-note" style="margin-top:0;">Opened from a Payouts month cell. Enter the amount that actually landed in your bank (after TDS). Save recomputes the row and bond status (live query, no open/save event).</p>
+<div class="payment-edit-card">
+  <h4>Vedanta Ltd &#8212; Sep-2026</h4>
+  <div class="ctx mono">INE205A07DV2 &#183; Quarterly &#183; due 10 Sep 2026 &#183; still unpaid</div>
+  <div class="ctx">Coupon basis: 40 &#215; &#8377;1000 face &#215; 10.10% &#247; 4 = &#8377;1010.00</div>
+  <form method="post" action="#" onsubmit="return false;">
+    <div class="suggest-line" id="suggest-line">
+      <span id="suggest-text">Suggested from coupon: gross <b>&#8377;1010.00</b> &#183; TDS &#8377;101.00 &#183; net <b>&#8377;909.00</b></span>
+      <button type="button" class="btn btn-sm" id="use-suggest-net">Use suggested net</button>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="pay-amount">Amount credited in your bank (after TDS)</label>
+        <input type="text" id="pay-amount" name="amount" class="money-input" value="" placeholder="enter amount">
+      </div>
+      <div class="field">
+        <div class="checkbox-line">
+          <input type="checkbox" id="pay-paid" name="paid" checked>
+          <label for="pay-paid" style="margin:0;">Paid</label>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="tds-reason">TDS reason</label>
+      <select id="tds-reason" name="tds_reason">
+        <option value="standard" selected>Standard &#8212; 10% (s.193)</option>
+        <option value="exempt">Exempt &#8212; Form 121 filed (was 15G / 15H)</option>
+        <option value="nopan">No PAN on record &#8212; 20% (s.206AA)</option>
+        <option value="lower">Lower or nil certificate (s.197)</option>
+        <option value="custom">Custom rate</option>
+      </select>
+    </div>
+    <div class="field-row" id="custom-rate-field" hidden>
+      <div class="field">
+        <label for="pay-tds-rate">Custom TDS rate (%)</label>
+        <input type="text" id="pay-tds-rate" name="tds_rate" value="10">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="tds-pan">PAN</label>
+        <select id="tds-pan" name="pan_available">
+          <option value="1" selected>Available</option>
+          <option value="0">Not furnished &#8212; 20% applies (s.206AA)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="tds-form">Declaration</label>
+        <select id="tds-form" name="declaration_form">
+          <option value="none" selected>None</option>
+          <option value="121">Form 121 (was 15G / 15H)</option>
+          <option value="197">Section 197 certificate</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="tds-from">Exempt from</label>
+        <input type="text" id="tds-from" name="exempt_from" value="2026-07-01">
+      </div>
+      <div class="field">
+        <label for="tds-to">Exempt to</label>
+        <input type="text" id="tds-to" name="exempt_to" value="2027-03-31">
+      </div>
+    </div>
+    <div class="tds-breakdown" id="tds-breakdown">
+      <div class="tds-line">Net (you entered): <b id="tds-net" data-amount="0.00">&#8377;0.00</b></div>
+      <div class="tds-line">Deductions (<span id="tds-rate-label">TDS 10% of interest</span>): <b id="tds-amount" data-amount="0.00" style="color:var(--warn-fg)">&#8377;0.00</b></div>
+      <div class="tds-line">Gross (interest before TDS): <b id="tds-gross" data-amount="0.00">&#8377;0.00</b></div>
+    </div>
+    <p class="table-note" id="tds-explainer">You entered the NET credit; the rate above decides the split &#8212; standard 10% gives gross = net / 0.9 and TDS = net / 9, exempt gives gross = net and TDS = 0. TDS applies to interest only (s.193), never to principal. The deducted amount is your claimable tax credit (Form 16A) &#8212; declare it in your ITR. Official TDS deposits round to the nearest Rs 10 (s.288B); this app shows exact whole-rupee values for clarity.</p>
+    <button class="btn btn-secondary" type="submit">Save</button>
+  </form>
+</div>
+</main>
+</div>
+</div>
+
+<nav class="bottom-tabs" aria-label="Primary">
+  <a class="bottom-tab" href="#"><span class="tab-ico" aria-hidden="true">&#9638;</span>Dashboard</a>
+  <a class="bottom-tab" href="#"><span class="tab-ico" aria-hidden="true">&#9636;</span>Portfolio</a>
+  <a class="bottom-tab" href="#"><span class="tab-ico" aria-hidden="true">&#9678;</span>Watchlist</a>
+  <a class="bottom-tab" href="#"><span class="tab-ico" aria-hidden="true">&#9670;</span>Goals</a>
+  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true">&#9776;</span>More</button>
+</nav>
+
+<script>
+(function () {
+  document.querySelectorAll(".theme-seg").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var value = btn.getAttribute("data-theme-value");
+      document.documentElement.setAttribute("data-theme", value);
+      try { localStorage.setItem("dk-theme", value); } catch (err) { return; }
+    });
+  });
+  var overflow = document.getElementById("overflow");
+  var overflowToggle = document.getElementById("overflowToggle");
+  if (overflow && overflowToggle) {
+    overflowToggle.addEventListener("click", function (event) {
+      event.stopPropagation();
+      var open = overflow.classList.toggle("open");
+      overflowToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("click", function (event) {
+      if (!overflow.contains(event.target)) {
+        overflow.classList.remove("open");
+        overflowToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+  var body = document.body;
+  var sidebarToggle = document.getElementById("sidebarToggle");
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener("click", function () {
+      body.classList.toggle("sidebar-collapsed");
+      sidebarToggle.setAttribute("aria-expanded", body.classList.contains("sidebar-collapsed") ? "false" : "true");
+    });
+  }
+  var drawerToggle = document.getElementById("drawerToggle");
+  if (drawerToggle) {
+    drawerToggle.addEventListener("click", function () {
+      body.classList.toggle("drawer-open");
+    });
+  }
+  var moreTab = document.getElementById("moreTab");
+  if (moreTab) {
+    moreTab.addEventListener("click", function () {
+      body.classList.add("drawer-open");
+    });
+  }
+  var privacy = document.getElementById("privacyToggle");
+  if (privacy) {
+    privacy.addEventListener("click", function () {
+      var on = body.classList.toggle("privacy-on");
+      privacy.setAttribute("aria-pressed", on ? "true" : "false");
+      privacy.classList.toggle("active", on);
+      privacy.textContent = on ? "Show amounts" : "Hide amounts";
+    });
+  }
+})();
+</script>
+
+<script>
+(function () {
+  var tabs = document.querySelectorAll("#portfolio-body .tab");
+  var panels = document.querySelectorAll("#portfolio-panels .panel");
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function (event) {
+      event.preventDefault();
+      var name = tab.getAttribute("data-tab");
+      tabs.forEach(function (other) { other.classList.toggle("active", other === tab); });
+      panels.forEach(function (panel) { panel.classList.toggle("active", panel.id === "panel-" + name); });
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var fmt = function (value) {
+    return "\u20b9" + Number(value).toFixed(2);
+  };
+  document.querySelectorAll(".payout-cell").forEach(function (cell) {
+    cell.addEventListener("click", function () {
+      var td = cell.parentNode;
+      if (td.querySelector(".payout-editor")) {
+        return;
+      }
+      var amount = cell.getAttribute("data-amount") || "";
+      var received = cell.getAttribute("data-received") === "1";
+      var tdsApplied = cell.getAttribute("data-tds") !== "0";
+      var editor = document.createElement("span");
+      editor.className = "payout-editor";
+      editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox" class="payout-received"' + (received ? " checked" : "") + '> Received?</label><label class="check-inline"><input type="checkbox" class="payout-tds"' + (tdsApplied ? " checked" : "") + '> TDS</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
+      td.appendChild(editor);
+      cell.hidden = true;
+      editor.querySelector(".payout-cancel").addEventListener("click", function () {
+        cell.hidden = false;
+        editor.remove();
+      });
+      editor.querySelector(".payout-save").addEventListener("click", function () {
+        var value = editor.querySelector('input[type="number"]').value;
+        var flag = editor.querySelector(".payout-received").checked;
+        var tdsFlag = editor.querySelector(".payout-tds").checked;
+        var amountValue = value === "" ? 0 : Number(value);
+        cell.setAttribute("data-amount", amountValue.toFixed(2));
+        cell.setAttribute("data-received", flag ? "1" : "0");
+        cell.setAttribute("data-tds", tdsFlag ? "1" : "0");
+        cell.hidden = false;
+        editor.remove();
+        if (!flag) {
+          cell.className = "payout-cell month soon";
+          cell.innerHTML = '<span class="m-status">due soon</span>';
+          return;
+        }
+        cell.className = "payout-cell money month paid";
+        cell.innerHTML = '<span class="m-amt">' + fmt(amountValue) + "</span>";
+      });
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var input = document.getElementById("pay-amount");
+  var reason = document.getElementById("tds-reason");
+  var pan = document.getElementById("tds-pan");
+  var customField = document.getElementById("custom-rate-field");
+  var rateInput = document.getElementById("pay-tds-rate");
+  var netOut = document.getElementById("tds-net");
+  var tdsOut = document.getElementById("tds-amount");
+  var grossOut = document.getElementById("tds-gross");
+  var rateLabel = document.getElementById("tds-rate-label");
+  var suggestText = document.getElementById("suggest-text");
+  var useNet = document.getElementById("use-suggest-net");
+  if (!input || !reason || !pan || !netOut || !tdsOut || !grossOut) {
+    return;
+  }
+  var COUPON_GROSS = 1010;
+  function rupees(value) {
+    return "\u20b9" + Number(value).toFixed(2);
+  }
+  function customRate() {
+    var custom = parseFloat(rateInput.value);
+    return isNaN(custom) ? 0 : custom / 100;
+  }
+  function rate() {
+    var value = reason.value;
+    if (value === "exempt") {
+      return 0;
+    }
+    if (value === "nopan") {
+      return 0.2;
+    }
+    if (value === "custom" || value === "lower") {
+      return customRate();
+    }
+    return pan.value === "1" ? 0.1 : 0.2;
+  }
+  function rateText(applied) {
+    if (applied === 0) {
+      return "no TDS";
+    }
+    return "TDS " + Math.round(applied * 1000) / 10 + "% of interest";
+  }
+  function refresh() {
+    customField.hidden = reason.value !== "custom" && reason.value !== "lower";
+    var net = parseFloat(input.value);
+    if (isNaN(net)) {
+      net = 0;
+    }
+    var applied = rate();
+    var gross = applied > 0 && applied < 1 ? net / (1 - applied) : net;
+    var tds = gross - net;
+    netOut.textContent = rupees(net);
+    tdsOut.textContent = rupees(tds);
+    grossOut.textContent = rupees(gross);
+    netOut.setAttribute("data-amount", net.toFixed(2));
+    tdsOut.setAttribute("data-amount", tds.toFixed(2));
+    grossOut.setAttribute("data-amount", gross.toFixed(2));
+    rateLabel.textContent = rateText(applied);
+    var baseTds = COUPON_GROSS * applied;
+    suggestText.innerHTML = "Suggested from coupon: gross <b>" + rupees(COUPON_GROSS) +
+      "</b> &#183; TDS " + rupees(baseTds) + " &#183; net <b>" + rupees(COUPON_GROSS - baseTds) + "</b>";
+  }
+  useNet.addEventListener("click", function () {
+    var applied = rate();
+    input.value = (COUPON_GROSS - COUPON_GROSS * applied).toFixed(2);
+    refresh();
+  });
+  input.addEventListener("input", refresh);
+  pan.addEventListener("change", refresh);
+  reason.addEventListener("change", refresh);
+  rateInput.addEventListener("input", refresh);
+  refresh();
+})();
+</script>
+</body>
+</html>
