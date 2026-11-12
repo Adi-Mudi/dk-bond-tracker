@@ -26,6 +26,7 @@ VALID_ISIN = "INE205A07DV2"
 ABSENT_ISIN = "INE000A00AA1"
 MALFORMED_ISIN = "INE205A07DVX"
 MASTER = "nsdl_corporate_bond_master.json"
+EXPECTED_ENDPOINT = "https://nsdl.co.in/downloadables/corporate_bond_master.json"
 
 
 def fixture_text(name):
@@ -63,6 +64,10 @@ def test_endpoint_never_points_at_the_nse_site_or_api():
     lowered = nsdl.ENDPOINT.lower()
     assert "nseindia" not in lowered
     assert "/api/" not in lowered
+
+
+def test_endpoint_equals_the_published_download_url():
+    assert nsdl.ENDPOINT == EXPECTED_ENDPOINT
 
 
 def test_adapter_reads_only_its_published_endpoint():

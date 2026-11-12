@@ -26,6 +26,7 @@ VALID_ISIN = "IN0020240019"
 ABSENT_ISIN = "IN0000000001"
 MALFORMED_ISIN = "IN002024001X"
 MASTER = "rbi_securities.json"
+EXPECTED_ENDPOINT = "https://rbi.org.in/downloadables/gsec_sdl_tbill.json"
 
 
 def fixture_text(name):
@@ -63,6 +64,10 @@ def test_endpoint_never_points_at_the_nse_site_or_api():
     lowered = rbi.ENDPOINT.lower()
     assert "nseindia" not in lowered
     assert "/api/" not in lowered
+
+
+def test_endpoint_equals_the_published_download_url():
+    assert rbi.ENDPOINT == EXPECTED_ENDPOINT
 
 
 def test_adapter_reads_only_its_published_endpoint():
