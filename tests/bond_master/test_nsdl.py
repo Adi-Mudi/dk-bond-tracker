@@ -40,19 +40,23 @@ def fixture_json(name):
 def make(body=None, name=None):
     if name is not None:
         body = fixture_text(name)
-    return nsdl.Adapter(reader=lambda url: body)
+    return nsdl.NsdlAdapter(transport=lambda url, timeout: body)
 
 
 def raising(exc):
-    def reader(url):
+    def transport(url, timeout):
         raise exc
 
-    return reader
+    return transport
 
 
 def test_adapter_name_is_nsdl():
-    assert nsdl.NAME == "NSDL"
-    assert nsdl.Adapter(reader=lambda url: "").name == "NSDL"
+    assert nsdl.SOURCE_NAME == "NSDL"
+    assert nsdl.NsdlAdapter().name == "NSDL"
+
+
+def test_default_timeout_is_ten_seconds():
+    assert nsdl.DEFAULT_TIMEOUT == 10.0
 
 
 def test_endpoint_is_an_https_published_download_file():
@@ -70,15 +74,27 @@ def test_endpoint_equals_the_published_download_url():
     assert nsdl.ENDPOINT == EXPECTED_ENDPOINT
 
 
-def test_adapter_reads_only_its_published_endpoint():
+def test_transport_receives_the_endpoint_and_timeout():
     seen = []
 
-    def reader(url):
-        seen.append(url)
+    def transport(url, timeout):
+        seen.append((url, timeout))
         return fixture_text(MASTER)
 
-    nsdl.Adapter(reader=reader).fetch(VALID_ISIN)
-    assert seen == [nsdl.ENDPOINT]
+    nsdl.NsdlAdapter(transport=transport, timeout=7.5).fetch(VALID_ISIN)
+    assert seen == [(nsdl.ENDPOINT, 7.5)]
+
+
+def test_default_transport_reports_unreachable():
+    result = nsdl.NsdlAdapter().fetch(VALID_ISIN)
+    assert result.failure_code == FAILURE_UNREACHABLE
+
+
+def test_bytes_payload_is_decoded():
+    body = fixture_text(MASTER).encode("utf-8")
+    result = nsdl.NsdlAdapter(transport=lambda url, timeout: body).fetch(VALID_ISIN)
+    assert result.failure_code == FAILURE_OK
+    assert result.company == "Acme Infrastructure Ltd"
 
 
 def test_fixture_maps_every_fact_with_source():
@@ -125,11 +141,11 @@ def test_sub_investment_grade_rating_is_preserved_not_nulled():
 def test_malformed_isin_is_invalid_and_never_reads():
     seen = []
 
-    def reader(url):
-        seen.append(url)
+    def transport(url, timeout):
+        seen.append((url, timeout))
         return ""
 
-    result = nsdl.Adapter(reader=reader).fetch(MALFORMED_ISIN)
+    result = nsdl.NsdlAdapter(transport=transport).fetch(MALFORMED_ISIN)
     assert result.failure_code == FAILURE_INVALID_ISIN
     assert result.isin == MALFORMED_ISIN
     assert result.has_facts() is False
@@ -158,19 +174,29 @@ def test_valid_isin_in_empty_records_is_not_found():
     ],
 )
 def test_transport_source_error_maps_to_its_code(code):
-    result = nsdl.Adapter(reader=raising(nsdl.SourceError(code))).fetch(VALID_ISIN)
+    result = nsdl.NsdlAdapter(transport=raising(nsdl.SourceError(code))).fetch(VALID_ISIN)
     assert result.failure_code == code
     assert result.isin == VALID_ISIN
     assert result.has_facts() is False
 
 
 def test_reader_timeout_error_maps_to_timeout():
-    result = nsdl.Adapter(reader=raising(TimeoutError())).fetch(VALID_ISIN)
+    result = nsdl.NsdlAdapter(transport=raising(TimeoutError())).fetch(VALID_ISIN)
     assert result.failure_code == FAILURE_TIMEOUT
 
 
+def test_missing_download_file_maps_to_not_found():
+    result = nsdl.NsdlAdapter(transport=raising(FileNotFoundError())).fetch(VALID_ISIN)
+    assert result.failure_code == FAILURE_NOT_FOUND
+
+
 def test_reader_os_error_maps_to_unreachable():
-    result = nsdl.Adapter(reader=raising(OSError())).fetch(VALID_ISIN)
+    result = nsdl.NsdlAdapter(transport=raising(OSError())).fetch(VALID_ISIN)
+    assert result.failure_code == FAILURE_UNREACHABLE
+
+
+def test_unexpected_error_maps_to_unreachable():
+    result = nsdl.NsdlAdapter(transport=raising(RuntimeError("boom"))).fetch(VALID_ISIN)
     assert result.failure_code == FAILURE_UNREACHABLE
 
 

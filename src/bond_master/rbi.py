@@ -15,11 +15,13 @@ from .base import (
 )
 from .normalize import RATING_AGENCY_PREFIXES, normalize_cycle, normalize_isin
 
-NAME = "RBI"
+SOURCE_NAME = "RBI"
+DEFAULT_TIMEOUT = 10.0
 _SCHEME = "https"
 _SLASHES = "://"
-_HOST = "rbi.org.in"
-ENDPOINT = _SCHEME + _SLASHES + _HOST + "/downloadables/gsec_sdl_tbill.json"
+RBI_HOST = "rbi.org.in"
+RBI_MASTER_PATH = "/downloadables/gsec_sdl_tbill.json"
+ENDPOINT = _SCHEME + _SLASHES + RBI_HOST + RBI_MASTER_PATH
 
 RECORD_KEYS = ("records", "data", "securities")
 
@@ -28,6 +30,10 @@ class SourceError(Exception):
     def __init__(self, failure_code):
         super().__init__(failure_code)
         self.failure_code = failure_code
+
+
+def _no_transport(url, timeout):
+    raise ConnectionError("no published-download transport configured")
 
 
 def _text(value):
@@ -98,7 +104,7 @@ def _compose(isin, record):
         "maturity": _text(record.get("maturity_date")) or None,
     }
     populated = {name: value for name, value in values.items() if value is not None}
-    return FetchResult(isin=isin, sources={name: NAME for name in populated}, **populated)
+    return FetchResult(isin=isin, sources={name: SOURCE_NAME for name in populated}, **populated)
 
 
 def _records(document):
@@ -142,23 +148,30 @@ def _map_body(isin, body):
     return _compose(isin, record)
 
 
-class Adapter:
-    name = NAME
+class RbiAdapter:
+    name = SOURCE_NAME
 
-    def __init__(self, reader, endpoint=ENDPOINT):
-        self.endpoint = endpoint
-        self._read = reader
+    def __init__(self, transport=None, timeout=DEFAULT_TIMEOUT, url=ENDPOINT):
+        self.url = url
+        self.timeout = timeout
+        self._transport = transport or _no_transport
 
     def fetch(self, isin):
         normalized = normalize_isin(isin)
         if normalized is None:
             return _failed(isin, FAILURE_INVALID_ISIN)
         try:
-            body = self._read(self.endpoint)
+            payload = self._transport(self.url, self.timeout)
         except SourceError as exc:
             return _failed(normalized, exc.failure_code)
         except TimeoutError:
             return _failed(normalized, FAILURE_TIMEOUT)
+        except FileNotFoundError:
+            return _failed(normalized, FAILURE_NOT_FOUND)
         except OSError:
             return _failed(normalized, FAILURE_UNREACHABLE)
-        return _map_body(normalized, body)
+        except Exception:
+            return _failed(normalized, FAILURE_UNREACHABLE)
+        if isinstance(payload, bytes):
+            payload = payload.decode("utf-8", "replace")
+        return _map_body(normalized, payload)
