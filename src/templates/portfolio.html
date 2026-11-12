@@ -204,7 +204,7 @@
             {% else %}
             {% set row = entry.row %}
             <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}" data-id="{{ row.id }}" class="position-row" tabindex="0">
-              <td class="cell-sticky cell-left"><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
+              <td class="cell-sticky cell-left"><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.provenance %}<span class="co-fetched" data-fetch-source="{{ row.provenance.source }}">fetched from {{ row.provenance.source }}{% if row.provenance.as_of %} · as of {{ row.provenance.as_of }}{% endif %}</span>{% endif %}{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
               <td>{% if row.rating %}{{ row.rating }}{% else %}&#8212;{% endif %}</td>
               <td class="num">{% if row.qty is none %}—{% else %}{{ row.qty }}{% endif %}</td>
               <td class="money">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
@@ -483,6 +483,7 @@
       factRow("Secured", securedText) +
       factRow("Broker", data.broker) +
       factRow("Source note", data.source_note) +
+      (data.provenance ? factRow("Fetched facts", "from " + data.provenance.source + (data.provenance.as_of ? " · as of " + data.provenance.as_of : "")) : "") +
       "</table></div></section>" +
       '<section class="dt-panel" id="dt-payments"><div class="detail-group" id="grp-payment-history">' +
       '<div class="group-title">6 &#183; Payment history</div>' + monthChips(data.payment_months) + "</div></section>" +
