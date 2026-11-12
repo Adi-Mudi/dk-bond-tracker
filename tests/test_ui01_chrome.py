@@ -88,6 +88,25 @@ def test_ui01_sidebar_collapse_control_exists(client):
     assert "sidebar-collapsed" in html
 
 
+def test_ui01_more_tab_toggles_the_drawer(client):
+    html = client.get("/").get_data(as_text=True)
+    match = re.search(r'moreTab\.addEventListener\("click", function \(\) \{([^}]*)\}', html)
+    assert match, "moreTab click handler not found"
+    handler = match.group(1)
+    assert "drawer-open" in handler
+    assert "setDrawer(true)" not in handler
+
+
+def test_ui01_collapse_button_hidden_where_collapse_does_not_apply():
+    assert "display: none" in css_block(".collapse-btn")
+    marker = "@media (min-width: 768px) {"
+    assert marker in CSS, "min-width:768px block missing"
+    wide = CSS.split(marker, 1)[1]
+    assert re.search(r"\.collapse-btn\s*\{\s*display:\s*inline-block", wide), (
+        "collapse button must be re-enabled inside the min-width:768px block"
+    )
+
+
 def test_ui01_overflow_menu_holds_each_control_once(client):
     html = client.get("/").get_data(as_text=True)
     inner = overflow_inner(html)
