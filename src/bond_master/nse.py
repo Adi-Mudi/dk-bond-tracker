@@ -5,6 +5,7 @@ import io
 from datetime import datetime
 
 from .base import (
+    FAILURE_BLOCKED,
     FAILURE_INVALID_ISIN,
     FAILURE_MALFORMED,
     FAILURE_NOT_FOUND,
@@ -143,7 +144,9 @@ class NseAdapter:
         if isinstance(payload, bytes):
             payload = payload.decode("utf-8", "replace")
         text = _clean(payload)
-        if not text or _looks_like_html(text):
+        if _looks_like_html(text):
+            return FetchResult(isin=normalized, failure_code=FAILURE_BLOCKED)
+        if not text:
             return FetchResult(isin=normalized, failure_code=FAILURE_MALFORMED)
         try:
             return self.parse(text, normalized)

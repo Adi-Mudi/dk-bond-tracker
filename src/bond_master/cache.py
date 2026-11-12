@@ -10,6 +10,7 @@ COOLDOWN_SECONDS = 60
 BOND_MASTER_FIELDS = (
     "isin",
     "company",
+    "coupon",
     "payout_cycle",
     "face_value",
     "rating",
@@ -52,6 +53,7 @@ class BondMasterCache:
         self.cooldown_seconds = cooldown_seconds
         self._last_refresh_at = None
         self._session_results = {}
+        self._edited_fields = {}
 
     def cooldown_remaining(self):
         if self._last_refresh_at is None:
@@ -78,10 +80,27 @@ class BondMasterCache:
             self._session_results[key] = fetcher()
         return self._session_results[key]
 
+    def mark_edited(self, isin, *fields):
+        bucket = self._edited_fields.setdefault(isin, set())
+        for field in fields:
+            if field in BOND_MASTER_FIELDS and field != "isin":
+                bucket.add(field)
+        return frozenset(bucket)
+
+    def edited_fields(self, isin):
+        return frozenset(self._edited_fields.get(isin, ()))
+
     def save(self, record):
         values = {field: record.get(field) for field in BOND_MASTER_FIELDS}
-        if not values["isin"]:
+        isin = values["isin"]
+        if not isin:
             raise AppError("ERR-bond-master-isin", "bond_master row requires an isin")
+        edited = self._edited_fields.get(isin)
+        if edited:
+            existing = self.lookup(isin)
+            if existing is not None:
+                for field in edited:
+                    values[field] = existing[field]
         if values["fetched_at"] is None:
             values["fetched_at"] = _asof_timestamp(self._clock())
         with get_conn(self.db_path) as conn:
@@ -92,3 +111,13 @@ class BondMasterCache:
         with get_conn(self.db_path) as conn:
             row = conn.execute(_SELECT_SQL, (isin,)).fetchone()
         return None if row is None else {field: row[field] for field in BOND_MASTER_FIELDS}
+
+    def as_of(self, isin):
+        row = self.lookup(isin)
+        return None if row is None else row["fetched_at"]
+
+    def offer(self, isin):
+        row = self.lookup(isin)
+        if row is None:
+            return None
+        return {**row, "as_of": row["fetched_at"]}

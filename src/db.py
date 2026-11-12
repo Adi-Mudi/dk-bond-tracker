@@ -51,6 +51,7 @@ SCHEMA_STATEMENTS = (
     """CREATE TABLE IF NOT EXISTS bond_master (
         isin TEXT PRIMARY KEY,
         company TEXT,
+        coupon REAL,
         payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual')),
         face_value REAL,
         rating TEXT,
@@ -122,6 +123,7 @@ def _ensure_bond_master_columns(conn):
     master_columns = {row[1] for row in conn.execute("PRAGMA table_info(bond_master)")}
     for column in (
         "company TEXT",
+        "coupon REAL",
         "payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual'))",
         "face_value REAL",
         "rating TEXT",
