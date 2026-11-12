@@ -375,7 +375,6 @@
       <button class="state-pill" type="button" data-state="found" aria-pressed="false">Found</button>
       <button class="state-pill" type="button" data-state="notfound" aria-pressed="false">Not found</button>
       <button class="state-pill" type="button" data-state="offline" aria-pressed="false">Offline</button>
-      <button class="state-pill" type="button" data-state="typo" aria-pressed="false">Check digit</button>
       <button class="state-pill" type="button" data-state="danger" aria-pressed="false">Downgraded</button>
     </div>
     <div class="theme-seg" role="group" aria-label="Theme">
@@ -472,16 +471,6 @@
                   </div>
                 </div>
 
-                <div class="banner banner-danger" data-role="banner" data-state="typo" hidden>
-                  <div>
-                    <strong>Check digit failed</strong>
-                    <p>The last character is calculated from the first 11. Expected <b class="mono">7</b>, you typed <b class="mono">9</b>.</p>
-                    <div class="actions">
-                      <button class="btn btn-sm btn-primary" type="button" data-action="edit-isin">Edit ISIN</button>
-                      <button class="btn btn-sm" type="button" data-action="manual">I verified this ISIN &mdash; save anyway</button>
-                    </div>
-                  </div>
-                </div>
 
                 <div class="banner banner-danger" data-role="banner" data-state="danger" hidden>
                   <div>
@@ -512,7 +501,7 @@
                         <button class="fetch-btn" type="button" data-role="fetch" title="Fetch details" aria-label="Fetch details for this ISIN">&#8635;</button>
                       </div>
                       <span class="field-help">
-                        <span class="caption" id="w-isin-help">12 characters &middot; ISO 6166 check digit</span>
+                        <span class="caption" id="w-isin-help">12 characters &middot; forced uppercase, unique across the register</span>
                         <button class="link-btn" type="button" data-role="fetch-link">Fetch details</button>
                       </span>
                       <span class="liq-line" id="w-liq-preview">Liquidity preview &mdash; traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026 <span class="chip chip-thin">THIN</span></span>
@@ -738,16 +727,6 @@
                 </div>
               </div>
 
-              <div class="banner banner-danger" data-role="banner" data-state="typo" hidden>
-                <div>
-                  <strong>Check digit failed</strong>
-                  <p>The last character is calculated from the first 11. Expected <b class="mono">7</b>, you typed <b class="mono">9</b>.</p>
-                  <div class="actions">
-                    <button class="btn btn-sm btn-primary" type="button" data-action="edit-isin">Edit ISIN</button>
-                    <button class="btn btn-sm" type="button" data-action="manual">I verified this ISIN &mdash; save anyway</button>
-                  </div>
-                </div>
-              </div>
 
               <div class="banner banner-danger" data-role="banner" data-state="danger" hidden>
                 <div>
@@ -778,7 +757,7 @@
                       <button class="fetch-btn" type="button" data-role="fetch" title="Fetch details" aria-label="Fetch details for this ISIN">&#8635;</button>
                     </div>
                     <span class="field-help">
-                      <span class="caption" id="m-isin-help">12 characters &middot; ISO 6166 check digit</span>
+                      <span class="caption" id="m-isin-help">12 characters &middot; forced uppercase, unique across the register</span>
                       <button class="link-btn" type="button" data-role="fetch-link">Fetch details</button>
                     </span>
                     <span class="liq-line" id="m-liq-preview">Liquidity preview &mdash; traded on 2 of the last 30 sessions, &#8377;3.1 L total, last trade 4 Nov 2026 <span class="chip chip-thin">THIN</span></span>
@@ -1019,26 +998,9 @@
     });
   }
 
-  function checkDigit(input) {
+  function validShape(input) {
     var value = String(input || '').toUpperCase();
-    if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(value)) return { ok: false, reason: 'shape' };
-    var expanded = '';
-    for (var i = 0; i < 11; i += 1) {
-      var ch = value.charAt(i);
-      expanded += /[A-Z]/.test(ch) ? String(ch.charCodeAt(0) - 55) : ch;
-    }
-    var total = 0;
-    var rev = expanded.split('').reverse();
-    for (var j = 0; j < rev.length; j += 1) {
-      var d = Number(rev[j]);
-      if (j % 2 === 0) {
-        d *= 2;
-        if (d > 9) d -= 9;
-      }
-      total += d;
-    }
-    var expected = (10 - (total % 10)) % 10;
-    return { ok: expected === Number(value.charAt(11)), expected: expected, reason: 'check' };
+    return { ok: /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(value) };
   }
 
   function prefill(prefix) {
@@ -1076,10 +1038,10 @@
   function runFetch(prefix) {
     var value = field(prefix, 'isin').value.trim().toUpperCase();
     syncIsin(value);
-    var result = checkDigit(value);
+    var result = validShape(value);
     if (!result.ok) {
-      showState('typo');
-      announce(result.reason === 'shape' ? 'ISIN format is wrong.' : 'Check digit failed. Expected ' + result.expected + '.');
+      showState('idle');
+      announce('ISIN format is wrong - 12 characters, like INE134E08LD7.');
       return;
     }
     showState('checking');
