@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D10 — Backup &amp; restore (Google Drive + Google sign-in)</title>
+<script>
+(function () {
+  var stored = localStorage.getItem('dk-theme') || 'system';
+  document.documentElement.setAttribute('data-theme', stored);
+})();
+</script>
+<link rel="stylesheet" href="../../src/static/theme.css?v=3">
+<style>
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; }
+  section.screen { margin-bottom: 40px; scroll-margin-top: 64px; }
+  .screen-title {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 14px; margin-bottom: 12px;
+  }
+  .screen-title h2 { font-size: 18px; font-weight: 700; }
+  .screen-title .refs { font-size: 12px; color: var(--muted); }
+  .screen-frame {
+    background: var(--page-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(25,25,25,0.08);
+  }
+  .title-bar {
+    background: var(--blue-light);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .title-bar .tabs { font-weight: 600; font-size: 12px; color: var(--muted); }
+  .screen-body { padding: 18px; }
+  .sticky-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .sticky-nav a {
+    text-decoration: none; color: var(--muted); font-size: 13px; font-weight: 600;
+    padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--card);
+  }
+  .sticky-nav a.active { color: var(--accent); border-color: var(--accent); }
+  .note-line { font-size: 12px; color: var(--muted); }
+  .settings-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .settings-nav-title { font-size: 13px; margin-bottom: 4px; }
+  .settings-nav-item { padding: 7px 9px; border-radius: 6px; text-decoration: none; color: var(--text); }
+  .settings-nav-item.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .settings-nav-item.pointer { color: var(--muted); font-size: 11px; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 9px; }
+  .settings-section { margin-bottom: 12px; }
+  .check-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; min-height: 2.5rem; }
+  .check-row input { width: 1.25rem; height: 1.25rem; accent-color: var(--accent); }
+  .backup-status { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 10px; }
+  .backup-line { font-size: 13px; }
+  .snap-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .snap-row .name { font-weight: 700; }
+  .snap-row .meta { color: var(--muted); }
+  .snap-row .actions { margin-left: auto; display: flex; gap: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <nav class="sticky-nav" aria-label="Design screens">
+    <a href="#screen_settings_backup" class="active">Settings &#8594; Backup</a>
+  </nav>
+
+  <section class="screen" id="screen_settings_backup">
+    <div class="screen-title">
+      <h2>1. Settings &#8594; Backup</h2>
+      <span class="refs">design file: src/design/d10_backup_design.html &#183; source: src/templates/settings.html &#183; decision D10 &#183; discussion 194 &#183; discussion 81</span>
+    </div>
+    <div class="screen-frame">
+      <div class="title-bar"><span>Settings</span><span class="tabs">Backup section &#8212; optional, user-driven, off by default</span></div>
+      <div class="screen-body">
+<hr class="section-divider">
+
+<h1 style="font-size:18px;margin-bottom:12px;">Settings</h1>
+<nav class="settings-nav" id="settings-nav" aria-label="Settings sections">
+  <b class="settings-nav-title">Settings</b>
+  <a class="settings-nav-item" href="#">General</a>
+  <a class="settings-nav-item" href="#">Notifications</a>
+  <a class="settings-nav-item" href="#">Share / Export</a>
+  <a class="settings-nav-item" href="#">Data</a>
+  <a class="settings-nav-item active" href="#">Backup</a>
+  <a class="settings-nav-item pointer" href="#">About &#8594;</a>
+</nav>
+
+<div class="settings-section" id="section-backup">
+  <div class="card" id="backup-card">
+    <h2>Backup</h2>
+    <div class="backup-status">
+      <span class="chip chip-ongoing">Drive connected</span>
+      <span class="backup-line">Signed in as <b>anil@example.com</b> &#183; the consent was one-time, the app stays signed in silently</span>
+    </div>
+    <p class="caption" id="backup-connect-note">We ask for <b>openid</b>, <b>email</b> and <b>drive.appdata</b> &#8212; the hidden app folder in your Drive that only this app can read. Nothing else in your Drive is visible to us.</p>
+    <p class="backup-line" id="backup-last">Last backup <b>12 Nov 2026, 08:00</b> &#183; 412 KB &#183; encrypted before upload</p>
+    <p class="caption" id="backup-next">Next automatic backup: <b>daily at 08:00</b> while the app is open. Local snapshots are kept too (last 20).</p>
+    <div class="section-gap" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary" id="backup-now">Back up now</button>
+      <button type="button" class="btn" id="backup-restore">Restore from Drive</button>
+      <form method="post" action="#" style="display:inline;"><button type="submit" class="btn">Disconnect</button></form>
+    </div>
+    <p class="caption" id="backup-warn">If you remove this app from Google Drive, the hidden folder is deleted with it &#8212; the local snapshots are your safety net.</p>
+  </div>
+
+  <div class="card" id="backup-schedule-card">
+    <h2>Automatic backup</h2>
+    <div class="field-row" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+      <div class="field">
+        <label for="backup-time">Time of day (HH:MM)</label>
+        <input type="text" id="backup-time" value="08:00">
+        <span class="caption">Leave empty for no automatic backup.</span>
+      </div>
+      <div class="field">
+        <label for="backup-keep">Local snapshots kept</label>
+        <input type="text" id="backup-keep" value="20">
+        <span class="caption">The newest are kept; the oldest are removed.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="backup-content-card">
+    <h2>What is in a backup</h2>
+    <label class="check-row"><input type="checkbox" checked> Holdings, payouts, goals, alerts and settings</label>
+    <label class="check-row"><input type="checkbox" disabled> Instrument facts (refetched from NSDL / NSE / RBI / BSE)</label>
+    <label class="check-row"><input type="checkbox" disabled> Liquidity readings (refetched from the NSE bhavcopy)</label>
+    <label class="check-row"><input type="checkbox" disabled> Payout instances (regenerated from the dates and cycle)</label>
+    <p class="caption">Only your own work is backed up. The three unticked rows are rebuilt by the app, so they are never stored in the cloud.</p>
+  </div>
+
+  <div class="card" id="backup-snapshots-card">
+    <h2>Local snapshots</h2>
+    <div class="snap-row">
+      <span class="name">12 Nov 2026, 08:00</span><span class="meta">412 KB &#183; uploaded to Drive</span>
+      <span class="actions"><button type="button" class="btn btn-sm">Restore</button><button type="button" class="btn btn-sm">Delete</button></span>
+    </div>
+    <div class="snap-row">
+      <span class="name">11 Nov 2026, 08:00</span><span class="meta">409 KB &#183; uploaded to Drive</span>
+      <span class="actions"><button type="button" class="btn btn-sm">Restore</button><button type="button" class="btn btn-sm">Delete</button></span>
+    </div>
+    <div class="snap-row">
+      <span class="name">10 Nov 2026, 08:00</span><span class="meta">404 KB &#183; local only</span>
+      <span class="actions"><button type="button" class="btn btn-sm">Restore</button><button type="button" class="btn btn-sm">Delete</button></span>
+    </div>
+    <p class="caption">17 more kept. A restore replaces the current data &#8212; it asks first.</p>
+  </div>
+</div>
+
+<div class="section-gap">
+  <button class="btn btn-primary" type="submit" id="save-settings">Save settings</button>
+  <span class="saved-flag" id="settings-saved">&#10003; Saved</span>
+</div>
+
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

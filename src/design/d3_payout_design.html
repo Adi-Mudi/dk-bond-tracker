@@ -137,6 +137,10 @@
   .suggest-line b { font-variant-numeric: tabular-nums; }
   .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0 24px; }
   .totals-row td { font-weight: 700; border-top: 2px solid var(--border); }
+  section.screen { margin-bottom: 40px; scroll-margin-top: 64px; }
+  .screen-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 14px; }
+  .screen-title h2 { font-size: 18px; font-weight: 700; }
+  .screen-title .refs { font-size: 12px; color: var(--muted); }
   .perf-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 12px; margin-bottom: 16px; }
   .perf-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
   .perf-card .label { font-size: 10.5px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
@@ -269,6 +273,11 @@
 </header>
 
 <main class="main">
+  <section class="screen" id="screen_portfolio">
+    <div class="screen-title">
+      <h2>1. Portfolio</h2>
+      <span class="refs">source: src/templates/portfolio.html + src/views/portfolio.py &#183; decisions D3 (payout cycle), D5 (Tax tab), D6 (liquidity column), D7 (Performance tab), D13 (payment verification) &#183; discussion 194</span>
+    </div>
 <h1 style="font-size:18px;margin-bottom:12px;">Portfolio</h1>
 
 <div id="portfolio-body">
@@ -755,9 +764,13 @@
   </div>
 </div>
 
-<hr class="section-divider">
+  </section>
 
-<span class="page-tag">Bond detail &#183; /portfolio/&lt;id&gt; &#183; new: Liquidity and Payment-verification groups</span>
+  <section class="screen" id="screen_bond_detail">
+    <div class="screen-title">
+      <h2>2. Bond detail</h2>
+      <span class="refs">source: src/templates/portfolio_detail.html + src/queries/detail.py &#183; decisions D3 (cycle-aware schedule), D5 (Tax tab), D6 (liquidity), D7 (performance), D13 (payment verification)</span>
+    </div>
 <div class="detail-page" id="detail-page">
   <div class="detail-head">
     <a class="back-link" href="#">&#8592; Portfolio</a>
@@ -885,8 +898,13 @@
   </section>
 </div>
 
-<hr class="section-divider">
+  </section>
 
+  <section class="screen" id="screen_payment_edit">
+    <div class="screen-title">
+      <h2>3. Payment Edit</h2>
+      <span class="refs">source: src/templates/payment_edit.html + route /payment/&lt;bond&gt;/&lt;month&gt; in src/views/dashboard.py &#183; decisions D3 (payout instances), D5 (TDS reason and bond profile)</span>
+    </div>
 <h1 style="font-size:18px;margin-bottom:12px;">Payment Edit</h1>
 <p class="table-note" style="margin-top:0;">Opened from a Payouts month cell. Enter the amount that actually landed in your bank (after TDS). Save recomputes the row and bond status (live query, no open/save event).</p>
 <div class="payment-edit-card">
@@ -962,6 +980,9 @@
     <button class="btn btn-secondary" type="submit">Save</button>
   </form>
 </div>
+
+  </section>
+
 </main>
 </div>
 </div>
