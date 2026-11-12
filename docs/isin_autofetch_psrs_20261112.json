@@ -2,7 +2,7 @@
   "id": "isin_autofetch_psrs_20261112",
   "kind": "psrs",
   "title": "ISIN autofetch, payout cycle, TDS, liquidity and payment verification - V-model spec suite",
-  "version": "v1.0",
+  "version": "v1.1",
   "status": "draft",
   "project": "dk-bond-tracker",
   "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/194",
@@ -506,6 +506,259 @@
           "then": "the as-of date is visible next to it"
         }
       ]
+    },
+    {
+      "id": "AF-01",
+      "text": "When the user leaves the ISIN field with a valid 12-character ISIN, the system SHALL run the lookup once and prefill the instrument's own facts - company, coupon, payout cycle, face value, rating, rating agency, issuer type, secured, listing status and maturity - with the source of each value shown.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a valid ISIN of a listed NCD is typed and the user leaves the ISIN field",
+          "when": "the fetch runs exactly once",
+          "then": "the ten instrument facts fill in and every fetched value shows its source"
+        },
+        {
+          "given": "the NSDL record for the ISIN carries no rating",
+          "when": "the remaining fields are filled from the merged sources",
+          "then": "the rating field shows the value from the next source that has one, with its agency and source"
+        }
+      ]
+    },
+    {
+      "id": "AF-02",
+      "text": "When the lookup finds no record for the ISIN, the app SHALL say so plainly and leave the form fully usable; a failed or empty fetch SHALL NEVER block adding the bond.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a valid ISIN has no record in any source",
+          "when": "the user tries to save the bond",
+          "then": "the add succeeds with the user's own typed values"
+        },
+        {
+          "given": "the lookup returns not found",
+          "when": "the user looks at the form",
+          "then": "a plain 'metadata not found - enter manually' message is shown and every field stays editable"
+        }
+      ]
+    },
+    {
+      "id": "AF-03",
+      "text": "When the device is offline, the lookup SHALL report the offline state without blocking, and SHALL offer the cached values with their as-of date.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the device is offline when the user opens the add form",
+          "when": "the user types an ISIN",
+          "then": "the offline state is shown, cached values are offered with their as-of date and the form remains fully usable"
+        },
+        {
+          "given": "the cache holds an older record for the ISIN",
+          "when": "the user accepts the cached values",
+          "then": "each cached value carries its as-of date and remains editable"
+        }
+      ]
+    },
+    {
+      "id": "AF-04",
+      "text": "When a fetched company already exists in the register, the save SHALL apply the existing duplicate rule exactly as it does for a typed company.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the fetch returns a company that already has an active position",
+          "when": "the user saves",
+          "then": "the existing active-position lock rejects the duplicate with the same error as a typed company"
+        },
+        {
+          "given": "the fetched company exists but the duplicate rule allows a new position",
+          "when": "the user saves",
+          "then": "the save succeeds under the unchanged rule"
+        }
+      ]
+    },
+    {
+      "id": "AF-05",
+      "text": "When the user edits a fetched value, the edit SHALL be kept and SHALL NOT be overwritten by the next fetch.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the user edits the prefilled coupon after a fetch",
+          "when": "a later refresh fetches the same ISIN",
+          "then": "the user's edited coupon is unchanged"
+        },
+        {
+          "given": "the user edits a prefilled value",
+          "when": "the app restarts and the background refresh runs",
+          "then": "the edit persists"
+        }
+      ]
+    },
+    {
+      "id": "AF-06",
+      "text": "When a source is unavailable, the lookup SHALL try the next source in the priority order NSDL - RBI - NSE - BSE, and the failure code SHALL be visible in the per-source health view.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "NSDL returns a failure for the ISIN",
+          "when": "the lookup continues",
+          "then": "RBI, then NSE, then BSE are tried in order and the result comes from the first source that answers"
+        },
+        {
+          "given": "a source has failed at least once in the session",
+          "when": "the user opens the per-source health view",
+          "then": "the source shows its failure code"
+        }
+      ]
+    },
+    {
+      "id": "AF-07",
+      "text": "Data access SHALL use published download files only - no scraping of the NSE website or API - with at most 1 request per source per ISIN per session, a global throttle and a 60-second cooldown.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "two refreshes are requested within 60 seconds",
+          "when": "the second request is evaluated",
+          "then": "it is blocked by the cooldown until 60 seconds have passed"
+        },
+        {
+          "given": "a fetch runs for an ISIN",
+          "when": "the same source is asked again in the same session",
+          "then": "it is served from the session result and no second request is made"
+        },
+        {
+          "given": "any adapter is invoked",
+          "when": "the request path is inspected",
+          "then": "only published download-file endpoints are used - never the NSE site or API"
+        }
+      ]
+    },
+    {
+      "id": "AF-08",
+      "text": "The ISIN SHALL be mandatory for every bond - no ISIN, no entry - and the fetch SHALL store listing_status (listed/unlisted/unknown) on bond_master without ever overloading issuer_type.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond is submitted without an ISIN",
+          "when": "validation runs",
+          "then": "the entry is rejected - there is no ISIN-less path"
+        },
+        {
+          "given": "a fetched private placement carries an ISIN",
+          "when": "the record is saved",
+          "then": "listing_status stores 'unlisted' on bond_master and issuer_type keeps its own meaning"
+        },
+        {
+          "given": "an existing bond has no ISIN from before the rule",
+          "when": "the record is displayed",
+          "then": "it remains viewable and the rule applies to new entries only"
+        }
+      ]
+    },
+    {
+      "id": "AF-09",
+      "text": "When the fetched rating is below BBB- or the bond is unrated, the system SHALL REFUSE the bond with a plain message explaining the investment-grade limit; it SHALL never be silently accepted.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fetched bond is rated BB+",
+          "when": "the result is evaluated",
+          "then": "the bond is refused and the message states the application supports only AAA to BBB-"
+        },
+        {
+          "given": "a fetched bond has no rating at all",
+          "when": "the result is evaluated",
+          "then": "the bond is refused with the same plain explanation"
+        },
+        {
+          "given": "a fetched bond is rated BBB-",
+          "when": "the result is evaluated",
+          "then": "the bond is accepted and prefilled normally"
+        }
+      ]
+    },
+    {
+      "id": "AF-10",
+      "text": "One background bond-master refresh SHALL run on every app start, a manual refresh icon SHALL always be available, and a 60-second cooldown SHALL block any refresh - automatic or manual - until the interval passes; offline, cached values are shown with their as-of date.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the app starts",
+          "when": "the start sequence runs",
+          "then": "one background refresh is triggered - no more than one"
+        },
+        {
+          "given": "the user taps the manual refresh icon 3 times inside 60 seconds",
+          "when": "each tap is evaluated",
+          "then": "the first refresh runs and the rest are blocked by the cooldown"
+        },
+        {
+          "given": "the app starts with no network",
+          "when": "the refresh attempt completes",
+          "then": "the cached values are displayed with their as-of date and no error blocks the UI"
+        }
+      ]
+    },
+    {
+      "id": "AF-11",
+      "text": "The About page SHALL attribute every data source by name, and release builds SHALL bundle the CC0 india-isin-data snapshot to seed a fresh install and offline first run.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a user opens the About page",
+          "when": "the sources are listed",
+          "then": "NSDL, RBI, NSE, BSE and india-isin-data are named with their licence notes"
+        },
+        {
+          "given": "a fresh install starts with no cache",
+          "when": "the first add form is opened",
+          "then": "the bundled snapshot already answers common ISINs without any network call"
+        }
+      ]
+    },
+    {
+      "id": "AF-12",
+      "text": "The fetch SHALL fill instrument facts only - position facts (amount, quantity, dates, credit day) are never prefilled - and the add form SHALL present exactly the six fetch states: idle, checking, found, not found, offline, downgrade.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fetch completes successfully",
+          "when": "the user reviews the form",
+          "then": "amount, quantity, start date, end date and credit day are still empty for the user to enter"
+        },
+        {
+          "given": "the fetch states are exercised",
+          "when": "each state renders",
+          "then": "the UI shows exactly idle, checking, found, not found, offline and downgrade - no check-digit state"
+        },
+        {
+          "given": "a value can only be downgraded to a lesser-confidence source",
+          "when": "the downgrade path runs",
+          "then": "the downgrade state is shown and the value keeps its source label"
+        }
+      ]
     }
   ],
   "prd_items": [
@@ -676,6 +929,102 @@
       "priority": "must",
       "status": "accepted",
       "decision_id": "D13"
+    },
+    {
+      "id": "AF-01",
+      "area": "isin_autofetch",
+      "statement": "When the user leaves the ISIN field with a valid 12-character ISIN, the system SHALL run the lookup once and prefill the instrument's own facts - company, coupon, payout cycle, face value, rating, rating agency, issuer type, secured, listing status and maturity - with the source of each value shown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-02",
+      "area": "isin_autofetch",
+      "statement": "When the lookup finds no record for the ISIN, the app SHALL say so plainly and leave the form fully usable; a failed or empty fetch SHALL NEVER block adding the bond.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-03",
+      "area": "isin_autofetch",
+      "statement": "When the device is offline, the lookup SHALL report the offline state without blocking, and SHALL offer the cached values with their as-of date.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-04",
+      "area": "isin_autofetch",
+      "statement": "When a fetched company already exists in the register, the save SHALL apply the existing duplicate rule exactly as it does for a typed company.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-05",
+      "area": "isin_autofetch",
+      "statement": "When the user edits a fetched value, the edit SHALL be kept and SHALL NOT be overwritten by the next fetch.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-06",
+      "area": "isin_autofetch",
+      "statement": "When a source is unavailable, the lookup SHALL try the next source in the priority order NSDL - RBI - NSE - BSE, and the failure code SHALL be visible in the per-source health view.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-07",
+      "area": "isin_autofetch",
+      "statement": "Data access SHALL use published download files only - no scraping of the NSE website or API - with at most 1 request per source per ISIN per session, a global throttle and a 60-second cooldown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1/OP12"
+    },
+    {
+      "id": "AF-08",
+      "area": "isin_autofetch",
+      "statement": "The ISIN SHALL be mandatory for every bond - no ISIN, no entry - and the fetch SHALL store listing_status (listed/unlisted/unknown) on bond_master without ever overloading issuer_type.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "OP13"
+    },
+    {
+      "id": "AF-09",
+      "area": "isin_autofetch",
+      "statement": "When the fetched rating is below BBB- or the bond is unrated, the system SHALL REFUSE the bond with a plain message explaining the investment-grade limit; it SHALL never be silently accepted.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "OP14"
+    },
+    {
+      "id": "AF-10",
+      "area": "isin_autofetch",
+      "statement": "One background bond-master refresh SHALL run on every app start, a manual refresh icon SHALL always be available, and a 60-second cooldown SHALL block any refresh - automatic or manual - until the interval passes; offline, cached values are shown with their as-of date.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "OP15"
+    },
+    {
+      "id": "AF-11",
+      "area": "isin_autofetch",
+      "statement": "The About page SHALL attribute every data source by name, and release builds SHALL bundle the CC0 india-isin-data snapshot to seed a fresh install and offline first run.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1/OP12"
+    },
+    {
+      "id": "AF-12",
+      "area": "isin_autofetch",
+      "statement": "The fetch SHALL fill instrument facts only - position facts (amount, quantity, dates, credit day) are never prefilled - and the add form SHALL present exactly the six fetch states: idle, checking, found, not found, offline, downgrade.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
     }
   ],
   "test_cases": [
@@ -876,6 +1225,114 @@
       "expected": "The monthly bond has 12 instances a year, quarterly 4, semi-annual 2 and annual 1; each instance carries its own gross, TDS and net and the financial-year totals equal the sum of the instances inside the year",
       "level": "LOCAL",
       "status": "planned"
+    },
+    {
+      "id": "TC-AF-01",
+      "title": "AF-01 prefill with source (AF-01)",
+      "type": "integration",
+      "steps": "User types a valid ISIN and tabs out. Fetch runs once; company, coupon, cycle, face value, rating, agency, issuer type, secured, listing status and maturity fill with source labels.",
+      "expected": "Given/When/then of AF-01 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-02",
+      "title": "AF-02 never blocks (AF-02)",
+      "type": "integration",
+      "steps": "Mock all sources returning no match. Save succeeds; message shown; form never blocked.",
+      "expected": "Given/When/then of AF-02 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-03",
+      "title": "AF-03 offline cache (AF-03)",
+      "type": "integration",
+      "steps": "Run with network disabled: offline state, cached values with as-of date, no block.",
+      "expected": "Given/When/then of AF-03 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-04",
+      "title": "AF-04 duplicate rule (AF-04)",
+      "type": "integration",
+      "steps": "Fetch a company that exists with an active position; save attempt returns the standard duplicate error.",
+      "expected": "Given/When/then of AF-04 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-05",
+      "title": "AF-05 edits kept (AF-05)",
+      "type": "integration",
+      "steps": "Prefill, edit coupon, trigger refresh twice; edited value survives both.",
+      "expected": "Given/When/then of AF-05 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-06",
+      "title": "AF-06 source failover (AF-06)",
+      "type": "integration",
+      "steps": "Make the first adapter raise; assert the second adapter is called and health view shows the failure code.",
+      "expected": "Given/When/then of AF-06 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-07",
+      "title": "AF-07 throttle and files-only (AF-07)",
+      "type": "integration",
+      "steps": "Cooldown timer test + session cache test + adapter request URL assertion (fixtures, no live network).",
+      "expected": "Given/When/then of AF-07 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-08",
+      "title": "AF-08 ISIN mandatory (AF-08)",
+      "type": "integration",
+      "steps": "Submit without ISIN -> rejected. Save fetched unlisted bond -> listing_status='unlisted', issuer_type untouched.",
+      "expected": "Given/When/then of AF-08 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-09",
+      "title": "AF-09 rating gate (AF-09)",
+      "type": "integration",
+      "steps": "Fixture ratings AA, BBB-, BB+, unrated; assert accept/refuse per the WATCH_RATINGS band.",
+      "expected": "Given/When/then of AF-09 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-10",
+      "title": "AF-10 refresh model (AF-10)",
+      "type": "integration",
+      "steps": "Count refreshes on startup; triple-tap icon inside cooldown; offline startup shows cache as-of.",
+      "expected": "Given/When/then of AF-10 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-11",
+      "title": "AF-11 attribution and snapshot (AF-11)",
+      "type": "integration",
+      "steps": "Assert About page source list; clear cache, start offline, check snapshot answers a common ISIN.",
+      "expected": "Given/When/then of AF-11 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-12",
+      "title": "AF-12 instrument facts and six states (AF-12)",
+      "type": "integration",
+      "steps": "Walk all six states in the UI test; assert position fields empty after a successful fetch.",
+      "expected": "Given/When/then of AF-12 all hold",
+      "level": "LOCAL",
+      "status": "planned"
     }
   ],
   "test_bindings": [
@@ -988,6 +1445,66 @@
       "requirement_id": "PC-02",
       "test_case_id": "TC-MATRIX-01",
       "covers": "full"
+    },
+    {
+      "requirement_id": "AF-01",
+      "test_case_id": "TC-AF-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-02",
+      "test_case_id": "TC-AF-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-03",
+      "test_case_id": "TC-AF-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-04",
+      "test_case_id": "TC-AF-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-05",
+      "test_case_id": "TC-AF-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-06",
+      "test_case_id": "TC-AF-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-07",
+      "test_case_id": "TC-AF-07",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-08",
+      "test_case_id": "TC-AF-08",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-09",
+      "test_case_id": "TC-AF-09",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-10",
+      "test_case_id": "TC-AF-10",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-11",
+      "test_case_id": "TC-AF-11",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-12",
+      "test_case_id": "TC-AF-12",
+      "covers": "full"
     }
   ],
   "carry_over": [],
@@ -996,6 +1513,11 @@
       "version": "v1.0",
       "date": "2026-11-12",
       "note": "First suite: PC-01..PC-06, TDS-01..TDS-06, LIQ-01..LIQ-04, PV-01..PV-05 plus the cycle-matrix test."
+    },
+    {
+      "version": "v1.1",
+      "date": "2026-11-12",
+      "note": "ISIN autofetch group AF-01..AF-12 added from discussion #234 (locked D1 decisions + confirmed OP12-OP15): prefill with source, never-block, offline cache, duplicate rule, edits kept, source failover, download-files-only + throttle/60s, ISIN mandatory + listing_status, rating refusal, refresh model, attribution + CC0 snapshot, instrument facts + six states (no check-digit state - D2 rejected by owner). PC/TDS/LIQ/PV groups untouched."
     }
   ]
 }

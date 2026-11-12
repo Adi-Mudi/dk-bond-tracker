@@ -1,0 +1,1523 @@
+{
+  "id": "isin_autofetch_psrs_20261112",
+  "kind": "psrs",
+  "title": "ISIN autofetch, payout cycle, TDS, liquidity and payment verification - V-model spec suite",
+  "version": "v1.1",
+  "status": "draft",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/194",
+  "derived_from": "Locked decisions D3 (payout cycle and instances), D5 (TDS), D6 (liquidity) and D13 (payment verification) from discussion #194, plus the research doc .IDE_Plans/d5_d6_d8_research_20261112.json and the locked design artefacts src/design/d1_isin_autofetch.html and src/design/d3_payout_design.html - documentation only, zero new decisions (Stage 2 rule)",
+  "requirements": [
+    {
+      "id": "PC-01",
+      "text": "The payout cycle SHALL be one of monthly, quarterly, semi_annual or annual, with the legacy aliases yearly->annual and semi/semi-annual->semi_annual, and the database CHECK constraint SHALL accept all four values.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond with payout_cycle 'yearly' already in the register",
+          "when": "the cycle is read for display or calculation",
+          "then": "the canonical cycle 'annual' is used everywhere"
+        },
+        {
+          "given": "a new bond saved with payout_cycle 'semi_annual'",
+          "when": "the row is written to the bonds table",
+          "then": "the write succeeds and the value is readable unchanged"
+        },
+        {
+          "given": "a bond saved with payout_cycle 'weekly'",
+          "when": "the write is attempted",
+          "then": "it is rejected with a named validation error"
+        }
+      ]
+    },
+    {
+      "id": "PC-02",
+      "text": "The payout due month SHALL be the period end, not the period start, and the last instance of a bond SHALL cover only the months it actually covers.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a quarterly bond starting 2025-09-05 with tenure 24 months and credit day 5",
+          "when": "the schedule is built",
+          "then": "the due months are 2025-12, 2026-03, 2026-06, 2026-09, 2026-12, 2027-03, 2027-06, 2027-09 and each due date is the 5th of that month"
+        },
+        {
+          "given": "a quarterly bond with tenure 10 months",
+          "when": "the schedule is built",
+          "then": "the last instance is due in month 10 and records 1 covered month instead of 3"
+        },
+        {
+          "given": "a bond whose credit day is 31 in April",
+          "when": "the due date is computed",
+          "then": "the due date is clamped to 30 Apr, not 31 Apr"
+        }
+      ]
+    },
+    {
+      "id": "PC-03",
+      "text": "The Payouts month grid SHALL show one cell per month; a payout instance SHALL show its amount or its state, and a month that is not a payout instance SHALL show the bond's cycle label and SHALL NOT be clickable.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a quarterly bond in the Payouts grid",
+          "when": "the grid is rendered",
+          "then": "every non-instance month shows the cycle label and every instance month shows an amount or a state"
+        },
+        {
+          "given": "a non-instance month cell of a quarterly bond",
+          "when": "the user clicks it",
+          "then": "no editor opens and nothing is written"
+        },
+        {
+          "given": "a monthly bond",
+          "when": "the grid is rendered",
+          "then": "every month is an instance and no cell carries a cycle label"
+        }
+      ]
+    },
+    {
+      "id": "PC-04",
+      "text": "The health of a bond SHALL be derived per payout instance, so that a quarterly or annual bond is never marked dangerous because of a month that is not a payout month.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a quarterly bond with credit day 5 where the December instance is unpaid and today is 2026-02-10",
+          "when": "the health is computed",
+          "then": "the bond is in danger from 6 Dec, and the unpaid October and November months do not create a danger"
+        },
+        {
+          "given": "a monthly bond with an unpaid past month",
+          "when": "the health is computed",
+          "then": "the bond is in danger"
+        },
+        {
+          "given": "a bond whose instances are all paid",
+          "when": "the health is computed",
+          "then": "the bond is completed"
+        }
+      ]
+    },
+    {
+      "id": "PC-05",
+      "text": "The payout cycle SHALL be inferrable from the issuer's filed payment confirmations by the median gap between observed due dates, and an inference with fewer than two observations SHALL be unknown and SHALL NEVER be auto-filled.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "two issuer confirmations for an ISIN 91 days apart",
+          "when": "the cycle is inferred",
+          "then": "the inferred cycle is quarterly and both dates are shown as evidence"
+        },
+        {
+          "given": "a single issuer confirmation for an ISIN",
+          "when": "the cycle is inferred",
+          "then": "the result is unknown and the stored cycle is left unchanged"
+        },
+        {
+          "given": "an inferred quarterly cycle for a bond whose stored cycle is monthly",
+          "when": "the user views the suggestion",
+          "then": "the suggestion is shown with its evidence and is not written until the user accepts it"
+        }
+      ]
+    },
+    {
+      "id": "PC-06",
+      "text": "Existing bonds SHALL keep working when the instance model is introduced: the monthly ledger stays as the accrual detail, instances are backfilled from the stored cycle, and the old period-start schedule tests are updated.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond created before the change with no stored cycle",
+          "when": "the backfill runs",
+          "then": "it receives monthly instances and its status is unchanged"
+        },
+        {
+          "given": "an existing paid ledger row",
+          "when": "the bond is displayed",
+          "then": "the recorded amount is still shown and the instance marks it paid"
+        },
+        {
+          "given": "the payout schedule test file",
+          "when": "the suite runs after the change",
+          "then": "the expectations describe period-end due months"
+        }
+      ]
+    },
+    {
+      "id": "TDS-01",
+      "text": "One shared TDS calculation SHALL produce gross, TDS and net, and the payment editor, the Portfolio returns and the Dashboard KPI SHALL show identical values for the same payment.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a payment of net 1010 with a 10% rate",
+          "when": "the value is read on all three surfaces",
+          "then": "each shows net 1010.00, TDS 112.22 and gross 1122.22"
+        },
+        {
+          "given": "a payment stored with rate 20%",
+          "when": "the value is read on all three surfaces",
+          "then": "each shows the 20% split, not the 10% split"
+        },
+        {
+          "given": "a payment row with no stored rate",
+          "when": "the value is read",
+          "then": "the default 10% rate is used, matching the pre-existing behaviour"
+        }
+      ]
+    },
+    {
+      "id": "TDS-02",
+      "text": "Each payment SHALL store its own TDS rate and reason, and the stored values SHALL be the source of truth for every display; the bond profile SHALL only supply the default for future payments.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a payment recorded before the bond profile was set to exempt",
+          "when": "the payment history is displayed",
+          "then": "the payment still shows the TDS that was actually deducted"
+        },
+        {
+          "given": "a bond profile changed to exempt from July 2026",
+          "when": "a new payment for September 2026 is recorded",
+          "then": "the new payment uses exempt and TDS 0, while earlier months keep their own values"
+        },
+        {
+          "given": "a payment with reason 'no_pan'",
+          "when": "the payment is displayed",
+          "then": "the 20% rate is shown with the no-PAN reason"
+        }
+      ]
+    },
+    {
+      "id": "TDS-03",
+      "text": "A bond SHALL carry a TDS profile - mode, rate, PAN availability, declaration form and exemption window - and changing it SHALL NOT alter any recorded month.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond profile changed on 12 Nov 2026",
+          "when": "the payment history is listed",
+          "then": "payments before 12 Nov 2026 keep their recorded amounts and reasons"
+        },
+        {
+          "given": "a bond with no PAN and no declaration",
+          "when": "the next payment is recorded",
+          "then": "the 20% rate applies and the app warns that a declaration would be invalid"
+        },
+        {
+          "given": "a bond profile with an exemption window ending 31 Mar 2027",
+          "when": "a payment for Apr 2027 is recorded",
+          "then": "the standard rate applies again"
+        }
+      ]
+    },
+    {
+      "id": "TDS-04",
+      "text": "The app SHALL summarise the financial year (1 April to 31 March) per bond and in total, counting only payments already received and never projecting an unpaid or future instance.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond with three paid instances in FY 2026-27",
+          "when": "the financial-year summary is read",
+          "then": "the gross, TDS, net and claimable credit equal the sum of those three instances only"
+        },
+        {
+          "given": "a bond with an unpaid past instance",
+          "when": "the financial-year summary is read",
+          "then": "the unpaid instance is not counted as received"
+        },
+        {
+          "given": "two bonds held in the same financial year",
+          "when": "the portfolio total is read",
+          "then": "the total equals the sum of the two bond rows"
+        }
+      ]
+    },
+    {
+      "id": "TDS-05",
+      "text": "Before a bond is added, the app SHALL show the expected gross, TDS and net per payout and per year from the coupon, face value, quantity and cycle, and SHALL store nothing from that preview.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a candidate with coupon 10.10%, face 1000, quantity 40 and quarterly cycle",
+          "when": "the scenario is shown",
+          "then": "it reads gross 1010.00, TDS 101.00 and net 909.00 per payout and 4040.00, 404.00 and 3636.00 per year"
+        },
+        {
+          "given": "a candidate whose annual interest is 4040",
+          "when": "the scenario is shown",
+          "then": "it states that the interest is below the 10000 threshold so a deductor may not deduct TDS at all"
+        },
+        {
+          "given": "the candidate form with a scenario shown",
+          "when": "the candidate is saved",
+          "then": "only the entered fields are stored; no scenario value is written"
+        }
+      ]
+    },
+    {
+      "id": "TDS-06",
+      "text": "The amount the user enters SHALL never be altered: the chosen rate decides the split, an exempt payment shows gross equal to net, and the deduction is rounded to whole rupees the way a bank deposit is.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a user enters 909.50",
+          "when": "the breakdown is shown",
+          "then": "the net stays 909.50 and is not rounded to 910"
+        },
+        {
+          "given": "an exempt payment of 1010",
+          "when": "the breakdown is shown",
+          "then": "gross and net are both 1010.00 and TDS is 0"
+        },
+        {
+          "given": "a standard 10% payment of 909",
+          "when": "the breakdown is shown",
+          "then": "gross is 1010.00 and TDS is 101.00"
+        }
+      ]
+    },
+    {
+      "id": "LIQ-01",
+      "text": "Liquidity SHALL be measured from the NSE daily bhavcopy by keeping 45 calendar days and scoring the latest 30 sessions, and a day on which the file is missing or the market is closed SHALL be skipped rather than counted as a zero-trade day.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a 45-day window in which three files are missing",
+          "when": "the liquidity is computed",
+          "then": "the sessions available is reported and the missing days are not counted as zero-trade days"
+        },
+        {
+          "given": "a bond traded on 18 of the last 30 sessions",
+          "when": "the liquidity is computed",
+          "then": "the days traded is 18 with the total turnover and trade count for that window"
+        },
+        {
+          "given": "a non-bond series in the bhavcopy",
+          "when": "the liquidity is computed",
+          "then": "the series is ignored"
+        }
+      ]
+    },
+    {
+      "id": "LIQ-02",
+      "text": "Liquidity SHALL be graded LIQUID at 15 or more days traded, ACTIVE at 5 to 14, THIN at 1 to 4 and NO TRADES at 0, and a separate liquidity danger state SHALL apply at 0 days, 2 or fewer days, or no trade for 60 days.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond traded on 15 days",
+          "when": "the label is shown",
+          "then": "the label is LIQUID"
+        },
+        {
+          "given": "a bond traded on 2 days with a last trade 4 Nov 2026",
+          "when": "the label and the danger state are shown",
+          "then": "the label is THIN and the danger state is raised"
+        },
+        {
+          "given": "a bond with no trade since 12 Jun 2026",
+          "when": "the label and the danger state are shown",
+          "then": "the label is NO TRADES and the danger state is raised"
+        }
+      ]
+    },
+    {
+      "id": "LIQ-03",
+      "text": "Liquidity SHALL be shown in the Watchlist and in the Portfolio as its own column beside the position status, and it SHALL NEVER overwrite the lifecycle status.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond that is On-going but has no trades",
+          "when": "the Portfolio holdings table is rendered",
+          "then": "the status chip reads On-going and the liquidity chip reads NO TRADES"
+        },
+        {
+          "given": "a watchlist candidate that is thin",
+          "when": "the candidates table is rendered",
+          "then": "a warning is shown next to Move to Portfolio advising that it may be hard to sell"
+        },
+        {
+          "given": "the bond detail page",
+          "when": "the liquidity group is rendered",
+          "then": "it shows the days traded, turnover, last trade and the as-of date"
+        }
+      ]
+    },
+    {
+      "id": "LIQ-04",
+      "text": "Liquidity SHALL be refreshed on demand at most once a day, SHALL NOT be fetched on app start, and offline it SHALL show the last known value together with its as-of date.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the app starts with no network",
+          "when": "the Portfolio is opened",
+          "then": "the stored liquidity value is shown with its as-of date and no fetch is attempted"
+        },
+        {
+          "given": "the sync button is pressed twice in one day",
+          "when": "the sync runs",
+          "then": "the second run is skipped and the existing value is kept"
+        },
+        {
+          "given": "a bond with fewer than 30 sessions of history",
+          "when": "the liquidity is displayed",
+          "then": "the sessions available are shown and no grade is claimed"
+        }
+      ]
+    },
+    {
+      "id": "PV-01",
+      "text": "The app SHALL read the issuer's filed payment confirmations from the NSE corporate announcements, so that the declared due date of every payment is known per ISIN.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "an issuer confirmation naming ISIN INE205A07DV2 due 10 Sep 2026",
+          "when": "the confirmations are collected",
+          "then": "a record for that ISIN and due date is stored"
+        },
+        {
+          "given": "a bond with no confirmation on file",
+          "when": "the confirmations are collected",
+          "then": "no record is created for it and the app says so"
+        },
+        {
+          "given": "the network is unavailable",
+          "when": "the confirmations are collected",
+          "then": "the previously stored confirmations are kept and their as-of date is shown"
+        }
+      ]
+    },
+    {
+      "id": "PV-02",
+      "text": "The app SHALL compare each payout instance with the issuer confirmation and report one of four outcomes: confirmed and recorded, confirmed but missing, recorded without confirmation, or a due-date mismatch.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "an instance due 10 Sep 2026 with an issuer confirmation and no ledger entry",
+          "when": "the verification runs",
+          "then": "the instance is reported as confirmed but missing"
+        },
+        {
+          "given": "an instance due 10 Sep 2026 with a ledger entry and no confirmation",
+          "when": "the verification runs",
+          "then": "the instance is reported as recorded without confirmation"
+        },
+        {
+          "given": "an instance due 10 Sep 2026 whose confirmation says 12 Sep 2026",
+          "when": "the verification runs",
+          "then": "the instance is reported as a due-date mismatch showing both dates"
+        }
+      ]
+    },
+    {
+      "id": "PV-03",
+      "text": "A missing or mismatched payment SHALL raise a warning and SHALL NOT change the ledger; the user still enters the amount that reached their bank.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "an instance reported as confirmed but missing",
+          "when": "the user opens the bond",
+          "then": "a MISSING badge is shown and no ledger row is created"
+        },
+        {
+          "given": "a missing instance",
+          "when": "the user enters the received amount and saves",
+          "then": "the row is created by that action alone, as for any other month"
+        },
+        {
+          "given": "a mismatch",
+          "when": "the verification runs again",
+          "then": "the same mismatch is reported and nothing is altered"
+        }
+      ]
+    },
+    {
+      "id": "PV-04",
+      "text": "A provider statement from the broker platform SHALL be importable and checked against the ledger the same way, because no provider publishes an API for interest credits.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a CSV statement listing three interest credits",
+          "when": "the statement is imported",
+          "then": "the three credits are matched to ledger rows and the outcome of each is reported"
+        },
+        {
+          "given": "a statement listing a credit for a month with no ledger row",
+          "when": "the statement is imported",
+          "then": "the credit is reported as missing from the ledger"
+        },
+        {
+          "given": "a statement in an unknown format",
+          "when": "the import is attempted",
+          "then": "it is rejected with a named error and the ledger is untouched"
+        }
+      ]
+    },
+    {
+      "id": "PV-05",
+      "text": "The verification source and its as-of date SHALL be shown wherever a verification result is displayed.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the payment verification group on the bond detail page",
+          "when": "it is rendered",
+          "then": "it shows the confirmation text, the due date, the ledger state and the as-of date"
+        },
+        {
+          "given": "a verification result older than a week",
+          "when": "it is rendered",
+          "then": "the as-of date is visible next to it"
+        }
+      ]
+    },
+    {
+      "id": "AF-01",
+      "text": "When the user leaves the ISIN field with a valid 12-character ISIN, the system SHALL run the lookup once and prefill the instrument's own facts - company, coupon, payout cycle, face value, rating, rating agency, issuer type, secured, listing status and maturity - with the source of each value shown.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a valid ISIN of a listed NCD is typed and the user leaves the ISIN field",
+          "when": "the fetch runs exactly once",
+          "then": "the ten instrument facts fill in and every fetched value shows its source"
+        },
+        {
+          "given": "the NSDL record for the ISIN carries no rating",
+          "when": "the remaining fields are filled from the merged sources",
+          "then": "the rating field shows the value from the next source that has one, with its agency and source"
+        }
+      ]
+    },
+    {
+      "id": "AF-02",
+      "text": "When the lookup finds no record for the ISIN, the app SHALL say so plainly and leave the form fully usable; a failed or empty fetch SHALL NEVER block adding the bond.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a valid ISIN has no record in any source",
+          "when": "the user tries to save the bond",
+          "then": "the add succeeds with the user's own typed values"
+        },
+        {
+          "given": "the lookup returns not found",
+          "when": "the user looks at the form",
+          "then": "a plain 'metadata not found - enter manually' message is shown and every field stays editable"
+        }
+      ]
+    },
+    {
+      "id": "AF-03",
+      "text": "When the device is offline, the lookup SHALL report the offline state without blocking, and SHALL offer the cached values with their as-of date.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the device is offline when the user opens the add form",
+          "when": "the user types an ISIN",
+          "then": "the offline state is shown, cached values are offered with their as-of date and the form remains fully usable"
+        },
+        {
+          "given": "the cache holds an older record for the ISIN",
+          "when": "the user accepts the cached values",
+          "then": "each cached value carries its as-of date and remains editable"
+        }
+      ]
+    },
+    {
+      "id": "AF-04",
+      "text": "When a fetched company already exists in the register, the save SHALL apply the existing duplicate rule exactly as it does for a typed company.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the fetch returns a company that already has an active position",
+          "when": "the user saves",
+          "then": "the existing active-position lock rejects the duplicate with the same error as a typed company"
+        },
+        {
+          "given": "the fetched company exists but the duplicate rule allows a new position",
+          "when": "the user saves",
+          "then": "the save succeeds under the unchanged rule"
+        }
+      ]
+    },
+    {
+      "id": "AF-05",
+      "text": "When the user edits a fetched value, the edit SHALL be kept and SHALL NOT be overwritten by the next fetch.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the user edits the prefilled coupon after a fetch",
+          "when": "a later refresh fetches the same ISIN",
+          "then": "the user's edited coupon is unchanged"
+        },
+        {
+          "given": "the user edits a prefilled value",
+          "when": "the app restarts and the background refresh runs",
+          "then": "the edit persists"
+        }
+      ]
+    },
+    {
+      "id": "AF-06",
+      "text": "When a source is unavailable, the lookup SHALL try the next source in the priority order NSDL - RBI - NSE - BSE, and the failure code SHALL be visible in the per-source health view.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "NSDL returns a failure for the ISIN",
+          "when": "the lookup continues",
+          "then": "RBI, then NSE, then BSE are tried in order and the result comes from the first source that answers"
+        },
+        {
+          "given": "a source has failed at least once in the session",
+          "when": "the user opens the per-source health view",
+          "then": "the source shows its failure code"
+        }
+      ]
+    },
+    {
+      "id": "AF-07",
+      "text": "Data access SHALL use published download files only - no scraping of the NSE website or API - with at most 1 request per source per ISIN per session, a global throttle and a 60-second cooldown.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "two refreshes are requested within 60 seconds",
+          "when": "the second request is evaluated",
+          "then": "it is blocked by the cooldown until 60 seconds have passed"
+        },
+        {
+          "given": "a fetch runs for an ISIN",
+          "when": "the same source is asked again in the same session",
+          "then": "it is served from the session result and no second request is made"
+        },
+        {
+          "given": "any adapter is invoked",
+          "when": "the request path is inspected",
+          "then": "only published download-file endpoints are used - never the NSE site or API"
+        }
+      ]
+    },
+    {
+      "id": "AF-08",
+      "text": "The ISIN SHALL be mandatory for every bond - no ISIN, no entry - and the fetch SHALL store listing_status (listed/unlisted/unknown) on bond_master without ever overloading issuer_type.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond is submitted without an ISIN",
+          "when": "validation runs",
+          "then": "the entry is rejected - there is no ISIN-less path"
+        },
+        {
+          "given": "a fetched private placement carries an ISIN",
+          "when": "the record is saved",
+          "then": "listing_status stores 'unlisted' on bond_master and issuer_type keeps its own meaning"
+        },
+        {
+          "given": "an existing bond has no ISIN from before the rule",
+          "when": "the record is displayed",
+          "then": "it remains viewable and the rule applies to new entries only"
+        }
+      ]
+    },
+    {
+      "id": "AF-09",
+      "text": "When the fetched rating is below BBB- or the bond is unrated, the system SHALL REFUSE the bond with a plain message explaining the investment-grade limit; it SHALL never be silently accepted.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fetched bond is rated BB+",
+          "when": "the result is evaluated",
+          "then": "the bond is refused and the message states the application supports only AAA to BBB-"
+        },
+        {
+          "given": "a fetched bond has no rating at all",
+          "when": "the result is evaluated",
+          "then": "the bond is refused with the same plain explanation"
+        },
+        {
+          "given": "a fetched bond is rated BBB-",
+          "when": "the result is evaluated",
+          "then": "the bond is accepted and prefilled normally"
+        }
+      ]
+    },
+    {
+      "id": "AF-10",
+      "text": "One background bond-master refresh SHALL run on every app start, a manual refresh icon SHALL always be available, and a 60-second cooldown SHALL block any refresh - automatic or manual - until the interval passes; offline, cached values are shown with their as-of date.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the app starts",
+          "when": "the start sequence runs",
+          "then": "one background refresh is triggered - no more than one"
+        },
+        {
+          "given": "the user taps the manual refresh icon 3 times inside 60 seconds",
+          "when": "each tap is evaluated",
+          "then": "the first refresh runs and the rest are blocked by the cooldown"
+        },
+        {
+          "given": "the app starts with no network",
+          "when": "the refresh attempt completes",
+          "then": "the cached values are displayed with their as-of date and no error blocks the UI"
+        }
+      ]
+    },
+    {
+      "id": "AF-11",
+      "text": "The About page SHALL attribute every data source by name, and release builds SHALL bundle the CC0 india-isin-data snapshot to seed a fresh install and offline first run.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a user opens the About page",
+          "when": "the sources are listed",
+          "then": "NSDL, RBI, NSE, BSE and india-isin-data are named with their licence notes"
+        },
+        {
+          "given": "a fresh install starts with no cache",
+          "when": "the first add form is opened",
+          "then": "the bundled snapshot already answers common ISINs without any network call"
+        }
+      ]
+    },
+    {
+      "id": "AF-12",
+      "text": "The fetch SHALL fill instrument facts only - position facts (amount, quantity, dates, credit day) are never prefilled - and the add form SHALL present exactly the six fetch states: idle, checking, found, not found, offline, downgrade.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fetch completes successfully",
+          "when": "the user reviews the form",
+          "then": "amount, quantity, start date, end date and credit day are still empty for the user to enter"
+        },
+        {
+          "given": "the fetch states are exercised",
+          "when": "each state renders",
+          "then": "the UI shows exactly idle, checking, found, not found, offline and downgrade - no check-digit state"
+        },
+        {
+          "given": "a value can only be downgraded to a lesser-confidence source",
+          "when": "the downgrade path runs",
+          "then": "the downgrade state is shown and the value keeps its source label"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "PC-01",
+      "area": "payout",
+      "statement": "The system SHALL store the payout cycle as one of monthly, quarterly, semi_annual or annual, map the legacy aliases yearly and semi/semi-annual onto the canonical values, and rebuild the bonds CHECK constraint so all four values can be stored.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "PC-02",
+      "area": "payout",
+      "statement": "The system SHALL compute payout instances on the period-end model: for k = 1..ceil(tenure/step) the due month is start + k*step capped at the end date, each instance records the months it covers, and the due date is the credit day in that due month clamped to the month end.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "PC-03",
+      "area": "payout",
+      "statement": "The system SHALL render the Payouts grid with a cell per month: a payout instance cell shows the net amount credited or the unpaid/due-soon state, and a non-instance cell shows the bond's cycle label and accepts no input.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "PC-04",
+      "area": "payout",
+      "statement": "The system SHALL compute health from the payout instances: an instance that is paid is cleared, an instance whose due date has not arrived is upcoming, an instance whose due date has passed and is unpaid is a danger, and a bond whose instances are all paid or matured is completed.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "PC-05",
+      "area": "payout",
+      "statement": "The system SHALL infer the observed payment frequency from the issuer payment confirmations using the median gap between distinct due dates - 25 to 36 days monthly, 80 to 100 quarterly, 165 to 200 semi_annual, 340 to 390 annual - require at least two observations, show the evidence dates, and leave the cycle unchanged when the inference is unknown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "PC-06",
+      "area": "payout",
+      "statement": "The system SHALL introduce payout instances without breaking existing data: the payment ledger stays as the accrual and detail record, instances are generated for existing bonds from their current cycle (monthly when the cycle is absent), and the period-start schedule expectations in the test suite are updated to the period-end model.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "TDS-01",
+      "area": "tax",
+      "statement": "The system SHALL compute the TDS breakdown in one shared function used by the payment editor, the Portfolio returns and the Dashboard KPI, so that the three surfaces always show the same gross, TDS and net for a payment.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "TDS-02",
+      "area": "tax",
+      "statement": "The system SHALL store gross_amount, tds_amount, tds_rate and tds_reason per payment row, use the stored values for every display, and use the bond's TDS profile only as the default for payments not yet recorded.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "TDS-03",
+      "area": "tax",
+      "statement": "The system SHALL store a per-bond TDS profile with mode, rate, PAN availability, declaration form and exemption from/to dates, and SHALL apply profile changes to future payments only.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "TDS-04",
+      "area": "tax",
+      "statement": "The system SHALL present a financial-year view per bond and in total, covering 1 April to 31 March, showing gross interest, TDS deducted, net credited and the claimable credit, and excluding projected or unpaid instances.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "TDS-05",
+      "area": "tax",
+      "statement": "The system SHALL show a payout and TDS scenario in the add form, computed from the coupon, face value, quantity and cycle, showing gross, TDS and net per payout and per year together with the threshold note, and SHALL NOT write any of it.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "TDS-06",
+      "area": "tax",
+      "statement": "The system SHALL treat the entered amount as the net credit exactly as typed, derive gross and TDS from the stored rate without changing the net, show gross equal to net for an exempt payment, and round the TDS deposit to whole rupees.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "LIQ-01",
+      "area": "liquidity",
+      "statement": "The system SHALL compute liquidity from the NSE CM bhavcopy files for bond series, keeping 45 calendar days of history and scoring over the latest 30 sessions, counting a day as traded when the trade count or the volume is above zero, and skipping holidays and missing files.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D6"
+    },
+    {
+      "id": "LIQ-02",
+      "area": "liquidity",
+      "statement": "The system SHALL grade liquidity into LIQUID, ACTIVE, THIN and NO TRADES by days traded over the last 30 sessions, and SHALL raise a separate liquidity danger state when the bond traded on 0 days, on 2 or fewer days, or has not traded for 60 days.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D6"
+    },
+    {
+      "id": "LIQ-03",
+      "area": "liquidity",
+      "statement": "The system SHALL show the liquidity grade and its detail line in the Watchlist candidates table, in the Portfolio My Holdings table and on the bond detail page, in a column separate from the position status, so that a bond can be On-going and illiquid at the same time.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D6"
+    },
+    {
+      "id": "LIQ-04",
+      "area": "liquidity",
+      "statement": "The system SHALL backfill 45 days on first use, refresh liquidity only on demand and at most once a day, never fetch it during app start, and show the last known value with its as-of date when the network is unavailable.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D6"
+    },
+    {
+      "id": "PV-01",
+      "area": "payment-verification",
+      "statement": "The system SHALL collect the issuer payment confirmations published in the NSE corporate announcements, storing the declared due date and the ISIN for each confirmation, and use them as the independent reference for payment verification.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D13"
+    },
+    {
+      "id": "PV-02",
+      "area": "payment-verification",
+      "statement": "The system SHALL compare every payout instance against the issuer payment confirmations and classify it as confirmed and recorded, confirmed but missing from the ledger, recorded without a confirmation, or a due-date mismatch.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D13"
+    },
+    {
+      "id": "PV-03",
+      "area": "payment-verification",
+      "statement": "The system SHALL report a missing, unconfirmed or mismatched payment as a warning only, and SHALL never write, correct or remove a ledger entry on its own.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D13"
+    },
+    {
+      "id": "PV-04",
+      "area": "payment-verification",
+      "statement": "The system SHALL accept a provider statement (CSV or JSON) exported from the broker platform, match its interest credits against the ledger rows, and report the same verification outcomes, with no automatic API integration because no provider offers one.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D13"
+    },
+    {
+      "id": "PV-05",
+      "area": "payment-verification",
+      "statement": "The system SHALL display the source of a verification result - issuer confirmation or provider statement - together with the date that source was fetched, so the user can judge how fresh the result is.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D13"
+    },
+    {
+      "id": "AF-01",
+      "area": "isin_autofetch",
+      "statement": "When the user leaves the ISIN field with a valid 12-character ISIN, the system SHALL run the lookup once and prefill the instrument's own facts - company, coupon, payout cycle, face value, rating, rating agency, issuer type, secured, listing status and maturity - with the source of each value shown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-02",
+      "area": "isin_autofetch",
+      "statement": "When the lookup finds no record for the ISIN, the app SHALL say so plainly and leave the form fully usable; a failed or empty fetch SHALL NEVER block adding the bond.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-03",
+      "area": "isin_autofetch",
+      "statement": "When the device is offline, the lookup SHALL report the offline state without blocking, and SHALL offer the cached values with their as-of date.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-04",
+      "area": "isin_autofetch",
+      "statement": "When a fetched company already exists in the register, the save SHALL apply the existing duplicate rule exactly as it does for a typed company.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-05",
+      "area": "isin_autofetch",
+      "statement": "When the user edits a fetched value, the edit SHALL be kept and SHALL NOT be overwritten by the next fetch.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-06",
+      "area": "isin_autofetch",
+      "statement": "When a source is unavailable, the lookup SHALL try the next source in the priority order NSDL - RBI - NSE - BSE, and the failure code SHALL be visible in the per-source health view.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-07",
+      "area": "isin_autofetch",
+      "statement": "Data access SHALL use published download files only - no scraping of the NSE website or API - with at most 1 request per source per ISIN per session, a global throttle and a 60-second cooldown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1/OP12"
+    },
+    {
+      "id": "AF-08",
+      "area": "isin_autofetch",
+      "statement": "The ISIN SHALL be mandatory for every bond - no ISIN, no entry - and the fetch SHALL store listing_status (listed/unlisted/unknown) on bond_master without ever overloading issuer_type.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "OP13"
+    },
+    {
+      "id": "AF-09",
+      "area": "isin_autofetch",
+      "statement": "When the fetched rating is below BBB- or the bond is unrated, the system SHALL REFUSE the bond with a plain message explaining the investment-grade limit; it SHALL never be silently accepted.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "OP14"
+    },
+    {
+      "id": "AF-10",
+      "area": "isin_autofetch",
+      "statement": "One background bond-master refresh SHALL run on every app start, a manual refresh icon SHALL always be available, and a 60-second cooldown SHALL block any refresh - automatic or manual - until the interval passes; offline, cached values are shown with their as-of date.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "OP15"
+    },
+    {
+      "id": "AF-11",
+      "area": "isin_autofetch",
+      "statement": "The About page SHALL attribute every data source by name, and release builds SHALL bundle the CC0 india-isin-data snapshot to seed a fresh install and offline first run.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1/OP12"
+    },
+    {
+      "id": "AF-12",
+      "area": "isin_autofetch",
+      "statement": "The fetch SHALL fill instrument facts only - position facts (amount, quantity, dates, credit day) are never prefilled - and the add form SHALL present exactly the six fetch states: idle, checking, found, not found, offline, downgrade.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-PC-01",
+      "title": "Canonical payout cycles and aliases (PC-01)",
+      "type": "integration",
+      "steps": "1. Read a bond stored with payout_cycle 'yearly'. 2. Save a new bond with 'semi_annual'. 3. Attempt to save 'weekly'.",
+      "expected": "Alias maps to annual; semi_annual persists; weekly is rejected with a named error",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PC-02",
+      "title": "Period-end due months, partial last instance, clamped credit day (PC-02)",
+      "type": "integration",
+      "steps": "1. Build the schedule for a quarterly bond starting 2025-09-05, tenure 24, credit day 5. 2. Build it for tenure 10. 3. Build it for credit day 31 in April.",
+      "expected": "Due months are the period ends; the last instance covers 1 month; the credit day clamps to 30 Apr",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PC-03",
+      "title": "Payouts grid shows instances and labels non-instances (PC-03)",
+      "type": "integration",
+      "steps": "1. Open Portfolio > Payouts for a quarterly bond and a monthly bond. 2. Click a non-instance cell.",
+      "expected": "Non-instance months show the cycle label and open no editor; every month of the monthly bond is an instance",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PC-04",
+      "title": "Per-instance health (PC-04)",
+      "type": "integration",
+      "steps": "1. A quarterly bond with an unpaid December instance, today 2026-02-10. 2. A monthly bond with an unpaid past month. 3. A bond with all instances paid.",
+      "expected": "The quarterly bond is in danger from 6 Dec only; the monthly bond is in danger; the paid bond is completed",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PC-05",
+      "title": "Cycle inference from issuer confirmations (PC-05)",
+      "type": "integration",
+      "steps": "1. Infer for an ISIN with two confirmations 91 days apart. 2. Infer for an ISIN with one confirmation. 3. Read the suggestion for a bond whose stored cycle differs.",
+      "expected": "Quarterly is inferred with both dates shown; a single confirmation yields unknown; a differing stored cycle is suggested, never auto-written",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PC-06",
+      "title": "Backfill and backward compatibility (PC-06)",
+      "type": "integration",
+      "steps": "1. Run the backfill over a register holding a pre-change bond. 2. Open its payment history. 3. Run the payout schedule tests.",
+      "expected": "The old bond gets monthly instances with an unchanged status; its recorded amounts still show; the tests describe period-end due months",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-TDS-01",
+      "title": "Cross-surface TDS accuracy gate (TDS-01)",
+      "type": "integration",
+      "steps": "1. Record a net 1010 payment at 10%. 2. Read the payment editor, the Portfolio returns and the Dashboard KPI.",
+      "expected": "All three show net 1010.00, TDS 112.22, gross 1122.22",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-TDS-02",
+      "title": "Stored rate and reason are the display truth (TDS-02)",
+      "type": "integration",
+      "steps": "1. Record a payment before the profile changed. 2. Change the profile to exempt and record a later payment. 3. Display a no-PAN payment.",
+      "expected": "The earlier payment keeps its recorded TDS; the later payment is exempt; the no-PAN payment shows 20%",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-TDS-03",
+      "title": "Bond profile applies to future payments only (TDS-03)",
+      "type": "integration",
+      "steps": "1. Change a bond profile on 12 Nov 2026 and list the history. 2. Record a payment with no PAN. 3. Record a payment after the exemption window.",
+      "expected": "Earlier months are unchanged; the no-PAN payment warns about the invalid declaration; the post-window payment uses the standard rate",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-TDS-04",
+      "title": "Financial-year summary excludes unpaid and future instances (TDS-04)",
+      "type": "integration",
+      "steps": "1. Read the FY 2026-27 summary for a bond with three paid instances and one unpaid. 2. Read the portfolio total for two bonds.",
+      "expected": "Only the three paid instances are counted; the total equals the sum of the two bond rows",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-TDS-05",
+      "title": "Pre-purchase scenario (TDS-05)",
+      "type": "integration",
+      "steps": "1. Enter coupon 10.10, face 1000, quantity 40, quarterly. 2. Read the scenario. 3. Save the candidate and read the stored row.",
+      "expected": "The scenario shows 1010.00/101.00/909.00 per payout and 4040.00/404.00/3636.00 per year with the threshold note; nothing from the scenario is stored",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-TDS-06",
+      "title": "The entered net is never altered (TDS-06)",
+      "type": "integration",
+      "steps": "1. Enter 909.50. 2. Record an exempt payment of 1010. 3. Record a standard payment of 909.",
+      "expected": "The net stays 909.50; the exempt payment shows gross equal to net and TDS 0; the standard payment shows gross 1010.00 and TDS 101.00",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-LIQ-01",
+      "title": "Liquidity measurement window (LIQ-01)",
+      "type": "integration",
+      "steps": "1. Compute liquidity over a 45-day window with three missing files. 2. Compute it for a bond traded on 18 of 30 sessions. 3. Run it over a non-bond series.",
+      "expected": "The missing days are skipped and the sessions available reported; the bond reports 18 days traded with turnover and trade count; the non-bond series is ignored",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-LIQ-02",
+      "title": "Liquidity grades and danger state (LIQ-02)",
+      "type": "integration",
+      "steps": "1. A bond traded on 15 days. 2. A bond traded on 2 days. 3. A bond with no trade since 12 Jun 2026.",
+      "expected": "LIQUID; THIN with the danger state raised; NO TRADES with the danger state raised",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-LIQ-03",
+      "title": "Liquidity never overwrites the position status (LIQ-03)",
+      "type": "integration",
+      "steps": "1. Render the Portfolio holdings for an On-going bond with no trades. 2. Render the watchlist for a thin candidate. 3. Open the bond detail page.",
+      "expected": "The status chip reads On-going beside a NO TRADES chip; a thin candidate warns before Move to Portfolio; the detail page shows days traded, turnover, last trade and as-of",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-LIQ-04",
+      "title": "Refresh and offline behaviour (LIQ-04)",
+      "type": "integration",
+      "steps": "1. Start the app offline and open the Portfolio. 2. Press sync twice in one day. 3. Read a bond with fewer than 30 sessions.",
+      "expected": "The stored value shows with its as-of date and no fetch runs; the second sync is skipped; no grade is claimed for the short-history bond",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PV-01",
+      "title": "Issuer payment confirmations are collected (PV-01)",
+      "type": "integration",
+      "steps": "1. Run the confirmation collection for an ISIN with a filing. 2. Run it for an ISIN without one. 3. Run it offline.",
+      "expected": "A record is stored for the filed ISIN and due date; none is created for the other; the stored records keep their as-of date offline",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PV-02",
+      "title": "Four verification outcomes (PV-02)",
+      "type": "integration",
+      "steps": "1. An instance with a confirmation and no ledger entry. 2. An instance with a ledger entry and no confirmation. 3. An instance whose confirmation shows a different due date.",
+      "expected": "Confirmed but missing; recorded without confirmation; due-date mismatch showing both dates",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PV-03",
+      "title": "Verification warns, it never writes (PV-03)",
+      "type": "integration",
+      "steps": "1. Open a bond with a missing instance. 2. Enter the received amount and save. 3. Re-run the verification.",
+      "expected": "A MISSING badge is shown and no row is created; the row appears only after the user's own save; the mismatch repeats unchanged",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PV-04",
+      "title": "Provider statement import (PV-04)",
+      "type": "integration",
+      "steps": "1. Import a CSV statement with three credits. 2. Import a statement with a credit for a month with no row. 3. Import an unknown format.",
+      "expected": "Each credit is matched and reported; the unmatched credit is reported as missing; the unknown format is rejected with a named error and the ledger is untouched",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-PV-05",
+      "title": "Verification source and as-of are shown (PV-05)",
+      "type": "integration",
+      "steps": "1. Render the payment verification group. 2. Read a verification result older than a week.",
+      "expected": "The source and the fetched date are visible next to the result",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-MATRIX-01",
+      "title": "Cycle matrix - every cycle calculates the same way (PC-02, TDS-04)",
+      "type": "e2e",
+      "steps": "1. For each of monthly, quarterly, semi_annual and annual, build the instances and the financial-year summary for a 3-year bond.",
+      "expected": "The monthly bond has 12 instances a year, quarterly 4, semi-annual 2 and annual 1; each instance carries its own gross, TDS and net and the financial-year totals equal the sum of the instances inside the year",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-01",
+      "title": "AF-01 prefill with source (AF-01)",
+      "type": "integration",
+      "steps": "User types a valid ISIN and tabs out. Fetch runs once; company, coupon, cycle, face value, rating, agency, issuer type, secured, listing status and maturity fill with source labels.",
+      "expected": "Given/When/then of AF-01 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-02",
+      "title": "AF-02 never blocks (AF-02)",
+      "type": "integration",
+      "steps": "Mock all sources returning no match. Save succeeds; message shown; form never blocked.",
+      "expected": "Given/When/then of AF-02 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-03",
+      "title": "AF-03 offline cache (AF-03)",
+      "type": "integration",
+      "steps": "Run with network disabled: offline state, cached values with as-of date, no block.",
+      "expected": "Given/When/then of AF-03 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-04",
+      "title": "AF-04 duplicate rule (AF-04)",
+      "type": "integration",
+      "steps": "Fetch a company that exists with an active position; save attempt returns the standard duplicate error.",
+      "expected": "Given/When/then of AF-04 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-05",
+      "title": "AF-05 edits kept (AF-05)",
+      "type": "integration",
+      "steps": "Prefill, edit coupon, trigger refresh twice; edited value survives both.",
+      "expected": "Given/When/then of AF-05 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-06",
+      "title": "AF-06 source failover (AF-06)",
+      "type": "integration",
+      "steps": "Make the first adapter raise; assert the second adapter is called and health view shows the failure code.",
+      "expected": "Given/When/then of AF-06 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-07",
+      "title": "AF-07 throttle and files-only (AF-07)",
+      "type": "integration",
+      "steps": "Cooldown timer test + session cache test + adapter request URL assertion (fixtures, no live network).",
+      "expected": "Given/When/then of AF-07 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-08",
+      "title": "AF-08 ISIN mandatory (AF-08)",
+      "type": "integration",
+      "steps": "Submit without ISIN -> rejected. Save fetched unlisted bond -> listing_status='unlisted', issuer_type untouched.",
+      "expected": "Given/When/then of AF-08 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-09",
+      "title": "AF-09 rating gate (AF-09)",
+      "type": "integration",
+      "steps": "Fixture ratings AA, BBB-, BB+, unrated; assert accept/refuse per the WATCH_RATINGS band.",
+      "expected": "Given/When/then of AF-09 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-10",
+      "title": "AF-10 refresh model (AF-10)",
+      "type": "integration",
+      "steps": "Count refreshes on startup; triple-tap icon inside cooldown; offline startup shows cache as-of.",
+      "expected": "Given/When/then of AF-10 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-11",
+      "title": "AF-11 attribution and snapshot (AF-11)",
+      "type": "integration",
+      "steps": "Assert About page source list; clear cache, start offline, check snapshot answers a common ISIN.",
+      "expected": "Given/When/then of AF-11 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-12",
+      "title": "AF-12 instrument facts and six states (AF-12)",
+      "type": "integration",
+      "steps": "Walk all six states in the UI test; assert position fields empty after a successful fetch.",
+      "expected": "Given/When/then of AF-12 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "PC-01",
+      "test_case_id": "TC-PC-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PC-02",
+      "test_case_id": "TC-PC-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PC-03",
+      "test_case_id": "TC-PC-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PC-04",
+      "test_case_id": "TC-PC-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PC-05",
+      "test_case_id": "TC-PC-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PC-06",
+      "test_case_id": "TC-PC-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "TDS-01",
+      "test_case_id": "TC-TDS-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "TDS-02",
+      "test_case_id": "TC-TDS-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "TDS-03",
+      "test_case_id": "TC-TDS-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "TDS-04",
+      "test_case_id": "TC-TDS-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "TDS-05",
+      "test_case_id": "TC-TDS-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "TDS-06",
+      "test_case_id": "TC-TDS-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "LIQ-01",
+      "test_case_id": "TC-LIQ-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "LIQ-02",
+      "test_case_id": "TC-LIQ-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "LIQ-03",
+      "test_case_id": "TC-LIQ-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "LIQ-04",
+      "test_case_id": "TC-LIQ-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PV-01",
+      "test_case_id": "TC-PV-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PV-02",
+      "test_case_id": "TC-PV-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PV-03",
+      "test_case_id": "TC-PV-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PV-04",
+      "test_case_id": "TC-PV-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PV-05",
+      "test_case_id": "TC-PV-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "PC-02",
+      "test_case_id": "TC-MATRIX-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-01",
+      "test_case_id": "TC-AF-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-02",
+      "test_case_id": "TC-AF-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-03",
+      "test_case_id": "TC-AF-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-04",
+      "test_case_id": "TC-AF-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-05",
+      "test_case_id": "TC-AF-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-06",
+      "test_case_id": "TC-AF-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-07",
+      "test_case_id": "TC-AF-07",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-08",
+      "test_case_id": "TC-AF-08",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-09",
+      "test_case_id": "TC-AF-09",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-10",
+      "test_case_id": "TC-AF-10",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-11",
+      "test_case_id": "TC-AF-11",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-12",
+      "test_case_id": "TC-AF-12",
+      "covers": "full"
+    }
+  ],
+  "carry_over": [],
+  "changelog": [
+    {
+      "version": "v1.0",
+      "date": "2026-11-12",
+      "note": "First suite: PC-01..PC-06, TDS-01..TDS-06, LIQ-01..LIQ-04, PV-01..PV-05 plus the cycle-matrix test."
+    },
+    {
+      "version": "v1.1",
+      "date": "2026-11-12",
+      "note": "ISIN autofetch group AF-01..AF-12 added from discussion #234 (locked D1 decisions + confirmed OP12-OP15): prefill with source, never-block, offline cache, duplicate rule, edits kept, source failover, download-files-only + throttle/60s, ISIN mandatory + listing_status, rating refusal, refresh model, attribution + CC0 snapshot, instrument facts + six states (no check-digit state - D2 rejected by owner). PC/TDS/LIQ/PV groups untouched."
+    }
+  ]
+}
