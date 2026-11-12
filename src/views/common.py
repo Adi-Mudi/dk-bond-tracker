@@ -4,7 +4,13 @@ from flask import current_app, render_template
 
 from src.db import init_db
 
-APP_VERSION = "1.0.0"
+from src.version import APP_VERSION
+
+__all__ = [
+    "APP_VERSION",
+    "app_db",
+    "error_page",
+]
 BUILD_NOTES = "DK Bond Tracker standalone build — watchlist upgrade v6 (D43 ordering, day-wise alerts, themes)"
 
 ENTRY_GUARD_MESSAGE = "Add position is only allowed from the Watch List form"
