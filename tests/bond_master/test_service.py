@@ -4,6 +4,7 @@ import types
 import pytest
 
 from src.bond_master.base import (
+    FAILURE_BLOCKED,
     FAILURE_INVALID_ISIN,
     FAILURE_MALFORMED,
     FAILURE_NOT_FOUND,
@@ -191,7 +192,7 @@ def test_malformed_is_not_retried(build):
     assert sleeps == []
 
 
-def test_html_at_http_200_is_malformed_and_never_retried(build):
+def test_html_at_http_200_is_blocked_and_never_retried(build):
     calls = []
 
     def transport(url, timeout):
@@ -200,7 +201,7 @@ def test_html_at_http_200_is_malformed_and_never_retried(build):
 
     service, _, _ = build({"NSE": NseAdapter(transport=transport)}, retries=2)
     result = service.lookup(ISIN)
-    assert result.failure_code == FAILURE_MALFORMED
+    assert result.failure_code == FAILURE_BLOCKED
     assert len(calls) == 1
 
 

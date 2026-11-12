@@ -55,6 +55,10 @@ def _dominant_failure(codes):
     return FAILURE_NOT_FOUND
 
 
+def _empty_code(failure_code):
+    return FAILURE_NOT_FOUND if failure_code == FAILURE_OK else failure_code
+
+
 class BondMasterService:
     def __init__(
         self,
@@ -100,8 +104,9 @@ class BondMasterService:
             if result.has_facts():
                 self._record(source, normalized, True, result.failure_code)
                 return result
-            failures.append((source, result.failure_code))
-            self._record(source, normalized, False, result.failure_code)
+            code = _empty_code(result.failure_code)
+            failures.append((source, code))
+            self._record(source, normalized, False, code)
         return self._total_failure(normalized, failures)
 
     def _cached_answer(self, isin):
@@ -142,7 +147,7 @@ class BondMasterService:
             if result.failure_code not in _RETRYABLE or attempt >= self.retries:
                 return result
             attempt += 1
-            self._sleep(self.retry_backoff * attempt)
+            self._pause(self.retry_backoff * attempt)
 
     def _safe_fetch(self, adapter, isin):
         try:
@@ -155,14 +160,22 @@ class BondMasterService:
             return FetchResult(isin=isin, failure_code=FAILURE_MALFORMED)
         return result
 
+    def _throttle_wait(self):
+        if self.throttle_seconds <= 0 or self._last_request_at is None:
+            return 0.0
+        return max(0.0, self.throttle_seconds - (self._clock() - self._last_request_at))
+
     def _throttle(self):
-        now = self._clock()
-        if self.throttle_seconds > 0 and self._last_request_at is not None:
-            wait = self.throttle_seconds - (now - self._last_request_at)
-            if wait > 0:
-                self._sleep(wait)
-                now = self._clock()
-        self._last_request_at = now
+        wait = self._throttle_wait()
+        if wait > 0:
+            self._sleep(wait)
+        self._last_request_at = self._clock()
+
+    def _pause(self, delay):
+        wait = max(delay, self._throttle_wait())
+        if wait > 0:
+            self._sleep(wait)
+        self._last_request_at = self._clock()
 
     def _record(self, source, isin, ok, failure_code):
         self._events.append(
@@ -176,7 +189,9 @@ class BondMasterService:
         )
 
     def _total_failure(self, isin, failures):
-        codes = [code for _, code in failures]
+        codes = [_empty_code(code) for _, code in failures]
+        if codes and all(code == FAILURE_UNREACHABLE for code in codes):
+            return FetchResult(isin=isin, failure_code=FAILURE_OFFLINE)
         return FetchResult(isin=isin, failure_code=_dominant_failure(codes))
 
 

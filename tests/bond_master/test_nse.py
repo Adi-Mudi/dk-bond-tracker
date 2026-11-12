@@ -2,6 +2,7 @@ from pathlib import Path
 
 from src.bond_master import nse
 from src.bond_master.base import (
+    FAILURE_BLOCKED,
     FAILURE_INVALID_ISIN,
     FAILURE_MALFORMED,
     FAILURE_NOT_FOUND,
@@ -149,9 +150,9 @@ def test_timeout_is_reported():
     assert nse.NseAdapter(transport=transport).fetch(ISIN).failure_code == FAILURE_TIMEOUT
 
 
-def test_html_page_at_http_200_is_malformed():
+def test_html_page_at_http_200_is_blocked():
     result = adapter(fixture_text("nse_blocked_page.html")).fetch(ISIN)
-    assert result.failure_code == FAILURE_MALFORMED
+    assert result.failure_code == FAILURE_BLOCKED
 
 
 def test_blank_download_is_malformed():
