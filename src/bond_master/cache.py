@@ -116,6 +116,16 @@ class BondMasterCache:
         row = self.lookup(isin)
         return None if row is None else row["fetched_at"]
 
+    def as_of_for(self, source=None):
+        sql = "SELECT MAX(fetched_at) AS latest FROM bond_master"
+        params = ()
+        if source is not None:
+            sql += " WHERE source = ?"
+            params = (source,)
+        with get_conn(self.db_path) as conn:
+            row = conn.execute(sql, params).fetchone()
+        return None if row is None else row["latest"]
+
     def offer(self, isin):
         row = self.lookup(isin)
         if row is None:

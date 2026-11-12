@@ -154,3 +154,23 @@ def test_missing_isin_column_is_malformed():
 
 def test_without_a_transport_no_request_is_made():
     assert bse.BseAdapter().fetch(ISIN).failure_code == FAILURE_UNREACHABLE
+
+
+BSE_HEADER = (
+    "ISIN,ISSUER,COUPON RATE,PAYOUT FREQUENCY,FACE VALUE,CREDIT RATING,"
+    "RATING AGENCY,SECURITY TYPE,SECURED,LISTING STATUS,MATURITY DATE\n"
+)
+
+
+def test_f5_embedded_agency_is_stripped_even_with_a_populated_agency_column():
+    row = "INE205A07DZ6,Zenith Ports Ltd,10.25,Annual,100000,CRISIL AA,ICRA,ncd,Yes,Listed,2032-05-10\n"
+    result = bse.BseAdapter(transport=transport_for(BSE_HEADER + row)).fetch(ISIN)
+    assert result.rating == "AA"
+    assert result.rating_agency == "ICRA"
+
+
+def test_f5_empty_agency_column_still_resolves_the_embedded_agency():
+    row = "INE205A07DZ6,Zenith Ports Ltd,10.25,Annual,100000,CARE BBB-,,ncd,Yes,Listed,2032-05-10\n"
+    result = bse.BseAdapter(transport=transport_for(BSE_HEADER + row)).fetch(ISIN)
+    assert result.rating == "BBB-"
+    assert result.rating_agency == "CARE"

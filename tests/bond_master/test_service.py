@@ -11,6 +11,7 @@ from src.bond_master.base import (
     FAILURE_RATE_LIMITED,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
+    INSTRUMENT_FIELDS,
     SOURCE_PRIORITY,
     FetchResult,
 )
@@ -67,7 +68,7 @@ def build(tmp_path, now):
     return _build
 
 
-def test_failover_tries_sources_in_priority_order_and_first_answer_wins(build):
+def test_failover_tries_sources_in_priority_order_and_merges(build):
     adapters = {
         "NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_NOT_FOUND)]),
         "RBI": FakeAdapter("RBI", [failed(ISIN, FAILURE_UNREACHABLE)]),
@@ -80,16 +81,44 @@ def test_failover_tries_sources_in_priority_order_and_first_answer_wins(build):
     assert adapters["NSDL"].calls == [ISIN]
     assert adapters["RBI"].calls == [ISIN]
     assert adapters["NSE"].calls == [ISIN]
-    assert adapters["BSE"].calls == []
+    assert adapters["BSE"].calls == [ISIN]
 
 
-def test_first_source_success_stops_the_chain(build):
+def test_merge_walks_every_source_when_fields_are_missing(build):
     adapters = {name: FakeAdapter(name, [found(ISIN, name)]) for name in SOURCE_PRIORITY}
     service, _, _ = build(adapters)
     result = service.lookup(ISIN)
     assert result.source_of("company") == "NSDL"
-    assert adapters["NSDL"].calls == [ISIN]
-    for name in ("RBI", "NSE", "BSE"):
+    for name in SOURCE_PRIORITY:
+        assert adapters[name].calls == [ISIN]
+
+
+def test_merge_stops_when_the_first_source_fills_every_field(build):
+    complete = FetchResult(
+        isin=ISIN,
+        company="Complete Co",
+        coupon=8.75,
+        payout_cycle="annual",
+        face_value=1000.0,
+        rating="AA+",
+        rating_agency="CRISIL",
+        issuer_type="ncd",
+        secured=1,
+        listing_status="listed",
+        maturity="2030-03-31",
+        sources={field: "NSDL" for field in INSTRUMENT_FIELDS},
+    )
+    adapters = {
+        "NSDL": FakeAdapter("NSDL", [complete]),
+        "RBI": FakeAdapter("RBI", [found(ISIN, "RBI")]),
+        "NSE": FakeAdapter("NSE", [found(ISIN, "NSE")]),
+        "BSE": FakeAdapter("BSE", [found(ISIN, "BSE")]),
+    }
+    service, _, _ = build(adapters)
+    result = service.lookup(ISIN)
+    assert result.source_of("maturity") == "NSDL"
+    assert adapters["RBI"].calls == []
+    for name in ("NSE", "BSE"):
         assert adapters[name].calls == []
 
 
@@ -101,7 +130,7 @@ def test_priority_order_comes_from_base_not_the_registry(build):
     service, _, _ = build(adapters)
     result = service.lookup(ISIN)
     assert result.source_of("company") == "NSE"
-    assert adapters["BSE"].calls == []
+    assert adapters["BSE"].calls == [ISIN]
 
 
 def test_session_cache_serves_a_repeat_lookup_without_a_second_request(build):
@@ -109,9 +138,8 @@ def test_session_cache_serves_a_repeat_lookup_without_a_second_request(build):
     service, _, _ = build(adapters)
     service.lookup(ISIN)
     service.lookup(ISIN)
-    assert adapters["NSDL"].calls == [ISIN]
-    for name in ("RBI", "NSE", "BSE"):
-        assert adapters[name].calls == []
+    for name in SOURCE_PRIORITY:
+        assert adapters[name].calls == [ISIN]
 
 
 def test_repeat_lookup_of_a_failed_isin_is_served_from_the_session(build):

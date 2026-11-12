@@ -48,3 +48,21 @@ def rating_band(value):
 
 def is_investment_grade(value):
     return rating_band(value) is not None
+
+
+def split_rating(value, agency=None):
+    text = _text(value).upper()
+    existing = _text(agency) or None
+    if not text:
+        return None, existing
+    grade = text
+    embedded = None
+    for prefix in RATING_AGENCY_PREFIXES:
+        if grade.startswith(prefix):
+            embedded = prefix
+            grade = grade[len(prefix):].lstrip(" -/").strip()
+            break
+    resolved = existing
+    if embedded is not None and resolved is None:
+        resolved = embedded
+    return (grade or None), resolved

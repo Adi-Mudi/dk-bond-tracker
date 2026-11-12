@@ -12,6 +12,7 @@ from src.bond_master.normalize import (
     normalize_cycle,
     normalize_isin,
     rating_band,
+    split_rating,
 )
 
 VALID_ISIN = "INE205A07DV2"
@@ -136,3 +137,37 @@ def test_rating_accepts_agency_prefix_and_case(rating):
 def test_rating_agency_prefix_below_grade_refused():
     assert is_investment_grade("CRISIL BB+") is False
     assert is_investment_grade("ICRA D") is False
+
+
+@pytest.mark.parametrize(
+    "raw,agency,expected",
+    [
+        ("CRISIL AA+", None, ("AA+", "CRISIL")),
+        ("crisil aa+", None, ("AA+", "CRISIL")),
+        ("ICRA BBB-", None, ("BBB-", "ICRA")),
+        ("CARE A", None, ("A", "CARE")),
+        ("AA+", "CRISIL", ("AA+", "CRISIL")),
+        ("CRISIL AA+", "ICRA", ("AA+", "ICRA")),
+        ("AA+", None, ("AA+", None)),
+        ("BBB-", "", ("BBB-", None)),
+        ("CRISIL", None, (None, "CRISIL")),
+        ("", None, (None, None)),
+        ("   ", "CRISIL", (None, "CRISIL")),
+        (None, None, (None, None)),
+    ],
+)
+def test_f5_split_rating_keeps_the_grade_and_moves_the_agency(raw, agency, expected):
+    assert split_rating(raw, agency) == expected
+
+
+def test_f5_embedded_agency_is_dropped_when_the_column_already_has_it():
+    grade, agency = split_rating("CRISIL AA+", "ICRA")
+    assert grade == "AA+"
+    assert agency == "ICRA"
+
+
+def test_f5_split_grade_is_still_investment_grade():
+    grade, agency = split_rating("CARE A")
+    assert is_investment_grade(grade) is True
+    grade, _ = split_rating("ICRA BB+")
+    assert is_investment_grade(grade) is False

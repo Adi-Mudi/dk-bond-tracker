@@ -15,7 +15,7 @@ from .base import (
     FAILURE_UNREACHABLE,
     FetchResult,
 )
-from .normalize import RATING_AGENCY_PREFIXES, normalize_cycle, normalize_isin
+from .normalize import normalize_cycle, normalize_isin, split_rating
 
 SOURCE_NAME = "BSE"
 USER_AGENT = "DK Bond Tracker / 1.0.6"
@@ -105,19 +105,6 @@ def _looks_like_html(text):
     return head.startswith("<") or "<html" in head or "<!doctype" in head
 
 
-def _split_rating(rating_value, agency_value):
-    rating = _clean(rating_value)
-    agency = _clean(agency_value)
-    if rating and not agency:
-        upper = rating.upper()
-        for prefix in RATING_AGENCY_PREFIXES:
-            if upper.startswith(prefix):
-                agency = prefix
-                rating = rating[len(prefix) :].strip(" -/")
-                break
-    return (_or_none(rating), _or_none(agency))
-
-
 class BseAdapter:
     name = SOURCE_NAME
 
@@ -171,7 +158,7 @@ class BseAdapter:
         return FetchResult(isin=isin, failure_code=FAILURE_NOT_FOUND)
 
     def _row_to_result(self, row, isin):
-        rating, agency = _split_rating(row.get(COLUMN_RATING), row.get(COLUMN_AGENCY))
+        rating, agency = split_rating(row.get(COLUMN_RATING), row.get(COLUMN_AGENCY))
         facts = {
             "company": _or_none(_clean(row.get(COLUMN_COMPANY))),
             "coupon": _to_float(row.get(COLUMN_COUPON)),
