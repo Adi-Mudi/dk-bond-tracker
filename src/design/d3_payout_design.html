@@ -137,6 +137,76 @@
   .suggest-line b { font-variant-numeric: tabular-nums; }
   .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0 24px; }
   .totals-row td { font-weight: 700; border-top: 2px solid var(--border); }
+  .detail-page { display: flex; flex-direction: column; gap: 0.75rem; }
+  .detail-head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .detail-head h1 { margin: 0; }
+  .detail-head .co-isin { display: inline; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .detail-tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); }
+  .dt-tab {
+    font: inherit;
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.5rem 0.75rem;
+    min-height: 2.75rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .dt-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+  .dt-panel { display: none; }
+  .dt-panel.active { display: block; }
+  .detail-group {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .group-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .group-facts {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  .group-facts dt { color: var(--muted); }
+  .group-facts dd { margin: 0; }
+  .detail-months { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+  .month-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 3.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  .month-chip .m-name { font-weight: 700; }
+  .month-chip .m-amt { font-variant-numeric: tabular-nums; }
+  .month-chip .m-status { font-weight: 700; }
+  .month-chip .m-note { font-size: 0.62rem; opacity: 0.85; }
+  .month-paid { background: #DCFCE7; color: var(--c-green); border-color: #BBF7D0; }
+  .month-unpaid { background: #FEE2E2; color: var(--c-red); border-color: #FECACA; }
+  .month-soon { background: #FEF3C7; color: var(--c-amber); border-color: #FDE68A; }
+  .readonly-note { font-size: 0.8rem; color: var(--muted); }
   .chip-liquid { color: var(--ongoing-fg); background: var(--ongoing-bg); }
   .chip-active { color: var(--watching-fg); background: var(--watching-bg); }
   .chip-thin { color: var(--warn-fg); background: var(--warn-bg); }
@@ -586,6 +656,7 @@
     <button type="button" class="dt-tab" data-dtab="goal">Goal</button>
   </div>
 
+  <section class="dt-panel active" id="dt-overview">
   <div class="detail-group">
     <div class="group-title">Schedule &#8212; quarterly</div>
     <dl class="group-facts">
@@ -621,7 +692,50 @@
     <p class="caption" style="margin-top:6px;">The issuer files a payment confirmation for every coupon, so the app can tell a genuinely missing payment from one you simply have not recorded. A provider statement (Jiraaf, Stable Money, GoldenPi) is checked the same way when you import it. Nothing is changed automatically &#8212; you still enter the amount that reached your bank.</p>
   </div>
 
-  <div class="detail-group">
+  </section>
+  <section class="dt-panel" id="dt-tax">
+    <div class="detail-group" id="grp-tds-profile">
+      <div class="group-title">TDS profile</div>
+      <dl class="group-facts">
+        <dt>Mode</dt><dd>Standard 10%, exempt from 1 Jul 2026</dd>
+        <dt>Rate</dt><dd>10% (s.193 / s.393(1) Table 5(i))</dd>
+        <dt>PAN</dt><dd>Available</dd>
+        <dt>Declaration</dt><dd>Form 121 &#183; filed 1 Jul 2026 &#183; valid for FY 2026-27</dd>
+        <dt>Exemption window</dt><dd>1 Jul 2026 &#8211; 31 Mar 2027</dd>
+        <dt>Threshold</dt><dd>&#8377;10,000 per financial year</dd>
+      </dl>
+      <p class="caption" style="margin-top:6px;">Changing the profile affects future payouts only &#8212; months already recorded keep their own amount and reason.</p>
+    </div>
+
+    <div class="detail-group" id="grp-fy">
+      <div class="group-title">Financial year 2026-27</div>
+      <dl class="group-facts">
+        <dt>Instances in this FY</dt><dd>4 (Jun, Sep, Dec 2026, Mar 2027) &#183; 3 paid &#183; 1 unpaid</dd>
+        <dt>Gross interest</dt><dd class="money">&#8377;4040.00</dd>
+        <dt>TDS deducted so far</dt><dd class="money">&#8377;101.00</dd>
+        <dt>Net credited so far</dt><dd class="money">&#8377;909.00</dd>
+        <dt>Expected net, exempt months</dt><dd class="money">&#8377;2020.00</dd>
+        <dt>Claimable credit</dt><dd class="money">&#8377;101.00</dd>
+      </dl>
+      <p class="caption" style="margin-top:6px;">&#8377;4040.00 of the &#8377;10000.00 threshold used &#8212; below it, so no TDS is due for this financial year. Projected payouts are not counted.</p>
+    </div>
+
+    <div class="detail-group" id="grp-tds-months">
+      <div class="group-title">Month timeline</div>
+      <div class="detail-months">
+        <div class="month-chip month-paid"><span class="m-name">Dec-2025</span><span class="m-amt">&#8377;909.00</span><span class="m-note">TDS &#8377;101</span></div>
+        <div class="month-chip month-paid"><span class="m-name">Mar-2026</span><span class="m-amt">&#8377;909.00</span><span class="m-note">TDS &#8377;101</span></div>
+        <div class="month-chip month-paid"><span class="m-name">Jun-2026</span><span class="m-amt">&#8377;909.00</span><span class="m-note">TDS &#8377;101</span></div>
+        <div class="month-chip month-unpaid"><span class="m-name">Sep-2026</span><span class="m-status">unpaid</span><span class="m-note">due 10 Sep</span></div>
+        <div class="month-chip month-soon"><span class="m-name">Dec-2026</span><span class="m-amt">&#8377;1010.00</span><span class="m-note">exempt &#183; Form 121</span></div>
+        <div class="month-chip month-soon"><span class="m-name">Mar-2027</span><span class="m-amt">&#8377;1010.00</span><span class="m-note">exempt &#183; Form 121</span></div>
+      </div>
+      <p class="caption" style="margin-top:6px;">The amount shown is what reached your bank. The line under it is the TDS that was deducted, or that will not be deducted because the month falls inside the exemption window.</p>
+    </div>
+  </section>
+
+  <section class="dt-panel" id="dt-performance">
+    <div class="detail-group">
     <div class="group-title">Performance</div>
     <dl class="group-facts">
       <dt>Book value</dt><dd class="money">&#8377;40000.00</dd>
@@ -630,7 +744,8 @@
       <dt>Return so far</dt><dd class="money">&#8377;1233.88 &#183; 3.1%</dd>
     </dl>
     <p class="caption" style="margin-top:6px;">One formula set, the same on this page and on the Portfolio Performance tab. Market value is deferred until a price source is settled.</p>
-  </div>
+    </div>
+  </section>
 </div>
 
 <hr class="section-divider">
@@ -773,6 +888,23 @@
       privacy.setAttribute("aria-pressed", on ? "true" : "false");
       privacy.classList.toggle("active", on);
       privacy.textContent = on ? "Show amounts" : "Hide amounts";
+    });
+  }
+})();
+</script>
+
+<script>
+(function () {
+  var detail = document.getElementById("detail-page");
+  if (detail) {
+    var dtTabs = detail.querySelectorAll(".dt-tab");
+    var dtPanels = detail.querySelectorAll(".dt-panel");
+    dtTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var name = tab.getAttribute("data-dtab");
+        dtTabs.forEach(function (other) { other.classList.toggle("active", other === tab); });
+        dtPanels.forEach(function (panel) { panel.classList.toggle("active", panel.id === "dt-" + name); });
+      });
     });
   }
 })();
