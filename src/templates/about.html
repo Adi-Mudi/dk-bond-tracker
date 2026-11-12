@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block page_title %}About &amp; Updates{% endblock %}
+{% block head %}
+<style>
+  .about-hero { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .brand-lg { font-size: 18px; font-weight: 700; }
+  .about-block { margin-bottom: 12px; }
+  .about-link { color: var(--accent); font-weight: 700; }
+  .update-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border); flex-wrap: wrap; }
+  .update-row:last-of-type { border-bottom: none; }
+  .update-label { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .inline-form { display: inline; }
+  .referral-block { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px; background: var(--warn-bg); }
+  .referral-disclosure { color: var(--warn-fg); font-weight: 700; margin-top: 6px; }
+  .chip-info { background: var(--watching-bg); color: var(--watching-fg); }
+  .chip-neutral { background: var(--card-bg); color: var(--muted); }
+  .chip-pending { background: var(--warn-bg); color: var(--warn-fg); }
+</style>
+{% endblock %}
+{% block content %}
+<h1>About &amp; Updates</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="banner flash-banner" id="flash-banner">
+  <div class="banner-title">{{ category }}</div>
+  <div id="flash-message">{{ message }}</div>
+</div>
+{% endfor %}
+{% from "_brand.html" import brand_avatar %}
+{% endif %}
+{% endwith %}
+
+<div class="about-hero" id="about-hero">
+  {{ brand_avatar(48) }}
+  <span class="brand-lg">DK Bond Tracker</span>
+  <span class="chip chip-info" id="about-version-chip">v{{ app_version }}</span>
+  <span class="caption" id="about-build">{{ build_notes }}</span>
+</div>
+
+<section class="card about-block" id="about-app-card">
+  <div class="zone-title">This app &amp; your data</div>
+  <p id="app-version">Version {{ app_version }}</p>
+  <p id="build-notes-line">{{ build_notes }}</p>
+</section>
+
+<section class="card about-block" id="developer-block">
+  <div class="zone-title">Developer</div>
+  <p id="developer-line"><b>Divakaran</b> &#183; Adi-Mudi</p>
+  <p class="caption" id="developer-note">Creator &amp; maintainer &#8212; bonds, goals, and every line of this app.</p>
+</section>
+
+<section class="card about-block" id="source-block">
+  <div class="zone-title">Source code</div>
+  <p><a class="about-link" id="repo-link" href="https://github.com/Adi-Mudi/dk-bond-tracker">github.com/Adi-Mudi/dk-bond-tracker</a></p>
+  <p class="caption" id="repo-note">The project's home on GitHub &#8212; for anyone who wants to contribute or upgrade features.</p>
+  <a class="btn btn-secondary" id="open-repo" href="https://github.com/Adi-Mudi/dk-bond-tracker">Open repo &#8594;</a>
+</section>
+
+<section class="card about-block" id="updates-block">
+  <div class="zone-title">Updates</div>
+  <div class="update-row">
+    <span class="update-label"><b>Check for updates</b><span class="caption" id="last-checked">Last checked: {% if last_checked %}{{ last_checked }}{% else %}never{% endif %}</span></span>
+    <form method="post" action="/about" class="inline-form">
+      <input type="hidden" name="action" value="check">
+      <button class="btn btn-primary btn-sm" type="submit" id="check-updates">Check now</button>
+    </form>
+  </div>
+  <div class="update-row">
+    <span class="update-label"><b>Check automatically</b><span class="caption">Quiet check on launch &#8212; notify only when a new version exists</span></span>
+    <form method="post" action="/about" class="inline-form">
+      <input type="hidden" name="action" value="auto">
+      <input type="hidden" name="auto" value="{% if auto_check %}{% else %}on{% endif %}">
+      <button class="btn btn-sm" type="submit" id="toggle-auto-updates" aria-pressed="{{ 'true' if auto_check else 'false' }}" data-state="{{ 'on' if auto_check else 'off' }}">{% if auto_check %}Auto-check: ON{% else %}Auto-check: OFF{% endif %}</button>
+    </form>
+  </div>
+  <div class="update-row">
+    <span class="update-label"><b>What's new</b><span class="caption">Release notes for every version</span></span>
+    <a class="btn btn-sm" id="whats-new-link" href="#whats-new">View changelog &#8594;</a>
+  </div>
+  <div class="section-gap" id="whats-new">
+    <p class="caption">What's new in v{{ app_version }}</p>
+    <p id="whats-new-notes">{{ build_notes }}</p>
+    <a class="about-link" id="releases-link" href="https://github.com/Adi-Mudi/dk-bond-tracker/releases">All releases on GitHub &#8594;</a>
+  </div>
+</section>
+
+<section class="card about-block" id="license-block">
+  <div class="zone-title">License</div>
+  <p><b>MIT License</b> <span class="chip chip-pending" id="license-placeholder">PLACEHOLDER &#8212; LICENSE file to be added</span></p>
+  <p class="caption">Free to use, share and modify with friends. Full license text ships in the repository LICENSE file.</p>
+</section>
+
+<section class="card about-block" id="support-block">
+  <div class="zone-title">Disclaimer</div>
+  <div class="disclaimer-box" id="about-disclaimer">
+    <strong>We do not recommend any bonds.</strong> DK Bond Tracker is a personal tracking tool — information-only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal, and past performance does not guarantee future returns. Every investment decision is your own.
+  </div>
+
+  <div class="zone-title">Support us</div>
+  <div class="referral-block" id="referral-block">
+    <p>Like this app? You can support it for free.</p>
+    <p class="referral-disclosure" id="referral-disclosure">I may earn a commission from purchases made through these links.</p>
+    <p class="caption" id="referral-placeholder">Link: &#8212;</p>
+  </div>
+</section>
+<script>
+(function () {
+  var btn = document.getElementById("reveal-data-folder");
+  var wrap = document.getElementById("data-dir-wrap");
+  if (btn && wrap) {
+    btn.addEventListener("click", function () {
+      wrap.hidden = false;
+    });
+  }
+})();
+</script>
+{% endblock %}

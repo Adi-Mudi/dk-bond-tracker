@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="1.0.2"
+VERSION="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && python3 -c "import sys; sys.path.insert(0, '.'); from src.version import APP_VERSION; print(APP_VERSION)")"
 NAME="dk_bond_tracker_v${VERSION}"
 PRODUCT_DIR="${ROOT}/product/${NAME}"
 ZIP_PATH="${ROOT}/product/${NAME}.zip"
@@ -30,7 +30,7 @@ cd /d "%~dp0"
 pause
 EOF
   cat > "${dest}/README.md" <<'EOF'
-# DK Bond Tracker v1.0
+# DK Bond Tracker v__VERSION__
 
 Offline bond-tracking dashboard. No accounts, no internet needed after install. Data stays on your machine in data/bonds.db.
 
@@ -76,6 +76,7 @@ Full tier: ./scripts/test_remote.sh
 
 L1/L2 features are pending and not in this build.
 EOF
+  sed -i "1s|.*|# DK Bond Tracker v${VERSION}|" "${dest}/README.md"
 }
 
 diff_tree() {

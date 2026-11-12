@@ -50,6 +50,22 @@ No fallback was needed: Chaquopy 17.2.0 accepted 3.13 and packaged
 - `abiFilters "arm64-v8a", "x86_64"` (arm64 device + x86_64 Waydroid smoke).
 - minSdk 24, targetSdk 34, compileSdk 34.
 
+## App updates (in-place upgrade contract)
+
+Android updates the SAME app only when all three match:
+
+1. **Same applicationId** — always `com.dkbondtracker.app` (never change it).
+2. **Same signing certificate** — every shipped APK must be signed with the SAME keystore.
+   Release APKs use `keystore.properties` / `DKBT_RELEASE_*` (see SIGNING.md).
+   CI *debug* APKs may carry an ephemeral key — for real-device upgrades, ship release-signed APKs.
+   (Different signature → `INSTALL_FAILED_UPDATE_INCOMPATIBLE` → user must uninstall → local data lost.)
+3. **versionCode must not go backwards** — bump `versionCode` + `versionName` for EVERY published APK
+   (currently versionCode 3 / versionName 1.0.4). Lower versionCode → `INSTALL_FAILED_VERSION_DOWNGRADE`.
+
+Installing a correctly-signed newer APK over an existing install is an **in-place update:
+the app icon stays, settings and the local bonds database are preserved.** A different
+applicationId would install as a second, separate app — never do that.
+
 ## Permissions / security
 
 - INTERNET only.

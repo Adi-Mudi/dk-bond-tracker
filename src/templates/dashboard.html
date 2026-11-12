@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_macros.html" import money, money_text %}
+{% block page_title %}Dashboard{% endblock %}
 {% block content %}
 <h1>Dashboard</h1>
 
@@ -9,14 +10,17 @@
 </div>
 
 <div class="panel active" id="dpanel-overview">
+<section class="zone kpi-zone" id="zone-kpi">
+<div class="zone-title">Zone 1 — key figures</div>
 <div class="stat-row" id="summary-cards">
   <div class="stat-card primary" id="card-total">
     <div class="stat-label">Total Invested</div>
     <div class="stat-value">{{ money(total_invested, "total-invested", "value") }}</div>
   </div>
   <div class="stat-card" id="card-received">
-    <div class="stat-label">Received</div>
+    <div class="stat-label">Received till date</div>
     <div class="stat-value">{{ money(received_total, "received-total", "value") }}</div>
+    <div class="stat-sub" id="received-breakdown">{{ money(received_total, "received-net", "") }} in bank + {{ money(received_tds, "received-tds", "") }} TDS = {{ money(received_gross, "received-gross", "") }} gross</div>
   </div>
   <div class="stat-card" id="card-next-payout">
     <div class="stat-label">Next Payout</div>
@@ -29,7 +33,10 @@
 {% if counts.invalid %}
 <p class="caption" id="invalid-rows-note">{{ counts.invalid }} position{% if counts.invalid != 1 %}s{% endif %} need review — open Portfolio to fix or remove</p>
 {% endif %}
+</section>
 
+<section class="zone detail-zone" id="zone-detail">
+<div class="zone-title">Zone 2 — detail</div>
 <div class="card" id="invested-received-chart">
   <h2>Invested vs Received per company</h2>
   <div class="filter-chips" role="group" aria-label="Filter by status">
@@ -38,7 +45,6 @@
     <button type="button" class="btn btn-sm filter-chip" data-filter="ongoing" id="filter-ongoing">On-going</button>
     <button type="button" class="btn btn-sm filter-chip" data-filter="matured" id="filter-matured">Matured</button>
   </div>
-  <p class="caption" id="sorted-caption" style="margin-bottom:12px">Sorted by priority — items needing attention first.</p>
   {% for bar in bars %}
   <div class="chart-row" data-status="{{ bar.status_slug }}">
     <div class="chart-label">{{ bar.company }}</div>
@@ -49,12 +55,9 @@
   {% else %}
   <div class="empty-note" id="dashboard-bars-empty">no holdings yet — positions appear here once added from Portfolio</div>
   {% endfor %}
-  <div class="chart-legend">
-    <span><span class="swatch" style="background: var(--bar-muted)"></span>Invested (muted)</span>
-    <span><span class="swatch" style="background: var(--accent)"></span>Received (accent)</span>
-  </div>
-  <p class="caption note-line" id="history-note">Monthly history shows completed months + current month only — future months are never shown.</p>
 </div>
+</section>
+
 </div>
 
 <div class="panel" id="dpanel-returns">

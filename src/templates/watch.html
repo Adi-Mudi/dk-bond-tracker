@@ -21,10 +21,88 @@
   .move-form input[readonly] { background: var(--bg); color: var(--muted); }
   .move-actions { display: flex; gap: 8px; align-items: flex-end; }
   .details-row td { height: auto; padding: 12px; background: var(--header-row); }
-  .facts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px; }
+  .facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 12px 16px; }
   .fact-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
   .fact-value { font-size: 14px; }
   .inline-form { display: inline; }
+  .span-all { grid-column: 1 / -1; }
+  .add-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+  }
+  .add-bar-title { flex: 1 1 auto; min-width: 0; font-weight: 700; }
+  .field-company { position: relative; }
+  .combobox-list {
+    position: absolute;
+    z-index: 60;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 6px 18px var(--shadow-color-strong);
+    max-height: 12rem;
+    overflow-y: auto;
+  }
+  .combobox-option { padding: 8px 10px; font-size: 13px; cursor: pointer; }
+  .combobox-option.active { background: var(--watching-bg); color: var(--accent); font-weight: 600; }
+  .field-error { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--danger-fg); }
+  .field-error-icon { font-weight: 700; }
+  .error-popup { border-width: 2px; }
+  .error-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .history-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .details-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
+  .move-panel { display: none; }
+  .move-panel.active { display: block; }
+  .confirm-dialog[hidden] {
+    display: none;
+  }
+  .confirm-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .confirm-inner {
+    width: min(28rem, 92vw);
+    max-width: 100%;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: 0 8px 30px var(--shadow-color-strong);
+  }
+  .confirm-inner h2 { margin-bottom: 8px; }
+  .confirm-inner p { font-size: 13px; margin-bottom: 12px; }
+  .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-danger { background: var(--danger-fg); border-color: var(--danger-fg); color: var(--on-accent); }
+  .watch-scroll { overflow-x: auto; }
+  #watch-list { min-width: 47.5rem; }
+  #watch-list tr.candidate-row > td:first-child,
+  #watch-list tr.candidate-row > td:last-child { position: sticky; background: var(--card); }
+  #watch-list tr.candidate-row > td:first-child { left: 0; z-index: 2; border-right: 1px solid var(--border); }
+  #watch-list tr.candidate-row > td:last-child { right: 0; z-index: 2; border-left: 1px solid var(--border); }
+  #watch-list thead th:first-child,
+  #watch-list thead th:last-child { position: sticky; background: var(--card); z-index: 3; }
+  #watch-list thead th:first-child { left: 0; z-index: 4; }
+  #watch-list thead th:last-child { right: 0; z-index: 5; }
 </style>
 {% endblock %}
 {% block content %}
@@ -43,31 +121,73 @@
 {% endwith %}
 
 {% if error %}
-<div class="banner banner-error" id="watch-error">
-  <div class="banner-title">Error: {{ error_code }}</div>
+<div class="banner banner-error error-popup" id="watch-error" role="alert">
+  <div class="banner-title"><span class="field-error-icon" aria-hidden="true">&#9888;</span> Error: {{ error_code }}</div>
   <div id="watch-error-message">{{ error }}</div>
+  {% if duplicate %}
+  <div class="error-actions" id="watch-error-actions">
+    {% if duplicate.watch_state == "holding" %}
+    <a class="btn btn-sm" id="dup-view-existing" href="/portfolio/{{ duplicate.id }}">View existing</a>
+    {% else %}
+    <a class="btn btn-sm" id="dup-view-existing" href="#candidate-{{ duplicate.id }}">View existing</a>
+    {% endif %}
+    <button type="button" class="btn btn-sm" id="dup-edit-isin" aria-controls="c-isin">Edit ISIN</button>
+  </div>
+  {% endif %}
 </div>
 {% endif %}
 
-<div class="card">
+<div class="add-bar" id="add-bar">
+  <span class="add-bar-title">Candidates ({{ candidates|length }})</span>
+  <button type="button" class="btn btn-primary btn-sm" id="add-candidate-toggle" aria-expanded="{% if form_open %}true{% else %}false{% endif %}" aria-controls="add-candidate-form">+ Add</button>
+</div>
+
+<div class="card" id="add-candidate-panel"{% if not form_open %} hidden{% endif %}>
   <h2>Add Candidate</h2>
   <form method="post" action="/watch" id="add-candidate-form">
     <div class="form-grid">
-      <div class="field">
+      <div class="field field-company">
         <label for="c-company">Company</label>
-        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}">
+        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" aria-describedby="c-company-help{% if error_field == 'company' %} c-company-error{% endif %}" autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
+        <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
+          {% for entry in register %}
+          <li role="option" id="c-company-opt-{{ loop.index }}" class="combobox-option" data-value="{{ entry.company }}">{{ entry.company }}</li>
+          {% endfor %}
+        </ul>
+        <span class="caption" id="c-company-help">start typing — suggestions come from the register</span>
+        {% if error_field == 'company' %}
+        <p class="field-error" id="c-company-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-isin">ISIN</label>
-        <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}">
+        <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
+        <span class="caption" id="c-isin-help">12 characters, forced uppercase, unique across the register</span>
+        {% if error_field == 'isin' %}
+        <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-rating">Rating</label>
-        <input type="text" id="c-rating" name="rating" value="{{ form.get('rating', '') }}">
+        <select id="c-rating" name="rating"{% if error_field == 'rating' %} aria-invalid="true" aria-describedby="c-rating-error"{% endif %}>
+          <option value=""{% if not form.get('rating') %} selected{% endif %}>&#8212;</option>
+          {% for rating in options.ratings %}
+          <option value="{{ rating }}"{% if form.get('rating') == rating %} selected{% endif %}>{{ rating }}</option>
+          {% endfor %}
+        </select>
+        {% if error_field == 'rating' %}
+        <p class="field-error" id="c-rating-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-rating-agency">Rating agency</label>
-        <input type="text" id="c-rating-agency" name="rating_agency" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}">
+        <input type="text" id="c-rating-agency" name="rating_agency" list="c-agency-options" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}" autocomplete="off">
+        <datalist id="c-agency-options">
+          {% for agency in options.agencies %}
+          <option value="{{ agency }}"></option>
+          {% endfor %}
+        </datalist>
+        <span class="caption">pick a preset or type your own — custom values are remembered</span>
       </div>
       <div class="field">
         <label for="c-coupon">Coupon (%)</label>
@@ -126,17 +246,35 @@
       </div>
       <div class="field">
         <label for="c-broker">Broker</label>
-        <input type="text" id="c-broker" name="broker" value="{{ form.get('broker', '') }}">
+        <input type="text" id="c-broker" name="broker" list="c-broker-options" value="{{ form.get('broker', '') }}" autocomplete="off">
+        <datalist id="c-broker-options">
+          {% for broker in options.brokers %}
+          <option value="{{ broker }}"></option>
+          {% endfor %}
+        </datalist>
+        <span class="caption">pick a preset or type your own — custom values are remembered</span>
+      </div>
+      <div class="field span-all" id="company-history" hidden>
+        <span class="caption">History of this company (old ISINs)</span>
+        <div class="history-chips">
+          {% for entry in register %}
+          <div class="history-block" data-company="{{ entry.company|lower }}" hidden>
+            {% for item in entry.isins %}
+            <span class="chip {% if item.state == 'holding' %}chip-ongoing{% else %}chip-watching{% endif %}">{{ item.isin }}{% if item.state %} · {{ item.state }}{% endif %}</span>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
-    <p class="caption section-gap">Company and ISIN must be unique across the whole register — duplicates are rejected at entry.</p>
+    <p class="caption section-gap">Company and ISIN must be unique across the whole register — duplicates are rejected with a red popup and an inline field error, never silently.</p>
     <div class="section-gap">
       <button class="btn btn-primary" type="submit" id="add-candidate-submit">+ Add Candidate</button>
     </div>
   </form>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap watch-scroll" id="watch-scroll" tabindex="0" role="region" aria-label="Watchlist candidates — scroll horizontally for more columns">
   <table id="watch-list">
     <thead>
       <tr>
@@ -152,7 +290,7 @@
     </thead>
     <tbody>
       {% for candidate in candidates %}
-      <tr>
+      <tr class="candidate-row" id="candidate-{{ candidate.id }}">
         <td>
           <span class="co-name">{{ candidate.company }} <span class="chip chip-watching">Watching</span></span>
           <span class="co-isin">{{ candidate.isin }}</span>
@@ -165,57 +303,76 @@
         <td><button type="button" class="btn btn-sm details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
         <td>
           <button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button>
-          <form class="inline-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-confirm-message='{{ ("Delete candidate " ~ candidate.company ~ "? This cannot be undone.")|tojson }}' onsubmit="return confirm(JSON.parse(this.dataset.confirmMessage));">
-            <button class="btn btn-sm" type="submit" id="delete-candidate-{{ candidate.id }}">Delete</button>
-          </form>
         </td>
       </tr>
       <tr class="details-row" id="details-{{ candidate.id }}" hidden>
-        <td colspan="8">{{ details_facts(candidate) }}</td>
+        <td colspan="8">
+          {{ details_facts(candidate) }}
+          <div class="details-actions">
+            <form class="inline-form delete-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-company="{{ candidate.company }}" data-isin="{{ candidate.isin }}" data-confirm-message='{{ ("Delete candidate " ~ candidate.company ~ "? This cannot be undone.")|tojson }}' onsubmit="return confirm(JSON.parse(this.dataset.confirmMessage));">
+              <button class="btn btn-sm" type="submit" id="delete-candidate-{{ candidate.id }}">Delete candidate&#8230;</button>
+            </form>
+            <span class="caption">Deleting removes this candidate permanently — it cannot be undone.</span>
+          </div>
+        </td>
       </tr>
       <tr class="move-row" id="move-panel-{{ candidate.id }}" hidden>
         <td colspan="8">
-          <form class="move-form" method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
-            <div class="move-field">
-              <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
-              <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
+          <form method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
+          <div class="move-panel active" id="move-panel-purchase-{{ candidate.id }}" data-mpanel="purchase">
+            <div class="move-form">
+              <div class="move-field">
+                <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
+                <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
+              </div>
+              <div class="move-field">
+                <label for="move-start-{{ candidate.id }}">Start date (interest accrual / dated date)</label>
+                <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
+              </div>
+              <div class="move-field">
+                <label for="move-end-{{ candidate.id }}">End date</label>
+                <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
+              </div>
+              <div class="move-field">
+                <label for="move-credit-{{ candidate.id }}">Credit day — when the amount is credited each month</label>
+                <select id="move-credit-{{ candidate.id }}" name="credit_day">
+                  {% for day in range(1, 32) %}
+                  <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="move-field">
+                <label for="move-amount-{{ candidate.id }}">Invested amount</label>
+                <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
+              </div>
+              <div class="move-field">
+                <label for="move-qty-{{ candidate.id }}">Quantity (no. of bonds)</label>
+                <input type="number" id="move-qty-{{ candidate.id }}" name="qty" step="1" min="1" value="{{ candidate.qty if candidate.qty is not none else '' }}" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
+              </div>
+              <div class="move-field">
+                <label for="move-perbond-{{ candidate.id }}">Per-bond price (auto)</label>
+                <input type="text" id="move-perbond-{{ candidate.id }}" readonly placeholder="0.00">
+              </div>
+              <div class="move-field">
+                <label for="move-broker-{{ candidate.id }}">Broker</label>
+                <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
+              </div>
+              {% if goals %}
+              <div class="move-field">
+                <label for="move-goal-{{ candidate.id }}">Financial goal (optional)</label>
+                <select id="move-goal-{{ candidate.id }}" name="goal_id">
+                  <option value="">&#8212; none &#8212;</option>
+                  {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
+                </select>
+                <p class="caption">Set once &#8212; the link is permanent: a linked bond can never be moved to another goal or unlinked.</p>
+              </div>
+              {% endif %}
+              <div class="move-actions">
+                <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
+                <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
+              </div>
             </div>
-            <div class="move-field">
-              <label for="move-start-{{ candidate.id }}">Start date (interest accrual / dated date)</label>
-              <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
-            </div>
-            <div class="move-field">
-              <label for="move-end-{{ candidate.id }}">End date</label>
-              <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
-            </div>
-            <div class="move-field">
-              <label for="move-credit-{{ candidate.id }}">Credit day — when the amount is credited each month</label>
-              <select id="move-credit-{{ candidate.id }}" name="credit_day">
-                {% for day in range(1, 32) %}
-                <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="move-field">
-              <label for="move-amount-{{ candidate.id }}">Invested amount</label>
-              <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
-            </div>
-            <div class="move-field">
-              <label for="move-qty-{{ candidate.id }}">Quantity (no. of bonds)</label>
-              <input type="number" id="move-qty-{{ candidate.id }}" name="qty" step="1" min="1" value="{{ candidate.qty if candidate.qty is not none else '' }}" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
-            </div>
-            <div class="move-field">
-              <label for="move-perbond-{{ candidate.id }}">Per-bond price (auto)</label>
-              <input type="text" id="move-perbond-{{ candidate.id }}" readonly placeholder="0.00">
-            </div>
-            <div class="move-field">
-              <label for="move-broker-{{ candidate.id }}">Broker</label>
-              <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
-            </div>
-            <div class="move-actions">
-              <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
-              <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
-            </div>
+          </div>
           </form>
         </td>
       </tr>
@@ -227,7 +384,6 @@
     </tbody>
   </table>
 </div>
-<p class="caption">Watchlist holds candidates only. 'Move to Portfolio' creates the position and locks the company while it is On-going or Danger.</p>
 
 <div class="card section-gap" id="held-positions-snapshot">
   <h2>Held positions</h2>
@@ -254,8 +410,34 @@
   <div class="empty-note" id="snapshot-empty">no held positions yet — add one from Portfolio</div>
   {% endif %}
 </div>
+
+<div class="confirm-dialog" id="delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-body" hidden>
+  <div class="confirm-inner">
+    <h2 id="delete-confirm-title">Delete candidate?</h2>
+    <p id="delete-confirm-body"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-sm" id="delete-confirm-cancel">Cancel</button>
+      <button type="button" class="btn btn-sm btn-danger" id="delete-confirm-accept">Delete</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
+  var toggle = document.getElementById("add-candidate-toggle");
+  var panel = document.getElementById("add-candidate-panel");
+  if (toggle && panel) {
+    toggle.addEventListener("click", function () {
+      panel.hidden = !panel.hidden;
+      toggle.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+      if (!panel.hidden) {
+        var first = panel.querySelector("input, select");
+        if (first) {
+          first.focus();
+        }
+      }
+    });
+  }
   document.querySelectorAll(".details-toggle").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var row = document.getElementById(btn.getAttribute("data-details"));
@@ -272,6 +454,158 @@
     btn.addEventListener("click", function () {
       document.getElementById(btn.getAttribute("data-panel")).hidden = true;
     });
+  });
+  var editIsin = document.getElementById("dup-edit-isin");
+  if (editIsin) {
+    editIsin.addEventListener("click", function () {
+      var isin = document.getElementById("c-isin");
+      if (!isin) {
+        return;
+      }
+      isin.focus();
+      isin.select();
+    });
+  }
+})();
+</script>
+<script>
+(function () {
+  var input = document.getElementById("c-company");
+  var list = document.getElementById("c-company-list");
+  var strip = document.getElementById("company-history");
+  if (!input || !list) {
+    return;
+  }
+  var options = Array.prototype.slice.call(list.querySelectorAll("[role='option']"));
+  var activeIndex = -1;
+  function matchKey() {
+    return input.value.trim().toLowerCase();
+  }
+  function showHistory(key) {
+    if (!strip) {
+      return;
+    }
+    var shown = false;
+    strip.querySelectorAll(".history-block").forEach(function (block) {
+      var match = key !== "" && block.getAttribute("data-company") === key;
+      block.hidden = !match;
+      if (match) {
+        shown = true;
+      }
+    });
+    strip.hidden = !shown;
+  }
+  function visible() {
+    return options.filter(function (option) {
+      return !option.hidden;
+    });
+  }
+  function close() {
+    list.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+    activeIndex = -1;
+  }
+  function highlight(index) {
+    var shown = visible();
+    options.forEach(function (option) {
+      option.classList.remove("active");
+      option.setAttribute("aria-selected", "false");
+    });
+    if (index < 0 || index >= shown.length) {
+      input.removeAttribute("aria-activedescendant");
+      activeIndex = -1;
+      return;
+    }
+    var option = shown[index];
+    option.classList.add("active");
+    option.setAttribute("aria-selected", "true");
+    input.setAttribute("aria-activedescendant", option.id);
+    activeIndex = index;
+  }
+  function render() {
+    var key = matchKey();
+    options.forEach(function (option) {
+      option.hidden = key !== "" && option.getAttribute("data-value").toLowerCase().indexOf(key) !== 0;
+    });
+    var shown = visible();
+    list.hidden = shown.length === 0;
+    input.setAttribute("aria-expanded", shown.length === 0 ? "false" : "true");
+    highlight(-1);
+  }
+  input.addEventListener("input", function () {
+    render();
+    showHistory(matchKey());
+  });
+  input.addEventListener("focus", render);
+  input.addEventListener("keydown", function (event) {
+    var shown = visible();
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      highlight(Math.min(activeIndex + 1, shown.length - 1));
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      highlight(Math.max(activeIndex - 1, 0));
+    } else if (event.key === "Enter") {
+      if (activeIndex >= 0 && shown[activeIndex]) {
+        event.preventDefault();
+        input.value = shown[activeIndex].getAttribute("data-value");
+        close();
+        showHistory(matchKey());
+      }
+    } else if (event.key === "Escape") {
+      close();
+    }
+  });
+  options.forEach(function (option) {
+    option.addEventListener("mousedown", function (event) {
+      event.preventDefault();
+      input.value = option.getAttribute("data-value");
+      close();
+      showHistory(matchKey());
+    });
+  });
+  document.addEventListener("click", function (event) {
+    if (event.target !== input && !list.contains(event.target)) {
+      close();
+    }
+  });
+})();
+</script>
+<script>
+(function () {
+  var dialog = document.getElementById("delete-confirm");
+  var body = document.getElementById("delete-confirm-body");
+  var cancel = document.getElementById("delete-confirm-cancel");
+  var accept = document.getElementById("delete-confirm-accept");
+  if (!dialog || !body || !cancel || !accept) {
+    return;
+  }
+  var pending = null;
+  document.querySelectorAll(".delete-form").forEach(function (form) {
+    var trigger = form.querySelector("button[type='submit']");
+    if (!trigger) {
+      return;
+    }
+    trigger.addEventListener("click", function (event) {
+      event.preventDefault();
+      pending = form;
+      body.textContent = (form.getAttribute("data-company") || "") + " · " + (form.getAttribute("data-isin") || "") + " — this cannot be undone.";
+      dialog.hidden = false;
+      cancel.focus();
+    });
+  });
+  cancel.addEventListener("click", function () {
+    dialog.hidden = true;
+    pending = null;
+  });
+  accept.addEventListener("click", function () {
+    var form = pending;
+    dialog.hidden = true;
+    pending = null;
+    if (form) {
+      form.submit();
+    }
   });
 })();
 </script>

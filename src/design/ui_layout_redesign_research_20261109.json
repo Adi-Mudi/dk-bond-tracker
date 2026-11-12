@@ -1,0 +1,710 @@
+{
+  "id": "UI_Layout_Redesign_research_20261109",
+  "kind": "research",
+  "title": "UI Layout Redesign — Community Research & Issue Collection (Web + Android)",
+  "version": "v1.22",
+  "status": "OPEN",
+  "date": "2026-11-09",
+  "branch": "ui-layout-redesign",
+  "project": "01_excel_dashboard",
+  "purpose": "Collect layout issues reported by the owner from the Android build, gather community best practices and skill guidance on what a finance-tracker layout should and should not include, and prepare inputs for the redesign discussion. No design decisions are made in this document — decisions happen in the discussion that follows.",
+  "inputs": {
+    "user_report": "4 screenshots (Q1-Q4) from the installed Android APK, owner verdict: layout is not clean, collapsed, not user-friendly; full redesign needed for both Android app and web app",
+    "skills_used": [
+      "ui-ux-pro-max (design-system + ux + web domain searches)",
+      "community web research (8 searches)"
+    ]
+  },
+  "reported_issues": [
+    {
+      "id": "Q1",
+      "screen": "Portfolio > My Holdings > Position registry",
+      "severity": "High",
+      "problem": "Table rows are collapsed and cluttered. Company name wraps awkwardly, ISIN + purchase date + units crammed into one cell, a full-width gray attribute strip (Rating agency / Issuer type / Secured / Face value / Payout cycle / Broker) repeats under every row and eats vertical space. Not clean, not user-friendly.",
+      "owner_expectation": "Clean, user-friendly layout and arrangement of holdings data."
+    },
+    {
+      "id": "Q2",
+      "screen": "Portfolio > Payouts (month columns matrix)",
+      "severity": "High",
+      "problem": "Received payments are shown as black tick marks (✓). Owner rejects ticks: every payment received should be marked GREEN; payment not received should be marked pending/danger in RED. This must follow the app's centralized color-coding theme (same pattern used everywhere).",
+      "owner_expectation": "Centralized semantic color coding only: green = received, red/danger = unpaid/pending. No ad-hoc tick marks."
+    },
+    {
+      "id": "Q3",
+      "screen": "Watchlist (Add Candidate form + candidate table)",
+      "severity": "High",
+      "problems": [
+        "Add Candidate form is a dense multi-row grid of 15+ fields — visually collapsed, no clear structure.",
+        "No autocomplete: typing an existing company name should show suggestions (system already locks duplicate ISIN and rejects incomplete company entries — the guard exists, UX does not).",
+        "ISIN and similar fields should auto-uppercase as the user types.",
+        "Credit rating should be a predefined select (full rating scale A..D / AAA..D) — not free text.",
+        "Candidate table bottom section is totally collapsed — buttons (Details / Move to Portfolio / Delete) wrap and stack badly, Action column overflows.",
+        "If a candidate has been invested (moved to Portfolio), it should no longer remain in the Watchlist."
+      ],
+      "owner_expectation": "Clear form structure, friendly input assistance, rating dropdown, clean table with proper action layout, invested items auto-removed from watchlist."
+    },
+    {
+      "id": "Q4",
+      "screen": "Global header + Settings page",
+      "severity": "Medium",
+      "problems": [
+        "Header is crowded: theme switcher (System/Light/Dark), Hide amounts, Notifications badge (68) all compete for space.",
+        "Theme choice is duplicated — header toggle AND Settings > Appearance radio group say the same thing.",
+        "Owner wants a hide/unhide menu layout: user can collapse the menu to gain more viewing space, expand when needed.",
+        "Redesign must apply to BOTH the Android app and the web app (one shared UI)."
+      ],
+      "owner_expectation": "Space-saving collapsible/hideable menu, de-duplicated controls, clean header; unified redesign for web + Android."
+    }
+  ],
+  "community_research": {
+    "summary": "11 sources: investment-dashboard UX guides (Medium/Lollypop/Aufait/KG Hub/Wolfpixel/Eleken), responsive-table references (James Ross/Setproduct/Ramotion/Appnroll/DEV), form-design (CXL/Adam Silver/Jotform), semantic-color systems (Eleken/GitHub design systems/Paleta/Carbon research), sidebar-navigation (Setproduct/DataCamp/arxiv dashboard patterns).",
+    "should_include": [
+      "3-5 KPI cards at top of dashboard (value + trend/color indicator), then charts, then detail tables — clear 3-zone hierarchy (top: attention numbers, middle: trends, bottom: detail)",
+      "Per-holding CARD as primary container on mobile: name, current value, gain/loss with color indicator — progressive disclosure for the rest (tap to expand)",
+      "Semantic status colors as TOKENS, one central helper: green = paid/received, amber = pending/due-soon, red = overdue/danger — applied identically in grid, payouts, badges, dashboard",
+      "Color + icon/text together (never color alone — accessibility + colorblind): green check icon + 'Paid' text, red dot + 'Unpaid'",
+      "Responsive table strategy: cards below ~768px, table on desktop; tap-row-to-expand for hidden columns (fits <= 8 columns)",
+      "Collapsible sidebar on desktop; below 768px: off-canvas drawer (~80-85% width) or bottom tab bar with 3-5 primary destinations + 'More' sheet",
+      "Form best practice: single-column on mobile, visible labels, autocomplete suggestions from existing companies (debounced), sensible defaults, inputmode=numeric for amounts",
+      "Predefined selects for bounded domains (credit rating scale, payout cycle, secured) — better than free text; auto-uppercase for ISIN",
+      "Tabular figures (fixed-width digits) for all money columns so numbers align",
+      "Hideable/collapsible navigation to reclaim content space (Vercel pattern: resizable hideable sidebar; every desktop destination gets a mobile home)"
+    ],
+    "should_not_include": [
+      "No dense multi-column tables shrunk onto phones (a 6-column table with horizontal scroll on mobile is a surrender, not a solution)",
+      "No gray full-width meta strips repeated under every row — use progressive disclosure (expand row/card)",
+      "No ad-hoc status glyphs (bare ticks, bare dots) outside the semantic color system",
+      "No duplicated controls (theme switcher in header AND in settings)",
+      "No widget/cram fest: every widget must map to a user decision — if it can't, it doesn't ship; avoid too many charts/tables competing for attention",
+      "No placeholder-as-label inputs; no free-text fields for values that have a fixed scale",
+      "No header clutter: every pixel of navigation is a pixel taken from data",
+      "No hover-only interactions on touch (Android): use tap-to-reveal",
+      "No color-only status (fails accessibility); no red used as decoration"
+    ],
+    "sources": [
+      "https://medium.com/@david.pham_1649/investment-dashboard-ux-how-to-design-portfolio-interfaces-that-users-actually-trust-b6a06503bfe5",
+      "https://lollypop.design/blog/2026/may/investment-dashboard-ux-design-guide/",
+      "https://www.aufaitux.com/blog/dashboard-design-principles/",
+      "https://www.aufaitux.com/blog/dashboard-design-examples-inspiration-best-practices/",
+      "https://www.wolfpixel.agency/blogs/dashboard-design-best-practices",
+      "https://www.eleken.co/blog-posts/financial-dashboard-examples",
+      "https://medium.com/design-bootcamp/designing-user-friendly-data-tables-for-mobile-devices-c470c82403ad",
+      "https://www.jamesrossjr.com/blog/responsive-data-tables",
+      "https://www.setproduct.com/blog/data-table-ui-design",
+      "https://www.ramotion.com/blog/mobile-tables-design/",
+      "https://www.urbangekodesign.com/industries/fintech/mobile-first-responsive-web-design/",
+      "https://cxl.com/blog/form-design-best-practices/",
+      "https://adamsilver.io/blog/form-design-from-zero-to-hero-all-in-one-blog-post/",
+      "https://www.eleken.co/blog-posts/badge-ui-design",
+      "https://jonathanspooner.com/posts/every-color-is-a-decision-a-developers-guide-to-purposeful-color-in-web-applications",
+      "https://usepaleta.com/blog-semantic-ui-colors",
+      "https://www.setproduct.com/blog/sidebar-navigation-ui-design",
+      "https://www.datacamp.com/tutorial/dashboard-design-tutorial",
+      "https://www.designrush.com/agency/ui-ux-design/dashboard/trends/dashboard-design-principles",
+      "https://github.com/common-origin/common-origin-design-system/issues/257"
+    ]
+  },
+  "skill_guidance": {
+    "source": "ui-ux-pro-max skill (project)",
+    "design_system_suggestion": {
+      "note": "Skill auto-suggested Glassmorphism + Caveat/Quicksand handwriting fonts — REJECTED as unfit for a finance tracker (handwriting font harms trust and number legibility). Useful parts extracted below.",
+      "keep": [
+        "Trust blue primary + profit green accent (fintech convergence: blue = navigation/trust, green = positive outcomes, red = real problems only)",
+        "Destructive red token #DC2626 reserved for genuine alerts",
+        "Anti-pattern: pure white backgrounds — use subtle surface tinting",
+        "Light + dark mode both required with 4.5:1 text contrast"
+      ],
+      "typography_direction": "Professional sans-serif with tabular figures for money — NOT the skill's handwriting suggestion (to be confirmed in discussion)"
+    },
+    "ux_rules_applied": [
+      "Tables on mobile: horizontal scroll OR card layout — never let wide tables break the viewport",
+      "Mobile-first: design 375px first, enhance at breakpoints",
+      "Touch targets >= 48dp on Android",
+      "Autocomplete: show predictions as user types (debounced fetch + dropdown)",
+      "Every input needs a visible label; submit needs loading/success/error feedback",
+      "Status color must be paired with icon/text; contrast 4.5:1 body / 3:1 non-text",
+      "Bottom tabs max 5 items; extras go to More/Settings",
+      "Back behavior must be predictable (Android), modals need clear close"
+    ]
+  },
+  "proposed_direction_for_discussion": [
+    "1. One centralized semantic status system (green/amber/red tokens + icon + label) used by grid, payouts, badges, dashboard — kills the tick-mark problem (Q2)",
+    "2. Holdings: desktop table with expandable rows; mobile = card stack with progressive disclosure — kills the gray meta strips (Q1)",
+    "3. Payouts matrix: keep table on desktop (frozen first column + horizontal scroll), mobile = per-bond cards with month chips colored by status; cells colored green/red/amber instead of ticks (Q1/Q2)",
+    "4. Watchlist: rebuild form single-column mobile / two-column desktop with autocomplete on Company, auto-uppercase ISIN, predefined rating select; candidate table → card layout on mobile; invested candidates auto-move out of watchlist (Q3)",
+    "5. Navigation: hideable sidebar (desktop) + drawer or bottom-tabs (mobile) with 3-5 primary destinations; single theme control (move to user menu, remove duplication); notifications + hide-amounts move into a compact overflow menu (Q4)",
+    "6. Same templates serve web and Android (WebView) — one redesign, both surfaces; verify at 375px / 768px / 1440px"
+  ],
+  "discussion": {
+    "artifact": ".IDE_Plans/design_drafts/ui_layout_outline_v1.html",
+    "single_source_rule": "ONE design home only: the outline HTML above holds ALL page designs in numbered step sections; this JSON is the decision log. Never create scattered/parallel design files — every page redesign is appended as a new numbered section in the SAME HTML and logged here. An agent picking up work reads ONLY: (1) this step_plan for what is current, (2) the HTML section for that step.",
+    "step_plan": [
+      {
+        "step": 1,
+        "part": "Overall layout (sidebar/tabs/header/3-zone skeleton)",
+        "decision": "D-01",
+        "status": "CONFIRMED",
+        "html_section": "frames (top of file)"
+      },
+      {
+        "step": 2,
+        "part": "Portfolio > Holdings (pinned columns + detail drill-in)",
+        "decision": "D-02",
+        "status": "CONFIRMED",
+        "html_section": "D-02 — Holdings interaction"
+      },
+      {
+        "step": 3,
+        "part": "Portfolio > Payouts (colored month cells, no ticks)",
+        "decision": "D-03",
+        "status": "CONFIRMED",
+        "html_section": "D-03 — Payouts page"
+      },
+      {
+        "step": 4,
+        "part": "Watchlist (form + candidate table + move flow)",
+        "decision": "D-04",
+        "status": "CONFIRMED",
+        "html_section": "D-04 — Watchlist page"
+      },
+      {
+        "step": 5,
+        "part": "Dashboard (KPI zones)",
+        "decision": "D-05",
+        "status": "PENDING (deferred — owner moved to Goals first)",
+        "html_section": "—"
+      },
+      {
+        "step": 6,
+        "part": "Financial Goals (create/lock target, monthly check-in, bond linking, auto-tracking)",
+        "decision": "D-06",
+        "status": "CURRENT — in design",
+        "html_section": "D-06 — Financial Goals page"
+      },
+      {
+        "step": 7,
+        "part": "Alerts + Notifications",
+        "decision": "D-07",
+        "status": "PENDING",
+        "html_section": "—"
+      },
+      {
+        "step": 8,
+        "part": "Settings restructure (About split out to D-12 separate page)",
+        "decision": "D-08",
+        "status": "CONFIRMED (Settings) — D-12 About pending",
+        "html_section": "—"
+      }
+    ],
+    "decisions": [
+      {
+        "id": "D-01",
+        "title": "Overall outline layout (Web + Android) approved",
+        "status": "CONFIRMED",
+        "decided": "2026-11-09",
+        "choice": "Outline layout v1 approved as the base skeleton for both surfaces: collapsible sidebar with icon rail on desktop (hide/unhide menu — Q4), single overflow menu carrying theme switcher as an ICON plus hide-amounts and notifications (no duplication with Settings), 3-zone page structure (KPI row → detail zone → legend), bottom tabs (max 5) + drawer on mobile, same Flask templates for web and Android WebView.",
+        "why": "Owner: 'collapsible sidebar with icon... icon for themes, that's good — this one is approved'. Matches community rules (hideable nav reclaims content space; one control per function; 5-tab mobile limit).",
+        "supersedes": null
+      },
+      {
+        "id": "D-02",
+        "title": "Holdings interaction: static key columns + scrollable rest + detail drill-in",
+        "status": "CONFIRMED",
+        "decided": "2026-11-09",
+        "choice": "One row per bond. Company/ISIN pinned left, Status+Detail pinned right, middle columns horizontally scrollable. Detail → side drawer on desktop (list stays visible, ✕/Esc closes); full page on Android (back returns to list). Detail shows 6 groups: Identity, Investment, Returns, Schedule, Classification, Payment history (colored month chips, tap to edit).",
+        "why": "Owner approved after viewing the D-02 section in the outline HTML ('Q1, good'). All fields already exist in bonds + payment_ledger schema.",
+        "supersedes": null
+      },
+      {
+        "id": "D-03",
+        "title": "Portfolio > Payouts page redesign",
+        "status": "CONFIRMED",
+        "decided": "2026-11-09",
+        "requirement": "Replace tick marks with centralized semantic colors. Cell content rule (owner): green cell = received VALUE ONLY (green already means paid — no 'paid' word); red cell = 'unpaid' ONLY; amber cell = 'due soon' ONLY — NO amount on unpaid/due-soon cells because the actual payout is unknown till credit (quarterly/monthly cycles + TDS deductions). One row per bond; Company/ISIN pinned while month columns scroll (desktop); mobile = per-bond card with month chips. Same tokens as the rest of the app (D-01 legend).",
+        "why": "Owner approved revised section: 'this one is good'. Cell rule came from owner: 'we do not know how much the unpaid amount... quarterly... TDS... paid it should show only the value... green color means paid'.",
+        "proposal": "HTML section 'D-03 — Portfolio > Payouts page'.",
+        "supersedes": null
+      },
+      {
+        "id": "D-04",
+        "title": "Watchlist page redesign (form + candidate table + move flow)",
+        "status": "CONFIRMED",
+        "decided": "2026-11-09",
+        "requirements": [
+          "Company field: autocomplete suggestions as the user types, drawn from previously entered company names (watchlist + portfolio register).",
+          "ISIN: forced uppercase; unique across the whole register (existing lock kept); ALSO block entry when the same company+ISIN is already an ACTIVE candidate — no duplicate active bond while it is still being watched.",
+          "Credit rating: predefined dropdown LIMITED to investment grade only — AAA, AA+, AA, AA-, A+, A, A-, BBB+, BBB, BBB- (stops at BBB-; anything below BBB- is not selectable).",
+          "Rating agency: predefined list of Indian agencies — CRISIL, ICRA, CARE, India Ratings, Brickwork (BWR), Infomerics; combo-box: pick from list OR type a custom value; custom values persist and appear in suggestions next time.",
+          "Broker: predefined list of Indian bond brokers — ICICI Direct, HDFC Securities, Zerodha, Groww, 5paisa, Upstox, Angel One, Motilal Oswal, Kotak Securities, Axis Direct, SBI Securities; same combo-box pattern (select or type custom, persisted).",
+          "Candidate table: same pattern as Holdings (D-02) — Company/ISIN pinned left, Actions pinned right, middle columns (Rating, Coupon, Est. Yield, Broker, Source note) horizontally scrollable; one row per bond; no stacked/collapsed action buttons.",
+          "Move to Portfolio: click → opens the full purchase-details entry form (all required fields, candidate data prefilled) → on confirm, bond moves to Portfolio and is REMOVED from the watchlist permanently (never shown again while invested).",
+          "Delete is NOT exposed on the row (accidental-touch risk): the row shows only Move + Details. Delete lives INSIDE the Details view only, and always requires a confirmation dialog (Cancel / Delete, red) before anything is removed.",
+          "Duplicate rules (maturity-aware): HARD BLOCK = same ISIN anywhere in the register (existing lock). Same company + DIFFERENT ISIN is ALLOWED — including while an older bond of that company is still active, and always allowed once the older bond is matured/completed (new purchase, new ISIN).",
+          "Visible error mechanism (never silent): any block — duplicate ISIN, same company+active ISIN, rating below BBB-, missing required field — shows a RED popup/modal on submit: plain-language reason + the offending value + a way out (e.g. 'View existing candidate' link, or 'Edit field'). The offending field is also highlighted red inline with the message under it. User always knows WHY the entry was rejected (matches app rule FR-21: errors surfaced visibly, never swallowed).",
+          "Old-ISIN history visibility: when a company is picked in the autocomplete (or typed in the Company field), show a history strip under the field listing that company's previous bonds with ISIN + outcome — e.g. 'Past: INE0AAB… matured Jan 2025 (green) · INE0AAC… matured Mar 2023 (green)' or 'Active: INE0AAD… ongoing (blue)' — so the user knows this company already issued matured bonds before adding a new one.",
+          "Minimalist add flow: the Add-candidate form is COLLAPSED by default — the page shows only a compact '+ Add' icon/button next to the list header; clicking it expands the form (all fields appear only then). Same pattern for other create/edit actions across the app: nothing bulky open by default — clean, minimal, user-friendly UI."
+        ],
+        "why": "Owner Q2+Q3: autocomplete company; ISIN not twice + active-duplicate block; full rating scale; Indian agency + broker presets with type-your-own persistence; table static+scrollable; move = click then enter all details; invested candidate must leave the watchlist.",
+        "proposal": "HTML section 'D-04 — Watchlist page'.",
+        "supersedes": null
+      },
+      {
+        "id": "D-09",
+        "title": "Guidance system — light-bulb icon + tooltip walkthroughs (cross-cutting, all pages)",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "requirements": [
+          "A light-bulb icon sits STATIC in the top bar of every page (web + Android) — always visible, one tap/click away; user never loses access to help.",
+          "Clicking it opens a page-guide walkthrough with tooltips: what this page does, what each section/field means, and what actions are available.",
+          "The guide explains CONFIGURATION AND RULES — why things block: e.g. 'same ISIN cannot be entered twice (register-wide)', 'same company + active ISIN is blocked', 'rating limited to AAA…BBB-', 'payout amount unknown till credit so unpaid cells show status only', 'green = received', etc. Every blocking/validation rule is documented inside the tooltip covering the relevant field.",
+          "Tooltips also appear on first-use hover/tap of key controls (field hints), but the light-bulb is the master entry — if a user forgets a page, the bulb gives the full guidance for that page.",
+          "Guide content is per-page (Dashboard guide, Holdings guide, Watchlist guide, …) and driven by the same rules recorded in this discussion doc — one source for behavior AND guidance text."
+        ],
+        "why": "Owner: 'light bulb icon … guide the walkthrough with tooltips … static if user forgot any pages click that button → full guidance … what are the configuration, why we are blocking (like two ISINs cannot participate) … tooltips will guide everything'.",
+        "proposal": "HTML: bulb icon in web topbar + Android appbar; guide-panel mock upgraded with colored tooltip examples (red/green/blue tints).",
+        "awaiting": "Owner confirmation of upgraded D-09 (coloring scheme above)",
+        "community_research": {
+          "sources": [
+            "userpilot.com/blog/tooltip-best-practices",
+            "uxpin.com/blog/what-is-a-tooltip-in-ui-ux",
+            "setproduct.com/blog/tooltip-ui-design",
+            "thehangline.com/tooltip-design-best-practices",
+            "appcues.com/blog/tooltips",
+            "wpdean.com/css-tooltip",
+            "github.com/mgifford/ACCESSIBILITY.md tooltip best practices",
+            "dubbot.com designing tooltips",
+            "ARIA Authoring Practices tooltip pattern"
+          ],
+          "mandatory": [
+            "concise (<=150 chars, one short message — W3C: tooltip is a description, not a dialog)",
+            "supplementary only — never the ONLY place for errors/legal/blocking rules (those live in popups + guide panel)",
+            "role=tooltip + aria-describedby; keyboard focus reveals it like hover; Escape dismisses; dismissible + hoverable + persistent (WCAG 1.4.13)",
+            "touch: tap reveals, tap-outside dismisses — never hover-only (Android WebView)",
+            "positioned beside trigger, never covering it or the next control; reposition to stay visible at all widths",
+            "high contrast text/background >=4.5:1, ~14px legible type",
+            "help control stays in the SAME position on every page (WCAG 2.2 consistent help)",
+            "walkthrough mode has Skip/Back — never force a linear unskippable tour",
+            "no interactive elements inside a plain tooltip (buttons/links => popover instead)"
+          ],
+          "coloring": [
+            "theme-aware inversion: light theme = dark bubble + light text; dark theme = light bubble + dark text (contrast with the surface it sits on)",
+            "use theme tokens/CSS variables — never hardcoded hex (works in System/Light/Dark modes)",
+            "semantic tint by rule TYPE, always with icon+word, never color alone: RED left-border/icon = blocking rule ('same ISIN cannot be entered twice'), GREEN = status/color rule ('green = received'), BLUE = how-to/info, AMBER = warning/attention",
+            "body text inside colored bubble must still hit 4.5:1 — tint the border/icon/left edge, not low-contrast text",
+            "one consistent bubble style app-wide; variation only via the semantic tint"
+          ]
+        },
+        "decided": "2026-11-09",
+        "supersedes": null
+      },
+      {
+        "id": "D-10",
+        "title": "Global search — static search icon in topbar (web + Android)",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "requirements": [
+          "A search (magnifier) icon sits STATIC in the topbar next to the guide bulb — always visible on every page, web + Android.",
+          "Click opens a search input (overlay/dropdown): type company name, ISIN, or keyword → matching results list (Holdings + Watchlist together), each result showing company, ISIN, status chip.",
+          "Tap/click a result → jumps straight to that bond (Holdings detail drawer/page, or the watchlist candidate row).",
+          "Purpose: owner may hold many bonds — find any detail quickly without scrolling the whole register."
+        ],
+        "why": "Owner: 'search icon to search — if user bought more number of bonds they can search and find out all the details'.",
+        "proposal": "HTML: search icon added to web topbar + Android appbar; search-overlay mock added near top of outline.",
+        "supersedes": null,
+        "decided": "2026-11-09"
+      },
+      {
+        "id": "D-06",
+        "title": "Financial Goals page — purpose, creation rule, bond linking, auto-tracking",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "purpose": "A goal = a savings objective (house, gold, education…). User creates it with monthly savings amount + start date + end date; system auto-calculates target = monthly × number of months; TARGET IS LOCKED after creation (not editable). User then updates progress each month: invested yes/no for that month's planned amount.",
+        "requirements": [
+          "Create goal (collapsed '+ New goal' button, minimalist): name, monthly savings amount, start date, end date → target auto-computed as monthly × months in range, shown as a preview, then LOCKED (no edit after create; only name/note maybe editable — target immutable).",
+          "Monthly check-in: for each month in the goal's range, user marks planned amount as INVESTED or NOT (tap chips). Progress updates from check-ins.",
+          "Bond → goal LINKING (owner final rule, supersedes v1.13 touchpoints 2+3): linking happens ONLY in the WATCHLIST MOVE FLOW — the Move-to-Portfolio form carries the Goal dropdown (appears only if active goals exist; absent when none). NO goal field on direct Add-position purchases, NO later set from Portfolio Detail (removed per owner 'from the watchlist only'). PERMANENT once set — never change, never remove. One bond → at most one goal; one goal → many bonds. Bonds not moved through Watchlist stay ungrouped.",
+          "AUTO-TRACKING: once linked at the watchlist move, the bond's invested amounts automatically count into the goal's 'invested via bonds' total and its payouts/returns into 'returns received' — no manual re-entry. A new candidate watched monthly = move to Portfolio with goal picked at that moment → rolls in automatically.",
+          "Goal page displays: goal name, LOCKED target, planned monthly, date range, progress bar (invested+saved vs target), saved total (check-ins), invested-via-bonds total, returns-received total, monthly invested/not checklist, list of linked bonds with each bond's contribution (invested + returns), and status chip (on-track / behind).",
+          "Returns attribution: returns from linked bonds count toward the goal so the user sees whether the objective is being met by actual bond performance.",
+          "No unlink: once a bond carries a goal, that association is permanent (owner: 'once it was linked we do not allow to unlink').",
+          "Consolidated monthly total: the Goals page header shows the COMBINED monthly commitment across all active goals (e.g. House ₹50,000 + Gold ₹20,000 = ₹70,000/month) plus consolidated totals for saved, invested-via-bonds and returns across all goals — then each goal card below carries its own detail (owner Q3)."
+        ],
+        "why": "Owner Q3 (purpose + creation + lock + monthly update + how to map bonds to goals) and Q4 (auto-calculate/auto-add monthly purchases to the goal; display details; track investments and returns against the goal).",
+        "proposal": "HTML section 'D-06 — Financial Goals page'.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null
+      },
+      {
+        "id": "D-11",
+        "title": "Portfolio: group-by-goal view + tabbed detail entry",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "requirements": [
+          "Portfolio gets a 'Group by' selector near the list header: options = None (DEFAULT) and Goal. Default view stays the flat single list exactly as D-02.",
+          "Choosing 'Goal' groups the holdings under goal-name headers (each header shows the goal's locked target + mini progress bar); bonds with no goal collect under an 'Ungrouped' section. User can switch back to None at any time — grouping is a view preference, not permanent.",
+          "Tabbed detail entry (owner Q2): the Move-to-Portfolio form uses TABS — [Purchase details] [Financial goal] — the Goal tab appears only when active goals exist; Confirm reviews both tabs before the move completes.",
+          "Bond Detail in Portfolio uses tabs [Overview] [Payments] [Goal] — the Goal tab is READ-ONLY: it displays the goal linked at watchlist-move (locked badge) or 'No goal' for bonds never moved through Watchlist. No set control here (owner: watchlist only)."
+        ],
+        "why": "Owner Q1: 'in portfolio it should show grouping… if user wants sort by grouping allow it, if not default one'. Owner Q2: 'some kind of tab right to enter the detail — updating the design'.",
+        "proposal": "HTML section 'D-11 — Portfolio grouping + tabbed entry'.",
+        "awaiting": "Owner confirmation",
+        "decided": "2026-11-09",
+        "supersedes": null
+      },
+      {
+        "id": "D-07",
+        "title": "Alerts page (step 7) — due/overdue + maturity alerts confirmed",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "requirements": [
+          "Alerts page = PURE FEED only (fixes the scatter): header with filter chips [All | Due | Overdue | Maturity], Mark-all-read + Clear, grouped by date (Today / This week / Older), unread = bold + left severity bar (red = overdue/maturity<=7d, amber = due soon/maturity<=30d, blue = info).",
+          "Batching: bursts of the same bond+type collapse into one summary line ('3 due-soon alerts') — one mark-read, honest badge count (community: bundle, don't fire one per event).",
+          "Actionable in place: tapping an alert jumps to the related bond (detail drawer/page) — action directly from the notification where possible.",
+          "Designed empty state: 'All caught up' with green check — never a blank list.",
+          "CONFIG MOVED OUT: day-wise rules + channel toggles (in-app/email) relocate to Settings > Notifications — feed page no longer mixes config with content (owner: 'alerts totally scattered').",
+          "Bell in topbar opens a small preview of this same feed (recent 5 + 'open all') — one feed, two entry points.",
+          "Severity loudness matched to importance (community): red reserved for genuinely high severity; routine info stays quiet — never alarm for everything."
+        ],
+        "why": "Owner Q1: 'in our portfolio we have alert for due soon and also maturity also correct' — verified in code: src/alerts.py daily_sweep (credit-day overdue) + src/notifications.py maturity_reminders horizons (30,7,1).",
+        "proposal": "HTML section 'D-07 — Alerts feed (restructured)'.",
+        "awaiting": "Owner confirmation",
+        "community_research": {
+          "sources": [
+            "timgraf.com notification/alert design patterns",
+            "saasui.design notification center UX patterns",
+            "smashingmagazine better notifications UX",
+            "foundey.com notification UX",
+            "courier.com notification center best practices",
+            "toptal notification design",
+            "saasui.design toast UX patterns",
+            "ptc.com notifications and alerts"
+          ],
+          "key": [
+            "dedicated notification center behind bell; recent-first + category grouping",
+            "filters by type + mark-all-read/clear-all are table stakes",
+            "read/unread visually distinct; bundle bursts into summaries",
+            "severity levels high/medium/low; match loudness to real severity",
+            "transient toasts for confirmations, persistent center for anything needed later",
+            "designed empty/loading states",
+            "preferences decide what reaches the bell"
+          ]
+        },
+        "decided": "2026-11-09",
+        "supersedes": null
+      },
+      {
+        "id": "D-08",
+        "title": "Settings total restructure",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "requirements": [
+          "See research applied in HTML section D-08.",
+          "AMENDMENT (owner Q2/Q3): About is REMOVED from Settings — it becomes its own separate page (see D-12). Settings sections = General · Notifications · Share/Export · Data only."
+        ],
+        "why": "Owner Q2.",
+        "proposal": "HTML section 'D-08 — Settings restructure'.",
+        "awaiting": "Owner confirmation",
+        "decided": "2026-11-09",
+        "supersedes": null
+      },
+      {
+        "id": "D-12",
+        "title": "About & Updates — separate page (not inside Settings)",
+        "status": "CONFIRMED",
+        "raised": "2026-11-09",
+        "requirements": [
+          "About is KEPT SEPARATE from Settings (owner Q2) — its own destination: sidebar item on web (below Settings), under More on Android. It is an 'About & Updates' hub, not a config toggle (answers owner Q3: separate, not inside Settings).",
+          "DEVELOPER section: developer/author details (name, contact or org) — owner: Divakaran / Adi-Mudi.",
+          "GITHUB link: https://github.com/Adi-Mudi/dk-bond-tracker — button opens the repo for anyone who wants to contribute or upgrade features.",
+          "UPDATES: 'Check for updates' button (manual) + 'Check automatically' toggle (on by default). On new version: show 'What's new' with release-notes link.",
+          "WHAT'S NEW: link to changelog/release notes (GitHub Releases page) + last-checked timestamp.",
+          "LICENSE: license section with the license name + link — REQUIRES adding a LICENSE file to the repo first (currently none; recommend MIT for friend-sharing; owner picks).",
+          "Version line: app version (e.g. v1.0.2) + build date.",
+          "SUPPORT US block (owner Q2 approved): a clearly-labeled 'Support us' section in About with the owner's broker REFERRAL link (owner will supply the URL) + full disclosure: 'Some links are referral links — you pay nothing extra; we may earn a small bonus if you open an account.' Never presented as a recommendation; only in About."
+        ],
+        "why": "Owner Q2: 'About we should keep separately — details about developer'. Q3: GitHub link for feature upgrades, update check + auto-check, what's new + link, license; asked whether About stays separate or inside Settings — answer: separate (its own page).",
+        "proposal": "HTML section 'D-12 — About & Updates page'.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null
+      },
+      {
+        "id": "D-13",
+        "title": "Responsive / adaptive layout for every mobile (fluid widths, no fixed sizes)",
+        "status": "CONFIRMED",
+        "raised": "2026-11-10",
+        "requirements": [
+          "SINGLE rule for all screens (web + Android WebView): NO fixed pixel widths for content — use %, fr, rem, vw/vh, and max-width:100%. Layouts must stretch/shrink with the container ('content is water; screens are containers').",
+          "CSS Flexbox for 1-D arrangements (rows, stacks, toolbars) with flex-wrap so items wrap naturally on narrow screens; CSS Grid with minmax()/auto-fit for 2-D layouts (KPI rows, form 2-col, detail grids) — columns collapse automatically.",
+          "MOBILE-FIRST: base styles target the smallest screen (320px); enhance upward via breakpoints (test 320/360/375/414/480/768/1024/1440).",
+          "Fluid typography with clamp(min, preferred, max) — text scales smoothly between bounds instead of jumping at breakpoints.",
+          "Tables: wide matrices keep overflow-x-auto + sticky columns (D-02/D-03); below ~768px content lists render as cards (already designed).",
+          "Viewport meta (width=device-width, initial-scale=1) mandatory; NO horizontal page scroll — only intentional table scrollers scroll sideways.",
+          "Responsive padding/spacing (tighter on small screens, roomier on large); touch targets stay >=48dp at every width.",
+          "Container queries for components that adapt to their own box (2026 standard) — cards/forms respond to available space, not just viewport.",
+          "TESTING: continuous-resizer method — drag window across all widths (not just 3 devices); verify at both ends of every clamp() range; check no overflow, no clipped text, readable line length 45-75 chars.",
+          "The fixed-375px phone frames in the outline HTML are ILLUSTRATIVE ONLY — production CSS is fully fluid."
+        ],
+        "why": "Owner Q2: 'user may use different kind of mobile — adapt all mobile screens; responsive layout using flexible width (percentages/flex) and grid layout instead of fixed size; check community'.",
+        "community_research": {
+          "sources": [
+            "nextnative responsive best practices",
+            "medium fluid layout guide",
+            "onenine fluid grids",
+            "uxpin responsive best practices 2026",
+            "orbix responsive best practices",
+            "webcraftdev responsive guide 2026",
+            "rapiddoctools breakpoints 2026",
+            "saasfactor responsive mobile apps",
+            "dev.to responsive 2026 clamp()/container queries",
+            "skill ux-guidelines + html-tailwind stack"
+          ],
+          "key": [
+            "fluid grids: %, fr, vw — never fixed px for layout",
+            "flexbox 1-D, grid 2-D with minmax/auto-fit",
+            "mobile-first breakpoints + test at boundaries",
+            "clamp() fluid typography replaces breakpoint jumps",
+            "container queries: components adapt to their box",
+            "max-width 65-75ch for text; no horizontal page scroll",
+            "viewport meta mandatory; tables -> overflow-x-auto or cards",
+            "continuous-resizer testing, not device-list testing"
+          ]
+        },
+        "proposal": "HTML: responsive-rules box added near top of outline.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null,
+        "implementation_gate": "Owner: 'Make sure it will work' — acceptance = continuous-resizer test across all widths passes (no overflow, clamp() ends verified) before any screen is called done."
+      },
+      {
+        "id": "D-14",
+        "title": "'Why bonds?' education info + no-recommendation disclaimer",
+        "status": "CONFIRMED",
+        "raised": "2026-11-10",
+        "requirements": [
+          "INFO ICON (help/i) — opens an educational popover/page section 'Why bonds?' with: bonds give FIXED, predictable returns (that is their point); share-market returns are variable and not guaranteed around any number.",
+          "EXPECTATION GUIDANCE (owner's words): if an investor expects MORE than roughly 10-12% returns, the share market is the place to look — not bonds. Bonds suit people who want fixed returns, not equity-level expectations. Phrase carefully as general education, never personalized advice.",
+          "DISCLAIMER (prominent, every relevant surface): 'We do NOT recommend any bonds. This app is a personal tracking tool — not investment advice. All investment decisions are the user's own.' Shown in the info popover, in About, and as a footer line on Dashboard/Portfolio.",
+          "Placement: info icon next to Dashboard title (and/or inside the D-09 guide); disclaimer in About page + footer; tooltip on the info icon gives the one-line version (fits D-09 tooltip rules).",
+          "FLIP SIDE (owner Q1): also teach the reverse case — if someone has been putting daily effort into the share market and still is not beating 10-12% (or is losing), bonds deserve a look: fixed returns with far LESS daily attention (analyze a few things, not every day). Highlight this as a key point of the popover."
+        ],
+        "why": "Owner Q1: 'info icon … why we need to invest in bonds … share market not getting more than 10-12% … if they expect more then share market not bond market … also clear detail that we are not recommending any bonds'.",
+        "proposal": "HTML section 'D-14 — Why bonds? info + disclaimer'.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null
+      },
+      {
+        "id": "D-15",
+        "title": "TDS 10% handling — show accurate received vs gross returns",
+        "status": "CONFIRMED",
+        "raised": "2026-11-10",
+        "audit": {
+          "facts_verified": [
+            "OFFICIAL: TDS on bond interest = 10% u/s 193 Income Tax Act (renumbered s.393 from 1-Apr-2026), only when interest from ONE issuer exceeds Rs 10,000 per financial year; 20% without valid PAN (sources: incometaxindia.gov.in, Quicko, 5paisa, GoldenPi).",
+            "TDS is deducted ONLY on the INTEREST portion — NEVER on the invested principal (owner's understanding is correct).",
+            "Bank credit = interest - TDS. So net = 90% of gross interest; TDS = net/9 (10% of GROSS, i.e. ~11.11% of net) — do NOT compute 10% of the net credit.",
+            "CODE: payment_ledger.amount = what user enters; summed as till_return (received). phase4.py already computes tds/net for the payout SCHEDULE display only (amount * 0.10 treating amount as gross) — NOT wired into ledger totals.",
+            "GAP: if user enters the bank (net) amount, Dashboard 'Received' and Portfolio totals understate gross returns by the TDS portion; phase4 schedule and ledger disagree on semantics."
+          ],
+          "layout_touchpoints": [
+            "Payment editor (payout cell / history chip) — primary entry point",
+            "Portfolio detail → Returns section",
+            "Dashboard KPI 'Received till date'",
+            "Payout matrix green cells (note in legend/tooltip)"
+          ]
+        },
+        "requirements": [
+          "LEDGER SEMANTICS: user always enters the AMOUNT THAT HIT THE BANK (net, after TDS). A per-payment toggle 'TDS deducted (10%)' (default ON for interest payouts) marks the deduction.",
+          "DERIVED MATH when toggle on: gross = net / 0.9; TDS = gross - net = net / 9. When off (below Rs 10k threshold / no TDS / principal redemption): gross = net, TDS = 0.",
+          "PAYMENT EDITOR shows live breakdown while typing: 'In bank: Rs X  |  TDS to govt (10%): Rs Y  |  Gross interest: Rs Z'.",
+          "PORTFOLIO DETAIL Returns section shows three lines: Received in bank (net) - TDS deducted (govt credit, claimable via Form 16A) - GROSS returns.",
+          "DASHBOARD KPI: 'Received till date' becomes net + TDS combined line: e.g. 'Rs 25,700 in bank + Rs 2,800 TDS = Rs 28,500 gross'.",
+          "LEGEND/TOOLTIP explains: 'Why is bank amount lower? Issuer deducts 10% TDS on interest (s.193) before crediting — it is your tax credit, claimable in ITR. Principal is never taxed at source.'",
+          "ACCURACY GATE: gross/net/TDS never contradict across Dashboard, Portfolio, Payouts (same derived values everywhere)."
+        ],
+        "why": "Owner Q4/Q5: entered amount is the bank credit; 10% TDS gap must be added back so invested vs returned shows the true value; TDS is on interest only; needs official-source-backed handling; audit first then place in layout.",
+        "proposal": "HTML section 'D-15 — TDS breakdown'.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null
+      },
+      {
+        "id": "D-16",
+        "title": "Feedback page — structured bug report / feature request",
+        "status": "CONFIRMED",
+        "raised": "2026-11-10",
+        "community_research": {
+          "sources": [
+            "zonkafeedback bug report form questions",
+            "upvoty in-app feedback widget",
+            "featurebase feature request template",
+            "gleap mobile app feedback guide",
+            "ybug in-app feedback",
+            "reactnative in-app feedback loop"
+          ],
+          "key": [
+            "TYPE-FIRST progressive form: pick Bug / Feature / Question, then only relevant fields appear",
+            "max ~6 required fields; complete in under 2 minutes",
+            "prominent optional screenshot upload (annotate); user reviews before send",
+            "auto-capture context (app version, current page, device) — never ask user for OS/version",
+            "route to where dev works: GitHub Issues or email; confirm receipt; close the loop",
+            "screenshots may contain financial data — user reviews/edits before send"
+          ]
+        },
+        "requirements": [
+          "Feedback page (sidebar/More item) opens with TYPE selector: Bug report / Feature request / Question — progressive disclosure shows only that type's fields.",
+          "BUG fields (required marked): *Title, *What happened, *Steps to reproduce, *Expected vs actual, Screenshot (optional upload, preview before send), Blocking? (yes/no), + AUTO context (app version, current page, device/OS from WebView).",
+          "FEATURE fields: *Title, *What outcome do you want, *Why it helps, Screenshot (optional), AUTO context.",
+          "QUESTION: *Question + optional screenshot.",
+          "SEND: two routes — (a) 'Email to developer' via the already-configured SMTP (attaches screenshot), (b) 'Open GitHub issue' prefills title+body on github.com/Adi-Mudi/dk-bond-tracker/issues/new (user attaches screenshot manually there). Offline-safe: form also saves a local copy in the outbox if send fails.",
+          "Confirmation screen after send: 'Thanks — we will review' + what happens next (community: close the loop)."
+        ],
+        "why": "Owner Q6: custom feedback page, predefined structure, screenshots, bug + feature; asked how to handle and where feedback lands — community research above; GitHub repo exists as the natural inbox.",
+        "proposal": "HTML section 'D-16 — Feedback page'.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null
+      },
+      {
+        "id": "D-17",
+        "title": "Application LOGO — colorful identity icon (UI icons unchanged)",
+        "status": "CONFIRMED",
+        "raised": "2026-11-10",
+        "community_research": {
+          "skill_default": "ui-ux-pro-max skill: default icon library = Phosphor (regular weight); fallback = Heroicons (consistent stroke/corner style).",
+          "candidates": [
+            {
+              "name": "Phosphor Regular",
+              "pro": "Skill default; huge set; clean outline style; free MIT",
+              "con": "Slightly softer shapes"
+            },
+            {
+              "name": "Lucide",
+              "pro": "Very popular, feather-derived, crisp 2px stroke, great for dashboards",
+              "con": "Stroke style differs from filled marks"
+            },
+            {
+              "name": "Heroicons",
+              "pro": "Made by Tailwind team; simple, consistent",
+              "con": "Smaller set"
+            }
+          ],
+          "verdict": "RECOMMENDED: Phosphor Regular (project skill standard) — offline SVGs bundled under src/static/icons/ (no CDN; app is offline-first). Lucide as runner-up."
+        },
+        "requirements": [
+          "SCOPE CORRECTED (owner Q3): the existing in-app UI icons are GOOD — no change needed. The request is ONLY for the APPLICATION LOGO (app identity icon).",
+          "LOGO = colorful (owner wants colorful, not monochrome) — used as: web header/brand mark, Android launcher icon, About page avatar, favicon.",
+          "Three concepts provided in the outline HTML for owner to pick (or request changes): A) Rupee Rise (blue-teal gradient tile + white rupee + green growth arrow), B) Shield Yield (shield + gold coin + green bars), C) DB Hex (hex gradient + DB monogram + chart line).",
+          "Deliverable after pick: final SVG + exported PNG sizes (48/144/512 for Android mipmap + favicon), colors chosen to fit the app's semantic palette (trust blue + profit green).",
+          "The 17 downloaded Phosphor SVGs in src/static/icons/ were fetched under the earlier misunderstanding — keep as a future UI icon pool or delete (owner to decide); they are NOT part of the logo.",
+          "DELIVERABLE NEXT: final SVG + Android mipmap PNGs (48/144/512) + favicon from concept B; colors locked to app palette.",
+          "CLEANUP DONE: src/static/icons/ (17 Phosphor SVGs) DELETED per owner order — project stays clean; UI icons remain unchanged."
+        ],
+        "why": "Owner Q3: 'I need a colorful icon… talking icon for my application… already existing [UI] icon is good no need to update… we [need] icon for application logo only'.",
+        "proposal": "HTML section 'D-17 — Application LOGO concepts'.",
+        "awaiting": null,
+        "decided": "2026-11-10",
+        "supersedes": null,
+        "choice": "Concept B — Shield Yield (blue shield + gold coin + green bars) selected by owner for now."
+      }
+    ]
+  },
+  "next_step": "DESIGN PHASE COMPLETE (16/16 confirmed). Outstanding admin items only: referral URL for Support-us block, license type (MIT/Apache/GPL), logo B final asset export. Next: implementation planning.",
+  "changelog": [
+    {
+      "date": "2026-11-09",
+      "entry": "v1.0 — created on branch ui-layout-redesign: Q1-Q4 issue collection, community research (include/exclude), skill guidance, proposed direction for discussion"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.1 — discussion opened: D-01 CONFIRMED (outline layout approved: collapsible icon sidebar + theme icon menu); D-02 OPEN (holdings static columns + scrollable rest + detail drill-in; 6-group detail proposal recorded)"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.2 — D-02 CONFIRMED (drawer desktop + full-page Android, 6 groups); step_plan added (8 steps, one current step, single-source rule); D-03 OPEN (Payouts colored cells) as step 3 CURRENT"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.3 — D-03 revised per owner cell-content rule: green=value only (no 'paid' word), red='unpaid' only, amber='due soon' only, no amounts on unpaid (unknown till credit: TDS+cycle); applied across matrix, phone cards, history chips, KPIs; awaiting final OK"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.4 — D-03 CONFIRMED by owner; D-04 OPEN as step 4 CURRENT: watchlist autocomplete, ISIN+active-duplicate locks, full rating scale, Indian agency/broker presets with custom persistence, holdings-style pinned table, move=click→purchase form→auto-removed from watchlist"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.5 — D-04 amended per owner: rating limited to investment grade AAA…BBB- only; duplicate rules maturity-aware (same ISIN hard-blocked; different ISIN same company always allowed incl. after maturity); old-ISIN history strip shown when company picked in watchlist"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.6 — D-04 amended: Delete removed from row actions (accidental-touch risk); Delete only inside Details view with mandatory confirmation dialog"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.7 — D-04 amended: visible error mechanism added — every block (dup ISIN, active company+ISIN, rating below BBB-, missing field) shows red popup + inline field error with reason and way out; never silent (FR-21 alignment)"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.8 — sidebar behavior confirmed (expanded=icons+labels, minimized=icons only, D-01); D-09 OPEN: light-bulb static guide icon + per-page tooltip walkthroughs documenting every blocking/configuration rule"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.9 — D-04 amended: Add-candidate form collapsed by default behind '+ Add' icon (minimalist, opens on demand); D-10 OPEN: static search icon in topbar, search across Holdings+Watchlist by company/ISIN, jump-to-bond results"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.10 — D-04 CONFIRMED (owner: 'Watchlist looks good'); step 6 Goals becomes CURRENT (Dashboard deferred); D-06 OPEN: goal purpose, target auto-calc + lock, monthly check-in, bond→goal linking via optional Goal field, auto-tracking of invested+returns"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.11 — D-10 CONFIRMED (search); D-06 amended per owner: Goal link ONLY at purchase forms, permanent (no unlink, no goal-page picker), display list still pending (cut-off); D-09 upgraded with community tooltip research (mandatory behaviors + theme-aware coloring with red/green/blue/amber semantic tints)"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.12 — D-09 CONFIRMED (tooltip coloring OK); D-06 + consolidated monthly total (combined commitment across goals + consolidated saved/invested/returns); D-07 OPEN: due/overdue + maturity (30/7/1d) alerts confirmed by owner, verified in code"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.13 — D-06: removed unnecessary linking-mechanism explainer box from page design; linking rule amended — Goal dropdown in Move-to-Portfolio form (only when goals exist; absent if none), optional at purchase, one-time later set from Portfolio bond Detail, permanent once set (never change/remove)"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.14 — D-11 OPEN: Portfolio group-by selector (None default / Goal with headers + Ungrouped), tabbed detail entry — Move form tabs [Purchase details][Financial goal], bond Detail tabs [Overview][Payments][Goal] with permanent goal badge"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.15 — D-11 CONFIRMED; D-07 rewritten (pure feed + filters + batching + config moved to Settings, community research embedded); D-08 rewritten (task-based sections + sub-nav + progressive disclosure for SMTP + no theme duplication + save feedback, community research embedded)"
+    },
+    {
+      "date": "2026-11-09",
+      "entry": "v1.16 — D-07 + D-08 CONFIRMED; About split OUT of Settings into D-12 separate 'About & Updates' page: developer details, GitHub link (Adi-Mudi/dk-bond-tracker), check-for-updates + auto toggle, what's new + link, license section (LICENSE file still missing — owner to pick type)"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.17 — AUDIT then AMEND per owner ('from the watchlist only it should be link'): linking = Move-to-Portfolio form ONLY; removed Add-position goal field and Portfolio later one-time set (supersede v1.13 tp2+tp3); bond Detail Goal tab now read-only display; D-12 CONFIRMED"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.18 — D-06 CONFIRMED (all 12 prior decisions now locked except new D-13); D-13 OPEN: responsive/adaptive layout rule — fluid %/fr/rem widths, flex+grid (minmax), mobile-first breakpoints, clamp() typography, container queries, continuous-resizer testing, no fixed sizes, phone frames illustrative only (community research embedded)"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.19 — D-13 CONFIRMED (gate: continuous-resizer test must pass); D-14 OPEN: 'Why bonds?' education popover (fixed returns vs equity, >10-12% expectation guidance) + prominent no-recommendation disclaimer; referral/support link raised by owner — pending decision, not designed"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.20 — D-14 amended (flip side: lost/underperformed in shares -> bonds, less daily effort); D-12 + Support us referral block; D-15 OPEN: TDS 10% on INTEREST only (official s.193/393), net-bank entry + derived gross=net/0.9 layout audit; D-16 OPEN: type-first feedback page (bug/feature/question, screenshot, SMTP or GitHub route); D-17 OPEN: icon package choice (Phosphor recommended)"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.21 — D-14/D-15/D-16 CONFIRMED; D-17 rescoped per owner: UI icons unchanged, request is a colorful APPLICATION LOGO only — 3 SVG concepts offered; Phosphor set pending keep/delete decision"
+    },
+    {
+      "date": "2026-11-10",
+      "entry": "v1.22 — D-17 CONFIRMED: logo = Concept B Shield Yield (current pick); src/static/icons/ deleted per owner order (project clean); all 16 decisions now CONFIRMED"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% from "_macros.html" import money, money_text %}
+{% block title %}Bond detail — {{ detail.company }}{% endblock %}
+{% block page_title %}Bond detail{% endblock %}
+{% block head %}{% include "_detail_styles.html" %}{% endblock %}
+{% block content %}
+<div class="detail-page" id="detail-page" data-company="{{ detail.company }}">
+  <div class="detail-head">
+    <a class="back-link" id="detail-back" href="/portfolio?tab=holdings">&#8592; Portfolio</a>
+    <h1>{{ detail.company }}</h1>
+    <span class="chip chip-{{ detail.status|lower|replace('-', '') }}" data-status="{{ detail.status }}">{{ detail.status }}</span>
+    {% if detail.isin %}<span class="co-isin">{{ detail.isin }}</span>{% endif %}
+  </div>
+
+  <div class="detail-tabs" id="detail-tabs" role="tablist">
+    <button type="button" class="dt-tab active" data-dtab="overview" id="dt-tab-overview">Overview</button>
+    <button type="button" class="dt-tab" data-dtab="payments" id="dt-tab-payments">Payments</button>
+    <button type="button" class="dt-tab" data-dtab="goal" id="dt-tab-goal">Goal</button>
+  </div>
+
+  <section class="dt-panel active" id="dt-overview">
+    <div class="detail-group" id="grp-identity">
+      <div class="group-title">1 &middot; Identity</div>
+      <dl class="group-facts">
+        <dt>Company / ISIN</dt><dd>{{ detail.company }}{% if detail.isin %} &middot; {{ detail.isin }}{% endif %}</dd>
+        <dt>Rating</dt><dd>{{ detail.rating or "—" }}</dd>
+        <dt>Status</dt><dd>{{ detail.status }}</dd>
+      </dl>
+    </div>
+    <div class="detail-group" id="grp-investment">
+      <div class="group-title">2 &middot; Investment</div>
+      <dl class="group-facts">
+        <dt>Purchase date</dt><dd>{% if detail.purchase_date %}{{ detail.purchase_date }}{% else %}&#8212;{% endif %}</dd>
+        <dt>Quantity (units)</dt><dd>{% if detail.qty is not none %}{{ detail.qty }}{% else %}&#8212;{% endif %}</dd>
+        <dt>Invested</dt><dd>{{ money(detail.invested, "detail-invested", "value") }}</dd>
+        <dt>Face value</dt><dd>{{ money(detail.face_value, "detail-face-value", "value") }}</dd>
+      </dl>
+    </div>
+    <div class="detail-group" id="grp-returns">
+      <div class="group-title">3 &middot; Returns</div>
+      <dl class="group-facts">
+        <dt>Coupon</dt><dd>{% if detail.coupon_pct is not none %}{{ "%.1f"|format(detail.coupon_pct) }}%{% else %}&#8212;{% endif %}</dd>
+        <dt>Yield</dt><dd>{% if detail.expected_yield_pct is not none %}{{ "%.1f"|format(detail.expected_yield_pct) }}%{% else %}&#8212;{% endif %}</dd>
+        <dt>Received in bank</dt><dd>{{ money(detail.received, "detail-received", "value") }}</dd>
+        <dt>TDS deducted to govt</dt><dd>{{ money(detail.tds, "detail-tds", "value") }}</dd>
+        <dt>Gross returns</dt><dd>{{ money(detail.gross, "detail-gross", "value") }}</dd>
+        <dt>Balance</dt><dd>{{ money(detail.invested - detail.received, "detail-balance", "value") }}</dd>
+      </dl>
+      <p class="caption" id="grp-returns-note">TDS applies to interest only (s.193) &#8212; claimable tax credit (Form 16A).</p>
+    </div>
+    <div class="detail-group" id="grp-schedule">
+      <div class="group-title">4 &middot; Schedule</div>
+      <dl class="group-facts">
+        <dt>Payout cycle</dt><dd>{% if detail.frequency %}{{ detail.frequency|capitalize }}{% else %}&#8212;{% endif %}</dd>
+        <dt>Credit day</dt><dd>{% if detail.credit_day %}{{ detail.credit_day }}{% else %}&#8212;{% endif %}</dd>
+        <dt>Next payout</dt><dd>{{ detail.next_payout }}</dd>
+        <dt>End date</dt><dd>{% if detail.end_date %}{{ detail.end_date }}{% else %}&#8212;{% endif %}</dd>
+      </dl>
+    </div>
+    <div class="detail-group" id="grp-classification">
+      <div class="group-title">5 &middot; Classification</div>
+      <dl class="group-facts">
+        <dt>Rating agency</dt><dd>{{ detail.rating_agency or "—" }}</dd>
+        <dt>Issuer type</dt><dd>{{ detail.issuer_type or "—" }}</dd>
+        <dt>Secured</dt><dd>{% if detail.secured is none %}&#8212;{% elif detail.secured|int == 1 %}Secured{% else %}Not secured{% endif %}</dd>
+        <dt>Broker</dt><dd>{{ detail.broker or "—" }}</dd>
+        <dt>Source note</dt><dd>{{ detail.source_note or "—" }}</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="dt-panel" id="dt-payments">
+    <div class="detail-group" id="grp-payment-history">
+      <div class="group-title">6 &middot; Payment history</div>
+      <div class="detail-months" id="detail-months">
+        {% for chip in detail.payment_months %}
+        <div class="month-chip month-{{ chip.state }}" data-month="{{ chip.key }}">
+          <span class="m-name">{{ chip.label }}</span>
+          {% if chip.state == "paid" %}<span class="m-amt">{{ money(chip.amount, "detail-month-" ~ chip.key, "value") }}</span>
+          {% elif chip.state == "unpaid" %}<span class="m-status">unpaid</span>
+          {% else %}<span class="m-status">due soon</span>{% endif %}
+        </div>
+        {% else %}
+        <p class="readonly-note" id="detail-months-empty">no payments recorded yet</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="dt-panel" id="dt-goal">
+    <div class="detail-group" id="grp-goal">
+      <div class="group-title">Financial goal (read-only)</div>
+      {% if detail.goal_name %}
+      <p class="readonly-note" id="detail-goal-note">{{ detail.goal_name }}</p>
+      <p class="caption"><span class="chip chip-ongoing" id="detail-goal-badge">&#128274; permanent</span>{% if detail.goal_target is not none %} &#183; locked target {{ money_text(detail.goal_target) }}{% endif %}</p>
+      {% else %}
+      <p class="readonly-note" id="detail-goal-note">No goal linked to this bond</p>
+      <p class="caption" id="detail-goal-note-help">A goal is chosen only in the Move-to-Portfolio form &#8212; there is no set, change or remove control here.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var root = document.getElementById("detail-page");
+  if (!root) {
+    return;
+  }
+  var tabs = root.querySelectorAll(".dt-tab");
+  function activate(name) {
+    tabs.forEach(function (tab) {
+      tab.classList.toggle("active", tab.getAttribute("data-dtab") === name);
+    });
+    root.querySelectorAll(".dt-panel").forEach(function (panel) {
+      panel.classList.toggle("active", panel.id === "dt-" + name);
+    });
+  }
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      activate(tab.getAttribute("data-dtab"));
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 from . import _resolve_today, _default_today
 from ..engine import sort_rows
 from ..status import compute_row_status_daywise, month_key, tenure_month_map
-from ..validators import AppError
+from ..validators import AppError, safe_float
 
 
 def bond_month_totals(conn, bond_id):
@@ -42,6 +42,41 @@ def portfolio_totals(conn):
         "till_return": till_return,
         "balance": till_return - maturity,
     }
+
+
+def goal_derived(conn):
+    try:
+        returns_by_bond = {}
+        for row in conn.execute(
+            "SELECT bond_id, SUM(amount) AS received FROM payment_ledger "
+            "WHERE paid = 1 AND amount > 0 GROUP BY bond_id"
+        ).fetchall():
+            returns_by_bond[row["bond_id"]] = safe_float(row["received"])
+        bond_rows = conn.execute(
+            "SELECT id, goal_id, company, isin, amount FROM bonds "
+            "WHERE goal_id IS NOT NULL AND watch_state = 'holding' ORDER BY id"
+        ).fetchall()
+    except Exception as exc:
+        raise AppError("ERR-goals-op", f"derived: query failed: {exc}") from exc
+    derived = {}
+    for row in bond_rows:
+        entry = derived.setdefault(
+            row["goal_id"], {"invested": 0.0, "returns": 0.0, "bonds": []}
+        )
+        invested = safe_float(row["amount"])
+        received = returns_by_bond.get(row["id"], 0.0)
+        entry["invested"] += invested
+        entry["returns"] += received
+        entry["bonds"].append(
+            {
+                "id": row["id"],
+                "company": row["company"] or "",
+                "isin": row["isin"] or "",
+                "invested": invested,
+                "returns": received,
+            }
+        )
+    return derived
 
 
 def status_overview(conn, today=None):
@@ -104,6 +139,23 @@ def summary_counts(conn, today=None):
     return counts
 
 
+def received_tds_gross(conn):
+    from ..phase4 import tds_breakdown
+
+    tds_total = 0
+    gross_total = 0
+    for row in conn.execute(
+        "SELECT amount, tds_applied FROM payment_ledger WHERE paid = 1 AND amount > 0"
+    ).fetchall():
+        amount = safe_float(row["amount"])
+        if amount <= 0:
+            continue
+        breakdown = tds_breakdown(amount, bool(row["tds_applied"]))
+        tds_total += breakdown["tds"]
+        gross_total += breakdown["gross"]
+    return {"tds": tds_total, "gross": gross_total}
+
+
 def summary_amounts(conn, today=None):
     try:
         totals = portfolio_totals(conn)
@@ -111,12 +163,15 @@ def summary_amounts(conn, today=None):
         raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc.message}") from exc
     except Exception as exc:
         raise AppError("ERR-query-summary-amounts", f"portfolio totals failed: {exc}") from exc
+    breakdown = received_tds_gross(conn)
     today_value = _resolve_today(today)
     if today_value is None:
         return {
             "total_investment": totals["total_investment"],
             "till_return": totals["till_return"],
             "balance": totals["balance"],
+            "received_tds": breakdown["tds"],
+            "received_gross": breakdown["gross"],
             "month": None,
             "month_message": "current month could not be resolved",
         }
@@ -124,6 +179,8 @@ def summary_amounts(conn, today=None):
         "total_investment": totals["total_investment"],
         "till_return": totals["till_return"],
         "balance": totals["balance"],
+        "received_tds": breakdown["tds"],
+        "received_gross": breakdown["gross"],
         "month": month_key(today_value),
         "month_message": None,
     }
