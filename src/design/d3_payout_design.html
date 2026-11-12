@@ -458,6 +458,10 @@
 
               <td class="cell-sticky cell-right">
                 <span class="chip chip-danger" data-status="Danger">Danger</span>
+
+                <span class="chip chip-thin">ISSUER CONFIRMED &#8212; RECORD MISSING</span>
+
+                <span class="liq-line">Issuer declared Sep-2026 &#8212; record the amount you received (as of 12 Nov 2026)</span>
                 <a class="detail-link" href="#" data-id="1">Detail &#8594;</a>
               </td>
             </tr>
@@ -527,6 +531,10 @@
 
               <td class="cell-sticky cell-right">
                 <span class="chip chip-ongoing" data-status="On-going">On-going</span>
+
+                <span class="chip chip-danger">ISSUER DANGER</span>
+
+                <span class="liq-line">Oct-2026 recorded paid, but the issuer filed no confirmation (as of 12 Nov 2026)</span>
                 <a class="detail-link" href="#" data-id="4">Detail &#8594;</a>
               </td>
             </tr>
@@ -580,6 +588,7 @@
         </table>
       </div>
       <p class="table-note" id="liquidity-rule">Liquidity comes from the NSE daily bhavcopy: 45 calendar days kept, scored over the latest 30 sessions. LIQUID = traded on 15 or more days, ACTIVE = 5&ndash;14, THIN = 1&ndash;4, NO TRADES = 0. It sits in its own column so it never overwrites the position status &mdash; a bond can be On-going and illiquid at the same time. Refreshed on demand, at most once a day, never on app start; offline it shows the last known value with its as-of date.</p>
+      <p class="table-note" id="verification-rule">Payment verification comes from the issuer&rsquo;s NSE payment confirmations, checked per due instance and shown in the Status column for the latest due month. ISSUER DANGER = the due date passed and no confirmation was filed &mdash; the company side failed. ISSUER CONFIRMED &ndash; RECORD MISSING = the issuer declared the payment and your ledger has no entry yet. NOT VERIFIED = no check yet, offline or outside the daily window. The label sits beside the status chip and never overwrites it &mdash; a bond can be On-going and issuer-danger at the same time. Every label carries its as-of date and never writes to the ledger.</p>
     </div>
 
 
@@ -817,10 +826,11 @@
     <dl class="group-facts">
       <dt>Issuer confirmation</dt><dd>Payment of interest declared &#8212; due 10 Sep 2026, ISIN INE205A07DV2</dd>
       <dt>Our ledger</dt><dd>Sep 2026 &#8212; no entry</dd>
-      <dt>Result</dt><dd><span class="chip chip-danger">MISSING</span></dd>
+      <dt>Verification label</dt><dd><span class="chip chip-thin">ISSUER CONFIRMED &#8212; RECORD MISSING</span><span class="liq-line">Issuer declared the payment &#8212; your ledger has no entry yet (as of 12 Nov 2026 &#183; NSE announcements)</span></dd>
       <dt>Provider statement</dt><dd>None imported &#183; <a href="#">Import statement</a></dd>
     </dl>
-    <p class="caption" style="margin-top:6px;">The issuer files a payment confirmation for every coupon, so the app can tell a genuinely missing payment from one you simply have not recorded. A provider statement (Jiraaf, Stable Money, GoldenPi) is checked the same way when you import it. Nothing is changed automatically &#8212; you still enter the amount that reached your bank.</p>
+    <div class="liq-line" style="margin-top:6px;">The three labels on a due instance: <span class="chip chip-danger">ISSUER DANGER</span> due passed and no issuer confirmation filed &#8212; the company side failed &#160;&#183;&#160; <span class="chip chip-thin">ISSUER CONFIRMED &#8212; RECORD MISSING</span> the issuer declared it &#8212; record the amount you received &#160;&#183;&#160; <span class="chip chip-matured">NOT VERIFIED</span> no check yet, offline or outside the daily window &#8212; shown so an empty row is never mistaken for fine.</div>
+    <p class="caption" style="margin-top:6px;">The issuer files a payment confirmation for every coupon, so the app can tell a genuinely missing payment from one you simply have not recorded. A provider statement (Jiraaf, Stable Money, GoldenPi) is checked the same way when you import it. Nothing is changed automatically &#8212; you still enter the amount that reached your bank. The label sits beside the status chip &#8212; the status stays Danger / On-going / Matured, unchanged, and the label never writes to the ledger.</p>
   </div>
 
   </section>
