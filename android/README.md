@@ -60,7 +60,7 @@ Android updates the SAME app only when all three match:
    CI *debug* APKs may carry an ephemeral key — for real-device upgrades, ship release-signed APKs.
    (Different signature → `INSTALL_FAILED_UPDATE_INCOMPATIBLE` → user must uninstall → local data lost.)
 3. **versionCode must not go backwards** — bump `versionCode` + `versionName` for EVERY published APK
-   (currently versionCode 2 / versionName 1.0.3). Lower versionCode → `INSTALL_FAILED_VERSION_DOWNGRADE`.
+   (currently versionCode 3 / versionName 1.0.4). Lower versionCode → `INSTALL_FAILED_VERSION_DOWNGRADE`.
 
 Installing a correctly-signed newer APK over an existing install is an **in-place update:
 the app icon stays, settings and the local bonds database are preserved.** A different
