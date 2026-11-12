@@ -2,6 +2,7 @@ from src.db import get_conn, init_db
 
 EXPECTED_TABLES = [
     "alert_prefs",
+    "bond_master",
     "bonds",
     "financial_goals",
     "notifications",
