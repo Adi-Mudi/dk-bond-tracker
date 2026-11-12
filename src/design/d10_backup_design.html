@@ -63,7 +63,8 @@
 <body>
 <main>
   <nav class="sticky-nav" aria-label="Design screens">
-    <a href="#screen_settings_backup" class="active">Settings &#8594; Backup</a>
+    <a href="#screen_settings_backup" class="active">Settings &#8594; Backup (connected)</a>
+    <a href="#screen_settings_backup_off">Settings &#8594; Backup (not connected)</a>
   </nav>
 
   <section class="screen" id="screen_settings_backup">
@@ -156,6 +157,53 @@
       </div>
     </div>
   </section>
+
+  <section class="screen" id="screen_settings_backup_off">
+    <div class="screen-title">
+      <h2>2. Settings &#8594; Backup (not connected)</h2>
+      <span class="refs">the state before the user opts in &#183; decision D10 (backup is optional, user-driven, off by default) &#183; mirrors the existing Gmail card pattern in src/templates/settings.html</span>
+    </div>
+    <div class="screen-frame">
+      <div class="title-bar"><span>Settings</span><span class="tabs">Backup section &#8212; nothing leaves the device until you connect</span></div>
+      <div class="screen-body">
+        <h1 style="font-size:18px;margin-bottom:12px;">Settings</h1>
+        <nav class="settings-nav" id="settings-nav-off" aria-label="Settings sections">
+          <b class="settings-nav-title">Settings</b>
+          <a class="settings-nav-item" href="#">General</a>
+          <a class="settings-nav-item" href="#">Notifications</a>
+          <a class="settings-nav-item" href="#">Share / Export</a>
+          <a class="settings-nav-item" href="#">Data</a>
+          <a class="settings-nav-item active" href="#">Backup</a>
+          <a class="settings-nav-item pointer" href="#">About &#8594;</a>
+        </nav>
+
+        <div class="settings-section" id="section-backup-off">
+          <div class="card" id="backup-card-off">
+            <h2>Backup</h2>
+            <div class="backup-status">
+              <span class="chip chip-matured">Not connected</span>
+              <span class="backup-line">Backup is off. Nothing is uploaded, and the app makes no network call for backup until you connect.</span>
+            </div>
+            <p class="caption" id="backup-off-note">The sign-in opens in your browser, never inside the app. On Android it comes back through a link &#8212; Google does not allow its consent screen to run inside a WebView.</p>
+            <p class="caption" id="backup-off-scope">We ask for <b>openid</b>, <b>email</b> and <b>drive.appdata</b> &#8212; the hidden app folder in your Drive that only this app can read. Nothing else in your Drive is visible to us.</p>
+            <div class="section-gap" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a class="btn btn-primary" id="backup-connect" href="#">Connect Google Drive (opens browser)</a>
+            </div>
+            <p class="caption" id="backup-off-privacy">You can disconnect at any time. Disconnecting removes the stored token and stops every backup; your local data is untouched.</p>
+          </div>
+
+          <div class="card" id="backup-what-happens-card">
+            <h2>What happens after you connect</h2>
+            <label class="check-row"><input type="checkbox" checked> The app keeps a local snapshot of your data</label>
+            <label class="check-row"><input type="checkbox" checked> The snapshot is encrypted before it is uploaded to your hidden Drive folder</label>
+            <label class="check-row"><input type="checkbox"> A daily backup at a time you choose (off until you set a time)</label>
+            <p class="caption">Nothing is sent until you press <b>Back up now</b> or set a time. The first backup after connecting asks you once.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 </body>
 </html>
