@@ -226,7 +226,7 @@ def test_af10_2_three_manual_taps_inside_the_cooldown_run_once(db_path):
     client, _ = make_client(db_path)
     calls = []
 
-    def fake_refresh_all(db_file, trigger="manual"):
+    def fake_refresh_all(db_file, trigger="manual", transport=None):
         from src.views.watch import _bond_cache
 
         calls.append((str(db_file), trigger))
@@ -253,7 +253,7 @@ def test_af10_2_refresh_route_passes_the_manual_trigger_and_db(db_path):
     client, app = make_client(db_path)
     seen = []
 
-    def fake_refresh_all(db_file, trigger="manual"):
+    def fake_refresh_all(db_file, trigger="manual", transport=None):
         seen.append((str(db_file), trigger))
         return {"NSDL": {"status": "ok", "failure_code": "OK", "as_of": "2026-11-13T00:00:00+00:00"}}
 

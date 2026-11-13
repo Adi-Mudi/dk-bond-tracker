@@ -643,7 +643,11 @@ def watch_refresh():
         )
     from src.bond_master import service as bond_service
 
-    summary = bond_service.refresh_all(db_file, trigger="manual")
+    summary = bond_service.refresh_all(
+        db_file,
+        trigger="manual",
+        transport=current_app.config.get(BOND_MASTER_TRANSPORT_KEY),
+    )
     return jsonify(
         {
             "trigger": "manual",
