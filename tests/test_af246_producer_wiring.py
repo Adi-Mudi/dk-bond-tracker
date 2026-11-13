@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import json
+
 import src.app as app_module
 from src.app import create_app
 from src.bond_master import service as service_module
@@ -138,3 +140,27 @@ def test_provenance_renders_from_a_naturally_written_row(db_path, monkeypatch):
     html = app.test_client().get(f"/portfolio/{bond_id}").get_data(as_text=True)
     assert 'id="detail-provenance"' in html
     assert 'data-source="NSDL"' in html
+
+
+def test_a_partial_found_fetch_does_not_null_stored_facts(db_path, monkeypatch):
+    app = make_app(db_path, transport(), monkeypatch)
+    open_form(app)
+    full = BondMasterCache(db_path).lookup(ISIN)
+    assert full["rating"] == "AA+"
+    assert full["maturity"]
+
+    partial = json.loads(_nsdl_payload())
+    for key in ("credit_rating", "rating_agency", "maturity_date", "listing_status", "security_type"):
+        partial["records"][0].pop(key, None)
+    new_session(service_module.shared_cache(str(db_path)))
+    app.extensions.pop("bond_master_service", None)
+    app.config["BOND_MASTER_TRANSPORT"] = transport(json.dumps(partial))
+    open_form(app)
+
+    after = BondMasterCache(db_path).lookup(ISIN)
+    assert after["company"] == COMPANY
+    assert after["rating"] == "AA+"
+    assert after["rating_agency"] == "CRISIL"
+    assert after["issuer_type"] == full["issuer_type"]
+    assert after["listing_status"] == full["listing_status"]
+    assert after["maturity"] == full["maturity"]

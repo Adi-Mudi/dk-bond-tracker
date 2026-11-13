@@ -122,3 +122,30 @@ def test_offer_exposes_fetched_at_as_the_as_of_date(tmp_path):
     assert cache.as_of(ISIN) == ASOF_AT_1700000000
     assert cache.offer("INE0000000009") is None
     assert cache.as_of("INE0000000009") is None
+
+
+def test_a_partial_refresh_does_not_null_stored_facts(db_path):
+    cache = BondMasterCache(db_path)
+    cache.save(
+        {
+            "isin": ISIN,
+            "company": "Acme",
+            "coupon": 8.75,
+            "rating": "AA+",
+            "rating_agency": "CRISIL",
+            "issuer_type": "ncd",
+            "listing_status": "listed",
+            "maturity": "2030-03-31",
+            "source": "NSDL",
+        }
+    )
+    before = cache.lookup(ISIN)
+    cache.save({"isin": ISIN, "company": "Acme", "coupon": 8.75, "source": "RBI"})
+    after = cache.lookup(ISIN)
+    assert after["rating"] == "AA+"
+    assert after["rating_agency"] == "CRISIL"
+    assert after["issuer_type"] == "ncd"
+    assert after["listing_status"] == "listed"
+    assert after["maturity"] == "2030-03-31"
+    assert after["source"] == "RBI"
+    assert after["fetched_at"] == before["fetched_at"]

@@ -108,8 +108,14 @@ class BondMasterCache:
         if edited and existing is not None:
             for field in edited:
                 values[field] = existing[field]
-        if existing is not None and _facts_match(existing, values):
-            values["fetched_at"] = existing["fetched_at"]
+        if existing is not None:
+            for field in _FACT_FIELDS:
+                if values[field] is None:
+                    values[field] = existing[field]
+            if values["source"] is None:
+                values["source"] = existing["source"]
+            if _facts_match(existing, values):
+                values["fetched_at"] = existing["fetched_at"]
         if values["fetched_at"] is None:
             values["fetched_at"] = _asof_timestamp(self._clock())
         with get_conn(self.db_path) as conn:
