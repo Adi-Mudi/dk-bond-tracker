@@ -2,7 +2,7 @@
   "id": "isin_autofetch_psrs_20261112",
   "kind": "psrs",
   "title": "ISIN autofetch, payout cycle, TDS, liquidity and payment verification - V-model spec suite",
-  "version": "v1.1",
+  "version": "v1.2",
   "status": "draft",
   "project": "dk-bond-tracker",
   "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/194",
@@ -759,6 +759,131 @@
           "then": "the downgrade state is shown and the value keeps its source label"
         }
       ]
+    },
+    {
+      "id": "AF-13",
+      "text": "Instrument facts in the add form SHALL be keyed to the ISIN they were fetched for: when the ISIN changes, every non-user-edited instrument-fact field SHALL reset so only the ISIN and any value the user typed remain, and the payload for the new ISIN SHALL be the only source of prefilled facts - an empty payload SHALL leave the form free of facts, never carrying another ISIN's values.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a form filled by fetching ISIN A",
+          "when": "the user changes the ISIN to B, triggers a fetch, and B's payload returns no facts",
+          "then": "company, coupon, maturity and rating fields hold only user-typed values or nothing - never ISIN A's values"
+        },
+        {
+          "given": "a form filled by fetching ISIN A",
+          "when": "the user changes the ISIN to B and B's fetch returns facts",
+          "then": "every prefilled fact and source badge comes from B's payload"
+        },
+        {
+          "given": "the user typed a fact value by hand (dirty)",
+          "when": "the ISIN changes and a fetch runs",
+          "then": "the user-typed value is preserved while all other facts reset"
+        }
+      ]
+    },
+    {
+      "id": "AF-14",
+      "text": "A successful fetch SHALL present the fetched details in a popup carrying each fact with its source badge and as-of date; the user SHALL be able to click Apply to fill the form or dismiss the popup and continue typing manually, and position facts SHALL remain empty in both paths.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fetch returns instrument facts",
+          "when": "it completes",
+          "then": "a popup shows company, coupon, maturity and rating with source and as-of, and Apply fills the form with those values"
+        },
+        {
+          "given": "the fetch-details popup is open",
+          "when": "the user dismisses it without applying",
+          "then": "the form stays fully editable and no fetched fact is forced into it"
+        },
+        {
+          "given": "the popup applied facts",
+          "when": "the form is reviewed",
+          "then": "amount, quantity, dates and credit day remain empty (AF-12 preserved)"
+        }
+      ]
+    },
+    {
+      "id": "AF-15",
+      "text": "While the 60-second cooldown blocks live refreshes, the ISIN input field SHALL show a countdown timer from 60 to 0 with honest pacing copy; the timer SHALL fully reset to 60 on each new cooldown claim, SHALL keep running while the fetch-details popup is shown, applied or dismissed, and no source request SHALL be made while it runs.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the cooldown is active",
+          "when": "the user looks at the ISIN input field",
+          "then": "a countdown shows the remaining seconds with copy explaining the pacing of the free unofficial source"
+        },
+        {
+          "given": "the countdown is running",
+          "when": "the user opens, applies or dismisses the fetch-details popup",
+          "then": "the countdown continues uninterrupted"
+        },
+        {
+          "given": "a refresh claims the cooldown",
+          "when": "the claim is made",
+          "then": "the timer resets to a full 60 seconds; when it reaches 0 the next live fetch proceeds"
+        },
+        {
+          "given": "the timer is running",
+          "when": "adapter call counts are inspected around any fetch attempt",
+          "then": "no source adapter was invoked during the window"
+        }
+      ]
+    },
+    {
+      "id": "AF-16",
+      "text": "The cooldown SHALL gate only live source requests: an ISIN present in the session cache or the bundled CC0 snapshot SHALL answer instantly with its provenance while the cooldown is active, so the AF-11 fresh-install promise holds even inside the cooldown window; ISINs absent from every local store SHALL show the AF-15 countdown instead of stale or empty confusion.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the cooldown is warm from the app-start background refresh",
+          "when": "the user fetches an ISIN present in the bundled snapshot",
+          "then": "the data fills immediately with india-isin-data (CC0) provenance and zero source requests"
+        },
+        {
+          "given": "the cooldown is warm and the ISIN is absent from every local store",
+          "when": "the user triggers a fetch",
+          "then": "the countdown timer shows, no source request is made, and no other ISIN's data appears"
+        },
+        {
+          "given": "a fetch was served entirely from local stores",
+          "when": "adapter call counts are inspected",
+          "then": "no adapter was invoked (AF-07 request caps untouched)"
+        }
+      ]
+    },
+    {
+      "id": "AF-17",
+      "text": "The background and manual refresh pass SHALL prioritize portfolio bonds over watchlist bonds: ISINs referenced by portfolio-state bonds are refreshed first, watchlist-only ISINs are deferred to later positions in the same pass or skipped when the pass budget is exhausted, and both tiers remain inside the existing cooldown, throttle and per-session request caps.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "known ISINs spanning portfolio and watchlist bonds",
+          "when": "a refresh pass runs",
+          "then": "portfolio ISINs are requested before watchlist-only ISINs (adapter call order)"
+        },
+        {
+          "given": "the refresh budget ends mid-pass",
+          "when": "the pass completes",
+          "then": "portfolio ISINs were covered and deferred watchlist ISINs remain for the next pass"
+        },
+        {
+          "given": "any refresh pass",
+          "when": "the pacing rules are inspected",
+          "then": "the 60-second cooldown, 1-second throttle and 1-request-per-source-per-ISIN-per-session caps still hold (AF-07/AF-10 unchanged)"
+        }
+      ]
     }
   ],
   "prd_items": [
@@ -1022,6 +1147,46 @@
       "id": "AF-12",
       "area": "isin_autofetch",
       "statement": "The fetch SHALL fill instrument facts only - position facts (amount, quantity, dates, credit day) are never prefilled - and the add form SHALL present exactly the six fetch states: idle, checking, found, not found, offline, downgrade.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-13",
+      "area": "isin_autofetch",
+      "statement": "Facts are keyed to their ISIN: changing the ISIN resets every non-user-edited fact field, and an empty payload never renders another ISIN's values (stale-carry fix, owner decision 2026-11-13).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-14",
+      "area": "isin_autofetch",
+      "statement": "A successful fetch shows a popup with full details, source badges and as-of; the user clicks Apply to fill or dismisses to type manually, position facts stay empty.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-15",
+      "area": "isin_autofetch",
+      "statement": "A 60-to-0 countdown timer in the ISIN field shows the live-refresh wait with honest pacing copy, fully resets per claim, keeps running through popup interactions, and no source request happens while it runs.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-16",
+      "area": "isin_autofetch",
+      "statement": "The cooldown gates network only: session-cache and bundled-snapshot ISINs answer instantly with provenance during the window (option-2 hybrid, owner decision 2026-11-13), keeping AF-11 true inside the cooldown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "AF-17",
+      "area": "isin_autofetch",
+      "statement": "Refresh passes prioritize portfolio ISINs before watchlist-only ISINs, deferring or skipping watchlist items at pass budget, inside all existing pacing caps (O9, owner decision 2026-11-13).",
       "priority": "must",
       "status": "accepted",
       "decision_id": "D1"
@@ -1333,6 +1498,51 @@
       "expected": "Given/When/then of AF-12 all hold",
       "level": "LOCAL",
       "status": "planned"
+    },
+    {
+      "id": "TC-AF-13",
+      "title": "ISIN-keyed form reset, no stale carry (AF-13)",
+      "type": "integration",
+      "steps": "1. Fetch ISIN A and capture the filled form. 2. Carry the form values and change the ISIN to B with a payload that returns no facts - assert no A values remain. 3. Fetch B with facts - assert all facts and badges are B's. 4. Repeat with one hand-typed dirty value - assert it survives the reset.",
+      "expected": "Given/When/then of AF-13 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-14",
+      "title": "Fetch-details popup apply and dismiss (AF-14)",
+      "type": "integration",
+      "steps": "1. Trigger a successful fetch - assert popup with company/coupon/maturity/rating, source and as-of. 2. Click Apply - assert form filled and position facts empty. 3. Repeat and dismiss - assert form editable with no forced facts.",
+      "expected": "Given/When/then of AF-14 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-15",
+      "title": "Countdown timer lifecycle (AF-15)",
+      "type": "integration",
+      "steps": "1. Claim the cooldown and assert the 60-to-0 countdown with pacing copy. 2. Open/apply/dismiss the popup - assert the countdown never stops. 3. Re-claim - assert reset to 60. 4. Attempt fetches during the window - assert zero adapter calls.",
+      "expected": "Given/When/then of AF-15 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-16",
+      "title": "Cooldown gates network only, local answers instant (AF-16)",
+      "type": "integration",
+      "steps": "1. Warm the cooldown, fetch a snapshot ISIN - assert instant fill with CC0 provenance and zero adapter calls. 2. Fetch an ISIN absent from all local stores - assert countdown, zero adapter calls, no foreign data. 3. Inspect adapter call counters across both.",
+      "expected": "Given/When/then of AF-16 all hold",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AF-17",
+      "title": "Portfolio-first refresh ordering (AF-17)",
+      "type": "integration",
+      "steps": "1. Seed known ISINs across portfolio and watchlist bonds. 2. Run a refresh pass - assert portfolio ISINs requested before watchlist-only ISINs. 3. Exhaust the budget mid-pass - assert portfolio covered, watchlist deferred. 4. Assert cooldown/throttle/session caps unchanged.",
+      "expected": "Given/When/then of AF-17 all hold",
+      "level": "LOCAL",
+      "status": "planned"
     }
   ],
   "test_bindings": [
@@ -1505,6 +1715,31 @@
       "requirement_id": "AF-12",
       "test_case_id": "TC-AF-12",
       "covers": "full"
+    },
+    {
+      "requirement_id": "AF-13",
+      "test_case_id": "TC-AF-13",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-14",
+      "test_case_id": "TC-AF-14",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-15",
+      "test_case_id": "TC-AF-15",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-16",
+      "test_case_id": "TC-AF-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AF-17",
+      "test_case_id": "TC-AF-17",
+      "covers": "full"
     }
   ],
   "carry_over": [],
@@ -1518,6 +1753,11 @@
       "version": "v1.1",
       "date": "2026-11-12",
       "note": "ISIN autofetch group AF-01..AF-12 added from discussion #234 (locked D1 decisions + confirmed OP12-OP15): prefill with source, never-block, offline cache, duplicate rule, edits kept, source failover, download-files-only + throttle/60s, ISIN mandatory + listing_status, rating refusal, refresh model, attribution + CC0 snapshot, instrument facts + six states (no check-digit state - D2 rejected by owner). PC/TDS/LIQ/PV groups untouched."
+    },
+    {
+      "version": "v1.2",
+      "date": "2026-11-13",
+      "note": "Industrial-hardening amendment from the discussion #234 owner decisions (option-2 hybrid + 7 UI rules + O9): AF-13 ISIN-keyed form reset (stale-carry bug fix from the device smoke), AF-14 fetch-details popup, AF-15 60s countdown timer in the ISIN field, AF-16 cooldown gates network only so bundled-snapshot/session answers stay instant inside the window (AF-11 held true), AF-17 portfolio-first refresh ordering. AF-01..AF-12 and PC/TDS/LIQ/PV text untouched."
     }
   ]
 }
