@@ -6,9 +6,19 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import src.app as app_module
 from src.db import init_db
 from src.status import month_key
 from src.validators import add_months
+
+
+@pytest.fixture(autouse=True)
+def _no_real_network_at_startup(monkeypatch):
+    def blocked(url, timeout=None):
+        raise ConnectionError("network disabled in tests")
+
+    monkeypatch.setattr(app_module, "http_get", blocked)
+    return blocked
 
 
 @pytest.fixture
