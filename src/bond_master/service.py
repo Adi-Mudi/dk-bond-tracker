@@ -358,7 +358,7 @@ def _summary(service, cache):
     return summary
 
 
-def refresh_all(db_path, trigger="manual"):
+def refresh_all(db_path, trigger="manual", transport=None):
     try:
         cache = shared_cache(db_path)
         if not cache.refresh_allowed():
@@ -366,7 +366,7 @@ def refresh_all(db_path, trigger="manual"):
         if trigger == "auto" and not _claim_auto(db_path):
             return _summary(None, cache)
         cache.begin_refresh()
-        service = build_default_service(cache, None)
+        service = build_default_service(cache, transport)
         for isin in _known_isins(db_path):
             service.refresh(isin)
         return _summary(service, cache)

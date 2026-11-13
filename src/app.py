@@ -15,6 +15,7 @@ from werkzeug.exceptions import HTTPException
 from src.alerts import daily_sweep
 from src.bond_master import snapshot
 from src.bond_master.service import refresh_all, shared_cache
+from src.bond_master.transport import http_get
 from src.db import get_conn, init_db
 from src.mailer import send_alert_email
 from src.notifications import (
@@ -73,7 +74,7 @@ _auto_refresh_started = False
 _auto_refresh_lock = threading.Lock()
 
 
-def _start_auto_refresh(db_file):
+def _start_auto_refresh(db_file, transport):
     global _auto_refresh_started
     with _auto_refresh_lock:
         if _auto_refresh_started:
@@ -81,7 +82,7 @@ def _start_auto_refresh(db_file):
         _auto_refresh_started = True
     thread = threading.Thread(
         target=refresh_all,
-        args=(str(db_file), "auto"),
+        args=(str(db_file), "auto", transport),
         name="bond-master-auto-refresh",
         daemon=True,
     )
@@ -97,6 +98,8 @@ def _record_snapshot_version(db_file):
 
 
 def _startup_bond_master(app, db_file):
+    transport = http_get
+    app.config["BOND_MASTER_TRANSPORT"] = transport
     try:
         app.extensions["bond_master_cache"] = shared_cache(db_file)
     except Exception as exc:
@@ -105,7 +108,7 @@ def _startup_bond_master(app, db_file):
         _record_snapshot_version(db_file)
     except Exception as exc:
         print(f"snapshot version check failed: {exc}", file=sys.stderr)
-    app.extensions["bond_master_auto_refresh"] = _start_auto_refresh(db_file)
+    app.extensions["bond_master_auto_refresh"] = _start_auto_refresh(db_file, transport)
 
 
 def _startup_alerts(db_file, today):

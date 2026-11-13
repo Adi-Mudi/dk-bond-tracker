@@ -5,7 +5,9 @@ from src.app import create_app
 def test_af10_1_app_start_triggers_one_background_auto_refresh(db_path, monkeypatch):
     calls = []
     monkeypatch.setattr(
-        app_module, "refresh_all", lambda db, trigger="manual": calls.append(trigger)
+        app_module,
+        "refresh_all",
+        lambda db, trigger="manual", transport=None: calls.append(trigger),
     )
     monkeypatch.setattr(app_module, "_auto_refresh_started", False)
 
