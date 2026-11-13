@@ -1,6 +1,8 @@
+from src.bond_master import snapshot
 from src.bond_master.base import (
     FAILURE_NOT_FOUND,
     FAILURE_OK,
+    FAILURE_RATE_LIMITED,
     FAILURE_UNREACHABLE,
     SOURCE_PRIORITY,
     FetchResult,
@@ -9,6 +11,9 @@ from src.bond_master.cache import BondMasterCache
 from src.bond_master.service import BondMasterService
 
 ISIN = "INE205A07DV2"
+SNAPSHOT_ISIN = "IN8020B08012"
+SNAPSHOT_COMPANY = "REC LIMITED"
+UNKNOWN_ISIN = "INE205A07DW3"
 
 
 class FakeClock:
@@ -159,3 +164,35 @@ def test_an_empty_result_is_recorded_as_not_found_not_ok(tmp_path):
     events = service.events()
     assert [(event.source, event.ok) for event in events] == [("NSDL", False)]
     assert events[0].failure_code == FAILURE_NOT_FOUND
+
+
+def _warming_service(tmp_path, clock, cooldown_seconds=60.0):
+    adapters = {name: FakeAdapter(name, [found(ISIN)]) for name in SOURCE_PRIORITY}
+    service, cache = make_service(
+        tmp_path, adapters, clock, cooldown_seconds=cooldown_seconds
+    )
+    cache.begin_refresh()
+    return service, cache, adapters
+
+
+def test_af16_warm_cooldown_answers_a_snapshot_isin_with_zero_adapter_calls(tmp_path):
+    clock = FakeClock()
+    service, cache, adapters = _warming_service(tmp_path, clock)
+    assert cache.network_blocked() is True
+    result = service.lookup(SNAPSHOT_ISIN)
+    assert result.has_facts() is True
+    assert result.company == SNAPSHOT_COMPANY
+    assert result.source_of("company") == snapshot.SNAPSHOT_SOURCE
+    for name in SOURCE_PRIORITY:
+        assert adapters[name].calls == []
+
+
+def test_af16_warm_cooldown_blocks_an_unknown_isin_with_zero_adapter_calls(tmp_path):
+    clock = FakeClock()
+    service, cache, adapters = _warming_service(tmp_path, clock)
+    result = service.lookup(UNKNOWN_ISIN)
+    assert result.has_facts() is False
+    assert result.failure_code == FAILURE_RATE_LIMITED
+    assert cache.network_blocked() is True
+    for name in SOURCE_PRIORITY:
+        assert adapters[name].calls == []

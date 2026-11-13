@@ -30,6 +30,19 @@ ISIN = "INE205A07DV2"
 COMPANY = "Acme Infrastructure Ltd"
 NSDL_MASTER = "nsdl_corporate_bond_master.json"
 FETCHED_AT = "11 Nov 2026, 09:42"
+ISIN_B_EMPTY = "INE205A07DW3"
+ISIN_B_FACTS = "INE999A07XX1"
+COMPANY_B = "Beta Capital Ltd"
+CARRIED_A_FACTS = {
+    "company": COMPANY,
+    "rating": "AA+",
+    "rating_agency": "CRISIL",
+    "coupon_pct": "8.75",
+    "face_value": "1000",
+    "issuer_type": "ncd",
+    "payout_cycle": "annual",
+    "secured": "1",
+}
 
 INSTRUMENT_SOURCE_FIELDS = (
     "company",
@@ -65,6 +78,12 @@ def make_client(db_path, transport=None):
     if transport is not None:
         app.config["BOND_MASTER_TRANSPORT"] = transport
     return app.test_client(), app
+
+
+def isin_change_client(db_path, transport):
+    client, app = make_client(db_path, transport)
+    app.extensions["bond_master_cache"] = BondMasterCache(db_path, cooldown_seconds=0)
+    return client
 
 
 def cache_seed(db_path):
@@ -288,3 +307,48 @@ def test_fetch_state_maps_failure_codes():
         fetch_state(FetchResult(isin=ISIN, company=COMPANY, sources={"company": "NSDL"}))
         == FETCH_FOUND
     )
+
+
+def test_tc_af_13_isin_change_with_an_empty_payload_drops_the_old_facts(db_path):
+    client = isin_change_client(db_path, nsdl_transport())
+    first = client.get("/watch", query_string={"isin": ISIN}).get_data(as_text=True)
+    assert f'value="{COMPANY}"' in first
+    html = client.get(
+        "/watch", query_string={**CARRIED_A_FACTS, "isin": ISIN_B_EMPTY}
+    ).get_data(as_text=True)
+    assert COMPANY not in html
+    assert 'name="company" value=""' in html
+    assert 'name="coupon_pct" min="0" step="0.01" value=""' in html
+    assert 'name="face_value" step="any" min="0" placeholder="1000.00" value=""' in html
+    assert 'data-fetch-source="company"' not in html
+
+
+def test_tc_af_13_isin_change_with_facts_renders_only_the_new_payload(db_path):
+    client = isin_change_client(db_path, nsdl_transport())
+    client.get("/watch", query_string={"isin": ISIN})
+    html = client.get(
+        "/watch", query_string={**CARRIED_A_FACTS, "isin": ISIN_B_FACTS}
+    ).get_data(as_text=True)
+    assert f'value="{COMPANY_B}"' in html
+    assert COMPANY not in html
+    assert 'name="coupon_pct" min="0" step="0.01" value="9.1"' in html
+    assert "data-fetch-source=\"company\">NSDL<" in html
+    assert '<option value="BBB+" selected>' in html
+    assert '<option value="AA+" selected>' not in html
+
+
+def test_tc_af_13_user_typed_dirty_value_survives_the_isin_reset(db_path):
+    client = isin_change_client(db_path, nsdl_transport())
+    client.get("/watch", query_string={"isin": ISIN})
+    html = client.get(
+        "/watch",
+        query_string={
+            **CARRIED_A_FACTS,
+            "isin": ISIN_B_EMPTY,
+            "coupon_pct": "9.9",
+            "dirty": "coupon_pct",
+        },
+    ).get_data(as_text=True)
+    assert 'name="coupon_pct" min="0" step="0.01" value="9.9"' in html
+    assert COMPANY not in html
+    assert 'name="company" value=""' in html
