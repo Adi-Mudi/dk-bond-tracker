@@ -160,9 +160,20 @@ def _known_isins(db_path):
             rows = conn.execute(
                 "SELECT DISTINCT isin FROM bond_master WHERE isin IS NOT NULL"
             ).fetchall()
+            try:
+                held_rows = conn.execute(
+                    "SELECT DISTINCT isin FROM bonds "
+                    "WHERE watch_state = 'holding' AND isin IS NOT NULL"
+                ).fetchall()
+            except Exception:
+                held_rows = []
     except Exception:
         return []
-    return [row["isin"] for row in rows]
+    known = [row["isin"] for row in rows]
+    held = {row["isin"] for row in held_rows}
+    portfolio = [isin for isin in known if isin in held]
+    watchlist = [isin for isin in known if isin not in held]
+    return portfolio + watchlist
 
 
 class BondMasterService:
