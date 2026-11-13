@@ -1,12 +1,39 @@
 import json
 import re
 
-from datetime import date
+from datetime import date, datetime, timezone
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
+from src.bond_master.base import (
+    FAILURE_BLOCKED,
+    FAILURE_MALFORMED,
+    FAILURE_NOT_FOUND,
+    FAILURE_OFFLINE,
+    FAILURE_PARSE_ERROR,
+    FAILURE_RATE_LIMITED,
+    FAILURE_TIMEOUT,
+    FAILURE_UNREACHABLE,
+    INSTRUMENT_FIELDS,
+    POSITION_FIELDS,
+    SOURCE_PRIORITY,
+)
+from src.bond_master.cache import BondMasterCache
+from src.bond_master.normalize import is_investment_grade
+from src.bond_master.service import build_default_service, primary_source
 from src.db import get_conn
 from src.engine import tenure_window
+from src.forms import FACT_BY_FIELD, fetched_form_values
 from src.lock import check_add_allowed
 from src.prefs import get_pref, set_pref
 from src.queries import delete_candidate, portfolio_snapshot
@@ -42,6 +69,271 @@ WATCH_BROKERS = (
 )
 CUSTOM_AGENCIES_KEY = "watch_custom_agencies"
 CUSTOM_BROKERS_KEY = "watch_custom_brokers"
+
+AUTOFETCH_SESSION_KEY = "watch_autofetch"
+BOND_MASTER_TRANSPORT_KEY = "BOND_MASTER_TRANSPORT"
+
+WATCH_FORM_FIELDS = (
+    "company",
+    "isin",
+    "rating",
+    "rating_agency",
+    "coupon_pct",
+    "expected_yield_pct",
+    "issuer_type",
+    "secured",
+    "face_value",
+    "payout_cycle",
+    "watch_investment",
+    "qty",
+    "source_note",
+    "broker",
+)
+
+FETCH_IDLE = "idle"
+FETCH_CHECKING = "checking"
+FETCH_FOUND = "found"
+FETCH_NOT_FOUND = "notfound"
+FETCH_OFFLINE = "offline"
+FETCH_DOWNGRADE = "downgrade"
+FETCH_STATES = (
+    FETCH_IDLE,
+    FETCH_CHECKING,
+    FETCH_FOUND,
+    FETCH_NOT_FOUND,
+    FETCH_OFFLINE,
+    FETCH_DOWNGRADE,
+)
+FETCH_STATE_LABELS = {
+    FETCH_IDLE: "Idle",
+    FETCH_CHECKING: "Checking",
+    FETCH_FOUND: "Found",
+    FETCH_NOT_FOUND: "Not found",
+    FETCH_OFFLINE: "Offline",
+    FETCH_DOWNGRADE: "Downgraded",
+}
+OFFLINE_REACH_FAILURE_CODES = (
+    FAILURE_OFFLINE,
+    FAILURE_UNREACHABLE,
+    FAILURE_TIMEOUT,
+)
+OFFLINE_BLOCKED_FAILURE_CODES = (
+    FAILURE_BLOCKED,
+    FAILURE_RATE_LIMITED,
+)
+OFFLINE_FAILURE_CODES = OFFLINE_REACH_FAILURE_CODES + OFFLINE_BLOCKED_FAILURE_CODES
+DOWNGRADE_FAILURE_CODES = (
+    FAILURE_OFFLINE,
+    FAILURE_UNREACHABLE,
+    FAILURE_TIMEOUT,
+    FAILURE_BLOCKED,
+)
+RATING_GATE_MESSAGE = (
+    "The application supports only AAA to BBB- investment-grade bonds "
+    "- this fetched bond cannot be added."
+)
+
+
+def watch_fetch_idle():
+    return {
+        "state": FETCH_IDLE,
+        "states": FETCH_STATES,
+        "labels": FETCH_STATE_LABELS,
+        "isin": "",
+        "facts": {},
+        "sources": {},
+        "source_names": [],
+        "cached": {},
+        "asof": "",
+        "message": "",
+        "values": {},
+        "sources_by_field": {},
+    }
+
+
+def _bond_cache():
+    application = current_app._get_current_object()
+    cache = application.extensions.get("bond_master_cache")
+    if cache is None:
+        cache = BondMasterCache(current_app.config["DB_PATH"])
+        application.extensions["bond_master_cache"] = cache
+    return cache
+
+
+def _bond_service():
+    application = current_app._get_current_object()
+    service = application.extensions.get("bond_master_service")
+    if service is None:
+        service = build_default_service(
+            _bond_cache(), current_app.config.get(BOND_MASTER_TRANSPORT_KEY)
+        )
+        application.extensions["bond_master_service"] = service
+    return service
+
+
+def fetch_state(result, events=()):
+    if result is None:
+        return FETCH_IDLE
+    if result.has_facts():
+        if any(
+            (not event.ok) and event.failure_code in DOWNGRADE_FAILURE_CODES
+            for event in events
+        ):
+            return FETCH_DOWNGRADE
+        return FETCH_FOUND
+    if result.failure_code in OFFLINE_FAILURE_CODES:
+        return FETCH_OFFLINE
+    return FETCH_NOT_FOUND
+
+
+def fetch_message(state, failure_code=None):
+    if state == FETCH_NOT_FOUND:
+        return "metadata not found - enter manually"
+    if state == FETCH_OFFLINE:
+        if failure_code in OFFLINE_BLOCKED_FAILURE_CODES:
+            return "The source blocked or rate-limited the request"
+        return "Could not reach the source"
+    if state == FETCH_DOWNGRADE:
+        return "filled from a lesser-confidence source"
+    return ""
+
+
+def rating_gate(payload):
+    if not payload:
+        return None
+    facts = payload.get("facts") or {}
+    if not facts:
+        return None
+    rating = str(facts.get("rating") or "").strip()
+    if is_investment_grade(rating):
+        return None
+    return RATING_GATE_MESSAGE
+
+
+def autofetch_refusal(isin):
+    stored = session.get(AUTOFETCH_SESSION_KEY) or {}
+    if stored.get("isin") != isin:
+        return None
+    return rating_gate(stored.get("payload"))
+
+
+def _source_names(sources):
+    names = []
+    for field in sources:
+        name = sources[field]
+        if name and name not in names:
+            names.append(name)
+    order = list(SOURCE_PRIORITY)
+    names.sort(key=lambda item: order.index(item) if item in order else len(order))
+    return names
+
+
+def _asof_now():
+    return datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M")
+
+
+def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
+    state = fetch_state(result, events)
+    facts = {}
+    sources = {}
+    if result is not None and result.has_facts():
+        for field, value in result.facts().items():
+            if value is None:
+                continue
+            facts[field] = value
+            source = result.source_of(field)
+            if source:
+                sources[field] = source
+    cached = {}
+    asof = ""
+    if state in (FETCH_FOUND, FETCH_DOWNGRADE):
+        asof = fetched_at or _asof_now()
+    elif state == FETCH_OFFLINE and cached_row:
+        cached = {
+            field: cached_row[field]
+            for field in INSTRUMENT_FIELDS
+            if cached_row.get(field) is not None
+        }
+        asof = str(cached_row.get("fetched_at") or "")
+    failure_code = result.failure_code if result is not None else None
+    return {
+        "state": state,
+        "states": FETCH_STATES,
+        "labels": FETCH_STATE_LABELS,
+        "isin": result.isin if result is not None else "",
+        "facts": facts,
+        "sources": sources,
+        "source_names": _source_names(sources),
+        "cached": cached,
+        "asof": asof,
+        "message": fetch_message(state, failure_code),
+        "values": {},
+        "sources_by_field": {},
+    }
+
+
+def dirty_fields(raw):
+    return {part.strip() for part in str(raw or "").split(",") if part.strip()}
+
+
+def apply_fetch(current, payload, dirty):
+    values = {}
+    sources_by_field = {}
+    fetched = fetched_form_values(payload.get("facts") or {})
+    sources = payload.get("sources") or {}
+    for field, value in fetched.items():
+        if field in POSITION_FIELDS:
+            continue
+        existing = str(current.get(field, "") or "").strip()
+        if existing and field in dirty:
+            continue
+        values[field] = value
+        source = sources.get(FACT_BY_FIELD.get(field))
+        if source:
+            sources_by_field[field] = source
+    return values, sources_by_field
+
+
+def run_autofetch(isin, current, dirty):
+    stored = session.get(AUTOFETCH_SESSION_KEY)
+    if stored and stored.get("isin") == isin:
+        payload = dict(stored["payload"])
+    else:
+        service = _bond_service()
+        result = service.lookup(isin)
+        events = [event for event in service.events() if event.isin == isin]
+        payload = fetch_payload(result, events, cached_row=_bond_cache().lookup(isin))
+        session[AUTOFETCH_SESSION_KEY] = {"isin": isin, "payload": payload}
+        if payload["state"] == FETCH_FOUND:
+            record = {"isin": payload["isin"], "source": primary_source(payload["sources"])}
+            record.update(payload["facts"])
+            _bond_cache().save(record)
+        elif payload["state"] in (FETCH_NOT_FOUND, FETCH_OFFLINE):
+            current_app.logger.info("isin autofetch %s -> %s", isin, payload["state"])
+    values, sources_by_field = apply_fetch(current, payload, dirty)
+    payload = dict(payload)
+    payload["values"] = values
+    payload["sources_by_field"] = sources_by_field
+    edited = {FACT_BY_FIELD[field] for field in dirty if field in FACT_BY_FIELD}
+    if edited and payload.get("facts"):
+        _bond_cache().mark_edited(payload["isin"], *sorted(edited))
+    return payload
+
+
+def autofetch_form(current):
+    form = {}
+    for field in WATCH_FORM_FIELDS:
+        raw = current.get(field)
+        if raw is not None:
+            form[field] = raw
+    isin = str(current.get("isin", "") or "").strip().upper()
+    if not isin or not ISIN_PATTERN.match(isin):
+        return (form or None), None
+    dirty = dirty_fields(current.get("dirty", ""))
+    payload = run_autofetch(isin, current, dirty)
+    form["isin"] = isin
+    form.update(payload["values"])
+    return form, payload
 
 
 def _custom_values(conn, key):
@@ -111,6 +403,8 @@ def watch_goals(db_file):
 
 def error_field(code, message):
     text = str(message or "").lower()
+    if code == "ERR-watch-rating-gate":
+        return "rating"
     if code == "ERR-watch-dup":
         return "isin"
     if "isin" in text:
@@ -122,7 +416,15 @@ def error_field(code, message):
     return None
 
 
-def watch_context(db_file, form=None, error=None, error_code=None, form_open=False, duplicate=None):
+def watch_context(
+    db_file,
+    form=None,
+    error=None,
+    error_code=None,
+    form_open=False,
+    duplicate=None,
+    fetch=None,
+):
     field = error_field(error_code, error)
     if duplicate and duplicate.get("field"):
         field = duplicate["field"]
@@ -138,6 +440,7 @@ def watch_context(db_file, form=None, error=None, error_code=None, form_open=Fal
         "options": watch_options(db_file),
         "register": watch_register(db_file),
         "goals": watch_goals(db_file),
+        "fetch": fetch or watch_fetch_idle(),
     }
 
 
@@ -290,6 +593,9 @@ def watch_list():
     if request.method == "POST":
         form = request.form
         try:
+            refusal = autofetch_refusal(str(form.get("isin", "")).strip().upper())
+            if refusal:
+                raise AppError("ERR-watch-rating-gate", refusal)
             values = watch_form_values(form)
             with get_conn(db_file) as conn:
                 watch_insert_candidate(conn, values)
@@ -313,10 +619,50 @@ def watch_list():
         flash(f"Candidate added: {values['company']}", "success")
         return redirect(url_for("watch.watch_list"))
     try:
-        context = watch_context(db_file)
+        if request.args.get("isin"):
+            form, fetch = autofetch_form(request.args)
+            context = watch_context(
+                db_file, form=form, form_open=True, fetch=fetch
+            )
+        else:
+            context = watch_context(db_file)
     except AppError as exc:
         return error_page(exc.code, exc.message, "Watchlist failed", 500)
     return render_template("watch.html", **context)
+
+
+@bp.route("/watch/refresh", methods=["POST"])
+def watch_refresh():
+    db_file = app_db()
+    cache = _bond_cache()
+    remaining = cache.cooldown_remaining()
+    if remaining > 0:
+        return (
+            jsonify(
+                {
+                    "trigger": "manual",
+                    "status": "cooldown",
+                    "remaining": round(remaining, 1),
+                    "message": f"Refresh blocked - {remaining:.0f}s cooldown remaining",
+                }
+            ),
+            429,
+        )
+    from src.bond_master import service as bond_service
+
+    summary = bond_service.refresh_all(
+        db_file,
+        trigger="manual",
+        transport=current_app.config.get(BOND_MASTER_TRANSPORT_KEY),
+    )
+    return jsonify(
+        {
+            "trigger": "manual",
+            "status": "refreshed",
+            "summary": summary,
+            "message": "Bond master refresh finished",
+        }
+    )
 
 
 @bp.route("/watch/<int:candidate_id>/move", methods=["POST"])

@@ -103,6 +103,33 @@
   #watch-list thead th:last-child { position: sticky; background: var(--card); z-index: 3; }
   #watch-list thead th:first-child { left: 0; z-index: 4; }
   #watch-list thead th:last-child { right: 0; z-index: 5; }
+  .fetch-states { display: block; }
+  .fetch-state[hidden] { display: none; }
+  .fetch-state .fetch-spinner { display: inline-block; vertical-align: middle; }
+  .fetch-hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+  .fetch-source {
+    display: inline-block;
+    margin: 0.1rem 0.2rem 0.1rem 0.4rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: var(--ongoing-bg);
+    color: var(--ongoing-fg);
+  }
+  .fetch-source-cached { background: var(--warn-bg); color: var(--warn-fg); }
+  .fetch-source-list { display: grid; gap: 3px; margin-top: 6px; font-size: 12px; }
+  .fetch-spinner {
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    animation: fetch-spin 0.8s linear infinite;
+  }
+  @keyframes fetch-spin { to { transform: rotate(360deg); } }
 </style>
 {% endblock %}
 {% block content %}
@@ -139,15 +166,57 @@
 
 <div class="add-bar" id="add-bar">
   <span class="add-bar-title">Candidates ({{ candidates|length }})</span>
+  <button type="button" class="icon-btn" id="watch-refresh" title="Refresh the bond master" aria-label="Refresh the bond master">&#8635;</button>
   <button type="button" class="btn btn-primary btn-sm" id="add-candidate-toggle" aria-expanded="{% if form_open %}true{% else %}false{% endif %}" aria-controls="add-candidate-form">+ Add</button>
 </div>
+<div class="caption" id="watch-refresh-status" role="status" aria-live="polite"></div>
 
 <div class="card" id="add-candidate-panel"{% if not form_open %} hidden{% endif %}>
   <h2>Add Candidate</h2>
-  <form method="post" action="/watch" id="add-candidate-form">
+  <form method="post" action="/watch" id="add-candidate-form" data-fetched-isin="{{ fetch.isin }}">
+    <input type="hidden" name="dirty" id="c-dirty" value="">
+    <div class="fetch-states" id="c-fetch-states" data-fetch-states="{{ fetch.states|join(' ') }}">
+      <p class="fetch-hint fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}>Type the ISIN and leave the field &mdash; the instrument facts fill in automatically.</p>
+      <div class="banner banner-info fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}>
+        <span class="fetch-spinner" aria-hidden="true"></span>
+        <div>
+          <strong>Checking the sources</strong>
+          <p>Looking up the instrument facts. The form is not blocked.</p>
+        </div>
+      </div>
+      <div class="banner banner-info fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}>
+        <div>
+          <strong>Instrument facts filled{% if fetch.source_names %} from {{ fetch.source_names|join(' and ') }}{% endif %}</strong>
+          <p>{% if fetch.asof %}Fetched {{ fetch.asof }} &#183; {% endif %}Position facts are yours to enter.</p>
+        </div>
+      </div>
+      <div class="banner banner-warn fetch-state" data-fetch-state="notfound"{% if fetch.state != 'notfound' %} hidden{% endif %}>
+        <div>
+          <strong>Metadata not found &mdash; enter manually</strong>
+          <p>No record for this ISIN in the sources we checked. Every field stays editable.</p>
+        </div>
+      </div>
+      <div class="banner banner-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}>
+        <div>
+          <strong>{{ fetch.message }}</strong>
+          <p>{% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.</p>
+          {% if fetch.cached %}
+          <div class="fetch-source-list">
+            {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span>{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="banner banner-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}>
+        <div>
+          <strong>Filled from a lesser-confidence source</strong>
+          <p>{{ fetch.message }} Each value keeps its source label.</p>
+        </div>
+      </div>
+    </div>
     <div class="form-grid">
       <div class="field field-company">
-        <label for="c-company">Company</label>
+        <label for="c-company">Company{% if fetch.sources_by_field.get('company') %}<span class="fetch-source" data-fetch-source="company">{{ fetch.sources_by_field.get('company') }}</span>{% endif %}</label>
         <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" aria-describedby="c-company-help{% if error_field == 'company' %} c-company-error{% endif %}" autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
         <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
           {% for entry in register %}
@@ -163,12 +232,13 @@
         <label for="c-isin">ISIN</label>
         <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
         <span class="caption" id="c-isin-help">12 characters, forced uppercase, unique across the register</span>
+        <button type="button" class="btn btn-sm" id="c-isin-fetch">Fetch details</button>
         {% if error_field == 'isin' %}
         <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-rating">Rating</label>
+        <label for="c-rating">Rating{% if fetch.sources_by_field.get('rating') %}<span class="fetch-source" data-fetch-source="rating">{{ fetch.sources_by_field.get('rating') }}</span>{% endif %}</label>
         <select id="c-rating" name="rating"{% if error_field == 'rating' %} aria-invalid="true" aria-describedby="c-rating-error"{% endif %}>
           <option value=""{% if not form.get('rating') %} selected{% endif %}>&#8212;</option>
           {% for rating in options.ratings %}
@@ -180,7 +250,7 @@
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-rating-agency">Rating agency</label>
+        <label for="c-rating-agency">Rating agency{% if fetch.sources_by_field.get('rating_agency') %}<span class="fetch-source" data-fetch-source="rating_agency">{{ fetch.sources_by_field.get('rating_agency') }}</span>{% endif %}</label>
         <input type="text" id="c-rating-agency" name="rating_agency" list="c-agency-options" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}" autocomplete="off">
         <datalist id="c-agency-options">
           {% for agency in options.agencies %}
@@ -190,7 +260,7 @@
         <span class="caption">pick a preset or type your own — custom values are remembered</span>
       </div>
       <div class="field">
-        <label for="c-coupon">Coupon (%)</label>
+        <label for="c-coupon">Coupon (%){% if fetch.sources_by_field.get('coupon_pct') %}<span class="fetch-source" data-fetch-source="coupon_pct">{{ fetch.sources_by_field.get('coupon_pct') }}</span>{% endif %}</label>
         <input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}">
       </div>
       <div class="field">
@@ -198,7 +268,7 @@
         <input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" value="{{ form.get('expected_yield_pct', '') }}">
       </div>
       <div class="field">
-        <label for="c-issuer">Issuer type</label>
+        <label for="c-issuer">Issuer type{% if fetch.sources_by_field.get('issuer_type') %}<span class="fetch-source" data-fetch-source="issuer_type">{{ fetch.sources_by_field.get('issuer_type') }}</span>{% endif %}</label>
         <select id="c-issuer" name="issuer_type">
           <option value=""{% if not form.get('issuer_type') %} selected{% endif %}>&#8212;</option>
           <option value="corporate_bond"{% if form.get('issuer_type') == 'corporate_bond' %} selected{% endif %}>Corporate bond</option>
@@ -209,18 +279,18 @@
         </select>
       </div>
       <div class="field">
-        <label for="c-secured">Secured</label>
+        <label for="c-secured">Secured{% if fetch.sources_by_field.get('secured') %}<span class="fetch-source" data-fetch-source="secured">{{ fetch.sources_by_field.get('secured') }}</span>{% endif %}</label>
         <select id="c-secured" name="secured">
           <option value="1"{% if form.get('secured', '1') == '1' %} selected{% endif %}>Secured</option>
           <option value="0"{% if form.get('secured') == '0' %} selected{% endif %}>Not secured</option>
         </select>
       </div>
       <div class="field">
-        <label for="c-face">Face value</label>
+        <label for="c-face">Face value{% if fetch.sources_by_field.get('face_value') %}<span class="fetch-source" data-fetch-source="face_value">{{ fetch.sources_by_field.get('face_value') }}</span>{% endif %}</label>
         <input type="number" id="c-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
       </div>
       <div class="field">
-        <label for="c-cycle">Payout cycle</label>
+        <label for="c-cycle">Payout cycle{% if fetch.sources_by_field.get('payout_cycle') %}<span class="fetch-source" data-fetch-source="payout_cycle">{{ fetch.sources_by_field.get('payout_cycle') }}</span>{% endif %}</label>
         <select id="c-cycle" name="payout_cycle">
           <option value=""{% if not form.get('payout_cycle') %} selected{% endif %}>&#8212;</option>
           <option value="monthly"{% if form.get('payout_cycle') == 'monthly' %} selected{% endif %}>Monthly</option>
@@ -606,6 +676,113 @@
     if (form) {
       form.submit();
     }
+  });
+})();
+</script>
+<script>
+(function () {
+  var form = document.getElementById("add-candidate-form");
+  if (!form) {
+    return;
+  }
+  var isin = document.getElementById("c-isin");
+  var dirtyInput = document.getElementById("c-dirty");
+  var button = document.getElementById("c-isin-fetch");
+  var fetched = form.getAttribute("data-fetched-isin") || "";
+  var dirty = {};
+  function mark(event) {
+    var name = event.target && event.target.name;
+    if (!name || name === "dirty" || name === "isin") {
+      return;
+    }
+    dirty[name] = true;
+  }
+  function syncDirty() {
+    if (dirtyInput) {
+      dirtyInput.value = Object.keys(dirty).join(",");
+    }
+  }
+  function isinValue() {
+    if (!isin || !isin.value) {
+      return "";
+    }
+    return String(isin.value).trim().toUpperCase();
+  }
+  function shapeIsValid() {
+    return /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isinValue());
+  }
+  function serialize() {
+    var query = "";
+    var elements = form.elements;
+    for (var index = 0; index < elements.length; index += 1) {
+      var element = elements[index];
+      if (!element.name || element.disabled) {
+        continue;
+      }
+      if (query) {
+        query += "&";
+      }
+      query += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value || "");
+    }
+    return query;
+  }
+  function showChecking() {
+    var states = form.querySelectorAll("[data-fetch-state]");
+    for (var index = 0; index < states.length; index += 1) {
+      states[index].hidden = states[index].getAttribute("data-fetch-state") !== "checking";
+    }
+  }
+  function runFetch() {
+    if (!isin || !shapeIsValid()) {
+      return;
+    }
+    var value = isinValue();
+    if (value === fetched) {
+      return;
+    }
+    isin.value = value;
+    syncDirty();
+    showChecking();
+    window.location.assign("/watch?" + serialize());
+  }
+  form.addEventListener("input", mark);
+  form.addEventListener("change", mark);
+  if (isin) {
+    isin.addEventListener("blur", runFetch);
+  }
+  if (button) {
+    button.addEventListener("click", runFetch);
+  }
+})();
+</script>
+<script>
+(function () {
+  var button = document.getElementById("watch-refresh");
+  var status = document.getElementById("watch-refresh-status");
+  if (!button) {
+    return;
+  }
+  button.addEventListener("click", function () {
+    button.disabled = true;
+    fetch("/watch/refresh", { method: "POST", headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { data: data };
+        });
+      })
+      .then(function (result) {
+        if (status) {
+          status.textContent = (result.data && result.data.message) || "";
+        }
+      })
+      .catch(function () {
+        if (status) {
+          status.textContent = "Refresh failed - nothing is blocked.";
+        }
+      })
+      .then(function () {
+        button.disabled = false;
+      });
   });
 })();
 </script>
