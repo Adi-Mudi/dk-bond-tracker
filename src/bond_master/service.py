@@ -115,6 +115,20 @@ def _merged_result(isin, values, sources):
     return FetchResult(isin=isin, sources=sources, **values)
 
 
+def primary_source(sources):
+    names = {name for name in (sources or {}).values() if name}
+    for source in SOURCE_PRIORITY:
+        if source in names:
+            return source
+    return sorted(names)[0] if names else None
+
+
+def _bond_record(result):
+    record = {"isin": result.isin, "source": primary_source(result.sources)}
+    record.update(result.facts())
+    return record
+
+
 def _cache_key(db_path):
     return str(Path(db_path).resolve())
 
@@ -368,7 +382,9 @@ def refresh_all(db_path, trigger="manual", transport=None):
         cache.begin_refresh()
         service = build_default_service(cache, transport)
         for isin in _known_isins(db_path):
-            service.refresh(isin)
+            result = service.refresh(isin)
+            if result is not None and result.has_facts():
+                cache.save(_bond_record(result))
         return _summary(service, cache)
     except Exception:
         try:

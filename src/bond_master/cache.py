@@ -32,6 +32,14 @@ _INSERT_SQL = (
 )
 _SELECT_SQL = f"SELECT {_COLUMNS} FROM bond_master WHERE isin = ?"
 
+_FACT_FIELDS = tuple(
+    field for field in BOND_MASTER_FIELDS if field not in ("isin", "source", "fetched_at")
+)
+
+
+def _facts_match(existing, values):
+    return all(existing[field] == values[field] for field in _FACT_FIELDS)
+
 
 class CooldownActive(AppError):
     def __init__(self, remaining):
@@ -95,12 +103,13 @@ class BondMasterCache:
         isin = values["isin"]
         if not isin:
             raise AppError("ERR-bond-master-isin", "bond_master row requires an isin")
+        existing = self.lookup(isin)
         edited = self._edited_fields.get(isin)
-        if edited:
-            existing = self.lookup(isin)
-            if existing is not None:
-                for field in edited:
-                    values[field] = existing[field]
+        if edited and existing is not None:
+            for field in edited:
+                values[field] = existing[field]
+        if existing is not None and _facts_match(existing, values):
+            values["fetched_at"] = existing["fetched_at"]
         if values["fetched_at"] is None:
             values["fetched_at"] = _asof_timestamp(self._clock())
         with get_conn(self.db_path) as conn:
