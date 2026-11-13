@@ -92,6 +92,8 @@
   .confirm-inner h2 { margin-bottom: 8px; }
   .confirm-inner p { font-size: 13px; margin-bottom: 12px; }
   .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .fetch-popup .confirm-inner { width: min(34rem, 92vw); }
+  .fetch-popup .facts-grid { margin-bottom: 12px; }
   .btn-danger { background: var(--danger-fg); border-color: var(--danger-fg); color: var(--on-accent); }
   .watch-scroll { overflow-x: auto; }
   #watch-list { min-width: 47.5rem; }
@@ -130,6 +132,20 @@
     animation: fetch-spin 0.8s linear infinite;
   }
   @keyframes fetch-spin { to { transform: rotate(360deg); } }
+  .isin-countdown {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 6px 0 0;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1.4;
+    background: var(--warn-bg);
+    color: var(--warn-fg);
+  }
+  .isin-countdown[hidden] { display: none; }
+  .isin-countdown-seconds { font-variant-numeric: tabular-nums; font-weight: 700; }
 </style>
 {% endblock %}
 {% block content %}
@@ -175,7 +191,7 @@
   <h2>Add Candidate</h2>
   <form method="post" action="/watch" id="add-candidate-form" data-fetched-isin="{{ fetch.isin }}">
     <input type="hidden" name="dirty" id="c-dirty" value="">
-    <div class="fetch-states" id="c-fetch-states" data-fetch-states="{{ fetch.states|join(' ') }}">
+    <div class="fetch-states" id="c-fetch-states" data-fetch-states="{{ fetch.states|join(' ') }}" data-fetch-isin="{{ fetch.isin }}">
       <p class="fetch-hint fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}>Type the ISIN and leave the field &mdash; the instrument facts fill in automatically.</p>
       <div class="banner banner-info fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}>
         <span class="fetch-spinner" aria-hidden="true"></span>
@@ -233,6 +249,7 @@
         <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
         <span class="caption" id="c-isin-help">12 characters, forced uppercase, unique across the register</span>
         <button type="button" class="btn btn-sm" id="c-isin-fetch">Fetch details</button>
+        <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if fetch.state != 'offline' %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
         {% if error_field == 'isin' %}
         <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
         {% endif %}
@@ -343,6 +360,33 @@
     </div>
   </form>
 </div>
+
+{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('face_value', 'face_value'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured'), ('listing_status', '')] %}
+{% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'face_value': 'Face value', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured', 'listing_status': 'Listing'} %}
+{% set fetch_values = fetch['values'] or {} %}
+{% if fetch.facts %}
+<div class="confirm-dialog fetch-popup" id="fetch-details" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin }}" hidden>
+  <div class="confirm-inner">
+    <h2 id="fetch-details-title">Fetched details</h2>
+    <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
+    <div class="facts-grid">
+      {% for fact, field in fetch_fact_order %}
+      {% if fetch.facts.get(fact) is not none %}
+      {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.facts.get(fact) %}
+      <div class="fact" data-fetch-detail="{{ fact }}"{% if field %} data-apply-field="{{ field }}" data-apply-value="{{ detail_value }}"{% endif %}>
+        <span class="fact-label">{{ fetch_fact_labels[fact] }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
+        <span class="fact-value">{{ detail_value }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-sm" id="fetch-details-dismiss">Enter manually</button>
+      <button type="button" class="btn btn-sm btn-primary" id="fetch-details-apply">Apply</button>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <div class="table-wrap watch-scroll" id="watch-scroll" tabindex="0" role="region" aria-label="Watchlist candidates — scroll horizontally for more columns">
   <table id="watch-list">
@@ -688,8 +732,29 @@
   var isin = document.getElementById("c-isin");
   var dirtyInput = document.getElementById("c-dirty");
   var button = document.getElementById("c-isin-fetch");
+  var statesContainer = document.getElementById("c-fetch-states");
+  var popup = document.getElementById("fetch-details");
   var fetched = form.getAttribute("data-fetched-isin") || "";
   var dirty = {};
+  var FACT_FIELDS = [
+    ["company", "company", "c-company"],
+    ["rating", "rating", "c-rating"],
+    ["rating_agency", "rating_agency", "c-rating-agency"],
+    ["coupon", "coupon_pct", "c-coupon"],
+    ["face_value", "face_value", "c-face"],
+    ["issuer_type", "issuer_type", "c-issuer"],
+    ["payout_cycle", "payout_cycle", "c-cycle"],
+    ["secured", "secured", "c-secured"]
+  ];
+  function fieldElement(name) {
+    var elements = form.elements;
+    for (var index = 0; index < elements.length; index += 1) {
+      if (elements[index].name === name) {
+        return elements[index];
+      }
+    }
+    return null;
+  }
   function mark(event) {
     var name = event.target && event.target.name;
     if (!name || name === "dirty" || name === "isin") {
@@ -712,25 +777,91 @@
     return /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isinValue());
   }
   function serialize() {
-    var query = "";
-    var elements = form.elements;
-    for (var index = 0; index < elements.length; index += 1) {
-      var element = elements[index];
-      if (!element.name || element.disabled) {
+    var parts = [
+      "isin=" + encodeURIComponent(isinValue()),
+      "dirty=" + encodeURIComponent(Object.keys(dirty).join(","))
+    ];
+    Object.keys(dirty).forEach(function (name) {
+      var element = fieldElement(name);
+      if (!element || element.disabled) {
+        return;
+      }
+      parts[parts.length] = encodeURIComponent(name) + "=" + encodeURIComponent(element.value || "");
+    });
+    return parts.join("&");
+  }
+  function showState(name) {
+    var blocks = form.querySelectorAll("[data-fetch-state]");
+    for (var index = 0; index < blocks.length; index += 1) {
+      blocks[index].hidden = blocks[index].getAttribute("data-fetch-state") !== name;
+    }
+  }
+  function clearField(element) {
+    if (!element) {
+      return;
+    }
+    if (element.tagName === "SELECT") {
+      var empty = null;
+      for (var index = 0; index < element.options.length; index += 1) {
+        if (element.options[index].value === "") {
+          empty = element.options[index];
+          break;
+        }
+      }
+      if (empty) {
+        element.value = "";
+      } else if (element.options.length) {
+        element.value = element.options[0].value;
+      }
+      return;
+    }
+    element.value = "";
+  }
+  function clearSourceBadges() {
+    var badges = form.querySelectorAll("label .fetch-source[data-fetch-source]");
+    for (var index = 0; index < badges.length; index += 1) {
+      if (badges[index].parentNode) {
+        badges[index].parentNode.removeChild(badges[index]);
+      }
+    }
+  }
+  function clearFetchedFacts() {
+    FACT_FIELDS.forEach(function (entry) {
+      if (dirty[entry[1]]) {
+        return;
+      }
+      clearField(document.getElementById(entry[2]));
+    });
+    clearSourceBadges();
+    showState("idle");
+  }
+  function applyFetchedFacts() {
+    if (!popup) {
+      return;
+    }
+    var rows = popup.querySelectorAll("[data-apply-field]");
+    for (var index = 0; index < rows.length; index += 1) {
+      var field = rows[index].getAttribute("data-apply-field");
+      if (!field || dirty[field]) {
         continue;
       }
-      if (query) {
-        query += "&";
+      var element = fieldElement(field);
+      if (element) {
+        element.value = rows[index].getAttribute("data-apply-value") || "";
       }
-      query += encodeURIComponent(element.name) + "=" + encodeURIComponent(element.value || "");
     }
-    return query;
   }
-  function showChecking() {
-    var states = form.querySelectorAll("[data-fetch-state]");
-    for (var index = 0; index < states.length; index += 1) {
-      states[index].hidden = states[index].getAttribute("data-fetch-state") !== "checking";
+  function closePopup() {
+    if (popup) {
+      popup.hidden = true;
     }
+  }
+  function invalidateOnIsinChange() {
+    if (isinValue() === fetched) {
+      return;
+    }
+    closePopup();
+    clearFetchedFacts();
   }
   function runFetch() {
     if (!isin || !shapeIsValid()) {
@@ -742,16 +873,44 @@
     }
     isin.value = value;
     syncDirty();
-    showChecking();
+    closePopup();
+    showState("checking");
     window.location.assign("/watch?" + serialize());
   }
   form.addEventListener("input", mark);
   form.addEventListener("change", mark);
   if (isin) {
+    isin.addEventListener("input", invalidateOnIsinChange);
     isin.addEventListener("blur", runFetch);
   }
   if (button) {
     button.addEventListener("click", runFetch);
+  }
+  if (popup) {
+    var applyButton = document.getElementById("fetch-details-apply");
+    var dismissButton = document.getElementById("fetch-details-dismiss");
+    var popupIsin = popup.getAttribute("data-fetch-isin") || "";
+    if (isin && popupIsin && popupIsin === isinValue()) {
+      popup.hidden = false;
+    }
+    if (applyButton) {
+      applyButton.addEventListener("click", function () {
+        applyFetchedFacts();
+        closePopup();
+      });
+    }
+    if (dismissButton) {
+      dismissButton.addEventListener("click", function () {
+        clearFetchedFacts();
+        closePopup();
+      });
+    }
+  }
+  if (statesContainer && isin) {
+    var keyedIsin = statesContainer.getAttribute("data-fetch-isin") || "";
+    if (keyedIsin && keyedIsin !== isinValue()) {
+      showState("idle");
+    }
   }
 })();
 </script>
@@ -784,6 +943,34 @@
         button.disabled = false;
       });
   });
+})();
+</script>
+<script>
+(function () {
+  var chip = document.getElementById("c-isin-countdown");
+  if (!chip || chip.hidden) {
+    return;
+  }
+  var readout = document.getElementById("c-isin-countdown-seconds");
+  var full = parseInt(chip.getAttribute("data-countdown-seconds"), 10);
+  if (isNaN(full) || full <= 0) {
+    full = 60;
+  }
+  var remaining = full;
+  function paint() {
+    if (readout) {
+      readout.textContent = String(remaining);
+    }
+  }
+  paint();
+  var ticker = window.setInterval(function () {
+    remaining -= 1;
+    paint();
+    if (remaining <= 0) {
+      window.clearInterval(ticker);
+      chip.hidden = true;
+    }
+  }, 1000);
 })();
 </script>
 {% endblock %}

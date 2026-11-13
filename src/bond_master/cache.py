@@ -72,6 +72,9 @@ class BondMasterCache:
     def refresh_allowed(self):
         return self.cooldown_remaining() <= 0.0
 
+    def network_blocked(self):
+        return self.cooldown_remaining() > 0.0
+
     def begin_refresh(self):
         remaining = self.cooldown_remaining()
         if remaining > 0.0:

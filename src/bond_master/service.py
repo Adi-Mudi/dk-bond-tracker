@@ -160,9 +160,20 @@ def _known_isins(db_path):
             rows = conn.execute(
                 "SELECT DISTINCT isin FROM bond_master WHERE isin IS NOT NULL"
             ).fetchall()
+            try:
+                held_rows = conn.execute(
+                    "SELECT DISTINCT isin FROM bonds "
+                    "WHERE watch_state = 'holding' AND isin IS NOT NULL"
+                ).fetchall()
+            except Exception:
+                held_rows = []
     except Exception:
         return []
-    return [row["isin"] for row in rows]
+    known = [row["isin"] for row in rows]
+    held = {row["isin"] for row in held_rows}
+    portfolio = [isin for isin in known if isin in held]
+    watchlist = [isin for isin in known if isin not in held]
+    return portfolio + watchlist
 
 
 class BondMasterService:
@@ -196,9 +207,9 @@ class BondMasterService:
         normalized = normalize_isin(isin)
         if normalized is None:
             return FetchResult(isin=isin, failure_code=FAILURE_INVALID_ISIN)
-        cached = self._cached_answer(normalized)
-        if cached is not None:
-            return cached
+        local = self._local_answer(normalized)
+        if local is not None:
+            return local
         if not self._claim_refresh():
             return FetchResult(isin=normalized, failure_code=FAILURE_RATE_LIMITED)
         return self._collect(normalized)
@@ -258,6 +269,23 @@ class BondMasterService:
         if values:
             return _merged_result(isin, values, sources)
         return self._total_failure(isin, failures)
+
+    def _local_answer(self, isin):
+        cached = self._cached_answer(isin)
+        if cached is not None:
+            return cached
+        return self._snapshot_answer(isin)
+
+    def _snapshot_answer(self, isin):
+        seed = snapshot_lookup(isin)
+        if seed is None:
+            return None
+        values = {}
+        sources = {}
+        _absorb(values, sources, SNAPSHOT_SOURCE, seed)
+        if not values:
+            return None
+        return _merged_result(isin, values, sources)
 
     def _claim_refresh(self):
         try:

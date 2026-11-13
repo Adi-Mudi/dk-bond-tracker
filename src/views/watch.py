@@ -1,4 +1,5 @@
 import json
+import math
 import re
 
 from datetime import date, datetime, timezone
@@ -294,6 +295,14 @@ def apply_fetch(current, payload, dirty):
     return values, sources_by_field
 
 
+def reset_facts_on_isin_change(form, dirty):
+    for field in FACT_BY_FIELD:
+        if field in dirty:
+            continue
+        form.pop(field, None)
+    return form
+
+
 def run_autofetch(isin, current, dirty):
     stored = session.get(AUTOFETCH_SESSION_KEY)
     if stored and stored.get("isin") == isin:
@@ -314,6 +323,8 @@ def run_autofetch(isin, current, dirty):
     payload = dict(payload)
     payload["values"] = values
     payload["sources_by_field"] = sources_by_field
+    remaining = _bond_cache().cooldown_remaining()
+    payload["countdown_seconds"] = math.ceil(remaining) if remaining > 0 else 60
     edited = {FACT_BY_FIELD[field] for field in dirty if field in FACT_BY_FIELD}
     if edited and payload.get("facts"):
         _bond_cache().mark_edited(payload["isin"], *sorted(edited))
@@ -330,6 +341,9 @@ def autofetch_form(current):
     if not isin or not ISIN_PATTERN.match(isin):
         return (form or None), None
     dirty = dirty_fields(current.get("dirty", ""))
+    stored = session.get(AUTOFETCH_SESSION_KEY) or {}
+    if stored.get("isin") and stored.get("isin") != isin:
+        form = reset_facts_on_isin_change(form, dirty)
     payload = run_autofetch(isin, current, dirty)
     form["isin"] = isin
     form.update(payload["values"])
