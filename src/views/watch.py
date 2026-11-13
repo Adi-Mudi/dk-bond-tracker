@@ -294,6 +294,14 @@ def apply_fetch(current, payload, dirty):
     return values, sources_by_field
 
 
+def reset_facts_on_isin_change(form, dirty):
+    for field in FACT_BY_FIELD:
+        if field in dirty:
+            continue
+        form.pop(field, None)
+    return form
+
+
 def run_autofetch(isin, current, dirty):
     stored = session.get(AUTOFETCH_SESSION_KEY)
     if stored and stored.get("isin") == isin:
@@ -330,6 +338,9 @@ def autofetch_form(current):
     if not isin or not ISIN_PATTERN.match(isin):
         return (form or None), None
     dirty = dirty_fields(current.get("dirty", ""))
+    stored = session.get(AUTOFETCH_SESSION_KEY) or {}
+    if stored.get("isin") and stored.get("isin") != isin:
+        form = reset_facts_on_isin_change(form, dirty)
     payload = run_autofetch(isin, current, dirty)
     form["isin"] = isin
     form.update(payload["values"])

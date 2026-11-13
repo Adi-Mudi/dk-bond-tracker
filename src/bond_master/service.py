@@ -196,9 +196,9 @@ class BondMasterService:
         normalized = normalize_isin(isin)
         if normalized is None:
             return FetchResult(isin=isin, failure_code=FAILURE_INVALID_ISIN)
-        cached = self._cached_answer(normalized)
-        if cached is not None:
-            return cached
+        local = self._local_answer(normalized)
+        if local is not None:
+            return local
         if not self._claim_refresh():
             return FetchResult(isin=normalized, failure_code=FAILURE_RATE_LIMITED)
         return self._collect(normalized)
@@ -258,6 +258,23 @@ class BondMasterService:
         if values:
             return _merged_result(isin, values, sources)
         return self._total_failure(isin, failures)
+
+    def _local_answer(self, isin):
+        cached = self._cached_answer(isin)
+        if cached is not None:
+            return cached
+        return self._snapshot_answer(isin)
+
+    def _snapshot_answer(self, isin):
+        seed = snapshot_lookup(isin)
+        if seed is None:
+            return None
+        values = {}
+        sources = {}
+        _absorb(values, sources, SNAPSHOT_SOURCE, seed)
+        if not values:
+            return None
+        return _merged_result(isin, values, sources)
 
     def _claim_refresh(self):
         try:
