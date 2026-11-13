@@ -218,13 +218,30 @@ def test_tc_af_15_countdown_is_hidden_when_the_cooldown_blocks_nothing(db_path):
     assert _countdown_chip_visible(found) is False
 
 
-def test_tc_af_15_each_blocked_render_resets_the_chip_to_a_full_60(db_path):
-    client, _ = _warm_cooldown_client(db_path, _nsdl_transport())
-    for _ in range(2):
-        html = client.get("/watch", query_string={"isin": COUNTDOWN_ISIN}).get_data(as_text=True)
-        assert _countdown_chip_visible(html) is True
-        assert 'id="' + COUNTDOWN_SECONDS_ID + '">' + str(COUNTDOWN_FULL) + "<" in html
-        assert 'data-countdown-seconds="' + str(COUNTDOWN_FULL) + '"' in html
+def test_tc_af_15_blocked_render_seeds_the_true_remaining_and_resets_on_claim(db_path):
+    now = [1000000.0]
+    client, app = _watch_client(db_path, _nsdl_transport())
+    cache = BondMasterCache(db_path, clock=lambda: now[0])
+    cache.begin_refresh()
+    app.extensions["bond_master_cache"] = cache
+    app.extensions.pop("bond_master_service", None)
+
+    fresh = client.get("/watch", query_string={"isin": COUNTDOWN_ISIN}).get_data(as_text=True)
+    assert _countdown_chip_visible(fresh) is True
+    assert 'data-countdown-seconds="' + str(COUNTDOWN_FULL) + '"' in fresh
+    assert 'id="' + COUNTDOWN_SECONDS_ID + '">' + str(COUNTDOWN_FULL) + "<" in fresh
+
+    now[0] += 30
+    mid = client.get("/watch", query_string={"isin": COUNTDOWN_ISIN}).get_data(as_text=True)
+    assert _countdown_chip_visible(mid) is True
+    assert 'data-countdown-seconds="30"' in mid
+    assert 'id="' + COUNTDOWN_SECONDS_ID + '">30<' in mid
+
+    now[0] += 60
+    cache.begin_refresh()
+    reclaim = client.get("/watch", query_string={"isin": COUNTDOWN_ISIN}).get_data(as_text=True)
+    assert _countdown_chip_visible(reclaim) is True
+    assert 'data-countdown-seconds="' + str(COUNTDOWN_FULL) + '"' in reclaim
 
 
 def test_tc_af_15_countdown_survives_popup_open_apply_dismiss():

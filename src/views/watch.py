@@ -1,4 +1,5 @@
 import json
+import math
 import re
 
 from datetime import date, datetime, timezone
@@ -322,6 +323,8 @@ def run_autofetch(isin, current, dirty):
     payload = dict(payload)
     payload["values"] = values
     payload["sources_by_field"] = sources_by_field
+    remaining = _bond_cache().cooldown_remaining()
+    payload["countdown_seconds"] = math.ceil(remaining) if remaining > 0 else 60
     edited = {FACT_BY_FIELD[field] for field in dirty if field in FACT_BY_FIELD}
     if edited and payload.get("facts"):
         _bond_cache().mark_edited(payload["isin"], *sorted(edited))
