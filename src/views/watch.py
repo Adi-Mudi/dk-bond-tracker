@@ -30,7 +30,7 @@ from src.bond_master.base import (
 )
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.normalize import is_investment_grade
-from src.bond_master.service import build_default_service
+from src.bond_master.service import build_default_service, primary_source
 from src.db import get_conn
 from src.engine import tenure_window
 from src.forms import FACT_BY_FIELD, fetched_form_values
@@ -304,12 +304,19 @@ def run_autofetch(isin, current, dirty):
         events = [event for event in service.events() if event.isin == isin]
         payload = fetch_payload(result, events, cached_row=_bond_cache().lookup(isin))
         session[AUTOFETCH_SESSION_KEY] = {"isin": isin, "payload": payload}
-        if payload["state"] in (FETCH_NOT_FOUND, FETCH_OFFLINE):
+        if payload["state"] == FETCH_FOUND:
+            record = {"isin": payload["isin"], "source": primary_source(payload["sources"])}
+            record.update(payload["facts"])
+            _bond_cache().save(record)
+        elif payload["state"] in (FETCH_NOT_FOUND, FETCH_OFFLINE):
             current_app.logger.info("isin autofetch %s -> %s", isin, payload["state"])
     values, sources_by_field = apply_fetch(current, payload, dirty)
     payload = dict(payload)
     payload["values"] = values
     payload["sources_by_field"] = sources_by_field
+    edited = {FACT_BY_FIELD[field] for field in dirty if field in FACT_BY_FIELD}
+    if edited and payload.get("facts"):
+        _bond_cache().mark_edited(payload["isin"], *sorted(edited))
     return payload
 
 
