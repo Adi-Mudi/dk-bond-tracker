@@ -298,7 +298,8 @@
       <div class="field">
         <label for="c-secured">Secured{% if fetch.sources_by_field.get('secured') %}<span class="fetch-source" data-fetch-source="secured">{{ fetch.sources_by_field.get('secured') }}</span>{% endif %}</label>
         <select id="c-secured" name="secured">
-          <option value="1"{% if form.get('secured', '1') == '1' %} selected{% endif %}>Secured</option>
+          <option value=""{% if not form.get('secured') %} selected{% endif %}>&#8212;</option>
+          <option value="1"{% if form.get('secured') == '1' %} selected{% endif %}>Secured</option>
           <option value="0"{% if form.get('secured') == '0' %} selected{% endif %}>Not secured</option>
         </select>
       </div>
