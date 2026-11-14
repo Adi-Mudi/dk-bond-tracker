@@ -133,6 +133,12 @@ def settings_import():
         f"Restored {counts['bonds']} bonds, {counts['payments']} payments, {counts['goals']} goals",
         "success",
     )
+    if counts.get("legacy"):
+        flash(
+            "This was a legacy v1.0.7 backup: bond details and goals are not part of that format, "
+            "so they were not restored. Download a fresh full backup now that the app is current.",
+            "warning",
+        )
     return redirect(url_for("settings.settings_page", section="data"))
 
 

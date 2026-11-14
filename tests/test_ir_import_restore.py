@@ -189,6 +189,20 @@ def test_post_import_valid_redirects_with_counts_and_invalid_is_named(tmp_path):
     assert ok.status_code == 302
     follow = client.get("/settings?section=data").get_data(as_text=True)
     assert "Restored 2 bonds, 2 payments, 1 goals" in follow
+    assert "legacy v1.0.7 backup" not in follow
+
+    legacy_db = tmp_path / "legacy_target.db"
+    init_db(legacy_db)
+    legacy_client = create_app(str(legacy_db)).test_client()
+    legacy_ok = legacy_client.post(
+        "/settings/import",
+        data={"file": (io.BytesIO(legacy_text(source).encode("utf-8")), "legacy.csv")},
+        content_type="multipart/form-data",
+    )
+    assert legacy_ok.status_code == 302
+    legacy_follow = legacy_client.get("/settings?section=data").get_data(as_text=True)
+    assert "legacy v1.0.7 backup" in legacy_follow
+    assert "Download a fresh full backup" in legacy_follow
 
     bad = client.post(
         "/settings/import",
