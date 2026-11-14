@@ -211,6 +211,18 @@
           <p>Start empty — no data imported.</p>
           <p class="caption">Exports: CSV ledger, share snapshot and print view are read-only extracts of your own database.</p>
         </div>
+        <div class="card" id="import-restore-card">
+          <h2>Backup &amp; restore</h2>
+          <a class="btn" id="backup-download-csv" href="/export.csv?scope=backup">Download backup</a>
+          <p class="banner-error" id="restore-warning">Warning: restoring a backup adds its bonds, payments and goals to your ledger. It only works on an empty ledger.</p>
+          <div class="field" id="restore-form">
+            <label for="restore-file">Backup CSV file</label>
+            <input type="file" id="restore-file" name="file" accept=".csv,text/csv">
+          </div>
+          <button class="btn btn-primary" type="submit" id="restore-submit" formaction="/settings/import" formenctype="multipart/form-data">Restore from backup</button>
+          <p class="caption" id="restore-empty-cells">Empty cells in the backup CSV restore as the app defaults: status On-going, paid 0, saved_amount 0.0.</p>
+          <p class="caption" id="restore-feedback">Restored counts or the error appear at the top of this page after you restore.</p>
+        </div>
       </section>
 
       <div class="section-gap">

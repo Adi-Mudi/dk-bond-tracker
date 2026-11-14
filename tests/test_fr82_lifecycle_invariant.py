@@ -150,12 +150,12 @@ def test_fr82_ac1_candidate_insert_always_names_watch_state_watching():
     for name, text in modules.items():
         for columns, values in INSERT_BONDS.findall(text):
             inserts.append((name, columns, values))
-    assert len(inserts) == 1, (
-        "FR-82: expected exactly one INSERT INTO bonds statement; "
-        f"found {len(inserts)} ({[name for name, _c, _v in inserts]})"
+    by_module = {name: (columns, values) for name, columns, values in inserts}
+    assert set(by_module) == {"src/views/watch.py", "src/import_csv.py"}, (
+        "FR-82: expected INSERT INTO bonds only in src/views/watch.py (candidates) "
+        f"and src/import_csv.py (backup restore); found {sorted(by_module)}"
     )
-    name, columns, values = inserts[0]
-    assert name == "src/views/watch.py"
+    columns, values = by_module["src/views/watch.py"]
     column_list = [column.strip().lower() for column in columns.split(",")]
     assert "watch_state" in column_list, (
         "FR-82: candidate INSERT must name watch_state explicitly (never rely on the "
@@ -165,6 +165,11 @@ def test_fr82_ac1_candidate_insert_always_names_watch_state_watching():
     assert value_list[column_list.index("watch_state")] == "'watching'", (
         "FR-82: candidate INSERT must write watch_state='watching' explicitly; "
         f"found {value_list[column_list.index('watch_state')]!r}"
+    )
+    restore_columns, _restore_values = by_module["src/import_csv.py"]
+    assert "watch_state" not in restore_columns, (
+        "FR-82: restore INSERT must not set watch_state; a restored bond is a holding "
+        "via the schema default"
     )
 
 
