@@ -49,9 +49,10 @@ signing input from GitHub secrets:
 
 - `DKBT_RELEASE_KEYSTORE_BASE64` - decoded to `$RUNNER_TEMP/dkbt-release.jks`
   (never a tracked path)
-- `DKBT_RELEASE_STORE_PASSWORD`, `DKBT_RELEASE_KEY_ALIAS`,
-  `DKBT_RELEASE_KEY_PASSWORD` - exported as the `DKBT_RELEASE_*` environment
-  variables Gradle expects
+- `DKBT_RELEASE_PASSWORD` - used for BOTH the store and key password, per the
+  PKCS12 same-password rule (Oracle keytool: most tools require storepass and
+  keypass in a PKCS#12 keystore to be the same)
+- `DKBT_RELEASE_KEY_ALIAS` - exported as the `DKBT_RELEASE_KEY_ALIAS` variable
 - `DKBT_RELEASE_FINGERPRINT` - the pinned SHA-256 certificate fingerprint
 
 After `assembleRelease` the workflow runs `scripts/check-release-signature.sh`:
