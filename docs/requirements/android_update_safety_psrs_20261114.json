@@ -2,7 +2,7 @@
   "id": "android_update_safety_psrs_20261114",
   "kind": "psrs",
   "title": "Android update safety: stable release signing, CI fingerprint guard and CSV import/restore - V-model spec suite",
-  "version": "v1.0",
+  "version": "v1.1",
   "status": "draft",
   "project": "dk-bond-tracker",
   "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/259",
@@ -135,15 +135,15 @@
     },
     {
       "id": "IR-01",
-      "text": "The app SHALL provide a CSV import/restore route that accepts exactly the format emitted by /export.csv?scope=full and SHALL cover every column that the full-ledger export emits.",
+      "text": "The app SHALL provide a CSV import/restore route that accepts exactly the machine backup format emitted by /export.csv?scope=backup and SHALL cover every column that the backup export emits.",
       "category": "functional",
       "check_method": "integration",
       "status": "accepted",
       "acceptance_criteria": [
         {
-          "given": "a full-ledger export file from /export.csv?scope=full",
+          "given": "a backup export file from /export.csv?scope=backup",
           "when": "it is submitted to the import route",
-          "then": "every column the exporter emits is accepted and mapped to the restore target"
+          "then": "every column the backup exporter emits is accepted and mapped to the restore target"
         },
         {
           "given": "a CSV with an unknown extra column or a missing required column",
@@ -154,14 +154,14 @@
     },
     {
       "id": "IR-02",
-      "text": "Importing a full-ledger CSV SHALL restore the ledger into the local SQLite database so that export, import into a fresh database and re-export round-trips to an equivalent ledger, and a repeated import SHALL be refused instead of duplicating rows.",
+      "text": "Importing a backup CSV SHALL restore the ledger into the local SQLite database so that export, import into a fresh database and re-export round-trips to an equivalent ledger, and a repeated import SHALL be refused instead of duplicating rows.",
       "category": "functional",
       "check_method": "integration",
       "status": "accepted",
       "acceptance_criteria": [
         {
           "given": "a seeded database with bonds, payments and goals",
-          "when": "the full CSV is exported, imported into a fresh database and re-exported",
+          "when": "the backup CSV is exported, imported into a fresh database and re-exported",
           "then": "the first and second exports are equal"
         },
         {
@@ -208,7 +208,7 @@
           "then": "it aborts with the offending row number named and no rows are written"
         },
         {
-          "given": "a valid full-ledger CSV",
+          "given": "a valid backup CSV",
           "when": "the import runs",
           "then": "all rows are committed in a single transaction"
         }
@@ -319,7 +319,7 @@
     {
       "id": "IR-01",
       "area": "web",
-      "statement": "The app SHALL provide a CSV import/restore route that accepts exactly the format emitted by /export.csv?scope=full and SHALL cover every column that the full-ledger export emits.",
+      "statement": "The app SHALL provide a CSV import/restore route that accepts exactly the machine backup format emitted by /export.csv?scope=backup and SHALL cover every column that the backup export emits.",
       "priority": "must",
       "status": "accepted",
       "decision_id": "D-B"
@@ -327,7 +327,7 @@
     {
       "id": "IR-02",
       "area": "web",
-      "statement": "Importing a full-ledger CSV SHALL restore the ledger into the local SQLite database so that export, import into a fresh database and re-export round-trips to an equivalent ledger, and a repeated import SHALL be refused instead of duplicating rows.",
+      "statement": "Importing a backup CSV SHALL restore the ledger into the local SQLite database so that export, import into a fresh database and re-export round-trips to an equivalent ledger, and a repeated import SHALL be refused instead of duplicating rows.",
       "priority": "must",
       "status": "accepted",
       "decision_id": "D-B"
@@ -432,7 +432,7 @@
       "id": "TC-IR-01",
       "title": "Import covers every exported column (IR-01)",
       "type": "integration",
-      "steps": "1. Seed a database. 2. Export /export.csv?scope=full. 3. Submit the file to the import route. 4. Assert every emitted column is accepted. 5. Submit a file with an extra unknown column and one with a missing column.",
+      "steps": "1. Seed a database. 2. Export /export.csv?scope=backup. 3. Submit the file to the import route. 4. Assert every emitted column is accepted. 5. Submit a file with an extra unknown column and one with a missing column.",
       "expected": "Full column coverage; unknown/missing columns rejected with named errors",
       "level": "LOCAL",
       "status": "planned"
@@ -441,7 +441,7 @@
       "id": "TC-IR-02",
       "title": "Export-import-export round trip and duplicate refusal (IR-02)",
       "type": "integration",
-      "steps": "1. Seed a database with bonds, payments and goals. 2. Export full CSV. 3. Import into a fresh database. 4. Re-export. 5. Compare the two exports. 6. Import the same file again into the restored database.",
+      "steps": "1. Seed a database with bonds, payments and goals. 2. Export the backup CSV (scope=backup). 3. Import into a fresh database. 4. Re-export. 5. Compare the two exports. 6. Import the same file again into the restored database.",
       "expected": "Exports equal after round trip; second import refused without duplication",
       "level": "LOCAL",
       "status": "planned"
@@ -459,7 +459,7 @@
       "id": "TC-IR-04",
       "title": "Import validation and atomic restore (IR-04)",
       "type": "integration",
-      "steps": "1. Submit a CSV with one broken row and assert abort with the row number and zero writes. 2. Submit a valid CSV and assert a single-transaction commit.",
+      "steps": "1. Submit a backup CSV with one broken row and assert abort with the row number and zero writes. 2. Submit a valid CSV and assert a single-transaction commit.",
       "expected": "Malformed input aborts cleanly; valid input commits atomically",
       "level": "LOCAL",
       "status": "planned"
@@ -564,6 +564,16 @@
       "version": "v1.0",
       "date": "2026-11-14",
       "note": "First suite from locked discussion #259: US-01..US-04 (stable signing + CI secrets + tag/environment hardening), CG-01..CG-02 (fingerprint guard + skip path), IR-01..IR-04 (CSV import/restore round trip, UI entry, atomic restore), DOC-01..DOC-03 (release notes, About, SIGNING.md leak/backup). 13 requirements, 13 tests, full bindings."
+    },
+    {
+      "version": "v1.1",
+      "date": "2026-11-14",
+      "note": "AMENDMENT (PM decision, owner-delegated full authority): W1's implementation dialog revealed the scope=full view export lacks bond details (start_date/tenure/credit_day) and goals, pinned by 3 tests - the round-trip cannot bind to it. IR-01/IR-02 + TC-IR-01/TC-IR-02 now bind the restore round-trip to a NEW machine backup export /export.csv?scope=backup (complete bond fields + payments + goals, Settings download button); /export.csv?scope=full and its pinned tests stay unchanged. Supersede-style: no prior confirmed text rewritten outside these IR entries."
+    },
+    {
+      "version": "v1.1a",
+      "date": "2026-11-15",
+      "note": "R1 gate-3 F-2 fix: IR-04's remaining 'full-ledger CSV' given-clause aligned to the backup CSV naming (v1.1 amendment follow-through); TC-IR-04 steps aligned."
     }
   ]
 }
