@@ -31,54 +31,54 @@ Create `android/keystore.properties` (covered by `android/.gitignore`):
     keyAlias=dkbt
     keyPassword=<KEY_PASSWORD>
 
-## Gradle wiring (apply when release signing is needed)
+## Gradle wiring (already in the repo)
 
-The current `android/app/build.gradle` intentionally has no release
-`signingConfig`, so the debug build is unaffected. When release signing is
-wanted, add:
+`android/app/build.gradle` already wires the release `signingConfig`: it reads
+the gitignored `android/keystore.properties`, falls back to the
+`DKBT_RELEASE_KEYSTORE_FILE`, `DKBT_RELEASE_STORE_PASSWORD`,
+`DKBT_RELEASE_KEY_ALIAS` and `DKBT_RELEASE_KEY_PASSWORD` environment variables,
+and fails the build with a named `GradleException` ("Release signing is not
+configured") when neither source exists. Debug builds are unaffected.
 
-    def keystoreProperties = new Properties()
-    def keystorePropertiesFile = rootProject.file("keystore.properties")
-    if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-    }
+## CI release signing
 
-    android {
-        signingConfigs {
-            release {
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-            }
-        }
-        buildTypes {
-            release {
-                signingConfig signingConfigs.release
-            }
-        }
-    }
+`.github/workflows/android-release.yml` builds and guards release APKs. It
+triggers only on `v*` tag pushes, runs inside the protected `android-release`
+environment (required reviewers, deployment tag policy `v*`), and sources every
+signing input from GitHub secrets:
 
-## CI usage without a committed keystore
+- `DKBT_RELEASE_KEYSTORE_BASE64` - decoded to `$RUNNER_TEMP/dkbt-release.jks`
+  (never a tracked path)
+- `DKBT_RELEASE_STORE_PASSWORD`, `DKBT_RELEASE_KEY_ALIAS`,
+  `DKBT_RELEASE_KEY_PASSWORD` - exported as the `DKBT_RELEASE_*` environment
+  variables Gradle expects
+- `DKBT_RELEASE_FINGERPRINT` - the pinned SHA-256 certificate fingerprint
 
-Store the keystore as a base64 GitHub secret and decode it at build time:
+After `assembleRelease` the workflow runs `scripts/check-release-signature.sh`:
+it extracts the signer certificate fingerprint with `apksigner verify
+--print-certs`, compares it with the pinned fingerprint, and fails the job on a
+mismatch - a debug-signed APK can never reach a release tag again. With no
+fingerprint secret configured the guard skips with a visible `::notice::`
+annotation instead (development/fork builds).
 
-    base64 -w0 release.jks
+## Key backup
 
-    - name: Decode release keystore
-      env:
-        RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
-      run: echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > android/release.jks
+- Keep an offline copy of the release keystore (`*.jks`) in a second secure place.
+- Keep the store and key passwords in a password manager, never in a tracked file.
+- Losing the key is as fatal as leaking it: no update can be signed with a new key
+  for the same app, so users cannot upgrade in place.
 
-    - name: Build release APK
-      working-directory: android
-      env:
-        STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-        KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-      run: ./gradlew --no-daemon -Pdkbt.buildPython="$(which python3)" :app:assembleRelease
+## Key validity
 
-Read the passwords from environment variables; never echo them or write them to
-a tracked file.
+The `-validity 10000` value in the keytool command above is about 27 years. Use a
+validity of 25 years or more so the key outlives the app's expected lifetime.
+
+## Key leak response
+
+If the release key is stolen, an attacker can sign a malicious update that
+installs over the real app, because Android trusts the signature, not the
+source. The key cannot be revoked. The only escape is changing the package name,
+which creates a new app identity that existing users do not update from.
 
 ## Rules
 
