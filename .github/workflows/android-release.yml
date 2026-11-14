@@ -39,9 +39,9 @@ jobs:
       - name: Build release APK
         working-directory: android
         env:
-          DKBT_RELEASE_STORE_PASSWORD: ${{ secrets.DKBT_RELEASE_STORE_PASSWORD }}
+          DKBT_RELEASE_STORE_PASSWORD: ${{ secrets.DKBT_RELEASE_PASSWORD }}
+          DKBT_RELEASE_KEY_PASSWORD: ${{ secrets.DKBT_RELEASE_PASSWORD }}
           DKBT_RELEASE_KEY_ALIAS: ${{ secrets.DKBT_RELEASE_KEY_ALIAS }}
-          DKBT_RELEASE_KEY_PASSWORD: ${{ secrets.DKBT_RELEASE_KEY_PASSWORD }}
         run: ./gradlew --no-daemon -Pdkbt.buildPython="$(which python3)" :app:assembleRelease
 
       - name: Require pinned fingerprint
