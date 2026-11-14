@@ -55,6 +55,51 @@ def test_round_trip_backup_import_backup_is_equal(tmp_path):
     assert backup_text(target) == text
 
 
+def legacy_text(db_path):
+    with get_conn(db_path) as conn:
+        from src.export_csv import full_ledger_csv
+        return full_ledger_csv(conn)
+
+
+def test_legacy_export_is_restored_with_defaults_and_no_goals(tmp_path):
+    source = tmp_path / "source.db"
+    seed(source)
+    text = legacy_text(source)
+    target = empty_db(tmp_path, "target.db")
+    with get_conn(target) as conn:
+        counts = import_backup_csv(conn, text)
+    assert counts == {"bonds": 1, "payments": 2, "goals": 0, "legacy": True}
+    assert row_count(target) == {"bonds": 1, "payment_ledger": 2, "financial_goals": 0}
+
+
+def test_legacy_import_refuses_second_restore(tmp_path):
+    source = tmp_path / "source.db"
+    seed(source)
+    text = legacy_text(source)
+    target = empty_db(tmp_path, "target.db")
+    with get_conn(target) as conn:
+        import_backup_csv(conn, text)
+    before = row_count(target)
+    with get_conn(target) as conn, pytest.raises(AppError) as info:
+        import_backup_csv(conn, text)
+    assert "already restored" in info.value.message
+    assert row_count(target) == before
+
+
+def test_legacy_broken_row_aborts_with_row_number(tmp_path):
+    source = tmp_path / "source.db"
+    seed(source)
+    lines = legacy_text(source).splitlines(keepends=True)
+    cells = lines[2].split(",")
+    cells[3] = "not-a-number"
+    lines[2] = ",".join(cells)
+    target = empty_db(tmp_path, "target.db")
+    with get_conn(target) as conn, pytest.raises(AppError) as info:
+        import_backup_csv(conn, "".join(lines))
+    assert "row 3" in info.value.message
+    assert row_count(target) == {"bonds": 0, "payment_ledger": 0, "financial_goals": 0}
+
+
 def test_unknown_extra_column_is_rejected_by_name(tmp_path):
     source = tmp_path / "source.db"
     seed(source)

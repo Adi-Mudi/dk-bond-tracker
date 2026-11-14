@@ -1,7 +1,7 @@
 import csv
 import io
 
-from .export_csv import BACKUP_BOND_HEADERS, BACKUP_GOAL_HEADERS, BACKUP_PAYMENT_HEADERS
+from .export_csv import BACKUP_BOND_HEADERS, BACKUP_GOAL_HEADERS, BACKUP_PAYMENT_HEADERS, LEDGER_HEADERS
 from .validators import AppError, parse_date_value
 
 MAX_IMPORT_BYTES = 5 * 1024 * 1024
@@ -125,11 +125,45 @@ def _validate(sections):
     return bonds, payments, goals
 
 
+def _is_legacy(text):
+    for row in csv.reader(io.StringIO(text)):
+        if not row or all(not cell.strip() for cell in row):
+            continue
+        return tuple(cell.strip() for cell in row) == LEDGER_HEADERS
+    return False
+
+
+def _validate_legacy(text):
+    bonds = {}
+    payments = []
+    rows = [row for row in csv.reader(io.StringIO(text)) if row and not all(not cell.strip() for cell in row)]
+    for number, cells in enumerate(rows[1:], start=2):
+        if len(cells) != len(LEDGER_HEADERS):
+            raise AppError("ERR-import-row", f"row {number} has {len(cells)} cells, expected {len(LEDGER_HEADERS)}")
+        record = dict(zip(LEDGER_HEADERS, [cell.strip() for cell in cells]))
+        isin = record["isin"]
+        if not isin:
+            raise AppError("ERR-import-row", f"row {number}: isin is required")
+        try:
+            parse_date_value(record["month"], "month")
+        except AppError as exc:
+            raise AppError("ERR-import-row", f"row {number}: {exc.message}") from exc
+        amount = _parse_float(record["amount"], "amount", number)
+        if isin not in bonds:
+            bonds[isin] = (isin, record["bond"], None, amount, None, None, None, None, None, record["status"] or "On-going")
+        payments.append((isin, record["month"], amount, _parse_int(record["paid"], "paid", number) or 0, 1))
+    return list(bonds.values()), payments, []
+
+
 def import_backup_csv(conn, text):
     if len(text.encode("utf-8")) > MAX_IMPORT_BYTES:
         raise AppError("ERR-import-size", "backup file is too large")
-    sections = _sections(text)
-    bonds, payments, goals = _validate(sections)
+    legacy = _is_legacy(text)
+    if legacy:
+        bonds, payments, goals = _validate_legacy(text)
+    else:
+        sections = _sections(text)
+        bonds, payments, goals = _validate(sections)
     existing = conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
     if existing:
         raise AppError(
@@ -168,4 +202,6 @@ def import_backup_csv(conn, text):
     except Exception as exc:
         conn.execute("ROLLBACK")
         raise AppError("ERR-import-write", f"restore failed, ledger unchanged: {exc}") from exc
+    if legacy:
+        counts["legacy"] = True
     return counts
