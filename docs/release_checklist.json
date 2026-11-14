@@ -1,0 +1,32 @@
+{
+  "checklist": "android_release",
+  "version": 1,
+  "updated": "2026-11-15",
+  "sections": {
+    "official_android_prepare_for_release": [
+      "The signing key is present, its validity runs beyond 2033-10-22, and the release APK is signed with it (verified by fingerprint).",
+      "applicationId is unchanged from the previous release.",
+      "debuggable is disabled in the release build type.",
+      "versionCode is incremented and versionName is updated.",
+      "The manifest permissions are minimal, and android:icon and android:label are set.",
+      "No stray files: src/ has no jars, lib/ has no test libraries, there are no unused resources, and no leftover private data files.",
+      "Remote server and service URLs are production URLs, not test URLs.",
+      "The release build is tested on a real device (phone-size at minimum) under real conditions."
+    ],
+    "project_specific": [
+      "The version string is identical in all four places: android/app/build.gradle (versionCode and versionName), pyproject.toml, src/version.py and android/README.md.",
+      "The full pytest suite is green.",
+      "No signing material is tracked: no *.jks, *.keystore or keystore.properties under android/.",
+      "The release-note template exists in docs/ and carries the signing_model and migration_flow sections, with no wording that normalises update data loss.",
+      "The APK is built by the android-release workflow (tag-triggered) and its fingerprint guard step has PASSED.",
+      "Release assets are attached: the signed APK and its .sha256 checksum file."
+    ],
+    "github_release_conventions": [
+      "The tag is named vX.Y.Z-release (project convention).",
+      "The release title is exactly 'DK Bond Tracker vX.Y.Z' (project convention).",
+      "The release body starts with the migration warning for debug-era users when applicable, then the New and Changed sections with issue links, then the Full Changelog link.",
+      "The release is marked as the latest release."
+    ]
+  },
+  "usage": "Run sh scripts/release-checklist.sh X.Y.Z before publishing. It automates the locally checkable items (version consistency, release-note template, no tracked signing material, tag-only release workflow, no data-loss wording) and prints ALL GREEN or one 'release-checklist: FAIL <item>' line per failure. The remaining items need a built APK, CI or a GitHub release and are checked by hand."
+}
