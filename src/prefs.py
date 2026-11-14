@@ -1,5 +1,7 @@
 from .db import get_conn
 
+SNAPSHOT_VERSION_KEY = "bond_master_snapshot_version"
+
 
 def get_pref(conn, key, default=None):
     row = conn.execute(
@@ -15,6 +17,14 @@ def set_pref(conn, key, value):
         "INSERT OR REPLACE INTO alert_prefs (key, value) VALUES (?, ?)",
         (key, value),
     )
+
+
+def get_snapshot_version(conn, default=None):
+    return get_pref(conn, SNAPSHOT_VERSION_KEY, default)
+
+
+def set_snapshot_version(conn, value):
+    set_pref(conn, SNAPSHOT_VERSION_KEY, value)
 
 
 def alert_prefs_map(db_file):

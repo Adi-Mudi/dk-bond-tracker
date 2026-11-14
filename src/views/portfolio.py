@@ -18,6 +18,7 @@ from src.engine import (
 from src.ledger import ledger_by_bond
 from src.phase4 import payment_cycle_of, payout_schedule
 from src.queries import month_label, position_detail, received_by_bond
+from src.queries.summary import bond_master_provenance_map
 from src.status import month_key
 from src.validators import AppError, parse_date_value, safe_float
 from src.views.common import app_db, error_page
@@ -46,6 +47,7 @@ def row_valid(row):
 
 def portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
     received_by_bond_map = received_by_bond(conn)
+    provenance = bond_master_provenance_map(conn, [row["isin"] for row in bond_rows])
     holdings = []
     for row in bond_rows:
         entries = ledger_by_bond.get(row["id"], {})
@@ -74,6 +76,7 @@ def portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
                 "health": health,
                 "purchase_date": purchase_date_label(row["purchase_date"]),
                 "qty": purchase_qty_value(row["qty"]),
+                "provenance": provenance.get(row["isin"]),
             }
         )
     return sort_rows(holdings)

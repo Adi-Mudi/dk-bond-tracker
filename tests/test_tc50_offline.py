@@ -9,7 +9,7 @@ from src.validators import AppError
 SRC = Path(__file__).resolve().parents[1] / "src"
 
 FORBIDDEN_IMPORT_ROOTS = {"requests", "httpx", "urllib", "socket"}
-NETWORK_ALLOWED = {"gmail_oauth.py": {"urllib"}}
+NETWORK_ALLOWED = {"gmail_oauth.py": {"urllib"}, "transport.py": {"urllib"}}
 
 
 def python_sources():

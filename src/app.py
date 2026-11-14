@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import threading
 from datetime import date
 from pathlib import Path
 
@@ -12,6 +13,9 @@ from flask import Flask, render_template, request
 from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
+from src.bond_master import snapshot
+from src.bond_master.service import refresh_all, shared_cache
+from src.bond_master.transport import http_get
 from src.db import get_conn, init_db
 from src.mailer import send_alert_email
 from src.notifications import (
@@ -22,7 +26,7 @@ from src.notifications import (
     notify_once,
     unread_count,
 )
-from src.prefs import set_pref
+from src.prefs import get_snapshot_version, set_pref, set_snapshot_version
 from src.status import recompute_all
 from src.validators import AppError
 from src.views import common
@@ -64,6 +68,47 @@ def _attempt_email(conn, event):
     except Exception as exc:
         notify(conn, "warn", "Email alerts could not be sent \u2014 check Settings \u25b8 Notifications")
         print(f"email failed: {exc}", file=sys.stderr)
+
+
+_auto_refresh_started = False
+_auto_refresh_lock = threading.Lock()
+
+
+def _start_auto_refresh(db_file, transport):
+    global _auto_refresh_started
+    with _auto_refresh_lock:
+        if _auto_refresh_started:
+            return None
+        _auto_refresh_started = True
+    thread = threading.Thread(
+        target=refresh_all,
+        args=(str(db_file), "auto", transport),
+        name="bond-master-auto-refresh",
+        daemon=True,
+    )
+    thread.start()
+    return thread
+
+
+def _record_snapshot_version(db_file):
+    version = snapshot.version()
+    with get_conn(db_file) as conn:
+        if get_snapshot_version(conn) != version:
+            set_snapshot_version(conn, version or "")
+
+
+def _startup_bond_master(app, db_file):
+    transport = http_get
+    app.config["BOND_MASTER_TRANSPORT"] = transport
+    try:
+        app.extensions["bond_master_cache"] = shared_cache(db_file)
+    except Exception as exc:
+        print(f"bond master cache setup failed: {exc}", file=sys.stderr)
+    try:
+        _record_snapshot_version(db_file)
+    except Exception as exc:
+        print(f"snapshot version check failed: {exc}", file=sys.stderr)
+    app.extensions["bond_master_auto_refresh"] = _start_auto_refresh(db_file, transport)
 
 
 def _startup_alerts(db_file, today):
@@ -111,6 +156,7 @@ def create_app(db_path=None):
     db_file = Path(app.config["DB_PATH"])
     _ensure_db(db_file)
     _startup_alerts(db_file, date.today())
+    _startup_bond_master(app, db_file)
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(portfolio_bp)

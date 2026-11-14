@@ -1,0 +1,41 @@
+{
+  "test_case": "G5 / TC-AF-17 — refresh_all requests portfolio ISINs before watchlist (host probe server, real /watch/refresh route)",
+  "date": "2026-11-14",
+  "server": "127.0.0.1:5077 (af13_probe_server.py, transport blocked, DB /tmp/opencode/g5_seed.db)",
+  "seed": {
+    "bond_master_before": [
+      "IN0019790024 | SEEDED-PORTFOLIO | 2026-01-01T00:00:00+00:00",
+      "IN0019800021 | SEEDED-WATCHLIST | 2026-01-01T00:00:00+00:00"
+    ],
+    "bonds": ["IN0019790024 | holding (portfolio)", "IN0019800021 | watchlist (no bonds row)"],
+    "why_mismatch": "seeded company differs from snapshot output so cache.save writes a fresh fetched_at per ISIN"
+  },
+  "request": {
+    "at": "2026-11-14 17:24:58 IST",
+    "method": "POST http://127.0.0.1:5077/watch/refresh",
+    "http": 200,
+    "elapsed_s": 23.01,
+    "response": {
+      "message": "Bond master refresh finished",
+      "status": "refreshed",
+      "trigger": "manual",
+      "summary": {
+        "BSE": "offline / UNREACHABLE",
+        "NSDL": "offline / UNREACHABLE",
+        "NSE": "offline / UNREACHABLE",
+        "RBI": "offline / UNREACHABLE"
+      }
+    }
+  },
+  "result": {
+    "bond_master_after": [
+      "IN0019790024 | 79002 GOI 2009 | 2026-11-14T11:55:09+00:00  <- PORTFOLIO (holding)",
+      "IN0019800021 | 80003 GOI 2010 | 2026-11-14T11:55:21+00:00  <- WATCHLIST"
+    ],
+    "delta_seconds": 12,
+    "interpretation": "portfolio ISIN was refreshed and saved 12s BEFORE the watchlist ISIN; companies rewritten from SEEDED to snapshot facts prove both saves ran with distinct fresh timestamps"
+  },
+  "verdict": "PASS",
+  "unit_test_corroboration": "tests/bond_master/test_service_refresh.py::test_tc_af17_refresh_pass_requests_portfolio_isins_before_watchlist (suite 1192/0)",
+  "note": "device-side order not observable (device DB/logcat need root; UI shows no per-ISIN timestamps) — order proven on the same code path via the HTTP route + unit test"
+}

@@ -79,10 +79,44 @@ def goal_derived(conn):
     return derived
 
 
+def bond_master_provenance(conn, isin):
+    if not isin:
+        return None
+    try:
+        row = conn.execute(
+            "SELECT source, fetched_at FROM bond_master WHERE isin = ?", (isin,)
+        ).fetchone()
+    except Exception:
+        return None
+    if row is None or not row["source"]:
+        return None
+    return {"source": row["source"], "as_of": row["fetched_at"]}
+
+
+def bond_master_provenance_map(conn, isins):
+    wanted = {value for value in isins if value}
+    if not wanted:
+        return {}
+    placeholders = ", ".join("?" for _ in wanted)
+    try:
+        rows = conn.execute(
+            f"SELECT isin, source, fetched_at FROM bond_master WHERE isin IN ({placeholders})",
+            tuple(wanted),
+        ).fetchall()
+    except Exception:
+        return {}
+    found = {}
+    for row in rows:
+        if row["source"]:
+            found[row["isin"]] = {"source": row["source"], "as_of": row["fetched_at"]}
+    return found
+
+
 def status_overview(conn, today=None):
     if today is None:
         today = _default_today()
     rows = conn.execute("SELECT * FROM bonds WHERE watch_state = 'holding'").fetchall()
+    provenance = bond_master_provenance_map(conn, (row["isin"] for row in rows))
     entries = []
     for row in rows:
         try:
@@ -98,6 +132,7 @@ def status_overview(conn, today=None):
             status = "Invalid"
         entry = dict(row)
         entry["status"] = status
+        entry["provenance"] = provenance.get(row["isin"])
         entries.append(entry)
     return sort_rows(entries)
 

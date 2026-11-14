@@ -15,6 +15,12 @@
   .chip-info { background: var(--watching-bg); color: var(--watching-fg); }
   .chip-neutral { background: var(--card-bg); color: var(--muted); }
   .chip-pending { background: var(--warn-bg); color: var(--warn-fg); }
+  .source-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+  .source-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+  .source-name { font-weight: 700; }
+  .source-detail { font-size: 12px; color: var(--muted); }
+  .source-license { font-size: 12px; color: var(--muted); }
+  .source-license .about-link { color: var(--accent); }
 </style>
 {% endblock %}
 {% block content %}
@@ -56,6 +62,21 @@
   <p><a class="about-link" id="repo-link" href="https://github.com/Adi-Mudi/dk-bond-tracker">github.com/Adi-Mudi/dk-bond-tracker</a></p>
   <p class="caption" id="repo-note">The project's home on GitHub &#8212; for anyone who wants to contribute or upgrade features.</p>
   <a class="btn btn-secondary" id="open-repo" href="https://github.com/Adi-Mudi/dk-bond-tracker">Open repo &#8594;</a>
+</section>
+
+<section class="card about-block" id="data-sources-block">
+  <div class="zone-title">Data sources</div>
+  <p class="caption" id="data-sources-note">Instrument facts are fetched from these public sources, then cached locally. Every fetched value keeps its source and fetch time, and the form never blocks when a source is unreachable.</p>
+  <ul class="source-list" id="data-sources">
+    {% for source in data_sources %}
+    <li class="source-row" id="data-source-{{ source.key }}">
+      <span class="source-name">{{ source.name }}</span>
+      <span class="source-detail">{{ source.detail }}</span>
+      <span class="source-license" data-license="{{ source.key }}">{{ source.license }}{% if source.url %}<a class="about-link" href="{{ source.url }}">{{ source.url }}</a>{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if snapshot_version %}<p class="caption" id="snapshot-version">Bundled india-isin-data snapshot: v{{ snapshot_version }} ({{ snapshot_rows }} securities) so a fresh install answers common ISINs with no network.</p>{% endif %}
 </section>
 
 <section class="card about-block" id="updates-block">

@@ -48,6 +48,21 @@ SCHEMA_STATEMENTS = (
         key TEXT UNIQUE,
         value TEXT
     )""",
+    """CREATE TABLE IF NOT EXISTS bond_master (
+        isin TEXT PRIMARY KEY,
+        company TEXT,
+        coupon REAL,
+        payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual')),
+        face_value REAL,
+        rating TEXT,
+        rating_agency TEXT,
+        issuer_type TEXT,
+        secured INTEGER,
+        listing_status TEXT CHECK (listing_status IN ('listed','unlisted','unknown')),
+        maturity TEXT,
+        source TEXT,
+        fetched_at TEXT
+    )""",
 )
 
 
@@ -104,6 +119,27 @@ def _ensure_columns(conn):
             conn.execute(f"ALTER TABLE bonds ADD COLUMN {column}")
 
 
+def _ensure_bond_master_columns(conn):
+    master_columns = {row[1] for row in conn.execute("PRAGMA table_info(bond_master)")}
+    for column in (
+        "company TEXT",
+        "coupon REAL",
+        "payout_cycle TEXT CHECK (payout_cycle IN ('monthly','quarterly','annual'))",
+        "face_value REAL",
+        "rating TEXT",
+        "rating_agency TEXT",
+        "issuer_type TEXT",
+        "secured INTEGER",
+        "listing_status TEXT CHECK (listing_status IN ('listed','unlisted','unknown'))",
+        "maturity TEXT",
+        "source TEXT",
+        "fetched_at TEXT",
+    ):
+        name = column.split()[0]
+        if name not in master_columns:
+            conn.execute(f"ALTER TABLE bond_master ADD COLUMN {column}")
+
+
 def _migrate_credit_day_bound(conn):
     row = conn.execute(
         "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'bonds'"
@@ -153,6 +189,7 @@ def init_db(path):
             for statement in SCHEMA_STATEMENTS:
                 conn.execute(statement)
             _ensure_columns(conn)
+            _ensure_bond_master_columns(conn)
     except AppError:
         raise
     except sqlite3.Error as exc:

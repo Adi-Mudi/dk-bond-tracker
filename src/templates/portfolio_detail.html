@@ -65,6 +65,7 @@
         <dt>Secured</dt><dd>{% if detail.secured is none %}&#8212;{% elif detail.secured|int == 1 %}Secured{% else %}Not secured{% endif %}</dd>
         <dt>Broker</dt><dd>{{ detail.broker or "—" }}</dd>
         <dt>Source note</dt><dd>{{ detail.source_note or "—" }}</dd>
+        {% if detail.provenance %}<dt>Fetched facts</dt><dd id="detail-provenance" data-source="{{ detail.provenance.source }}">from {{ detail.provenance.source }}{% if detail.provenance.as_of %} · as of {{ detail.provenance.as_of }}{% endif %}</dd>{% endif %}
       </dl>
     </div>
   </section>
