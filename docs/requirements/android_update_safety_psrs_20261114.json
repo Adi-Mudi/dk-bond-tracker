@@ -1,0 +1,569 @@
+{
+  "id": "android_update_safety_psrs_20261114",
+  "kind": "psrs",
+  "title": "Android update safety: stable release signing, CI fingerprint guard and CSV import/restore - V-model spec suite",
+  "version": "v1.0",
+  "status": "draft",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/259",
+  "derived_from": "Locked decisions D-A..D-E from discussion #259 (owner-confirmed 2026-11-14 with security hardening) plus tracking issue #258 (SSOT, acceptance criteria and scope IN/OUT) - documentation only, zero new decisions (Stage 2 rule)",
+  "carry_over": [],
+  "requirements": [
+    {
+      "id": "US-01",
+      "text": "Release APK builds SHALL be signed with the stable release certificate: the release signingConfig SHALL read the gitignored android/keystore.properties or the DKBT_RELEASE_* environment variables and SHALL fail the build with a named error when neither is configured.",
+      "category": "functional",
+      "check_method": "static-analysis",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "android/keystore.properties exists and points at release.jks",
+          "when": "assembleRelease runs",
+          "then": "the produced APK is signed with the release certificate referenced in the properties file"
+        },
+        {
+          "given": "DKBT_RELEASE_KEYSTORE_FILE, DKBT_RELEASE_KEYSTORE_PASSWORD, DKBT_RELEASE_KEY_ALIAS and DKBT_RELEASE_KEY_PASSWORD are set instead",
+          "when": "assembleRelease runs",
+          "then": "the produced APK is signed with the certificate material from the environment"
+        },
+        {
+          "given": "neither keystore.properties nor the DKBT_RELEASE_* variables are configured",
+          "when": "assembleRelease runs",
+          "then": "the build fails with the named 'Release signing is not configured' GradleException"
+        }
+      ]
+    },
+    {
+      "id": "US-02",
+      "text": "Debug builds SHALL continue to sign with the default debug keystore and SHALL NOT require any release signing material.",
+      "category": "functional",
+      "check_method": "static-analysis",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "no keystore.properties and no DKBT_RELEASE_* variables exist",
+          "when": "assembleDebug runs",
+          "then": "the build succeeds and the APK carries the debug keystore signature"
+        },
+        {
+          "given": "release signing material is fully configured",
+          "when": "assembleDebug runs",
+          "then": "the debug APK is still signed with the debug keystore, not the release certificate"
+        }
+      ]
+    },
+    {
+      "id": "US-03",
+      "text": "The release-tagged CI workflow SHALL source all signing material from GitHub Actions secrets in a protected environment, SHALL NOT read any committed key file, and fork-triggered runs SHALL NOT receive the secrets.",
+      "category": "functional",
+      "check_method": "static-analysis",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the repository secrets are configured in the protected environment",
+          "when": "the release-tag workflow runs",
+          "then": "the workflow decodes the keystore secret to a runner-local file and exports the DKBT_RELEASE_* variables from secrets only"
+        },
+        {
+          "given": "any *.jks, *.keystore or keystore.properties file is tracked in git",
+          "when": "the no-key-material scan runs",
+          "then": "the scan fails and names the tracked file"
+        },
+        {
+          "given": "a fork pull request triggers CI",
+          "when": "the workflow runs",
+          "then": "the secrets are absent and the build falls back to debug signing without touching release material"
+        }
+      ]
+    },
+    {
+      "id": "US-04",
+      "text": "The release signing workflow SHALL trigger only on protected release tags (v*) and the signing environment SHALL require a reviewer before secrets are exposed to a job.",
+      "category": "functional",
+      "check_method": "static-analysis",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a push to a non-tag branch",
+          "when": "CI evaluates the release workflow",
+          "then": "the release signing job does not run"
+        },
+        {
+          "given": "a release tag push starts the workflow",
+          "when": "the protected environment gate applies",
+          "then": "the job waits for the configured reviewer approval before the signing secrets are exposed"
+        }
+      ]
+    },
+    {
+      "id": "CG-01",
+      "text": "After building a release APK, CI SHALL extract the signer certificate fingerprint with apksigner verify --print-certs and SHALL fail the job when the SHA-256 fingerprint does not match the pinned release fingerprint.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a release APK signed with release.jks",
+          "when": "the fingerprint guard runs",
+          "then": "the extracted SHA-256 fingerprint equals the pinned value and the job passes"
+        },
+        {
+          "given": "a release APK signed with any other key (for example a debug key)",
+          "when": "the fingerprint guard runs",
+          "then": "the job fails and the mismatch is named in the log"
+        }
+      ]
+    },
+    {
+      "id": "CG-02",
+      "text": "The fingerprint guard SHALL skip with a visible annotation instead of failing when the pinned fingerprint or keystore secret is absent (fork/PR and development CI).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "no pinned-fingerprint secret is configured",
+          "when": "the guard step runs",
+          "then": "it exits 0 and prints a visible skip annotation"
+        },
+        {
+          "given": "a development CI run without release material",
+          "when": "the workflow completes",
+          "then": "the guard did not block the run"
+        }
+      ]
+    },
+    {
+      "id": "IR-01",
+      "text": "The app SHALL provide a CSV import/restore route that accepts exactly the format emitted by /export.csv?scope=full and SHALL cover every column that the full-ledger export emits.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a full-ledger export file from /export.csv?scope=full",
+          "when": "it is submitted to the import route",
+          "then": "every column the exporter emits is accepted and mapped to the restore target"
+        },
+        {
+          "given": "a CSV with an unknown extra column or a missing required column",
+          "when": "it is imported",
+          "then": "the import is rejected with a named error that names the offending column"
+        }
+      ]
+    },
+    {
+      "id": "IR-02",
+      "text": "Importing a full-ledger CSV SHALL restore the ledger into the local SQLite database so that export, import into a fresh database and re-export round-trips to an equivalent ledger, and a repeated import SHALL be refused instead of duplicating rows.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a seeded database with bonds, payments and goals",
+          "when": "the full CSV is exported, imported into a fresh database and re-exported",
+          "then": "the first and second exports are equal"
+        },
+        {
+          "given": "the same import file is submitted twice in a row against the same database",
+          "when": "the second import runs",
+          "then": "it is refused with a clear already-restored or duplicate error and no rows are duplicated"
+        }
+      ]
+    },
+    {
+      "id": "IR-03",
+      "text": "Import SHALL be an explicit, user-driven action in the Settings UI with clear feedback and SHALL never run silently or automatically.",
+      "category": "functional",
+      "check_method": "ui",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Settings page",
+          "when": "the user opens it",
+          "then": "an import/restore entry point is visible with a warning that it restores ledger data"
+        },
+        {
+          "given": "a successful import",
+          "when": "it completes",
+          "then": "the UI shows the counts of imported bonds, payments and goals"
+        },
+        {
+          "given": "a failed import",
+          "when": "it completes",
+          "then": "the UI shows the named error and the ledger state is unchanged"
+        }
+      ]
+    },
+    {
+      "id": "IR-04",
+      "text": "Import SHALL validate before writing and SHALL apply the restore atomically: a malformed file, wrong scope or constraint violation leaves the ledger unchanged.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a CSV containing one broken row (bad date or non-numeric amount)",
+          "when": "the import runs",
+          "then": "it aborts with the offending row number named and no rows are written"
+        },
+        {
+          "given": "a valid full-ledger CSV",
+          "when": "the import runs",
+          "then": "all rows are committed in a single transaction"
+        }
+      ]
+    },
+    {
+      "id": "DOC-01",
+      "text": "The release-note template SHALL state the signing model and the one-time migration flow and SHALL NOT present data-destroying updates as a caveat.",
+      "category": "documentation",
+      "check_method": "static-analysis",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the release-note template",
+          "when": "a release note is rendered",
+          "then": "both the signing model and the export-uninstall-install-import migration flow appear"
+        },
+        {
+          "given": "the repository docs and templates",
+          "when": "they are scanned for caveat wording that normalises update data loss",
+          "then": "no such wording remains"
+        }
+      ]
+    },
+    {
+      "id": "DOC-02",
+      "text": "The About page SHALL document the update and migration flow for debug-era installs before v1.0.8 ships.",
+      "category": "documentation",
+      "check_method": "ui",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the About page",
+          "when": "it is rendered",
+          "then": "it contains the export, uninstall, install, import flow for users coming from a debug-signed install"
+        }
+      ]
+    },
+    {
+      "id": "DOC-03",
+      "text": "android/SIGNING.md SHALL carry a key-leak response section and key-backup guidance, and SHALL state the 25+ year key validity guidance.",
+      "category": "documentation",
+      "check_method": "static-analysis",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "android/SIGNING.md",
+          "when": "it is read",
+          "then": "the key-leak response section and the key-backup guidance section both exist"
+        },
+        {
+          "given": "the keytool generation instructions",
+          "when": "they are read",
+          "then": "they include the 25+ year validity guidance"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "US-01",
+      "area": "android",
+      "statement": "Release APK builds SHALL be signed with the stable release certificate: the release signingConfig SHALL read the gitignored android/keystore.properties or the DKBT_RELEASE_* environment variables and SHALL fail the build with a named error when neither is configured.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-A"
+    },
+    {
+      "id": "US-02",
+      "area": "android",
+      "statement": "Debug builds SHALL continue to sign with the default debug keystore and SHALL NOT require any release signing material.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-A"
+    },
+    {
+      "id": "US-03",
+      "area": "config",
+      "statement": "The release-tagged CI workflow SHALL source all signing material from GitHub Actions secrets in a protected environment (keystore as a base64 secret decoded at run time, passwords as secret environment variables), SHALL NOT read any committed key file, and fork-triggered runs SHALL NOT receive the secrets.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-A"
+    },
+    {
+      "id": "US-04",
+      "area": "config",
+      "statement": "The release signing workflow SHALL trigger only on protected release tags (v*) and the signing environment SHALL require a reviewer before secrets are exposed to a job.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-C"
+    },
+    {
+      "id": "CG-01",
+      "area": "config",
+      "statement": "After building a release APK, CI SHALL extract the signer certificate fingerprint with apksigner verify --print-certs and SHALL fail the job when the SHA-256 fingerprint does not match the pinned release fingerprint.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-C"
+    },
+    {
+      "id": "CG-02",
+      "area": "config",
+      "statement": "The fingerprint guard SHALL skip with a visible annotation instead of failing when the pinned fingerprint or keystore secret is absent (fork/PR and development CI).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-C"
+    },
+    {
+      "id": "IR-01",
+      "area": "web",
+      "statement": "The app SHALL provide a CSV import/restore route that accepts exactly the format emitted by /export.csv?scope=full and SHALL cover every column that the full-ledger export emits.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-B"
+    },
+    {
+      "id": "IR-02",
+      "area": "web",
+      "statement": "Importing a full-ledger CSV SHALL restore the ledger into the local SQLite database so that export, import into a fresh database and re-export round-trips to an equivalent ledger, and a repeated import SHALL be refused instead of duplicating rows.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-B"
+    },
+    {
+      "id": "IR-03",
+      "area": "web",
+      "statement": "Import SHALL be an explicit, user-driven action in the Settings UI with clear feedback (success counts or the named error) and SHALL never run silently or automatically.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-B"
+    },
+    {
+      "id": "IR-04",
+      "area": "web",
+      "statement": "Import SHALL validate before writing and SHALL apply the restore atomically: a malformed file, wrong scope or constraint violation leaves the ledger unchanged.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-B"
+    },
+    {
+      "id": "DOC-01",
+      "area": "docs",
+      "statement": "The release-note template SHALL state the signing model and the one-time migration flow (export, uninstall, install, import) and SHALL NOT present data-destroying updates as a caveat.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-D"
+    },
+    {
+      "id": "DOC-02",
+      "area": "web",
+      "statement": "The About page SHALL document the update and migration flow for debug-era installs before v1.0.8 ships.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-D"
+    },
+    {
+      "id": "DOC-03",
+      "area": "docs",
+      "statement": "android/SIGNING.md SHALL carry a key-leak response section (theft consequences, no revocation, package-name-change escape) and key-backup guidance (offline copy, password manager, losing the key is as fatal as leaking it), and SHALL state the 25+ year key validity guidance.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D-D"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-US-01",
+      "title": "Release signingConfig wiring and fail-loud (US-01)",
+      "type": "unit",
+      "steps": "1. Parse android/app/build.gradle. 2. Assert the release signingConfig reads keystore.properties and the DKBT_RELEASE_* environment variables. 3. Assert the missing-both path raises the named GradleException.",
+      "expected": "Release config wired from properties or environment; fail-loud error present",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-US-02",
+      "title": "Debug builds unaffected (US-02)",
+      "type": "unit",
+      "steps": "1. Assert the debug build type does not reference signingConfigs.release. 2. Assert assembleDebug needs no release material.",
+      "expected": "Debug signing stays on the default debug keystore regardless of release material",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-US-03",
+      "title": "Secrets-only signing material in CI (US-03)",
+      "type": "unit",
+      "steps": "1. Parse .github/workflows/android-build.yml. 2. Assert signing inputs come from secrets and the keystore is decoded at run time. 3. Assert no tracked file under android/ matches *.jks, *.keystore or keystore.properties.",
+      "expected": "All signing material flows from secrets; zero committed key material",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-US-04",
+      "title": "Release trigger and environment protection (US-04)",
+      "type": "unit",
+      "steps": "1. Parse the release workflow trigger. 2. Assert it fires only on v* tags. 3. Assert the signing environment is declared and protected.",
+      "expected": "Release signing runs only on protected release tags behind a gated environment",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CG-01",
+      "title": "Fingerprint guard accepts release key, rejects others (CG-01)",
+      "type": "e2e",
+      "steps": "1. Build the release APK. 2. Run apksigner verify --print-certs and extract the SHA-256 fingerprint. 3. Compare with the pinned secret. 4. Repeat with a debug-signed APK.",
+      "expected": "Match passes; mismatch fails the job naming the mismatch",
+      "level": "REMOTE",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CG-02",
+      "title": "Guard skip path without secrets (CG-02)",
+      "type": "unit",
+      "steps": "1. Run the guard with the fingerprint secret unset. 2. Assert exit code 0 and the skip annotation in the output.",
+      "expected": "Guard skips visibly without breaking the run",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-IR-01",
+      "title": "Import covers every exported column (IR-01)",
+      "type": "integration",
+      "steps": "1. Seed a database. 2. Export /export.csv?scope=full. 3. Submit the file to the import route. 4. Assert every emitted column is accepted. 5. Submit a file with an extra unknown column and one with a missing column.",
+      "expected": "Full column coverage; unknown/missing columns rejected with named errors",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-IR-02",
+      "title": "Export-import-export round trip and duplicate refusal (IR-02)",
+      "type": "integration",
+      "steps": "1. Seed a database with bonds, payments and goals. 2. Export full CSV. 3. Import into a fresh database. 4. Re-export. 5. Compare the two exports. 6. Import the same file again into the restored database.",
+      "expected": "Exports equal after round trip; second import refused without duplication",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-IR-03",
+      "title": "Settings import entry point and feedback (IR-03)",
+      "type": "integration",
+      "steps": "1. Render Settings. 2. Assert the import/restore entry point with its warning. 3. Run a successful import and check the counts feedback. 4. Run a failing import and check the named error and unchanged ledger.",
+      "expected": "Explicit UI entry point; success counts; failure names the error and changes nothing",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-IR-04",
+      "title": "Import validation and atomic restore (IR-04)",
+      "type": "integration",
+      "steps": "1. Submit a CSV with one broken row and assert abort with the row number and zero writes. 2. Submit a valid CSV and assert a single-transaction commit.",
+      "expected": "Malformed input aborts cleanly; valid input commits atomically",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-DOC-01",
+      "title": "Release notes state model and migration, no caveat (DOC-01)",
+      "type": "unit",
+      "steps": "1. Read the release-note template. 2. Assert the signing model and migration flow are present. 3. Scan docs and templates for caveat wording that normalises update data loss.",
+      "expected": "Template carries the model and flow; no caveat wording remains",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-DOC-02",
+      "title": "About page migration flow (DOC-02)",
+      "type": "integration",
+      "steps": "1. Render the About page. 2. Assert the export-uninstall-install-import flow is documented for debug-era installs.",
+      "expected": "Migration flow present on About",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-DOC-03",
+      "title": "SIGNING.md leak response and backup guidance (DOC-03)",
+      "type": "unit",
+      "steps": "1. Read android/SIGNING.md. 2. Assert the key-leak response section and the key-backup guidance exist. 3. Assert the 25+ year validity guidance in the keytool instructions.",
+      "expected": "Leak response, backup guidance and validity guidance all present",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "US-01",
+      "test_case_id": "TC-US-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "US-02",
+      "test_case_id": "TC-US-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "US-03",
+      "test_case_id": "TC-US-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "US-04",
+      "test_case_id": "TC-US-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CG-01",
+      "test_case_id": "TC-CG-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CG-02",
+      "test_case_id": "TC-CG-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "IR-01",
+      "test_case_id": "TC-IR-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "IR-02",
+      "test_case_id": "TC-IR-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "IR-03",
+      "test_case_id": "TC-IR-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "IR-04",
+      "test_case_id": "TC-IR-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "DOC-01",
+      "test_case_id": "TC-DOC-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "DOC-02",
+      "test_case_id": "TC-DOC-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "DOC-03",
+      "test_case_id": "TC-DOC-03",
+      "covers": "full"
+    }
+  ],
+  "changelog": [
+    {
+      "version": "v1.0",
+      "date": "2026-11-14",
+      "note": "First suite from locked discussion #259: US-01..US-04 (stable signing + CI secrets + tag/environment hardening), CG-01..CG-02 (fingerprint guard + skip path), IR-01..IR-04 (CSV import/restore round trip, UI entry, atomic restore), DOC-01..DOC-03 (release notes, About, SIGNING.md leak/backup). 13 requirements, 13 tests, full bindings."
+    }
+  ]
+}
