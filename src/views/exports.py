@@ -5,6 +5,7 @@ from flask import Blueprint, Response, render_template, request
 from src.db import get_conn
 from src.export_csv import (
     LEDGER_HEADERS,
+    backup_csv,
     current_view_csv,
     current_view_rows,
     full_ledger_csv,
@@ -62,6 +63,13 @@ def export_csv_route():
         except AppError as exc:
             return error_page(exc.code, exc.message, "CSV export failed", 500)
         filename = "full_ledger.csv"
+    elif scope == "backup":
+        try:
+            with get_conn(db_file) as conn:
+                text = backup_csv(conn)
+        except AppError as exc:
+            return error_page(exc.code, exc.message, "CSV export failed", 500)
+        filename = "ledger_backup.csv"
     elif scope == "current":
         month = str(request.args.get("month", "")).strip()
         if month and not MONTH_PATTERN.match(month):
@@ -87,7 +95,7 @@ def export_csv_route():
     else:
         return error_page(
             "ERR-export-view",
-            f"unknown export scope: {scope!r} (expected 'current' or 'full')",
+            f"unknown export scope: {scope!r} (expected 'current', 'full' or 'backup')",
             "CSV export failed",
             400,
         )

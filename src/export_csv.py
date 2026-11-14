@@ -88,6 +88,54 @@ def current_view_rows(conn, month, today=None):
     return rows
 
 
+BACKUP_BOND_HEADERS = (
+    "isin",
+    "company",
+    "name",
+    "amount",
+    "maturity",
+    "start_date",
+    "end_date",
+    "tenure_months",
+    "credit_day",
+    "status",
+)
+BACKUP_PAYMENT_HEADERS = ("isin", "month", "amount", "paid", "tds_applied")
+BACKUP_GOAL_HEADERS = ("name", "target_amount", "target_end_date", "note", "saved_amount")
+
+
+def backup_csv(conn):
+    try:
+        bonds = conn.execute(
+            "SELECT " + ", ".join(BACKUP_BOND_HEADERS) + " FROM bonds ORDER BY id"
+        ).fetchall()
+        payments = conn.execute(
+            "SELECT b.isin, l.month, l.amount, l.paid, l.tds_applied "
+            "FROM payment_ledger l JOIN bonds b ON b.id = l.bond_id "
+            "ORDER BY l.bond_id, l.month"
+        ).fetchall()
+        goals = conn.execute(
+            "SELECT " + ", ".join(BACKUP_GOAL_HEADERS) + " FROM financial_goals ORDER BY id"
+        ).fetchall()
+    except Exception as exc:
+        raise AppError("ERR-export-ledger", f"backup query failed: {exc}") from exc
+    records = [["section", "bonds"], list(BACKUP_BOND_HEADERS)]
+    for row in bonds:
+        records.append([_cell(row[header]) for header in BACKUP_BOND_HEADERS])
+    records.append(["section", "payments"])
+    records.append(list(BACKUP_PAYMENT_HEADERS))
+    for row in payments:
+        records.append([_cell(row[header]) for header in BACKUP_PAYMENT_HEADERS])
+    records.append(["section", "goals"])
+    records.append(list(BACKUP_GOAL_HEADERS))
+    for row in goals:
+        records.append([_cell(row[header]) for header in BACKUP_GOAL_HEADERS])
+    try:
+        return serialize_records(records)
+    except Exception as exc:
+        raise AppError("ERR-export-ledger", f"CSV serialization failed: {exc}") from exc
+
+
 def full_ledger_csv(conn):
     try:
         ledger = conn.execute(

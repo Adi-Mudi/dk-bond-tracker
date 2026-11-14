@@ -5,6 +5,7 @@ from datetime import date
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
 from src.db import get_conn
+from src.import_csv import MAX_IMPORT_BYTES, import_backup_csv
 from src.mailer import send_alert_email
 from src.prefs import alert_prefs_map, set_pref
 from src.validators import AppError
@@ -14,6 +15,7 @@ from src.views.common import (
     EMAIL_TEST_FAILURE_MESSAGE,
     EMAIL_TEST_SUCCESS_MESSAGE,
     app_db,
+    error_page,
 )
 
 bp = Blueprint("settings", __name__)
@@ -107,6 +109,31 @@ def settings_page():
         active=active_section(request.args.get("section")),
         saved=request.args.get("saved") == "1",
     )
+
+
+@bp.route("/settings/import", methods=["POST"])
+def settings_import():
+    upload = request.files.get("file")
+    if upload is None or not upload.filename:
+        return error_page("ERR-import-format", "choose a backup CSV file to restore", "Restore failed", 400)
+    raw = upload.read(MAX_IMPORT_BYTES + 1)
+    if len(raw) > MAX_IMPORT_BYTES:
+        return error_page("ERR-import-size", "backup file is too large", "Restore failed", 400)
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return error_page("ERR-import-format", "backup file must be UTF-8 text", "Restore failed", 400)
+    db_file = app_db()
+    try:
+        with get_conn(db_file) as conn:
+            counts = import_backup_csv(conn, text)
+    except AppError as exc:
+        return error_page(exc.code, exc.message, "Restore failed", 400)
+    flash(
+        f"Restored {counts['bonds']} bonds, {counts['payments']} payments, {counts['goals']} goals",
+        "success",
+    )
+    return redirect(url_for("settings.settings_page", section="data"))
 
 
 @bp.route("/settings/email/test", methods=["POST"])
