@@ -134,12 +134,12 @@ def test_tc139_134_email_presets_and_setup_guide_markup(client, db_path):
     for guide_item in (
         "Gmail: enable 2-Verification on your Google account.",
         "Create an App Password at myaccount.google.com",
-        "Paste the 16-char app password into the SMTP password field — NOT your login password.",
+        "Paste the 16-char app password into the SMTP password field. Not your login password.",
         "Outlook / Microsoft 365 personal accounts use the same app-password concept.",
     ):
         assert guide_item in html
     for trouble_item in (
-        "Wrong port — use 587 with TLS/STARTTLS, or 465 with SSL.",
+        "Wrong port: use 587 with TLS/STARTTLS, or 465 with SSL.",
         "TLS required — most providers refuse plain connections.",
         "Check the spam folder — test emails often land there.",
     ):
