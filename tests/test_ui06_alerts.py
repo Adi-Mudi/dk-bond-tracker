@@ -124,7 +124,7 @@ def test_ui06_unread_is_bold_with_semantic_left_bar(client, db_path):
     seed(db_path, "danger", "Alpha Ltd credit day 5 missed — Danger set (2026-10-06)")
     html = client.get("/notifications").get_data(as_text=True)
     assert 'class="alert-card alert-danger unread"' in html
-    assert ".alert-card.unread .alert-message { font-weight: 700; }" in TEMPLATE
+    assert ".alert-card.unread .alert-message { font-weight: 600; }" in TEMPLATE
     assert ".alert-card.alert-danger { border-left-color: var(--c-red); }" in TEMPLATE
     assert ".alert-card.alert-warn, .alert-card.alert-due_today { border-left-color: var(--c-amber); }" in TEMPLATE
     assert ".alert-card.alert-reminder { border-left-color: var(--c-blue); }" in TEMPLATE

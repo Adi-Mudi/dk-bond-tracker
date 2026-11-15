@@ -15,7 +15,7 @@
   .settings-nav-title { font-size: 13px; margin-bottom: 4px; }
   .settings-nav-item { padding: 7px 9px; border-radius: 6px; text-decoration: none; color: var(--text); }
   .settings-nav-item.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
-  .settings-nav-item.pointer { color: var(--muted); font-size: 11px; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 9px; }
+  .settings-nav-item.pointer { color: var(--muted); font-size: 12px; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 9px; }
   .settings-content { flex: 1; min-width: 0; }
   .settings-section { margin-bottom: 12px; }
   .theme-pointer { background: var(--card); border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; color: var(--muted); font-size: 13px; }
@@ -40,9 +40,8 @@
   }
 </style>
 {% endblock %}
+{% block page_title %}Settings{% endblock %}
 {% block content %}
-<h1>Settings</h1>
-
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 {% for category, message in messages %}
@@ -212,7 +211,7 @@
           <p class="caption">Exports: CSV ledger, share snapshot and print view are read-only extracts of your own database.</p>
         </div>
         <div class="card" id="import-restore-card">
-          <h2>Backup &amp; restore</h2>
+          <h2>Backup and restore</h2>
           <a class="btn" id="backup-download-csv" href="/export.csv?scope=backup">Download backup</a>
           <p class="banner-error" id="restore-warning">Warning: restoring a backup adds its bonds, payments and goals to your ledger. It only works on an empty ledger.</p>
           <div class="field" id="restore-form">
