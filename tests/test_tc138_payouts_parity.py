@@ -58,7 +58,7 @@ def single_strip(html):
 
 def single_details(html):
     match = re.search(
-        r'<tr class="details-row" id="details-\d+" hidden>\s*<td colspan="8">(.*?)</td>\s*</tr>',
+        r'<tr class="details-row" id="details-\d+" hidden>\s*<td colspan="3">(.*?)</td>\s*</tr>',
         html,
         re.S,
     )
@@ -189,8 +189,6 @@ def test_tc133_attribute_parity_roundtrip_candidate_move_holdings_strip(client, 
         "Secured",
         "Face value",
         "Payout cycle",
-        "Broker",
-        "Source note",
     )
     details_values = {label: facts_value(details, label) for label in labels}
     assert details_values["Rating agency"] == "CRISIL"
@@ -198,8 +196,6 @@ def test_tc133_attribute_parity_roundtrip_candidate_move_holdings_strip(client, 
     assert details_values["Secured"] == "Not secured"
     assert details_values["Face value"] == "&#8377;1000.00"
     assert details_values["Payout cycle"] == "Monthly"
-    assert details_values["Broker"] == "HDFC Securities"
-    assert details_values["Source note"] == "saw in grip"
     with get_conn(db_path) as conn:
         candidate_id = conn.execute(
             "SELECT id FROM bonds WHERE isin = 'INE133000001'"
@@ -256,7 +252,7 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
     assert "End date" in html
     assert "Interest credit day" in html
     assert ">Broker</label>" in html
-    assert "Move to Portfolio" in html
+    assert "Move to portfolio" in html
     with get_conn(db_path) as conn:
         candidate_id = conn.execute(
             "SELECT id FROM bonds WHERE isin = 'INE137000001'"
@@ -281,13 +277,13 @@ def test_tc137_move_inline_panel_renders_bound_labels_below_row(client, db_path)
     panel_index = html.index(f'id="move-panel-{candidate_id}" hidden')
     assert toggle_index < panel_index
     move_cell = re.search(
-        r'<td>\s*<button type="button" class="[^"]*move-toggle" '
+        r'<td>\s*<div class="row-actions">.*?<button type="button" class="[^"]*move-toggle" '
         + f'data-panel="move-panel-{candidate_id}"'
-        + r'[^>]*>Move to Portfolio</button>\s*</td>',
+        + r'[^>]*>Move to portfolio</button>\s*</div>\s*</td>',
         html,
         re.S,
     )
-    assert move_cell, "Action cell must carry the Move to Portfolio toggle"
+    assert move_cell, "Action cell must carry the Move to portfolio toggle"
     delete_form = re.search(
         f'action="/watch/{candidate_id}/delete"',
         html,

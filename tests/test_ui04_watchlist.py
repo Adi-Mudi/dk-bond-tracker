@@ -55,7 +55,7 @@ def candidate_row(html):
 
 def details_row(html, bond_id):
     match = re.search(
-        r'<tr class="details-row" id="details-' + str(bond_id) + r'" hidden>\s*<td colspan="8">(.*?)</td>\s*</tr>',
+        r'<tr class="details-row" id="details-' + str(bond_id) + r'" hidden>\s*<td colspan="3">(.*?)</td>\s*</tr>',
         html,
         re.S,
     )
@@ -277,7 +277,7 @@ def test_ui04_move_form_has_no_tabs_goal_is_plain_field(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
     assert 'data-mtab=' not in html
     assert 'name="goal_id"' in html
-    assert "Goal (optional)" in html
+    assert "Financial goal" in html
     assert "House" in html
 
 
