@@ -14,15 +14,15 @@
   }
   .settings-nav-title { font-size: 13px; margin-bottom: 4px; }
   .settings-nav-item { padding: 7px 9px; border-radius: 6px; text-decoration: none; color: var(--text); }
-  .settings-nav-item.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .settings-nav-item.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
   .settings-nav-item.pointer { color: var(--muted); font-size: 12px; border-top: 1px dashed var(--border); margin-top: 6px; padding-top: 9px; }
   .settings-content { flex: 1; min-width: 0; }
   .settings-section { margin-bottom: 12px; }
   .theme-pointer { background: var(--card); border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; color: var(--muted); font-size: 13px; }
-  .saved-flag { color: var(--ongoing-fg); font-weight: 700; margin-left: 0.625rem; }
-  .dirty-flag { color: var(--warn-fg); font-weight: 700; margin-left: 0.625rem; }
+  .saved-flag { color: var(--ongoing-fg); font-weight: 600; margin-left: 0.625rem; }
+  .dirty-flag { color: var(--warn-fg); font-weight: 600; margin-left: 0.625rem; }
   .advanced-email { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--warn-bg); }
-  .advanced-email summary { min-height: 2.5rem; display: flex; align-items: center; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .advanced-email summary { min-height: 2.5rem; display: flex; align-items: center; font-weight: 600; font-size: 13px; cursor: pointer; }
   @media (max-width: 768px) {
     .settings-layout { flex-direction: column; gap: 10px; align-items: stretch; }
     .settings-nav {
@@ -85,12 +85,12 @@
         </div>
         <div class="card" id="theme-card">
           <h2>Theme</h2>
-          <p class="theme-pointer" id="theme-pointer">Theme is set from the <b>top-bar overflow icon</b> &#8212; one home only, no duplicate control here.</p>
+          <p class="theme-pointer" id="theme-pointer">Theme is set from the <b>top-bar overflow icon</b>. One home only, no duplicate control here.</p>
         </div>
         <div class="card" id="email-card">
           <h2>Email</h2>
           <div class="gmail-connect" id="gmail-connect" style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-            <h3>Gmail (OAuth — recommended)</h3>
+            <h3>Gmail (OAuth, recommended)</h3>
             <p class="caption">Connect your Google account from the browser — no SMTP password needed. Tokens stay on this device only.</p>
             <div class="field">
               <label for="g-client-id">OAuth Client ID</label>
@@ -110,8 +110,8 @@
             </div>
           </div>
           <details class="advanced-email" id="advanced-email">
-            <summary>Advanced &#8212; Email (SMTP)</summary>
-            <p class="caption">Personal account &#8212; personal SMTP, personal &#8594; personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>
+            <summary>Advanced email (SMTP)</summary>
+            <p class="caption">Personal account: personal SMTP, sent from personal to personal. Gmail: TLS on port 587 (465/SSL alt). Outlook: STARTTLS on port 587.</p>
             <div class="form-grid">
               <div class="field">
                 <label for="s-provider">Provider</label>
@@ -181,7 +181,7 @@
       <section class="settings-section" id="section-notifications"{% if active != 'notifications' %} hidden{% endif %}>
         <div class="card" id="settings-alert-channels">
           <h2>Notifications</h2>
-          <p class="caption">Channels &#8212; how this app reaches you.</p>
+          <p class="caption">Channels: how this app reaches you.</p>
           <label class="check-row"><input type="checkbox" name="alert_inapp"{% if prefs.get('alert_channel_inapp', '1') == '1' %} checked{% endif %}> In-app notification</label>
           <label class="check-row"><input type="checkbox" name="alert_email"{% if prefs.get('alert_channel_email', '1') == '1' %} checked{% endif %}> Email (personal SMTP, personal &#8594; personal)</label>
         </div>
