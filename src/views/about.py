@@ -57,7 +57,7 @@ def about_page():
             if action == "check":
                 set_pref(conn, "update_last_checked", date.today().isoformat())
                 flash(
-                    f"Update check done — you are on v{APP_VERSION}, the newest version we know of.",
+                    f"Update check done. You are on v{APP_VERSION}, the newest version we know of.",
                     "success",
                 )
             elif action == "auto":
