@@ -1,0 +1,1059 @@
+{
+  "id": "frontend_component_upgrade_psrs_20261115",
+  "kind": "psrs",
+  "title": "Frontend component design upgrade - spec suite (prd + requirements + RTM)",
+  "version": "v1.0",
+  "status": "accepted",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/261",
+  "derived_from": [
+    "frontend_component_upgrade_brainstorm_20261115",
+    ".IDE_Plans/DK Bond Tracker component design instructions.md",
+    ".IDE_Plans/design_drafts/frontend_component_upgrade_v1.html",
+    ".IDE_Plans/frontend_component_upgrade_audit_20261115.json"
+  ],
+  "requirements": [
+    {
+      "id": "CU-01",
+      "text": "Design tokens SHALL govern every component: 48px minimum tap targets (compact 40px in list rows only), 24px 2px-stroke line icons with no text-character icons, 48px inputs with 16px text, 8px corner radius (chips full pills), 4/8/12/16/24 spacing, 12/14/16/20/22 type scale with nothing under 12px, weights 400 and 600 only, and a 2px accent focus ring on keyboard focus.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any page renders",
+          "when": "an icon-only control is inspected",
+          "then": "it is a 24px SVG line icon in a 48px tap area with no permanent border box and no text character used as an icon"
+        },
+        {
+          "given": "any page renders",
+          "when": "a text input, select or search field is inspected",
+          "then": "it is 48px high with 16px text, 12px inner padding and 8px corners"
+        },
+        {
+          "given": "the type scale is audited",
+          "when": "font sizes are collected",
+          "then": "only 12/14/16/20/22 appear, weights are 400 or 600, and nothing is smaller than 12px"
+        },
+        {
+          "given": "keyboard focus reaches any control",
+          "when": "the focus ring renders",
+          "then": "a 2px accent outline is visible"
+        }
+      ]
+    },
+    {
+      "id": "CU-02",
+      "text": "Input borders SHALL be #868e96 in light theme and #8b949e in dark theme, at least 3:1 contrast against the card surface (#ffffff / #161b22).",
+      "category": "functional",
+      "check_method": "unit",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "light theme renders an editable input on a card",
+          "when": "the border colour is checked",
+          "then": "it is #868e96 at 3:1 contrast or better against the surface"
+        },
+        {
+          "given": "dark theme renders an editable input on a card",
+          "when": "the border colour is checked",
+          "then": "it is #8b949e at 3:1 contrast or better against the surface"
+        }
+      ]
+    },
+    {
+      "id": "CU-03",
+      "text": "Colour semantics SHALL be built into one token set where blue marks actionable and Watching, green good or received, amber needs-attention, red only missed/error/remove/destructive, grey secondary; important values use normal text colour; and the overlapping aliases --bg/--page-bg, --card/--card-bg/--white, --danger/--danger-fg/--invalid-bg map to one token each.",
+      "category": "functional",
+      "check_method": "unit",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "status or feedback colour is applied",
+          "when": "the token is traced",
+          "then": "it carries the agreed meaning and red never appears as decoration"
+        },
+        {
+          "given": "an important value renders",
+          "when": "its colour is checked",
+          "then": "it uses the normal text colour, never grey"
+        },
+        {
+          "given": "the stylesheet is audited after consolidation",
+          "when": "aliases are searched",
+          "then": "each alias group maps to one token with no page still using a removed alias"
+        }
+      ]
+    },
+    {
+      "id": "CU-04",
+      "text": "The top bar SHALL show the page name (not the app name), search and the bell; theme, Hide amounts and Help SHALL live in the three-dot menu; there SHALL be exactly one Help button replacing Why bonds? and Page guide; every icon-only control SHALL keep its aria-label; and icons SHALL use normal text colour with only the alert badge coloured.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any page renders",
+          "when": "the top bar is inspected",
+          "then": "page name, search and bell are present and no repeated page heading sits below"
+        },
+        {
+          "given": "the help controls are counted",
+          "when": "the top bar renders",
+          "then": "exactly one question-mark Help button exists"
+        },
+        {
+          "given": "an icon-only control renders",
+          "when": "its markup is inspected",
+          "then": "it carries an aria-label and no title-attribute-only explanation"
+        }
+      ]
+    },
+    {
+      "id": "CU-05",
+      "text": "The alert bell badge SHALL be a red circle of at least 18px with 12px weight-600 digits showing 9+ over nine and hidden at zero; the alert list SHALL open on tap (never hover-only), close on tap-outside and Escape, show each message at 14px with a 12px grey friendly time below, carry a 4px severity bar (red missed, amber due today), head with Alerts in sentence case, and end with See all alerts and Mark all as read.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "unread count is 10",
+          "when": "the badge renders",
+          "then": "it shows 9+"
+        },
+        {
+          "given": "unread count is 0",
+          "when": "the badge renders",
+          "then": "it is hidden"
+        },
+        {
+          "given": "the bell is tapped",
+          "when": "the list is closed",
+          "then": "the list opens without hover; tap outside or Escape closes it"
+        },
+        {
+          "given": "the list is open",
+          "when": "an item renders",
+          "then": "message 14px, time 12px grey on the second line, 4px severity bar on the left"
+        }
+      ]
+    },
+    {
+      "id": "CU-06",
+      "text": "Field pattern SHALL be: label above at 14px normal colour with 6px gap, real-example placeholders in grey never repeating the label, read-only fields with grey background and no border, errors as red 1px border plus one short red line under the field shown only when the error happens, rupee prefix and percent suffix as visual-only overlays, 48px search box with the Search company or ISIN placeholder, and native date/select pickers kept with only the outer box styled.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a form field renders",
+          "when": "it is inspected",
+          "then": "label above, 14px normal colour, real-example placeholder"
+        },
+        {
+          "given": "a read-only field renders",
+          "when": "it is inspected",
+          "then": "grey background, no border, visibly non-editable"
+        },
+        {
+          "given": "a validation error occurs",
+          "when": "the field renders",
+          "then": "red border and one red line under the field, shown only then"
+        },
+        {
+          "given": "a money or percent field renders",
+          "when": "the input value is read",
+          "then": "the sign is a visual overlay and the value is unchanged"
+        }
+      ]
+    },
+    {
+      "id": "CU-07",
+      "text": "Remarks SHALL follow the rule table: no remark on obvious fields (Company, Broker, Coupon, Rating agency), rules shown only when broken, examples in placeholders, warnings in the confirmation dialog, explanations behind help popups of at most two short sentences at 14px about 260px wide opened from a 16px question-mark icon with a 48px tap area, one popup open at a time closing on tap-outside or Escape, reusing the existing tip-wrap code; the only permanent helper allowed is Earlier bonds from this company when history exists.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "an obvious field renders",
+          "when": "it is inspected",
+          "then": "no help icon and no permanent remark"
+        },
+        {
+          "given": "a help popup is open",
+          "when": "another is opened or the user taps outside or presses Escape",
+          "then": "the open one closes and only one popup is open at a time"
+        },
+        {
+          "given": "the page renders permanently visible helper text",
+          "when": "it is audited",
+          "then": "only errors and the one allowed history label remain"
+        }
+      ]
+    },
+    {
+      "id": "CU-08",
+      "text": "ISIN lookup SHALL report through one thin line about 20px high directly under the ISIN field, mapped from the six existing data-fetch-state names (idle shows no line; checking/found/notfound/offline/downgrade map to the five visual states), changing in place with no layout shift, never red, never blocking the form, with try again and See sources as plain blue links, the button reading Looking up... or Try again in 60s during work or wait, per-field source labels consolidated behind See sources, and the Fetched details popup keeping its apply/enter-manually role.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "each non-idle fetch state activates",
+          "when": "the status line renders",
+          "then": "the mapped text and icon show in place and nothing below moves"
+        },
+        {
+          "given": "any lookup state is active",
+          "when": "the line is inspected",
+          "then": "it is never red and the form is never blocked"
+        },
+        {
+          "given": "the state names in markup",
+          "when": "they are inspected",
+          "then": "the data-fetch-state values and showState() contract are unchanged"
+        }
+      ]
+    },
+    {
+      "id": "CU-09",
+      "text": "Buttons SHALL use two sizes (48px normal with 16px weight-600 text; 40px compact with 14px text only inside list rows), three styles (primary filled blue once per screen; secondary outlined blue; destructive red text or outline with filled red only on the final confirm), a borderless text style for low-priority actions, sentence-case verb-first labels of one to three words, Cancel left and main action right, 8px corners, enabled-with-message instead of disabled where possible, and the merged class set replacing .btn/.btn-sm/.btn-secondary/.btn-primary/.mark-read-btn.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any screen renders",
+          "when": "buttons are counted",
+          "then": "at most one filled primary button and two sizes only"
+        },
+        {
+          "given": "a destructive action renders",
+          "when": "it is inspected",
+          "then": "red styling with filled red only on the final confirm"
+        },
+        {
+          "given": "a watchlist row renders actions",
+          "when": "it is inspected",
+          "then": "Details text button, Move to portfolio outlined, Remove bond only inside Details"
+        }
+      ]
+    },
+    {
+      "id": "CU-10",
+      "text": "Chips SHALL be 12px weight 600 with 4px 8px padding as full pills; status chips SHALL be Watching blue, Holding green, Matured grey, Missed red; the rating SHALL show as a chip on the second line beside the ISIN banded AAA to AA- green, A+ to A- blue, BBB+ and below amber, not rated grey, never red, with a fixed minimum width; outlook SHALL follow the rating with an arrow only for Positive or Negative; the agency SHALL appear only in Details.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a rating renders",
+          "when": "its band is computed from the string",
+          "then": "the chip colour matches the band and is never red"
+        },
+        {
+          "given": "a list renders several ratings",
+          "when": "the chips align",
+          "then": "they share a fixed minimum width"
+        },
+        {
+          "given": "an outlook of Positive or Negative renders",
+          "when": "the chip is inspected",
+          "then": "the word follows the rating with a small arrow; Stable has none"
+        }
+      ]
+    },
+    {
+      "id": "CU-11",
+      "text": "List rows SHALL present the fixed fact order: watchlist rows as company name with status chip, ISIN grey then rating chip, Expected yield on the right at 20px with the 12px grey label below, coupon and broker in one grey line, then actions; portfolio rows as company name with status chip, ISIN grey then rating chip, Amount invested as the biggest number, next payment date, red only for a missed payment; numbers right-aligned with tabular digits and consistent decimals; the Details panel not repeating the row; privacy mode hiding only rupee amounts.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a watchlist row renders",
+          "when": "its children are ordered",
+          "then": "name+chip, ISIN+rating chip, yield figure right, coupon/broker line, actions"
+        },
+        {
+          "given": "a portfolio row renders",
+          "when": "its children are ordered",
+          "then": "name+chip, ISIN+rating chip, amount figure, next payment date"
+        },
+        {
+          "given": "privacy mode is on",
+          "when": "the row renders",
+          "then": "rupee amounts masked, coupon and yield percentages visible"
+        }
+      ]
+    },
+    {
+      "id": "CU-12",
+      "text": "The add bond form SHALL open at step one showing only ISIN, the Fetch bond details button and the status line with all server-required fields present in the DOM under their existing names, expand to the bond facts after a successful lookup with the rare fields collapsed under More details, show all fields when the lookup fails, group the move to portfolio form into Dates, Amount and Optional under existing names, and start the number of bonds field empty.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the add form opens fresh",
+          "when": "the DOM is inspected",
+          "then": "only ISIN and the fetch control are visible while all server-required field names exist"
+        },
+        {
+          "given": "a successful lookup re-renders the form",
+          "when": "it is inspected",
+          "then": "the bond facts appear and the rare fields sit under a collapsed More details row"
+        },
+        {
+          "given": "the lookup fails",
+          "when": "the form re-renders",
+          "then": "all fields are visible for manual entry"
+        },
+        {
+          "given": "the move form renders",
+          "when": "it is inspected",
+          "then": "three groups (Dates, Amount, Optional) under the existing field names"
+        }
+      ]
+    },
+    {
+      "id": "CU-13",
+      "text": "Destructive actions SHALL confirm through one in-app dialog titled Remove <company>? with the body This can't be undone., Cancel on the left and Remove bond on the right in red, closable by Cancel, Escape and the Android back button, and the existing delete request SHALL execute unchanged on confirm.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the user triggers remove bond",
+          "when": "the dialog opens",
+          "then": "title names the company, body says it cannot be undone, Cancel left, red Remove bond right"
+        },
+        {
+          "given": "the dialog is open",
+          "when": "Cancel, Escape or the Android back button is used",
+          "then": "it closes and nothing is deleted"
+        },
+        {
+          "given": "the user confirms",
+          "when": "Remove bond is pressed",
+          "then": "the existing delete form posts to its unchanged URL"
+        }
+      ]
+    },
+    {
+      "id": "CU-14",
+      "text": "Messages SHALL say what happened then what to do with no Error: prefix or technical text; successes SHALL be short, past tense, without exclamation marks or the word successfully; empty states SHALL carry a heading naming the space, one line of explanation and one button.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "an error renders",
+          "when": "it is inspected",
+          "then": "no Error: prefix and a what-to-do next step"
+        },
+        {
+          "given": "a success renders",
+          "when": "it is inspected",
+          "then": "short past tense, no exclamation mark, no successfully"
+        },
+        {
+          "given": "an empty list renders",
+          "when": "it is inspected",
+          "then": "heading, one explanation line, one button"
+        }
+      ]
+    },
+    {
+      "id": "CU-15",
+      "text": "The section 4.12 wording table SHALL be applied across pages (Watchlist, Add bond, Fetch bond details, Expected yield, Where you found it, Price per bond, Number of bonds, Interest start date, Interest credit day, Move to portfolio, Remove bond, Mark all as read, Alerts, How this page works, plain alert messages), in sentence case with no ampersands, please, successfully, dashes joining fragments or exclamation marks, and the same word for the same thing on every page; NCD and SDI get one-line help popups.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any page renders",
+          "when": "labels are audited against the table",
+          "then": "the new terms are present and the old terms absent"
+        },
+        {
+          "given": "any text renders",
+          "when": "it is audited",
+          "then": "sentence case, no ampersands, no please, no successfully, no exclamation marks"
+        }
+      ]
+    },
+    {
+      "id": "CU-16",
+      "text": "Platform parity SHALL hold: nothing hover-dependent, no title attribute as the only explanation, the shortcut hint hidden on touch with the shortcut kept on web, 48px tap targets and inputs and 16px input text on both platforms, native pickers styled only outside, Escape closing popups on web and the Android back button closing them first on Android, labels wrapping at Android largest font size, and both themes verified with no Android-only or web-only component CSS.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any interactive component",
+          "when": "it is inspected",
+          "then": "tap, click and keyboard focus all work; no hover-only path"
+        },
+        {
+          "given": "a popup or dialog is open",
+          "when": "Escape or Android back is used",
+          "then": "the popup closes before leaving the page"
+        },
+        {
+          "given": "Android largest font size renders",
+          "when": "pages are inspected",
+          "then": "labels wrap and nothing is cut off"
+        }
+      ]
+    },
+    {
+      "id": "CU-17",
+      "text": "Mobile navigation SHALL be bottom tabs only (Dashboard, Portfolio, Watchlist, Goals, More) with the hamburger drawer absent on mobile, the sidebar kept on desktop, and the More tab opening and closing reliably (regression of issue #203).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a mobile viewport renders",
+          "when": "the chrome is inspected",
+          "then": "bottom tabs are the one navigation and no hamburger drawer exists"
+        },
+        {
+          "given": "the desktop viewport renders",
+          "when": "the chrome is inspected",
+          "then": "the sidebar remains as today"
+        },
+        {
+          "given": "the More tab is tapped twice",
+          "when": "it toggles",
+          "then": "it opens and closes reliably"
+        }
+      ]
+    },
+    {
+      "id": "CU-18",
+      "text": "The implementation SHALL change no logic, business flow, data format, URL, form field name, element id, validation or accessibility attribute (the design adapts to the code); SHALL NOT delete a class or token still used by any page (renames go add-new, switch-pages, remove-old); SHALL keep the layout and security gate tests green (test_layout_fixed_px_sweep, test_layout_container_clamp, test_layout_multiwidth_audit, test_tc44_hardcoded_headers, test_tc46_suppression_scan, test_tc49_no_secrets); and SHALL stop and ask when a component outside the design doc is met rather than inventing a style.",
+      "category": "constraint",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the implementation diff is reviewed",
+          "when": "it is inspected",
+          "then": "no logic, flow, data, URL, field-name, id, validation or accessibility changes"
+        },
+        {
+          "given": "the layout and security gates run",
+          "when": "the suite executes",
+          "then": "all named tests stay green"
+        },
+        {
+          "given": "an undocumented component is met",
+          "when": "the pass encounters it",
+          "then": "the pass stops and asks for a rule"
+        }
+      ]
+    },
+    {
+      "id": "CU-19",
+      "text": "The four known bugs SHALL be fixed during the rollout: the number of bonds field starting empty with minimum-one validation intact, the Invested label rupee presentation moved inside the field with no empty span left, privacy mode keeping coupon and yield percentages visible while masking only rupee amounts, and the alert list opening on tap rather than hover only.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the add bond form opens fresh",
+          "when": "the number of bonds field renders",
+          "then": "it is empty and validation still requires at least 1"
+        },
+        {
+          "given": "privacy mode is on",
+          "when": "portfolio rows render",
+          "then": "percentages stay visible and rupee amounts are masked"
+        },
+        {
+          "given": "a touch user taps the bell",
+          "when": "the list is closed",
+          "then": "it opens on tap"
+        }
+      ]
+    },
+    {
+      "id": "CU-20",
+      "text": "The rollout SHALL run tokens and shared stylesheet components first, then pages one at a time in the order Watchlist, Portfolio, Dashboard, Goals, Alerts, Settings, About, Feedback, with each page gated on the section 7 component and platform checklists (both themes, both platforms) and a short report of what changed, what was left and what needs a decision.",
+      "category": "constraint",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the rollout starts",
+          "when": "the first change lands",
+          "then": "tokens and shared components land before any page pass"
+        },
+        {
+          "given": "page passes run",
+          "when": "each executes",
+          "then": "the order Watchlist, Portfolio, Dashboard, Goals, Alerts, Settings, About, Feedback holds"
+        },
+        {
+          "given": "a page pass completes",
+          "when": "it reports",
+          "then": "both checklists pass and the report names changes, leftovers and decisions needed"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "CU-01",
+      "area": "tokens",
+      "statement": "The system SHALL present every interactive element through one shared token set (48px tap targets, 24px line icons, 48px inputs with 16px text, 8px radius, 4/8/12/16/24 spacing, 12/14/16/20/22 type scale, weights 400/600, 2px accent focus ring) on web and Android from one stylesheet.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "CU-02",
+      "area": "tokens",
+      "statement": "The system SHALL render input borders at 3:1 contrast or better against the card surface using #868e96 in light theme and #8b949e in dark theme.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "CU-03",
+      "area": "tokens",
+      "statement": "The system SHALL carry colour semantics in one token set (blue actionable/Watching, green good, amber attention, red only missed/error/remove, grey secondary), keep important values in normal text colour, and consolidate the overlapping token aliases.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "CU-04",
+      "area": "chrome",
+      "statement": "The system SHALL show a top bar with the page name, search and bell, hold theme/Hide amounts/Help in the three-dot menu, provide exactly one Help button, and label every icon-only control with an aria-label.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D9"
+    },
+    {
+      "id": "CU-05",
+      "area": "alerts",
+      "statement": "The system SHALL show the alert bell with a badge (9+ over nine, hidden at zero), open the alert list on tap with close on tap-outside or Escape, present messages at 14px with 12px friendly times below, mark severity with a 4px left bar, and write messages in plain words.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D8"
+    },
+    {
+      "id": "CU-06",
+      "area": "forms",
+      "statement": "The system SHALL render fields with labels above at 14px, real-example placeholders, distinct read-only styling, on-demand red errors under the field, a visual rupee prefix and percent suffix that do not change input values, and the search box at 48px with the Search company or ISIN placeholder.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D3"
+    },
+    {
+      "id": "CU-07",
+      "area": "forms",
+      "statement": "The system SHALL show remarks only as error text, the one allowed history label, or two-sentence help popups behind 16px question-mark icons with one open at a time, closing on tap-outside and Escape, with no help icons on obvious fields.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D4"
+    },
+    {
+      "id": "CU-08",
+      "area": "lookup",
+      "statement": "The system SHALL report ISIN lookup through one thin in-place status line mapped from the six existing fetch states, never red, never blocking the form, with plain-blue action links and unchanged data-fetch-state script names.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D10"
+    },
+    {
+      "id": "CU-09",
+      "area": "buttons",
+      "statement": "The system SHALL use two button sizes (48px normal, 40px compact in list rows only), three styles (primary filled once per screen, secondary outlined, destructive red with filled red on final confirm only), a borderless text style, Cancel left and main action right, and 8px corners.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "CU-10",
+      "area": "chips",
+      "statement": "The system SHALL render status and rating chips as 12px weight-600 pills with banded rating colours (AAA to AA- green, A+ to A- blue, BBB+ and below amber, not rated grey, never red), fixed rating chip width, outlook arrows for Positive/Negative, and the agency name only in Details.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D5"
+    },
+    {
+      "id": "CU-11",
+      "area": "rows",
+      "statement": "The system SHALL present watchlist rows (name+status chip, ISIN+rating chip, Expected yield largest at 20px, coupon/broker grey line, actions) and portfolio rows (name+status chip, ISIN+rating chip, Amount invested largest, next payment date) in the fixed order with right-aligned tabular numbers, no Details repetition, and privacy masking rupee amounts only.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D9"
+    },
+    {
+      "id": "CU-12",
+      "area": "forms",
+      "statement": "The system SHALL start the add bond form short (ISIN + Fetch bond details + status line) and expand after lookup, group the move form into Dates/Amount/Optional, keep every server-required field in the DOM under its existing name, and start the number of bonds field empty.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D8"
+    },
+    {
+      "id": "CU-13",
+      "area": "dialogs",
+      "statement": "The system SHALL confirm destructive actions with one in-app dialog titled Remove <company>? with the body This can't be undone., Cancel left and red Remove bond right, closable by Cancel, Escape and the Android back button, executing the unchanged delete request on confirm.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D6"
+    },
+    {
+      "id": "CU-14",
+      "area": "messages",
+      "statement": "The system SHALL write errors as what-happened plus what-to-do without technical prefixes, successes as short past tense without exclamation marks, and empty states as heading plus one line plus one button.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D4"
+    },
+    {
+      "id": "CU-15",
+      "area": "wording",
+      "statement": "The system SHALL apply the section 4.12 wording table (Watchlist, Add bond, Fetch bond details, Expected yield, Where you found it, Price per bond, Number of bonds, Interest start date, Interest credit day, Move to portfolio, Remove bond, Mark all as read, Alerts, How this page works) in sentence case with no ampersands, please, successfully or exclamation marks.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D4"
+    },
+    {
+      "id": "CU-16",
+      "area": "platform",
+      "statement": "The system SHALL keep nothing hover-dependent, never rely on title tooltips alone, hide the shortcut hint on touch, keep 48px targets and 16px input text on both platforms, close popups via Escape and the Android back button, and survive Android largest font size and both themes with no platform-only component CSS.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    },
+    {
+      "id": "CU-17",
+      "area": "navigation",
+      "statement": "The system SHALL use bottom tabs as the only mobile navigation with the hamburger drawer absent on mobile, keep the sidebar on desktop, and keep the More tab opening and closing reliably.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D2"
+    },
+    {
+      "id": "CU-18",
+      "area": "constraints",
+      "statement": "The system SHALL change no logic, business flow, data format, URL, form field name, element id, validation or accessibility attribute; never delete a class or token still in use; keep the layout and security gate tests green; and stop to ask when a component outside the design doc is met.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D10"
+    },
+    {
+      "id": "CU-19",
+      "area": "bugs",
+      "statement": "The system SHALL fix during the rollout: the number of bonds field starting empty with minimum-one validation intact, the Invested label rupee presentation inside the field, privacy mode leaving coupon and yield percentages visible, and the alert list opening on tap rather than hover only.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D8"
+    },
+    {
+      "id": "CU-20",
+      "area": "process",
+      "statement": "The system SHALL roll out tokens and shared components first, then pages one at a time in the order Watchlist, Portfolio, Dashboard, Goals, Alerts, Settings, About, Feedback, gating each page on the section 7 checklists with a short report.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "D1"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-CU-01",
+      "title": "No fixed-px layout regressions (existing test_layout_fixed_px_sweep)",
+      "type": "regression",
+      "steps": "Run tests/test_layout_fixed_px_sweep.py after each rollout step",
+      "expected": "All fixed-px sweep assertions stay green",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-02",
+      "title": "Container and clamp layout rules hold (existing test_layout_container_clamp)",
+      "type": "regression",
+      "steps": "Run tests/test_layout_container_clamp.py after each rollout step",
+      "expected": "All container-query and clamp assertions stay green",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-03",
+      "title": "Multi-width layout audit stays green (existing test_layout_multiwidth_audit)",
+      "type": "regression",
+      "steps": "Run tests/test_layout_multiwidth_audit.py after each rollout step",
+      "expected": "80/80 audit cells green",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-04",
+      "title": "No hardcoded header values (existing test_tc44_hardcoded_headers)",
+      "type": "regression",
+      "steps": "Run tests/test_tc44_hardcoded_headers.py",
+      "expected": "Scan stays clean",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-05",
+      "title": "No error suppression patterns (existing test_tc46_suppression_scan)",
+      "type": "security",
+      "steps": "Run tests/test_tc46_suppression_scan.py",
+      "expected": "Scan stays clean",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-06",
+      "title": "No secrets in rendered output (existing test_tc49_no_secrets)",
+      "type": "security",
+      "steps": "Run tests/test_tc49_no_secrets.py",
+      "expected": "Scan stays clean",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-07",
+      "title": "Top bar chrome keeps working (existing test_ui01_chrome)",
+      "type": "regression",
+      "steps": "Run tests/test_ui01_chrome.py after the chrome pass",
+      "expected": "Search, overflow, privacy and theme behaviours pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-08",
+      "title": "Watchlist page behaviour (existing test_ui04_watchlist)",
+      "type": "regression",
+      "steps": "Run tests/test_ui04_watchlist.py after the Watchlist pass",
+      "expected": "Page behaviours pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-09",
+      "title": "Portfolio page behaviour (existing test_ui02_holdings)",
+      "type": "regression",
+      "steps": "Run tests/test_ui02_holdings.py after the Portfolio pass",
+      "expected": "Page behaviours pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-10",
+      "title": "Alerts feed behaviour (existing test_tc91_alerts_feed)",
+      "type": "regression",
+      "steps": "Run tests/test_tc91_alerts_feed.py after the alert-list pass",
+      "expected": "Feed behaviours pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-11",
+      "title": "Popup hidden-attribute contract (existing test_popover_hidden)",
+      "type": "regression",
+      "steps": "Run tests/test_popover_hidden.py after the popup passes",
+      "expected": "Popups close via the hidden contract",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-12",
+      "title": "Mobile fit after bottom-tabs-only (existing test_ui22_mobile_fit)",
+      "type": "regression",
+      "steps": "Run tests/test_ui22_mobile_fit.py after the navigation change",
+      "expected": "Mobile fit assertions pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-13",
+      "title": "Delete behaviour unchanged behind the dialog (existing test_watch_delete)",
+      "type": "regression",
+      "steps": "Run tests/test_watch_delete.py after the dialog lands",
+      "expected": "Delete request and guards unchanged",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-14",
+      "title": "Brand home unchanged (existing test_ui16_logo)",
+      "type": "regression",
+      "steps": "Run tests/test_ui16_logo.py",
+      "expected": "Brand assertions pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-15",
+      "title": "Token conformance (new)",
+      "type": "unit",
+      "steps": "Parse src/static/theme.css and the templates; assert 48px tap sizes, 24px icons, 48px inputs, 16px input text, 8px radius, 4/8/12/16/24 spacing, 12/14/16/20/22 type scale, weights 400/600, border #868e96/#8b949e, focus ring rule, consolidated aliases",
+      "expected": "All token assertions pass in both theme blocks",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-16",
+      "title": "Component contracts (new)",
+      "type": "integration",
+      "steps": "Render pages via the Flask test client; assert one Help button, page name in top bar, bell in top bar with 9+/hidden-at-0 badge markup, five status-line states never red, single primary button rule, Cancel left ordering, rating band class mapping, wording table applied, old terms absent",
+      "expected": "All component contract assertions pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-CU-17",
+      "title": "Four bug fixes (new)",
+      "type": "integration",
+      "steps": "Render the add form (qty input starts empty), the invested label (no empty rupee span), portfolio rows with privacy-on (percentages visible, amounts masked), and the bell markup with a tap-based open handler",
+      "expected": "All four bug assertions pass",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "CU-01",
+      "test_case_id": "TC-CU-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-01",
+      "test_case_id": "TC-CU-15",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-02",
+      "test_case_id": "TC-CU-15",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-03",
+      "test_case_id": "TC-CU-15",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-04",
+      "test_case_id": "TC-CU-07",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-04",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-05",
+      "test_case_id": "TC-CU-10",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-05",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-05",
+      "test_case_id": "TC-CU-17",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-06",
+      "test_case_id": "TC-CU-15",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-06",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-07",
+      "test_case_id": "TC-CU-11",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-07",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-08",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-09",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-10",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-11",
+      "test_case_id": "TC-CU-09",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-11",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-11",
+      "test_case_id": "TC-CU-17",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-12",
+      "test_case_id": "TC-CU-08",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-12",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-12",
+      "test_case_id": "TC-CU-17",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-13",
+      "test_case_id": "TC-CU-13",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-13",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-14",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-15",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-16",
+      "test_case_id": "TC-CU-12",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-16",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-17",
+      "test_case_id": "TC-CU-12",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-17",
+      "test_case_id": "TC-CU-16",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-01",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-02",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-03",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-04",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-05",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-06",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-07",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-11",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-18",
+      "test_case_id": "TC-CU-14",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-19",
+      "test_case_id": "TC-CU-17",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "CU-19",
+      "test_case_id": "TC-CU-08",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-19",
+      "test_case_id": "TC-CU-09",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-19",
+      "test_case_id": "TC-CU-10",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-20",
+      "test_case_id": "TC-CU-15",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "CU-20",
+      "test_case_id": "TC-CU-16",
+      "covers": "partial"
+    }
+  ],
+  "carry_over": [],
+  "changelog": [
+    {
+      "version": "v1.0",
+      "date": "2026-11-15",
+      "note": "First suite: CU-01..CU-20 with 17 test cases and 44 bindings, from Discussion #261 (D1-D10) and the 15 Nov code audit."
+    }
+  ]
+}
