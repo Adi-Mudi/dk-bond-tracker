@@ -94,7 +94,6 @@
   .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
   .fetch-popup .confirm-inner { width: min(34rem, 92vw); }
   .fetch-popup .facts-grid { margin-bottom: 12px; }
-  .btn-danger { background: var(--danger-fg); border-color: var(--danger-fg); color: var(--on-accent); }
   .watch-scroll { overflow-x: auto; }
   #watch-list { min-width: 24rem; }
   #watch-list tr.candidate-row > td:first-child,
@@ -157,7 +156,7 @@
 {% block content %}
 {% from "attribute_facts.html" import details_facts %}
 {% from "_tooltip.html" import tip %}
-<h1>Watchlist</h1>
+{% block page_title %}Watchlist{% endblock %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
@@ -403,7 +402,7 @@
           {{ details_facts(candidate) }}
           <div class="details-actions">
             <form class="inline-form delete-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-company="{{ candidate.company }}" data-isin="{{ candidate.isin }}">
-              <button class="btn btn-sm btn-danger" type="submit" id="delete-candidate-{{ candidate.id }}">Remove bond</button>
+              <button class="ui-btn ui-btn-destructive ui-btn-compact" type="submit" id="delete-candidate-{{ candidate.id }}">Remove bond</button>
             </form>
           </div>
         </td>
