@@ -57,7 +57,7 @@ def test_ui08_bulb_present_on_every_page_with_that_page_guide(client, db_path):
         html = client.get(path).get_data(as_text=True)
         assert 'id="guideBtn"' in html, path
         assert 'id="pageGuide"' in html, path
-        assert 'aria-label="Page guide"' in html, path
+        assert 'aria-label="How this page works"' in html, path
         assert GUIDE_TITLES[path] in html, path
 
 
