@@ -3,6 +3,9 @@
     document.querySelectorAll(".tip-wrap.tip-open").forEach(function (wrap) {
       if (wrap !== except) {
         wrap.classList.remove("tip-open");
+        if (window.releaseOverlay) {
+          window.releaseOverlay();
+        }
       }
     });
   }
@@ -17,6 +20,8 @@
       closeTips(open ? wrap : null);
       if (open && window.openOverlay) {
         window.openOverlay();
+      } else if (!open && window.releaseOverlay) {
+        window.releaseOverlay();
       }
     });
   });
@@ -99,7 +104,10 @@
     bell.setAttribute("aria-expanded", open ? "true" : "false");
     if (open && window.openOverlay) {
       window.openOverlay();
+    } else if (!open && bell.dataset.overlayOpen === "1" && window.releaseOverlay) {
+      window.releaseOverlay();
     }
+    bell.dataset.overlayOpen = open ? "1" : "0";
   }
   bell.addEventListener("click", function (event) {
     event.stopPropagation();

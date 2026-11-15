@@ -682,8 +682,11 @@
     });
   });
   function closeDialog() {
-    dialog.hidden = true;
-    pending = null;
+    if (!dialog.hidden) {
+      dialog.hidden = true;
+      pending = null;
+      window.releaseOverlay();
+    }
   }
   cancel.addEventListener("click", closeDialog);
   dialog.addEventListener("click", function (event) {
@@ -693,8 +696,7 @@
   });
   accept.addEventListener("click", function () {
     var form = pending;
-    dialog.hidden = true;
-    pending = null;
+    closeDialog();
     if (form) {
       form.submit();
     }
@@ -830,8 +832,9 @@
     }
   }
   function closePopup() {
-    if (popup) {
+    if (popup && !popup.hidden) {
       popup.hidden = true;
+      window.releaseOverlay();
     }
   }
   function invalidateOnIsinChange() {

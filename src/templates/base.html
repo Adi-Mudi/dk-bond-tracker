@@ -185,15 +185,33 @@
     }
     return false;
   };
+  window.overlayDepth = 0;
   window.openOverlay = function () {
+    window.overlayDepth += 1;
     history.pushState({ overlay: true }, "");
   };
+  window.releaseOverlay = function () {
+    if (window.overlayDepth > 0) {
+      window.overlayDepth -= 1;
+      history.back();
+    }
+  };
+  window.dismissOverlay = function () {
+    if (window.closeTopOverlay()) {
+      window.releaseOverlay();
+      return true;
+    }
+    return false;
+  };
   window.addEventListener("popstate", function () {
+    if (window.overlayDepth > 0) {
+      window.overlayDepth -= 1;
+    }
     window.closeTopOverlay();
   });
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && window.closeTopOverlay()) {
-      history.back();
+    if (event.key === "Escape") {
+      window.dismissOverlay();
     }
   });
   (function () {
