@@ -1,31 +1,29 @@
 {% extends "base.html" %}
-{% block page_title %}About &amp; Updates{% endblock %}
+{% block page_title %}About{% endblock %}
 {% block head %}
 <style>
   .about-hero { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .brand-lg { font-size: 18px; font-weight: 700; }
+  b, strong { font-weight: 600; }
+  .brand-lg { font-size: 18px; font-weight: 600; }
   .about-block { margin-bottom: 12px; }
-  .about-link { color: var(--accent); font-weight: 700; }
+  .about-link { color: var(--accent); font-weight: 600; }
   .update-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border); flex-wrap: wrap; }
   .update-row:last-of-type { border-bottom: none; }
   .update-label { flex: 1; display: flex; flex-direction: column; min-width: 0; }
   .inline-form { display: inline; }
   .referral-block { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px; background: var(--warn-bg); }
-  .referral-disclosure { color: var(--warn-fg); font-weight: 700; margin-top: 6px; }
-  .chip-info { background: var(--watching-bg); color: var(--watching-fg); }
+  .referral-disclosure { color: var(--warn-fg); font-weight: 600; margin-top: 6px; }
   .chip-neutral { background: var(--card); color: var(--muted); }
   .chip-pending { background: var(--warn-bg); color: var(--warn-fg); }
   .source-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
   .source-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
-  .source-name { font-weight: 700; }
+  .source-name { font-weight: 600; }
   .source-detail { font-size: 12px; color: var(--muted); }
   .source-license { font-size: 12px; color: var(--muted); }
   .source-license .about-link { color: var(--accent); }
 </style>
 {% endblock %}
 {% block content %}
-<h1>About &amp; Updates</h1>
-
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 {% for category, message in messages %}
@@ -41,12 +39,12 @@
 <div class="about-hero" id="about-hero">
   {{ brand_avatar(48) }}
   <span class="brand-lg">DK Bond Tracker</span>
-  <span class="chip chip-info" id="about-version-chip">v{{ app_version }}</span>
+  <span class="chip chip-watching" id="about-version-chip">v{{ app_version }}</span>
   <span class="caption" id="about-build">{{ build_notes }}</span>
 </div>
 
 <section class="card about-block" id="about-app-card">
-  <div class="zone-title">This app &amp; your data</div>
+  <div class="zone-title">This app and your data</div>
   <p id="app-version">Version {{ app_version }}</p>
   <p id="build-notes-line">{{ build_notes }}</p>
 </section>
@@ -54,13 +52,13 @@
 <section class="card about-block" id="developer-block">
   <div class="zone-title">Developer</div>
   <p id="developer-line"><b>Adi-Mudi</b></p>
-  <p class="caption" id="developer-note">Creator &amp; maintainer &#8212; bonds, goals, and every line of this app.</p>
+  <p class="caption" id="developer-note">Creator and maintainer of bonds, goals, and every line of this app.</p>
 </section>
 
 <section class="card about-block" id="source-block">
   <div class="zone-title">Source code</div>
   <p><a class="about-link" id="repo-link" href="https://github.com/Adi-Mudi/dk-bond-tracker">github.com/Adi-Mudi/dk-bond-tracker</a></p>
-  <p class="caption" id="repo-note">The project's home on GitHub &#8212; for anyone who wants to contribute or upgrade features.</p>
+  <p class="caption" id="repo-note">The project's home on GitHub. For anyone who wants to contribute or upgrade features.</p>
   <a class="btn btn-secondary" id="open-repo" href="https://github.com/Adi-Mudi/dk-bond-tracker">Open repo &#8594;</a>
 </section>
 
@@ -89,7 +87,7 @@
     </form>
   </div>
   <div class="update-row">
-    <span class="update-label"><b>Check automatically</b><span class="caption">Quiet check on launch &#8212; notify only when a new version exists</span></span>
+    <span class="update-label"><b>Check automatically</b><span class="caption">Quiet check on launch. Notify only when a new version exists.</span></span>
     <form method="post" action="/about" class="inline-form">
       <input type="hidden" name="action" value="auto">
       <input type="hidden" name="auto" value="{% if auto_check %}{% else %}on{% endif %}">
@@ -111,23 +109,23 @@
   <div class="zone-title">Updating from a debug-signed install</div>
   <p class="caption" id="migration-note">Releases are signed with a stable release certificate, so updates install in place. If you installed a debug build before, move your data once:</p>
   <ol id="migration-steps">
-    <li>In Settings, open Backup &amp; restore and download the backup CSV.</li>
+    <li>In Settings, open Backup and restore and download the backup CSV.</li>
     <li>Uninstall the app.</li>
     <li>Install the new release APK.</li>
-    <li>In Settings, open Backup &amp; restore, choose the backup CSV and restore it.</li>
+    <li>In Settings, open Backup and restore, choose the backup CSV and restore it.</li>
   </ol>
 </section>
 
 <section class="card about-block" id="license-block">
   <div class="zone-title">License</div>
-  <p><b>MIT License</b> <span class="chip chip-pending" id="license-placeholder">PLACEHOLDER &#8212; LICENSE file to be added</span></p>
+  <p><b>MIT License</b> <span class="chip chip-pending" id="license-placeholder">PLACEHOLDER: LICENSE file to be added</span></p>
   <p class="caption">Free to use, share and modify with friends. Full license text ships in the repository LICENSE file.</p>
 </section>
 
 <section class="card about-block" id="support-block">
   <div class="zone-title">Disclaimer</div>
   <div class="disclaimer-box" id="about-disclaimer">
-    <strong>We do not recommend any bonds.</strong> DK Bond Tracker is a personal tracking tool — information-only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal, and past performance does not guarantee future returns. Every investment decision is your own.
+    <strong>We do not recommend any bonds.</strong> DK Bond Tracker is a personal tracking tool. It is information only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal, and past performance does not guarantee future returns. Every investment decision is your own.
   </div>
 
   <div class="zone-title">Support us</div>
