@@ -140,8 +140,8 @@ def test_tc139_134_email_presets_and_setup_guide_markup(client, db_path):
         assert guide_item in html
     for trouble_item in (
         "Wrong port: use 587 with TLS/STARTTLS, or 465 with SSL.",
-        "TLS required — most providers refuse plain connections.",
-        "Check the spam folder — test emails often land there.",
+        "TLS required: most providers refuse plain connections.",
+        "Check the spam folder: test emails often land there.",
     ):
         assert trouble_item in html
     assert 'id="s-send-test"' in html
