@@ -209,6 +209,32 @@ h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
   text-decoration: none;
 }
 .btn-secondary:hover { background: var(--bg); }
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--accent);
+}
+.ui-btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.ui-btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.ui-btn-secondary { border-color: var(--accent); background: transparent; color: var(--accent); }
+.ui-btn-secondary:hover { background: var(--watching-bg); }
+.ui-btn-destructive { border-color: var(--danger-fg); background: transparent; color: var(--danger-fg); }
+.ui-btn-destructive:hover { background: var(--danger-bg); }
+.ui-btn-destructive-fill { background: var(--danger-fg); border-color: var(--danger-fg); color: var(--on-accent); }
+.ui-btn-text { min-height: 48px; padding: 12px 8px; border-color: transparent; background: transparent; color: var(--accent); }
+.ui-btn-text:hover { text-decoration: underline; }
+.ui-btn-compact { min-height: 40px; padding: 8px 12px; font-size: 14px; }
 .payment-edit-card {
   max-width: 30rem;
   background: var(--card);
@@ -373,6 +399,12 @@ th.num { text-align: right; }
 .chip-matured { color: var(--matured-fg); background: var(--matured-bg); }
 .chip-watching { color: var(--watching-fg); background: var(--watching-bg); }
 .chip-invalid { color: var(--danger-fg); background: var(--danger-bg); }
+.chip-missed { color: var(--danger-fg); background: var(--danger-bg); }
+.chip-rating { min-width: 6em; text-align: center; }
+.chip-rating-aaa { color: var(--ongoing-fg); background: var(--ongoing-bg); }
+.chip-rating-a { color: var(--watching-fg); background: var(--watching-bg); }
+.chip-rating-amber { color: var(--warn-fg); background: var(--warn-bg); }
+.chip-rating-none { color: var(--matured-fg); background: var(--matured-bg); }
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
@@ -383,24 +415,59 @@ th.num { text-align: right; }
 }
 .field label {
   display: block;
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: normal;
+  color: var(--text);
+  margin-bottom: 6px;
 }
 .field input,
 .field select {
   font: inherit;
-  font-size: 14px;
+  font-size: var(--input-text);
   width: 100%;
-  height: 40px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  height: var(--input-h);
+  padding: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
   background: var(--card);
   color: var(--text);
 }
 ::placeholder { color: var(--muted); opacity: 1; }
-.field input[readonly] { background: var(--bg); color: var(--muted); }
+.field input[readonly] {
+  background: var(--bg);
+  color: var(--muted);
+  border-color: transparent;
+}
+.field .field-error {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--danger-fg);
+}
+.field-input-suffix {
+  position: relative;
+}
+.field-input-suffix > span {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+.field-input-suffix input {
+  padding-left: 28px;
+}
+.field-input-suffix.pct input {
+  padding-left: 12px;
+  padding-right: 28px;
+}
+.field-input-suffix.pct > span {
+  left: auto;
+  right: 12px;
+}
+.field input[aria-invalid="true"] {
+  border: 1px solid var(--danger-fg);
+}
 .field .caption { margin-top: 4px; }
 .check-row {
   display: flex;
@@ -481,19 +548,23 @@ body[data-page="/settings"] nav a[href="/settings"] {
   user-select: none;
 }
 .bell-badge-v3 {
+  position: absolute;
+  top: 2px;
+  right: 2px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
-  border: 1px solid var(--border);
+  padding: 0 4px;
   border-radius: 999px;
   background: var(--danger-fg);
   color: var(--on-accent);
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
 }
+.bell-badge-v3:empty,
+.bell-badge-v3[data-count="0"] { display: none; }
 .alert-dropdown-v3 {
   display: none;
   position: absolute;
@@ -510,17 +581,14 @@ body[data-page="/settings"] nav a[href="/settings"] {
   box-shadow: 0 2px 6px var(--shadow-color-strong);
   overflow: hidden;
 }
-.bell-wrap:hover .alert-dropdown-v3,
-.bell-wrap:focus-within .alert-dropdown-v3 { display: block; }
+.bell-wrap.open .alert-dropdown-v3 { display: block; }
 .alert-dropdown-v3 .dd-head {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 14px;
+  font-weight: 700;
   background: var(--bar-muted);
   border-bottom: 1px solid var(--border);
   color: var(--text);
-  padding: 6px 10px;
+  padding: 8px 10px;
 }
 .alert-item-v3 {
   display: flex;
@@ -531,8 +599,14 @@ body[data-page="/settings"] nav a[href="/settings"] {
   border-bottom: 1px solid var(--border);
   font-size: 12.5px;
 }
+.alert-item-v3 {
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  border-left: 4px solid transparent;
+}
 .alert-item-v3 .ts {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -541,16 +615,6 @@ body[data-page="/settings"] nav a[href="/settings"] {
 .alert-item-v3.sev-reminder { border-left: 4px solid var(--accent); }
 .alert-item-v3.sev-info { border-left: 4px solid var(--ongoing-fg); }
 .dd-actions { padding: 8px 10px; }
-.mark-read-btn {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--watching-bg);
-  color: var(--watching-fg);
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
 .rupee::after { content: "\20B9"; }
 .filter-chips { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
 .filter-chip.active {
@@ -951,9 +1015,9 @@ body.drawer-open .sidebar { transform: translateX(0); }
   .chart-legend { flex-wrap: wrap; }
 }
 @container form-shell (max-width: 30rem) {
-  .field label { font-size: 0.75rem; }
+  .field label { font-size: 14px; }
   .field input,
-  .field select { font-size: 0.9375rem; }
+  .field select { font-size: var(--input-text); }
 }
 @container table-shell (max-width: 40rem) {
   th,

@@ -138,13 +138,13 @@ def test_ui06_unread_is_bold_with_semantic_left_bar(client, db_path):
 def test_ui06_mark_all_read_clears_the_badge(client, db_path):
     seed(db_path, "danger", "Alpha Ltd credit day 5 missed")
     seed(db_path, "warn", "email failed: boom")
-    assert 'id="unreadCount">2<' in client.get("/").get_data(as_text=True)
+    assert re.search(r'id="unreadCount"[^>]*>2<', client.get("/").get_data(as_text=True))
     html = client.get("/notifications").get_data(as_text=True)
     assert 'id="mark-all-read"' in html
     response = client.post("/notifications/read_all")
     assert response.status_code == 302
     assert response.headers["Location"] == "/notifications"
-    assert 'id="unreadCount">0<' in client.get("/").get_data(as_text=True)
+    assert re.search(r'id="unreadCount"[^>]*>0<', client.get("/").get_data(as_text=True))
 
 
 def test_ui06_clear_hides_read_alerts_without_deleting(client, db_path):
@@ -188,8 +188,8 @@ def test_ui06_bell_previews_latest_five_and_open_all(client, db_path):
     dashboard = client.get("/").get_data(as_text=True)
     assert dashboard.count('class="alert-item-v3 sev-') == 5
     assert 'id="open-all-alerts"' in dashboard
-    assert 'id="unreadCount">6<' in dashboard
-    assert "Alert history" in dashboard
-    assert "open all" in BASE.lower()
+    assert re.search(r'id="unreadCount"[^>]*>6<', dashboard)
+    assert "See all alerts" in dashboard
+    assert "see all alerts" in BASE.lower()
     feed = client.get("/notifications").get_data(as_text=True)
     assert feed.count('class="alert-card alert-') == 6

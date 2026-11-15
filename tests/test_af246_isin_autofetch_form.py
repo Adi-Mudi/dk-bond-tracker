@@ -116,7 +116,7 @@ class FakeAdapter:
 
 def test_tc_af_01_prefill_runs_once_with_source_labels(db_path):
     calls = []
-    client, _ = make_client(db_path, nsdl_transport(calls))
+    client = isin_change_client(db_path, nsdl_transport(calls))
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
     assert f'value="{COMPANY}"' in html
     assert 'name="coupon_pct" min="0" step="0.01" value="8.75"' in html

@@ -85,6 +85,39 @@
 })();
 
 (function () {
+  var bell = document.getElementById("notificationsBell");
+  if (!bell) {
+    return;
+  }
+  function setBell(open) {
+    bell.classList.toggle("open", open);
+    bell.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  bell.addEventListener("click", function (event) {
+    event.stopPropagation();
+    setBell(!bell.classList.contains("open"));
+  });
+  bell.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      if (event.target === bell) {
+        event.preventDefault();
+        setBell(!bell.classList.contains("open"));
+      }
+    }
+  });
+  document.addEventListener("click", function (event) {
+    if (!bell.contains(event.target)) {
+      setBell(false);
+    }
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      setBell(false);
+    }
+  });
+})();
+
+(function () {
   var wrap = document.getElementById("searchWrap");
   var button = document.getElementById("searchBtn");
   var panel = document.getElementById("searchPanel");

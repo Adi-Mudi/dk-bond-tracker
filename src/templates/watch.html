@@ -108,7 +108,11 @@
   .fetch-states { display: block; }
   .fetch-state[hidden] { display: none; }
   .fetch-state .fetch-spinner { display: inline-block; vertical-align: middle; }
-  .fetch-hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+  .fetch-line { margin: 6px 0 0; font-size: 12px; line-height: 20px; min-height: 20px; color: var(--muted); }
+  .fetch-line-ok { color: var(--ongoing-fg); }
+  .fetch-line-warn { color: var(--warn-fg); }
+  .fetch-icon { display: inline-block; width: 1em; text-align: center; }
+  .fetch-link { color: var(--accent); font-weight: 600; margin-left: 0.4em; }
   .fetch-source {
     display: inline-block;
     margin: 0.1rem 0.2rem 0.1rem 0.4rem;
@@ -120,8 +124,6 @@
     background: var(--ongoing-bg);
     color: var(--ongoing-fg);
   }
-  .fetch-source-cached { background: var(--warn-bg); color: var(--warn-fg); }
-  .fetch-source-list { display: grid; gap: 3px; margin-top: 6px; font-size: 12px; }
   .fetch-spinner {
     display: inline-block;
     width: 0.85rem;
@@ -150,6 +152,7 @@
 {% endblock %}
 {% block content %}
 {% from "attribute_facts.html" import details_facts %}
+{% from "_tooltip.html" import tip %}
 <h1>Watchlist</h1>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -165,7 +168,7 @@
 
 {% if error %}
 <div class="banner banner-error error-popup" id="watch-error" role="alert">
-  <div class="banner-title"><span class="field-error-icon" aria-hidden="true">&#9888;</span> Error: {{ error_code }}</div>
+  <div class="banner-title"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error_code }}</div>
   <div id="watch-error-message">{{ error }}</div>
   {% if duplicate %}
   <div class="error-actions" id="watch-error-actions">
@@ -192,43 +195,12 @@
   <form method="post" action="/watch" id="add-candidate-form" data-fetched-isin="{{ fetch.isin }}">
     <input type="hidden" name="dirty" id="c-dirty" value="">
     <div class="fetch-states" id="c-fetch-states" data-fetch-states="{{ fetch.states|join(' ') }}" data-fetch-isin="{{ fetch.isin }}">
-      <p class="fetch-hint fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}>Type the ISIN and leave the field &mdash; the instrument facts fill in automatically.</p>
-      <div class="banner banner-info fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}>
-        <span class="fetch-spinner" aria-hidden="true"></span>
-        <div>
-          <strong>Checking the sources</strong>
-          <p>Looking up the instrument facts. The form is not blocked.</p>
-        </div>
-      </div>
-      <div class="banner banner-info fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}>
-        <div>
-          <strong>Instrument facts filled{% if fetch.source_names %} from {{ fetch.source_names|join(' and ') }}{% endif %}</strong>
-          <p>{% if fetch.asof %}Fetched {{ fetch.asof }} &#183; {% endif %}Position facts are yours to enter.</p>
-        </div>
-      </div>
-      <div class="banner banner-warn fetch-state" data-fetch-state="notfound"{% if fetch.state != 'notfound' %} hidden{% endif %}>
-        <div>
-          <strong>Metadata not found &mdash; enter manually</strong>
-          <p>No record for this ISIN in the sources we checked. Every field stays editable.</p>
-        </div>
-      </div>
-      <div class="banner banner-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}>
-        <div>
-          <strong>{{ fetch.message }}</strong>
-          <p>{% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.</p>
-          {% if fetch.cached %}
-          <div class="fetch-source-list">
-            {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span>{% endfor %}
-          </div>
-          {% endif %}
-        </div>
-      </div>
-      <div class="banner banner-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}>
-        <div>
-          <strong>Filled from a lesser-confidence source</strong>
-          <p>{{ fetch.message }} Each value keeps its source label.</p>
-        </div>
-      </div>
+      <p class="fetch-line fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9432;</span> Type the ISIN and leave the field to look up details.</p>
+      <p class="fetch-line fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}><span class="fetch-spinner" aria-hidden="true"></span> Looking up bond details...</p>
+      <p class="fetch-line fetch-line-ok fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#10003;</span> Details filled in. Add your amount and quantity.{% if fetch.source_names %} <a href="#c-fetch-states" class="fetch-link">See sources</a>{% endif %}</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="notfound"{% if fetch.state != 'notfound' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9432;</span> Metadata not found &mdash; enter manually. No record for this ISIN in the sources we checked. Every field stays editable.</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> {{ fetch.message }} {% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.{% if fetch.cached %} {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span> {% endfor %}{% endif %}</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> Filled from a lesser-confidence source. {{ fetch.message }} Each value keeps its source label. <a href="#c-fetch-states" class="fetch-link">See sources</a></p>
     </div>
     <div class="form-grid">
       <div class="field field-company">
@@ -239,15 +211,14 @@
           <li role="option" id="c-company-opt-{{ loop.index }}" class="combobox-option" data-value="{{ entry.company }}">{{ entry.company }}</li>
           {% endfor %}
         </ul>
-        <span class="caption" id="c-company-help">start typing — suggestions come from the register</span>
         {% if error_field == 'company' %}
         <p class="field-error" id="c-company-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-isin">ISIN</label>
+        <label for="c-isin">ISIN {{ tip("c-isin", "howto", "A 12-character code, shown in capitals. Each ISIN can be on your list only once.") }}</label>
         <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
-        <span class="caption" id="c-isin-help">12 characters, forced uppercase, unique across the register</span>
+        <span class="caption" id="c-isin-help" hidden>12 characters, forced uppercase, unique across the register</span>
         <button type="button" class="btn btn-sm" id="c-isin-fetch">Fetch details</button>
         <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if fetch.state != 'offline' %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
         {% if error_field == 'isin' %}
@@ -274,15 +245,14 @@
           <option value="{{ agency }}"></option>
           {% endfor %}
         </datalist>
-        <span class="caption">pick a preset or type your own — custom values are remembered</span>
       </div>
       <div class="field">
         <label for="c-coupon">Coupon (%){% if fetch.sources_by_field.get('coupon_pct') %}<span class="fetch-source" data-fetch-source="coupon_pct">{{ fetch.sources_by_field.get('coupon_pct') }}</span>{% endif %}</label>
-        <input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}">
+        <div class="field-input-suffix pct"><input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}"><span aria-hidden="true">%</span></div>
       </div>
       <div class="field">
         <label for="c-yield">Est. Yield (%)</label>
-        <input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" value="{{ form.get('expected_yield_pct', '') }}">
+        <div class="field-input-suffix pct"><input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" placeholder="e.g. 9.2" value="{{ form.get('expected_yield_pct', '') }}"><span aria-hidden="true">%</span></div>
       </div>
       <div class="field">
         <label for="c-issuer">Issuer type{% if fetch.sources_by_field.get('issuer_type') %}<span class="fetch-source" data-fetch-source="issuer_type">{{ fetch.sources_by_field.get('issuer_type') }}</span>{% endif %}</label>
@@ -340,7 +310,6 @@
           <option value="{{ broker }}"></option>
           {% endfor %}
         </datalist>
-        <span class="caption">pick a preset or type your own — custom values are remembered</span>
       </div>
       <div class="field span-all" id="company-history" hidden>
         <span class="caption">History of this company (old ISINs)</span>
@@ -355,7 +324,6 @@
         </div>
       </div>
     </div>
-    <p class="caption section-gap">Company and ISIN must be unique across the whole register — duplicates are rejected with a red popup and an inline field error, never silently.</p>
     <div class="section-gap">
       <button class="btn btn-primary" type="submit" id="add-candidate-submit">+ Add Candidate</button>
     </div>
@@ -409,25 +377,26 @@
         <td>
           <span class="co-name">{{ candidate.company }} <span class="chip chip-watching">Watching</span></span>
           <span class="co-isin">{{ candidate.isin }}</span>
+          {% set r = (candidate.rating or '') | upper %}
+          <span class="chip chip-rating {% if r.startswith('AAA') or r in ['AA+', 'AA', 'AA-'] %}chip-rating-aaa{% elif r in ['A+', 'A', 'A-'] %}chip-rating-a{% elif r in ['BBB+', 'BBB', 'BBB-', 'BB+', 'BB', 'BB-', 'B+', 'B', 'B-', 'C', 'D'] %}chip-rating-amber{% else %}chip-rating-none{% endif %}">{{ candidate.rating or 'Not rated' }}</span>
         </td>
         <td>{{ candidate.rating or "—" }}</td>
         <td class="money">{% if candidate.coupon_pct is not none %}{{ "%.1f"|format(candidate.coupon_pct) }}%{% else %}—{% endif %}</td>
         <td class="money">{% if candidate.expected_yield_pct is not none %}{{ "%.1f"|format(candidate.expected_yield_pct) }}%{% else %}—{% endif %}</td>
         <td class="caption">{{ candidate.broker or "" }}</td>
         <td class="caption">{{ candidate.source_note or "" }}</td>
-        <td><button type="button" class="btn btn-sm details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
+        <td><button type="button" class="ui-btn ui-btn-text ui-btn-compact details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
         <td>
-          <button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button>
+          <button type="button" class="ui-btn ui-btn-secondary ui-btn-compact move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button>
         </td>
       </tr>
       <tr class="details-row" id="details-{{ candidate.id }}" hidden>
         <td colspan="8">
           {{ details_facts(candidate) }}
           <div class="details-actions">
-            <form class="inline-form delete-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-company="{{ candidate.company }}" data-isin="{{ candidate.isin }}" data-confirm-message='{{ ("Delete candidate " ~ candidate.company ~ "? This cannot be undone.")|tojson }}' onsubmit="return confirm(JSON.parse(this.dataset.confirmMessage));">
+            <form class="inline-form delete-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-company="{{ candidate.company }}" data-isin="{{ candidate.isin }}">
               <button class="btn btn-sm" type="submit" id="delete-candidate-{{ candidate.id }}">Delete candidate&#8230;</button>
             </form>
-            <span class="caption">Deleting removes this candidate permanently — it cannot be undone.</span>
           </div>
         </td>
       </tr>
@@ -441,7 +410,7 @@
                 <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
               </div>
               <div class="move-field">
-                <label for="move-start-{{ candidate.id }}">Start date (interest accrual / dated date)</label>
+                <label for="move-start-{{ candidate.id }}">Interest start date {{ tip("move-start-" ~ candidate.id, "howto", "The day interest starts to build up. Usually the bond's dated date.") }}</label>
                 <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
               </div>
               <div class="move-field">
@@ -449,7 +418,7 @@
                 <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
               </div>
               <div class="move-field">
-                <label for="move-credit-{{ candidate.id }}">Credit day — when the amount is credited each month</label>
+                <label for="move-credit-{{ candidate.id }}">Interest credit day {{ tip("move-credit-" ~ candidate.id, "howto", "The day of each month when interest is credited to your account.") }}</label>
                 <select id="move-credit-{{ candidate.id }}" name="credit_day">
                   {% for day in range(1, 32) %}
                   <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
@@ -474,17 +443,16 @@
               </div>
               {% if goals %}
               <div class="move-field">
-                <label for="move-goal-{{ candidate.id }}">Financial goal (optional)</label>
+                <label for="move-goal-{{ candidate.id }}">Goal (optional) {{ tip("move-goal-" ~ candidate.id, "howto", "Link this bond to a goal. The link is permanent once saved.") }}</label>
                 <select id="move-goal-{{ candidate.id }}" name="goal_id">
                   <option value="">&#8212; none &#8212;</option>
                   {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
                 </select>
-                <p class="caption">Set once &#8212; the link is permanent: a linked bond can never be moved to another goal or unlinked.</p>
               </div>
               {% endif %}
               <div class="move-actions">
-                <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
-                <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
+                <button class="ui-btn ui-btn-primary ui-btn-compact" type="submit" id="move-{{ candidate.id }}">Move</button>
+                <button class="ui-btn ui-btn-text ui-btn-compact move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
               </div>
             </div>
           </div>
@@ -493,7 +461,7 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="8" class="empty-note" id="watch-empty">no candidates yet — add the first one above</td>
+        <td colspan="8" class="empty-note" id="watch-empty"><strong>No bonds on your watch list yet.</strong><br>Add the first bond above.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -528,11 +496,11 @@
 
 <div class="confirm-dialog" id="delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-body" hidden>
   <div class="confirm-inner">
-    <h2 id="delete-confirm-title">Delete candidate?</h2>
+    <h2 id="delete-confirm-title">Remove this bond?</h2>
     <p id="delete-confirm-body"></p>
     <div class="confirm-actions">
-      <button type="button" class="btn btn-sm" id="delete-confirm-cancel">Cancel</button>
-      <button type="button" class="btn btn-sm btn-danger" id="delete-confirm-accept">Delete</button>
+      <button type="button" class="ui-btn ui-btn-secondary ui-btn-compact" id="delete-confirm-cancel">Cancel</button>
+      <button type="button" class="ui-btn ui-btn-destructive-fill ui-btn-compact" id="delete-confirm-accept">Remove bond</button>
     </div>
   </div>
 </div>
@@ -691,6 +659,7 @@
 (function () {
   var dialog = document.getElementById("delete-confirm");
   var body = document.getElementById("delete-confirm-body");
+  var title = document.getElementById("delete-confirm-title");
   var cancel = document.getElementById("delete-confirm-cancel");
   var accept = document.getElementById("delete-confirm-accept");
   if (!dialog || !body || !cancel || !accept) {
@@ -705,14 +674,26 @@
     trigger.addEventListener("click", function (event) {
       event.preventDefault();
       pending = form;
-      body.textContent = (form.getAttribute("data-company") || "") + " · " + (form.getAttribute("data-isin") || "") + " — this cannot be undone.";
+      title.textContent = "Remove " + (form.getAttribute("data-company") || "this bond") + "?";
+      body.textContent = "This can't be undone.";
       dialog.hidden = false;
       cancel.focus();
     });
   });
-  cancel.addEventListener("click", function () {
+  function closeDialog() {
     dialog.hidden = true;
     pending = null;
+  }
+  cancel.addEventListener("click", closeDialog);
+  dialog.addEventListener("click", function (event) {
+    if (event.target === dialog) {
+      closeDialog();
+    }
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !dialog.hidden) {
+      closeDialog();
+    }
   });
   accept.addEventListener("click", function () {
     var form = pending;

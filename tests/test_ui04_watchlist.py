@@ -244,7 +244,8 @@ def test_ui04_delete_lives_inside_details_behind_named_confirm(client, db_path):
     assert f'id="delete-candidate-{bond_id}"' in details
     assert f'data-company="{CANDIDATE["company"]}"' in details
     assert f'data-isin="{CANDIDATE["isin"]}"' in details
-    assert "return confirm(" in details
+    assert "onsubmit=" not in details
+    assert "return confirm(" not in details
     assert 'role="alertdialog"' in html
     assert 'id="delete-confirm-cancel"' in html
     assert 'id="delete-confirm-accept"' in html
@@ -276,7 +277,7 @@ def test_ui04_move_form_has_no_tabs_goal_is_plain_field(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
     assert 'data-mtab=' not in html
     assert 'name="goal_id"' in html
-    assert "Financial goal" in html
+    assert "Goal (optional)" in html
     assert "House" in html
 
 

@@ -222,9 +222,9 @@ def test_tc87_labels_present_on_watch_moves(client):
     watch_post(client)
     watch_html = client.get("/watch").get_data(as_text=True)
     assert "Purchase date" in watch_html
-    assert "Start date (interest accrual / dated date)" in watch_html
+    assert "Interest start date" in watch_html
     assert "End date" in watch_html
-    assert "Credit day — when the amount is credited each month" in watch_html
+    assert "Interest credit day" in watch_html
     portfolio_html = client.get("/portfolio").get_data(as_text=True)
     assert 'id="add-position"' not in portfolio_html
 
