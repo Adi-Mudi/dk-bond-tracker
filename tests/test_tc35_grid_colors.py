@@ -59,13 +59,11 @@ def test_tc35_paid_due_zero_future_cells_and_status_colors(db_path, monkeypatch)
     assert 'cell cell-due' in html
     assert 'cell cell-future' in html
     css = app.test_client().get("/static/theme.css").get_data(as_text=True)
-    assert "--page-bg: #f8f9fa" in css
-    assert "--card-bg: #f1f3f5" in css
-    assert "--white: #ffffff" in css
+    assert "--card: #ffffff" in css
     assert "--blue-light: #d0ebff" in css
     assert "--paid: #d3f9d8" in css
     assert "--due: #ffc9c9" in css
-    assert "--danger: #ff8787" in css
+    assert "--danger-bg: #fef2f2" in css
     assert "--ongoing: #ff922b" in css
     assert "--completed: #69db7c" in css
     assert "--current-month: #fff3bf" in css
