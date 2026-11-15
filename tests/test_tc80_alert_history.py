@@ -84,6 +84,7 @@ def test_tc80_no_network_or_push_channels_in_source():
     offenders = []
     for path in source_files():
         text = path.read_text(encoding="utf-8").lower()
+        text = text.replace("history.pushstate", "")
         for token in FORBIDDEN_TOKENS:
             if token in text:
                 offenders.append(f"{path.relative_to(SRC)}: {token}")

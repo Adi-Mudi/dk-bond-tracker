@@ -15,6 +15,9 @@
       }
       var open = wrap.classList.toggle("tip-open");
       closeTips(open ? wrap : null);
+      if (open && window.openOverlay) {
+        window.openOverlay();
+      }
     });
   });
   document.addEventListener("click", function () {
@@ -24,7 +27,9 @@
     if (event.key !== "Escape") {
       return;
     }
-    closeTips(null);
+    if (window.closeTopOverlay) {
+      window.closeTopOverlay();
+    }
     var active = document.activeElement;
     if (active && active.classList && active.classList.contains("tip-trigger")) {
       active.blur();
@@ -92,6 +97,9 @@
   function setBell(open) {
     bell.classList.toggle("open", open);
     bell.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open && window.openOverlay) {
+      window.openOverlay();
+    }
   }
   bell.addEventListener("click", function (event) {
     event.stopPropagation();
@@ -107,11 +115,6 @@
   });
   document.addEventListener("click", function (event) {
     if (!bell.contains(event.target)) {
-      setBell(false);
-    }
-  });
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
       setBell(false);
     }
   });

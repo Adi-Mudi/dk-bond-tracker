@@ -121,8 +121,8 @@ def test_tc_af_01_prefill_runs_once_with_source_labels(db_path):
     assert f'value="{COMPANY}"' in html
     assert 'name="coupon_pct" min="0" step="0.01" value="8.75"' in html
     assert 'name="face_value" step="any" min="0" placeholder="1000.00" value="1000"' in html
-    for field in INSTRUMENT_SOURCE_FIELDS:
-        assert f'data-fetch-source="{field}">NSDL<' in html, field
+    assert 'id="fetch-sources"' in html
+    assert 'href="#fetch-sources"' in html
     assert len(calls) == 1
     client.get(f"/watch?isin={ISIN}")
     assert len(calls) == 1

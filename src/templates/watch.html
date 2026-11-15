@@ -197,15 +197,15 @@
     <div class="fetch-states" id="c-fetch-states" data-fetch-states="{{ fetch.states|join(' ') }}" data-fetch-isin="{{ fetch.isin }}">
       <p class="fetch-line fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9432;</span> Type the ISIN and leave the field to look up details.</p>
       <p class="fetch-line fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}><span class="fetch-spinner" aria-hidden="true"></span> Looking up bond details...</p>
-      <p class="fetch-line fetch-line-ok fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#10003;</span> Details filled in. Add your amount and quantity.{% if fetch.source_names %} <a href="#c-fetch-states" class="fetch-link">See sources</a>{% endif %}</p>
+      <p class="fetch-line fetch-line-ok fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#10003;</span> Details filled in. Add your amount and quantity.{% if fetch.source_names %} <a href="#fetch-sources" class="fetch-link">See sources</a>{% endif %}</p>
       <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="notfound"{% if fetch.state != 'notfound' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9432;</span> Metadata not found &mdash; enter manually. No record for this ISIN in the sources we checked. Every field stays editable.</p>
       <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> {{ fetch.message }} {% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.{% if fetch.cached %} {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span> {% endfor %}{% endif %}</p>
-      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> Filled from a lesser-confidence source. {{ fetch.message }} Each value keeps its source label. <a href="#c-fetch-states" class="fetch-link">See sources</a></p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> Filled from a lesser-confidence source. {{ fetch.message }} Each value keeps its source label. <a href="#fetch-sources" class="fetch-link">See sources</a></p>
     </div>
     <div class="form-grid">
       <div class="field field-company">
-        <label for="c-company">Company{% if fetch.sources_by_field.get('company') %}<span class="fetch-source" data-fetch-source="company">{{ fetch.sources_by_field.get('company') }}</span>{% endif %}</label>
-        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" aria-describedby="c-company-help{% if error_field == 'company' %} c-company-error{% endif %}" autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
+        <label for="c-company">Company</label>
+        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" {% if error_field == 'company' %}aria-describedby="c-company-error" {% endif %} autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
         <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
           {% for entry in register %}
           <li role="option" id="c-company-opt-{{ loop.index }}" class="combobox-option" data-value="{{ entry.company }}">{{ entry.company }}</li>
@@ -219,14 +219,14 @@
         <label for="c-isin">ISIN {{ tip("c-isin", "howto", "A 12-character code, shown in capitals. Each ISIN can be on your list only once.") }}</label>
         <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
         <span class="caption" id="c-isin-help" hidden>12 characters, forced uppercase, unique across the register</span>
-        <button type="button" class="btn btn-sm" id="c-isin-fetch">Fetch details</button>
+        <button type="button" class="btn btn-sm" id="c-isin-fetch" data-label-idle="Fetch details" data-label-busy="Looking up..." data-label-wait="Try again in 60s">Fetch details</button>
         <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if fetch.state != 'offline' %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
         {% if error_field == 'isin' %}
         <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-rating">Rating{% if fetch.sources_by_field.get('rating') %}<span class="fetch-source" data-fetch-source="rating">{{ fetch.sources_by_field.get('rating') }}</span>{% endif %}</label>
+        <label for="c-rating">Rating</label>
         <select id="c-rating" name="rating"{% if error_field == 'rating' %} aria-invalid="true" aria-describedby="c-rating-error"{% endif %}>
           <option value=""{% if not form.get('rating') %} selected{% endif %}>&#8212;</option>
           {% for rating in options.ratings %}
@@ -238,7 +238,7 @@
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-rating-agency">Rating agency{% if fetch.sources_by_field.get('rating_agency') %}<span class="fetch-source" data-fetch-source="rating_agency">{{ fetch.sources_by_field.get('rating_agency') }}</span>{% endif %}</label>
+        <label for="c-rating-agency">Rating agency</label>
         <input type="text" id="c-rating-agency" name="rating_agency" list="c-agency-options" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}" autocomplete="off">
         <datalist id="c-agency-options">
           {% for agency in options.agencies %}
@@ -247,7 +247,7 @@
         </datalist>
       </div>
       <div class="field">
-        <label for="c-coupon">Coupon (%){% if fetch.sources_by_field.get('coupon_pct') %}<span class="fetch-source" data-fetch-source="coupon_pct">{{ fetch.sources_by_field.get('coupon_pct') }}</span>{% endif %}</label>
+        <label for="c-coupon">Coupon (%)</label>
         <div class="field-input-suffix pct"><input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}"><span aria-hidden="true">%</span></div>
       </div>
       <div class="field">
@@ -255,7 +255,7 @@
         <div class="field-input-suffix pct"><input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" placeholder="e.g. 9.2" value="{{ form.get('expected_yield_pct', '') }}"><span aria-hidden="true">%</span></div>
       </div>
       <div class="field">
-        <label for="c-issuer">Issuer type{% if fetch.sources_by_field.get('issuer_type') %}<span class="fetch-source" data-fetch-source="issuer_type">{{ fetch.sources_by_field.get('issuer_type') }}</span>{% endif %}</label>
+        <label for="c-issuer">Issuer type</label>
         <select id="c-issuer" name="issuer_type">
           <option value=""{% if not form.get('issuer_type') %} selected{% endif %}>&#8212;</option>
           <option value="corporate_bond"{% if form.get('issuer_type') == 'corporate_bond' %} selected{% endif %}>Corporate bond</option>
@@ -266,7 +266,7 @@
         </select>
       </div>
       <div class="field">
-        <label for="c-secured">Secured{% if fetch.sources_by_field.get('secured') %}<span class="fetch-source" data-fetch-source="secured">{{ fetch.sources_by_field.get('secured') }}</span>{% endif %}</label>
+        <label for="c-secured">Secured</label>
         <select id="c-secured" name="secured">
           <option value=""{% if not form.get('secured') %} selected{% endif %}>&#8212;</option>
           <option value="1"{% if form.get('secured') == '1' %} selected{% endif %}>Secured</option>
@@ -274,11 +274,11 @@
         </select>
       </div>
       <div class="field">
-        <label for="c-face">Face value{% if fetch.sources_by_field.get('face_value') %}<span class="fetch-source" data-fetch-source="face_value">{{ fetch.sources_by_field.get('face_value') }}</span>{% endif %}</label>
+        <label for="c-face">Face value</label>
         <input type="number" id="c-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
       </div>
       <div class="field">
-        <label for="c-cycle">Payout cycle{% if fetch.sources_by_field.get('payout_cycle') %}<span class="fetch-source" data-fetch-source="payout_cycle">{{ fetch.sources_by_field.get('payout_cycle') }}</span>{% endif %}</label>
+        <label for="c-cycle">Payout cycle</label>
         <select id="c-cycle" name="payout_cycle">
           <option value=""{% if not form.get('payout_cycle') %} selected{% endif %}>&#8212;</option>
           <option value="monthly"{% if form.get('payout_cycle') == 'monthly' %} selected{% endif %}>Monthly</option>
@@ -338,7 +338,7 @@
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
-    <div class="facts-grid">
+    <div class="facts-grid" id="fetch-sources">
       {% for fact, field in fetch_fact_order %}
       {% if fetch.facts.get(fact) is not none %}
       {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.facts.get(fact) %}
@@ -677,6 +677,7 @@
       title.textContent = "Remove " + (form.getAttribute("data-company") || "this bond") + "?";
       body.textContent = "This can't be undone.";
       dialog.hidden = false;
+      window.openOverlay();
       cancel.focus();
     });
   });
@@ -687,11 +688,6 @@
   cancel.addEventListener("click", closeDialog);
   dialog.addEventListener("click", function (event) {
     if (event.target === dialog) {
-      closeDialog();
-    }
-  });
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !dialog.hidden) {
       closeDialog();
     }
   });
@@ -857,6 +853,9 @@
     syncDirty();
     closePopup();
     showState("checking");
+    if (button) {
+      button.textContent = button.getAttribute("data-label-busy") || button.textContent;
+    }
     window.location.assign("/watch?" + serialize());
   }
   form.addEventListener("input", mark);
@@ -874,6 +873,7 @@
     var popupIsin = popup.getAttribute("data-fetch-isin") || "";
     if (isin && popupIsin && popupIsin === isinValue()) {
       popup.hidden = false;
+      window.openOverlay();
     }
     if (applyButton) {
       applyButton.addEventListener("click", function () {
@@ -934,6 +934,7 @@
     return;
   }
   var readout = document.getElementById("c-isin-countdown-seconds");
+  var fetchButton = document.getElementById("c-isin-fetch");
   var full = parseInt(chip.getAttribute("data-countdown-seconds"), 10);
   if (isNaN(full) || full <= 0) {
     full = 60;
@@ -943,6 +944,9 @@
     if (readout) {
       readout.textContent = String(remaining);
     }
+    if (fetchButton) {
+      fetchButton.textContent = fetchButton.getAttribute("data-label-wait") || fetchButton.textContent;
+    }
   }
   paint();
   var ticker = window.setInterval(function () {
@@ -951,6 +955,9 @@
     if (remaining <= 0) {
       window.clearInterval(ticker);
       chip.hidden = true;
+      if (fetchButton) {
+        fetchButton.textContent = fetchButton.getAttribute("data-label-idle") || fetchButton.textContent;
+      }
     }
   }, 1000);
 })();

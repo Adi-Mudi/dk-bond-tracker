@@ -83,7 +83,7 @@
     </div>
     <div class="search-wrap" id="searchWrap">
       <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds" aria-haspopup="true" aria-expanded="false" aria-controls="searchPanel">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
       </button>
       <div class="search-panel" id="searchPanel" hidden>
         <form method="get" action="/search" id="searchForm" role="search">
@@ -93,8 +93,8 @@
         <p class="caption" id="searchHint">Type to search both lists together — press / to open search from anywhere.</p>
       </div>
     </div>
-    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Page guide — walkthrough + rules" aria-label="Page guide" aria-haspopup="dialog" aria-expanded="false">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Help" aria-label="Help" aria-haspopup="dialog" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
     </button>
     <div class="overflow" id="overflow">
       <button type="button" class="icon-btn" id="overflowToggle" aria-haspopup="true" aria-expanded="false" aria-controls="overflowPanel" title="More options" aria-label="More options"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
@@ -161,6 +161,41 @@
 </nav>
 
 <script>
+  window.closeTopOverlay = function () {
+    var confirmDialog = document.getElementById("delete-confirm");
+    if (confirmDialog && !confirmDialog.hidden) {
+      confirmDialog.hidden = true;
+      return true;
+    }
+    var openTip = document.querySelector(".tip-wrap.tip-open");
+    if (openTip) {
+      openTip.classList.remove("tip-open");
+      return true;
+    }
+    var bell = document.getElementById("notificationsBell");
+    if (bell && bell.classList.contains("open")) {
+      bell.classList.remove("open");
+      bell.setAttribute("aria-expanded", "false");
+      return true;
+    }
+    var fetchPopup = document.getElementById("fetch-details");
+    if (fetchPopup && !fetchPopup.hidden) {
+      fetchPopup.hidden = true;
+      return true;
+    }
+    return false;
+  };
+  window.openOverlay = function () {
+    history.pushState({ overlay: true }, "");
+  };
+  window.addEventListener("popstate", function () {
+    window.closeTopOverlay();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && window.closeTopOverlay()) {
+      history.back();
+    }
+  });
   (function () {
     var body = document.body;
     var stateLabel = document.getElementById("privacyState");
