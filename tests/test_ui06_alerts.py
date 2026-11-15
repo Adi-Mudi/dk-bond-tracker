@@ -125,9 +125,10 @@ def test_ui06_unread_is_bold_with_semantic_left_bar(client, db_path):
     html = client.get("/notifications").get_data(as_text=True)
     assert 'class="alert-card alert-danger unread"' in html
     assert ".alert-card.unread .alert-message { font-weight: 700; }" in TEMPLATE
-    assert ".alert-card.alert-danger, .alert-card.alert-due_today { border-left-color: var(--c-red); }" in TEMPLATE
-    assert ".alert-card.alert-reminder, .alert-card.alert-warn { border-left-color: var(--c-amber); }" in TEMPLATE
-    assert ".alert-card.alert-maturity_soon { border-left-color: var(--c-blue); }" in TEMPLATE
+    assert ".alert-card.alert-danger { border-left-color: var(--c-red); }" in TEMPLATE
+    assert ".alert-card.alert-warn, .alert-card.alert-due_today { border-left-color: var(--c-amber); }" in TEMPLATE
+    assert ".alert-card.alert-reminder { border-left-color: var(--c-blue); }" in TEMPLATE
+    assert "alert-maturity_soon { border-left-color" not in TEMPLATE
     response = client.post("/notifications/read_all")
     assert response.status_code == 302
     html = client.get("/notifications").get_data(as_text=True)

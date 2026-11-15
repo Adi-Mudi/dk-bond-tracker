@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block page_title %}Alerts{% endblock %}
 {% block head %}
 <style>
   .feed-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -19,7 +20,7 @@
   .filter-chip-feed.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .feed-group { margin-bottom: 16px; }
   .feed-group-title {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -29,19 +30,16 @@
   .alert-card { text-decoration: none; color: var(--text); }
   .alert-card .alert-message { font-weight: 400; }
   .alert-card.unread .alert-message { font-weight: 700; }
-  .alert-card .alert-members { display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
-  .alert-card.alert-danger, .alert-card.alert-due_today { border-left-color: var(--c-red); }
-  .alert-card.alert-reminder, .alert-card.alert-warn { border-left-color: var(--c-amber); }
-  .alert-card.alert-maturity_soon { border-left-color: var(--c-blue); }
-  .alert-card.alert-info { border-left-color: var(--muted); }
+  .alert-card .alert-members { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+  .alert-card.alert-danger { border-left-color: var(--c-red); }
+  .alert-card.alert-warn, .alert-card.alert-due_today { border-left-color: var(--c-amber); }
+  .alert-card.alert-reminder { border-left-color: var(--c-blue); }
   .feed-empty { text-align: center; padding: 28px 12px; }
   .feed-empty-icon { font-size: 1.6rem; color: var(--c-green); }
   .feed-empty strong { display: block; margin: 6px 0 4px; font-size: 1rem; }
 </style>
 {% endblock %}
 {% block content %}
-<h1>Alerts</h1>
-
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 {% for category, message in messages %}

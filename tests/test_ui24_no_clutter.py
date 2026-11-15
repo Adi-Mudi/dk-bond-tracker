@@ -32,7 +32,7 @@ def test_guard_detects_a_reintroduced_label():
 
 def test_grid_sorting_rule_lives_in_the_page_guide():
     guide = (TEMPLATES / "_guide.html").read_text(encoding="utf-8")
-    assert "Payout grid guide" in guide
+    assert "How this page works" in guide
     assert "Danger rows sit at the top" in guide
 
 

@@ -15,12 +15,12 @@ TOOLTIP_TPL = (ROOT / "src" / "templates" / "_tooltip.html").read_text(encoding=
 
 PAGES = ("/", "/portfolio", "/watch", "/goals", "/notifications", "/settings")
 GUIDE_TITLES = {
-    "/": "Dashboard guide",
-    "/portfolio": "Portfolio guide",
-    "/watch": "Watchlist guide",
-    "/goals": "Goals guide",
-    "/notifications": "Alerts guide",
-    "/settings": "Settings guide",
+    "/": "How this page works",
+    "/portfolio": "How this page works",
+    "/watch": "How this page works",
+    "/goals": "How this page works",
+    "/notifications": "How this page works",
+    "/settings": "How this page works",
 }
 DISCLAIMER_PHRASES = (
     "information-only",
