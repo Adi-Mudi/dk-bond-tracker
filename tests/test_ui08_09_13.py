@@ -73,7 +73,7 @@ def test_ui08_watch_guide_explains_blocking_rules_in_plain_language(client, db_p
     assert "guide-rule guide-blocking" in html
     assert "One ISIN, one entry" in html
     assert "Investment grade only" in html
-    assert "Move to Portfolio" in html
+    assert "Move to portfolio" in html
 
 
 def test_ui08_tooltip_a11y_attributes_present(client, db_path):
