@@ -56,11 +56,14 @@ jobs:
       - name: Check release signature
         env:
           DKBT_RELEASE_FINGERPRINT: ${{ secrets.DKBT_RELEASE_FINGERPRINT }}
-        run: sh scripts/check-release-signature.sh android/app/build/outputs/apk/release/DK-Bond-Tracker-1.0.8.apk
+        run: |
+          APK="$(ls android/app/build/outputs/apk/release/DK-Bond-Tracker-*.apk | head -n 1)"
+          echo "signature-checking $APK"
+          sh scripts/check-release-signature.sh "$APK"
 
       - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
           name: dk-bond-tracker-release-apk
-          path: android/app/build/outputs/apk/release/DK-Bond-Tracker-1.0.8.apk
+          path: android/app/build/outputs/apk/release/DK-Bond-Tracker-*.apk
           if-no-files-found: error
