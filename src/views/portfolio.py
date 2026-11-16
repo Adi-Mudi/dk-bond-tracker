@@ -317,7 +317,7 @@ def portfolio_update_listing_status(bond_id):
     db_file = app_db()
     listing_status = request.form.get("listing_status", "").strip()
     if listing_status not in ("listed", "unlisted", "unknown"):
-        return jsonify({"error": "invalid listing_status"}), 400
+        return error_page("ERR-listing-status", "invalid listing_status", "Listing update failed", 400)
     try:
         with get_conn(db_file) as conn:
             cursor = conn.execute(
@@ -325,10 +325,11 @@ def portfolio_update_listing_status(bond_id):
                 (listing_status, bond_id),
             )
             if cursor.rowcount != 1:
-                return jsonify({"error": "bond not found"}), 404
+                return error_page("ERR-listing-status", f"bond not found: {bond_id}", "Listing update failed", 404)
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
-    return jsonify({"ok": True, "listing_status": listing_status})
+        return error_page("ERR-listing-status", str(exc), "Listing update failed", 500)
+    flash("Listing status updated", "success")
+    return redirect(url_for("portfolio.portfolio_detail_page", bond_id=bond_id))
 
 
 @bp.route("/portfolio/invalid/<int:bond_id>/remove", methods=["POST"])
