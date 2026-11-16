@@ -19,6 +19,7 @@ from src.ledger import ledger_by_bond
 from src.phase4 import payment_cycle_of, payout_schedule
 from src.queries import month_label, position_detail, received_by_bond
 from src.queries.summary import bond_master_provenance_map
+from src.maturity import months_remaining_from_row
 from src.status import month_key
 from src.validators import AppError, parse_date_value, safe_float
 from src.views.common import app_db, error_page
@@ -52,6 +53,7 @@ def portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
     for row in bond_rows:
         entries = ledger_by_bond.get(row["id"], {})
         invested, health, next_payout, bad_amount = row_health_state(row, entries, today, "—")
+        months_rem = months_remaining_from_row(row)
         holdings.append(
             {
                 "id": row["id"],
@@ -77,6 +79,9 @@ def portfolio_holdings(conn, bond_rows, ledger_by_bond, today):
                 "purchase_date": purchase_date_label(row["purchase_date"]),
                 "qty": purchase_qty_value(row["qty"]),
                 "provenance": provenance.get(row["isin"]),
+                "months_remaining": months_rem,
+                "maturity_date": row["maturity_date"],
+                "listing_status": row["listing_status"],
             }
         )
     return sort_rows(holdings)
@@ -228,7 +233,8 @@ def portfolio_context(conn, today, tab, form, error, code, group_by="none"):
     bond_rows = conn.execute(
         "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
         "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, broker, "
-        "amount, start_date, end_date, tenure_months, credit_day, purchase_date, qty "
+        "amount, start_date, end_date, tenure_months, credit_day, purchase_date, qty, "
+        "maturity_date, listing_status "
         "FROM bonds WHERE watch_state = 'holding' "
         "ORDER BY id"
     ).fetchall()
@@ -304,6 +310,26 @@ def portfolio_position_detail(bond_id):
     except AppError as exc:
         return jsonify({"error": exc.code, "message": exc.message}), 404
     return jsonify(detail)
+
+
+@bp.route("/portfolio/<int:bond_id>/listing_status", methods=["POST"])
+def portfolio_update_listing_status(bond_id):
+    db_file = app_db()
+    listing_status = request.form.get("listing_status", "").strip()
+    if listing_status not in ("listed", "unlisted", "unknown"):
+        return error_page("ERR-listing-status", "invalid listing_status", "Listing update failed", 400)
+    try:
+        with get_conn(db_file) as conn:
+            cursor = conn.execute(
+                "UPDATE bonds SET listing_status = ? WHERE id = ? AND watch_state = 'holding'",
+                (listing_status, bond_id),
+            )
+            if cursor.rowcount != 1:
+                return error_page("ERR-listing-status", f"bond not found: {bond_id}", "Listing update failed", 404)
+    except Exception as exc:
+        return error_page("ERR-listing-status", str(exc), "Listing update failed", 500)
+    flash("Listing status updated", "success")
+    return redirect(url_for("portfolio.portfolio_detail_page", bond_id=bond_id))
 
 
 @bp.route("/portfolio/invalid/<int:bond_id>/remove", methods=["POST"])

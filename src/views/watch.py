@@ -89,7 +89,11 @@ WATCH_FORM_FIELDS = (
     "qty",
     "source_note",
     "broker",
+    "maturity_date",
+    "listing_status",
 )
+
+WATCH_LISTING_STATUSES = ("listed", "unlisted", "unknown")
 
 FETCH_IDLE = "idle"
 FETCH_CHECKING = "checking"
@@ -249,12 +253,13 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
     asof = ""
     if state in (FETCH_FOUND, FETCH_DOWNGRADE):
         asof = fetched_at or _asof_now()
-    elif state == FETCH_OFFLINE and cached_row:
+    if state in (FETCH_FOUND, FETCH_DOWNGRADE, FETCH_OFFLINE) and cached_row:
         cached = {
             field: cached_row[field]
             for field in INSTRUMENT_FIELDS
             if cached_row.get(field) is not None
         }
+    if state == FETCH_OFFLINE and cached_row:
         asof = str(cached_row.get("fetched_at") or "")
     failure_code = result.failure_code if result is not None else None
     return {
@@ -282,6 +287,17 @@ def apply_fetch(current, payload, dirty):
     sources_by_field = {}
     fetched = fetched_form_values(payload.get("facts") or {})
     sources = payload.get("sources") or {}
+    cached = payload.get("cached") or {}
+    if cached:
+        if cached.get("maturity") is not None:
+            fetched["maturity_date"] = str(cached["maturity"])
+        if cached.get("listing_status"):
+            fetched["listing_status"] = cached["listing_status"]
+    facts = payload.get("facts") or {}
+    if facts.get("maturity") is not None:
+        fetched.setdefault("maturity_date", str(facts["maturity"]))
+    if facts.get("listing_status"):
+        fetched.setdefault("listing_status", facts["listing_status"])
     for field, value in fetched.items():
         if field in POSITION_FIELDS:
             continue
@@ -463,7 +479,7 @@ def watch_candidates(db_file):
         rows = conn.execute(
             "SELECT id, company, isin, rating, coupon_pct, expected_yield_pct, name, "
             "broker, rating_agency, issuer_type, secured, face_value, payout_cycle, "
-            "qty, watch_investment "
+            "qty, watch_investment, maturity_date, listing_status "
             "FROM bonds WHERE watch_state = 'watching' ORDER BY company COLLATE NOCASE, id"
         ).fetchall()
     candidates = []
@@ -516,6 +532,16 @@ def watch_form_values(form):
             f"issuer_type must be one of corporate_bond, ncd, sdi, "
             f"government, fd: {issuer_type!r}",
         )
+    maturity_raw = str(form.get("maturity_date", "")).strip()
+    maturity_date = (
+        parse_date_value(maturity_raw, "maturity_date").isoformat() if maturity_raw else None
+    )
+    listing_status = str(form.get("listing_status", "")).strip() or "unknown"
+    if listing_status not in WATCH_LISTING_STATUSES:
+        raise AppError(
+            "ERR-watch-add",
+            f"listing_status must be listed, unlisted or unknown: {listing_status!r}",
+        )
     payout_cycle = str(form.get("payout_cycle", "")).strip() or None
     if payout_cycle is not None and payout_cycle not in WATCH_PAYOUT_CYCLES:
         raise AppError(
@@ -549,6 +575,8 @@ def watch_form_values(form):
         "face_value": face_value,
         "watch_investment": watch_investment,
         "qty": qty,
+        "maturity_date": maturity_date,
+        "listing_status": listing_status,
     }
 
 
@@ -578,8 +606,9 @@ def watch_insert_candidate(conn, values):
     cursor = conn.execute(
         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
         "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
-        "secured, face_value, payout_cycle, qty, watch_investment) "
-        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?)",
+        "secured, face_value, payout_cycle, qty, watch_investment, "
+        "maturity_date, listing_status) "
+        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             values["company"],
             values["isin"],
@@ -595,6 +624,8 @@ def watch_insert_candidate(conn, values):
             values["payout_cycle"],
             values["qty"],
             values["watch_investment"],
+            values["maturity_date"],
+            values["listing_status"],
         ),
     )
     if cursor.rowcount != 1:
@@ -709,7 +740,8 @@ def watch_move(candidate_id):
         goal_raw = str(form.get("goal_id", "") or "").strip()
         with get_conn(db_file) as conn:
             row = conn.execute(
-                "SELECT id, company, isin, watch_state FROM bonds WHERE id = ?",
+                "SELECT id, company, isin, watch_state, maturity_date, listing_status "
+                "FROM bonds WHERE id = ?",
                 (candidate_id,),
             ).fetchone()
             if row is None:
@@ -735,10 +767,12 @@ def watch_move(candidate_id):
                         "ERR-move-watching", f"financial goal not found: {goal_id!r}"
                     )
             check_add_allowed(row["company"], row["isin"], conn)
+            maturity_date = row["maturity_date"]
+            listing_status = row["listing_status"] or "unknown"
             cursor = conn.execute(
                 "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
                 "credit_day = ?, amount = ?, qty = ?, broker = ?, purchase_date = ?, "
-                "goal_id = ?, watch_state = 'holding' "
+                "goal_id = ?, watch_state = 'holding', maturity_date = ?, listing_status = ? "
                 "WHERE id = ? AND watch_state = 'watching'",
                 (
                     start_date.isoformat(),
@@ -750,6 +784,8 @@ def watch_move(candidate_id):
                     broker,
                     purchase_date.isoformat(),
                     goal_id,
+                    maturity_date,
+                    listing_status,
                     candidate_id,
                 ),
             )

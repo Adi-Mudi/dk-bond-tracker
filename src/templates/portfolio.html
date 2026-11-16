@@ -189,6 +189,7 @@
               <th class="num">Invested &#8377;</th>
               <th class="num">Received &#8377;</th>
               <th>Next Payout</th>
+              <th class="num">Months Remaining</th>
               <th class="cell-sticky cell-right">Status</th>
             </tr>
           </thead>
@@ -196,7 +197,7 @@
             {% for entry in rows_flat %}
             {% if entry.kind == "group" %}
             <tr class="group-head-row" data-group="{{ entry.label|lower }}">
-              <td colspan="10" class="group-head">
+              <td colspan="11" class="group-head">
                 <span class="group-name">{{ entry.label }}</span>
                 {% if entry.locked_target is not none %}<span class="chip chip-watching">&#128274; {{ money_text(entry.locked_target) }}</span>{% endif %}
                 <span class="caption">{{ entry.count }} bond{% if entry.count != 1 %}s{% endif %}</span>
@@ -214,6 +215,7 @@
               <td class="num money invested-value">{{ money_text(row.invested) }}</td>
               <td class="num money">{{ money_text(row.received) }}</td>
               <td>{{ row.next_payout }}</td>
+              <td class="num">{% if row.months_remaining is not none %}{{ row.months_remaining }}{% else %}\u2014{% endif %}</td>
               <td class="cell-sticky cell-right">
                 <span class="chip chip-{{ row.health|lower|replace('-', '') }}" data-status="{{ row.health }}">{{ row.health }}</span>
                 <a class="detail-link" href="/portfolio/{{ row.id }}" data-id="{{ row.id }}">Detail &#8594;</a>
@@ -225,11 +227,11 @@
                 {% endif %}
               </td>
             </tr>
-            <tr class="attr-row-hidden" hidden><td colspan="10" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
+            <tr class="attr-row-hidden" hidden><td colspan="11" class="attr-strip">{{ attribute_strip(row) }}</td></tr>
             {% endif %}
             {% else %}
             <tr>
-              <td colspan="10" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
+              <td colspan="11" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
             </tr>
             {% endfor %}
           </tbody>
