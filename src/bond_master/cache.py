@@ -113,7 +113,8 @@ class BondMasterCache:
                     values[field] = existing[field]
             if values["source"] is None:
                 values["source"] = existing["source"]
-        values["fetched_at"] = _asof_timestamp(self._clock())
+        if values["fetched_at"] is None:
+            values["fetched_at"] = _asof_timestamp(self._clock())
         with get_conn(self.db_path) as conn:
             conn.execute(_INSERT_SQL, tuple(values[field] for field in BOND_MASTER_FIELDS))
         return values

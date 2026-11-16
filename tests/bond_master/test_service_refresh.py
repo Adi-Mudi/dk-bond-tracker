@@ -281,6 +281,89 @@ def test_tc_afr_09_auto_pass_skips_deleted_isin(db_path, monkeypatch):
     assert PORTFOLIO_ISIN not in adapter.calls
 
 
+def test_tc_afr_04_manual_refresh_does_not_reset_the_auto_twelve_hour_stamp(db_path, monkeypatch):
+    from src.bond_master.service import LAST_AUTO_FETCH_KEY
+    from src.prefs import get_pref, set_pref
+
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    adapter = RecordingAdapter()
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    client, _app = _refresh_client(db_path, adapter)
+    recent = repr(time.time() - 60)
+    with get_conn(db_path) as conn:
+        set_pref(conn, LAST_AUTO_FETCH_KEY, recent)
+    ran = client.post(f"/portfolio/{bond_id}/refresh?force=1")
+    assert ran.status_code == 200
+    assert adapter.calls == [PORTFOLIO_ISIN]
+    with get_conn(db_path) as conn:
+        assert get_pref(conn, LAST_AUTO_FETCH_KEY) == recent
+
+
+def test_tc_afr_08_watchlist_candidate_delete_marks_the_isin_deleted(db_path):
+    from src.bond_master.service import _deleted_isins
+
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN, watch_state="watching")
+    client, _app = _refresh_client(db_path, RecordingAdapter())
+    response = client.post(f"/watch/{bond_id}/delete")
+    assert response.status_code == 302
+    with get_conn(db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) AS n FROM bonds WHERE id = ?", (bond_id,)).fetchone()["n"] == 0
+        assert PORTFOLIO_ISIN in _deleted_isins(conn)
+
+
+def test_tc_afr_08_stale_facts_without_force_refresh_returns_200(db_path, monkeypatch):
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    adapter = RecordingAdapter()
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    client, _app = _refresh_client(db_path, adapter)
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bond_master SET fetched_at = ? WHERE isin = ?",
+            ("2020-01-01T00:00:00+00:00", PORTFOLIO_ISIN),
+        )
+    response = client.post(f"/portfolio/{bond_id}/refresh")
+    assert response.status_code == 200
+    assert response.get_json()["status"] == "refreshed"
+    assert adapter.calls == [PORTFOLIO_ISIN]
+
+
+def test_tc_afr_08_watch_insert_and_backup_restore_clear_the_deleted_mark(db_path):
+    from src.bond_master.service import _deleted_isins, mark_isin_deleted
+    from src.db import init_db
+    from src.app import create_app
+    from src.import_csv import import_backup_csv
+    from src.views.watch import watch_form_values, watch_insert_candidate
+    from tests.conftest import add_bond
+
+    form = {
+        "company": "Test Co",
+        "isin": PORTFOLIO_ISIN,
+        "rating": "AAA",
+        "source_note": "test",
+        "coupon_pct": "7.5",
+        "expected_yield_pct": "7.5",
+    }
+    with get_conn(db_path) as conn:
+        mark_isin_deleted(conn, PORTFOLIO_ISIN)
+        watch_insert_candidate(conn, watch_form_values(form))
+        assert PORTFOLIO_ISIN not in _deleted_isins(conn)
+        mark_isin_deleted(conn, PORTFOLIO_ISIN)
+
+    source = db_path.parent / "restore_source.db"
+    init_db(source)
+    with get_conn(source) as conn:
+        add_bond(conn, "Restore Co", PORTFOLIO_ISIN, "2026-01-01", 60)
+    text = create_app(str(source)).test_client().get("/export.csv?scope=backup").get_data(as_text=True)
+    target = db_path.parent / "restore_target.db"
+    init_db(target)
+    with get_conn(target) as conn:
+        mark_isin_deleted(conn, PORTFOLIO_ISIN)
+    with get_conn(target) as conn:
+        counts = import_backup_csv(conn, text)
+        assert counts["bonds"] == 1
+        assert PORTFOLIO_ISIN not in _deleted_isins(conn)
+
+
 def test_fix1_auto_pass_with_no_isins_does_not_record_the_stamp(db_path, monkeypatch):
     monkeypatch.setattr(svc, "_auto_due", lambda _db, _now: True)
     stamped = []
@@ -376,6 +459,8 @@ def test_tc_afr_10_staleness_cue_renders_on_portfolio_and_detail(db_path):
     assert 'id="detail-provenance"' in detail
     assert 'class="co-stale" data-stale="1"' in detail
     assert old[:10] in detail
+    assert 'id="detail-refresh"' in detail
+    assert f'data-refresh-url="/portfolio/{bond_id}/refresh"' in detail
 
 
 def test_tc_afr_10_fresh_facts_show_no_staleness_cue(db_path):

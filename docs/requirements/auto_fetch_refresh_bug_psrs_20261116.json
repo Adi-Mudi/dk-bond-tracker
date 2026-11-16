@@ -2,7 +2,7 @@
   "id": "auto_fetch_refresh_bug_psrs_20261116",
   "kind": "psrs",
   "title": "Auto-fetch refresh bug fix - fetch policy, portfolio manual refresh, deleted-ISIN cleanup, staleness cue",
-  "version": "v5.1",
+  "version": "v5.2",
   "status": "accepted",
   "project": "dk-bond-tracker",
   "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/272",
@@ -110,9 +110,9 @@
       "status": "accepted",
       "acceptance_criteria": [
         {
-          "given": "a bond_master.fetched_at is 3 days old",
+          "given": "a bond_master.fetched_at is 3 days old and the user is on the per-ISIN manual refresh control (Portfolio row or position detail page)",
           "when": "the user taps manual refresh",
-          "then": "a confirmation dialog shows the fetched date and asks to proceed"
+          "then": "a confirmation dialog shows the fetched date and asks to proceed; the global Watchlist /watch/refresh button is exempt and runs without confirm"
         }
       ]
     },
@@ -139,8 +139,8 @@
       "acceptance_criteria": [
         {
           "given": "the database schema is inspected",
-          "when": "the migration runs",
-          "then": "last_auto_fetch column/table exists and is populated on each auto-fetch pass; bond_master.fetched_at is updated per ISIN on every fetch"
+          "when": "an auto-fetch pass completes",
+          "then": "last_auto_fetch is stored as a key/value row in alert_prefs and survives restarts (no schema change); bond_master.fetched_at is updated per ISIN on every successful fetch"
         }
       ]
     },
@@ -631,6 +631,11 @@
       "version": "v5.1",
       "date": "2026-11-16",
       "note": "Fix round for #273 (PM rulings F6-F8): (1) AFR-07 confirm scoped to the per-ISIN manual refresh control (Portfolio row and position detail page); the global Watchlist /watch/refresh button is exempt and runs without confirm. (2) AFR-10 mirror scoped to the Portfolio per-ISIN control; global Watchlist button keeps no confirm. (3) AFR-09 last_auto_fetch wording: persisted in alert_prefs as a key/value row (survives restarts); no schema change. (4) Recorded: fetched_at advances on every successful fetch even when facts are unchanged (F2 ruling)."
+    },
+    {
+      "version": "v5.2",
+      "date": "2026-11-16",
+      "note": "Fix round 3 for #273 (R2 batch-2 N2): AFR-09 acceptance criterion reworded from schema column/table to the alert_prefs key/value row persistence (aligns with the v5.1 F8 text); AFR-07 acceptance criterion scoped to the per-ISIN manual refresh control with the global Watchlist button noted exempt."
     }
   ]
 }
