@@ -76,7 +76,8 @@
         </dd>
         <dt>Broker</dt><dd>{{ detail.broker or "—" }}</dd>
         <dt>Where you found it</dt><dd>{{ detail.source_note or "—" }}</dd>
-        {% if detail.provenance %}<dt>Fetched facts</dt><dd id="detail-provenance" data-source="{{ detail.provenance.source }}">from {{ detail.provenance.source }}{% if detail.provenance.as_of %} · as of {{ detail.provenance.as_of }}{% endif %}</dd>{% endif %}
+        {% if detail.provenance %}<dt>Fetched facts</dt><dd id="detail-provenance" data-source="{{ detail.provenance.source }}">from {{ detail.provenance.source }}{% if detail.provenance.as_of %} · as of {{ detail.provenance.as_of }}{% endif %}{% if detail.provenance.stale %} <span class="co-stale" data-stale="1">stale - over 7 days old</span>{% endif %}</dd>{% endif %}
+        <dt>Refresh facts</dt><dd><button type="button" class="btn-refresh-isin" id="detail-refresh" data-refresh-url="/portfolio/{{ detail.id }}/refresh" aria-label="Refresh fetched facts for {{ detail.company }}">Refresh</button></dd>
       </dl>
     </div>
   </section>
@@ -133,6 +134,36 @@
       activate(tab.getAttribute("data-dtab"));
     });
   });
+  var refresh = document.getElementById("detail-refresh");
+  function refreshFacts(url, force) {
+    refresh.disabled = true;
+    fetch(url + (force ? "?force=1" : ""), { method: "POST", headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { status: response.status, data: data };
+        });
+      })
+      .then(function (result) {
+        if (result.status === 409 && !force) {
+          if (window.confirm(result.data.message)) {
+            refreshFacts(url, true);
+          }
+          return;
+        }
+        refresh.title = (result.data && result.data.message) || "";
+      })
+      .catch(function () {
+        refresh.title = "Refresh failed - nothing is blocked.";
+      })
+      .then(function () {
+        refresh.disabled = false;
+      });
+  }
+  if (refresh) {
+    refresh.addEventListener("click", function () {
+      refreshFacts(refresh.getAttribute("data-refresh-url"), false);
+    });
+  }
 })();
 </script>
 {% endblock %}

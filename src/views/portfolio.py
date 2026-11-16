@@ -18,7 +18,7 @@ from src.engine import (
 from src.ledger import ledger_by_bond
 from src.phase4 import payment_cycle_of, payout_schedule
 from src.queries import month_label, position_detail, received_by_bond
-from src.queries.summary import bond_master_provenance_map
+from src.queries.summary import bond_master_provenance_map, provenance_is_stale
 from src.maturity import months_remaining_from_row
 from src.status import month_key
 from src.validators import AppError, parse_date_value, safe_float
@@ -312,6 +312,62 @@ def portfolio_position_detail(bond_id):
     return jsonify(detail)
 
 
+@bp.route("/portfolio/<int:bond_id>/refresh", methods=["POST"])
+def portfolio_refresh(bond_id):
+    from src.bond_master import service as bond_service
+    from src.views.watch import BOND_MASTER_TRANSPORT_KEY, _bond_cache
+    from flask import current_app
+
+    db_file = app_db()
+    with get_conn(db_file) as conn:
+        row = conn.execute("SELECT isin FROM bonds WHERE id = ?", (bond_id,)).fetchone()
+    if row is None or not row["isin"]:
+        return jsonify({"status": "error", "message": "bond has no ISIN to refresh"}), 404
+    cache = _bond_cache()
+    remaining = cache.cooldown_remaining()
+    if remaining > 0:
+        return (
+            jsonify(
+                {
+                    "trigger": "manual",
+                    "status": "cooldown",
+                    "remaining": round(remaining, 1),
+                    "message": f"Refresh blocked - {remaining:.0f}s cooldown remaining",
+                }
+            ),
+            429,
+        )
+    if not request.values.get("force"):
+        with get_conn(db_file) as conn:
+            fresh = conn.execute(
+                "SELECT fetched_at FROM bond_master WHERE isin = ?", (row["isin"],)
+            ).fetchone()
+        if fresh is not None and fresh["fetched_at"] and not provenance_is_stale(fresh["fetched_at"]):
+            return (
+                jsonify(
+                    {
+                        "trigger": "manual",
+                        "status": "already_fetched",
+                        "fetched_at": fresh["fetched_at"],
+                        "message": f"already fetched {fresh['fetched_at']} - refresh anyway?",
+                    }
+                ),
+                409,
+            )
+    summary = bond_service.refresh_isin(
+        db_file,
+        row["isin"],
+        transport=current_app.config.get(BOND_MASTER_TRANSPORT_KEY),
+    )
+    return jsonify(
+        {
+            "trigger": "manual",
+            "status": "refreshed",
+            "summary": summary,
+            "message": "Bond master refresh finished",
+        }
+    )
+
 @bp.route("/portfolio/<int:bond_id>/listing_status", methods=["POST"])
 def portfolio_update_listing_status(bond_id):
     db_file = app_db()
@@ -353,6 +409,7 @@ def portfolio_invalid_remove(bond_id):
                     "ERR-invalid-remove",
                     f"position {bond_id} is valid; remove is only for rows with dates that need review",
                 )
+            isin_row = conn.execute("SELECT isin FROM bonds WHERE id = ?", (bond_id,)).fetchone()
             conn.execute("DELETE FROM payment_ledger WHERE bond_id = ?", (bond_id,))
             cursor = conn.execute("DELETE FROM bonds WHERE id = ?", (bond_id,))
             if cursor.rowcount != 1:
@@ -360,6 +417,10 @@ def portfolio_invalid_remove(bond_id):
                     "ERR-invalid-remove",
                     f"remove for position {bond_id} affected {cursor.rowcount} rows",
                 )
+            if isin_row is not None:
+                from src.bond_master.service import mark_isin_deleted
+
+                mark_isin_deleted(conn, isin_row["isin"])
     except AppError as exc:
         return error_page(exc.code, exc.message, "Remove failed", 400)
     flash("Invalid row removed", "success")

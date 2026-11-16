@@ -65,9 +65,7 @@ _ADAPTER_CLASS = {
 }
 
 _CACHES = {}
-_AUTO_REFRESH_DONE = False
 _CACHE_LOCK = threading.Lock()
-_AUTO_LOCK = threading.Lock()
 
 
 def _dominant_failure(codes):
@@ -143,13 +141,66 @@ def shared_cache(db_path):
         return cache
 
 
-def _claim_auto(db_path):
-    global _AUTO_REFRESH_DONE
-    with _AUTO_LOCK:
-        if _AUTO_REFRESH_DONE:
-            return False
-        _AUTO_REFRESH_DONE = True
+AUTO_WINDOW_SECONDS = 12 * 60 * 60
+LAST_AUTO_FETCH_KEY = "last_auto_fetch"
+
+
+def _auto_due(db_path, now):
+    from ..db import get_conn
+    from ..prefs import get_pref
+
+    with get_conn(db_path) as conn:
+        stamp = get_pref(conn, LAST_AUTO_FETCH_KEY)
+    if stamp is None:
         return True
+    try:
+        last = float(stamp)
+    except (TypeError, ValueError):
+        return True
+    return now - last >= AUTO_WINDOW_SECONDS
+
+
+def auto_refresh_due(db_path, now):
+    return _auto_due(db_path, now)
+
+
+def _record_auto_fetch(db_path, now):
+    from ..db import get_conn
+    from ..prefs import set_pref
+
+    with get_conn(db_path) as conn:
+        set_pref(conn, LAST_AUTO_FETCH_KEY, repr(now))
+
+
+DELETED_ISINS_KEY = "deleted_isins"
+
+
+def mark_isin_deleted(conn, isin):
+    from ..prefs import get_pref, set_pref
+
+    if not isin:
+        return
+    marked = set(filter(None, (get_pref(conn, DELETED_ISINS_KEY) or "").split(",")))
+    marked.add(isin)
+    set_pref(conn, DELETED_ISINS_KEY, ",".join(sorted(marked)))
+
+
+def unmark_isin_deleted(conn, isin):
+    from ..prefs import get_pref, set_pref
+
+    if not isin:
+        return
+    marked = set(filter(None, (get_pref(conn, DELETED_ISINS_KEY) or "").split(",")))
+    if isin not in marked:
+        return
+    marked.discard(isin)
+    set_pref(conn, DELETED_ISINS_KEY, ",".join(sorted(marked)))
+
+
+def _deleted_isins(conn):
+    from ..prefs import get_pref
+
+    return set(filter(None, (get_pref(conn, DELETED_ISINS_KEY) or "").split(",")))
 
 
 def _known_isins(db_path):
@@ -157,23 +208,29 @@ def _known_isins(db_path):
 
     try:
         with get_conn(db_path) as conn:
-            rows = conn.execute(
+            master_rows = conn.execute(
                 "SELECT DISTINCT isin FROM bond_master WHERE isin IS NOT NULL"
             ).fetchall()
-            try:
-                held_rows = conn.execute(
-                    "SELECT DISTINCT isin FROM bonds "
-                    "WHERE watch_state = 'holding' AND isin IS NOT NULL"
-                ).fetchall()
-            except Exception:
-                held_rows = []
+            held_rows = conn.execute(
+                "SELECT DISTINCT isin FROM bonds "
+                "WHERE watch_state = 'holding' AND isin IS NOT NULL"
+            ).fetchall()
+            watch_rows = conn.execute(
+                "SELECT DISTINCT isin FROM bonds "
+                "WHERE watch_state = 'watching' AND isin IS NOT NULL"
+            ).fetchall()
+            deleted = _deleted_isins(conn)
     except Exception:
         return []
-    known = [row["isin"] for row in rows]
-    held = {row["isin"] for row in held_rows}
-    portfolio = [isin for isin in known if isin in held]
-    watchlist = [isin for isin in known if isin not in held]
-    return portfolio + watchlist
+    held = [row["isin"] for row in held_rows]
+    watched = [row["isin"] for row in watch_rows]
+    master = [row["isin"] for row in master_rows]
+    ordered = []
+    for isin in held + watched + master:
+        if isin in deleted or isin in ordered:
+            continue
+        ordered.append(isin)
+    return ordered
 
 
 class BondMasterService:
@@ -400,16 +457,39 @@ def _summary(service, cache):
     return summary
 
 
+def refresh_isin(db_path, isin, transport=None):
+    try:
+        cache = shared_cache(db_path)
+        if not cache.refresh_allowed():
+            return _summary(None, cache)
+        cache.begin_refresh()
+        service = build_default_service(cache, transport)
+        result = service.refresh(isin)
+        if result is not None and result.has_facts():
+            cache.save(_bond_record(result))
+        return _summary(service, cache)
+    except Exception:
+        try:
+            return _summary(None, shared_cache(db_path))
+        except Exception:
+            return {}
+
+
 def refresh_all(db_path, trigger="manual", transport=None):
     try:
         cache = shared_cache(db_path)
         if not cache.refresh_allowed():
             return _summary(None, cache)
-        if trigger == "auto" and not _claim_auto(db_path):
+        if trigger == "auto" and not _auto_due(db_path, time.time()):
+            return _summary(None, cache)
+        isins = _known_isins(db_path)
+        if trigger == "auto" and not isins:
             return _summary(None, cache)
         cache.begin_refresh()
+        if trigger == "auto":
+            _record_auto_fetch(db_path, time.time())
         service = build_default_service(cache, transport)
-        for isin in _known_isins(db_path):
+        for isin in isins:
             result = service.refresh(isin)
             if result is not None and result.has_facts():
                 cache.save(_bond_record(result))

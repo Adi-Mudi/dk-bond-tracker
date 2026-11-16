@@ -206,7 +206,7 @@
             {% else %}
             {% set row = entry.row %}
             <tr data-isin="{{ row.isin }}" data-status="{{ row.health }}" data-id="{{ row.id }}" class="position-row" tabindex="0">
-              <td class="cell-sticky cell-left"><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.provenance %}<span class="co-fetched" data-fetch-source="{{ row.provenance.source }}">fetched from {{ row.provenance.source }}{% if row.provenance.as_of %} · as of {{ row.provenance.as_of }}{% endif %}</span>{% endif %}{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
+              <td class="cell-sticky cell-left"><span class="co-name">{{ row.company }}</span><span class="co-isin">{{ row.isin }}</span>{% if row.provenance %}<span class="co-fetched" data-fetch-source="{{ row.provenance.source }}">fetched from {{ row.provenance.source }}{% if row.provenance.as_of %} · as of {{ row.provenance.as_of }}{% endif %}</span>{% if row.provenance.stale %}<span class="co-stale" data-stale="1">stale - over 7 days old</span>{% endif %}{% endif %}<button type="button" class="btn-refresh-isin" data-refresh-url="/portfolio/{{ row.id }}/refresh" data-id="{{ row.id }}">Refresh</button>{% if row.purchase_date and row.qty is not none %}<span class="co-purchased">purchased {{ row.purchase_date }} · {{ row.qty }} units</span>{% endif %}</td>
               <td>{% if row.rating %}{{ row.rating }}{% else %}&#8212;{% endif %}</td>
               <td class="num">{% if row.qty is none %}—{% else %}{{ row.qty }}{% endif %}</td>
               <td class="pct-value">{% if row.coupon is not none %}{{ "%.1f"|format(row.coupon) }}%{% else %}&#8212;{% endif %}</td>
@@ -518,6 +518,30 @@
         drawer.hidden = false;
       });
   }
+  function refreshIsin(button, url, force) {
+    button.disabled = true;
+    fetch(url + (force ? "?force=1" : ""), { method: "POST", headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { status: response.status, data: data };
+        });
+      })
+      .then(function (result) {
+        if (result.status === 409 && !force) {
+          if (window.confirm(result.data.message)) {
+            refreshIsin(button, url, true);
+          }
+          return;
+        }
+        button.title = (result.data && result.data.message) || "";
+      })
+      .catch(function () {
+        button.title = "Refresh failed - nothing is blocked.";
+      })
+      .then(function () {
+        button.disabled = false;
+      });
+  }
   function bindRows() {
     document.querySelectorAll("tr.position-row").forEach(function (row) {
       row.addEventListener("click", function () {
@@ -528,6 +552,12 @@
           event.preventDefault();
           openDrawer(row.getAttribute("data-id"));
         }
+      });
+    });
+    document.querySelectorAll("button.btn-refresh-isin").forEach(function (button) {
+      button.addEventListener("click", function (event) {
+        event.stopPropagation();
+        refreshIsin(button, button.getAttribute("data-refresh-url"), false);
       });
     });
     document.querySelectorAll("a.detail-link").forEach(function (link) {

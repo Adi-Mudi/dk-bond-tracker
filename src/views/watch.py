@@ -31,7 +31,7 @@ from src.bond_master.base import (
 )
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.normalize import is_investment_grade
-from src.bond_master.service import build_default_service, primary_source
+from src.bond_master.service import build_default_service, primary_source, unmark_isin_deleted
 from src.db import get_conn
 from src.engine import tenure_window
 from src.forms import FACT_BY_FIELD, fetched_form_values
@@ -628,6 +628,7 @@ def watch_insert_candidate(conn, values):
             values["listing_status"],
         ),
     )
+    unmark_isin_deleted(conn, values["isin"])
     if cursor.rowcount != 1:
         raise AppError("ERR-watch-add", "candidate insert affected 0 rows")
 

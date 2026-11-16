@@ -1,6 +1,7 @@
 import csv
 import io
 
+from .bond_master.service import unmark_isin_deleted
 from .export_csv import BACKUP_BOND_HEADERS, BACKUP_GOAL_HEADERS, BACKUP_PAYMENT_HEADERS, LEDGER_HEADERS
 from .validators import AppError, parse_date_value
 
@@ -181,6 +182,7 @@ def import_backup_csv(conn, text):
                 bond,
             )
             isin_to_id[bond[0]] = cursor.lastrowid
+            unmark_isin_deleted(conn, bond[0])
             counts["bonds"] += 1
         for isin, month, amount, paid, tds in payments:
             conn.execute(

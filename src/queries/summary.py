@@ -1,7 +1,25 @@
+from datetime import datetime, timedelta, timezone
+
 from . import _resolve_today, _default_today
 from ..engine import sort_rows
 from ..status import compute_row_status_daywise, month_key, tenure_month_map
 from ..validators import AppError, safe_float
+
+STALE_AFTER = timedelta(days=7)
+
+
+def provenance_is_stale(fetched_at):
+    try:
+        fetched = datetime.fromisoformat(fetched_at)
+    except (TypeError, ValueError):
+        return False
+    if fetched.tzinfo is None:
+        fetched = fetched.replace(tzinfo=timezone.utc)
+    return datetime.now(timezone.utc) - fetched > STALE_AFTER
+
+
+def _provenance_entry(source, fetched_at):
+    return {"source": source, "as_of": fetched_at, "stale": provenance_is_stale(fetched_at)}
 
 
 def bond_month_totals(conn, bond_id):
@@ -90,7 +108,7 @@ def bond_master_provenance(conn, isin):
         return None
     if row is None or not row["source"]:
         return None
-    return {"source": row["source"], "as_of": row["fetched_at"]}
+    return _provenance_entry(row["source"], row["fetched_at"])
 
 
 def bond_master_provenance_map(conn, isins):
@@ -108,7 +126,7 @@ def bond_master_provenance_map(conn, isins):
     found = {}
     for row in rows:
         if row["source"]:
-            found[row["isin"]] = {"source": row["source"], "as_of": row["fetched_at"]}
+            found[row["isin"]] = _provenance_entry(row["source"], row["fetched_at"])
     return found
 
 

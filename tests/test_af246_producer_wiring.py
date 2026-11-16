@@ -70,7 +70,7 @@ def test_form_autofetch_writes_a_row_a_later_lookup_offers_cached(db_path, monke
     assert row["fetched_at"] in html
 
 
-def test_refresh_all_keeps_the_asof_when_the_facts_are_unchanged(db_path, monkeypatch):
+def test_refresh_all_advances_the_asof_when_the_facts_are_unchanged(db_path, monkeypatch):
     app = make_app(db_path, transport(), monkeypatch)
     open_form(app)
     row0 = BondMasterCache(db_path).lookup(ISIN)
@@ -81,7 +81,8 @@ def test_refresh_all_keeps_the_asof_when_the_facts_are_unchanged(db_path, monkey
     service_module.refresh_all(str(db_path), trigger="manual", transport=transport())
     row1 = BondMasterCache(db_path).lookup(ISIN)
     assert row1["company"] == COMPANY
-    assert row1["fetched_at"] == row0["fetched_at"]
+    assert row1["fetched_at"] == FUTURE_ASOF
+    assert row1["fetched_at"] != row0["fetched_at"]
 
 
 def test_refresh_all_advances_the_asof_when_the_facts_change(db_path, monkeypatch):
