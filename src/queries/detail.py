@@ -13,6 +13,7 @@ from ..status import month_key
 from ..validators import AppError, safe_float
 from .grid import month_label
 from .summary import bond_master_provenance, status_overview
+from src.maturity import months_remaining_from_row
 
 MONTH_PATTERN = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 
@@ -86,7 +87,7 @@ def position_detail(conn, bond_id, today=None):
         "SELECT id, company, isin, name, rating, rating_agency, coupon_pct, "
         "expected_yield_pct, payout_cycle, issuer_type, secured, face_value, "
         "amount, start_date, end_date, tenure_months, credit_day, watch_state, broker, "
-        "purchase_date, qty, goal_id "
+        "purchase_date, qty, goal_id, maturity_date, listing_status "
         "FROM bonds WHERE id = ?",
         (bond_id,),
     ).fetchone()
@@ -167,6 +168,9 @@ def position_detail(conn, bond_id, today=None):
         "goal_name": (goal["name"] if goal is not None else None),
         "goal_target": (goal["target_amount"] if goal is not None else None),
         "provenance": bond_master_provenance(conn, row["isin"]),
+        "maturity_date": row["maturity_date"] if "maturity_date" in row.keys() else None,
+        "listing_status": row["listing_status"] if "listing_status" in row.keys() else "unknown",
+        "months_remaining": months_remaining_from_row(row),
     }
 
 

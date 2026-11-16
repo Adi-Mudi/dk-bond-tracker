@@ -53,7 +53,9 @@
       <dl class="group-facts">
         <dt>Payout cycle</dt><dd>{% if detail.frequency %}{{ detail.frequency|capitalize }}{% else %}&#8212;{% endif %}</dd>
         <dt>Interest credit day</dt><dd>{% if detail.credit_day %}{{ detail.credit_day }}{% else %}&#8212;{% endif %}</dd>
+        <dt>Maturity date</dt><dd>{% if detail.maturity_date %}{{ detail.maturity_date }}{% else %}&#8212;{% endif %}</dd>
         <dt>Next payout</dt><dd>{{ detail.next_payout }}</dd>
+        <dt>Months remaining</dt><dd>{% if detail.months_remaining is not none %}{{ detail.months_remaining }}{% else %}&#8212;{% endif %}</dd>
         <dt>End date</dt><dd>{% if detail.end_date %}{{ detail.end_date }}{% else %}&#8212;{% endif %}</dd>
       </dl>
     </div>
@@ -63,6 +65,15 @@
         <dt>Rating agency</dt><dd>{{ detail.rating_agency or "—" }}</dd>
         <dt>Issuer type</dt><dd>{{ detail.issuer_type or "—" }}</dd>
         <dt>Secured</dt><dd>{% if detail.secured is none %}&#8212;{% elif detail.secured|int == 1 %}Secured{% else %}Not secured{% endif %}</dd>
+        <dt>Listing status</dt><dd>
+          <form method="post" action="/portfolio/{{ detail.id }}/listing_status" class="inline-form">
+            <select name="listing_status" onchange="this.form.submit()">
+              <option value="listed"{% if detail.listing_status == 'listed' %} selected{% endif %}>Listed</option>
+              <option value="unlisted"{% if detail.listing_status == 'unlisted' %} selected{% endif %}>Unlisted</option>
+              <option value="unknown"{% if detail.listing_status == 'unknown' or detail.listing_status is none %} selected{% endif %}>Unknown</option>
+            </select>
+          </form>
+        </dd>
         <dt>Broker</dt><dd>{{ detail.broker or "—" }}</dd>
         <dt>Where you found it</dt><dd>{{ detail.source_note or "—" }}</dd>
         {% if detail.provenance %}<dt>Fetched facts</dt><dd id="detail-provenance" data-source="{{ detail.provenance.source }}">from {{ detail.provenance.source }}{% if detail.provenance.as_of %} · as of {{ detail.provenance.as_of }}{% endif %}</dd>{% endif %}

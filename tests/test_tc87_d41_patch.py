@@ -245,7 +245,7 @@ def test_tc87_holdings_table_stays_ten_columns(client):
     html = response.get_data(as_text=True)
     table = html[html.index('<table id="holdings-table">'):]
     table = table[: table.index("</thead>")]
-    assert table.count("</th>") == 10
+    assert table.count("</th>") == 11  # Added Months Rem. column
 
 
 def test_tc87_invalid_row_detail_drawer_still_returns_json(client, db_path):

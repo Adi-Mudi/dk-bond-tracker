@@ -735,10 +735,14 @@ def watch_move(candidate_id):
                         "ERR-move-watching", f"financial goal not found: {goal_id!r}"
                     )
             check_add_allowed(row["company"], row["isin"], conn)
+            cache = _bond_cache()
+            cached = cache.lookup(row["isin"])
+            maturity_date = cached.get("maturity") if cached else None
+            listing_status = cached.get("listing_status") if cached else "unknown"
             cursor = conn.execute(
                 "UPDATE bonds SET start_date = ?, end_date = ?, tenure_months = ?, "
                 "credit_day = ?, amount = ?, qty = ?, broker = ?, purchase_date = ?, "
-                "goal_id = ?, watch_state = 'holding' "
+                "goal_id = ?, watch_state = 'holding', maturity_date = ?, listing_status = ? "
                 "WHERE id = ? AND watch_state = 'watching'",
                 (
                     start_date.isoformat(),
@@ -750,6 +754,8 @@ def watch_move(candidate_id):
                     broker,
                     purchase_date.isoformat(),
                     goal_id,
+                    maturity_date,
+                    listing_status,
                     candidate_id,
                 ),
             )
