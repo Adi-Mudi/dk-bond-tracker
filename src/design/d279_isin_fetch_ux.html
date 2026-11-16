@@ -145,6 +145,7 @@
         <div class="field"><label>Secured</label><select><option>secured</option></select></div>
         <div class="field"><label>Payout cycle</label><select><option>annual</option></select></div>
       </div>
+      <div class="fetch-line ok" style="margin-top:0;"><span>✓</span> <strong>Months remaining: 60</strong> — from today 17 Nov 2026 to maturity 17 Nov 2031, monthly cycle. This is how many payout months you would receive if you buy now. After purchase the Portfolio shows this number from your purchase date instead.</div>
       <p class="caption">More details (collapsed): Rating agency · Broker (optional)</p>
       <div class="facts">
         <div class="fact"><span class="fl">Company <span class="src">india-isin-data</span></span><span class="fv">RELIANCE INDUSTRIES LIMITED</span></div>
@@ -175,6 +176,7 @@
         <input class="filled" value="10/17/2028 — from maturity date" readonly>
         <span class="caption">never asked again; the input appears only when the watchlist entry has no maturity date</span>
       </div>
+      <div class="fetch-line ok" style="margin-top:0;"><span>✓</span> <strong>Months remaining: 24</strong> — computed from purchase 17 Nov 2026 → end 17 Nov 2028, monthly cycle (payout instances; same number the Portfolio column and position page show). Updates live as you change the dates or the payout cycle.</div>
       <div class="grid3">
         <div class="field"><label>Amount invested</label><div class="suffix"><span class="rupee">₹</span><input value="100000"></div></div>
         <div class="field"><label>Number of bonds</label><input value="100"></div>
@@ -182,8 +184,9 @@
       </div>
       <div class="grid2">
         <div class="field"><label>Broker</label><input value="Zerodha"><span class="caption">prefilled, optional</span></div>
-        <div class="field"><label>Interest credit day</label><select><option>5</option></select></div>
+        <div class="field"><label>Financial goal</label><select><option>— none —</option><option>Children's education</option><option>Retirement corpus</option></select><span class="caption">optional; the link is permanent once saved</span></div>
       </div>
+      <div class="field" style="max-width:280px;"><label>Interest credit day</label><select><option>5</option></select></div>
       <div class="btn-row">
         <button class="btn btn-primary">Move</button>
         <button class="btn">Cancel</button>
@@ -203,6 +206,7 @@
         <tr><td>End date as a typed input</td><td>Move form</td><td>Duplicate of the maturity date; derived readonly instead (#280 D1)</td></tr>
         <tr><td>Interest start date as a bare required field</td><td>Move form</td><td>Defaults to purchase date, stays editable (#280 D4)</td></tr>
         <tr><td>Broker "required" on Move</td><td>Move form</td><td>Prefilled from the watchlist; now optional (#280 D3)</td></tr>
+        <tr><td colspan="3"><strong>Added, not removed:</strong> Financial goal select (goal_id, permanent once saved) and the computed <strong>Months remaining</strong> readout — both already in the app (watch.html:462-467, src/maturity.py); this design now shows them.</td></tr>
       </table>
       <p class="caption" style="margin-top:12px;">Server guard ERR-watch-dup is untouched. The watch_investment/qty columns stay in the schema — only the watch-stage questions are removed.</p>
     </div>
@@ -218,6 +222,37 @@
         <li>Nothing found or source unreachable: one amber line, every field stays editable, <strong>no popup</strong>.</li>
         <li>After <strong>Apply</strong>: an applied marker keeps the popup closed for that ISIN — reopening the page cannot bring it back while the applied values stand.</li>
       </ul>
+    </div>
+  </div>
+
+</div>
+  <div class="section">
+    <p><span class="section-tag tag-move">5 · Auto-fetch choice · model B refined</span></p>
+    <h2>Ask once on first open — then it lives in Settings</h2>
+    <div class="grid2">
+      <div class="card">
+        <p class="caption" style="margin-bottom:10px;">First open (or first time lookup data is needed) — shown once, never again:</p>
+        <div style="border:1px solid var(--border); border-radius:8px; padding:18px; background:var(--card-bg);">
+          <h3 style="margin-bottom:8px;">Fetch bond details automatically?</h3>
+          <p class="caption" style="margin-bottom:14px;">The app can refresh bond facts in the background when you open it (at most once every 12 hours). Nothing is fetched without your choice. You can change this later in Settings.</p>
+          <div class="btn-row">
+            <button class="btn">Not now</button>
+            <button class="btn btn-primary">Auto-fetch</button>
+          </div>
+        </div>
+        <p class="caption" style="margin-top:10px;"><strong>Not now = cancel:</strong> stored as the setting; zero background activity until you enable it in Settings. <strong>Auto-fetch:</strong> the 12h counter starts from this moment.</p>
+      </div>
+      <div class="card">
+        <p class="caption" style="margin-bottom:10px;">Settings → Data &amp; sync (visible at all times):</p>
+        <div style="border:1px solid var(--border); border-radius:8px; padding:14px; background:var(--card-bg);">
+          <div class="grid2" style="gap:10px;">
+            <div class="field" style="margin:0;"><label>Auto-fetch</label><select><option>OFF</option><option>ON</option></select></div>
+            <div class="field" style="margin:0;"><label>Last synced</label><input value="— never —" readonly></div>
+          </div>
+          <div class="btn-row" style="margin-top:6px;"><button class="btn btn-sm">Sync now</button></div>
+        </div>
+        <p class="caption" style="margin-top:10px;"><strong>ON:</strong> app open runs one pass only when the 12h window elapsed AND no per-ISIN cooldown is active AND known ISINs exist. <strong>OFF:</strong> zero background activity — ISIN lookup, per-ISIN refresh and Sync now stay fully manual. Last synced updates only after a real pass. Cooldown applies only to the official check (local answers are always instant).</p>
+      </div>
     </div>
   </div>
 
