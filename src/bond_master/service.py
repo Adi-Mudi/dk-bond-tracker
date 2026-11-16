@@ -185,6 +185,18 @@ def mark_isin_deleted(conn, isin):
     set_pref(conn, DELETED_ISINS_KEY, ",".join(sorted(marked)))
 
 
+def unmark_isin_deleted(conn, isin):
+    from ..prefs import get_pref, set_pref
+
+    if not isin:
+        return
+    marked = set(filter(None, (get_pref(conn, DELETED_ISINS_KEY) or "").split(",")))
+    if isin not in marked:
+        return
+    marked.discard(isin)
+    set_pref(conn, DELETED_ISINS_KEY, ",".join(sorted(marked)))
+
+
 def _deleted_isins(conn):
     from ..prefs import get_pref
 
@@ -196,24 +208,29 @@ def _known_isins(db_path):
 
     try:
         with get_conn(db_path) as conn:
-            rows = conn.execute(
+            master_rows = conn.execute(
                 "SELECT DISTINCT isin FROM bond_master WHERE isin IS NOT NULL"
             ).fetchall()
+            held_rows = conn.execute(
+                "SELECT DISTINCT isin FROM bonds "
+                "WHERE watch_state = 'holding' AND isin IS NOT NULL"
+            ).fetchall()
+            watch_rows = conn.execute(
+                "SELECT DISTINCT isin FROM bonds "
+                "WHERE watch_state = 'watching' AND isin IS NOT NULL"
+            ).fetchall()
             deleted = _deleted_isins(conn)
-            try:
-                held_rows = conn.execute(
-                    "SELECT DISTINCT isin FROM bonds "
-                    "WHERE watch_state = 'holding' AND isin IS NOT NULL"
-                ).fetchall()
-            except Exception:
-                held_rows = []
     except Exception:
         return []
-    known = [row["isin"] for row in rows if row["isin"] not in deleted]
-    held = {row["isin"] for row in held_rows}
-    portfolio = [isin for isin in known if isin in held]
-    watchlist = [isin for isin in known if isin not in held]
-    return portfolio + watchlist
+    held = [row["isin"] for row in held_rows]
+    watched = [row["isin"] for row in watch_rows]
+    master = [row["isin"] for row in master_rows]
+    ordered = []
+    for isin in held + watched + master:
+        if isin in deleted or isin in ordered:
+            continue
+        ordered.append(isin)
+    return ordered
 
 
 class BondMasterService:
@@ -465,11 +482,14 @@ def refresh_all(db_path, trigger="manual", transport=None):
             return _summary(None, cache)
         if trigger == "auto" and not _auto_due(db_path, time.time()):
             return _summary(None, cache)
+        isins = _known_isins(db_path)
+        if trigger == "auto" and not isins:
+            return _summary(None, cache)
         cache.begin_refresh()
         if trigger == "auto":
             _record_auto_fetch(db_path, time.time())
         service = build_default_service(cache, transport)
-        for isin in _known_isins(db_path):
+        for isin in isins:
             result = service.refresh(isin)
             if result is not None and result.has_facts():
                 cache.save(_bond_record(result))

@@ -37,10 +37,6 @@ _FACT_FIELDS = tuple(
 )
 
 
-def _facts_match(existing, values):
-    return all(existing[field] == values[field] for field in _FACT_FIELDS)
-
-
 class CooldownActive(AppError):
     def __init__(self, remaining):
         super().__init__(
@@ -117,10 +113,7 @@ class BondMasterCache:
                     values[field] = existing[field]
             if values["source"] is None:
                 values["source"] = existing["source"]
-            if _facts_match(existing, values):
-                values["fetched_at"] = existing["fetched_at"]
-        if values["fetched_at"] is None:
-            values["fetched_at"] = _asof_timestamp(self._clock())
+        values["fetched_at"] = _asof_timestamp(self._clock())
         with get_conn(self.db_path) as conn:
             conn.execute(_INSERT_SQL, tuple(values[field] for field in BOND_MASTER_FIELDS))
         return values

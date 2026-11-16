@@ -125,7 +125,8 @@ def test_offer_exposes_fetched_at_as_the_as_of_date(tmp_path):
 
 
 def test_a_partial_refresh_does_not_null_stored_facts(db_path):
-    cache = BondMasterCache(db_path)
+    clock = [1_000_000.0]
+    cache = BondMasterCache(db_path, clock=lambda: clock[0])
     cache.save(
         {
             "isin": ISIN,
@@ -140,6 +141,7 @@ def test_a_partial_refresh_does_not_null_stored_facts(db_path):
         }
     )
     before = cache.lookup(ISIN)
+    clock[0] += 3600.0
     cache.save({"isin": ISIN, "company": "Acme", "coupon": 8.75, "source": "RBI"})
     after = cache.lookup(ISIN)
     assert after["rating"] == "AA+"
@@ -148,4 +150,4 @@ def test_a_partial_refresh_does_not_null_stored_facts(db_path):
     assert after["listing_status"] == "listed"
     assert after["maturity"] == "2030-03-31"
     assert after["source"] == "RBI"
-    assert after["fetched_at"] == before["fetched_at"]
+    assert after["fetched_at"] != before["fetched_at"]

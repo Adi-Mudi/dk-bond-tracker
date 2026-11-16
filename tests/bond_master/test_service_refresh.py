@@ -1,3 +1,4 @@
+import time
 from types import SimpleNamespace
 
 from src.bond_master import service as svc
@@ -27,6 +28,7 @@ def offline_builder(calls):
 
 
 def test_af10_1_auto_refresh_runs_at_most_once_per_twelve_hours(db_path, monkeypatch):
+    seed_known_isin(db_path, WATCHLIST_ISIN, "watching")
     calls = []
     clock = [1000.0]
     cache = BondMasterCache(db_path, clock=lambda: clock[0])
@@ -44,6 +46,7 @@ def test_af10_1_auto_refresh_runs_at_most_once_per_twelve_hours(db_path, monkeyp
 
 
 def test_fix2_auto_inside_a_cooldown_does_not_record_the_twelve_hour_stamp(db_path, monkeypatch):
+    seed_known_isin(db_path, WATCHLIST_ISIN, "watching")
     calls = []
     clock = [1000.0]
     cache = BondMasterCache(db_path, clock=lambda: clock[0])
@@ -188,3 +191,99 @@ def test_tc_af17_pacing_caps_stay_inside_the_existing_limits(db_path, monkeypatc
     served = list(adapter.calls)
     refresh_all(str(db_path), "manual")
     assert adapter.calls == served
+
+
+def _portfolio_bond(db_path, isin, watch_state="holding"):
+    seed_known_isin(db_path, isin, watch_state)
+    with get_conn(db_path) as conn:
+        return conn.execute("SELECT id FROM bonds WHERE isin = ?", (isin,)).fetchone()["id"]
+
+
+def _refresh_client(db_path, adapter):
+    from src.app import create_app
+
+    app = create_app(str(db_path))
+    app.config["TESTING"] = True
+    app.extensions["bond_master_cache"] = BondMasterCache(db_path)
+    app.extensions["bond_master_service"] = BondMasterService(
+        {"NSDL": adapter}, app.extensions["bond_master_cache"], sleep=lambda _d: None,
+        throttle_seconds=0.0, retries=0,
+    )
+    return app.test_client(), app
+
+
+def test_tc_afr_04_portfolio_manual_refresh_returns_429_during_cooldown(db_path):
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    client, app = _refresh_client(db_path, RecordingAdapter())
+    app.extensions["bond_master_cache"]._last_refresh_at = time.time()
+    response = client.post(f"/portfolio/{bond_id}/refresh")
+    assert response.status_code == 429
+    assert response.get_json()["status"] == "cooldown"
+
+
+def test_tc_afr_05_portfolio_refresh_is_409_while_facts_are_fresh(db_path):
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    adapter = RecordingAdapter()
+    client, _app = _refresh_client(db_path, adapter)
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bond_master SET fetched_at = ? WHERE isin = ?",
+            ("2099-01-01T00:00:00+00:00", PORTFOLIO_ISIN),
+        )
+    response = client.post(f"/portfolio/{bond_id}/refresh")
+    assert response.status_code == 409
+    assert response.get_json()["status"] == "already_fetched"
+    assert adapter.calls == []
+
+
+def test_tc_afr_05_portfolio_refresh_with_force_runs_and_returns_200(db_path, monkeypatch):
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    adapter = RecordingAdapter()
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    client, _app = _refresh_client(db_path, adapter)
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bond_master SET fetched_at = ? WHERE isin = ?",
+            ("2099-01-01T00:00:00+00:00", PORTFOLIO_ISIN),
+        )
+    response = client.post(f"/portfolio/{bond_id}/refresh?force=1")
+    assert response.status_code == 200
+    assert response.get_json()["status"] == "refreshed"
+    assert adapter.calls == [PORTFOLIO_ISIN]
+
+
+def test_tc_afr_08_invalid_holding_remove_marks_isin_and_readd_unmarks(db_path):
+    from src.bond_master.service import _deleted_isins, unmark_isin_deleted
+
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    client, _app = _refresh_client(db_path, RecordingAdapter())
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bonds SET start_date = NULL, end_date = NULL WHERE id = ?", (bond_id,)
+        )
+    client.post(f"/portfolio/invalid/{bond_id}/remove")
+    with get_conn(db_path) as conn:
+        assert PORTFOLIO_ISIN in _deleted_isins(conn)
+        unmark_isin_deleted(conn, PORTFOLIO_ISIN)
+        assert PORTFOLIO_ISIN not in _deleted_isins(conn)
+
+
+def test_tc_afr_09_auto_pass_skips_deleted_isin(db_path, monkeypatch):
+    from src.bond_master.service import mark_isin_deleted
+
+    seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    with get_conn(db_path) as conn:
+        mark_isin_deleted(conn, PORTFOLIO_ISIN)
+    monkeypatch.setattr(svc, "_auto_due", lambda _db, _now: True)
+    adapter = RecordingAdapter()
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    refresh_all(db_path, trigger="auto")
+    assert PORTFOLIO_ISIN not in adapter.calls
+
+
+def test_fix1_auto_pass_with_no_isins_does_not_record_the_stamp(db_path, monkeypatch):
+    monkeypatch.setattr(svc, "_auto_due", lambda _db, _now: True)
+    stamped = []
+    monkeypatch.setattr(svc, "_record_auto_fetch", lambda *a, **k: stamped.append(a))
+    refresh_all(db_path, trigger="auto")
+    assert stamped == []

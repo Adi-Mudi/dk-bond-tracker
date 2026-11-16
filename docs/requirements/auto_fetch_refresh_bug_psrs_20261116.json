@@ -2,7 +2,7 @@
   "id": "auto_fetch_refresh_bug_psrs_20261116",
   "kind": "psrs",
   "title": "Auto-fetch refresh bug fix - fetch policy, portfolio manual refresh, deleted-ISIN cleanup, staleness cue",
-  "version": "v5.0",
+  "version": "v5.1",
   "status": "accepted",
   "project": "dk-bond-tracker",
   "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/272",
@@ -104,7 +104,7 @@
     },
     {
       "id": "AFR-07",
-      "text": "Within the 7-day staleness window, manual refresh SHALL ask confirm \"already fetched <date> - refresh anyway?\".",
+      "text": "Within the 7-day staleness window, the per-ISIN manual refresh control (Portfolio row and position detail page) SHALL ask confirm \"already fetched <date> - refresh anyway?\". The global Watchlist /watch/refresh button is exempt and runs without confirm (PM ruling F6, 2026-11-16).",
       "category": "functional",
       "check_method": "integration",
       "status": "accepted",
@@ -132,7 +132,7 @@
     },
     {
       "id": "AFR-09",
-      "text": "Two timestamps SHALL be maintained in the database: (1) last_auto_fetch — global, persisted (new column/table); (2) fetched_at — per ISIN, already exists in bond_master.",
+      "text": "Two timestamps SHALL be maintained in the database: (1) last_auto_fetch — global, persisted in alert_prefs as a key/value row (survives restarts); (2) fetched_at — per ISIN, already exists in bond_master.",
       "category": "functional",
       "check_method": "integration",
       "status": "accepted",
@@ -146,7 +146,7 @@
     },
     {
       "id": "AFR-10",
-      "text": "Portfolio manual refresh control SHALL mirror Watchlist /watch/refresh (watch.py:648): per-ISIN Refresh control on each Portfolio row, same 60s cooldown, same 7-day confirm behavior, bypasses 12h auto window.",
+      "text": "Portfolio manual refresh control SHALL mirror Watchlist /watch/refresh (watch.py:648) for the per-ISIN refresh: per-ISIN Refresh control on each Portfolio row, same 60s cooldown, same 7-day confirm behavior, bypasses 12h auto window. Scope: the Portfolio per-ISIN control only; the global Watchlist /watch/refresh button keeps no confirm (PM ruling F6, 2026-11-16).",
       "category": "functional",
       "check_method": "integration",
       "status": "accepted",
@@ -626,6 +626,11 @@
       "version": "v5.0",
       "date": "2026-11-16",
       "note": "R2 doc-gate fixes v2: (1) Added 17 test_case->acceptance_criteria bindings (ac_id) to test_bindings so RTM shows AC coverage for all 13 requirements (21 ACs bound). (2) Fixed 6 dropped traceability links - all test_bindings now use fully qualified IDs. (3) Added AFR-13 staleness-cue SHALL requirement with TC-AFR-10 bound full. (4) Added AFR-12 for 60s cooldown per-session persistence clarification (D3 superseded by FINAL POLICY). (5) Fixed TC-AFR-02/04/05/10 to use timestamp manipulation instead of waiting. (6) AFR-07 confirm wording aligned to locked text. (7) Discussion #272 changelog supersession noted."
+    },
+    {
+      "version": "v5.1",
+      "date": "2026-11-16",
+      "note": "Fix round for #273 (PM rulings F6-F8): (1) AFR-07 confirm scoped to the per-ISIN manual refresh control (Portfolio row and position detail page); the global Watchlist /watch/refresh button is exempt and runs without confirm. (2) AFR-10 mirror scoped to the Portfolio per-ISIN control; global Watchlist button keeps no confirm. (3) AFR-09 last_auto_fetch wording: persisted in alert_prefs as a key/value row (survives restarts); no schema change. (4) Recorded: fetched_at advances on every successful fetch even when facts are unchanged (F2 ruling)."
     }
   ]
 }
