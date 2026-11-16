@@ -1,0 +1,458 @@
+{
+  "id": "auto_fetch_refresh_bug_psrs_20261116",
+  "kind": "psrs",
+  "title": "Auto-fetch refresh bug fix - fetch policy, portfolio manual refresh, deleted-ISIN cleanup",
+  "version": "v3.0",
+  "status": "accepted",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/272",
+  "derived_from": "Locked fetch policy from discussion #272 (Stage 1 G1 closed) - developer confirmed 2026-11-16; documentation only, zero new decisions (Stage 2 rule)",
+  "requirements": [
+    {
+      "id": "AFR-01",
+      "text": "On first app open after install, the system SHALL run an immediate background bond-master refresh for all known ISINs (empty cache, warm everything).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fresh install with no bond_master cache",
+          "when": "the app starts for the first time",
+          "then": "one background refresh pass runs immediately for all known ISINs from both surfaces"
+        }
+      ]
+    },
+    {
+      "id": "AFR-02",
+      "text": "After the first run, auto-fetch SHALL run at most ONCE per 12-hour window — only when the app opens AFTER the window elapsed.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the last_auto_fetch timestamp is 6 hours ago",
+          "when": "the app starts",
+          "then": "no auto-fetch runs"
+        },
+        {
+          "given": "the last_auto_fetch timestamp is 13 hours ago",
+          "when": "the app starts",
+          "then": "one auto-fetch pass runs"
+        }
+      ]
+    },
+    {
+      "id": "AFR-03",
+      "text": "Each auto-fetch pass SHALL cover ALL known ISINs from BOTH surfaces (watchlist + portfolio) in a single background pass — the cache is one shared bond_master table keyed by ISIN, no split.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "known ISINs exist in both watchlist candidates and portfolio bonds",
+          "when": "an auto-fetch pass runs",
+          "then": "all ISINs are refreshed in one pass with no surface distinction"
+        }
+      ]
+    },
+    {
+      "id": "AFR-04",
+      "text": "The auto-fetch SHALL NEVER run twice within the 12-hour window no matter how many restarts — the last_auto_fetch timestamp is PERSISTED IN THE DATABASE (survives restarts, fixes the in-memory bug).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "an auto-fetch ran 2 hours ago and the app is restarted 3 times",
+          "when": "each restart completes",
+          "then": "zero additional auto-fetch runs occur; the persisted last_auto_fetch is unchanged"
+        },
+        {
+          "given": "the app is killed and restarted after 13 hours",
+          "when": "the app starts",
+          "then": "one auto-fetch runs and last_auto_fetch is updated to the new time"
+        }
+      ]
+    },
+    {
+      "id": "AFR-05",
+      "text": "Manual refresh SHALL refresh the specific bond(s) the user is viewing (per-ISIN, immediate), bypassing the 12h auto window but keeping the 60s anti-double-tap cooldown.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the user taps manual refresh on a portfolio bond while the 12h auto window is active",
+          "when": "the tap is evaluated",
+          "then": "the specific ISIN refreshes immediately; the 60s cooldown applies; the 12h auto timer is NOT reset"
+        }
+      ]
+    },
+    {
+      "id": "AFR-06",
+      "text": "Manual refresh SHALL NOT reset the auto 12h timer — the two are independent (a manual per-bond refresh must not starve the rest of the portfolio of auto refreshes).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "manual refresh runs for ISIN A at hour 6 of the 12h window",
+          "when": "the auto window elapses at hour 12",
+          "then": "the auto-fetch pass still runs at hour 12; the manual refresh did not shift the window"
+        }
+      ]
+    },
+    {
+      "id": "AFR-07",
+      "text": "Within the 7-day staleness window, manual refresh SHALL ask confirm \"already fetched <date> - refresh anyway?\".",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond_master.fetched_at is 3 days old",
+          "when": "the user taps manual refresh",
+          "then": "a confirmation dialog shows the fetched date and asks to proceed"
+        }
+      ]
+    },
+    {
+      "id": "AFR-08",
+      "text": "After 7 days of staleness, manual refresh SHALL just refresh (no confirm).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a bond_master.fetched_at is 8 days old",
+          "when": "the user taps manual refresh",
+          "then": "the refresh runs immediately with no confirmation dialog"
+        }
+      ]
+    },
+    {
+      "id": "AFR-09",
+      "text": "Two timestamps SHALL be maintained in the database: (1) last_auto_fetch — global, persisted (new column/table); (2) fetched_at — per ISIN, already exists in bond_master.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the database schema is inspected",
+          "when": "the migration runs",
+          "then": "last_auto_fetch column/table exists and is populated on each auto-fetch pass; bond_master.fetched_at is updated per ISIN on every fetch"
+        }
+      ]
+    },
+    {
+      "id": "AFR-10",
+      "text": "Portfolio manual refresh control SHALL mirror Watchlist /watch/refresh (watch.py:648): per-ISIN Refresh control on each Portfolio row, same 60s cooldown, same 7-day confirm behavior, bypasses 12h auto window.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a portfolio bond row is displayed",
+          "when": "the user taps its refresh icon",
+          "then": "the per-ISIN refresh runs with 60s cooldown, 7-day confirm, and bypasses the 12h auto window"
+        },
+        {
+          "given": "the portfolio refresh endpoint is called",
+          "when": "the response is inspected",
+          "then": "it mirrors the watchlist refresh contract: same states, same error codes, same provenance update"
+        }
+      ]
+    },
+    {
+      "id": "AFR-11",
+      "text": "Deleted-ISIN cleanup trigger: when a watchlist candidate or bond is deleted, its cached bond_master record SHALL be marked so the 12h auto-fetch pass skips it. Cleanup runs on the delete operation.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a watchlist candidate with ISIN X is deleted",
+          "when": "the delete operation completes",
+          "then": "the bond_master record for ISIN X is marked (e.g., deleted flag or removed from auto-fetch set)"
+        },
+        {
+          "given": "a portfolio bond with ISIN Y is deleted",
+          "when": "the next auto-fetch pass runs",
+          "then": "ISIN Y is not included in the refresh pass"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "AFR-01",
+      "area": "auto_fetch_refresh",
+      "statement": "The system SHALL run an immediate background bond-master refresh for all known ISINs on the first app open after install (empty cache warm-up).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - AUTO-FETCH rule 1"
+    },
+    {
+      "id": "AFR-02",
+      "area": "auto_fetch_refresh",
+      "statement": "The system SHALL run auto-fetch at most once per 12-hour window after the first run, only when the app opens after the window elapsed.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - AUTO-FETCH rule 2"
+    },
+    {
+      "id": "AFR-03",
+      "area": "auto_fetch_refresh",
+      "statement": "The system SHALL cover all known ISINs from both watchlist and portfolio surfaces in a single background auto-fetch pass using the shared bond_master table.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - AUTO-FETCH rule 3"
+    },
+    {
+      "id": "AFR-04",
+      "area": "auto_fetch_refresh",
+      "statement": "The system SHALL persist the last_auto_fetch timestamp in the database so auto-fetch never runs twice within the 12h window across restarts.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - AUTO-FETCH rule 4"
+    },
+    {
+      "id": "AFR-05",
+      "area": "manual_refresh",
+      "statement": "The system SHALL allow manual per-ISIN refresh that bypasses the 12h auto window but respects the 60s cooldown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - MANUAL FETCH rule 1"
+    },
+    {
+      "id": "AFR-06",
+      "area": "manual_refresh",
+      "statement": "The system SHALL keep manual and auto refresh timers independent — manual refresh must not reset the auto 12h timer.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - MANUAL FETCH rule 2"
+    },
+    {
+      "id": "AFR-07",
+      "area": "manual_refresh",
+      "statement": "The system SHALL show a staleness confirmation dialog for manual refresh within 7 days of the last fetch.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - MANUAL FETCH rule 3"
+    },
+    {
+      "id": "AFR-08",
+      "area": "manual_refresh",
+      "statement": "The system SHALL skip the staleness confirmation for manual refresh after 7 days of staleness.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - MANUAL FETCH rule 4"
+    },
+    {
+      "id": "AFR-09",
+      "area": "timestamps",
+      "statement": "The system SHALL maintain last_auto_fetch (global, persisted) and fetched_at (per ISIN, existing in bond_master) in the database.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - TIMESTAMPS"
+    },
+    {
+      "id": "AFR-10",
+      "area": "portfolio_refresh",
+      "statement": "The system SHALL provide per-ISIN manual refresh on Portfolio rows mirroring the Watchlist /watch/refresh contract (watch.py:648).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - Stage-2 Obligation 1 (AFR-10)"
+    },
+    {
+      "id": "AFR-11",
+      "area": "cleanup",
+      "statement": "The system SHALL mark deleted ISINs in bond_master so the 12h auto-fetch pass skips them, with cleanup triggered on the delete operation.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - Stage-2 Obligation 2 (AFR-11)"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-AFR-01",
+      "title": "First-run auto-fetch fires immediately (AFR-01)",
+      "type": "integration",
+      "steps": "1. Clear bond_master cache. 2. Start app. 3. Inspect bond_master after startup.",
+      "expected": "One background pass ran for all known ISINs; bond_master populated with fetched_at timestamps",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-02",
+      "title": "12-hour auto window respected (AFR-02, AFR-04)",
+      "type": "integration",
+      "steps": "1. Set last_auto_fetch to 6h ago. 2. Restart app 3 times. 3. Set last_auto_fetch to 13h ago. 4. Restart app.",
+      "expected": "Zero auto-fetches at 6h; one auto-fetch at 13h; last_auto_fetch persisted across restarts",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-03",
+      "title": "Single pass covers both surfaces (AFR-03)",
+      "type": "integration",
+      "steps": "1. Seed known ISINs in watchlist candidates and portfolio bonds. 2. Trigger auto-fetch. 3. Inspect adapter call order.",
+      "expected": "All ISINs refreshed in one pass; no surface distinction in the pass",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-04",
+      "title": "Manual refresh bypasses 12h window, keeps 60s cooldown (AFR-05, AFR-06)",
+      "type": "integration",
+      "steps": "1. Set last_auto_fetch to 2h ago. 2. Manual refresh ISIN A. 3. Wait 10h (total 12h). 4. Check auto-fetch still runs.",
+      "expected": "Manual refresh runs immediately; 60s cooldown applies; auto-fetch still runs at 12h mark",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-05",
+      "title": "7-day staleness confirm dialog (AFR-07, AFR-08)",
+      "type": "integration",
+      "steps": "1. Set fetched_at to 3 days ago. 2. Tap manual refresh - assert confirm dialog with date. 3. Set fetched_at to 8 days ago. 4. Tap manual refresh - assert no dialog.",
+      "expected": "Confirm shown at 3 days with fetched date; no confirm at 8 days",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-06",
+      "title": "Timestamps in database (AFR-09)",
+      "type": "integration",
+      "steps": "1. Run auto-fetch pass. 2. Query last_auto_fetch table/column. 3. Query bond_master.fetched_at per ISIN.",
+      "expected": "last_auto_fetch populated with pass timestamp; each refreshed ISIN has updated fetched_at",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-07",
+      "title": "Portfolio manual refresh mirrors Watchlist (AFR-10)",
+      "type": "integration",
+      "steps": "1. Tap refresh on a portfolio row. 2. Inspect endpoint, states, error codes, provenance. 3. Compare to watch.py:648 contract.",
+      "expected": "Same endpoint shape, same 60s cooldown, same 7-day confirm, same 12h bypass, same states/error codes/provenance",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-08",
+      "title": "Watchlist candidate delete marks bond_master (AFR-11)",
+      "type": "integration",
+      "steps": "1. Delete a watchlist candidate with ISIN X. 2. Inspect bond_master for ISIN X. 3. Run auto-fetch pass. 4. Assert ISIN X skipped.",
+      "expected": "ISIN X marked/removed from auto-fetch set; next auto-fetch pass skips it",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-09",
+      "title": "Portfolio bond delete marks bond_master (AFR-11)",
+      "type": "integration",
+      "steps": "1. Delete a portfolio bond with ISIN Y. 2. Inspect bond_master for ISIN Y. 3. Run auto-fetch pass. 4. Assert ISIN Y skipped.",
+      "expected": "ISIN Y marked/removed from auto-fetch set; next auto-fetch pass skips it",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-10",
+      "title": "Staleness cue on Portfolio rows and bond detail (AFR-07, AFR-08)",
+      "type": "integration",
+      "steps": "1. Set fetched_at to 8 days ago for a portfolio bond. 2. Open Portfolio page. 3. Open bond detail page.",
+      "expected": "Staleness indicator shown next to provenance on both Portfolio row and bond detail page (not global header)",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "AFR-01",
+      "test_case_id": "TC-AFR-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-02",
+      "test_case_id": "TC-AFR-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-04",
+      "test_case_id": "TC-AFR-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-03",
+      "test_case_id": "TC-AFR-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-05",
+      "test_case_id": "TC-AFR-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-06",
+      "test_case_id": "TC-AFR-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-07",
+      "test_case_id": "TC-AFR-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-08",
+      "test_case_id": "TC-AFR-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-09",
+      "test_case_id": "TC-AFR-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-10",
+      "test_case_id": "TC-AFR-07",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-11",
+      "test_case_id": "TC-AFR-08",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-11",
+      "test_case_id": "TC-AFR-09",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "AFR-07",
+      "test_case_id": "TC-AFR-10",
+      "covers": "partial"
+    },
+    {
+      "requirement_id": "AFR-08",
+      "test_case_id": "TC-AFR-10",
+      "covers": "partial"
+    }
+  ],
+  "carry_over": [],
+  "changelog": [
+    {
+      "version": "v1.0",
+      "date": "2026-11-16",
+      "note": "First suite: AFR-01..AFR-09 from discussion #272 locked fetch policy (AUTO-FETCH 1-4, MANUAL FETCH 1-4, TIMESTAMPS)."
+    },
+    {
+      "version": "v2.0",
+      "date": "2026-11-16",
+      "note": "Store gates GREEN: RTM PASS, Coverage 100%, Population PASS."
+    },
+    {
+      "version": "v3.0",
+      "date": "2026-11-16",
+      "note": "Stage-2 Obligations added: AFR-10 (Portfolio manual refresh control mirroring watch.py:648) and AFR-11 (Deleted-ISIN cleanup trigger). Test cases TC-AFR-07, TC-AFR-08, TC-AFR-09, TC-AFR-10 added. Store gates GREEN."
+    }
+  ]
+}
