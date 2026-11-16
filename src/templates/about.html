@@ -90,11 +90,11 @@
   </div>
   {% elif update_banner.status == 'current' %}
   <div class="update-banner update-banner-current" id="update-banner" role="status">
-    <span id="update-banner-text"><b>You are on v{{ app_version }} — newest release</b></span>
+    <span id="update-banner-text"><b>You are on v{{ app_version }}{% if not update_banner.local_ahead %} — newest release{% endif %}</b></span>
   </div>
   {% elif update_banner.status == 'offline' %}
   <div class="update-banner update-banner-error" id="update-banner" role="alert">
-    <span id="update-banner-text"><b>Update check couldn't reach GitHub — try again later</b></span>
+    <span id="update-banner-text"><b>Offline. Try again later.</b></span>
   </div>
   {% else %}
   <div class="update-banner update-banner-error" id="update-banner" role="alert">

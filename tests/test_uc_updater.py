@@ -1,5 +1,6 @@
 import json
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 from src import updater
@@ -8,6 +9,7 @@ from src.app import create_app
 from src.db import get_conn
 from src.prefs import get_pref, set_pref
 from src.version import APP_VERSION
+from src.views import about as about_view
 
 
 def release_payload(tag="v1.0.10-release", apk="DK-Bond-Tracker-1.0.10.apk"):
@@ -152,6 +154,20 @@ def test_about_post_check_renders_banner_and_redirects(db_path, monkeypatch):
     assert 'id="check-updates"' in html
 
 
+def test_about_post_check_local_ahead_has_no_newest_claim(db_path, monkeypatch):
+    monkeypatch.setattr(updater, "APP_VERSION", "1.0.11")
+    monkeypatch.setattr(about_view, "APP_VERSION", "1.0.11")
+    app = create_app(str(db_path))
+    app.config["TESTING"] = True
+    client = app.test_client()
+    with fake_release(release_payload(tag="v1.0.9-release", apk="DK-Bond-Tracker-1.0.9.apk")):
+        response = client.post("/about", data={"action": "check"})
+    html = client.get(response.headers["Location"]).get_data(as_text=True)
+    assert "You are on v1.0.11" in html
+    assert "newest release" not in html
+    assert 'id="update-download"' not in html
+
+
 def test_about_post_check_offline_banner(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True
@@ -159,7 +175,7 @@ def test_about_post_check_offline_banner(db_path):
     with fake_network_down():
         response = client.post("/about", data={"action": "check"})
     html = client.get(response.headers["Location"]).get_data(as_text=True)
-    assert "Update check couldn't reach GitHub — try again later" in html
+    assert "Offline. Try again later." in html
     assert "newest release" not in html
 
 
@@ -196,6 +212,87 @@ def test_popup_dismiss_hides_popup_and_is_not_persisted(db_path):
     restarted = create_app(str(db_path))
     restarted.config["TESTING"] = True
     assert 'id="update-popup"' in restarted.test_client().get("/").get_data(as_text=True)
+
+
+def set_check_age(db_path, hours):
+    stamp = datetime.now(timezone.utc) - timedelta(hours=hours)
+    with get_conn(db_path) as conn:
+        set_pref(conn, "update_checked_at", stamp.isoformat())
+
+
+def auto_app(db_path):
+    app = create_app(str(db_path))
+    app.config["TESTING"] = True
+    return app
+
+
+def wait_auto_idle(app):
+    deadline = time.monotonic() + 5
+    while app.config.get("UPDATE_CHECK_RUNNING") and time.monotonic() < deadline:
+        time.sleep(0.01)
+
+
+def test_auto_check_skipped_when_disabled(db_path):
+    set_check_age(db_path, 25)
+    with get_conn(db_path) as conn:
+        set_pref(conn, "update_auto_check", "0")
+    app = auto_app(db_path)
+    with fake_release(release_payload()) as fetch:
+        app.test_client().get("/about")
+        wait_auto_idle(app)
+    fetch.assert_not_called()
+
+
+def test_auto_check_skipped_within_24h(db_path):
+    set_check_age(db_path, 12)
+    app = auto_app(db_path)
+    with fake_release(release_payload()) as fetch:
+        app.test_client().get("/about")
+        wait_auto_idle(app)
+    fetch.assert_not_called()
+
+
+def test_auto_check_runs_past_24h(db_path, monkeypatch):
+    monkeypatch.setattr(updater, "APP_VERSION", "1.0.9")
+    set_check_age(db_path, 25)
+    app = auto_app(db_path)
+    with fake_release(release_payload()) as fetch:
+        app.test_client().get("/about")
+        wait_auto_idle(app)
+    fetch.assert_called_once()
+
+
+def test_auto_check_failure_keeps_gate_open_for_next_request(db_path):
+    app = auto_app(db_path)
+    with fake_network_down():
+        app.test_client().get("/about")
+        wait_auto_idle(app)
+    with get_conn(db_path) as conn:
+        assert get_pref(conn, "update_checked_at") is None
+    with fake_release(release_payload()) as fetch_ok:
+        app.test_client().get("/about")
+        wait_auto_idle(app)
+    fetch_ok.assert_called_once()
+
+
+def test_auto_check_in_flight_guard_blocks_second_auto_check(db_path):
+    app = auto_app(db_path)
+    app.config["UPDATE_CHECK_RUNNING"] = True
+    with fake_release(release_payload()) as fetch:
+        app.test_client().get("/about")
+    fetch.assert_not_called()
+
+
+def test_manual_check_runs_while_auto_check_in_flight(db_path, monkeypatch):
+    monkeypatch.setattr(updater, "APP_VERSION", "1.0.9")
+    app = auto_app(db_path)
+    app.config["UPDATE_CHECK_RUNNING"] = True
+    with fake_release(release_payload()) as fetch:
+        response = app.test_client().post("/about", data={"action": "check"})
+    assert response.status_code == 302
+    fetch.assert_called_once()
+    with get_conn(db_path) as conn:
+        assert get_pref(conn, "update_version") == "1.0.10"
 
 
 def test_popup_css_hides_backdrop_when_hidden_attribute_set(db_path):

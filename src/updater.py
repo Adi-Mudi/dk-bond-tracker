@@ -110,7 +110,8 @@ def check_for_updates():
         return {"status": "error", "error": parsed["error"], "checked_at": checked_at}
     if _parse_version(parsed["version"]) is None:
         return {"status": "error", "error": "parse_error", "checked_at": checked_at}
-    if semver_compare(APP_VERSION, parsed["version"]) > 0:
+    comparison = semver_compare(APP_VERSION, parsed["version"])
+    if comparison > 0:
         return {
             "status": "newer",
             "version": parsed["version"],
@@ -118,7 +119,12 @@ def check_for_updates():
             "release": release,
             "checked_at": checked_at,
         }
-    return {"status": "current", "version": parsed["version"], "checked_at": checked_at}
+    return {
+        "status": "current",
+        "version": parsed["version"],
+        "local_ahead": comparison < 0,
+        "checked_at": checked_at,
+    }
 
 
 def store_update_result(conn, result):
@@ -133,6 +139,7 @@ def store_update_result(conn, result):
     set_pref(conn, "update_available", "1" if newer else "0")
     set_pref(conn, "update_version", result.get("version") or "")
     set_pref(conn, "update_url", result.get("url") or "")
+    set_pref(conn, "update_local_ahead", "1" if result.get("local_ahead") else "0")
     set_pref(conn, "update_error", "")
 
 

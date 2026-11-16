@@ -57,7 +57,12 @@ def _banner_from_prefs(conn, checked):
             "url": get_pref(conn, "update_url", "") or None,
         }
     if checked == "current":
-        return {"status": "current", "version": APP_VERSION, "url": None}
+        return {
+            "status": "current",
+            "version": APP_VERSION,
+            "url": None,
+            "local_ahead": get_pref(conn, "update_local_ahead", "0") == "1",
+        }
     return {"status": checked, "version": None, "url": None}
 
 
@@ -82,6 +87,7 @@ def about_page():
                 "status": result["status"],
                 "version": result.get("version"),
                 "url": result.get("url"),
+                "local_ahead": bool(result.get("local_ahead")),
             }
             if result["status"] == "newer":
                 current_app.config["UPDATE_POPUP_DISMISSED"] = False
