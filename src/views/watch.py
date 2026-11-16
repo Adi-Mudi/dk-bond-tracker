@@ -253,12 +253,13 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
     asof = ""
     if state in (FETCH_FOUND, FETCH_DOWNGRADE):
         asof = fetched_at or _asof_now()
-    elif state == FETCH_OFFLINE and cached_row:
+    if state in (FETCH_FOUND, FETCH_DOWNGRADE, FETCH_OFFLINE) and cached_row:
         cached = {
             field: cached_row[field]
             for field in INSTRUMENT_FIELDS
             if cached_row.get(field) is not None
         }
+    if state == FETCH_OFFLINE and cached_row:
         asof = str(cached_row.get("fetched_at") or "")
     failure_code = result.failure_code if result is not None else None
     return {
