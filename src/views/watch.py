@@ -282,6 +282,12 @@ def apply_fetch(current, payload, dirty):
     sources_by_field = {}
     fetched = fetched_form_values(payload.get("facts") or {})
     sources = payload.get("sources") or {}
+    cached = payload.get("cached") or {}
+    if cached:
+        if cached.get("maturity") is not None:
+            fetched["maturity_date"] = str(cached["maturity"])
+        if cached.get("listing_status"):
+            fetched["listing_status"] = cached["listing_status"]
     for field, value in fetched.items():
         if field in POSITION_FIELDS:
             continue
