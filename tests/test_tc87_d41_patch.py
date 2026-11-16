@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from src.app import create_app
@@ -222,19 +224,19 @@ def test_tc87_labels_present_on_watch_moves(client):
     watch_post(client)
     watch_html = client.get("/watch").get_data(as_text=True)
     assert "Purchase date" in watch_html
-    assert "Start date (interest accrual / dated date)" in watch_html
+    assert "Interest start date" in watch_html
     assert "End date" in watch_html
-    assert "Credit day — when the amount is credited each month" in watch_html
+    assert "Interest credit day" in watch_html
     portfolio_html = client.get("/portfolio").get_data(as_text=True)
     assert 'id="add-position"' not in portfolio_html
 
 
-def test_tc87_watchlist_has_broker_column_before_source_note(client):
+def test_tc87_watchlist_row_shows_broker_in_meta_line(client):
     watch_post(client, broker="Axis Direct")
     html = client.get("/watch").get_data(as_text=True)
-    broker_index = html.index("<th>Broker</th>")
-    source_index = html.index("<th>Source note</th>")
-    assert broker_index < source_index
+    row = re.search(r'<tr class="candidate-row"[^>]*>(.*?)</tr>', html, re.S).group(1)
+    assert '<span class="caption row-meta">' in row
+    assert " · Axis Direct" in row
     assert "Axis Direct" in html
 
 

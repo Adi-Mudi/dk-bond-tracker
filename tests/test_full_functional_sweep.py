@@ -177,10 +177,10 @@ def test_goals_create_lock_checkin_delete_flow(client):
 def test_watch_add_duplicate_isin_blocked_with_popup(client):
     dup = client.post(
         "/watch",
-        data={"company": "Gamma Corp", "isin": "INE000200002", "rating": "AA", "coupon_pct": "7.5"},
+        data={"company": "Gamma Corp", "isin": "INE000200002", "rating": "AA", "coupon_pct": "7.5", "expected_yield_pct": "7.2"},
         follow_redirects=True,
     )
-    assert dup.status_code == 400, "duplicate ISIN must be rejected"
+    assert dup.status_code == 409, "duplicate ISIN must be rejected"
     html = dup.get_data(as_text=True)
     assert "INE000200002" in html
     assert "already exists" in html.lower() or "duplicate" in html.lower() or "View existing" in html

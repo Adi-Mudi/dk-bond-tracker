@@ -15,12 +15,12 @@ TOOLTIP_TPL = (ROOT / "src" / "templates" / "_tooltip.html").read_text(encoding=
 
 PAGES = ("/", "/portfolio", "/watch", "/goals", "/notifications", "/settings")
 GUIDE_TITLES = {
-    "/": "Dashboard guide",
-    "/portfolio": "Portfolio guide",
-    "/watch": "Watchlist guide",
-    "/goals": "Goals guide",
-    "/notifications": "Alerts guide",
-    "/settings": "Settings guide",
+    "/": "How this page works",
+    "/portfolio": "How this page works",
+    "/watch": "How this page works",
+    "/goals": "How this page works",
+    "/notifications": "How this page works",
+    "/settings": "How this page works",
 }
 DISCLAIMER_PHRASES = (
     "information-only",
@@ -57,7 +57,7 @@ def test_ui08_bulb_present_on_every_page_with_that_page_guide(client, db_path):
         html = client.get(path).get_data(as_text=True)
         assert 'id="guideBtn"' in html, path
         assert 'id="pageGuide"' in html, path
-        assert 'aria-label="Page guide"' in html, path
+        assert 'aria-label="How this page works"' in html, path
         assert GUIDE_TITLES[path] in html, path
 
 
@@ -73,7 +73,7 @@ def test_ui08_watch_guide_explains_blocking_rules_in_plain_language(client, db_p
     assert "guide-rule guide-blocking" in html
     assert "One ISIN, one entry" in html
     assert "Investment grade only" in html
-    assert "Move to Portfolio" in html
+    assert "Move to portfolio" in html
 
 
 def test_ui08_tooltip_a11y_attributes_present(client, db_path):

@@ -1,0 +1,311 @@
+{
+  "id": "dk_bond_tracker_brainstorm_20261030",
+  "kind": "brainstorm",
+  "title": "Legacy recovery: dk_bond_tracker_brainstorm_20261030 (reconstructed from store snapshot 6ac081b for design-ref integrity)",
+  "version": "v1.0-recovered",
+  "status": "CLOSED",
+  "project": "01_excel_dashboard",
+  "d_items": [
+    {
+      "id": "D1",
+      "topic": "Frontend framework for the local web app",
+      "choice": "Flask + simple HTML pages",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D10",
+      "topic": "Product scope constraints carried into all stages",
+      "choice": "Offline-only: each user runs the app locally with their own SQLite file; shareable by copying the folder; no accounts, no network mode",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D11",
+      "topic": "SQLite MCP server for detailed store inspection",
+      "choice": "Add a deferred MCP server entry (name: sqlite-excel-dashboard) in ~/.kimi-code/mcp.json using uvx mcp-alchemy with DB_URL pointing at db-store/store/01_excel_dashboard_store.db (project store per D9/D50). Deferred so it activates only when needed; agents gain SQL detail-check tools against the store.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D12",
+      "topic": "kimi CLI + pi CLI readiness check for this local project",
+      "choice": "Readiness check only: verify both CLIs see this project correctly (AGENTS.md rules loading, skills present, store tools on PATH, venv, MCP entry valid) and report — no config changes from the check itself",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D13",
+      "topic": "Approval gating mode for the initiative",
+      "choice": "FULL-AUTO: the user's standing approval covers brainstorm/master/stage-plan gates, worker questions, scope confirms, commits, merges into the base branch, and the user-authorized 7-file legacy deletion. PM still reports every gate result (Rule 5 report-everything); destructive actions outside the authorized set still escalate.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D14",
+      "topic": "Add-position flow (single company master)",
+      "choice": "ONE bonds master row per position: user adds the company/position once via the Watch List add form (fields: company, ISIN, amount, tenure, start month); the monthly grid, dashboard, and watch list all render from that same row - details are never entered twice.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D15",
+      "topic": "Strict active-position lock (same company cannot be bought twice while active)",
+      "choice": "At most ONE active (On-going or Danger) position per company. Match key: normalized company name (trim/case-insensitive) OR ISIN - a duplicate is blocked if EITHER matches. Enforcement: HARD BLOCK with a named error naming the active position and its status (FR-21 error surfacing) - no override, no force. The lock releases ONLY when the existing position reaches Completed (D5: months paid >= tenure). A new position bought after Completed starts On-going and re-locks the company until it too completes.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D16",
+      "topic": "Sole entry point + entry-time lock enforcement",
+      "choice": "Positions are created ONLY through the Watch List add form. The D15 active-position lock fires at that submit; if blocked, nothing enters the system, so the monthly grid/dashboard can never show a bypassed company. Grid = payment entry + render only; no alternate add route anywhere.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D17",
+      "topic": "Rename 'Home Plan' + long-horizon goals",
+      "choice": "Rename 'Home Plan' to 'Financial Goals'. Goal entries gain target amount + target end date so 10-year futuristic savings plans are first-class; legacy irregular savings rows (39588/10063/0) import as goals. Tab label: 'Financial Goals'.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D18",
+      "topic": "Customizable share snapshot",
+      "choice": "Share panel with per-section checkboxes (totals, per-bond list, monthly history, amounts visibility) generating an offline shareable snapshot: print-styled HTML file + CSV option. Respects privacy mode (amounts masked when hidden). No server, no accounts.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D19",
+      "topic": "Privacy mode (hide amounts) - Zerodha pattern",
+      "choice": "Global 'Privacy Mode' toggle (eye icon in header): masks EVERY monetary value across dashboard, grid, watch list, goals, share snapshot and print as '••••' until toggled back; state persisted locally (browser storage). Numbers, statuses, names stay visible.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D2",
+      "topic": "How existing XLSM data migrates into SQLite",
+      "choice": "One-time Python import script; XLSM kept as read-only backup",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D20",
+      "topic": "Monthly grid automatic row ordering",
+      "choice": "Monthly grid rows always sort: Danger first, then On-going, then Completed last; ordering recomputes automatically whenever a status changes (Completed sinks to bottom without user action).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D21",
+      "topic": "Portfolio visualization graphs",
+      "choice": "Dashboard gains a charts row: (1) grouped bars - invested vs received per bond; (2) cumulative returns line - turns red if overall balance goes negative; (3) status donut - Danger/On-going/Completed split. Rendered as inline SVG (no external chart CDN, offline).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D22",
+      "topic": "Day-wise status sweep + email alerts",
+      "choice": "Status upgrade from month-end to DAY-WISE: each position carries a credit day (day-of-month, from D26); a daily sweep checks that day's payment - unpaid after the credit day -> position flips to Danger immediately. Alerting: in-app notification bell + email sent personal-to-personal via the owner's Gmail SMTP (App Password), one-time user setup; reminder cadence before-due/day-of/overdue per community best practice. Completed logic (D5) unchanged.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D23",
+      "topic": "Dashboard monthly history window",
+      "choice": "Monthly History table shows ONLY elapsed months up to and including the current month; future columns are never rendered; each new month auto-appends its column from the ledger (no headers stored, no future window).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D24",
+      "topic": "Alert stack channels (Q9 community check)",
+      "choice": "Ship with in-app notification bell + email (per D22). Community-checked alternatives recorded and DEFERRED: SMS/WhatsApp (~98% open but paid cloud), web/mobile push (needs server - breaks offline). Alert history retained in-app (list + timestamps) so the 'strict alert mechanism' is auditable.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D25",
+      "topic": "Monthly printable statement design",
+      "choice": "Deliver a dedicated 'Monthly Print' frontend design: A4 print-optimized HTML showing month header, portfolio summary, this-month payment table, status list, alerts footer; privacy-mode aware (masks if active); approved like the other HTML designs.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D26",
+      "topic": "Add Position upgrade: exact dates + credit day",
+      "choice": "Add Position form upgraded: exact START DATE and END DATE (date pickers) -> tenure months auto-calculated from the range (no manual tenure). PLUS separate 'Payment credit day' field (day-of-month 1-28) stored per position - this is the date used by the day-wise sweep (D22) and all alert timing (D34). Legacy import maps start_month -> start date, tenure -> computed end date, default credit day = start date's day.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D27",
+      "topic": "Build kickoff (Stage 11 execute)",
+      "choice": "User ordered 'start build': Stage 11 execute begins NOW on the local desktop web app following Development_Order W0->W7. L1/L2 remain open holds: L1 blocks only the W1 reconciliation ACCEPTANCE (TC-26 stays pending_baseline; import still lands with honest mismatch report), L2 blocks only Phase-4 P&L acceptance (TC-40). Platform: desktop local web app first; Android/packaging explicitly NOT built (user informed; new decision needed if wanted later).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D28",
+      "topic": "Repo + SSH remote + hosted test execution",
+      "choice": "Create private GitHub repo 'dk-bond-tracker' using the existing gh login; add an SSH key (generated locally, uploaded via gh) so the git remote URL is git@github.com:... (literal 'ssh' per user Q1); push dev. Remote TESTS run on GitHub Actions (ubuntu runner) since no SSH test server was provided - the heavy tier executes remotely on every push, off the user's weak local hardware.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D29",
+      "topic": "Local vs remote test split",
+      "choice": "pytest marker 'remote' on the heavy tier (real-workbook parsing, subprocess launch, 150x96 perf, full e2e import chains); local gate = 'pytest -m \"not remote\"' (<~30s); remote gate = full suite (GitHub Actions on push; also a scripts/test_remote.sh for any future SSH box).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D3",
+      "topic": "Monthly payment storage model",
+      "choice": "Row-per-payment ledger; totals/status become live queries",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D30",
+      "topic": "Ready-to-use product form",
+      "choice": "Deliver the plan-defined MVP package: a self-contained product folder (src/, tests/, the source XLSM, requirements.txt pinned, setup one-command script, run.sh/run.bat, README) plus a zip - 'copy one folder, run one command' exactly per the PRD MVP exit. Builder script committed so the package regenerates; generated folder+zip are local artifacts (gitignored).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D31",
+      "topic": "MCP server for the application database",
+      "choice": "Register deferred MCP server 'sqlite-app-data' in ~/.kimi-code/mcp.json with validated read-only SQLAlchemy URL (sqlite:///file:<abs>/data/bonds.db?mode=ro&uri=true) — agents can SELECT/query bond data (bonds, ledger, goals, notifications) but writes are blocked at the SQLite layer (proven: DELETE -> OperationalError). Doc-store MCP (sqlite-excel-dashboard) stays separate. Shipping an MCP INSIDE the product for friends = future feature, not in this build.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D32",
+      "topic": "MCP registration scope",
+      "choice": "Project MCP servers (sqlite-app-data + sqlite-excel-dashboard) live ONLY in the project-local .kimi-code/mcp.json of THIS repository; both removed from the global ~/.kimi-code/mcp.json, which now holds only general tools (tavily, brave). Per Kimi docs: project-level entries are effective only for this repository and take precedence over same-named user-level entries.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D33",
+      "topic": "Watchlist redesign (confirmed mockup)",
+      "choice": "Confirmed design = standalone app shell (window chrome, left sidebar nav, status bar) + watchlist with segmented My Holdings/Watching views, full bond columns (type, credit rating+agency, coupon, yield-entered-offline, payout cycle, invested, returned, next payout, maturity countdown, status, alerts), filter/search/sort bar, summary strip, right detail drawer, alerts panel, offline honesty notes. Source: fix-watchlist/.IDE_Plans/design_drafts/watchlist_standalone_mockup_v1.html (user: 'this one is good').",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D34",
+      "topic": "Settings screen (mailing + configuration)",
+      "choice": "Add a dedicated Settings screen to the design: Email alerts (SMTP host/port/user/App Password masked/recipient/from-name + Test Send + configured status), Alert preferences (payout reminder days, overdue, maturity 30/7/1, daily sweep), General (default credit day, privacy default, INR format), Data (import Excel, export DB backup, default CSV scope), About (version, offline statement). Sidebar Settings item becomes a real nav destination. Mockup updated to v2 with this screen before docs finalize.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D35",
+      "topic": "Fleet execution model (herdr visible + wave parallel)",
+      "choice": "EVERY subagent runs as a kimi agent in a VISIBLE herdr pane (user watches live). Implementation uses WAVE PARALLEL mode. Fleet for this initiative: 1 Captain + 4 Workers + 1 Reviewer (PM-calculated; captain relays PM contracts and runs store gates, workers author in parallel lanes, reviewer read-only at gate).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D36",
+      "topic": "Watchlist-upgrade document pipeline + implementation gate",
+      "choice": "Sequence: complete document set for the watchlist upgrade (PRD addendum, SRS+RTM addendum, test plan addendum, architecture delta, atomic functions + pseudocode addenda, development order addendum, final design = approved mockup v2), each projected into the store with gates + a review batch; STOP and WAIT for user approval before implementation begins.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D37",
+      "topic": "Purge old format + previous-user data everywhere (start-from-scratch product)",
+      "choice": "The XLSM (old format) carries the previous user's data: (1) untrack it from the repo and stop bundling it in the product (no sharing via clone/zip); (2) remove the Excel-import feature from the program (CLI flag, run scripts, README, import code+tests) and from ALL documents (FR/AF/pseudocode/TC references) - product is create-from-scratch ONLY: new users enter their own data; (3) delete data-bearing artifacts (extracted sheet XML, vba_dump, legacy migrated PRD/RTM/brainstorm bodies containing real portfolio data, archived scout extracts); (4) document scrub wave (D33-Q3) removes remaining real-data examples. Supersedes D2 (one-time import) for the shipped product. Deletion of the owner's ORIGINALS (workbook + imported backup) requires separate explicit confirmation.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D38",
+      "topic": "Screen restructure: Portfolio (renamed) + Watchlist = candidates only",
+      "choice": "Sidebar: Dashboard | PORTFOLIO (renamed from Month Grid) | WATCHLIST | Financial Goals | Alerts | Settings. PORTFOLIO = two tabs: My Holdings (position registry: full fields, drawer, Received+Next Payout columns, payment-health statuses) and Payouts (the month-grid pattern: mark paid/unpaid, colors, auto-sort Danger top -> Matured bottom). WATCHLIST = candidates only (research list, status 'Watching', Move to Portfolio action; NO invested/received/next-payout/health columns). Payment-health statuses (On-going/Danger/Matured) exist ONLY in Portfolio and are derived from the Payouts grid (owner: 'everything need to reflect from the monthly grid').",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D39",
+      "topic": "Labels + Add-Position location (approved via ui_frontend_design_v4.html)",
+      "choice": "APPROVED 2026-10-31 (owner, on ui_frontend_design_v4.html): Add Position button in Portfolio>My Holdings (Watchlist candidates convert via 'Move to Portfolio' — both funnel through the same D15 lock check); display relabels 'Returned'->'Received', 'Completed'->'Matured' (engine values unchanged). Purchase state: Watching/Held; payment health: On-going/Danger/Matured.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D4",
+      "topic": "CSV/Excel export once Excel is no longer the front end",
+      "choice": "CSV export for sharing/printing",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D40",
+      "topic": "Multiple themes (System / Light / Dark)",
+      "choice": "A: ship three themes — System (follows OS), Light (default), Dark. Header switcher + Settings > Appearance section. Implementation: :root light tokens (current v4 palette) + html[data-theme=dark] dark tokens (near-black surfaces #111827-family, desaturated accents, WCAG AA contrast, no pure white/pure black) + @media (prefers-color-scheme: dark) applied only when no explicit data-theme; choice saved in localStorage; zero-flash inline script reads stored theme before first paint.",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D41",
+      "topic": "Post-launch patch wave: form allowances, explicit date labels, broker field, tenure guard + invalid-row recovery",
+      "choice": "A (owner Q1/Q2/Q3/Q5 of 2026-11-01 post-launch feedback, collected via MCP diagnosis + 24-check smoke: 12 hits mapped).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D42",
+      "topic": "Design v6 round: editable payouts + reversed timeline, bond-attribute parity watchlist/portfolio, dashboard status sort/filter, email presets, returns history placement",
+      "choice": "A. Scope from owner feedback 2026-11-01: (Q1) coupon/yield step fix = BUG, done immediately (step 0.1 -> 0.01, dev 8e07f05); (Q2) Move-to-Portfolio form placement redesign (row-expansion panel, not cramped Action cell); (Q3) payouts editable (cell -> payment editor) + month columns NEWEST-LEFT oldest-right; (Q4) full bond attributes (rating agency, issuer type, secured, face value, payout cycle, amount) shown in Watchlist AND Portfolio identically, collected at candidate entry; (Q5) Dashboard per-item status chips + sort Danger->On-going->Completed + status filter; (Q7) email presets Gmail/Outlook with autofill + test-connection + setup docs; (Q9) returns history reverse-chronological. (Q6/Q8 = explanations answered from code, no build).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D43",
+      "topic": "LOCKED app-wide sort standard + status taxonomy (owner re-insurance round)",
+      "choice": "A (LOCKED by owner 2026-11-01 Q1). Status taxonomy purposes: Danger = immediate attention required (missed payment, overdue, missing data); On-going = active and progressing normally, nothing needs attention; Completed/Matured = successfully finished, no further action. Danger assignment = AUTOMATIC by business rule: credit day passed with no payment entered by the due date (example: due on the 1st, not entered by the 1st -> Danger the same day).",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D5",
+      "topic": "Status engine rules in the rebuild",
+      "choice": "Fixed rules: Danger = ANY unpaid past month (not just previous month); Completed overrides Danger when months paid >= tenure; zero-value = unpaid preserved",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D6",
+      "topic": "Document format and storage for all project documentation",
+      "choice": "born-JSON + database-driven store for every sequence document (PRD, SRS+RTM, plans, designs, reports); legacy markdown migrated per the D12 eight-step procedure, verified, frozen, then deleted (user-authorized set: the 7 legacy .md docs)",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D7",
+      "topic": "Workflow sequence and stopping point",
+      "choice": "Strict 12-stage machine; execute stages 1-10 (Div 1 requirements, Div 2 architecture+decomposition, Div 3 dev order + final design); stop before Div 4 execute+CI",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D8",
+      "topic": "Fleet configuration (captains/workers)",
+      "choice": "PM (Kimi CLI session, coordinator) + up to 2 Workers per wave (same CLI, same model, same access method); flat PM-to-worker topology; fleet size determined by stage needs (docs-heavy stages run 2 workers, code spikes may run 1)",
+      "why": "",
+      "status": "PENDING"
+    },
+    {
+      "id": "D9",
+      "topic": "Store layout initialization for this project",
+      "choice": "D120 init: db-store branch/worktree (folder = branch) + store -> db-store/store symlink; project name 01_excel_dashboard per D50 (repo folder basename); DB file 01_excel_dashboard_store.db",
+      "why": "",
+      "status": "PENDING"
+    }
+  ]
+}

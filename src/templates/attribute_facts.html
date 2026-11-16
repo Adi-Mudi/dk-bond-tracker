@@ -5,18 +5,13 @@
 {% macro fact_cycle(value) %}{% if not value %}&#8212;{% elif value == "monthly" %}Monthly{% elif value == "quarterly" %}Quarterly{% elif value == "annual" %}Annual{% else %}{{ value }}{% endif %}{% endmacro %}
 {% macro details_facts(item) %}
 <div class="facts-grid">
-  <div><span class="fact-label">Company / ISIN</span><span class="fact-value">{{ item.company or "—" }}{% if item.isin %} · {{ item.isin }}{% endif %}</span></div>
-  <div><span class="fact-label">Rating</span><span class="fact-value">{{ item.rating or "—" }}</span></div>
   <div><span class="fact-label">Rating agency</span><span class="fact-value">{{ item.rating_agency or "—" }}</span></div>
-  <div><span class="fact-label">Coupon</span><span class="fact-value">{{ fact_pct(item.coupon_pct) }}</span></div>
-  <div><span class="fact-label">Est. Yield</span><span class="fact-value">{{ fact_pct(item.expected_yield_pct) }}</span></div>
   <div><span class="fact-label">Issuer type</span><span class="fact-value">{{ fact_issuer(item.issuer_type) }}</span></div>
   <div><span class="fact-label">Secured</span><span class="fact-value">{{ fact_secured(item.secured) }}</span></div>
   <div><span class="fact-label">Face value</span><span class="fact-value">{{ money(item.face_value) }}</span></div>
   <div><span class="fact-label">Payout cycle</span><span class="fact-value">{{ fact_cycle(item.payout_cycle) }}</span></div>
-  <div><span class="fact-label">Invested <span class="rupee"></span></span><span class="fact-value">{{ money(item.invested) }}</span></div>
-  <div><span class="fact-label">Broker</span><span class="fact-value">{{ item.broker or "—" }}</span></div>
-  {% if item.source_note and item.source_note != item.company %}<div><span class="fact-label">Source note</span><span class="fact-value">{{ item.source_note }}</span></div>{% endif %}
+  <div><span class="fact-label">Invested</span><span class="fact-value">{{ money(item.invested) }}</span></div>
+  {% if item.source_note and item.source_note != item.company %}<div><span class="fact-label">Where you found it</span><span class="fact-value">{{ item.source_note }}</span></div>{% endif %}
 </div>
 {% endmacro %}
 {% macro attribute_strip(item) %}
@@ -27,6 +22,6 @@
 <span class="attr-row"><b>Payout cycle:</b> {{ fact_cycle(item.payout_cycle) }}</span> ·
 <span class="attr-row"><b>Broker:</b> {{ item.broker or "—" }}</span>
 {% if item.source_note and item.source_note != item.company %} ·
-<span class="attr-row"><b>Source note:</b> {{ item.source_note }}</span>
+<span class="attr-row"><b>Where you found it:</b> {{ item.source_note }}</span>
 {% endif %}
 {% endmacro %}

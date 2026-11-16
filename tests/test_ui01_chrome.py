@@ -115,7 +115,7 @@ def test_ui01_overflow_menu_holds_each_control_once(client):
     assert inner.count('data-theme-value="light"') == 1
     assert inner.count('data-theme-value="dark"') == 1
     assert inner.count('id="privacyToggle"') == 1
-    assert inner.count('id="notificationsBell"') == 1
+    assert inner.count('id="notificationsBell"') == 0
     assert html.count('id="privacyToggle"') == 1
     assert html.count('id="notificationsBell"') == 1
     assert html.count('id="overflowPanel"') == 1

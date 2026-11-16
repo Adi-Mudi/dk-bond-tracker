@@ -15,7 +15,8 @@ def test_goals_tab_label_is_financial_goals(client):
     assert response.status_code == 200
     body = response.data.decode()
     assert "Financial Goals" in body
-    assert "<h1" in body and "Financial Goals" in body.split("<h1", 1)[1].split(">", 1)[1]
+    assert '<div class="page-title" id="pageTitle">Goals</div>' in body
+    assert "<h1" not in body
 
 
 def test_goals_page_has_no_home_plan_string(client):

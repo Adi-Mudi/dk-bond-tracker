@@ -78,8 +78,9 @@ def test_fr76_ac2_confirm_dialog_present_and_no_write_without_post(client, db_pa
         bond_id = seed_candidate(conn, "Alpha Steel", "INE000000076A")
 
     html = client.get("/watch").get_data(as_text=True)
-    assert "return confirm(" in html
-    assert "Delete candidate Alpha Steel? This cannot be undone." in html
+    assert "return confirm(" not in html
+    assert 'id="delete-confirm"' in html
+    assert 'data-company="Alpha Steel"' in html
 
     with get_conn(db_path) as conn:
         assert count(conn, "SELECT COUNT(*) AS n FROM bonds WHERE id = ?", (bond_id,)) == 1
@@ -149,12 +150,8 @@ def test_fr76_ac2_confirm_message_survives_apostrophe(client, db_path):
     company = "D'Mello Finance"
     page, attrs = render_delete_form(client, db_path, company, "INE000000076A")
 
-    handler = attrs["onsubmit"]
-    assert "return confirm(" in handler
-    assert company not in handler
-    assert json.loads(attrs["data-confirm-message"]) == (
-        f"Delete candidate {company}? This cannot be undone."
-    )
+    assert "onsubmit" not in attrs
+    assert "return confirm(" not in page
     assert "confirm('Delete candidate" not in page
 
 
@@ -162,12 +159,8 @@ def test_fr76_ac2_confirm_message_survives_backslash(client, db_path):
     company = "Back\\slash Investments"
     page, attrs = render_delete_form(client, db_path, company, "INE000000076A")
 
-    handler = attrs["onsubmit"]
-    assert "return confirm(" in handler
-    assert company not in handler
-    assert json.loads(attrs["data-confirm-message"]) == (
-        f"Delete candidate {company}? This cannot be undone."
-    )
+    assert "onsubmit" not in attrs
+    assert "return confirm(" not in page
     assert "confirm('Delete candidate" not in page
 
 

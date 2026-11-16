@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% block page_title %}Send feedback{% endblock %}
+{% block page_title %}Feedback{% endblock %}
 {% block head %}
 <style>
   .feedback-types { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .feedback-context { background: var(--card-bg); border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .feedback-context { background: var(--card); border: 1px dashed var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: var(--muted); margin-top: 10px; }
   .assist { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .inline-form { display: inline; }
   .screenshot-preview[hidden] { display: none; }
   .screenshot-preview { display: block; max-width: 100%; margin-top: 8px; border: 1px solid var(--border); border-radius: 6px; }
-  .chip-danger { background: var(--danger-bg); color: var(--danger-fg); }
-  .chip-info { background: var(--watching-bg); color: var(--watching-fg); }
-  .chip-neutral { background: var(--card-bg); color: var(--muted); }
 </style>
 {% endblock %}
 {% block content %}
-<h1>Send feedback</h1>
-
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 {% for category, message in messages %}
@@ -30,17 +25,17 @@
 {% if sent %}
 <div class="card" id="feedback-confirmation">
   {% if route_taken == "github" %}
-  <h2 id="confirmation-title">One more step &#8212; open the prefilled issue</h2>
-  <p id="confirmation-text">GitHub prefills the title and body from your report. Attach the screenshot there &#8212; GitHub is where the work is tracked.</p>
+  <h2 id="confirmation-title">One more step: open the prefilled issue</h2>
+  <p id="confirmation-text">GitHub prefills the title and body from your report. Attach the screenshot there. GitHub is where the work is tracked.</p>
   <p><a class="btn btn-primary" id="github-issue-link" rel="noopener" href="https://github.com/Adi-Mudi/dk-bond-tracker/issues/new?title={{ github_title|urlencode }}&amp;labels={{ github_label|urlencode }}&amp;body={{ github_body|urlencode }}">Open GitHub issue &#8594;</a></p>
   {% elif route_taken == "outbox" %}
-  <h2 id="confirmation-title">Saved locally &#8212; we will retry</h2>
+  <h2 id="confirmation-title">Saved locally. We will retry.</h2>
   <p id="confirmation-text">Your email is not configured right now, so this report went to the local outbox ({{ pending }} waiting). It stays on this device and is retried when email works again.</p>
   <form method="post" action="/feedback/retry" class="inline-form">
     <button class="btn btn-secondary" type="submit" id="feedback-retry">Retry queued reports</button>
   </form>
   {% else %}
-  <h2 id="confirmation-title">&#10003; Thanks &#8212; your report is in.</h2>
+  <h2 id="confirmation-title">&#10003; Thanks. Your report is in.</h2>
   <p id="confirmation-text">Bugs are reviewed first; features are considered in planning. You can track progress on GitHub Issues.</p>
   {% endif %}
   <p><a class="btn btn-secondary" id="feedback-again" href="/feedback">Send another report</a></p>
@@ -49,7 +44,7 @@
 {% else %}
 {% if error %}
 <div class="banner banner-error" id="feedback-error">
-  <div class="banner-title">Error: {{ error_code }}</div>
+  <div class="banner-title">{{ error_code }}</div>
   <div id="feedback-error-message">{{ error }}</div>
 </div>
 {% endif %}
@@ -62,8 +57,8 @@
   <h2>Send feedback</h2>
   <div class="feedback-types" id="feedback-types" role="group" aria-label="Feedback type">
     <a class="chip{% if kind == 'bug' %} chip-danger{% else %} chip-neutral{% endif %}" id="type-bug" href="/feedback?type=bug">Bug report</a>
-    <a class="chip{% if kind == 'feature' %} chip-info{% else %} chip-neutral{% endif %}" id="type-feature" href="/feedback?type=feature">Feature request</a>
-    <a class="chip{% if kind == 'question' %} chip-info{% else %} chip-neutral{% endif %}" id="type-question" href="/feedback?type=question">Question</a>
+    <a class="chip{% if kind == 'feature' %} chip-watching{% else %} chip-neutral{% endif %}" id="type-feature" href="/feedback?type=feature">Feature request</a>
+    <a class="chip{% if kind == 'question' %} chip-watching{% else %} chip-neutral{% endif %}" id="type-question" href="/feedback?type=question">Question</a>
   </div>
 
   <form method="post" action="/feedback?type={{ kind }}" id="feedback-form" enctype="multipart/form-data">
@@ -113,7 +108,7 @@
     <div class="field">
       <label for="fb-screenshot">Screenshot (optional)</label>
       <input type="file" id="fb-screenshot" name="screenshot" accept="image/*">
-      <p class="assist">Review your image first &#8212; it may contain amounts you want to hide.</p>
+      <p class="assist">Review your image first. It may contain amounts you want to hide.</p>
       <img id="fb-preview" class="screenshot-preview" alt="Screenshot preview" hidden>
     </div>
 

@@ -3,6 +3,9 @@
     document.querySelectorAll(".tip-wrap.tip-open").forEach(function (wrap) {
       if (wrap !== except) {
         wrap.classList.remove("tip-open");
+        if (window.releaseOverlay) {
+          window.releaseOverlay();
+        }
       }
     });
   }
@@ -15,6 +18,11 @@
       }
       var open = wrap.classList.toggle("tip-open");
       closeTips(open ? wrap : null);
+      if (open && window.openOverlay) {
+        window.openOverlay();
+      } else if (!open && window.releaseOverlay) {
+        window.releaseOverlay();
+      }
     });
   });
   document.addEventListener("click", function () {
@@ -24,7 +32,9 @@
     if (event.key !== "Escape") {
       return;
     }
-    closeTips(null);
+    if (window.closeTopOverlay) {
+      window.closeTopOverlay();
+    }
     var active = document.activeElement;
     if (active && active.classList && active.classList.contains("tip-trigger")) {
       active.blur();
@@ -80,6 +90,40 @@
     }
     if (closeWhy) {
       closeWhy(false);
+    }
+  });
+})();
+
+(function () {
+  var bell = document.getElementById("notificationsBell");
+  if (!bell) {
+    return;
+  }
+  function setBell(open) {
+    bell.classList.toggle("open", open);
+    bell.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open && window.openOverlay) {
+      window.openOverlay();
+    } else if (!open && bell.dataset.overlayOpen === "1" && window.releaseOverlay) {
+      window.releaseOverlay();
+    }
+    bell.dataset.overlayOpen = open ? "1" : "0";
+  }
+  bell.addEventListener("click", function (event) {
+    event.stopPropagation();
+    setBell(!bell.classList.contains("open"));
+  });
+  bell.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      if (event.target === bell) {
+        event.preventDefault();
+        setBell(!bell.classList.contains("open"));
+      }
+    }
+  });
+  document.addEventListener("click", function (event) {
+    if (!bell.contains(event.target)) {
+      setBell(false);
     }
   });
 })();

@@ -73,7 +73,7 @@ def test_ui07_advanced_email_is_collapsed_by_default(client, db_path):
     match = re.search(r"<details([^>]*)id=\"advanced-email\"([^>]*)>", html)
     assert match, "advanced email panel missing"
     assert "open" not in (match.group(1) + match.group(2))
-    assert "Advanced &#8212; Email (SMTP)" in html
+    assert "Advanced email (SMTP)" in html
     assert html.index('name="smtp_host"') > html.index('id="advanced-email"')
     assert html.index('id="s-send-test"') > html.index('id="advanced-email"')
     assert html.index('id="email-setup-guide"') > html.index('id="advanced-email"')

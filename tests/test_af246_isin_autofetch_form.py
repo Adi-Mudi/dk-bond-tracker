@@ -116,13 +116,13 @@ class FakeAdapter:
 
 def test_tc_af_01_prefill_runs_once_with_source_labels(db_path):
     calls = []
-    client, _ = make_client(db_path, nsdl_transport(calls))
+    client = isin_change_client(db_path, nsdl_transport(calls))
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
     assert f'value="{COMPANY}"' in html
     assert 'name="coupon_pct" min="0" step="0.01" value="8.75"' in html
     assert 'name="face_value" step="any" min="0" placeholder="1000.00" value="1000"' in html
-    for field in INSTRUMENT_SOURCE_FIELDS:
-        assert f'data-fetch-source="{field}">NSDL<' in html, field
+    assert 'id="fetch-sources"' in html
+    assert 'href="#fetch-sources"' in html
     assert len(calls) == 1
     client.get(f"/watch?isin={ISIN}")
     assert len(calls) == 1
@@ -163,8 +163,8 @@ def test_tc_af_02_ui_save_works_when_the_fetch_found_nothing(db_path):
     client, _ = make_client(db_path, nsdl_transport(body='{"records": []}'))
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
     assert 'data-fetch-state="notfound" hidden' not in html
-    assert "Metadata not found" in html
-    assert "enter manually" in html
+    assert "No details found" in html
+    assert "Enter them yourself." in html
     response = client.post(
         "/watch",
         data={
@@ -274,7 +274,7 @@ def test_f4_parse_error_path_uses_the_nsdl_fixture(db_path):
     client, _ = make_client(db_path, nsdl_transport(body=truncated))
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
     assert 'data-fetch-state="notfound" hidden' not in html
-    assert "Metadata not found" in html
+    assert "No details found" in html
     response = client.post(
         "/watch",
         data={

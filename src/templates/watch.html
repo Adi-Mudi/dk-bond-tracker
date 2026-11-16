@@ -4,14 +4,14 @@
 <style>
   .move-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 8px; align-items: end; }
   .move-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .move-field label { font-size: 11px; color: var(--muted); line-height: 1.25; }
+  .move-field label { font-size: 14px; color: var(--text); line-height: 1.25; }
   .move-form input[type="date"],
   .move-form input[type="text"],
   .move-form input[type="number"],
   .move-form select {
     font: inherit;
-    font-size: 12px;
-    height: 30px;
+    font-size: 16px;
+    height: 48px;
     padding: 4px 6px;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -94,9 +94,8 @@
   .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
   .fetch-popup .confirm-inner { width: min(34rem, 92vw); }
   .fetch-popup .facts-grid { margin-bottom: 12px; }
-  .btn-danger { background: var(--danger-fg); border-color: var(--danger-fg); color: var(--on-accent); }
   .watch-scroll { overflow-x: auto; }
-  #watch-list { min-width: 47.5rem; }
+  #watch-list { min-width: 24rem; }
   #watch-list tr.candidate-row > td:first-child,
   #watch-list tr.candidate-row > td:last-child { position: sticky; background: var(--card); }
   #watch-list tr.candidate-row > td:first-child { left: 0; z-index: 2; border-right: 1px solid var(--border); }
@@ -105,23 +104,29 @@
   #watch-list thead th:last-child { position: sticky; background: var(--card); z-index: 3; }
   #watch-list thead th:first-child { left: 0; z-index: 4; }
   #watch-list thead th:last-child { right: 0; z-index: 5; }
+  .row-meta { display: block; margin-top: 2px; }
+  .row-yield { display: block; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .row-yield-label { display: block; font-size: 12px; color: var(--muted); }
+  .row-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
   .fetch-states { display: block; }
   .fetch-state[hidden] { display: none; }
   .fetch-state .fetch-spinner { display: inline-block; vertical-align: middle; }
-  .fetch-hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+  .fetch-line { margin: 6px 0 0; font-size: 12px; line-height: 20px; min-height: 20px; color: var(--muted); }
+  .fetch-line-ok { color: var(--ongoing-fg); }
+  .fetch-line-warn { color: var(--warn-fg); }
+  .fetch-icon { display: inline-block; width: 1em; text-align: center; }
+  .fetch-link { color: var(--accent); font-weight: 600; margin-left: 0.4em; }
   .fetch-source {
     display: inline-block;
     margin: 0.1rem 0.2rem 0.1rem 0.4rem;
     padding: 1px 6px;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.02em;
     background: var(--ongoing-bg);
     color: var(--ongoing-fg);
   }
-  .fetch-source-cached { background: var(--warn-bg); color: var(--warn-fg); }
-  .fetch-source-list { display: grid; gap: 3px; margin-top: 6px; font-size: 12px; }
   .fetch-spinner {
     display: inline-block;
     width: 0.85rem;
@@ -139,7 +144,7 @@
     margin: 6px 0 0;
     padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.4;
     background: var(--warn-bg);
     color: var(--warn-fg);
@@ -148,10 +153,10 @@
   .isin-countdown-seconds { font-variant-numeric: tabular-nums; font-weight: 700; }
 </style>
 {% endblock %}
+{% block page_title %}Watchlist{% endblock %}
 {% block content %}
 {% from "attribute_facts.html" import details_facts %}
-<h1>Watchlist</h1>
-
+{% from "_tooltip.html" import tip %}
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
 {% for category, message in messages %}
@@ -165,7 +170,7 @@
 
 {% if error %}
 <div class="banner banner-error error-popup" id="watch-error" role="alert">
-  <div class="banner-title"><span class="field-error-icon" aria-hidden="true">&#9888;</span> Error: {{ error_code }}</div>
+  <div class="banner-title"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error_code }}</div>
   <div id="watch-error-message">{{ error }}</div>
   {% if duplicate %}
   <div class="error-actions" id="watch-error-actions">
@@ -181,81 +186,51 @@
 {% endif %}
 
 <div class="add-bar" id="add-bar">
-  <span class="add-bar-title">Candidates ({{ candidates|length }})</span>
+  <span class="add-bar-title">Watchlist ({{ candidates|length }})</span>
   <button type="button" class="icon-btn" id="watch-refresh" title="Refresh the bond master" aria-label="Refresh the bond master">&#8635;</button>
-  <button type="button" class="btn btn-primary btn-sm" id="add-candidate-toggle" aria-expanded="{% if form_open %}true{% else %}false{% endif %}" aria-controls="add-candidate-form">+ Add</button>
+  <button type="button" class="btn btn-primary btn-sm" id="add-candidate-toggle" aria-expanded="{% if form_open %}true{% else %}false{% endif %}" aria-controls="add-candidate-form">Add bond</button>
 </div>
 <div class="caption" id="watch-refresh-status" role="status" aria-live="polite"></div>
 
 <div class="card" id="add-candidate-panel"{% if not form_open %} hidden{% endif %}>
-  <h2>Add Candidate</h2>
+  <h2>Add bond</h2>
   <form method="post" action="/watch" id="add-candidate-form" data-fetched-isin="{{ fetch.isin }}">
     <input type="hidden" name="dirty" id="c-dirty" value="">
     <div class="fetch-states" id="c-fetch-states" data-fetch-states="{{ fetch.states|join(' ') }}" data-fetch-isin="{{ fetch.isin }}">
-      <p class="fetch-hint fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}>Type the ISIN and leave the field &mdash; the instrument facts fill in automatically.</p>
-      <div class="banner banner-info fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}>
-        <span class="fetch-spinner" aria-hidden="true"></span>
-        <div>
-          <strong>Checking the sources</strong>
-          <p>Looking up the instrument facts. The form is not blocked.</p>
-        </div>
-      </div>
-      <div class="banner banner-info fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}>
-        <div>
-          <strong>Instrument facts filled{% if fetch.source_names %} from {{ fetch.source_names|join(' and ') }}{% endif %}</strong>
-          <p>{% if fetch.asof %}Fetched {{ fetch.asof }} &#183; {% endif %}Position facts are yours to enter.</p>
-        </div>
-      </div>
-      <div class="banner banner-warn fetch-state" data-fetch-state="notfound"{% if fetch.state != 'notfound' %} hidden{% endif %}>
-        <div>
-          <strong>Metadata not found &mdash; enter manually</strong>
-          <p>No record for this ISIN in the sources we checked. Every field stays editable.</p>
-        </div>
-      </div>
-      <div class="banner banner-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}>
-        <div>
-          <strong>{{ fetch.message }}</strong>
-          <p>{% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.</p>
-          {% if fetch.cached %}
-          <div class="fetch-source-list">
-            {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span>{% endfor %}
-          </div>
-          {% endif %}
-        </div>
-      </div>
-      <div class="banner banner-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}>
-        <div>
-          <strong>Filled from a lesser-confidence source</strong>
-          <p>{{ fetch.message }} Each value keeps its source label.</p>
-        </div>
-      </div>
+      <p class="fetch-line fetch-state" data-fetch-state="idle"{% if fetch.state != 'idle' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9432;</span> Type the ISIN and leave the field to look up bond details.</p>
+      <p class="fetch-line fetch-state" data-fetch-state="checking"{% if fetch.state != 'checking' %} hidden{% endif %}><span class="fetch-spinner" aria-hidden="true"></span> Looking up bond details…</p>
+      <p class="fetch-line fetch-line-ok fetch-state" data-fetch-state="found"{% if fetch.state != 'found' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#10003;</span> Details filled in. Add your amount and quantity.{% if fetch.source_names %} <a href="#fetch-sources" class="fetch-link">See sources</a>{% endif %}</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="notfound"{% if fetch.state != 'notfound' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9432;</span> No details found. Enter them yourself. No record for this ISIN in the sources we checked. Every field stays editable.</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> {{ fetch.message }} {% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.{% if fetch.cached %} {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span> {% endfor %}{% endif %}</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> Filled from a lesser-confidence source. {{ fetch.message }} Each value keeps its source label. <a href="#fetch-sources" class="fetch-link">See sources</a></p>
     </div>
-    <div class="form-grid">
-      <div class="field field-company">
-        <label for="c-company">Company{% if fetch.sources_by_field.get('company') %}<span class="fetch-source" data-fetch-source="company">{{ fetch.sources_by_field.get('company') }}</span>{% endif %}</label>
-        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" aria-describedby="c-company-help{% if error_field == 'company' %} c-company-error{% endif %}" autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
-        <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
-          {% for entry in register %}
-          <li role="option" id="c-company-opt-{{ loop.index }}" class="combobox-option" data-value="{{ entry.company }}">{{ entry.company }}</li>
-          {% endfor %}
-        </ul>
-        <span class="caption" id="c-company-help">start typing — suggestions come from the register</span>
-        {% if error_field == 'company' %}
-        <p class="field-error" id="c-company-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
-        {% endif %}
-      </div>
+    <div class="form-grid" id="c-step-one">
       <div class="field">
-        <label for="c-isin">ISIN</label>
+        <label for="c-isin">ISIN {{ tip("c-isin", "howto", "A 12-character code, shown in capitals. Each ISIN can be on your list only once.") }}</label>
         <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
-        <span class="caption" id="c-isin-help">12 characters, forced uppercase, unique across the register</span>
-        <button type="button" class="btn btn-sm" id="c-isin-fetch">Fetch details</button>
+        <span class="caption" id="c-isin-help" hidden>12 characters, forced uppercase, unique across the register</span>
+        <button type="button" class="btn btn-sm" id="c-isin-fetch" data-label-idle="Fetch bond details" data-label-busy="Looking up..." data-label-wait="Try again in 60s">Fetch bond details</button>
         <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if fetch.state != 'offline' %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
         {% if error_field == 'isin' %}
         <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
         {% endif %}
       </div>
+    </div>
+    <div class="form-grid" id="c-details"{% if not (error or fetch.state in ['found', 'downgrade', 'notfound', 'offline']) %} hidden{% endif %}>
+      <div class="field field-company">
+        <label for="c-company">Company</label>
+        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" {% if error_field == 'company' %}aria-describedby="c-company-error" {% endif %} autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
+        <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
+          {% for entry in register %}
+          <li role="option" id="c-company-opt-{{ loop.index }}" class="combobox-option" data-value="{{ entry.company }}">{{ entry.company }}</li>
+          {% endfor %}
+        </ul>
+        {% if error_field == 'company' %}
+        <p class="field-error" id="c-company-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% endif %}
+      </div>
       <div class="field">
-        <label for="c-rating">Rating{% if fetch.sources_by_field.get('rating') %}<span class="fetch-source" data-fetch-source="rating">{{ fetch.sources_by_field.get('rating') }}</span>{% endif %}</label>
+        <label for="c-rating">Rating</label>
         <select id="c-rating" name="rating"{% if error_field == 'rating' %} aria-invalid="true" aria-describedby="c-rating-error"{% endif %}>
           <option value=""{% if not form.get('rating') %} selected{% endif %}>&#8212;</option>
           {% for rating in options.ratings %}
@@ -267,25 +242,15 @@
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-rating-agency">Rating agency{% if fetch.sources_by_field.get('rating_agency') %}<span class="fetch-source" data-fetch-source="rating_agency">{{ fetch.sources_by_field.get('rating_agency') }}</span>{% endif %}</label>
-        <input type="text" id="c-rating-agency" name="rating_agency" list="c-agency-options" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}" autocomplete="off">
-        <datalist id="c-agency-options">
-          {% for agency in options.agencies %}
-          <option value="{{ agency }}"></option>
-          {% endfor %}
-        </datalist>
-        <span class="caption">pick a preset or type your own — custom values are remembered</span>
+        <label for="c-coupon">Coupon (%)</label>
+        <div class="field-input-suffix pct"><input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}"><span aria-hidden="true">%</span></div>
       </div>
       <div class="field">
-        <label for="c-coupon">Coupon (%){% if fetch.sources_by_field.get('coupon_pct') %}<span class="fetch-source" data-fetch-source="coupon_pct">{{ fetch.sources_by_field.get('coupon_pct') }}</span>{% endif %}</label>
-        <input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}">
+        <label for="c-yield">Expected yield (%)</label>
+        <div class="field-input-suffix pct"><input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" placeholder="e.g. 9.2" value="{{ form.get('expected_yield_pct', '') }}"><span aria-hidden="true">%</span></div>
       </div>
       <div class="field">
-        <label for="c-yield">Est. Yield (%)</label>
-        <input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" value="{{ form.get('expected_yield_pct', '') }}">
-      </div>
-      <div class="field">
-        <label for="c-issuer">Issuer type{% if fetch.sources_by_field.get('issuer_type') %}<span class="fetch-source" data-fetch-source="issuer_type">{{ fetch.sources_by_field.get('issuer_type') }}</span>{% endif %}</label>
+        <label for="c-issuer">Issuer type</label>
         <select id="c-issuer" name="issuer_type">
           <option value=""{% if not form.get('issuer_type') %} selected{% endif %}>&#8212;</option>
           <option value="corporate_bond"{% if form.get('issuer_type') == 'corporate_bond' %} selected{% endif %}>Corporate bond</option>
@@ -296,7 +261,7 @@
         </select>
       </div>
       <div class="field">
-        <label for="c-secured">Secured{% if fetch.sources_by_field.get('secured') %}<span class="fetch-source" data-fetch-source="secured">{{ fetch.sources_by_field.get('secured') }}</span>{% endif %}</label>
+        <label for="c-secured">Secured</label>
         <select id="c-secured" name="secured">
           <option value=""{% if not form.get('secured') %} selected{% endif %}>&#8212;</option>
           <option value="1"{% if form.get('secured') == '1' %} selected{% endif %}>Secured</option>
@@ -304,11 +269,11 @@
         </select>
       </div>
       <div class="field">
-        <label for="c-face">Face value{% if fetch.sources_by_field.get('face_value') %}<span class="fetch-source" data-fetch-source="face_value">{{ fetch.sources_by_field.get('face_value') }}</span>{% endif %}</label>
+        <label for="c-face">Face value</label>
         <input type="number" id="c-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
       </div>
       <div class="field">
-        <label for="c-cycle">Payout cycle{% if fetch.sources_by_field.get('payout_cycle') %}<span class="fetch-source" data-fetch-source="payout_cycle">{{ fetch.sources_by_field.get('payout_cycle') }}</span>{% endif %}</label>
+        <label for="c-cycle">Payout cycle</label>
         <select id="c-cycle" name="payout_cycle">
           <option value=""{% if not form.get('payout_cycle') %} selected{% endif %}>&#8212;</option>
           <option value="monthly"{% if form.get('payout_cycle') == 'monthly' %} selected{% endif %}>Monthly</option>
@@ -316,32 +281,45 @@
           <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
         </select>
       </div>
-      <div class="field">
-        <label for="c-invested">Invested <span class="rupee"></span></label>
-        <input type="number" id="c-invested" name="watch_investment" step="any" min="0" placeholder="0.00" value="{{ form.get('watch_investment', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
-      </div>
-      <div class="field">
-        <label for="c-qty">Quantity (no. of bonds)</label>
-        <input type="number" id="c-qty" name="qty" step="1" min="1" placeholder="1" value="{{ form.get('qty', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
-      </div>
-      <div class="field">
-        <label for="c-perbond">Per-bond price (auto)</label>
-        <input type="text" id="c-perbond" readonly placeholder="0.00">
-      </div>
-      <div class="field">
-        <label for="c-source">Source note</label>
-        <input type="text" id="c-source" name="source_note" value="{{ form.get('source_note', '') }}">
-      </div>
-      <div class="field">
-        <label for="c-broker">Broker</label>
-        <input type="text" id="c-broker" name="broker" list="c-broker-options" value="{{ form.get('broker', '') }}" autocomplete="off">
-        <datalist id="c-broker-options">
-          {% for broker in options.brokers %}
-          <option value="{{ broker }}"></option>
-          {% endfor %}
-        </datalist>
-        <span class="caption">pick a preset or type your own — custom values are remembered</span>
-      </div>
+      <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or form.get('watch_investment') or form.get('qty') or error_field in ['qty', 'watch_investment', 'broker'] %} open{% endif %}>
+        <summary>More details</summary>
+        <div class="form-grid">
+          <div class="field">
+            <label for="c-rating-agency">Rating agency</label>
+            <input type="text" id="c-rating-agency" name="rating_agency" list="c-agency-options" placeholder="CRISIL" value="{{ form.get('rating_agency', '') }}" autocomplete="off">
+            <datalist id="c-agency-options">
+              {% for agency in options.agencies %}
+              <option value="{{ agency }}"></option>
+              {% endfor %}
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="c-source">Where you found it</label>
+            <input type="text" id="c-source" name="source_note" value="{{ form.get('source_note', '') }}">
+          </div>
+          <div class="field">
+            <label for="c-broker">Broker</label>
+            <input type="text" id="c-broker" name="broker" list="c-broker-options" value="{{ form.get('broker', '') }}" autocomplete="off">
+            <datalist id="c-broker-options">
+              {% for broker in options.brokers %}
+              <option value="{{ broker }}"></option>
+              {% endfor %}
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="c-invested">Invested</label>
+            <div class="field-input-suffix"><span class="rupee" aria-hidden="true"></span><input type="number" id="c-invested" name="watch_investment" step="any" min="0" placeholder="0.00" value="{{ form.get('watch_investment', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')"></div>
+          </div>
+          <div class="field">
+            <label for="c-qty">Number of bonds</label>
+            <input type="number" id="c-qty" name="qty" step="1" min="1" placeholder="1" value="{{ form.get('qty', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
+          </div>
+          <div class="field">
+            <label for="c-perbond">Price per bond</label>
+            <input type="text" id="c-perbond" readonly placeholder="0.00">
+          </div>
+        </div>
+      </details>
       <div class="field span-all" id="company-history" hidden>
         <span class="caption">History of this company (old ISINs)</span>
         <div class="history-chips">
@@ -355,9 +333,8 @@
         </div>
       </div>
     </div>
-    <p class="caption section-gap">Company and ISIN must be unique across the whole register — duplicates are rejected with a red popup and an inline field error, never silently.</p>
     <div class="section-gap">
-      <button class="btn btn-primary" type="submit" id="add-candidate-submit">+ Add Candidate</button>
+      <button class="btn btn-primary" type="submit" id="add-candidate-submit">Add bond</button>
     </div>
   </form>
 </div>
@@ -370,7 +347,7 @@
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
-    <div class="facts-grid">
+    <div class="facts-grid" id="fetch-sources">
       {% for fact, field in fetch_fact_order %}
       {% if fetch.facts.get(fact) is not none %}
       {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.facts.get(fact) %}
@@ -394,13 +371,8 @@
     <thead>
       <tr>
         <th>Company / ISIN</th>
-        <th>Rating</th>
-        <th>Coupon</th>
-        <th>Est. Yield</th>
-        <th>Broker</th>
-        <th>Source note</th>
-        <th>Details</th>
-        <th>Action</th>
+        <th class="num">Expected yield</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -409,82 +381,93 @@
         <td>
           <span class="co-name">{{ candidate.company }} <span class="chip chip-watching">Watching</span></span>
           <span class="co-isin">{{ candidate.isin }}</span>
+          {% set r = (candidate.rating or '') | upper %}
+          <span class="chip chip-rating {% if r.startswith('AAA') or r in ['AA+', 'AA', 'AA-'] %}chip-rating-aaa{% elif r in ['A+', 'A', 'A-'] %}chip-rating-a{% elif r in ['BBB+', 'BBB', 'BBB-', 'BB+', 'BB', 'BB-', 'B+', 'B', 'B-', 'C', 'D'] %}chip-rating-amber{% else %}chip-rating-none{% endif %}">{{ candidate.rating or 'Not rated' }}</span>
+          <span class="caption row-meta"><span class="pct-value">{% if candidate.coupon_pct is not none %}{{ "%.1f"|format(candidate.coupon_pct) }}%{% else %}—{% endif %}</span>{% if candidate.broker %} · {{ candidate.broker }}{% endif %}</span>
         </td>
-        <td>{{ candidate.rating or "—" }}</td>
-        <td class="money">{% if candidate.coupon_pct is not none %}{{ "%.1f"|format(candidate.coupon_pct) }}%{% else %}—{% endif %}</td>
-        <td class="money">{% if candidate.expected_yield_pct is not none %}{{ "%.1f"|format(candidate.expected_yield_pct) }}%{% else %}—{% endif %}</td>
-        <td class="caption">{{ candidate.broker or "" }}</td>
-        <td class="caption">{{ candidate.source_note or "" }}</td>
-        <td><button type="button" class="btn btn-sm details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button></td>
+        <td class="num">
+          <span class="row-yield pct-value">{% if candidate.expected_yield_pct is not none %}{{ "%.1f"|format(candidate.expected_yield_pct) }}%{% else %}—{% endif %}</span>
+          <span class="row-yield-label">Expected yield</span>
+        </td>
         <td>
-          <button type="button" class="btn btn-sm move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to Portfolio</button>
+          <div class="row-actions">
+            <button type="button" class="ui-btn ui-btn-text ui-btn-compact details-toggle" data-details="details-{{ candidate.id }}" id="details-toggle-{{ candidate.id }}">Details</button>
+            <button type="button" class="ui-btn ui-btn-secondary ui-btn-compact move-toggle" data-panel="move-panel-{{ candidate.id }}" id="move-toggle-{{ candidate.id }}">Move to portfolio</button>
+          </div>
         </td>
       </tr>
       <tr class="details-row" id="details-{{ candidate.id }}" hidden>
-        <td colspan="8">
+        <td colspan="3">
           {{ details_facts(candidate) }}
           <div class="details-actions">
-            <form class="inline-form delete-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-company="{{ candidate.company }}" data-isin="{{ candidate.isin }}" data-confirm-message='{{ ("Delete candidate " ~ candidate.company ~ "? This cannot be undone.")|tojson }}' onsubmit="return confirm(JSON.parse(this.dataset.confirmMessage));">
-              <button class="btn btn-sm" type="submit" id="delete-candidate-{{ candidate.id }}">Delete candidate&#8230;</button>
+            <form class="inline-form delete-form" method="post" action="/watch/{{ candidate.id }}/delete" id="delete-form-{{ candidate.id }}" data-company="{{ candidate.company }}" data-isin="{{ candidate.isin }}">
+              <button class="ui-btn ui-btn-destructive ui-btn-compact" type="submit" id="delete-candidate-{{ candidate.id }}">Remove bond</button>
             </form>
-            <span class="caption">Deleting removes this candidate permanently — it cannot be undone.</span>
           </div>
         </td>
       </tr>
       <tr class="move-row" id="move-panel-{{ candidate.id }}" hidden>
-        <td colspan="8">
+        <td colspan="3">
           <form method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
           <div class="move-panel active" id="move-panel-purchase-{{ candidate.id }}" data-mpanel="purchase">
             <div class="move-form">
-              <div class="move-field">
-                <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
-                <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
-              </div>
-              <div class="move-field">
-                <label for="move-start-{{ candidate.id }}">Start date (interest accrual / dated date)</label>
-                <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
-              </div>
-              <div class="move-field">
-                <label for="move-end-{{ candidate.id }}">End date</label>
-                <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
-              </div>
-              <div class="move-field">
-                <label for="move-credit-{{ candidate.id }}">Credit day — when the amount is credited each month</label>
-                <select id="move-credit-{{ candidate.id }}" name="credit_day">
-                  {% for day in range(1, 32) %}
-                  <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="move-field">
-                <label for="move-amount-{{ candidate.id }}">Invested amount</label>
-                <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
-              </div>
-              <div class="move-field">
-                <label for="move-qty-{{ candidate.id }}">Quantity (no. of bonds)</label>
-                <input type="number" id="move-qty-{{ candidate.id }}" name="qty" step="1" min="1" value="{{ candidate.qty if candidate.qty is not none else '' }}" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
-              </div>
-              <div class="move-field">
-                <label for="move-perbond-{{ candidate.id }}">Per-bond price (auto)</label>
-                <input type="text" id="move-perbond-{{ candidate.id }}" readonly placeholder="0.00">
-              </div>
-              <div class="move-field">
-                <label for="move-broker-{{ candidate.id }}">Broker</label>
-                <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
-              </div>
-              {% if goals %}
-              <div class="move-field">
-                <label for="move-goal-{{ candidate.id }}">Financial goal (optional)</label>
-                <select id="move-goal-{{ candidate.id }}" name="goal_id">
-                  <option value="">&#8212; none &#8212;</option>
-                  {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
-                </select>
-                <p class="caption">Set once &#8212; the link is permanent: a linked bond can never be moved to another goal or unlinked.</p>
-              </div>
-              {% endif %}
+              <fieldset class="move-group">
+                <legend>Dates</legend>
+                <div class="move-field">
+                  <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
+                  <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
+                </div>
+                <div class="move-field">
+                  <label for="move-start-{{ candidate.id }}">Interest start date {{ tip("move-start-" ~ candidate.id, "howto", "The day interest starts to build up. Usually the bond's dated date.") }}</label>
+                  <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
+                </div>
+                <div class="move-field">
+                  <label for="move-end-{{ candidate.id }}">End date</label>
+                  <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
+                </div>
+              </fieldset>
+              <fieldset class="move-group">
+                <legend>Amount</legend>
+                <div class="move-field">
+                  <label for="move-amount-{{ candidate.id }}">Amount invested</label>
+                  <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
+                </div>
+                <div class="move-field">
+                  <label for="move-qty-{{ candidate.id }}">Number of bonds</label>
+                  <input type="number" id="move-qty-{{ candidate.id }}" name="qty" step="1" min="1" value="{{ candidate.qty if candidate.qty is not none else '' }}" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
+                </div>
+                <div class="move-field">
+                  <label for="move-perbond-{{ candidate.id }}">Price per bond (automatic)</label>
+                  <input type="text" id="move-perbond-{{ candidate.id }}" readonly placeholder="0.00">
+                </div>
+                <div class="move-field">
+                  <label for="move-broker-{{ candidate.id }}">Broker</label>
+                  <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
+                </div>
+              </fieldset>
+              <fieldset class="move-group">
+                <legend>Optional</legend>
+                {% if goals %}
+                <div class="move-field">
+                  <label for="move-goal-{{ candidate.id }}">Financial goal {{ tip("move-goal-" ~ candidate.id, "howto", "Link this bond to a goal. The link is permanent once saved.") }}</label>
+                  <select id="move-goal-{{ candidate.id }}" name="goal_id">
+                    <option value="">&#8212; none &#8212;</option>
+                    {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
+                  </select>
+                </div>
+                {% endif %}
+                <div class="move-field">
+                  <label for="move-credit-{{ candidate.id }}">Interest credit day {{ tip("move-credit-" ~ candidate.id, "howto", "The day of each month when interest is credited to your account.") }}</label>
+                  <select id="move-credit-{{ candidate.id }}" name="credit_day">
+                    {% for day in range(1, 32) %}
+                    <option value="{{ day }}"{% if day == 5 %} selected{% endif %}>{{ day }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </fieldset>
               <div class="move-actions">
-                <button class="btn btn-primary btn-sm" type="submit" id="move-{{ candidate.id }}">Move</button>
-                <button class="btn btn-sm move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
+                <button class="ui-btn ui-btn-primary ui-btn-compact" type="submit" id="move-{{ candidate.id }}">Move</button>
+                <button class="ui-btn ui-btn-text ui-btn-compact move-cancel" type="button" data-panel="move-panel-{{ candidate.id }}" id="move-cancel-{{ candidate.id }}">Cancel</button>
               </div>
             </div>
           </div>
@@ -493,7 +476,7 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="8" class="empty-note" id="watch-empty">no candidates yet — add the first one above</td>
+        <td colspan="3" class="empty-note" id="watch-empty"><strong>No bonds on your watch list yet.</strong><br>Add the first bond above.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -528,11 +511,11 @@
 
 <div class="confirm-dialog" id="delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-body" hidden>
   <div class="confirm-inner">
-    <h2 id="delete-confirm-title">Delete candidate?</h2>
+    <h2 id="delete-confirm-title">Remove this bond?</h2>
     <p id="delete-confirm-body"></p>
     <div class="confirm-actions">
-      <button type="button" class="btn btn-sm" id="delete-confirm-cancel">Cancel</button>
-      <button type="button" class="btn btn-sm btn-danger" id="delete-confirm-accept">Delete</button>
+      <button type="button" class="ui-btn ui-btn-secondary ui-btn-compact" id="delete-confirm-cancel">Cancel</button>
+      <button type="button" class="ui-btn ui-btn-destructive-fill ui-btn-compact" id="delete-confirm-accept">Remove bond</button>
     </div>
   </div>
 </div>
@@ -691,6 +674,7 @@
 (function () {
   var dialog = document.getElementById("delete-confirm");
   var body = document.getElementById("delete-confirm-body");
+  var title = document.getElementById("delete-confirm-title");
   var cancel = document.getElementById("delete-confirm-cancel");
   var accept = document.getElementById("delete-confirm-accept");
   if (!dialog || !body || !cancel || !accept) {
@@ -705,19 +689,29 @@
     trigger.addEventListener("click", function (event) {
       event.preventDefault();
       pending = form;
-      body.textContent = (form.getAttribute("data-company") || "") + " · " + (form.getAttribute("data-isin") || "") + " — this cannot be undone.";
+      title.textContent = "Remove " + (form.getAttribute("data-company") || "this bond") + "?";
+      body.textContent = "This can't be undone.";
       dialog.hidden = false;
+      window.openOverlay();
       cancel.focus();
     });
   });
-  cancel.addEventListener("click", function () {
-    dialog.hidden = true;
-    pending = null;
+  function closeDialog() {
+    if (!dialog.hidden) {
+      dialog.hidden = true;
+      pending = null;
+      window.releaseOverlay();
+    }
+  }
+  cancel.addEventListener("click", closeDialog);
+  dialog.addEventListener("click", function (event) {
+    if (event.target === dialog) {
+      closeDialog();
+    }
   });
   accept.addEventListener("click", function () {
     var form = pending;
-    dialog.hidden = true;
-    pending = null;
+    closeDialog();
     if (form) {
       form.submit();
     }
@@ -796,6 +790,10 @@
     for (var index = 0; index < blocks.length; index += 1) {
       blocks[index].hidden = blocks[index].getAttribute("data-fetch-state") !== name;
     }
+    var details = document.getElementById("c-details");
+    if (details) {
+      details.hidden = ["found", "downgrade", "notfound", "offline"].indexOf(name) === -1;
+    }
   }
   function clearField(element) {
     if (!element) {
@@ -853,8 +851,9 @@
     }
   }
   function closePopup() {
-    if (popup) {
+    if (popup && !popup.hidden) {
       popup.hidden = true;
+      window.releaseOverlay();
     }
   }
   function invalidateOnIsinChange() {
@@ -876,6 +875,9 @@
     syncDirty();
     closePopup();
     showState("checking");
+    if (button) {
+      button.textContent = button.getAttribute("data-label-busy") || button.textContent;
+    }
     window.location.assign("/watch?" + serialize());
   }
   form.addEventListener("input", mark);
@@ -893,6 +895,7 @@
     var popupIsin = popup.getAttribute("data-fetch-isin") || "";
     if (isin && popupIsin && popupIsin === isinValue()) {
       popup.hidden = false;
+      window.openOverlay();
     }
     if (applyButton) {
       applyButton.addEventListener("click", function () {
@@ -953,6 +956,7 @@
     return;
   }
   var readout = document.getElementById("c-isin-countdown-seconds");
+  var fetchButton = document.getElementById("c-isin-fetch");
   var full = parseInt(chip.getAttribute("data-countdown-seconds"), 10);
   if (isNaN(full) || full <= 0) {
     full = 60;
@@ -962,6 +966,9 @@
     if (readout) {
       readout.textContent = String(remaining);
     }
+    if (fetchButton) {
+      fetchButton.textContent = fetchButton.getAttribute("data-label-wait") || fetchButton.textContent;
+    }
   }
   paint();
   var ticker = window.setInterval(function () {
@@ -970,6 +977,9 @@
     if (remaining <= 0) {
       window.clearInterval(ticker);
       chip.hidden = true;
+      if (fetchButton) {
+        fetchButton.textContent = fetchButton.getAttribute("data-label-idle") || fetchButton.textContent;
+      }
     }
   }, 1000);
 })();
