@@ -287,3 +287,109 @@ def test_fix1_auto_pass_with_no_isins_does_not_record_the_stamp(db_path, monkeyp
     monkeypatch.setattr(svc, "_record_auto_fetch", lambda *a, **k: stamped.append(a))
     refresh_all(db_path, trigger="auto")
     assert stamped == []
+
+
+def test_tc_afr_03_auto_pass_covers_portfolio_and_watchlist_in_one_pass(db_path, monkeypatch):
+    seed_known_isin(db_path, WATCHLIST_ISIN, "watching")
+    seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    monkeypatch.setattr(svc, "_auto_due", lambda _db, _now: True)
+    adapter = RecordingAdapter()
+    cache = BondMasterCache(db_path)
+    monkeypatch.setattr(svc, "_CACHES", {})
+    monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    refresh_all(str(db_path), trigger="auto")
+    assert adapter.calls == [PORTFOLIO_ISIN, WATCHLIST_ISIN]
+    assert len(adapter.calls) == len(set(adapter.calls))
+
+
+def test_tc_afr_01_first_run_auto_fetch_fires_when_never_stamped(db_path, monkeypatch):
+    seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    adapter = RecordingAdapter()
+    cache = BondMasterCache(db_path)
+    monkeypatch.setattr(svc, "_CACHES", {})
+    monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    assert svc._auto_due(str(db_path), time.time()) is True
+    refresh_all(str(db_path), trigger="auto")
+    assert adapter.calls == [PORTFOLIO_ISIN]
+
+
+def test_tc_afr_02_auto_window_blocks_a_run_inside_twelve_hours(db_path, monkeypatch):
+    seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    adapter = RecordingAdapter()
+    cache = BondMasterCache(db_path)
+    monkeypatch.setattr(svc, "_CACHES", {})
+    monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
+    monkeypatch.setattr(svc, "build_default_service", recording_builder(adapter))
+    refresh_all(str(db_path), trigger="auto")
+    assert adapter.calls == [PORTFOLIO_ISIN]
+    refresh_all(str(db_path), trigger="auto")
+    assert adapter.calls == [PORTFOLIO_ISIN]
+
+
+def test_tc_afr_07_portfolio_refresh_mirrors_the_watchlist_contract(db_path, monkeypatch):
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    client, app = _refresh_client(db_path, RecordingAdapter())
+    cache = app.extensions["bond_master_cache"]
+    cache._last_refresh_at = time.time()
+    cooled = client.post(f"/portfolio/{bond_id}/refresh")
+    watch_cooled = client.post("/watch/refresh")
+    assert cooled.status_code == watch_cooled.status_code == 429
+    assert cooled.get_json()["status"] == watch_cooled.get_json()["status"] == "cooldown"
+    assert cooled.get_json()["trigger"] == watch_cooled.get_json()["trigger"] == "manual"
+
+    cache._last_refresh_at = 0.0
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bond_master SET fetched_at = ? WHERE isin = ?",
+            ("2099-01-01T00:00:00+00:00", PORTFOLIO_ISIN),
+        )
+    blocked = client.post(f"/portfolio/{bond_id}/refresh")
+    assert blocked.status_code == 409
+    assert blocked.get_json()["status"] == "already_fetched"
+
+    cache._last_refresh_at = 0.0
+    ran = client.post(f"/portfolio/{bond_id}/refresh?force=1")
+    assert ran.status_code == 200
+    assert ran.get_json()["status"] == "refreshed"
+    assert ran.get_json()["trigger"] == "manual"
+    assert "summary" in ran.get_json()
+
+
+def test_tc_afr_10_staleness_cue_renders_on_portfolio_and_detail(db_path):
+    from datetime import datetime, timedelta, timezone
+
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    client, _app = _refresh_client(db_path, RecordingAdapter())
+    old = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bond_master SET source = ?, fetched_at = ? WHERE isin = ?",
+            ("NSDL", old, PORTFOLIO_ISIN),
+        )
+    listing = client.get("/portfolio").get_data(as_text=True)
+    assert 'class="co-stale" data-stale="1"' in listing
+    assert 'data-fetch-source="NSDL"' in listing
+    assert 'data-refresh-url="/portfolio/' in listing
+    detail = client.get(f"/portfolio/{bond_id}").get_data(as_text=True)
+    assert 'id="detail-provenance"' in detail
+    assert 'class="co-stale" data-stale="1"' in detail
+    assert old[:10] in detail
+
+
+def test_tc_afr_10_fresh_facts_show_no_staleness_cue(db_path):
+    from datetime import datetime, timezone
+
+    bond_id = _portfolio_bond(db_path, PORTFOLIO_ISIN)
+    client, _app = _refresh_client(db_path, RecordingAdapter())
+    now = datetime.now(timezone.utc).isoformat()
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "UPDATE bond_master SET source = ?, fetched_at = ? WHERE isin = ?",
+            ("NSDL", now, PORTFOLIO_ISIN),
+        )
+    listing = client.get("/portfolio").get_data(as_text=True)
+    assert 'data-stale="1"' not in listing
+    detail = client.get(f"/portfolio/{bond_id}").get_data(as_text=True)
+    assert 'data-stale="1"' not in detail
