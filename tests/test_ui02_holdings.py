@@ -103,7 +103,7 @@ def test_ui02_no_visible_meta_strip_under_rows(client, db_path):
     table = holdings_table(client.get("/portfolio").get_data(as_text=True))
     assert "detail-row" not in table
     assert re.search(
-        r'<tr class="attr-row-hidden" hidden><td colspan="10" class="attr-strip">', table
+        r'<tr class="attr-row-hidden" hidden><td colspan="11" class="attr-strip">', table
     )
 
 

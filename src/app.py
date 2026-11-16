@@ -3,7 +3,7 @@ import os
 import sys
 import threading
 import time
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -27,8 +27,9 @@ from src.notifications import (
     notify_once,
     unread_count,
 )
-from src.prefs import get_snapshot_version, set_pref, set_snapshot_version
+from src.prefs import get_pref, get_snapshot_version, set_pref, set_snapshot_version
 from src.status import recompute_all
+from src.updater import auto_check_due, check_for_updates, store_update_result, update_popup_state
 from src.validators import AppError
 from src.views import common
 from src.views.about import bp as about_bp
@@ -202,6 +203,46 @@ def create_app(db_path=None):
         return common.error_page(
             exc.code, exc.message, "Request failed", ERROR_STATUS.get(exc.code, 500)
         )
+
+    def run_update_check():
+        db_file_path = Path(app.config["DB_PATH"])
+        result = check_for_updates()
+        with get_conn(db_file_path) as conn:
+            store_update_result(conn, result)
+
+    @app.before_request
+    def start_auto_update_check():
+        if request.endpoint in (None, "static"):
+            return None
+        db_file_path = Path(app.config["DB_PATH"])
+        if not db_file_path.exists():
+            return None
+        with get_conn(db_file_path) as conn:
+            enabled = get_pref(conn, "update_auto_check", "1") == "1"
+            checked = get_pref(conn, "update_checked_at")
+        if not enabled or not auto_check_due(checked, datetime.now(timezone.utc)):
+            return None
+        if app.config.get("UPDATE_CHECK_RUNNING"):
+            return None
+        app.config["UPDATE_CHECK_RUNNING"] = True
+
+        def worker():
+            try:
+                run_update_check()
+            finally:
+                app.config["UPDATE_CHECK_RUNNING"] = False
+
+        threading.Thread(target=worker, daemon=True).start()
+        return None
+
+    @app.context_processor
+    def inject_update_popup():
+        db_file_path = Path(app.config["DB_PATH"])
+        if not db_file_path.exists():
+            return {"update_popup": None}
+        with get_conn(db_file_path) as conn:
+            popup = update_popup_state(conn, dismissed=app.config.get("UPDATE_POPUP_DISMISSED", False))
+        return {"update_popup": popup}
 
     @app.context_processor
     def inject_header_alerts():

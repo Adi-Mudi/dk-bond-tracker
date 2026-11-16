@@ -13,11 +13,13 @@ SCHEMA_STATEMENTS = (
         name TEXT,
         amount REAL,
         maturity REAL,
+        maturity_date TEXT,
         start_date TEXT,
         end_date TEXT,
         tenure_months INTEGER,
         credit_day INTEGER CHECK (credit_day >= 1 AND credit_day <= 31),
         status TEXT DEFAULT 'On-going',
+        listing_status TEXT DEFAULT 'unknown' CHECK (listing_status IN ('listed','unlisted','unknown')),
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )""",
     """CREATE TABLE IF NOT EXISTS payment_ledger (
@@ -85,6 +87,10 @@ def _ensure_columns(conn):
     bond_columns = {row[1] for row in conn.execute("PRAGMA table_info(bonds)")}
     if "maturity" not in bond_columns:
         conn.execute("ALTER TABLE bonds ADD COLUMN maturity REAL")
+    if "maturity_date" not in bond_columns:
+        conn.execute("ALTER TABLE bonds ADD COLUMN maturity_date TEXT")
+    if "listing_status" not in bond_columns:
+        conn.execute("ALTER TABLE bonds ADD COLUMN listing_status TEXT DEFAULT 'unknown' CHECK (listing_status IN ('listed','unlisted','unknown'))")
     for column in ("face_value REAL", "tlp_amount REAL", "payment_type TEXT", "interest_payout REAL", "qty REAL", "watch_investment REAL"):
         name = column.split()[0]
         if name not in bond_columns:
