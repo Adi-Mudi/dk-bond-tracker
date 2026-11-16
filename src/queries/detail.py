@@ -171,8 +171,13 @@ def position_detail(conn, bond_id, today=None):
 
 
 def delete_candidate(conn, bond_id):
+    from ..bond_master.service import mark_isin_deleted
+
+    isin_row = conn.execute("SELECT isin FROM bonds WHERE id = ?", (bond_id,)).fetchone()
     conn.execute("DELETE FROM payment_ledger WHERE bond_id = ?", (bond_id,))
     cursor = conn.execute("DELETE FROM bonds WHERE id = ?", (bond_id,))
+    if cursor.rowcount == 1 and isin_row is not None:
+        mark_isin_deleted(conn, isin_row["isin"])
     if cursor.rowcount != 1:
         raise AppError(
             "ERR-watch-delete",

@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import threading
+import time
 from datetime import date
 from pathlib import Path
 
@@ -14,7 +15,7 @@ from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
 from src.bond_master import snapshot
-from src.bond_master.service import refresh_all, shared_cache
+from src.bond_master.service import auto_refresh_due, refresh_all, shared_cache
 from src.bond_master.transport import http_get
 from src.db import get_conn, init_db
 from src.mailer import send_alert_email
@@ -80,6 +81,8 @@ def _start_auto_refresh(db_file, transport):
         if _auto_refresh_started:
             return None
         _auto_refresh_started = True
+    if not auto_refresh_due(db_file, time.time()):
+        return None
     thread = threading.Thread(
         target=refresh_all,
         args=(str(db_file), "auto", transport),

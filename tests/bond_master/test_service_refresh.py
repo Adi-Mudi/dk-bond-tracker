@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from src.bond_master import service as svc
 from src.bond_master.base import SOURCE_PRIORITY, FAILURE_UNREACHABLE, FetchResult
 from src.bond_master.cache import BondMasterCache
@@ -24,31 +26,35 @@ def offline_builder(calls):
     return _build
 
 
-def test_af10_1_auto_refresh_runs_exactly_once_per_process(db_path, monkeypatch):
+def test_af10_1_auto_refresh_runs_at_most_once_per_twelve_hours(db_path, monkeypatch):
     calls = []
     clock = [1000.0]
     cache = BondMasterCache(db_path, clock=lambda: clock[0])
-    monkeypatch.setattr(svc, "_AUTO_REFRESH_DONE", False)
     monkeypatch.setattr(svc, "_CACHES", {})
     monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
     monkeypatch.setattr(svc, "build_default_service", offline_builder(calls))
+    monkeypatch.setattr(svc, "time", SimpleNamespace(time=lambda: clock[0]))
     refresh_all(str(db_path), "auto")
     clock[0] += 61.0
     refresh_all(str(db_path), "auto")
     assert len(calls) == 1
+    clock[0] += svc.AUTO_WINDOW_SECONDS
+    refresh_all(str(db_path), "auto")
+    assert len(calls) == 2
 
 
-def test_fix2_auto_inside_a_cooldown_does_not_burn_the_process_flag(db_path, monkeypatch):
+def test_fix2_auto_inside_a_cooldown_does_not_record_the_twelve_hour_stamp(db_path, monkeypatch):
     calls = []
     clock = [1000.0]
     cache = BondMasterCache(db_path, clock=lambda: clock[0])
     cache.begin_refresh()
-    monkeypatch.setattr(svc, "_AUTO_REFRESH_DONE", False)
     monkeypatch.setattr(svc, "_CACHES", {})
     monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
     monkeypatch.setattr(svc, "build_default_service", offline_builder(calls))
+    monkeypatch.setattr(svc, "time", SimpleNamespace(time=lambda: clock[0]))
     refresh_all(str(db_path), "auto")
     assert calls == []
+    assert svc.auto_refresh_due(str(db_path), clock[0])
     clock[0] += 61.0
     refresh_all(str(db_path), "auto")
     assert len(calls) == 1
