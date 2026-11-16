@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new DKBTWebViewClient());
         webView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition,
@@ -149,6 +149,27 @@ public class MainActivity extends Activity {
                 startActivity(chooser);
             }
         });
+    }
+
+    private class DKBTWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            if (isLocal(url)) {
+                return false;
+            }
+            String scheme = Uri.parse(url).getScheme();
+            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+                return false;
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.w(TAG, "no app to open " + url, e);
+            }
+            return true;
+        }
     }
 
     private static boolean isLocal(String url) {

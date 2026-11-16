@@ -7,6 +7,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import src.app as app_module
+from src.bond_master import transport
 from src.db import init_db
 from src.status import month_key
 from src.validators import add_months
@@ -18,6 +19,7 @@ def _no_real_network_at_startup(monkeypatch):
         raise ConnectionError("network disabled in tests")
 
     monkeypatch.setattr(app_module, "http_get", blocked)
+    monkeypatch.setattr(transport, "github_release_json", blocked)
     return blocked
 
 
