@@ -62,13 +62,17 @@ def months_remaining_from_row(row, today=None):
     if hasattr(row, "get"):
         maturity_date = row.get("maturity_date")
         purchase_date = row.get("purchase_date")
+        start_date = row.get("start_date")
         payout_cycle = row.get("payout_cycle", "monthly")
     else:
-        # sqlite3.Row - use dictionary-style access
         keys = row.keys()
         maturity_date = row["maturity_date"] if "maturity_date" in keys else None
         purchase_date = row["purchase_date"] if "purchase_date" in keys else None
+        start_date = row["start_date"] if "start_date" in keys else None
         payout_cycle = row["payout_cycle"] if "payout_cycle" in keys else "monthly"
+
+    if not purchase_date:
+        purchase_date = start_date
 
     if not maturity_date or not purchase_date:
         return None

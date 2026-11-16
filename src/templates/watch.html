@@ -273,6 +273,18 @@
         <input type="number" id="c-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
       </div>
       <div class="field">
+        <label for="c-maturity">Maturity date</label>
+        <input type="date" id="c-maturity" name="maturity_date" value="{{ form.get('maturity_date', '') }}">
+      </div>
+      <div class="field">
+        <label for="c-listing">Listing status</label>
+        <select id="c-listing" name="listing_status">
+          <option value="unknown"{% if form.get('listing_status', 'unknown') == 'unknown' %} selected{% endif %}>Unknown</option>
+          <option value="listed"{% if form.get('listing_status') == 'listed' %} selected{% endif %}>Listed</option>
+          <option value="unlisted"{% if form.get('listing_status') == 'unlisted' %} selected{% endif %}>Unlisted</option>
+        </select>
+      </div>
+      <div class="field">
         <label for="c-cycle">Payout cycle</label>
         <select id="c-cycle" name="payout_cycle">
           <option value=""{% if not form.get('payout_cycle') %} selected{% endif %}>&#8212;</option>

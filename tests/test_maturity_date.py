@@ -136,5 +136,85 @@ def test_months_remaining_edge_cases():
     assert result == 1, f"Expected 1, got {result}"
 
 
+def test_tc271_26_months_remaining_start_date_fallback():
+    row = {
+        "maturity_date": "2026-01-15",
+        "purchase_date": None,
+        "start_date": "2024-01-15",
+        "payout_cycle": "monthly",
+    }
+    assert months_remaining_from_row(row) == 24
+
+
+def test_tc271_27_months_remaining_cycle_null_or_unknown_defaults_monthly():
+    null_cycle = {
+        "maturity_date": "2026-01-15",
+        "purchase_date": "2024-01-15",
+        "payout_cycle": None,
+    }
+    unknown_cycle = {
+        "maturity_date": "2026-01-15",
+        "purchase_date": "2024-01-15",
+        "payout_cycle": "weekly",
+    }
+    assert months_remaining_from_row(null_cycle) == 24
+    assert months_remaining_from_row(unknown_cycle) == 24
+
+
+def test_tc271_28_months_remaining_zero_when_matured():
+    row = {
+        "maturity_date": "2024-01-15",
+        "purchase_date": "2026-01-15",
+        "payout_cycle": "monthly",
+    }
+    assert months_remaining_from_row(row) == 0
+
+
+def test_tc271_22_migration_preserves_maturity_real_values():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        db_path = f.name
+    try:
+        import sqlite3
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "CREATE TABLE bonds (id INTEGER PRIMARY KEY, company TEXT, isin TEXT, "
+            "amount REAL, start_date TEXT, end_date TEXT, tenure_months INTEGER, "
+            "credit_day INTEGER)"
+        )
+        conn.execute(
+            "INSERT INTO bonds (company, isin, amount, start_date, end_date, tenure_months, credit_day) "
+            "VALUES ('Acme', 'INE0000000A1', 1000, '2024-01-15', '2026-01-15', 24, 15)"
+        )
+        conn.commit()
+        conn.close()
+        init_db(db_path)
+        conn = sqlite3.connect(db_path)
+        row = conn.execute("SELECT maturity_date, listing_status FROM bonds WHERE isin = 'INE0000000A1'").fetchone()
+        conn.close()
+        assert row[0] is None
+        assert row[1] == "unknown"
+    finally:
+        os.unlink(db_path)
+
+
+def test_tc271_23_summary_phase4_identical_after_column_addition():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        db_path = f.name
+    try:
+        init_db(db_path)
+        import sqlite3
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        conn.execute(
+            "INSERT INTO bonds (company, isin, amount, start_date, end_date, tenure_months, credit_day, maturity_date) "
+            "VALUES ('Acme', 'INE0000000A2', 1000, '2024-01-15', '2026-01-15', 24, 15, '2026-01-15')"
+        )
+        row = conn.execute("SELECT * FROM bonds WHERE isin = 'INE0000000A2'").fetchone()
+        conn.close()
+        assert months_remaining_from_row(row) == 24
+    finally:
+        os.unlink(db_path)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
