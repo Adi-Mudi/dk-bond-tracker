@@ -1,10 +1,9 @@
-from datetime import date
-
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from src.bond_master import snapshot
 from src.db import get_conn
 from src.prefs import get_pref, set_pref
+from src.updater import check_for_updates, store_update_result
 from src.views.common import APP_VERSION, BUILD_NOTES, app_db
 
 bp = Blueprint("about", __name__)
@@ -48,26 +47,40 @@ DATA_SOURCES = (
 )
 
 
+@bp.route("/update/dismiss", methods=["POST"])
+def dismiss_update_popup():
+    version = str(request.form.get("version") or "").strip()
+    with get_conn(app_db()) as conn:
+        set_pref(conn, "update_dismissed_session", version)
+    return ("", 204)
+
+
 @bp.route("/about", methods=["GET", "POST"])
 def about_page():
     db_file = app_db()
+    banner = None
     if request.method == "POST":
         action = str(request.form.get("action") or "").strip()
-        with get_conn(db_file) as conn:
-            if action == "check":
-                set_pref(conn, "update_last_checked", date.today().isoformat())
-                flash(
-                    f"Update check done. You are on v{APP_VERSION}, the newest version we know of.",
-                    "success",
-                )
-            elif action == "auto":
-                enabled = request.form.get("auto") in ("on", "1", "true", "yes")
+        if action == "check":
+            result = check_for_updates(force=True)
+            with get_conn(db_file) as conn:
+                store_update_result(conn, result)
+            banner = {
+                "status": result["status"],
+                "version": result.get("version"),
+                "url": result.get("url"),
+            }
+        elif action == "auto":
+            enabled = request.form.get("auto") in ("on", "1", "true", "yes")
+            with get_conn(db_file) as conn:
                 set_pref(conn, "update_auto_check", "1" if enabled else "0")
-                flash(
-                    "Automatic update checks " + ("enabled" if enabled else "disabled"),
-                    "success",
-                )
-        return redirect(url_for("about.about_page"))
+            flash(
+                "Automatic update checks " + ("enabled" if enabled else "disabled"),
+                "success",
+            )
+            return redirect(url_for("about.about_page"))
+        else:
+            return redirect(url_for("about.about_page"))
     with get_conn(db_file) as conn:
         last_checked = get_pref(conn, "update_last_checked")
         auto_check = get_pref(conn, "update_auto_check", "1") == "1"
@@ -77,6 +90,7 @@ def about_page():
         build_notes=BUILD_NOTES,
         last_checked=last_checked,
         auto_check=auto_check,
+        update_banner=banner,
         data_dir=str(db_file.parent),
         data_sources=DATA_SOURCES,
         snapshot_version=snapshot.version(),

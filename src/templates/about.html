@@ -19,6 +19,11 @@
   .source-detail { font-size: 12px; color: var(--muted); }
   .source-license { font-size: 12px; color: var(--muted); }
   .source-license .about-link { color: var(--accent); }
+  .update-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); margin-bottom: 12px; }
+  .update-banner-newer { background: var(--ok-bg, #e6f6ec); color: var(--ok-fg, #1d6b3a); }
+  .update-banner-current { background: var(--info-bg, #e8f0fb); color: var(--info-fg, #1f4f9a); }
+  .update-banner-error { background: var(--warn-bg); color: var(--warn-fg); }
+  .update-banner .btn { margin-left: auto; }
 </style>
 {% endblock %}
 {% block content %}
@@ -77,6 +82,22 @@
 
 <section class="card about-block" id="updates-block">
   <div class="zone-title">Updates</div>
+  {% if update_banner %}
+  {% if update_banner.status == 'newer' %}
+  <div class="update-banner update-banner-newer" id="update-banner" role="status">
+    <span id="update-banner-text"><b>v{{ update_banner.version }} available</b></span>
+    {% if update_banner.url %}<a class="btn btn-primary btn-sm" id="update-download" href="{{ update_banner.url }}" target="_blank" rel="noopener">Download</a>{% endif %}
+  </div>
+  {% elif update_banner.status == 'current' %}
+  <div class="update-banner update-banner-current" id="update-banner" role="status">
+    <span id="update-banner-text"><b>You are on v{{ app_version }} — newest</b></span>
+  </div>
+  {% else %}
+  <div class="update-banner update-banner-error" id="update-banner" role="alert">
+    <span id="update-banner-text"><b>Couldn't reach GitHub — try again later</b></span>
+  </div>
+  {% endif %}
+  {% endif %}
   <div class="update-row">
     <span class="update-label"><b>Check for updates</b><span class="caption" id="last-checked">Last checked: {% if last_checked %}{{ last_checked }}{% else %}never{% endif %}</span></span>
     <form method="post" action="/about" class="inline-form">

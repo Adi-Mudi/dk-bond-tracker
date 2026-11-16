@@ -67,12 +67,25 @@ def test_ui11_referral_link_left_empty_until_owner_supplies_url(client, db_path)
     assert "<footer" not in block
 
 
-def test_ui11_update_check_records_and_persists(client, db_path):
+def test_ui11_update_check_records_and_persists(client, db_path, monkeypatch):
+    from src import updater
+
+    monkeypatch.setattr(
+        updater,
+        "fetch_latest_release",
+        lambda: {
+            "tag_name": "v1.0.9-release",
+            "html_url": "https://example.test/release",
+            "apk_download_url": "https://example.test/app.apk",
+            "body": "",
+            "error": None,
+        },
+    )
     response = client.post("/about", data={"action": "check"}, follow_redirects=True)
     assert response.status_code == 200
     with get_conn(db_path) as conn:
         assert get_pref(conn, "update_last_checked") == date.today().isoformat()
-    assert "Update check done" in response.get_data(as_text=True)
+    assert "newest" in response.get_data(as_text=True)
 
 
 def test_ui11_auto_update_toggle_persists(client, db_path):

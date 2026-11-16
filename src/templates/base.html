@@ -310,6 +310,35 @@
     }
   })();
 </script>
+{% if update_popup %}
+<div class="update-popup-backdrop" id="update-popup" role="dialog" aria-modal="true" aria-labelledby="update-popup-title">
+  <div class="update-popup">
+    <div class="zone-title" id="update-popup-title">New version v{{ update_popup.version }} available!</div>
+    <div class="update-popup-actions">
+      {% if update_popup.url %}<a class="btn btn-primary" id="update-popup-download" href="{{ update_popup.url }}" target="_blank" rel="noopener">Download</a>{% endif %}
+      <button class="btn btn-secondary" type="button" id="update-popup-later" data-version="{{ update_popup.version }}">Later</button>
+    </div>
+  </div>
+</div>
+<style>
+  .update-popup-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  .update-popup { background: var(--bg); color: var(--fg, inherit); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; max-width: 22.5rem; width: 100%; }
+  .update-popup-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+</style>
+<script>
+(function () {
+  var later = document.getElementById("update-popup-later");
+  var popup = document.getElementById("update-popup");
+  if (!later || !popup) return;
+  later.addEventListener("click", function () {
+    var body = new URLSearchParams();
+    body.set("version", later.getAttribute("data-version") || "");
+    fetch("/update/dismiss", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString(), credentials: "same-origin" });
+    popup.hidden = true;
+  });
+})();
+</script>
+{% endif %}
 <script src="/static/theme.js?v=3"></script>
 <script src="/static/app.js?v=3"></script>
 <script src="/static/guide.js?v=3"></script>
