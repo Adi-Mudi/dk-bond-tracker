@@ -107,6 +107,37 @@ def test_tc271_29_fetch_capture_saves_cached_maturity_and_listing(db_path):
     assert row["listing_status"] == "listed"
 
 
+def test_tc271_29_first_fetch_capture_saves_fetched_maturity_and_listing(db_path):
+    isin = "INE205A07DV2"
+    cache = BondMasterCache(db_path, cooldown_seconds=0)
+    app = create_app(str(db_path))
+    app.config["TESTING"] = True
+    payload = NSDL_FIXTURE.read_text(encoding="utf-8")
+    app.config["BOND_MASTER_TRANSPORT"] = lambda url, timeout: payload
+    app.extensions["bond_master_cache"] = cache
+    client = app.test_client()
+    html = client.get(f"/watch?isin={isin}").get_data(as_text=True)
+    assert 'data-fetch-state="found"' in html
+    assert 'value="2030-03-31"' in html
+    assert 'value="listed"' in html
+    response = client.post(
+        "/watch",
+        data={
+            "company": "First Fetch Co",
+            "isin": isin,
+            "rating": "AA+",
+            "coupon_pct": "8.75",
+            "expected_yield_pct": "8.5",
+            "maturity_date": "2030-03-31",
+            "listing_status": "listed",
+        },
+    )
+    assert response.status_code == 302
+    row = candidate_row(db_path, isin)
+    assert row["maturity_date"] == "2030-03-31"
+    assert row["listing_status"] == "listed"
+
+
 def test_tc271_24_25_carry_maturity_and_listing_from_candidate_to_holding(client, db_path):
     watch_candidate(
         client,

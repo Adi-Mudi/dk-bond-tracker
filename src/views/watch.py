@@ -293,6 +293,11 @@ def apply_fetch(current, payload, dirty):
             fetched["maturity_date"] = str(cached["maturity"])
         if cached.get("listing_status"):
             fetched["listing_status"] = cached["listing_status"]
+    facts = payload.get("facts") or {}
+    if facts.get("maturity") is not None:
+        fetched.setdefault("maturity_date", str(facts["maturity"]))
+    if facts.get("listing_status"):
+        fetched.setdefault("listing_status", facts["listing_status"])
     for field, value in fetched.items():
         if field in POSITION_FIELDS:
             continue
