@@ -1,8 +1,8 @@
 {
   "id": "auto_fetch_refresh_bug_psrs_20261116",
   "kind": "psrs",
-  "title": "Auto-fetch refresh bug fix - fetch policy, portfolio manual refresh, deleted-ISIN cleanup",
-  "version": "v3.0",
+  "title": "Auto-fetch refresh bug fix - fetch policy, portfolio manual refresh, deleted-ISIN cleanup, staleness cue",
+  "version": "v5.0",
   "status": "accepted",
   "project": "dk-bond-tracker",
   "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/272",
@@ -181,6 +181,49 @@
           "then": "ISIN Y is not included in the refresh pass"
         }
       ]
+    },
+    {
+      "id": "AFR-12",
+      "text": "The 60-second anti-double-tap cooldown guard SHALL be per-session (in-memory) BY DESIGN — cross-session throttling is handled by the 12-hour auto window and 7-day staleness policy, both persisted. The in-memory 60s guard resets on app restart and does not persist.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the user taps manual refresh twice within 60 seconds in the same session",
+          "when": "the second tap is evaluated",
+          "then": "the second tap is blocked by the in-memory cooldown"
+        },
+        {
+          "given": "the user taps manual refresh, restarts the app, and taps again immediately",
+          "when": "the second tap is evaluated in the new session",
+          "then": "the second tap proceeds (in-memory cooldown reset); the 12h/7-day persisted policy still applies"
+        }
+      ]
+    },
+    {
+      "id": "AFR-13",
+      "text": "The staleness/refresh cue (showing \"data from <date> - refresh?\") SHALL appear on Portfolio rows and on the bond detail page next to the provenance information, NOT in the global header.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a portfolio bond has fetched_at older than 7 days",
+          "when": "the Portfolio page is rendered",
+          "then": "a staleness indicator with the fetched date and a refresh link appears next to the provenance on that row"
+        },
+        {
+          "given": "a portfolio bond has fetched_at older than 7 days",
+          "when": "the bond detail page is opened",
+          "then": "a staleness indicator with the fetched date and a refresh link appears next to the provenance on the detail page"
+        },
+        {
+          "given": "any bond has fetched_at older than 7 days",
+          "when": "the global header/header bar is inspected",
+          "then": "no staleness information appears in the global header"
+        }
+      ]
     }
   ],
   "prd_items": [
@@ -271,6 +314,22 @@
       "priority": "must",
       "status": "accepted",
       "decision_id": "Discussion #272 - Stage-2 Obligation 2 (AFR-11)"
+    },
+    {
+      "id": "AFR-12",
+      "area": "cooldown",
+      "statement": "The 60-second anti-double-tap cooldown guard SHALL be per-session (in-memory) BY DESIGN — cross-session throttling is handled by the 12-hour auto window and 7-day staleness policy, both persisted. The in-memory 60s guard resets on app restart.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - 60s COOLDOWN PERSISTENCE (D3 superseded by FINAL POLICY)"
+    },
+    {
+      "id": "AFR-13",
+      "area": "staleness_cue",
+      "statement": "The staleness/refresh cue (showing 'data from <date> - refresh?') SHALL appear on Portfolio rows and on the bond detail page next to the provenance information, NOT in the global header.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #272 - STALENESS CUE PLACEMENT (R2 MAJOR #2)"
     }
   ],
   "test_cases": [
@@ -287,7 +346,7 @@
       "id": "TC-AFR-02",
       "title": "12-hour auto window respected (AFR-02, AFR-04)",
       "type": "integration",
-      "steps": "1. Set last_auto_fetch to 6h ago. 2. Restart app 3 times. 3. Set last_auto_fetch to 13h ago. 4. Restart app.",
+      "steps": "1. Set last_auto_fetch to 6h ago via timestamp manipulation. 2. Restart app 3 times. 3. Set last_auto_fetch to 13h ago via timestamp manipulation. 4. Restart app.",
       "expected": "Zero auto-fetches at 6h; one auto-fetch at 13h; last_auto_fetch persisted across restarts",
       "level": "LOCAL",
       "status": "planned"
@@ -305,7 +364,7 @@
       "id": "TC-AFR-04",
       "title": "Manual refresh bypasses 12h window, keeps 60s cooldown (AFR-05, AFR-06)",
       "type": "integration",
-      "steps": "1. Set last_auto_fetch to 2h ago. 2. Manual refresh ISIN A. 3. Wait 10h (total 12h). 4. Check auto-fetch still runs.",
+      "steps": "1. Set last_auto_fetch to 2h ago via timestamp manipulation. 2. Manual refresh ISIN A. 3. Verify 60s cooldown blocks immediate second tap. 4. Set last_auto_fetch to 13h ago via timestamp manipulation. 5. Check auto-fetch still runs.",
       "expected": "Manual refresh runs immediately; 60s cooldown applies; auto-fetch still runs at 12h mark",
       "level": "LOCAL",
       "status": "planned"
@@ -314,7 +373,7 @@
       "id": "TC-AFR-05",
       "title": "7-day staleness confirm dialog (AFR-07, AFR-08)",
       "type": "integration",
-      "steps": "1. Set fetched_at to 3 days ago. 2. Tap manual refresh - assert confirm dialog with date. 3. Set fetched_at to 8 days ago. 4. Tap manual refresh - assert no dialog.",
+      "steps": "1. Set fetched_at to 3 days ago via timestamp manipulation. 2. Tap manual refresh - assert confirm dialog with date. 3. Set fetched_at to 8 days ago via timestamp manipulation. 4. Tap manual refresh - assert no dialog.",
       "expected": "Confirm shown at 3 days with fetched date; no confirm at 8 days",
       "level": "LOCAL",
       "status": "planned"
@@ -357,84 +416,193 @@
     },
     {
       "id": "TC-AFR-10",
-      "title": "Staleness cue on Portfolio rows and bond detail (AFR-07, AFR-08)",
+      "title": "Staleness cue on Portfolio rows and bond detail (AFR-13)",
       "type": "integration",
-      "steps": "1. Set fetched_at to 8 days ago for a portfolio bond. 2. Open Portfolio page. 3. Open bond detail page.",
+      "steps": "1. Set fetched_at to 8 days ago for a portfolio bond via timestamp manipulation. 2. Open Portfolio page. 3. Open bond detail page. 4. Inspect global header.",
       "expected": "Staleness indicator shown next to provenance on both Portfolio row and bond detail page (not global header)",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-AFR-11",
+      "title": "60s cooldown is per-session, resets on restart (AFR-12)",
+      "type": "integration",
+      "steps": "1. Tap manual refresh. 2. Tap again within 60s - assert blocked. 3. Restart app. 4. Tap manual refresh immediately - assert proceeds (cooldown reset). 5. Verify 12h/7-day persisted policy still applies.",
+      "expected": "In-memory cooldown blocks second tap in same session; restart resets cooldown; persisted 12h/7-day policy still enforced",
       "level": "LOCAL",
       "status": "planned"
     }
   ],
   "test_bindings": [
     {
-      "requirement_id": "AFR-01",
-      "test_case_id": "TC-AFR-01",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-01",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-01",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-02",
-      "test_case_id": "TC-AFR-02",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-02",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-02",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-04",
-      "test_case_id": "TC-AFR-02",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-04",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-02",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-03",
-      "test_case_id": "TC-AFR-03",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-03",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-03",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-05",
-      "test_case_id": "TC-AFR-04",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-05",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-04",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-06",
-      "test_case_id": "TC-AFR-04",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-06",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-04",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-07",
-      "test_case_id": "TC-AFR-05",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-07",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-05",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-08",
-      "test_case_id": "TC-AFR-05",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-08",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-05",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-09",
-      "test_case_id": "TC-AFR-06",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-09",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-06",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-10",
-      "test_case_id": "TC-AFR-07",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-10",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-07",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-11",
-      "test_case_id": "TC-AFR-08",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-11",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-08",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-11",
-      "test_case_id": "TC-AFR-09",
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-11",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-09",
       "covers": "full"
     },
     {
-      "requirement_id": "AFR-07",
-      "test_case_id": "TC-AFR-10",
-      "covers": "partial"
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-12",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-11",
+      "covers": "full"
     },
     {
-      "requirement_id": "AFR-08",
-      "test_case_id": "TC-AFR-10",
-      "covers": "partial"
+      "requirement_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-13",
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-10",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-01",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-01-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-02",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-02-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-02",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-02-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-02",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-04-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-02",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-04-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-03",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-03-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-04",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-05-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-04",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-06-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-05",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-07-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-05",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-08-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-06",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-09-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-07",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-10-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-07",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-10-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-08",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-11-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-09",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-11-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-11",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-12-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-11",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-12-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-10",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-13-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-10",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-13-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:TC-AFR-10",
+      "ac_id": "requirements:auto_fetch_refresh_bug_psrs_20261116:AFR-13-AC3",
+      "covers": "full"
     }
   ],
   "carry_over": [],
@@ -453,6 +621,11 @@
       "version": "v3.0",
       "date": "2026-11-16",
       "note": "Stage-2 Obligations added: AFR-10 (Portfolio manual refresh control mirroring watch.py:648) and AFR-11 (Deleted-ISIN cleanup trigger). Test cases TC-AFR-07, TC-AFR-08, TC-AFR-09, TC-AFR-10 added. Store gates GREEN."
+    },
+    {
+      "version": "v5.0",
+      "date": "2026-11-16",
+      "note": "R2 doc-gate fixes v2: (1) Added 17 test_case->acceptance_criteria bindings (ac_id) to test_bindings so RTM shows AC coverage for all 13 requirements (21 ACs bound). (2) Fixed 6 dropped traceability links - all test_bindings now use fully qualified IDs. (3) Added AFR-13 staleness-cue SHALL requirement with TC-AFR-10 bound full. (4) Added AFR-12 for 60s cooldown per-session persistence clarification (D3 superseded by FINAL POLICY). (5) Fixed TC-AFR-02/04/05/10 to use timestamp manipulation instead of waiting. (6) AFR-07 confirm wording aligned to locked text. (7) Discussion #272 changelog supersession noted."
     }
   ]
 }
