@@ -48,7 +48,7 @@ def gmail_callback():
     expected = session.pop("gmail_state", "")
     verifier = session.pop("gmail_verifier", "")
     if not code or not state or state != expected or not verifier:
-        flash("Gmail connection failed: state mismatch — please try again.", "error")
+        flash("Gmail connection failed: state mismatch, try again.", "error")
         return redirect(url_for("settings.settings_page", section="general") + "#email-card")
     with get_conn(db_file) as conn:
         client_id = str(get_pref(conn, "gmail_client_id", "") or "").strip()
@@ -73,5 +73,5 @@ def gmail_disconnect():
     with get_conn(db_file) as conn:
         for key in TOKEN_KEYS:
             set_pref(conn, key, "")
-    flash("Gmail disconnected — tokens cleared from this device.", "success")
+    flash("Gmail disconnected. Tokens cleared from this device.", "success")
     return redirect(url_for("settings.settings_page", section="general") + "#email-card")

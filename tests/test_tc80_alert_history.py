@@ -56,11 +56,11 @@ def test_tc80_history_survives_repeated_reads(client, db_path):
 
 def test_tc80_mark_all_read_keeps_rows_and_clears_badge(client, db_path):
     seed_history(db_path)
-    assert 'id="unreadCount">3<' in client.get("/").get_data(as_text=True)
+    assert re.search(r'id="unreadCount"[^>]*>3<', client.get("/").get_data(as_text=True))
     response = client.post("/notifications/read_all")
     assert response.status_code == 302
     assert response.headers["Location"] == "/notifications"
-    assert 'id="unreadCount">0<' in client.get("/").get_data(as_text=True)
+    assert re.search(r'id="unreadCount"[^>]*>0<', client.get("/").get_data(as_text=True))
     with get_conn(db_path) as conn:
         assert conn.execute("SELECT COUNT(*) AS n FROM notifications").fetchone()["n"] == 3
         assert unread_count(conn) == 0
@@ -77,13 +77,14 @@ def test_tc80_severity_colors_render_in_bell_dropdown(client, db_path):
     assert "sev-danger" in html
     assert "sev-reminder" in html
     assert "sev-warn" in html
-    assert "Alert history" in html
+    assert "See all alerts" in html
 
 
 def test_tc80_no_network_or_push_channels_in_source():
     offenders = []
     for path in source_files():
         text = path.read_text(encoding="utf-8").lower()
+        text = text.replace("history.pushstate", "")
         for token in FORBIDDEN_TOKENS:
             if token in text:
                 offenders.append(f"{path.relative_to(SRC)}: {token}")

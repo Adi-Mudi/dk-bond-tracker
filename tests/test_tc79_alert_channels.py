@@ -147,7 +147,7 @@ def test_tc79_alert_lands_in_bell_and_history(db_path, monkeypatch, fake_smtp, m
     app = create_app(str(db_path))
     app.config["TESTING"] = True
     dashboard = app.test_client().get("/").get_data(as_text=True)
-    assert 'id="unreadCount">1<' in dashboard
+    assert re.search(r'id="unreadCount"[^>]*>1<', dashboard)
     assert "BellCo" in dashboard
     assert "sev-danger" in dashboard
     history = app.test_client().get("/notifications").get_data(as_text=True)

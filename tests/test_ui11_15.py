@@ -182,7 +182,7 @@ def test_ui15_email_route_sends_via_smtp_with_screenshot(client, db_path, monkey
         follow_redirects=False,
     )
     assert response.status_code == 200
-    assert "your report is in" in response.get_data(as_text=True)
+    assert "Your report is in" in response.get_data(as_text=True)
     assert len(calls) == 1
     subject, body, attachment = calls[0]
     assert "Cell bug" in subject
@@ -255,6 +255,6 @@ def test_ui15_confirmation_screen_explains_next_steps(client, db_path, monkeypat
     )
     html = response.get_data(as_text=True)
     assert 'id="confirmation-title"' in html
-    assert "your report is in" in html
+    assert "Your report is in" in html
     assert "track progress on GitHub Issues" in html
     assert 'id="feedback-again"' in html

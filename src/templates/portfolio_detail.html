@@ -52,7 +52,7 @@
       <div class="group-title">4 &middot; Schedule</div>
       <dl class="group-facts">
         <dt>Payout cycle</dt><dd>{% if detail.frequency %}{{ detail.frequency|capitalize }}{% else %}&#8212;{% endif %}</dd>
-        <dt>Credit day</dt><dd>{% if detail.credit_day %}{{ detail.credit_day }}{% else %}&#8212;{% endif %}</dd>
+        <dt>Interest credit day</dt><dd>{% if detail.credit_day %}{{ detail.credit_day }}{% else %}&#8212;{% endif %}</dd>
         <dt>Next payout</dt><dd>{{ detail.next_payout }}</dd>
         <dt>End date</dt><dd>{% if detail.end_date %}{{ detail.end_date }}{% else %}&#8212;{% endif %}</dd>
       </dl>
@@ -64,7 +64,7 @@
         <dt>Issuer type</dt><dd>{{ detail.issuer_type or "—" }}</dd>
         <dt>Secured</dt><dd>{% if detail.secured is none %}&#8212;{% elif detail.secured|int == 1 %}Secured{% else %}Not secured{% endif %}</dd>
         <dt>Broker</dt><dd>{{ detail.broker or "—" }}</dd>
-        <dt>Source note</dt><dd>{{ detail.source_note or "—" }}</dd>
+        <dt>Where you found it</dt><dd>{{ detail.source_note or "—" }}</dd>
         {% if detail.provenance %}<dt>Fetched facts</dt><dd id="detail-provenance" data-source="{{ detail.provenance.source }}">from {{ detail.provenance.source }}{% if detail.provenance.as_of %} · as of {{ detail.provenance.as_of }}{% endif %}</dd>{% endif %}
       </dl>
     </div>

@@ -228,7 +228,7 @@ def test_fr78_ac3_move_panel_has_two_labeled_date_fields(client, db_path):
         r'<input type="date" id="move-start-\d+" name="start_date" required>', panel_html
     )
     assert ">Purchase date</label>" in panel_html
-    assert ">Start date (interest accrual / dated date)</label>" in panel_html
+    assert ">Interest start date" in panel_html
     assert "Purchase date (start date)" not in html
 
 

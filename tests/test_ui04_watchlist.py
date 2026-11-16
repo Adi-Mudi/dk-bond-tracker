@@ -55,7 +55,7 @@ def candidate_row(html):
 
 def details_row(html, bond_id):
     match = re.search(
-        r'<tr class="details-row" id="details-' + str(bond_id) + r'" hidden>\s*<td colspan="8">(.*?)</td>\s*</tr>',
+        r'<tr class="details-row" id="details-' + str(bond_id) + r'" hidden>\s*<td colspan="3">(.*?)</td>\s*</tr>',
         html,
         re.S,
     )
@@ -244,7 +244,8 @@ def test_ui04_delete_lives_inside_details_behind_named_confirm(client, db_path):
     assert f'id="delete-candidate-{bond_id}"' in details
     assert f'data-company="{CANDIDATE["company"]}"' in details
     assert f'data-isin="{CANDIDATE["isin"]}"' in details
-    assert "return confirm(" in details
+    assert "onsubmit=" not in details
+    assert "return confirm(" not in details
     assert 'role="alertdialog"' in html
     assert 'id="delete-confirm-cancel"' in html
     assert 'id="delete-confirm-accept"' in html

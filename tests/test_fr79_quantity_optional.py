@@ -105,7 +105,7 @@ def test_fr79_ac1_candidate_bad_qty_rejected_with_zero_writes(client, db_path, b
 
 def test_fr79_candidate_form_has_optional_qty_field(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
-    assert "Quantity (no. of bonds)" in html
+    assert "Number of bonds" in html
     tag = re.search(r'<input[^>]*id="c-qty"[^>]*>', html)
     assert tag, "Add Candidate form must carry a qty input"
     assert 'name="qty"' in tag.group(0)

@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.webkit.DownloadListener;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -71,6 +72,23 @@ public class MainActivity extends Activity {
                 waitAndLoad();
             }
         }, "dkbt-py-start").start();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (webView == null) {
+            super.onBackPressed();
+            return;
+        }
+        webView.evaluateJavascript("(function(){return window.closeTopOverlay ? window.closeTopOverlay() : false;})()",
+                new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        if (!"true".equals(value)) {
+                            MainActivity.super.onBackPressed();
+                        }
+                    }
+                });
     }
 
     private void startExport(final String url, final String contentDisposition, final String mimeType) {

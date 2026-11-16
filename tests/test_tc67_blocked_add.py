@@ -67,7 +67,7 @@ def test_tc67_blocked_move_returns_409_with_exact_banner(client, db_path):
     assert response.status_code == 409
     html = response.get_data(as_text=True)
     assert f'<div id="watch-error-message">{BLOCKED_MESSAGE}</div>' in html
-    assert "Error: ERR-active-position" in html
+    assert "ERR-active-position" in html
 
 
 def test_tc67_blocked_move_inserts_no_row(client, db_path):

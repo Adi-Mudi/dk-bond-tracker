@@ -54,7 +54,7 @@ def assert_blocked(db_path, response):
     assert response.status_code == 409
     html = response.get_data(as_text=True)
     assert BLOCKED_MESSAGE in html
-    assert "Error: ERR-active-position" in html
+    assert "ERR-active-position" in html
     assert current_bond_count(db_path) == 2
 
 

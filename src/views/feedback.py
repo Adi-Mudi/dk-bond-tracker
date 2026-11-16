@@ -191,7 +191,7 @@ def feedback_page():
             error=exc.message,
             error_code=exc.code,
         )
-    flash("Thanks — your report is in.", "success")
+    flash("Thanks. Your report is in.", "success")
     return render_form(db_file, kind, context=context, sent=True, route_taken="email")
 
 
