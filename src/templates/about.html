@@ -85,16 +85,20 @@
   {% if update_banner %}
   {% if update_banner.status == 'newer' %}
   <div class="update-banner update-banner-newer" id="update-banner" role="status">
-    <span id="update-banner-text"><b>v{{ update_banner.version }} available</b></span>
+    <span id="update-banner-text"><b>Update available: v{{ update_banner.version }}</b></span>
     {% if update_banner.url %}<a class="btn btn-primary btn-sm" id="update-download" href="{{ update_banner.url }}" target="_blank" rel="noopener">Download</a>{% endif %}
   </div>
   {% elif update_banner.status == 'current' %}
   <div class="update-banner update-banner-current" id="update-banner" role="status">
-    <span id="update-banner-text"><b>You are on v{{ app_version }} — newest</b></span>
+    <span id="update-banner-text"><b>You are on v{{ app_version }} — newest release</b></span>
+  </div>
+  {% elif update_banner.status == 'offline' %}
+  <div class="update-banner update-banner-error" id="update-banner" role="alert">
+    <span id="update-banner-text"><b>Update check couldn't reach GitHub — try again later</b></span>
   </div>
   {% else %}
   <div class="update-banner update-banner-error" id="update-banner" role="alert">
-    <span id="update-banner-text"><b>Couldn't reach GitHub — try again later</b></span>
+    <span id="update-banner-text"><b>Update check couldn't reach GitHub — try again later</b></span>
   </div>
   {% endif %}
   {% endif %}

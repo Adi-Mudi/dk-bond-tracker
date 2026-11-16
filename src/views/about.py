@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
 from src.bond_master import snapshot
 from src.db import get_conn
@@ -47,11 +47,23 @@ DATA_SOURCES = (
 )
 
 
+def _banner_from_prefs(conn, checked):
+    if checked not in ("newer", "current", "offline", "error"):
+        return None
+    if checked == "newer":
+        return {
+            "status": "newer",
+            "version": get_pref(conn, "update_version", ""),
+            "url": get_pref(conn, "update_url", "") or None,
+        }
+    if checked == "current":
+        return {"status": "current", "version": APP_VERSION, "url": None}
+    return {"status": checked, "version": None, "url": None}
+
+
 @bp.route("/update/dismiss", methods=["POST"])
 def dismiss_update_popup():
-    version = str(request.form.get("version") or "").strip()
-    with get_conn(app_db()) as conn:
-        set_pref(conn, "update_dismissed_session", version)
+    current_app.config["UPDATE_POPUP_DISMISSED"] = True
     return ("", 204)
 
 
@@ -59,10 +71,11 @@ def dismiss_update_popup():
 def about_page():
     db_file = app_db()
     banner = None
+    checked = request.args.get("checked")
     if request.method == "POST":
         action = str(request.form.get("action") or "").strip()
         if action == "check":
-            result = check_for_updates(force=True)
+            result = check_for_updates()
             with get_conn(db_file) as conn:
                 store_update_result(conn, result)
             banner = {
@@ -70,6 +83,9 @@ def about_page():
                 "version": result.get("version"),
                 "url": result.get("url"),
             }
+            if result["status"] == "newer":
+                current_app.config["UPDATE_POPUP_DISMISSED"] = False
+            return redirect(url_for("about.about_page", checked=result["status"]))
         elif action == "auto":
             enabled = request.form.get("auto") in ("on", "1", "true", "yes")
             with get_conn(db_file) as conn:
@@ -84,6 +100,8 @@ def about_page():
     with get_conn(db_file) as conn:
         last_checked = get_pref(conn, "update_last_checked")
         auto_check = get_pref(conn, "update_auto_check", "1") == "1"
+        if checked:
+            banner = _banner_from_prefs(conn, checked)
     return render_template(
         "about.html",
         app_version=APP_VERSION,

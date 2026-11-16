@@ -30,13 +30,13 @@ def fetch_latest_release():
     try:
         status, raw = transport.github_release_json(RELEASE_URL)
     except ConnectionError:
-        return _release_result("network_error")
+        return _release_result("offline")
     if status == 404:
         return _release_result("no_releases")
     if status in (403, 429):
         return _release_result("rate_limited")
     if status != 200:
-        return _release_result("network_error")
+        return _release_result("parse_error")
     try:
         payload = json.loads(raw.decode("utf-8"))
     except (ValueError, UnicodeDecodeError):
@@ -89,32 +89,33 @@ def semver_compare(local, remote):
     if left is None or right is None:
         return 0
     if left[0] != right[0]:
-        return -1 if left[0] < right[0] else 1
+        return 1 if right[0] > left[0] else -1
     if left[1] == right[1]:
         return 0
     if left[1] is None:
-        return -1 if right[1] is not None else 0
+        return -1
     if right[1] is None:
         return 1
-    return 0
+    return 1 if right[1] > left[1] else -1
 
 
-def check_for_updates(force=False):
+def check_for_updates():
     release = fetch_latest_release()
     checked_at = _now_iso()
     if release["error"]:
-        status = "offline" if release["error"] == "network_error" else "error"
+        status = "offline" if release["error"] == "offline" else "error"
         return {"status": status, "error": release["error"], "checked_at": checked_at}
     parsed = parse_release(release)
     if parsed["error"]:
         return {"status": "error", "error": parsed["error"], "checked_at": checked_at}
     if _parse_version(parsed["version"]) is None:
         return {"status": "error", "error": "parse_error", "checked_at": checked_at}
-    if semver_compare(APP_VERSION, parsed["version"]) < 0:
+    if semver_compare(APP_VERSION, parsed["version"]) > 0:
         return {
             "status": "newer",
             "version": parsed["version"],
-            "url": parsed["apk_download_url"] or parsed["html_url"],
+            "url": parsed["html_url"] or parsed["apk_download_url"],
+            "release": release,
             "checked_at": checked_at,
         }
     return {"status": "current", "version": parsed["version"], "checked_at": checked_at}
@@ -122,12 +123,13 @@ def check_for_updates(force=False):
 
 def store_update_result(conn, result):
     if result.get("status") not in ("newer", "current"):
+        set_pref(conn, "update_available", "0")
         set_pref(conn, "update_error", result.get("error") or result.get("status"))
         return
     newer = result["status"] == "newer"
     set_pref(conn, "update_checked_at", result["checked_at"])
     set_pref(conn, "update_last_checked", date.today().isoformat())
-    set_pref(conn, "update_last_release_json", json.dumps(result))
+    set_pref(conn, "update_last_release_json", json.dumps(result.get("release") or result))
     set_pref(conn, "update_available", "1" if newer else "0")
     set_pref(conn, "update_version", result.get("version") or "")
     set_pref(conn, "update_url", result.get("url") or "")
@@ -146,11 +148,11 @@ def auto_check_due(checked_at, now):
     return now - last >= timedelta(seconds=AUTO_CHECK_INTERVAL_SECONDS)
 
 
-def update_popup_state(conn):
-    if get_pref(conn, "update_available", "0") != "1":
+def update_popup_state(conn, dismissed=False):
+    if get_pref(conn, "update_available", "0") != "1" or dismissed:
         return None
     version = get_pref(conn, "update_version", "")
-    if not version or get_pref(conn, "update_dismissed_session", "") == version:
+    if not version:
         return None
     return {
         "version": version,

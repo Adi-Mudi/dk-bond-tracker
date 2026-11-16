@@ -238,7 +238,7 @@ def create_app(db_path=None):
         if not db_file_path.exists():
             return {"update_popup": None}
         with get_conn(db_file_path) as conn:
-            popup = update_popup_state(conn)
+            popup = update_popup_state(conn, dismissed=app.config.get("UPDATE_POPUP_DISMISSED", False))
         return {"update_popup": popup}
 
     @app.context_processor
