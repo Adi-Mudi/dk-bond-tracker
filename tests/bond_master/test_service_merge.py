@@ -1,6 +1,7 @@
 from src.bond_master.base import SOURCE_PRIORITY, FetchResult
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.service import BondMasterService
+from src.db import init_db
 
 ISIN = "INE205A07DV2"
 
@@ -17,6 +18,7 @@ class FakeAdapter:
 
 
 def make_service(tmp_path, adapters):
+    init_db(tmp_path / "bonds.db")
     cache = BondMasterCache(tmp_path / "bonds.db")
     return BondMasterService(
         adapters, cache, sleep=lambda _delay: None, throttle_seconds=0.0, retries=0

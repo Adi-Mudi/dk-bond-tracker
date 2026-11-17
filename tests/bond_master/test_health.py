@@ -8,6 +8,7 @@ from src.bond_master.base import (
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.health import HealthView, SourceEvent, health_view
 from src.bond_master.service import BondMasterService
+from src.db import init_db
 
 ISIN = "INE205A07DV2"
 
@@ -90,6 +91,7 @@ def test_af06_health_view_shows_the_failing_source_code(tmp_path):
             FetchResult(isin=ISIN, company="Acme Ltd", sources={"company": "RBI"}),
         ),
     }
+    init_db(tmp_path / "bonds.db")
     cache = BondMasterCache(tmp_path / "bonds.db")
     service = BondMasterService(adapters, cache, sleep=lambda seconds: None)
     service.lookup(ISIN)

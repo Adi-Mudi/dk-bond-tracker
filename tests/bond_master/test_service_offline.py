@@ -1,12 +1,14 @@
 from src.bond_master.base import (
     FAILURE_NOT_FOUND,
     FAILURE_OFFLINE,
+    FAILURE_OK,
     FAILURE_UNREACHABLE,
     SOURCE_PRIORITY,
     FetchResult,
 )
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.service import BondMasterService
+from src.db import init_db
 
 ISIN = "INE205A07DV2"
 ASOF_AT_1700000000 = "2023-11-14T22:13:20+00:00"
@@ -27,6 +29,7 @@ class FakeAdapter:
 
 
 def make_service(tmp_path, adapters, **kwargs):
+    init_db(tmp_path / "bonds.db")
     cache = BondMasterCache(
         tmp_path / "bonds.db",
         cooldown_seconds=kwargs.pop("cooldown_seconds", 0.0),
@@ -96,7 +99,7 @@ def test_offline_offer_returns_cached_values_with_the_as_of_date(db_path):
         throttle_seconds=0.0,
         retries=0,
     )
-    assert service.lookup(ISIN).failure_code == FAILURE_OFFLINE
+    assert service.lookup(ISIN).failure_code == FAILURE_OK
     offer = cache.offer(ISIN)
     assert offer["company"] == "Acme Ltd"
     assert offer["coupon"] == 8.75

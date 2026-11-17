@@ -132,8 +132,8 @@ def test_tc_af_01_position_facts_are_never_prefilled(db_path):
     client, _ = make_client(db_path, nsdl_transport())
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
     assert f'value="{COMPANY}"' in html
-    assert 'name="watch_investment" step="any" min="0" placeholder="0.00" value=""' in html
-    assert 'name="qty" step="1" min="1" placeholder="1" value=""' in html
+    assert 'name="watch_investment"' not in html
+    assert 'name="qty"' not in html
     for name in ("amount", "start_date", "end_date", "credit_day"):
         assert f'name="{name}"' not in html, name
     result = FetchResult(isin=ISIN, company=COMPANY, sources={"company": "NSDL"})

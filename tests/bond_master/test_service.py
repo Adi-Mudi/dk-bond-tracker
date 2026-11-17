@@ -18,6 +18,7 @@ from src.bond_master.base import (
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.nse import NseAdapter
 from src.bond_master.service import BondMasterService, default_adapters
+from src.db import init_db
 
 ISIN = "INE205A07DV2"
 OTHER_ISIN = "INE205A07DW3"
@@ -54,6 +55,7 @@ def now():
 def build(tmp_path, now):
     def _build(adapters, **kwargs):
         sleeps = []
+        init_db(tmp_path / "bonds.db")
         cache = BondMasterCache(tmp_path / "bonds.db", clock=lambda: now[0])
         service = BondMasterService(
             adapters,
