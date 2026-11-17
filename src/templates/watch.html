@@ -351,17 +351,17 @@
   </form>
 </div>
 
-{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('face_value', 'face_value'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured'), ('listing_status', '')] %}
-{% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'face_value': 'Face value', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured', 'listing_status': 'Listing'} %}
+{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
+{% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured'} %}
 {% set fetch_values = fetch['values'] or {} %}
-<div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.facts else '' }}" hidden>
+<div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.popup_facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.popup_facts else '' }}" hidden>
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
     <div class="facts-grid" id="fetch-sources">
       {% for fact, field in fetch_fact_order %}
-      {% if fetch.facts.get(fact) is not none %}
-      {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.facts.get(fact) %}
+      {% if fetch.popup_facts.get(fact) is not none %}
+      {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.popup_facts.get(fact) %}
       <div class="fact" data-fetch-detail="{{ fact }}"{% if field %} data-apply-field="{{ field }}" data-apply-value="{{ detail_value }}"{% endif %}>
         <span class="fact-label">{{ fetch_fact_labels[fact] }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
         <span class="fact-value">{{ detail_value }}</span>
@@ -916,11 +916,9 @@
     ["maturity", "", "Maturity"],
     ["rating", "rating", "Rating"],
     ["rating_agency", "rating_agency", "Rating agency"],
-    ["face_value", "face_value", "Face value"],
     ["issuer_type", "issuer_type", "Issuer type"],
     ["payout_cycle", "payout_cycle", "Payout cycle"],
-    ["secured", "secured", "Secured"],
-    ["listing_status", "", "Listing"]
+    ["secured", "secured", "Secured"]
   ];
   function renderFetchRows(payload) {
     var grid = document.getElementById("fetch-sources");
@@ -930,7 +928,7 @@
     while (grid.firstChild) {
       grid.removeChild(grid.firstChild);
     }
-    var facts = payload.facts || {};
+    var facts = payload.popup_facts || {};
     var values = payload.values || {};
     var sources = payload.sources || {};
     FETCH_FACT_ORDER.forEach(function (entry) {
@@ -979,7 +977,7 @@
       }
     });
     showState(payload.state);
-    if (popup && payload.facts && Object.keys(payload.facts).length) {
+    if (popup && payload.popup_facts && Object.keys(payload.popup_facts).length) {
       renderFetchRows(payload);
       popup.id = "fetch-details";
       popup.setAttribute("data-fetch-isin", fetched);

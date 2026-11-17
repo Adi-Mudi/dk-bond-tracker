@@ -31,6 +31,7 @@ from src.bond_master.base import (
 )
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.normalize import is_investment_grade
+from src.bond_master.snapshot import SNAPSHOT_SOURCE
 from src.bond_master.service import build_default_service, primary_source, unmark_isin_deleted
 from src.db import get_conn
 from src.engine import tenure_window
@@ -118,6 +119,17 @@ FETCH_STATE_LABELS = {
     FETCH_OFFLINE: "Offline",
     FETCH_DOWNGRADE: "Downgraded",
 }
+ONLINE_FACT_FIELDS = (
+    "company",
+    "coupon",
+    "maturity",
+    "rating",
+    "rating_agency",
+    "issuer_type",
+    "payout_cycle",
+    "secured",
+)
+SNAPSHOT_FACT_FIELDS = ("company", "coupon", "maturity")
 OFFLINE_REACH_FAILURE_CODES = (
     FAILURE_OFFLINE,
     FAILURE_UNREACHABLE,
@@ -147,6 +159,7 @@ def watch_fetch_idle():
         "labels": FETCH_STATE_LABELS,
         "isin": "",
         "facts": {},
+        "popup_facts": {},
         "sources": {},
         "source_names": [],
         "cached": {},
@@ -262,13 +275,20 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
         }
     if state == FETCH_OFFLINE and cached_row:
         asof = str(cached_row.get("fetched_at") or "")
+        facts = {field: cached[field] for field in SNAPSHOT_FACT_FIELDS if field in cached}
+        sources = {field: cached_row.get("source") or SNAPSHOT_SOURCE for field in facts}
     failure_code = result.failure_code if result is not None else None
+    official = any(source != SNAPSHOT_SOURCE for source in sources.values())
+    popup_fields = ONLINE_FACT_FIELDS if official else SNAPSHOT_FACT_FIELDS
+    tier = ("official" if official else "snapshot") if sources else ""
     return {
         "state": state,
         "states": FETCH_STATES,
         "labels": FETCH_STATE_LABELS,
         "isin": result.isin if result is not None else "",
         "facts": facts,
+        "popup_facts": {field: value for field, value in facts.items() if field in popup_fields},
+        "tier": tier,
         "sources": sources,
         "source_names": _source_names(sources),
         "cached": cached,
@@ -680,7 +700,15 @@ def watch_list():
         if request.args.get("isin"):
             form, fetch = autofetch_form(request.args)
             if fetch and fetch.get("isin") in (session.get(APPLIED_ISIN_SESSION_KEY) or []):
-                fetch = dict(fetch, facts={}, sources={}, source_names=[], values={}, sources_by_field={})
+                fetch = dict(
+                    fetch,
+                    facts={},
+                    popup_facts={},
+                    sources={},
+                    source_names=[],
+                    values={},
+                    sources_by_field={},
+                )
             context = watch_context(
                 db_file, form=form, form_open=True, fetch=fetch
             )
