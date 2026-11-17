@@ -69,7 +69,10 @@ def test_ui11_referral_link_left_empty_until_owner_supplies_url(client, db_path)
 
 def test_ui11_update_check_records_and_persists(client, db_path, monkeypatch):
     from src import updater
+    from src.views import about as about_view
 
+    monkeypatch.setattr(updater, "APP_VERSION", "1.0.11")
+    monkeypatch.setattr(about_view, "APP_VERSION", "1.0.11")
     monkeypatch.setattr(
         updater,
         "fetch_latest_release",
@@ -85,7 +88,9 @@ def test_ui11_update_check_records_and_persists(client, db_path, monkeypatch):
     assert response.status_code == 200
     with get_conn(db_path) as conn:
         assert get_pref(conn, "update_last_checked") == date.today().isoformat()
-    assert "newest" in response.get_data(as_text=True)
+    html = response.get_data(as_text=True)
+    assert "You are on v1.0.11" in html
+    assert "newest release" not in html
 
 
 def test_ui11_auto_update_toggle_persists(client, db_path):
