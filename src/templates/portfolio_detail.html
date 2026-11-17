@@ -147,9 +147,9 @@
       })
       .then(function (result) {
         if (result.status === 409 && !force) {
-          if (window.confirm(result.data.message)) {
+          window.appConfirm(result.data.message, function () {
             refreshFacts(url, true);
-          }
+          });
           return;
         }
         refresh.title = (result.data && result.data.message) || "";
@@ -168,4 +168,5 @@
   }
 })();
 </script>
+{% include "_confirm_dialog.html" %}
 {% endblock %}
