@@ -1,0 +1,731 @@
+{
+  "id": "isin_lookup_forms_psrs_20261117",
+  "kind": "psrs",
+  "title": "ISIN lookup UX + form consolidation + auto-fetch consent - U1-U6 upgrades, 6 legacy removals, months readouts",
+  "version": "v1.0",
+  "status": "accepted",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/281",
+  "derived_from": "Locked DESIGN-LOCKED document #281 (backend as-is to-be U1-U6 + 6 removals), finding history #279 (option C, full-fact popup, model B refined, local-first rule) and #280 (duplicate-field D1-D4); developer confirmed 2026-11-17. Documentation only, zero new decisions (Stage 2 rule). Visual design: src/design/d279_isin_fetch_ux.html (dev, 5 sections).",
+  "requirements": [
+    {
+      "id": "ILF-01",
+      "text": "The ISIN lookup SHALL run in-page from the Add-bond form via a JSON lookup endpoint (client fetch(), same service.lookup() logic) - no full page navigation.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Add-bond form with a typed ISIN",
+          "when": "the user leaves the ISIN field or taps the lookup button",
+          "then": "the lookup runs via fetch() and the page performs no navigation (URL unchanged, scroll and keyboard state kept)"
+        }
+      ]
+    },
+    {
+      "id": "ILF-02",
+      "text": "After the user presses Apply on the Fetched-details popup, the popup SHALL stay closed - an applied marker per ISIN SHALL suppress popup restore-on-load on subsequent renders; without Apply the popup still shows on GET /watch?isin=.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "Apply was pressed for ISIN X",
+          "when": "the page re-renders (server GET /watch?isin=X or any reload)",
+          "then": "the Fetched-details popup stays hidden for ISIN X"
+        },
+        {
+          "given": "Apply was never pressed for ISIN X",
+          "when": "GET /watch?isin=X loads",
+          "then": "the Fetched-details popup shows (server-render guard preserved)"
+        }
+      ]
+    },
+    {
+      "id": "ILF-03",
+      "text": "Lookup SHALL answer local-first: session cache, then persisted bond_master (fetched_at freshness), then bundled snapshot - instantly, with zero cooldown and no official-network call.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "ISIN X exists in bond_master or the bundled snapshot",
+          "when": "the lookup runs",
+          "then": "facts return immediately from the local source with no cooldown countdown and no NSDL/RBI/NSE/BSE request"
+        }
+      ]
+    },
+    {
+      "id": "ILF-04",
+      "text": "The 60s cooldown gate SHALL apply only before an official check (NSDL to RBI to NSE to BSE); the countdown UI SHALL appear only in the rate-limited official state - never on a local answer.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a local answer is available",
+          "when": "the lookup runs",
+          "then": "no cooldown gate and no countdown UI are shown"
+        },
+        {
+          "given": "a local miss within 60s of a previous official check",
+          "when": "the lookup runs",
+          "then": "the cooldown gate runs before the official collect and the countdown UI shows the remaining seconds"
+        }
+      ]
+    },
+    {
+      "id": "ILF-05",
+      "text": "The lookup response SHALL carry all resolved facts with per-field sources (snapshot: company/coupon/maturity; NSDL: rating/agency/issuer/secured/cycle); the popup SHALL show 8 facts with per-field source labels, 3 facts offline, and unpublished fields stay editable.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a full online answer for ISIN X",
+          "when": "the Fetched-details popup renders",
+          "then": "8 facts show, each labelled with its per-field source"
+        },
+        {
+          "given": "offline (official sources unreachable) with local data",
+          "when": "the popup renders",
+          "then": "only the 3 snapshot facts show and unpublished fields remain editable in the form"
+        }
+      ]
+    },
+    {
+      "id": "ILF-06",
+      "text": "Add bond form SHALL no longer collect or require invested/qty/price (money trio removed, removals 1-3); the server SHALL accept POST /watch without them - DB columns watch_investment/qty stay unchanged.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Add-bond form renders",
+          "when": "the user inspects it",
+          "then": "no invested/qty/price inputs exist"
+        },
+        {
+          "given": "POST /watch without invested/qty/price",
+          "when": "the server validates the payload",
+          "then": "the watch candidate is created with no required-field error"
+        },
+        {
+          "given": "existing bond rows",
+          "when": "the schema is inspected",
+          "then": "watch_investment/qty columns still exist and prior values are intact"
+        }
+      ]
+    },
+    {
+      "id": "ILF-07",
+      "text": "Move form end date SHALL default from the candidate's maturity_date - the typed end-date input is removed (removal 4); it appears only when maturity_date is missing.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a watch candidate with maturity_date M",
+          "when": "the Move form renders",
+          "then": "end date is M and no end-date input shows"
+        },
+        {
+          "given": "a watch candidate without maturity_date",
+          "when": "the Move form renders",
+          "then": "an end-date input shows as the fallback"
+        }
+      ]
+    },
+    {
+      "id": "ILF-08",
+      "text": "Move interest start date SHALL default to the purchase date and stay editable; the bare-required validation on interest start SHALL be removed (removal 5).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "purchase date P chosen in the Move form",
+          "when": "the form evaluates",
+          "then": "start_date defaults to P and remains editable"
+        },
+        {
+          "given": "start_date left at the default",
+          "when": "POST /watch/<id>/move runs",
+          "then": "the move succeeds with no separate interest-start entry required"
+        }
+      ]
+    },
+    {
+      "id": "ILF-09",
+      "text": "Move broker SHALL be optional - prefill kept, required validation dropped (removal 6).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Move form with a prefilled broker",
+          "when": "the user clears broker and submits",
+          "then": "the move succeeds"
+        }
+      ]
+    },
+    {
+      "id": "ILF-10",
+      "text": "The Add response SHALL include a server-computed months_remaining anchored at today (maturity, cycle); the client SHALL update the readout live on date or cycle change - one engine, src/maturity.py.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Add form with a maturity date and chosen payout cycle",
+          "when": "the user changes the date or cycle",
+          "then": "the months-remaining readout recomputes live (anchored at today) without a page reload"
+        }
+      ]
+    },
+    {
+      "id": "ILF-11",
+      "text": "The Move response SHALL include the purchase-anchored months readout months_remaining(purchase, maturity, cycle) from the same engine (src/maturity.py).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "purchase date P, maturity M, cycle C",
+          "when": "the Move form renders or the dates change",
+          "then": "the readout equals the src/maturity.py engine output anchored at P and updates live"
+        }
+      ]
+    },
+    {
+      "id": "ILF-12",
+      "text": "On first app open a one-time auto-fetch consent dialog (Auto-fetch / Not now) SHALL show; the choice SHALL be recorded (auto_fetch_prompted) so the dialog never shows again.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a fresh install with no auto_fetch_prompted flag",
+          "when": "the app opens",
+          "then": "the consent dialog shows exactly once"
+        },
+        {
+          "given": "the dialog was answered (either choice)",
+          "when": "the app reopens",
+          "then": "the dialog does not show again"
+        }
+      ]
+    },
+    {
+      "id": "ILF-13",
+      "text": "Settings SHALL carry the auto-fetch toggle (auto_fetch_enabled, default OFF) plus Last synced and Sync now.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "default state after install",
+          "when": "Settings opens",
+          "then": "the auto-fetch toggle reads OFF, Last synced shows the last real pass time (or never synced), and Sync now is available"
+        }
+      ]
+    },
+    {
+      "id": "ILF-14",
+      "text": "The 12h counter SHALL start only after opt-in; enabled and due runs one silent pass with the stamp written only after a real pass; toggle OFF skips auto-fetch entirely.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "opted in and last stamp older than 12h",
+          "when": "the app opens",
+          "then": "one auto-fetch pass runs and the stamp updates after the pass completes"
+        },
+        {
+          "given": "auto_fetch_enabled is OFF",
+          "when": "the app opens",
+          "then": "no auto-fetch runs and no stamp is written"
+        }
+      ]
+    },
+    {
+      "id": "ILF-15",
+      "text": "Financial goal select at Move SHALL stay permanent and the portfolio detail goal display read-only - design-only item (U7), zero backend change.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the Move form and the portfolio detail page",
+          "when": "they render",
+          "then": "the goal select is present at Move and the goal shows read-only in detail; existing goal tests still pass"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "ILF-01",
+      "area": "isin_lookup",
+      "statement": "The ISIN lookup SHALL run in-page via a JSON endpoint (fetch(), no page reload) reusing the same service lookup logic.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 1 (option C) / U1"
+    },
+    {
+      "id": "ILF-02",
+      "area": "isin_lookup",
+      "statement": "An applied marker per ISIN SHALL keep the Fetched-details popup closed after Apply, while the server-render guard still shows it when Apply was never pressed.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 1 (option C: A as guard) / U1"
+    },
+    {
+      "id": "ILF-03",
+      "area": "isin_lookup",
+      "statement": "Lookup SHALL answer local-first from session cache, persisted bond_master and the bundled snapshot - instant, zero cooldown.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 8 (local-first) / U2"
+    },
+    {
+      "id": "ILF-04",
+      "area": "isin_lookup",
+      "statement": "The 60s cooldown SHALL gate only the official check; countdown UI only in the rate-limited state, never on local data.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 8 (local-first) / U2"
+    },
+    {
+      "id": "ILF-05",
+      "area": "isin_lookup",
+      "statement": "The popup SHALL show 8 facts with per-field source labels, 3 facts offline, unpublished fields editable.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 2 (full-fact popup) / U3"
+    },
+    {
+      "id": "ILF-06",
+      "area": "form_consolidation",
+      "statement": "The Add form SHALL drop the money trio (invested/qty/price) - facts only at watch stage; DB columns unchanged.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 3 + decision 6 (removals 1-3) / U4 / #280 D2"
+    },
+    {
+      "id": "ILF-07",
+      "area": "form_consolidation",
+      "statement": "The Move end date SHALL derive from maturity_date - typed input removed (fallback only when maturity missing).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 5 + decision 6 (removal 4) / U4 / #280 D1"
+    },
+    {
+      "id": "ILF-08",
+      "area": "form_consolidation",
+      "statement": "The interest start SHALL default to the purchase date, stay editable, with the bare-required validation removed.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 5 + decision 6 (removal 5) / U4 / #280 D4"
+    },
+    {
+      "id": "ILF-09",
+      "area": "form_consolidation",
+      "statement": "The Move broker SHALL be optional - prefill kept, required dropped.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 5 + decision 6 (removal 6) / U4 / #280 D3"
+    },
+    {
+      "id": "ILF-10",
+      "area": "months_readouts",
+      "statement": "The Add form SHALL show a today-anchored months-remaining readout computed by the server and updated live.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 4 / U5"
+    },
+    {
+      "id": "ILF-11",
+      "area": "months_readouts",
+      "statement": "The Move form SHALL show the purchase-anchored months-remaining readout from the one engine src/maturity.py.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 4 + decision 5 / U5"
+    },
+    {
+      "id": "ILF-12",
+      "area": "auto_fetch_consent",
+      "statement": "The app SHALL ask auto-fetch consent once on first open (Auto-fetch / Not now) and record auto_fetch_prompted.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 7 (model B refined) / U6"
+    },
+    {
+      "id": "ILF-13",
+      "area": "auto_fetch_consent",
+      "statement": "Settings SHALL hold the auto-fetch toggle (default OFF) plus Last synced and Sync now.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 7 (model B refined) / U6"
+    },
+    {
+      "id": "ILF-14",
+      "area": "auto_fetch_consent",
+      "statement": "The 12h counter SHALL start only after opt-in; stamp written only after a real pass; OFF skips auto-fetch entirely.",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - decision 7 (model B refined) / U6"
+    },
+    {
+      "id": "ILF-15",
+      "area": "goal",
+      "statement": "The goal select stays permanent at Move and read-only in detail - design-only, zero backend change (U7).",
+      "priority": "must",
+      "status": "accepted",
+      "decision_id": "Discussion #281 - U7 (already implemented, design-only)"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-ILF-01",
+      "title": "In-page lookup without navigation (ILF-01)",
+      "type": "integration",
+      "steps": "1. Open Add-bond form. 2. Type ISIN. 3. Blur the field / tap lookup. 4. Instrument navigation (URL, history, reload count).",
+      "expected": "Lookup completes via fetch(); URL and history unchanged; no page reload; form state preserved",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-02",
+      "title": "Popup stays closed after Apply (ILF-02)",
+      "type": "integration",
+      "steps": "1. Lookup ISIN X. 2. Press Apply - popup closes. 3. Trigger re-render (GET /watch?isin=X and blur/reload paths). 4. Repeat with Apply never pressed.",
+      "expected": "Popup stays hidden after Apply for ISIN X; popup still shows on fresh GET when Apply was never pressed",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-03",
+      "title": "Local-first answer, zero cooldown (ILF-03)",
+      "type": "integration",
+      "steps": "1. Seed ISIN X in bond_master and one ISIN only in the snapshot. 2. Run lookup for both. 3. Count outgoing official-source requests and watch for countdown UI.",
+      "expected": "Both answers return locally and instantly; zero official requests; no countdown UI",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-04",
+      "title": "Cooldown gates only the official check (ILF-04)",
+      "type": "integration",
+      "steps": "1. Local hit - run lookup. 2. Local miss within 60s of an official check - run lookup. 3. Observe gate order and countdown UI.",
+      "expected": "Local hit: no gate, no countdown. Local miss: 60s gate before official collect with countdown UI shown",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-05",
+      "title": "Full-fact popup with per-field sources, offline 3 facts (ILF-05)",
+      "type": "integration",
+      "steps": "1. Full online answer - inspect popup. 2. Simulate offline (official unreachable) with local data - inspect popup. 3. Inspect unpublished fields.",
+      "expected": "Online: 8 facts each with source label (snapshot: company/coupon/maturity; NSDL: rating/agency/issuer/secured/cycle). Offline: only 3 snapshot facts; unpublished fields editable",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-06",
+      "title": "Money trio removed from Add (ILF-06)",
+      "type": "integration",
+      "steps": "1. Render Add-bond form. 2. POST /watch without invested/qty/price. 3. Inspect schema and an existing row.",
+      "expected": "No trio inputs in the form; POST succeeds without required-field error; watch_investment/qty columns intact with prior values",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-07",
+      "title": "Move end date derives from maturity (ILF-07)",
+      "type": "integration",
+      "steps": "1. Candidate with maturity_date - open Move. 2. Candidate without maturity_date - open Move.",
+      "expected": "With maturity: end = M, no end-date input. Without maturity: end-date input shows as fallback",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-08",
+      "title": "Interest start defaults to purchase (ILF-08)",
+      "type": "integration",
+      "steps": "1. Choose purchase date P in Move. 2. Inspect start_date. 3. Edit start_date, then submit with default. 4. POST /watch/<id>/move without touching start.",
+      "expected": "start_date defaults to P, stays editable; submit with default succeeds (no bare-required error)",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-09",
+      "title": "Broker optional at Move (ILF-09)",
+      "type": "integration",
+      "steps": "1. Open Move with prefilled broker. 2. Clear broker. 3. Submit.",
+      "expected": "Prefill shows; cleared broker submits successfully",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-10",
+      "title": "Add months-remaining readout live (ILF-10)",
+      "type": "integration",
+      "steps": "1. Open Add with maturity + cycle. 2. Compare readout to src/maturity.py output anchored at today. 3. Change date and cycle.",
+      "expected": "Readout matches the engine (today-anchored) and recomputes live on each change, no reload",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-11",
+      "title": "Move months-remaining readout purchase-anchored (ILF-11)",
+      "type": "integration",
+      "steps": "1. Open Move with purchase P, maturity M, cycle C. 2. Compare readout to src/maturity.py(purchase, maturity, cycle). 3. Change dates.",
+      "expected": "Readout equals the engine output anchored at P and updates live",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-12",
+      "title": "One-time auto-fetch consent dialog (ILF-12)",
+      "type": "integration",
+      "steps": "1. Fresh state (no auto_fetch_prompted). 2. Open app - dialog appears. 3. Answer either choice. 4. Reopen app twice.",
+      "expected": "Dialog shows exactly once; never again after answering (either choice)",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-13",
+      "title": "Settings toggle default OFF with Last synced + Sync now (ILF-13)",
+      "type": "integration",
+      "steps": "1. Default state - open Settings. 2. Inspect toggle, Last synced, Sync now. 3. Run Sync now. 4. Reopen Settings.",
+      "expected": "Toggle OFF by default; Last synced shows last real pass (never synced initially); Sync now runs a pass and refreshes Last synced",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-14",
+      "title": "12h counter after opt-in, OFF skips (ILF-14)",
+      "type": "integration",
+      "steps": "1. Opt in, set last stamp older than 12h - open app. 2. Set toggle OFF - open app. 3. Inspect stamps.",
+      "expected": "Opted-in: one pass runs, stamp written after the pass. OFF: no pass, no stamp written",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-ILF-15",
+      "title": "Goal select permanent, detail read-only (ILF-15)",
+      "type": "integration",
+      "steps": "1. Open Move - inspect goal select. 2. Open portfolio detail - inspect goal display. 3. Run existing goal test suite.",
+      "expected": "Goal select present at Move; goal read-only in detail; existing goal tests pass unchanged",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "ILF-01",
+      "test_case_id": "TC-ILF-01",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-02",
+      "test_case_id": "TC-ILF-02",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-03",
+      "test_case_id": "TC-ILF-03",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-04",
+      "test_case_id": "TC-ILF-04",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-05",
+      "test_case_id": "TC-ILF-05",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-06",
+      "test_case_id": "TC-ILF-06",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-07",
+      "test_case_id": "TC-ILF-07",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-08",
+      "test_case_id": "TC-ILF-08",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-09",
+      "test_case_id": "TC-ILF-09",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-10",
+      "test_case_id": "TC-ILF-10",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-11",
+      "test_case_id": "TC-ILF-11",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-12",
+      "test_case_id": "TC-ILF-12",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-13",
+      "test_case_id": "TC-ILF-13",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-14",
+      "test_case_id": "TC-ILF-14",
+      "covers": "full"
+    },
+    {
+      "requirement_id": "ILF-15",
+      "test_case_id": "TC-ILF-15",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-01",
+      "ac_id": "ILF-01-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-02",
+      "ac_id": "ILF-02-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-02",
+      "ac_id": "ILF-02-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-03",
+      "ac_id": "ILF-03-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-04",
+      "ac_id": "ILF-04-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-04",
+      "ac_id": "ILF-04-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-05",
+      "ac_id": "ILF-05-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-05",
+      "ac_id": "ILF-05-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-06",
+      "ac_id": "ILF-06-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-06",
+      "ac_id": "ILF-06-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-06",
+      "ac_id": "ILF-06-AC3",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-07",
+      "ac_id": "ILF-07-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-07",
+      "ac_id": "ILF-07-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-08",
+      "ac_id": "ILF-08-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-08",
+      "ac_id": "ILF-08-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-09",
+      "ac_id": "ILF-09-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-10",
+      "ac_id": "ILF-10-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-11",
+      "ac_id": "ILF-11-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-12",
+      "ac_id": "ILF-12-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-12",
+      "ac_id": "ILF-12-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-13",
+      "ac_id": "ILF-13-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-14",
+      "ac_id": "ILF-14-AC1",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-14",
+      "ac_id": "ILF-14-AC2",
+      "covers": "full"
+    },
+    {
+      "test_case_id": "TC-ILF-15",
+      "ac_id": "ILF-15-AC1",
+      "covers": "full"
+    }
+  ],
+  "carry_over": [],
+  "changelog": [
+    {
+      "version": "v1.0",
+      "date": "2026-11-17",
+      "note": "First suite: ILF-01..ILF-15 from discussion #281 locked document (U1-U6 + 6 legacy removals + U7 design-only), finding locks on #279/#280. 15 requirements, 22 acceptance criteria, 15 test cases, full RTM bindings. Documentation only, zero new decisions."
+    }
+  ]
+}
