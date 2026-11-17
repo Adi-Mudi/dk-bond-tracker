@@ -2,6 +2,7 @@ from src.bond_master import snapshot
 from src.bond_master.base import INSTRUMENT_FIELDS, SOURCE_PRIORITY
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.service import BondMasterService
+from src.db import init_db
 
 SNAPSHOT_ISIN = "IN8020B08012"
 
@@ -46,6 +47,7 @@ def test_snapshot_lookup_ignores_an_unknown_isin():
 
 def test_af11_2_fresh_db_snapshot_answers_a_common_isin_offline(tmp_path):
     adapters = {name: OfflineAdapter(name) for name in SOURCE_PRIORITY}
+    init_db(tmp_path / "bonds.db")
     service = BondMasterService(
         adapters,
         BondMasterCache(tmp_path / "bonds.db"),
@@ -61,6 +63,7 @@ def test_af11_2_fresh_db_snapshot_answers_a_common_isin_offline(tmp_path):
 
 def test_snapshot_never_answers_an_isin_it_does_not_hold(tmp_path):
     adapters = {name: OfflineAdapter(name) for name in SOURCE_PRIORITY}
+    init_db(tmp_path / "bonds.db")
     service = BondMasterService(
         adapters,
         BondMasterCache(tmp_path / "bonds.db"),

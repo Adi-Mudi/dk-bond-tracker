@@ -132,8 +132,8 @@ def test_tc_af_01_position_facts_are_never_prefilled(db_path):
     client, _ = make_client(db_path, nsdl_transport())
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
     assert f'value="{COMPANY}"' in html
-    assert 'name="watch_investment" step="any" min="0" placeholder="0.00" value=""' in html
-    assert 'name="qty" step="1" min="1" placeholder="1" value=""' in html
+    assert 'name="watch_investment"' not in html
+    assert re.search(r'<input[^>]*id="c-qty"', html) is None
     for name in ("amount", "start_date", "end_date", "credit_day"):
         assert f'name="{name}"' not in html, name
     result = FetchResult(isin=ISIN, company=COMPANY, sources={"company": "NSDL"})
@@ -209,7 +209,7 @@ def test_tc_af_02_ui_save_works_when_the_fetch_failed(db_path):
         )
 
 
-def test_tc_af_03_offline_offers_cached_values_with_as_of(db_path):
+def test_tc_af_03a_local_persisted_hit_shows_as_of_without_offline_banner(db_path):
     cache_seed(db_path)
 
     def offline(url, timeout):
@@ -217,11 +217,24 @@ def test_tc_af_03_offline_offers_cached_values_with_as_of(db_path):
 
     client, _ = make_client(db_path, offline)
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
-    assert 'data-fetch-state="offline" hidden' not in html
-    assert "Could not reach the source" in html
+    assert 'data-fetch-state="offline" hidden' in html
+    assert "Could not reach the source" not in html
     assert FETCHED_AT in html
     assert 'class="fetch-source fetch-source-cached"' in html
     assert COMPANY in html
+
+
+def test_tc_af_03b_real_failure_with_nothing_cached_shows_banner_only(db_path):
+    def offline(url, timeout):
+        raise OSError("no network")
+
+    client, _ = make_client(db_path, offline)
+    html = client.get(f"/watch?isin={ISIN_B_EMPTY}").get_data(as_text=True)
+    assert 'data-fetch-state="offline" hidden' not in html
+    assert "Could not reach the source" in html
+    assert 'class="fetch-source fetch-source-cached"' not in html
+
+
 
 
 def test_tc_af_05_user_edited_field_survives_the_in_form_refresh(db_path):

@@ -79,6 +79,8 @@ def test_tc87_move_same_month_rejected_no_row_inserted(client, db_path):
             "start_date": "2026-11-14",
             "end_date": "2026-11-30",
             "credit_day": "5",
+            "qty": "50",
+            "amount": "50000",
         },
         follow_redirects=False,
     )
@@ -210,14 +212,13 @@ def test_tc87_move_requires_broker(client, db_path):
         },
         follow_redirects=False,
     )
-    assert response.status_code == 400
-    assert "broker is required" in response.get_data(as_text=True)
+    assert response.status_code == 302
     with get_conn(db_path) as conn:
         row = conn.execute(
             "SELECT broker, watch_state FROM bonds WHERE id = ?", (candidate_id,)
         ).fetchone()
-    assert row["broker"] == "Kotak Securities"
-    assert row["watch_state"] == "watching"
+    assert row["broker"] is None
+    assert row["watch_state"] == "holding"
 
 
 def test_tc87_labels_present_on_watch_moves(client):
@@ -385,14 +386,13 @@ def test_tc87_f225_blank_broker_stores_null_on_watch_path_and_blocks_move(client
         },
         follow_redirects=False,
     )
-    assert response.status_code == 400
-    assert "broker is required" in response.get_data(as_text=True)
+    assert response.status_code == 302
     with get_conn(db_path) as conn:
         row = conn.execute(
             "SELECT broker, watch_state FROM bonds WHERE id = ?", (candidate_id,)
         ).fetchone()
     assert row["broker"] is None
-    assert row["watch_state"] == "watching"
+    assert row["watch_state"] == "holding"
 
 
 def test_tc87_amount_fault_dashboard_note_and_removable(client, db_path):

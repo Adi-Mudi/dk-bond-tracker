@@ -31,6 +31,8 @@ OUTSIDE_GATE = {
     "/payout": "needsBondIdQueryArgument",
     "/gmail/connect": "oauthRedirectNotAScreen",
     "/auth/google/callback": "oauthCallbackRedirectNotAScreen",
+    "/watch/lookup": "isinLookupJsonEndpointNotAScreen",
+    "/watch/months": "monthsReadoutJsonEndpointNotAScreen",
 }
 DECLARED_WIDTHS = (320, 360, 375, 414, 480, 768, 1024, 1440)
 

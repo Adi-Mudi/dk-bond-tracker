@@ -210,7 +210,7 @@
         <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
         <span class="caption" id="c-isin-help" hidden>12 characters, forced uppercase, unique across the register</span>
         <button type="button" class="btn btn-sm" id="c-isin-fetch" data-label-idle="Fetch bond details" data-label-busy="Looking up..." data-label-wait="Try again in 60s">Fetch bond details</button>
-        <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if fetch.state != 'offline' %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
+        <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if not fetch.countdown_active %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
         {% if error_field == 'isin' %}
         <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
         {% endif %}
@@ -292,8 +292,9 @@
           <option value="quarterly"{% if form.get('payout_cycle') == 'quarterly' %} selected{% endif %}>Quarterly</option>
           <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
         </select>
+        <span class="months-readout" id="c-months" data-months-for="add" aria-live="polite"></span>
       </div>
-      <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or form.get('watch_investment') or form.get('qty') or error_field in ['qty', 'watch_investment', 'broker'] %} open{% endif %}>
+      <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or error_field == 'broker' %} open{% endif %}>
         <summary>More details</summary>
         <div class="form-grid">
           <div class="field">
@@ -318,18 +319,6 @@
               {% endfor %}
             </datalist>
           </div>
-          <div class="field">
-            <label for="c-invested">Invested</label>
-            <div class="field-input-suffix"><span class="rupee" aria-hidden="true"></span><input type="number" id="c-invested" name="watch_investment" step="any" min="0" placeholder="0.00" value="{{ form.get('watch_investment', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')"></div>
-          </div>
-          <div class="field">
-            <label for="c-qty">Number of bonds</label>
-            <input type="number" id="c-qty" name="qty" step="1" min="1" placeholder="1" value="{{ form.get('qty', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
-          </div>
-          <div class="field">
-            <label for="c-perbond">Price per bond</label>
-            <input type="text" id="c-perbond" readonly placeholder="0.00">
-          </div>
         </div>
       </details>
       <div class="field span-all" id="company-history" hidden>
@@ -351,18 +340,17 @@
   </form>
 </div>
 
-{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('face_value', 'face_value'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured'), ('listing_status', '')] %}
-{% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'face_value': 'Face value', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured', 'listing_status': 'Listing'} %}
+{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
+{% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured'} %}
 {% set fetch_values = fetch['values'] or {} %}
-{% if fetch.facts %}
-<div class="confirm-dialog fetch-popup" id="fetch-details" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin }}" hidden>
+<div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.popup_facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.popup_facts else '' }}" hidden>
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
     <div class="facts-grid" id="fetch-sources">
       {% for fact, field in fetch_fact_order %}
-      {% if fetch.facts.get(fact) is not none %}
-      {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.facts.get(fact) %}
+      {% if fetch.popup_facts.get(fact) is not none %}
+      {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.popup_facts.get(fact) %}
       <div class="fact" data-fetch-detail="{{ fact }}"{% if field %} data-apply-field="{{ field }}" data-apply-value="{{ detail_value }}"{% endif %}>
         <span class="fact-label">{{ fetch_fact_labels[fact] }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
         <span class="fact-value">{{ detail_value }}</span>
@@ -376,7 +364,6 @@
     </div>
   </div>
 </div>
-{% endif %}
 
 <div class="table-wrap watch-scroll" id="watch-scroll" tabindex="0" role="region" aria-label="Watchlist candidates — scroll horizontally for more columns">
   <table id="watch-list">
@@ -427,15 +414,20 @@
                 <legend>Dates</legend>
                 <div class="move-field">
                   <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
-                  <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
+                  <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required onchange="if(!document.getElementById('move-start-{{ candidate.id }}').value){document.getElementById('move-start-{{ candidate.id }}').value=this.value;}">
                 </div>
                 <div class="move-field">
                   <label for="move-start-{{ candidate.id }}">Interest start date {{ tip("move-start-" ~ candidate.id, "howto", "The day interest starts to build up. Usually the bond's dated date.") }}</label>
-                  <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
+                  <input type="date" id="move-start-{{ candidate.id }}" name="start_date" value="">
                 </div>
+                {% if not candidate.maturity_date %}
                 <div class="move-field">
                   <label for="move-end-{{ candidate.id }}">End date</label>
                   <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
+                </div>
+                {% endif %}
+                <div class="move-field">
+                  <span class="months-readout" id="move-months-{{ candidate.id }}" data-months-for="move" data-purchase="move-purchase-{{ candidate.id }}" data-maturity="{{ candidate.maturity_date or '' }}" data-end="move-end-{{ candidate.id }}" data-cycle="{{ candidate.payout_cycle or '' }}" aria-live="polite"></span>
                 </div>
               </fieldset>
               <fieldset class="move-group">
@@ -454,7 +446,7 @@
                 </div>
                 <div class="move-field">
                   <label for="move-broker-{{ candidate.id }}">Broker</label>
-                  <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
+                  <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}">
                 </div>
               </fieldset>
               <fieldset class="move-group">
@@ -740,7 +732,7 @@
   var dirtyInput = document.getElementById("c-dirty");
   var button = document.getElementById("c-isin-fetch");
   var statesContainer = document.getElementById("c-fetch-states");
-  var popup = document.getElementById("fetch-details");
+  var popup = document.getElementById("fetch-details") || document.getElementById("fetch-details-tpl");
   var fetched = form.getAttribute("data-fetched-isin") || "";
   var dirty = {};
   var FACT_FIELDS = [
@@ -890,7 +882,102 @@
     if (button) {
       button.textContent = button.getAttribute("data-label-busy") || button.textContent;
     }
-    window.location.assign("/watch?" + serialize());
+    fetch("/watch/lookup?" + serialize(), { headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { ok: response.ok, data: data };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok || !result.data || result.data.error) {
+          showState("offline");
+          return;
+        }
+        applyLookupPayload(result.data);
+      })
+      .catch(function () {
+        showState("offline");
+      })
+      .then(function () {
+        if (button) {
+          button.textContent = button.getAttribute("data-label-idle") || button.textContent;
+        }
+      });
+  }
+  var FETCH_FACT_ORDER = [
+    ["company", "company", "Company"],
+    ["coupon", "coupon_pct", "Coupon"],
+    ["maturity", "", "Maturity"],
+    ["rating", "rating", "Rating"],
+    ["rating_agency", "rating_agency", "Rating agency"],
+    ["issuer_type", "issuer_type", "Issuer type"],
+    ["payout_cycle", "payout_cycle", "Payout cycle"],
+    ["secured", "secured", "Secured"]
+  ];
+  function renderFetchRows(payload) {
+    var grid = document.getElementById("fetch-sources");
+    if (!grid) {
+      return;
+    }
+    while (grid.firstChild) {
+      grid.removeChild(grid.firstChild);
+    }
+    var facts = payload.popup_facts || {};
+    var values = payload.values || {};
+    var sources = payload.sources || {};
+    FETCH_FACT_ORDER.forEach(function (entry) {
+      var fact = entry[0];
+      var field = entry[1];
+      if (facts[fact] === undefined || facts[fact] === null) {
+        return;
+      }
+      var detail = field && values[field] !== undefined && values[field] !== null ? values[field] : facts[fact];
+      var row = document.createElement("div");
+      row.className = "fact";
+      row.setAttribute("data-fetch-detail", fact);
+      if (field) {
+        row.setAttribute("data-apply-field", field);
+        row.setAttribute("data-apply-value", String(detail));
+      }
+      var label = document.createElement("span");
+      label.className = "fact-label";
+      label.textContent = entry[2];
+      if (sources[fact]) {
+        var source = document.createElement("span");
+        source.className = "fetch-source";
+        source.setAttribute("data-fetch-source", fact);
+        source.textContent = sources[fact];
+        label.appendChild(source);
+      }
+      var value = document.createElement("span");
+      value.className = "fact-value";
+      value.textContent = String(detail);
+      row.appendChild(label);
+      row.appendChild(value);
+      grid.appendChild(row);
+    });
+  }
+  function applyLookupPayload(payload) {
+    fetched = payload.isin || isinValue();
+    form.setAttribute("data-fetched-isin", fetched);
+    var values = payload.values || {};
+    FACT_FIELDS.forEach(function (entry) {
+      if (dirty[entry[1]] || values[entry[1]] === undefined) {
+        return;
+      }
+      var element = document.getElementById(entry[2]);
+      if (element && values[entry[1]] !== null) {
+        element.value = values[entry[1]];
+      }
+    });
+    showState(payload.state);
+    if (popup && payload.popup_facts && Object.keys(payload.popup_facts).length) {
+      renderFetchRows(payload);
+      popup.id = "fetch-details";
+      popup.setAttribute("data-fetch-isin", fetched);
+      popup.hidden = false;
+      window.openOverlay();
+    }
   }
   form.addEventListener("input", mark);
   form.addEventListener("change", mark);
@@ -913,6 +1000,11 @@
       applyButton.addEventListener("click", function () {
         applyFetchedFacts();
         closePopup();
+        fetch("/watch/lookup/applied", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "fetch" },
+          body: "isin=" + encodeURIComponent(isinValue())
+        });
       });
     }
     if (dismissButton) {
@@ -928,6 +1020,78 @@
       showState("idle");
     }
   }
+})();
+</script>
+<script>
+(function () {
+  var addPurchase = "";
+  var addMaturity = document.getElementById("c-maturity");
+  var addCycle = document.getElementById("c-cycle");
+  var addReadout = document.getElementById("c-months");
+  var moveReadouts = document.querySelectorAll("[data-months-for='move']");
+
+  function show(readout, value) {
+    if (!readout) {
+      return;
+    }
+    readout.textContent = value === null || value === undefined ? "" : value + " months remaining";
+  }
+
+  function fetchMonths(readout, purchase, maturity, cycle) {
+    var query = "purchase=" + encodeURIComponent(purchase || "") +
+      "&maturity=" + encodeURIComponent(maturity || "") +
+      "&cycle=" + encodeURIComponent(cycle || "");
+    fetch("/watch/months?" + query, { headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (data) {
+        show(readout, data ? data.months_remaining : null);
+      })
+      .catch(function () {
+        show(readout, null);
+      });
+  }
+
+  function refreshAdd() {
+    if (!addReadout || !addMaturity || !addCycle) {
+      return;
+    }
+    fetchMonths(addReadout, addPurchase, addMaturity.value, addCycle.value);
+  }
+
+  function refreshMove(readout) {
+    var purchase = document.getElementById(readout.getAttribute("data-purchase"));
+    var end = readout.getAttribute("data-end");
+    var endInput = end ? document.getElementById(end) : null;
+    var maturity = readout.getAttribute("data-maturity") || (endInput ? endInput.value : "");
+    fetchMonths(readout, purchase ? purchase.value : "", maturity, readout.getAttribute("data-cycle"));
+  }
+
+  function refreshAllMove() {
+    moveReadouts.forEach(refreshMove);
+  }
+
+  if (addMaturity) {
+    addMaturity.addEventListener("change", refreshAdd);
+  }
+  if (addCycle) {
+    addCycle.addEventListener("change", refreshAdd);
+  }
+  document.addEventListener("change", function (event) {
+    var target = event.target;
+    if (target && target.id && target.id.indexOf("move-") === 0) {
+      refreshAllMove();
+    }
+  });
+  document.addEventListener("input", function (event) {
+    var target = event.target;
+    if (target && target.id && target.id.indexOf("move-") === 0) {
+      refreshAllMove();
+    }
+  });
+  refreshAdd();
+  refreshAllMove();
 })();
 </script>
 <script>

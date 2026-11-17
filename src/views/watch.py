@@ -31,11 +31,13 @@ from src.bond_master.base import (
 )
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.normalize import is_investment_grade
+from src.bond_master.snapshot import SNAPSHOT_SOURCE
 from src.bond_master.service import build_default_service, primary_source, unmark_isin_deleted
 from src.db import get_conn
 from src.engine import tenure_window
 from src.forms import FACT_BY_FIELD, fetched_form_values
 from src.lock import check_add_allowed
+from src.maturity import months_remaining
 from src.prefs import get_pref, set_pref
 from src.queries import delete_candidate, portfolio_snapshot
 from src.status import month_key
@@ -72,6 +74,7 @@ CUSTOM_AGENCIES_KEY = "watch_custom_agencies"
 CUSTOM_BROKERS_KEY = "watch_custom_brokers"
 
 AUTOFETCH_SESSION_KEY = "watch_autofetch"
+APPLIED_ISIN_SESSION_KEY = "watch_applied_isin"
 BOND_MASTER_TRANSPORT_KEY = "BOND_MASTER_TRANSPORT"
 
 WATCH_FORM_FIELDS = (
@@ -117,6 +120,17 @@ FETCH_STATE_LABELS = {
     FETCH_OFFLINE: "Offline",
     FETCH_DOWNGRADE: "Downgraded",
 }
+ONLINE_FACT_FIELDS = (
+    "company",
+    "coupon",
+    "maturity",
+    "rating",
+    "rating_agency",
+    "issuer_type",
+    "payout_cycle",
+    "secured",
+)
+SNAPSHOT_FACT_FIELDS = ("company", "coupon", "maturity")
 OFFLINE_REACH_FAILURE_CODES = (
     FAILURE_OFFLINE,
     FAILURE_UNREACHABLE,
@@ -146,6 +160,7 @@ def watch_fetch_idle():
         "labels": FETCH_STATE_LABELS,
         "isin": "",
         "facts": {},
+        "popup_facts": {},
         "sources": {},
         "source_names": [],
         "cached": {},
@@ -261,18 +276,26 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
         }
     if state == FETCH_OFFLINE and cached_row:
         asof = str(cached_row.get("fetched_at") or "")
+        facts = {field: cached[field] for field in SNAPSHOT_FACT_FIELDS if field in cached}
+        sources = {field: cached_row.get("source") or SNAPSHOT_SOURCE for field in facts}
     failure_code = result.failure_code if result is not None else None
+    official = any(source != SNAPSHOT_SOURCE for source in sources.values())
+    popup_fields = ONLINE_FACT_FIELDS if official else SNAPSHOT_FACT_FIELDS
+    tier = ("official" if official else "snapshot") if sources else ""
     return {
         "state": state,
         "states": FETCH_STATES,
         "labels": FETCH_STATE_LABELS,
         "isin": result.isin if result is not None else "",
         "facts": facts,
+        "popup_facts": {field: value for field, value in facts.items() if field in popup_fields},
+        "tier": tier,
         "sources": sources,
         "source_names": _source_names(sources),
         "cached": cached,
         "asof": asof,
         "message": fetch_message(state, failure_code),
+        "failure_code": failure_code,
         "values": {},
         "sources_by_field": {},
     }
@@ -325,9 +348,16 @@ def run_autofetch(isin, current, dirty):
         payload = dict(stored["payload"])
     else:
         service = _bond_service()
+        before = _bond_cache().lookup(isin)
         result = service.lookup(isin)
         events = [event for event in service.events() if event.isin == isin]
-        payload = fetch_payload(result, events, cached_row=_bond_cache().lookup(isin))
+        cached_row = _bond_cache().lookup(isin)
+        local_stamp = None
+        if before is not None and result.has_facts() and all(
+            getattr(result, field) == before.get(field) for field in INSTRUMENT_FIELDS
+        ):
+            local_stamp = before.get("fetched_at")
+        payload = fetch_payload(result, events, cached_row=cached_row, fetched_at=local_stamp)
         session[AUTOFETCH_SESSION_KEY] = {"isin": isin, "payload": payload}
         if payload["state"] == FETCH_FOUND:
             record = {"isin": payload["isin"], "source": primary_source(payload["sources"])}
@@ -341,6 +371,9 @@ def run_autofetch(isin, current, dirty):
     payload["sources_by_field"] = sources_by_field
     remaining = _bond_cache().cooldown_remaining()
     payload["countdown_seconds"] = math.ceil(remaining) if remaining > 0 else 60
+    payload["countdown_active"] = bool(
+        payload.get("failure_code") == FAILURE_RATE_LIMITED and remaining > 0
+    )
     edited = {FACT_BY_FIELD[field] for field in dirty if field in FACT_BY_FIELD}
     if edited and payload.get("facts"):
         _bond_cache().mark_edited(payload["isin"], *sorted(edited))
@@ -667,6 +700,16 @@ def watch_list():
     try:
         if request.args.get("isin"):
             form, fetch = autofetch_form(request.args)
+            if fetch and fetch.get("isin") in (session.get(APPLIED_ISIN_SESSION_KEY) or []):
+                fetch = dict(
+                    fetch,
+                    facts={},
+                    popup_facts={},
+                    sources={},
+                    source_names=[],
+                    values={},
+                    sources_by_field={},
+                )
             context = watch_context(
                 db_file, form=form, form_open=True, fetch=fetch
             )
@@ -675,6 +718,41 @@ def watch_list():
     except AppError as exc:
         return error_page(exc.code, exc.message, "Watchlist failed", 500)
     return render_template("watch.html", **context)
+
+
+@bp.route("/watch/lookup", methods=["GET"])
+def watch_lookup():
+    current = request.args
+    isin = str(current.get("isin", "") or "").strip().upper()
+    if not isin or not ISIN_PATTERN.match(isin):
+        return jsonify({"error": "ERR-watch-lookup", "message": "enter a valid ISIN"}), 400
+    try:
+        _, payload = autofetch_form({"isin": isin, "dirty": current.get("dirty", "")})
+    except AppError as exc:
+        return jsonify({"error": exc.code, "message": exc.message}), 500
+    return jsonify(payload)
+
+
+@bp.route("/watch/months", methods=["GET"])
+def watch_months():
+    purchase = str(request.args.get("purchase", "") or "").strip()
+    maturity = str(request.args.get("maturity", "") or "").strip()
+    cycle = str(request.args.get("cycle", "") or "").strip()
+    if not purchase:
+        purchase = date.today().isoformat()
+    return jsonify({"months_remaining": months_remaining(purchase, maturity or None, cycle)})
+
+
+@bp.route("/watch/lookup/applied", methods=["POST"])
+def watch_lookup_applied():
+    isin = str(request.form.get("isin", "") or "").strip().upper()
+    if not isin or not ISIN_PATTERN.match(isin):
+        return jsonify({"error": "ERR-watch-lookup", "message": "enter a valid ISIN"}), 400
+    applied = list(session.get(APPLIED_ISIN_SESSION_KEY) or [])
+    if isin not in applied:
+        applied.append(isin)
+    session[APPLIED_ISIN_SESSION_KEY] = applied
+    return jsonify({"status": "ok", "isin": isin})
 
 
 @bp.route("/watch/refresh", methods=["POST"])
@@ -724,20 +802,11 @@ def watch_move(candidate_id):
                 "ERR-move-watching",
                 f"credit day must be an integer in 1-31: {credit_raw!r}",
             ) from exc
-        start_date, end_date, tenure_months, credit_day = date_range_tenure(
-            form.get("start_date", ""), form.get("end_date", ""), credit_value
-        )
         purchase_date = parse_date_value(form.get("purchase_date", ""), "purchase_date")
-        if tenure_months < 1:
-            raise AppError(
-                "ERR-date-range",
-                f"tenure must span at least one whole month: {tenure_months}",
-            )
+        start_raw = str(form.get("start_date", "") or "").strip() or purchase_date.isoformat()
         quantity = validate_positive_int(form.get("qty", ""), "qty", "ERR-move-watching")
         invested = percent_value(form.get("amount", ""), "amount", "ERR-move-watching")
-        broker = str(form.get("broker", "")).strip()
-        if not broker:
-            raise AppError("ERR-move-watching", "broker is required")
+        broker = str(form.get("broker", "")).strip() or None
         goal_raw = str(form.get("goal_id", "") or "").strip()
         with get_conn(db_file) as conn:
             row = conn.execute(
@@ -751,6 +820,15 @@ def watch_move(candidate_id):
                 raise AppError(
                     "ERR-move-watching",
                     f"already in Portfolio: {row['company']} is {row['watch_state']}",
+                )
+            end_raw = str(form.get("end_date", "") or "").strip() or str(row["maturity_date"] or "").strip()
+            start_date, end_date, tenure_months, credit_day = date_range_tenure(
+                start_raw, end_raw, credit_value
+            )
+            if tenure_months < 1:
+                raise AppError(
+                    "ERR-date-range",
+                    f"tenure must span at least one whole month: {tenure_months}",
                 )
             goal_id = None
             if goal_raw:

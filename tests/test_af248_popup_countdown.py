@@ -110,8 +110,8 @@ def test_tc_af_14_apply_writes_only_instrument_fact_fields(db_path):
 
 def test_tc_af_14_position_facts_stay_empty_in_the_popup_path(db_path):
     html = _af14_found_html(db_path)
-    assert 'name="watch_investment" step="any" min="0" placeholder="0.00" value=""' in html
-    assert 'name="qty" step="1" min="1" placeholder="1" value=""' in html
+    assert 'name="watch_investment"' not in html
+    assert re.search(r'<input[^>]*id="c-qty"', html) is None
     for name in ("amount", "start_date", "end_date", "credit_day"):
         assert f'name="{name}"' not in html, name
 

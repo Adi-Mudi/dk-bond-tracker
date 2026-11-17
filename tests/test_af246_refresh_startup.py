@@ -1,8 +1,13 @@
 import src.app as app_module
 from src.app import create_app
+from src.bond_master.service import AUTO_FETCH_ENABLED_KEY
+from src.db import get_conn
+from src.prefs import set_pref
 
 
 def test_af10_1_app_start_triggers_one_background_auto_refresh(db_path, monkeypatch):
+    with get_conn(db_path) as conn:
+        set_pref(conn, AUTO_FETCH_ENABLED_KEY, "1")
     calls = []
     monkeypatch.setattr(
         app_module,

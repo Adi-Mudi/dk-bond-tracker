@@ -340,6 +340,33 @@
 })();
 </script>
 {% endif %}
+{% if auto_fetch_consent %}
+<div class="update-popup-backdrop" id="auto-fetch-consent" role="dialog" aria-modal="true" aria-labelledby="auto-fetch-consent-title">
+  <div class="update-popup">
+    <div class="zone-title" id="auto-fetch-consent-title">Auto-fetch bond facts?</div>
+    <p>Refresh your watched bonds in the background about every 12 hours. You can change this later in Settings.</p>
+    <div class="update-popup-actions">
+      <button class="btn btn-secondary" type="button" data-auto-fetch-choice="later">Not now</button>
+      <button class="btn btn-primary" type="button" data-auto-fetch-choice="auto">Auto-fetch</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var dialog = document.getElementById("auto-fetch-consent");
+  if (!dialog) return;
+  var buttons = dialog.querySelectorAll("[data-auto-fetch-choice]");
+  Array.prototype.forEach.call(buttons, function (button) {
+    button.addEventListener("click", function () {
+      var body = new URLSearchParams();
+      body.set("choice", button.getAttribute("data-auto-fetch-choice") || "");
+      fetch("/settings/auto-fetch/consent", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString(), credentials: "same-origin" });
+      dialog.hidden = true;
+    });
+  });
+})();
+</script>
+{% endif %}
 <script src="/static/theme.js?v=3"></script>
 <script src="/static/app.js?v=3"></script>
 <script src="/static/guide.js?v=3"></script>

@@ -27,14 +27,30 @@ def offline_builder(calls):
     return _build
 
 
+def recording_builder_counting(calls):
+    def _build(cache, transport):
+        calls.append(1)
+        return BondMasterService(
+            {"NSDL": FactAdapter()}, cache, sleep=lambda _delay: None, throttle_seconds=0.0, retries=0
+        )
+
+    return _build
+
+
+class FactAdapter:
+    def fetch(self, isin):
+        return FetchResult(isin=isin, company="Acme Ltd", sources={"company": "NSDL"})
+
+
 def test_af10_1_auto_refresh_runs_at_most_once_per_twelve_hours(db_path, monkeypatch):
     seed_known_isin(db_path, WATCHLIST_ISIN, "watching")
+    enable_auto_fetch(db_path)
     calls = []
     clock = [1000.0]
     cache = BondMasterCache(db_path, clock=lambda: clock[0])
     monkeypatch.setattr(svc, "_CACHES", {})
     monkeypatch.setattr(svc, "shared_cache", lambda db_path: cache)
-    monkeypatch.setattr(svc, "build_default_service", offline_builder(calls))
+    monkeypatch.setattr(svc, "build_default_service", recording_builder_counting(calls))
     monkeypatch.setattr(svc, "time", SimpleNamespace(time=lambda: clock[0]))
     refresh_all(str(db_path), "auto")
     clock[0] += 61.0
@@ -47,6 +63,7 @@ def test_af10_1_auto_refresh_runs_at_most_once_per_twelve_hours(db_path, monkeyp
 
 def test_fix2_auto_inside_a_cooldown_does_not_record_the_twelve_hour_stamp(db_path, monkeypatch):
     seed_known_isin(db_path, WATCHLIST_ISIN, "watching")
+    enable_auto_fetch(db_path)
     calls = []
     clock = [1000.0]
     cache = BondMasterCache(db_path, clock=lambda: clock[0])
@@ -130,6 +147,13 @@ def recording_builder(adapter):
         )
 
     return _build
+
+
+def enable_auto_fetch(db_path):
+    from src.prefs import set_pref
+
+    with get_conn(db_path) as conn:
+        set_pref(conn, svc.AUTO_FETCH_ENABLED_KEY, "1")
 
 
 def seed_known_isin(db_path, isin, watch_state):
@@ -272,6 +296,7 @@ def test_tc_afr_09_auto_pass_skips_deleted_isin(db_path, monkeypatch):
     from src.bond_master.service import mark_isin_deleted
 
     seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    enable_auto_fetch(db_path)
     with get_conn(db_path) as conn:
         mark_isin_deleted(conn, PORTFOLIO_ISIN)
     monkeypatch.setattr(svc, "_auto_due", lambda _db, _now: True)
@@ -375,6 +400,7 @@ def test_fix1_auto_pass_with_no_isins_does_not_record_the_stamp(db_path, monkeyp
 def test_tc_afr_03_auto_pass_covers_portfolio_and_watchlist_in_one_pass(db_path, monkeypatch):
     seed_known_isin(db_path, WATCHLIST_ISIN, "watching")
     seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    enable_auto_fetch(db_path)
     monkeypatch.setattr(svc, "_auto_due", lambda _db, _now: True)
     adapter = RecordingAdapter()
     cache = BondMasterCache(db_path)
@@ -388,6 +414,7 @@ def test_tc_afr_03_auto_pass_covers_portfolio_and_watchlist_in_one_pass(db_path,
 
 def test_tc_afr_01_first_run_auto_fetch_fires_when_never_stamped(db_path, monkeypatch):
     seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    enable_auto_fetch(db_path)
     adapter = RecordingAdapter()
     cache = BondMasterCache(db_path)
     monkeypatch.setattr(svc, "_CACHES", {})
@@ -400,6 +427,7 @@ def test_tc_afr_01_first_run_auto_fetch_fires_when_never_stamped(db_path, monkey
 
 def test_tc_afr_02_auto_window_blocks_a_run_inside_twelve_hours(db_path, monkeypatch):
     seed_known_isin(db_path, PORTFOLIO_ISIN, "holding")
+    enable_auto_fetch(db_path)
     adapter = RecordingAdapter()
     cache = BondMasterCache(db_path)
     monkeypatch.setattr(svc, "_CACHES", {})
