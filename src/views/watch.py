@@ -37,6 +37,7 @@ from src.db import get_conn
 from src.engine import tenure_window
 from src.forms import FACT_BY_FIELD, fetched_form_values
 from src.lock import check_add_allowed
+from src.maturity import months_remaining
 from src.prefs import get_pref, set_pref
 from src.queries import delete_candidate, portfolio_snapshot
 from src.status import month_key
@@ -730,6 +731,16 @@ def watch_lookup():
     except AppError as exc:
         return jsonify({"error": exc.code, "message": exc.message}), 500
     return jsonify(payload)
+
+
+@bp.route("/watch/months", methods=["GET"])
+def watch_months():
+    purchase = str(request.args.get("purchase", "") or "").strip()
+    maturity = str(request.args.get("maturity", "") or "").strip()
+    cycle = str(request.args.get("cycle", "") or "").strip()
+    if not purchase:
+        purchase = date.today().isoformat()
+    return jsonify({"months_remaining": months_remaining(purchase, maturity or None, cycle)})
 
 
 @bp.route("/watch/lookup/applied", methods=["POST"])

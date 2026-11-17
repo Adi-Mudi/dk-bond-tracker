@@ -292,6 +292,7 @@
           <option value="quarterly"{% if form.get('payout_cycle') == 'quarterly' %} selected{% endif %}>Quarterly</option>
           <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
         </select>
+        <span class="months-readout" id="c-months" data-months-for="add" aria-live="polite"></span>
       </div>
       <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or error_field == 'broker' %} open{% endif %}>
         <summary>More details</summary>
@@ -425,6 +426,9 @@
                   <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
                 </div>
                 {% endif %}
+                <div class="move-field">
+                  <span class="months-readout" id="move-months-{{ candidate.id }}" data-months-for="move" data-purchase="move-purchase-{{ candidate.id }}" data-maturity="{{ candidate.maturity_date or '' }}" data-end="move-end-{{ candidate.id }}" data-cycle="{{ candidate.payout_cycle or '' }}" aria-live="polite"></span>
+                </div>
               </fieldset>
               <fieldset class="move-group">
                 <legend>Amount</legend>
@@ -1016,6 +1020,78 @@
       showState("idle");
     }
   }
+})();
+</script>
+<script>
+(function () {
+  var addPurchase = "";
+  var addMaturity = document.getElementById("c-maturity");
+  var addCycle = document.getElementById("c-cycle");
+  var addReadout = document.getElementById("c-months");
+  var moveReadouts = document.querySelectorAll("[data-months-for='move']");
+
+  function show(readout, value) {
+    if (!readout) {
+      return;
+    }
+    readout.textContent = value === null || value === undefined ? "" : value + " months remaining";
+  }
+
+  function fetchMonths(readout, purchase, maturity, cycle) {
+    var query = "purchase=" + encodeURIComponent(purchase || "") +
+      "&maturity=" + encodeURIComponent(maturity || "") +
+      "&cycle=" + encodeURIComponent(cycle || "");
+    fetch("/watch/months?" + query, { headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.ok ? response.json() : null;
+      })
+      .then(function (data) {
+        show(readout, data ? data.months_remaining : null);
+      })
+      .catch(function () {
+        show(readout, null);
+      });
+  }
+
+  function refreshAdd() {
+    if (!addReadout || !addMaturity || !addCycle) {
+      return;
+    }
+    fetchMonths(addReadout, addPurchase, addMaturity.value, addCycle.value);
+  }
+
+  function refreshMove(readout) {
+    var purchase = document.getElementById(readout.getAttribute("data-purchase"));
+    var end = readout.getAttribute("data-end");
+    var endInput = end ? document.getElementById(end) : null;
+    var maturity = readout.getAttribute("data-maturity") || (endInput ? endInput.value : "");
+    fetchMonths(readout, purchase ? purchase.value : "", maturity, readout.getAttribute("data-cycle"));
+  }
+
+  function refreshAllMove() {
+    moveReadouts.forEach(refreshMove);
+  }
+
+  if (addMaturity) {
+    addMaturity.addEventListener("change", refreshAdd);
+  }
+  if (addCycle) {
+    addCycle.addEventListener("change", refreshAdd);
+  }
+  document.addEventListener("change", function (event) {
+    var target = event.target;
+    if (target && target.id && target.id.indexOf("move-") === 0) {
+      refreshAllMove();
+    }
+  });
+  document.addEventListener("input", function (event) {
+    var target = event.target;
+    if (target && target.id && target.id.indexOf("move-") === 0) {
+      refreshAllMove();
+    }
+  });
+  refreshAdd();
+  refreshAllMove();
 })();
 </script>
 <script>
