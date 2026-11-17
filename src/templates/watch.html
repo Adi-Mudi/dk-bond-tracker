@@ -354,8 +354,7 @@
 {% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('face_value', 'face_value'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured'), ('listing_status', '')] %}
 {% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'face_value': 'Face value', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured', 'listing_status': 'Listing'} %}
 {% set fetch_values = fetch['values'] or {} %}
-{% if fetch.facts %}
-<div class="confirm-dialog fetch-popup" id="fetch-details" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin }}" hidden>
+<div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.facts else '' }}" hidden>
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
@@ -376,7 +375,6 @@
     </div>
   </div>
 </div>
-{% endif %}
 
 <div class="table-wrap watch-scroll" id="watch-scroll" tabindex="0" role="region" aria-label="Watchlist candidates — scroll horizontally for more columns">
   <table id="watch-list">
@@ -740,7 +738,7 @@
   var dirtyInput = document.getElementById("c-dirty");
   var button = document.getElementById("c-isin-fetch");
   var statesContainer = document.getElementById("c-fetch-states");
-  var popup = document.getElementById("fetch-details");
+  var popup = document.getElementById("fetch-details") || document.getElementById("fetch-details-tpl");
   var fetched = form.getAttribute("data-fetched-isin") || "";
   var dirty = {};
   var FACT_FIELDS = [
@@ -890,7 +888,104 @@
     if (button) {
       button.textContent = button.getAttribute("data-label-busy") || button.textContent;
     }
-    window.location.assign("/watch?" + serialize());
+    fetch("/watch/lookup?" + serialize(), { headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { ok: response.ok, data: data };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok || !result.data || result.data.error) {
+          showState("offline");
+          return;
+        }
+        applyLookupPayload(result.data);
+      })
+      .catch(function () {
+        showState("offline");
+      })
+      .then(function () {
+        if (button) {
+          button.textContent = button.getAttribute("data-label-idle") || button.textContent;
+        }
+      });
+  }
+  var FETCH_FACT_ORDER = [
+    ["company", "company", "Company"],
+    ["coupon", "coupon_pct", "Coupon"],
+    ["maturity", "", "Maturity"],
+    ["rating", "rating", "Rating"],
+    ["rating_agency", "rating_agency", "Rating agency"],
+    ["face_value", "face_value", "Face value"],
+    ["issuer_type", "issuer_type", "Issuer type"],
+    ["payout_cycle", "payout_cycle", "Payout cycle"],
+    ["secured", "secured", "Secured"],
+    ["listing_status", "", "Listing"]
+  ];
+  function renderFetchRows(payload) {
+    var grid = document.getElementById("fetch-sources");
+    if (!grid) {
+      return;
+    }
+    while (grid.firstChild) {
+      grid.removeChild(grid.firstChild);
+    }
+    var facts = payload.facts || {};
+    var values = payload.values || {};
+    var sources = payload.sources || {};
+    FETCH_FACT_ORDER.forEach(function (entry) {
+      var fact = entry[0];
+      var field = entry[1];
+      if (facts[fact] === undefined || facts[fact] === null) {
+        return;
+      }
+      var detail = field && values[field] !== undefined && values[field] !== null ? values[field] : facts[fact];
+      var row = document.createElement("div");
+      row.className = "fact";
+      row.setAttribute("data-fetch-detail", fact);
+      if (field) {
+        row.setAttribute("data-apply-field", field);
+        row.setAttribute("data-apply-value", String(detail));
+      }
+      var label = document.createElement("span");
+      label.className = "fact-label";
+      label.textContent = entry[2];
+      if (sources[fact]) {
+        var source = document.createElement("span");
+        source.className = "fetch-source";
+        source.setAttribute("data-fetch-source", fact);
+        source.textContent = sources[fact];
+        label.appendChild(source);
+      }
+      var value = document.createElement("span");
+      value.className = "fact-value";
+      value.textContent = String(detail);
+      row.appendChild(label);
+      row.appendChild(value);
+      grid.appendChild(row);
+    });
+  }
+  function applyLookupPayload(payload) {
+    fetched = payload.isin || isinValue();
+    form.setAttribute("data-fetched-isin", fetched);
+    var values = payload.values || {};
+    FACT_FIELDS.forEach(function (entry) {
+      if (dirty[entry[1]] || values[entry[1]] === undefined) {
+        return;
+      }
+      var element = document.getElementById(entry[2]);
+      if (element && values[entry[1]] !== null) {
+        element.value = values[entry[1]];
+      }
+    });
+    showState(payload.state);
+    if (popup && payload.facts && Object.keys(payload.facts).length) {
+      renderFetchRows(payload);
+      popup.id = "fetch-details";
+      popup.setAttribute("data-fetch-isin", fetched);
+      popup.hidden = false;
+      window.openOverlay();
+    }
   }
   form.addEventListener("input", mark);
   form.addEventListener("change", mark);
@@ -913,6 +1008,11 @@
       applyButton.addEventListener("click", function () {
         applyFetchedFacts();
         closePopup();
+        fetch("/watch/lookup/applied", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "fetch" },
+          body: "isin=" + encodeURIComponent(isinValue())
+        });
       });
     }
     if (dismissButton) {

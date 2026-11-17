@@ -72,6 +72,7 @@ CUSTOM_AGENCIES_KEY = "watch_custom_agencies"
 CUSTOM_BROKERS_KEY = "watch_custom_brokers"
 
 AUTOFETCH_SESSION_KEY = "watch_autofetch"
+APPLIED_ISIN_SESSION_KEY = "watch_applied_isin"
 BOND_MASTER_TRANSPORT_KEY = "BOND_MASTER_TRANSPORT"
 
 WATCH_FORM_FIELDS = (
@@ -667,6 +668,8 @@ def watch_list():
     try:
         if request.args.get("isin"):
             form, fetch = autofetch_form(request.args)
+            if fetch and fetch.get("isin") in (session.get(APPLIED_ISIN_SESSION_KEY) or []):
+                fetch = dict(fetch, facts={}, sources={}, source_names=[], values={}, sources_by_field={})
             context = watch_context(
                 db_file, form=form, form_open=True, fetch=fetch
             )
@@ -675,6 +678,31 @@ def watch_list():
     except AppError as exc:
         return error_page(exc.code, exc.message, "Watchlist failed", 500)
     return render_template("watch.html", **context)
+
+
+@bp.route("/watch/lookup", methods=["GET"])
+def watch_lookup():
+    current = request.args
+    isin = str(current.get("isin", "") or "").strip().upper()
+    if not isin or not ISIN_PATTERN.match(isin):
+        return jsonify({"error": "ERR-watch-lookup", "message": "enter a valid ISIN"}), 400
+    try:
+        _, payload = autofetch_form({"isin": isin, "dirty": current.get("dirty", "")})
+    except AppError as exc:
+        return jsonify({"error": exc.code, "message": exc.message}), 500
+    return jsonify(payload)
+
+
+@bp.route("/watch/lookup/applied", methods=["POST"])
+def watch_lookup_applied():
+    isin = str(request.form.get("isin", "") or "").strip().upper()
+    if not isin or not ISIN_PATTERN.match(isin):
+        return jsonify({"error": "ERR-watch-lookup", "message": "enter a valid ISIN"}), 400
+    applied = list(session.get(APPLIED_ISIN_SESSION_KEY) or [])
+    if isin not in applied:
+        applied.append(isin)
+    session[APPLIED_ISIN_SESSION_KEY] = applied
+    return jsonify({"status": "ok", "isin": isin})
 
 
 @bp.route("/watch/refresh", methods=["POST"])
