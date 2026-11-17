@@ -1,0 +1,151 @@
+{
+  "id": "residuals_psrs_20261118",
+  "kind": "psrs",
+  "title": "Frontend residuals - page upgrades (268), severity bar (264), chip B (266), in-app dialog (D6)",
+  "version": "v1.0",
+  "status": "accepted",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/267",
+  "source_discussions_extra": ["https://github.com/Adi-Mudi/dk-bond-tracker/discussions/263", "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/265", "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/261"],
+  "derived_from": "Rulings posted 2026-11-18 under developer full-access grant: maturity_soon=teal (#263 comment), outlook=Option B chip-only (#265 comment), sweep per locked design (#267 comment); D6 in-app dialog confirmed with the design approval (frontend_component_upgrade_residuals_v1.html locked as 968cd7a). Documentation only, zero new decisions beyond those rulings.",
+  "requirements": [
+    {
+      "id": "RS-01",
+      "text": "The Search page SHALL use the upgraded component set: page-title heading (no body h1), labelled 48px search input per D3, result rows where expected yield is the row's largest number with the D5 rating chip, a 20px non-red status line, and an empty state with heading + one line + one primary action.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "the /search page renders", "when": "inspected", "then": "the heading is a page-title (no body h1 pattern) and the search field is a 48px input with a visible label"},
+        {"given": "a search with results", "when": "rows render", "then": "expected yield is visually the largest number in each row and the rating chip follows the D5 band colours"},
+        {"given": "a search with no matches", "when": "the page renders", "then": "an empty state shows a heading, one line of guidance and one primary button"}
+      ]
+    },
+    {
+      "id": "RS-02",
+      "text": "The portfolio detail page SHALL present the company name as the page title with the ISIN as its muted subtitle, instead of a body h1 carrying the company name.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "a portfolio position detail page", "when": "rendered", "then": "the company name is the page-title and the ISIN appears as the muted subtitle, with no body h1"}
+      ]
+    },
+    {
+      "id": "RS-03",
+      "text": "The monthly print page SHALL load the shared theme.css so its palette matches every other page, while keeping its standalone print layout.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "the monthly print page", "when": "rendered", "then": "theme.css is linked and the page uses the shared tokens (accent, text, border); the print-specific layout structure is unchanged"}
+      ]
+    },
+    {
+      "id": "RS-04",
+      "text": "The swept pages (search, portfolio_detail, monthly_print, payment_edit, payout, grid, share) SHALL use the D4 wording table: legacy strings such as 'Fetch details', 'Est. Yield' and 'Candidates' SHALL NOT appear.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "the seven scoped templates", "when": "grepped", "then": "zero occurrences of the legacy strings 'Fetch details', 'Est. Yield', 'Candidates'"},
+        {"given": "the same templates", "when": "rendered", "then": "D4 wordings appear in their place (Fetch bond details, Expected yield, Watchlist as applicable)"}
+      ]
+    },
+    {
+      "id": "RS-05",
+      "text": "All five alert severities SHALL render a 4px left severity bar: danger=red, due_today=amber, warn=amber, reminder=blue, maturity_soon=teal (light #0f766e on #f0fdfa, dark #5eead4 on #042f2e) via a new .sev-maturity_soon class plus the two teal tokens in theme.css.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "an alert row with severity maturity_soon", "when": "rendered", "then": "it carries a 4px left bar in the teal token colours in both light and dark themes"},
+        {"given": "each of the five emitted severities", "when": "rendered", "then": "each has a distinct documented bar rule; no severity renders bar-less"},
+        {"given": "theme.css", "when": "inspected", "then": "exactly the two teal tokens and one sev-maturity_soon rule were added; no other token changed"}
+      ]
+    },
+    {
+      "id": "RS-06",
+      "text": "The rating chip SHALL show the grade only in the D5 bands (AAA..AA- green, A+..A- blue, BBB+ and below amber, not rated grey, never red) with NO outlook word or arrow markup (Option B ruling, #265).",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "rating chips on any page", "when": "inspected", "then": "only the grade text renders - no outlook arrow characters or outlook spans exist in the templates"},
+        {"given": "each band", "when": "rendered", "then": "band colours match D5 exactly and none uses red"}
+      ]
+    },
+    {
+      "id": "RS-07",
+      "text": "Browser window.confirm() SHALL be replaced by one in-app confirm dialog component (D6 confirmed): title states the action, body states the consequence in one sentence, the right button repeats the verb, Cancel is a text button, destructive actions use the danger fill and ordinary actions the primary fill - identical on web and Android.",
+      "category": "functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "portfolio.html and portfolio_detail.html", "when": "grepped", "then": "zero window.confirm( call sites remain"},
+        {"given": "the user triggers either confirmed action", "when": "the dialog opens", "then": "it shows title=action + one-sentence consequence + verb-labelled primary + Cancel text; dismissing changes nothing"},
+        {"given": "confirming the action", "when": "submitted", "then": "the original action proceeds exactly as with the old confirm() (same request, same result)"}
+      ]
+    },
+    {
+      "id": "RS-08",
+      "text": "Frozen-contract guard: page layout, breakpoints, navigation (bottom tabs) and every existing theme token SHALL remain unchanged; theme.css changes are limited to the RS-05 additions.",
+      "category": "non-functional",
+      "check_method": "integration",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {"given": "the diff of this initiative", "when": "reviewed", "then": "no template layout/nav structure changed and theme.css contains only the two teal tokens plus the sev-maturity_soon rule as additions"}
+      ]
+    }
+  ],
+  "prd_items": [
+    {"id": "RS-01", "area": "search_page", "statement": "Search page gets the upgraded component set with yield-first rows and a real empty state.", "priority": "must", "status": "accepted", "decision_id": "discussion #267 comment 2026-11-18 + locked design 968cd7a"},
+    {"id": "RS-02", "area": "portfolio_detail", "statement": "Portfolio detail uses page-title company + ISIN subtitle instead of a body h1.", "priority": "must", "status": "accepted", "decision_id": "discussion #267 comment 2026-11-18 + design-owner call"},
+    {"id": "RS-03", "area": "monthly_print", "statement": "Monthly print links theme.css; layout stays standalone.", "priority": "must", "status": "accepted", "decision_id": "discussion #267 comment 2026-11-18"},
+    {"id": "RS-04", "area": "wording", "statement": "D4 wording table applied across the seven swept templates; legacy strings removed.", "priority": "must", "status": "accepted", "decision_id": "discussion #261 D4 + #267 comment"},
+    {"id": "RS-05", "area": "alerts", "statement": "Five severity bars including the new teal maturity_soon rule.", "priority": "must", "status": "accepted", "decision_id": "discussion #263 comment (TEAL CONFIRMED 2026-11-18)"},
+    {"id": "RS-06", "area": "rating_chip", "statement": "Chip shows grade only - no outlook arrows (Option B).", "priority": "must", "status": "accepted", "decision_id": "discussion #265 comment (OPTION B CONFIRMED 2026-11-18)"},
+    {"id": "RS-07", "area": "confirm_dialog", "statement": "One in-app confirm dialog replaces both window.confirm() call sites.", "priority": "must", "status": "accepted", "decision_id": "discussion #261 D6 confirmed with design approval 2026-11-18"},
+    {"id": "RS-08", "area": "frozen_contract", "statement": "Layout, nav and existing tokens frozen; theme.css delta limited to RS-05.", "priority": "must", "status": "accepted", "decision_id": "discussion #261 D1 + developer 'current theme design is okay' 2026-11-18"}
+  ],
+  "test_cases": [
+    {"id": "TC-RS-01", "title": "Search page upgraded surface", "type": "integration", "steps": "1. GET /search. 2. Assert page-title + labelled 48px input. 3. Seed results, assert yield-largest + D5 chip. 4. Query with no matches, assert empty state trio.", "expected": "All four assertions hold in light and dark classes", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-02", "title": "Portfolio detail title treatment", "type": "integration", "steps": "1. GET a position detail page. 2. Assert company is page-title, ISIN muted subtitle, no body h1.", "expected": "Title pattern applied, no body h1", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-03", "title": "Print page uses shared theme", "type": "integration", "steps": "1. GET /print (monthly). 2. Assert theme.css link present and token usage; assert print layout markers unchanged.", "expected": "theme.css linked; layout intact", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-04", "title": "Legacy wording removed from seven templates", "type": "integration", "steps": "1. Render/grep each of the seven templates. 2. Assert zero 'Fetch details', 'Est. Yield', 'Candidates'. 3. Assert D4 replacements present where applicable.", "expected": "No legacy strings; D4 strings present", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-05", "title": "Five severity bars incl maturity_soon teal", "type": "integration", "steps": "1. Render one alert per severity. 2. Assert 4px left bar per rule. 3. Assert sev-maturity_soon uses the teal tokens in light AND dark. 4. Assert theme.css delta is exactly 2 tokens + 1 rule.", "expected": "Five of five bared; teal exact; delta exact", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-06", "title": "Rating chip grade-only", "type": "integration", "steps": "1. Render chips across bands. 2. Assert text is grade-only (no arrow/outlook markup). 3. Assert band colours; none red.", "expected": "Grade-only chips, D5 colours", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-07", "title": "In-app dialog replaces both confirms", "type": "integration", "steps": "1. Grep portfolio.html + portfolio_detail.html for window.confirm( -> 0. 2. Trigger each action, assert dialog contents (title, sentence, verb button, Cancel text). 3. Cancel -> no request. 4. Confirm -> same request/result as before.", "expected": "Zero confirms; dialog contract holds; behavior parity", "level": "LOCAL", "status": "planned"},
+    {"id": "TC-RS-08", "title": "Frozen contract guard", "type": "integration", "steps": "1. Diff review + theme.css token diff. 2. Assert only RS-05 additions. 3. Assert nav markup (bottom-tabs) untouched in scoped templates.", "expected": "Delta limited as specified", "level": "LOCAL", "status": "planned"}
+  ],
+  "test_bindings": [
+    {"requirement_id": "RS-01", "test_case_id": "TC-RS-01", "covers": "full"},
+    {"requirement_id": "RS-02", "test_case_id": "TC-RS-02", "covers": "full"},
+    {"requirement_id": "RS-03", "test_case_id": "TC-RS-03", "covers": "full"},
+    {"requirement_id": "RS-04", "test_case_id": "TC-RS-04", "covers": "full"},
+    {"requirement_id": "RS-05", "test_case_id": "TC-RS-05", "covers": "full"},
+    {"requirement_id": "RS-06", "test_case_id": "TC-RS-06", "covers": "full"},
+    {"requirement_id": "RS-07", "test_case_id": "TC-RS-07", "covers": "full"},
+    {"requirement_id": "RS-08", "test_case_id": "TC-RS-08", "covers": "full"},
+    {"test_case_id": "TC-RS-01", "ac_id": "RS-01-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-01", "ac_id": "RS-01-AC2", "covers": "full"},
+    {"test_case_id": "TC-RS-01", "ac_id": "RS-01-AC3", "covers": "full"},
+    {"test_case_id": "TC-RS-02", "ac_id": "RS-02-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-03", "ac_id": "RS-03-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-04", "ac_id": "RS-04-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-04", "ac_id": "RS-04-AC2", "covers": "full"},
+    {"test_case_id": "TC-RS-05", "ac_id": "RS-05-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-05", "ac_id": "RS-05-AC2", "covers": "full"},
+    {"test_case_id": "TC-RS-05", "ac_id": "RS-05-AC3", "covers": "full"},
+    {"test_case_id": "TC-RS-06", "ac_id": "RS-06-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-06", "ac_id": "RS-06-AC2", "covers": "full"},
+    {"test_case_id": "TC-RS-07", "ac_id": "RS-07-AC1", "covers": "full"},
+    {"test_case_id": "TC-RS-07", "ac_id": "RS-07-AC2", "covers": "full"},
+    {"test_case_id": "TC-RS-07", "ac_id": "RS-07-AC3", "covers": "full"},
+    {"test_case_id": "TC-RS-08", "ac_id": "RS-08-AC1", "covers": "full"}
+  ],
+  "carry_over": [],
+  "changelog": [
+    {"version": "v1.0", "date": "2026-11-18", "note": "First suite: RS-01..RS-08 from the three rulings posted today (#263 teal, #265 Option B, #267 sweep scope) plus D6 confirmed with the locked residuals design (968cd7a). 8 requirements, 16 ACs, 8 test cases, full RTM bindings."}
+  ]
+}
