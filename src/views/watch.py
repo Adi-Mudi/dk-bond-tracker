@@ -274,6 +274,7 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
         "cached": cached,
         "asof": asof,
         "message": fetch_message(state, failure_code),
+        "failure_code": failure_code,
         "values": {},
         "sources_by_field": {},
     }
@@ -326,9 +327,16 @@ def run_autofetch(isin, current, dirty):
         payload = dict(stored["payload"])
     else:
         service = _bond_service()
+        before = _bond_cache().lookup(isin)
         result = service.lookup(isin)
         events = [event for event in service.events() if event.isin == isin]
-        payload = fetch_payload(result, events, cached_row=_bond_cache().lookup(isin))
+        cached_row = _bond_cache().lookup(isin)
+        local_stamp = None
+        if before is not None and result.has_facts() and all(
+            getattr(result, field) == before.get(field) for field in INSTRUMENT_FIELDS
+        ):
+            local_stamp = before.get("fetched_at")
+        payload = fetch_payload(result, events, cached_row=cached_row, fetched_at=local_stamp)
         session[AUTOFETCH_SESSION_KEY] = {"isin": isin, "payload": payload}
         if payload["state"] == FETCH_FOUND:
             record = {"isin": payload["isin"], "source": primary_source(payload["sources"])}
@@ -342,6 +350,9 @@ def run_autofetch(isin, current, dirty):
     payload["sources_by_field"] = sources_by_field
     remaining = _bond_cache().cooldown_remaining()
     payload["countdown_seconds"] = math.ceil(remaining) if remaining > 0 else 60
+    payload["countdown_active"] = bool(
+        payload.get("failure_code") == FAILURE_RATE_LIMITED and remaining > 0
+    )
     edited = {FACT_BY_FIELD[field] for field in dirty if field in FACT_BY_FIELD}
     if edited and payload.get("facts"):
         _bond_cache().mark_edited(payload["isin"], *sorted(edited))

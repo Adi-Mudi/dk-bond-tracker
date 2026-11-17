@@ -331,7 +331,24 @@ class BondMasterService:
         cached = self._cached_answer(isin)
         if cached is not None:
             return cached
+        persisted = self._persisted_answer(isin)
+        if persisted is not None:
+            return persisted
         return self._snapshot_answer(isin)
+
+    def _persisted_answer(self, isin):
+        row = self._cache.lookup(isin)
+        if row is None:
+            return None
+        values = {}
+        sources = {}
+        for field in INSTRUMENT_FIELDS:
+            if row.get(field) is not None:
+                values[field] = row[field]
+                sources[field] = row.get("source") or SNAPSHOT_SOURCE
+        if not values:
+            return None
+        return _merged_result(isin, values, sources)
 
     def _snapshot_answer(self, isin):
         seed = snapshot_lookup(isin)
