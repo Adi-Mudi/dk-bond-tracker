@@ -293,7 +293,7 @@
           <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
         </select>
       </div>
-      <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or form.get('watch_investment') or form.get('qty') or error_field in ['qty', 'watch_investment', 'broker'] %} open{% endif %}>
+      <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or error_field == 'broker' %} open{% endif %}>
         <summary>More details</summary>
         <div class="form-grid">
           <div class="field">
@@ -317,18 +317,6 @@
               <option value="{{ broker }}"></option>
               {% endfor %}
             </datalist>
-          </div>
-          <div class="field">
-            <label for="c-invested">Invested</label>
-            <div class="field-input-suffix"><span class="rupee" aria-hidden="true"></span><input type="number" id="c-invested" name="watch_investment" step="any" min="0" placeholder="0.00" value="{{ form.get('watch_investment', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')"></div>
-          </div>
-          <div class="field">
-            <label for="c-qty">Number of bonds</label>
-            <input type="number" id="c-qty" name="qty" step="1" min="1" placeholder="1" value="{{ form.get('qty', '') }}" oninput="perBond('c-invested','c-qty','c-perbond')">
-          </div>
-          <div class="field">
-            <label for="c-perbond">Price per bond</label>
-            <input type="text" id="c-perbond" readonly placeholder="0.00">
           </div>
         </div>
       </details>
@@ -425,16 +413,18 @@
                 <legend>Dates</legend>
                 <div class="move-field">
                   <label for="move-purchase-{{ candidate.id }}">Purchase date</label>
-                  <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required>
+                  <input type="date" id="move-purchase-{{ candidate.id }}" name="purchase_date" required onchange="if(!document.getElementById('move-start-{{ candidate.id }}').value){document.getElementById('move-start-{{ candidate.id }}').value=this.value;}">
                 </div>
                 <div class="move-field">
                   <label for="move-start-{{ candidate.id }}">Interest start date {{ tip("move-start-" ~ candidate.id, "howto", "The day interest starts to build up. Usually the bond's dated date.") }}</label>
-                  <input type="date" id="move-start-{{ candidate.id }}" name="start_date" required>
+                  <input type="date" id="move-start-{{ candidate.id }}" name="start_date" value="">
                 </div>
+                {% if not candidate.maturity_date %}
                 <div class="move-field">
                   <label for="move-end-{{ candidate.id }}">End date</label>
                   <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
                 </div>
+                {% endif %}
               </fieldset>
               <fieldset class="move-group">
                 <legend>Amount</legend>
@@ -452,7 +442,7 @@
                 </div>
                 <div class="move-field">
                   <label for="move-broker-{{ candidate.id }}">Broker</label>
-                  <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}" required>
+                  <input type="text" id="move-broker-{{ candidate.id }}" name="broker" value="{{ candidate.broker or '' }}">
                 </div>
               </fieldset>
               <fieldset class="move-group">

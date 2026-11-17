@@ -84,7 +84,6 @@ def expected_seed_months(start):
 @pytest.mark.parametrize(
     "field,bad_value,named",
     [
-        ("start_date", "", "start_date"),
         ("start_date", "not-a-date", "start_date"),
         ("purchase_date", "", "purchase_date"),
         ("purchase_date", "not-a-date", "purchase_date"),
@@ -97,7 +96,6 @@ def expected_seed_months(start):
         ("amount", "", "amount is required"),
         ("amount", "-5", "amount must not be negative"),
         ("amount", "abc", "amount must be a number"),
-        ("broker", "   ", "broker is required"),
     ],
 )
 def test_fr77_ac1_each_required_field_rejected_with_zero_writes(
@@ -243,7 +241,7 @@ def test_fr77_panel_requires_and_prefills_purchase_fields(client, db_path):
     assert 'name="amount"' in panel_html
     assert 'value="150' in panel_html
     assert 'value="Kotak Securities"' in panel_html
-    assert panel_html.count("required") >= 5
+    assert panel_html.count("required") >= 3
 
 
 @pytest.mark.parametrize("value,expected", [("1", 1), ("100", 100), (5, 5)])

@@ -791,20 +791,11 @@ def watch_move(candidate_id):
                 "ERR-move-watching",
                 f"credit day must be an integer in 1-31: {credit_raw!r}",
             ) from exc
-        start_date, end_date, tenure_months, credit_day = date_range_tenure(
-            form.get("start_date", ""), form.get("end_date", ""), credit_value
-        )
         purchase_date = parse_date_value(form.get("purchase_date", ""), "purchase_date")
-        if tenure_months < 1:
-            raise AppError(
-                "ERR-date-range",
-                f"tenure must span at least one whole month: {tenure_months}",
-            )
+        start_raw = str(form.get("start_date", "") or "").strip() or purchase_date.isoformat()
         quantity = validate_positive_int(form.get("qty", ""), "qty", "ERR-move-watching")
         invested = percent_value(form.get("amount", ""), "amount", "ERR-move-watching")
-        broker = str(form.get("broker", "")).strip()
-        if not broker:
-            raise AppError("ERR-move-watching", "broker is required")
+        broker = str(form.get("broker", "")).strip() or None
         goal_raw = str(form.get("goal_id", "") or "").strip()
         with get_conn(db_file) as conn:
             row = conn.execute(
@@ -818,6 +809,15 @@ def watch_move(candidate_id):
                 raise AppError(
                     "ERR-move-watching",
                     f"already in Portfolio: {row['company']} is {row['watch_state']}",
+                )
+            end_raw = str(form.get("end_date", "") or "").strip() or str(row["maturity_date"] or "").strip()
+            start_date, end_date, tenure_months, credit_day = date_range_tenure(
+                start_raw, end_raw, credit_value
+            )
+            if tenure_months < 1:
+                raise AppError(
+                    "ERR-date-range",
+                    f"tenure must span at least one whole month: {tenure_months}",
                 )
             goal_id = None
             if goal_raw:

@@ -222,10 +222,10 @@ def test_fr78_ac3_move_panel_has_two_labeled_date_fields(client, db_path):
     assert panel, "move panel must render as a hidden row"
     panel_html = panel.group(1)
     assert re.search(
-        r'<input type="date" id="move-purchase-\d+" name="purchase_date" required>', panel_html
+        r'<input type="date" id="move-purchase-\d+" name="purchase_date" required[ >]', panel_html
     )
     assert re.search(
-        r'<input type="date" id="move-start-\d+" name="start_date" required>', panel_html
+        r'<input type="date" id="move-start-\d+" name="start_date" value="">', panel_html
     )
     assert ">Purchase date</label>" in panel_html
     assert ">Interest start date" in panel_html

@@ -147,23 +147,10 @@ def test_fr80_app_js_exposes_guarded_per_bond_helper(client, db_path):
     assert "function perBond" in served
 
 
-def test_fr80_candidate_form_has_readonly_per_bond_output(client, db_path):
+def test_fr80_candidate_form_has_no_per_bond_output(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
-    tag = re.search(r'<input[^>]*id="c-perbond"[^>]*>', html)
-    assert tag, "Add Candidate form must carry a per-bond price output"
-    markup = tag.group(0)
-    assert "readonly" in markup
-    assert "required" not in markup
-    assert 'name="' not in markup
-
-
-def test_fr80_candidate_form_wires_per_bond_oninput(client, db_path):
-    html = client.get("/watch").get_data(as_text=True)
-    wiring = "perBond('c-invested','c-qty','c-perbond')"
-    invested = re.search(r'<input[^>]*id="c-invested"[^>]*>', html).group(0)
-    qty = re.search(r'<input[^>]*id="c-qty"[^>]*>', html).group(0)
-    assert wiring in invested
-    assert wiring in qty
+    assert not re.search(r'<input[^>]*id="c-perbond"', html)
+    assert not re.search(r'<input[^>]*id="c-invested"', html)
 
 
 def test_fr80_move_panel_has_readonly_per_bond_output_and_wiring(client, db_path):

@@ -103,20 +103,10 @@ def test_fr79_ac1_candidate_bad_qty_rejected_with_zero_writes(client, db_path, b
         assert bond_count(conn) == 0
 
 
-def test_fr79_candidate_form_has_optional_qty_field(client, db_path):
+def test_fr79_candidate_form_has_no_qty_field(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
-    assert "Number of bonds" in html
-    tag = re.search(r'<input[^>]*id="c-qty"[^>]*>', html)
-    assert tag, "Add Candidate form must carry a qty input"
-    assert 'name="qty"' in tag.group(0)
-    assert "required" not in tag.group(0)
-
-
-def test_fr79_candidate_form_retains_qty_on_error_render(client, db_path):
-    response = client.post("/watch", data=candidate_form(company="", qty="200"))
-    assert response.status_code == 400
-    html = response.get_data(as_text=True)
-    assert re.search(r'<input[^>]*id="c-qty"[^>]*value="200"', html)
+    assert "Number of bonds" not in html
+    assert not re.search(r'<input[^>]*id="c-qty"', html)
 
 
 def test_fr79_ac3_move_without_qty_rejected_with_zero_writes(client, db_path):
