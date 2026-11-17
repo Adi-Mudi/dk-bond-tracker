@@ -21,6 +21,7 @@ from src.bond_master.base import (
     FAILURE_MALFORMED,
     FAILURE_NOT_FOUND,
     FAILURE_OFFLINE,
+    FAILURE_OK,
     FAILURE_PARSE_ERROR,
     FAILURE_RATE_LIMITED,
     FAILURE_TIMEOUT,
@@ -28,6 +29,7 @@ from src.bond_master.base import (
     INSTRUMENT_FIELDS,
     POSITION_FIELDS,
     SOURCE_PRIORITY,
+    FetchResult,
 )
 from src.bond_master.cache import BondMasterCache
 from src.bond_master.normalize import is_investment_grade
@@ -299,6 +301,70 @@ def fetch_payload(result, events=(), cached_row=None, fetched_at=None):
         "values": {},
         "sources_by_field": {},
     }
+
+
+def refresh_failure_code(summary):
+    codes = {entry.get("failure_code") for entry in (summary or {}).values()}
+    codes.discard(None)
+    if not codes or FAILURE_OK in codes:
+        return None
+    if codes <= set(OFFLINE_REACH_FAILURE_CODES):
+        return FAILURE_OFFLINE
+    if codes & set(OFFLINE_BLOCKED_FAILURE_CODES):
+        return FAILURE_BLOCKED
+    return None
+
+
+def _single_known_isin(db_file):
+    with get_conn(db_file) as conn:
+        rows = conn.execute(
+            "SELECT isin FROM bond_master WHERE isin IS NOT NULL "
+            "UNION SELECT isin FROM bonds WHERE isin IS NOT NULL"
+        ).fetchall()
+    isins = sorted(
+        {
+            str(row["isin"]).strip().upper()
+            for row in rows
+            if str(row["isin"] or "").strip()
+        }
+    )
+    return isins[0] if len(isins) == 1 else ""
+
+
+def refresh_target_isin(db_file, requested):
+    candidate = str(requested or "").strip().upper()
+    if candidate and ISIN_PATTERN.match(candidate):
+        return candidate
+    stored = session.get(AUTOFETCH_SESSION_KEY) or {}
+    viewed = str(stored.get("isin") or "").strip().upper()
+    if viewed and ISIN_PATTERN.match(viewed):
+        return viewed
+    return _single_known_isin(db_file)
+
+
+def refresh_fetch_payload(isin, failure_code):
+    row = _bond_cache().lookup(isin)
+    payload = fetch_payload(
+        FetchResult(isin=isin, failure_code=failure_code), cached_row=row
+    )
+    if row is None:
+        return payload
+    facts = {
+        field: row.get(field)
+        for field in INSTRUMENT_FIELDS
+        if row.get(field) is not None
+    }
+    source = row.get("source") or SNAPSHOT_SOURCE
+    official = source != SNAPSHOT_SOURCE
+    popup_fields = ONLINE_FACT_FIELDS if official else SNAPSHOT_FACT_FIELDS
+    payload["facts"] = facts
+    payload["popup_facts"] = {
+        field: facts[field] for field in popup_fields if field in facts
+    }
+    payload["sources"] = {field: source for field in facts}
+    payload["source_names"] = _source_names(payload["sources"])
+    payload["tier"] = "official" if official else "snapshot"
+    return payload
 
 
 def dirty_fields(raw):
@@ -779,14 +845,18 @@ def watch_refresh():
         trigger="manual",
         transport=current_app.config.get(BOND_MASTER_TRANSPORT_KEY),
     )
-    return jsonify(
-        {
-            "trigger": "manual",
-            "status": "refreshed",
-            "summary": summary,
-            "message": "Bond master refresh finished",
-        }
-    )
+    payload = {
+        "trigger": "manual",
+        "status": "refreshed",
+        "summary": summary,
+        "message": "Bond master refresh finished",
+    }
+    isin = refresh_target_isin(db_file, request.values.get("isin"))
+    failure_code = refresh_failure_code(summary)
+    if isin and failure_code is not None:
+        payload["fetch"] = refresh_fetch_payload(isin, failure_code)
+        payload["message"] = payload["fetch"]["message"]
+    return jsonify(payload)
 
 
 @bp.route("/watch/<int:candidate_id>/move", methods=["POST"])
