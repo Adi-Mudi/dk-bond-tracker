@@ -957,6 +957,61 @@
       grid.appendChild(row);
     });
   }
+  function renderPopupCaption(payload) {
+    var asof = document.getElementById("fetch-details-asof");
+    if (!asof) {
+      return;
+    }
+    var text = "As of " + (payload.asof || "");
+    if (payload.source_names && payload.source_names.length) {
+      text += " \u00b7 " + payload.source_names.join(", ");
+    }
+    asof.textContent = text;
+  }
+  function paintOfflineBanner(payload) {
+    var banner = form.querySelector("[data-fetch-state='offline']");
+    if (!banner) {
+      return;
+    }
+    banner.textContent = "\u26a0";
+    if (payload.message) {
+      banner.appendChild(document.createTextNode(" " + payload.message + " "));
+    }
+    if (payload.asof) {
+      banner.appendChild(document.createTextNode("Last known data: " + payload.asof + " \u00b7 "));
+    }
+    banner.appendChild(document.createTextNode("Nothing is blocked \u2014 you can add the bond manually."));
+    var cached = payload.cached || {};
+    Object.keys(cached).forEach(function (field) {
+      if (cached[field] === null || cached[field] === undefined) {
+        return;
+      }
+      var chip = document.createElement("span");
+      chip.className = "fetch-source fetch-source-cached";
+      chip.setAttribute("data-fetch-cached", field);
+      chip.textContent = field + ": " + cached[field] + (payload.asof ? " \u00b7 " + payload.asof : "");
+      banner.appendChild(document.createTextNode(" "));
+      banner.appendChild(chip);
+    });
+  }
+  window.renderWatchRefreshFetch = function (payload) {
+    if (!payload || payload.state !== "offline") {
+      return;
+    }
+    if (!payload.isin || payload.isin !== isinValue()) {
+      return;
+    }
+    paintOfflineBanner(payload);
+    if (popup && payload.popup_facts && Object.keys(payload.popup_facts).length) {
+      renderFetchRows(payload);
+      renderPopupCaption(payload);
+      popup.id = "fetch-details";
+      popup.setAttribute("data-fetch-isin", payload.isin);
+      popup.hidden = false;
+      window.openOverlay();
+    }
+    showState("offline");
+  };
   function applyLookupPayload(payload) {
     fetched = payload.isin || isinValue();
     form.setAttribute("data-fetched-isin", fetched);
@@ -1101,15 +1156,31 @@
   if (!button) {
     return;
   }
+  function viewedIsin() {
+    var input = document.getElementById("c-isin");
+    if (!input) {
+      return "";
+    }
+    var value = String(input.value || "").trim().toUpperCase();
+    return /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(value) ? value : "";
+  }
   button.addEventListener("click", function () {
     button.disabled = true;
-    fetch("/watch/refresh", { method: "POST", headers: { "X-Requested-With": "fetch" } })
+    var isin = viewedIsin();
+    fetch("/watch/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "fetch" },
+      body: isin ? "isin=" + encodeURIComponent(isin) : ""
+    })
       .then(function (response) {
         return response.json().then(function (data) {
           return { data: data };
         });
       })
       .then(function (result) {
+        if (result.data && result.data.fetch && window.renderWatchRefreshFetch) {
+          window.renderWatchRefreshFetch(result.data.fetch);
+        }
         if (status) {
           status.textContent = (result.data && result.data.message) || "";
         }
