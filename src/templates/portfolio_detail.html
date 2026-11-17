@@ -7,9 +7,11 @@
 <div class="detail-page" id="detail-page" data-company="{{ detail.company }}">
   <div class="detail-head">
     <a class="back-link" id="detail-back" href="/portfolio?tab=holdings">&#8592; Portfolio</a>
-    <h1>{{ detail.company }}</h1>
+    <div class="detail-title">
+      <div class="page-title">{{ detail.company }}</div>
+      {% if detail.isin %}<span class="co-isin">{{ detail.isin }}</span>{% endif %}
+    </div>
     <span class="chip chip-{{ detail.status|lower|replace('-', '') }}" data-status="{{ detail.status }}">{{ detail.status }}</span>
-    {% if detail.isin %}<span class="co-isin">{{ detail.isin }}</span>{% endif %}
   </div>
 
   <div class="detail-tabs" id="detail-tabs" role="tablist">

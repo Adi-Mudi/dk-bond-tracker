@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, render_template, request
 
+from src.bond_master.normalize import rating_band
 from src.db import get_conn
 from src.views.common import app_db
 
@@ -13,6 +14,17 @@ CHIP_CLASS = {
 }
 
 
+def rating_chip_class(rating):
+    band = rating_band(rating)
+    if band is None:
+        return "chip-rating-none"
+    if band in ("AAA", "AA"):
+        return "chip-rating-aaa"
+    if band == "A":
+        return "chip-rating-a"
+    return "chip-rating-amber"
+
+
 def _pattern(query):
     return f"%{query}%"
 
@@ -23,7 +35,7 @@ def search_groups(conn, query):
     pattern = _pattern(query)
     groups = []
     holdings = conn.execute(
-        "SELECT id, company, isin, status FROM bonds "
+        "SELECT id, company, isin, status, rating, expected_yield_pct FROM bonds "
         "WHERE watch_state = 'holding' AND (company LIKE ? OR isin LIKE ?) "
         "ORDER BY company COLLATE NOCASE, id",
         (pattern, pattern),
@@ -40,6 +52,9 @@ def search_groups(conn, query):
                         "isin": row["isin"] or "",
                         "chip": row["status"] or "On-going",
                         "chip_class": CHIP_CLASS.get(row["status"] or "", "chip-watching"),
+                        "rating": row["rating"] or "Not rated",
+                        "rating_chip_class": rating_chip_class(row["rating"]),
+                        "expected_yield_pct": row["expected_yield_pct"],
                         "href": f"/portfolio/{row['id']}",
                     }
                     for row in holdings
@@ -47,7 +62,7 @@ def search_groups(conn, query):
             }
         )
     watching = conn.execute(
-        "SELECT id, company, isin, rating FROM bonds "
+        "SELECT id, company, isin, rating, expected_yield_pct FROM bonds "
         "WHERE watch_state = 'watching' AND (company LIKE ? OR isin LIKE ?) "
         "ORDER BY company COLLATE NOCASE, id",
         (pattern, pattern),
@@ -64,6 +79,9 @@ def search_groups(conn, query):
                         "isin": row["isin"] or "",
                         "chip": "Watching",
                         "chip_class": "chip-watching",
+                        "rating": row["rating"] or "Not rated",
+                        "rating_chip_class": rating_chip_class(row["rating"]),
+                        "expected_yield_pct": row["expected_yield_pct"],
                         "href": f"/watch#candidate-{row['id']}",
                     }
                     for row in watching
