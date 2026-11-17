@@ -1,0 +1,59 @@
+{
+  "doc": "waydroid_headless_runbook",
+  "date": "2026-11-18",
+  "purpose": "Permanent playbook for the recurring Waydroid problems on this machine (session dies, container FROZEN, adb dead, run-as broken). Community-checked + locally verified. Never re-diagnose from scratch.",
+  "verified_commands": {
+    "1_session_lives_only_with_its_starter": {
+      "symptom": "waydroid session start prints 'Android with user 0 is ready', returns to prompt, and the session STOPPED again within seconds when run in a normal foreground command/chain",
+      "community_status": "waydroid has no systemd session unit; session lifetime is tied to the starting process (no upstream launcher found; searches for session/systemd returned no official unit)",
+      "permanent_fix_verified": "START DETACHED - nohup waydroid session start >/tmp/waydroid-session.log 2>&1 &   (developer-verified 2026-11-18; kept RUNNING through the whole v1.0.11 device test)",
+      "boot_permanence": "OPTIONAL (needs your approval, writes outside the project): ~/.config/systemd/user/waydroid-session.service with ExecStart=/usr/bin/waydroid session start, then systemctl --user enable --now waydroid-session - survives login",
+      "never": "do not run session start inside a command chain or a terminal you close"
+    },
+    "2_container_frozen_adb_hangs": {
+      "symptom": "waydroid status shows Session: RUNNING, Container: FROZEN; adb commands hang or time out",
+      "community": [
+        "waydroid/waydroid#2256 'Blackscreen & FROZEN state' (closed per-machine, no universal fix)",
+        "waydroid/waydroid#2447 'image freezes when its window loses focus' (OPEN - focus/idle triggers freeze)",
+        "project precedent: android/device_smoke.sh already wraps itself in systemd-inhibit --what=idle and dismisses lock screens - same root cause"
+      ],
+      "prevention_verified": "systemd-inhibit --what=idle --mode=block --why=dkbt-test sleep 1800 &   (developer-run, held the whole v1.0.11 test)",
+      "recovery_verified": "sudo lxc-unfreeze -P /var/lib/waydroid/lxc -n waydroid   (developer-run; immediate thaw)",
+      "adb_rescue_after_thaw": "adb disconnect 192.168.240.112:5555; adb connect 192.168.240.112:5555  (stale transport shows 'device offline')",
+      "anti_idle_on_device": "adb shell svc power stayon true  (set once per test session)"
+    },
+    "3_no_route_to_host": {
+      "symptom": "adb connect fails 'No route to host' right after session start",
+      "root_cause_local": "race - waydroid-net.sh starts AFTER 'ready' (waydroid log shows net start timestamp)",
+      "fix_verified": "wait until ping -c2 192.168.240.112 passes, then adb connect (retry once); L3 was fine 100% of the time after ~5s"
+    },
+    "4_run_as_broken": {
+      "symptom": "adb shell run-as <pkg> -> 'run-as: setegid(AID_PACKAGE_INFO) failed: Operation not permitted'",
+      "community": "waydroid/waydroid#1467 - OPEN since waydroid 1.4.2, NO upstream fix (known platform gap)",
+      "permanent_workaround_verified": "sudo waydroid shell -- sh -c '<command as root Android shell>'   - works for app-private data (used for the v1.0.11 migration backup: tar of /data/data/com.dkbondtracker.app)",
+      "adb_root": "unavailable on this build (userdebug adbd lacks root) - do not retry"
+    },
+    "5_release_install_signature": {
+      "symptom": "INSTALL_FAILED_UPDATE_INCOMPATIBLE when installing a release APK over a gradlew debug build",
+      "permanent_rule": "per RELEASING.md: debug-era installs need migration (export -> uninstall -> install -> restore); headless path = sudo waydroid shell tar backup of /data/data/<pkg> before uninstall (backup-only was developer-approved 2026-11-18)",
+      "verify_after": "adb shell dumpsys package com.dkbondtracker.app | grep -E 'versionName|versionCode='"
+    }
+  },
+  "headless_smoke_recipe": {
+    "pre": ["session detached + idle-inhibit active", "adb connect && adb shell svc power stayon true"],
+    "checks": [
+      "adb logcat -c; adb shell am start -n com.dkbondtracker.app/.MainActivity; sleep ~15 (Chaquopy first boot)",
+      "adb shell uiautomator dump -> look for Dashboard text + auto-fetch-consent (fresh install = model-B consent, ILF-12)",
+      "adb logcat -d | grep -E 'FATAL|ANR in com.dkbondtracker' -> must be empty",
+      "python.stdout 'DKBT serving http://127.0.0.1:5000/' in logcat = backend up",
+      "state reset between runs: adb shell pm clear com.dkbondtracker.app (Q8; sudo waydroid shell fallback if shell uid denied)"
+    ],
+    "evidence_home": "android/evidence/v111/device_test_report.json (pattern: ui_first_boot.xml + logcat excerpt + JSON report)",
+    "gui_script_note": "android/device_smoke.sh is GUI-driven (ydotool/dbus/lock-dismiss) - DO NOT use when the developer's workflow must not be disturbed; use this adb recipe instead"
+  },
+  "citations": [
+    "https://github.com/waydroid/waydroid/issues/1467",
+    "https://github.com/waydroid/waydroid/issues/2256",
+    "https://github.com/waydroid/waydroid/issues/2447"
+  ]
+}
