@@ -143,6 +143,17 @@ def shared_cache(db_path):
 
 AUTO_WINDOW_SECONDS = 12 * 60 * 60
 LAST_AUTO_FETCH_KEY = "last_auto_fetch"
+LAST_REAL_PASS_KEY = "last_real_pass"
+AUTO_FETCH_ENABLED_KEY = "auto_fetch_enabled"
+AUTO_FETCH_PROMPTED_KEY = "auto_fetch_prompted"
+
+
+def auto_fetch_enabled(db_path):
+    from ..db import get_conn
+    from ..prefs import get_pref
+
+    with get_conn(db_path) as conn:
+        return get_pref(conn, AUTO_FETCH_ENABLED_KEY, "0") == "1"
 
 
 def _auto_due(db_path, now):
@@ -161,7 +172,7 @@ def _auto_due(db_path, now):
 
 
 def auto_refresh_due(db_path, now):
-    return _auto_due(db_path, now)
+    return auto_fetch_enabled(db_path) and _auto_due(db_path, now)
 
 
 def _record_auto_fetch(db_path, now):
@@ -170,6 +181,28 @@ def _record_auto_fetch(db_path, now):
 
     with get_conn(db_path) as conn:
         set_pref(conn, LAST_AUTO_FETCH_KEY, repr(now))
+
+
+def _record_real_pass(db_path, now):
+    from ..db import get_conn
+    from ..prefs import set_pref
+
+    with get_conn(db_path) as conn:
+        set_pref(conn, LAST_REAL_PASS_KEY, repr(now))
+
+
+def last_real_pass(db_path):
+    from ..db import get_conn
+    from ..prefs import get_pref
+
+    with get_conn(db_path) as conn:
+        stamp = get_pref(conn, LAST_REAL_PASS_KEY)
+    if stamp is None:
+        return None
+    try:
+        return float(stamp)
+    except (TypeError, ValueError):
+        return None
 
 
 DELETED_ISINS_KEY = "deleted_isins"
@@ -497,19 +530,26 @@ def refresh_all(db_path, trigger="manual", transport=None):
         cache = shared_cache(db_path)
         if not cache.refresh_allowed():
             return _summary(None, cache)
+        if trigger == "auto" and not auto_fetch_enabled(db_path):
+            return _summary(None, cache)
         if trigger == "auto" and not _auto_due(db_path, time.time()):
             return _summary(None, cache)
         isins = _known_isins(db_path)
         if trigger == "auto" and not isins:
             return _summary(None, cache)
         cache.begin_refresh()
-        if trigger == "auto":
-            _record_auto_fetch(db_path, time.time())
         service = build_default_service(cache, transport)
+        got_facts = False
         for isin in isins:
             result = service.refresh(isin)
             if result is not None and result.has_facts():
                 cache.save(_bond_record(result))
+                got_facts = True
+        if got_facts:
+            now = time.time()
+            _record_real_pass(db_path, now)
+            if trigger == "auto":
+                _record_auto_fetch(db_path, now)
         return _summary(service, cache)
     except Exception:
         try:

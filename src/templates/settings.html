@@ -209,6 +209,11 @@
           <h2>Data</h2>
           <p>Start empty: no data imported.</p>
           <p class="caption">Exports: CSV ledger, share snapshot and print view are read-only extracts of your own database.</p>
+          <label class="check-row" for="auto-fetch-enabled"><input type="checkbox" id="auto-fetch-enabled" name="auto_fetch_enabled" value="1"{% if prefs.get('auto_fetch_enabled') == '1' %} checked{% endif %}> Auto-fetch bond facts about every 12 hours</label>
+          <p class="caption" id="auto-fetch-last-synced">Last synced: {{ last_synced }}</p>
+          <form method="post" action="/settings/auto-fetch/sync" id="auto-fetch-sync-form">
+            <button class="btn" type="submit" id="auto-fetch-sync">Sync now</button>
+          </form>
         </div>
         <div class="card" id="import-restore-card">
           <h2>Backup and restore</h2>

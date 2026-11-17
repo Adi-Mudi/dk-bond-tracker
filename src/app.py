@@ -15,7 +15,7 @@ from werkzeug.exceptions import HTTPException
 
 from src.alerts import daily_sweep
 from src.bond_master import snapshot
-from src.bond_master.service import auto_refresh_due, refresh_all, shared_cache
+from src.bond_master.service import AUTO_FETCH_PROMPTED_KEY, auto_refresh_due, refresh_all, shared_cache
 from src.bond_master.transport import http_get
 from src.db import get_conn, init_db
 from src.mailer import send_alert_email
@@ -243,6 +243,15 @@ def create_app(db_path=None):
         with get_conn(db_file_path) as conn:
             popup = update_popup_state(conn, dismissed=app.config.get("UPDATE_POPUP_DISMISSED", False))
         return {"update_popup": popup}
+
+    @app.context_processor
+    def inject_auto_fetch_consent():
+        db_file_path = Path(app.config["DB_PATH"])
+        if not db_file_path.exists():
+            return {"auto_fetch_consent": False}
+        with get_conn(db_file_path) as conn:
+            prompted = get_pref(conn, AUTO_FETCH_PROMPTED_KEY)
+        return {"auto_fetch_consent": prompted is None}
 
     @app.context_processor
     def inject_header_alerts():

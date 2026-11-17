@@ -1,9 +1,15 @@
 import sys
 
-from datetime import date
+from datetime import date, datetime
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 
+from src.bond_master.service import (
+    AUTO_FETCH_ENABLED_KEY,
+    AUTO_FETCH_PROMPTED_KEY,
+    last_real_pass,
+    refresh_all,
+)
 from src.db import get_conn
 from src.import_csv import MAX_IMPORT_BYTES, import_backup_csv
 from src.mailer import send_alert_email
@@ -26,6 +32,12 @@ SECTIONS = ("general", "notifications", "share", "data")
 def active_section(raw):
     key = str(raw or "").strip().lower()
     return key if key in SECTIONS else "general"
+
+
+def format_last_real_pass(stamp):
+    if stamp is None:
+        return "Never"
+    return datetime.fromtimestamp(stamp).strftime("%Y-%m-%d %H:%M")
 
 
 def settings_from_form(form):
@@ -66,6 +78,7 @@ def settings_from_form(form):
         "share_section_goals": "1" if form.get("share_goals") in checked else "0",
         "alert_channel_inapp": "1" if form.get("alert_inapp") in checked else "0",
         "alert_channel_email": "1" if form.get("alert_email") in checked else "0",
+        "auto_fetch_enabled": "1" if form.get("auto_fetch_enabled") in checked else "0",
     }
 
 
@@ -108,6 +121,7 @@ def settings_page():
         data_dir=str(db_file.parent),
         active=active_section(request.args.get("section")),
         saved=request.args.get("saved") == "1",
+        last_synced=format_last_real_pass(last_real_pass(db_file)),
     )
 
 
@@ -139,6 +153,25 @@ def settings_import():
             "so they were not restored. Download a fresh full backup now that the app is current.",
             "warning",
         )
+    return redirect(url_for("settings.settings_page", section="data"))
+
+
+@bp.route("/settings/auto-fetch/consent", methods=["POST"])
+def settings_auto_fetch_consent():
+    choice = str(request.form.get("choice", "")).strip()
+    if choice not in ("auto", "later"):
+        return jsonify({"status": "failure"}), 400
+    db_file = app_db()
+    with get_conn(db_file) as conn:
+        set_pref(conn, AUTO_FETCH_PROMPTED_KEY, "1")
+        set_pref(conn, AUTO_FETCH_ENABLED_KEY, "1" if choice == "auto" else "0")
+    return jsonify({"status": "success"})
+
+
+@bp.route("/settings/auto-fetch/sync", methods=["POST"])
+def settings_auto_fetch_sync():
+    db_file = app_db()
+    refresh_all(str(db_file), trigger="manual", transport=current_app.config.get("BOND_MASTER_TRANSPORT"))
     return redirect(url_for("settings.settings_page", section="data"))
 
 
