@@ -28,6 +28,15 @@
     {"check": "anti-idle during test", "result": "PASS", "evidence": "adb shell svc power stayon true applied before checks"}
   ],
   "artifacts": ["ui_first_boot.xml", "logcat_boot_excerpt.txt", "sha256 DK-Bond-Tracker-1.0.11.apk = 5e139ec8e443bc4ad845d5402f1f65809616610bdccdbdfbe6068c64b29e5a39"],
+  "real_isin_lookup_on_device": {
+    "method": "adb forward tcp:51500 tcp:5000 -> curl the app's Flask directly (no UI)",
+    "results": [
+      {"isin": "INE002Z08143", "expect": "local snapshot answer", "http": 200, "elapsed_ms": 149, "facts": {"company": "WELSPUN AUNTA-SIMARIA PROJECT PRIVATE LIMITED", "maturity": "2028-09-30"}, "failure_code": "OK", "countdown_active": false, "sources": "india-isin-data (CC0) per-field labels"},
+      {"isin": "INE00AI18016", "http": 200, "facts": {"company": "PHOENIX TRUST FY - 18 - 11", "maturity": "2028-03-27"}},
+      {"endpoint": "/watch/months?purchase=2026-11-18&maturity=2028-09-30&cycle=quarterly", "http": 200, "months_remaining": 7, "matches_host_engine": true},
+      {"isin": "NOTANISIN", "http": 400, "note": "validation guard intact"}
+    ]
+  },
   "known_environment_issues_recorded": [
     "container auto-FROZEN on host idle -> adb hangs (fixed during test via developer-run systemd-inhibit + lxc-unfreeze)",
     "waydroid session dies when the starting terminal exits (fixed via nohup detach)",
