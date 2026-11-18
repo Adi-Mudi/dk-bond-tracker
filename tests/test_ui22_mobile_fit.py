@@ -81,10 +81,14 @@ def test_payment_toggle_rows_are_tall_enough_to_tap():
     rules = rules_of(text)
     row = body_for(rules, ".field .checkbox-line")
     assert row is not None
-    assert min_height_rem(row) >= 2.0
-    box = body_for(rules, '.field input[type="checkbox"]')
+    assert min_height_rem(row) >= 3.0
+    theme = rules_of((STATIC / "theme.css").read_text(encoding="utf-8"))
+    box = body_for(theme, '.field input[type="checkbox"]')
     assert box is not None
-    assert "width: 1.25rem" in box and "height: 1.25rem" in box
+    assert "width: 3rem" in box and "height: 3rem" in box
+    visual = body_for(theme, '.field input[type="checkbox"]::before')
+    assert visual is not None
+    assert "width: 1.25rem" in visual and "height: 1.25rem" in visual
 
 
 def test_guard_detects_missing_min_height():
@@ -96,17 +100,24 @@ def test_settings_checkbox_rows_are_tall_enough_to_tap():
     rules = rules_of((STATIC / "theme.css").read_text(encoding="utf-8"))
     row = body_for(rules, ".check-row")
     assert row is not None
-    assert min_height_rem(row) >= 2.0
-    box = body_for(rules, ".check-row input")
+    assert min_height_rem(row) >= 3.0
+    box = body_for(rules, '.check-row input[type="checkbox"]')
     assert box is not None
-    assert "width: 1.25rem" in box and "height: 1.25rem" in box
+    assert "width: 3rem" in box and "height: 3rem" in box
+    visual = body_for(rules, '.check-row input[type="checkbox"]::before')
+    assert visual is not None
+    assert "width: 1.25rem" in visual and "height: 1.25rem" in visual
 
 
 def test_share_checkbox_rows_are_tall_enough_to_tap():
     rules = rules_of((TEMPLATES / "share.html").read_text(encoding="utf-8"))
     label = body_for(rules, ".share-checks label")
     assert label is not None
-    assert min_height_rem(label) >= 2.0
-    box = body_for(rules, ".share-checks input")
+    assert min_height_rem(label) >= 3.0
+    theme = rules_of((STATIC / "theme.css").read_text(encoding="utf-8"))
+    box = body_for(theme, '.share-checks input[type="checkbox"]')
     assert box is not None
-    assert "width: 1.25rem" in box and "height: 1.25rem" in box
+    assert "width: 3rem" in box and "height: 3rem" in box
+    visual = body_for(theme, '.share-checks input[type="checkbox"]::before')
+    assert visual is not None
+    assert "width: 1.25rem" in visual and "height: 1.25rem" in visual
