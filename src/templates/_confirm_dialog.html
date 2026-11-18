@@ -28,15 +28,21 @@
   }
   var pending = null;
   function closeDialog() {
-    if (!dialog.hidden) {
-      dialog.hidden = true;
-      pending = null;
+    if (window.closeAppConfirm()) {
       window.releaseOverlay();
     }
   }
+  window.closeAppConfirm = function () {
+    if (dialog.hidden) {
+      return false;
+    }
+    dialog.hidden = true;
+    pending = null;
+    return true;
+  };
   window.appConfirm = function (message, onAccept) {
     pending = onAccept;
-    title.textContent = "Refresh anyway?";
+    title.textContent = "Refresh bond facts";
     body.textContent = message;
     dialog.hidden = false;
     window.openOverlay();

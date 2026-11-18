@@ -38,6 +38,13 @@ def test_rs07_confirm_path_runs_the_refresh_request():
     assert "next();" in DIALOG
 
 
+def test_rs07_app_confirm_registered_in_close_top_overlay():
+    base = (TEMPLATES / "base.html").read_text(encoding="utf-8")
+    closing = base.split("window.closeTopOverlay = function ()", 1)[1].split("window.overlayDepth", 1)[0]
+    assert 'getElementById("app-confirm")' in closing
+    assert "window.closeAppConfirm()" in closing
+
+
 def test_rs07_cancel_path_sends_nothing():
     assert 'cancel.addEventListener("click", closeDialog);' in DIALOG
     closing = DIALOG.split("function closeDialog()", 1)[1].split("window.appConfirm", 1)[0]

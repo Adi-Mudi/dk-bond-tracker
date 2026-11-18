@@ -167,6 +167,11 @@
       confirmDialog.hidden = true;
       return true;
     }
+    var appConfirm = document.getElementById("app-confirm");
+    if (appConfirm && !appConfirm.hidden && window.closeAppConfirm) {
+      window.closeAppConfirm();
+      return true;
+    }
     var openTip = document.querySelector(".tip-wrap.tip-open");
     if (openTip) {
       openTip.classList.remove("tip-open");
