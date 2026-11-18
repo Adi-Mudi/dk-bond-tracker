@@ -341,7 +341,7 @@
   </form>
 </div>
 
-{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
+{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', 'maturity_date'), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
 {% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured'} %}
 {% set fetch_values = fetch['values'] or {} %}
 <div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.popup_facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.popup_facts else '' }}" hidden>
@@ -736,12 +736,29 @@
   var popup = document.getElementById("fetch-details") || document.getElementById("fetch-details-tpl");
   var fetched = form.getAttribute("data-fetched-isin") || "";
   var dirty = {};
+  var appliedValues = {};
+  function writeFactValues(values) {
+    Object.keys(values || {}).forEach(function (field) {
+      if (dirty[field]) {
+        return;
+      }
+      var value = values[field];
+      if (value === null || value === undefined) {
+        return;
+      }
+      var element = fieldElement(field);
+      if (element) {
+        element.value = value;
+      }
+    });
+  }
   var FACT_FIELDS = [
     ["company", "company", "c-company"],
     ["rating", "rating", "c-rating"],
     ["rating_agency", "rating_agency", "c-rating-agency"],
     ["coupon", "coupon_pct", "c-coupon"],
     ["face_value", "face_value", "c-face"],
+    ["maturity", "maturity_date", "c-maturity"],
     ["issuer_type", "issuer_type", "c-issuer"],
     ["payout_cycle", "payout_cycle", "c-cycle"],
     ["secured", "secured", "c-secured"]
@@ -836,10 +853,12 @@
       }
       clearField(document.getElementById(entry[2]));
     });
+    appliedValues = {};
     clearSourceBadges();
     showState("idle");
   }
   function applyFetchedFacts() {
+    writeFactValues(appliedValues);
     if (!popup) {
       return;
     }
@@ -908,7 +927,7 @@
   var FETCH_FACT_ORDER = [
     ["company", "company", "Company"],
     ["coupon", "coupon_pct", "Coupon"],
-    ["maturity", "", "Maturity"],
+    ["maturity", "maturity_date", "Maturity"],
     ["rating", "rating", "Rating"],
     ["rating_agency", "rating_agency", "Rating agency"],
     ["issuer_type", "issuer_type", "Issuer type"],
@@ -1016,16 +1035,8 @@
   function applyLookupPayload(payload) {
     fetched = payload.isin || isinValue();
     form.setAttribute("data-fetched-isin", fetched);
-    var values = payload.values || {};
-    FACT_FIELDS.forEach(function (entry) {
-      if (dirty[entry[1]] || values[entry[1]] === undefined) {
-        return;
-      }
-      var element = document.getElementById(entry[2]);
-      if (element && values[entry[1]] !== null) {
-        element.value = values[entry[1]];
-      }
-    });
+    appliedValues = payload.values || {};
+    writeFactValues(appliedValues);
     showState(payload.state);
     if (popup && payload.popup_facts && Object.keys(payload.popup_facts).length) {
       renderFetchRows(payload);
