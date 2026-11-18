@@ -220,23 +220,27 @@ def fetch_message(state, failure_code=None):
     return ""
 
 
-def rating_gate(payload):
+def rating_gate(payload, manual_rating=""):
     if not payload:
         return None
     facts = payload.get("facts") or {}
     if not facts:
         return None
-    rating = str(facts.get("rating") or "").strip()
-    if is_investment_grade(rating):
-        return None
-    return RATING_GATE_MESSAGE
+    fetched = str(facts.get("rating") or "").strip()
+    manual = str(manual_rating or "").strip()
+    effective = manual or fetched
+    if not effective:
+        return RATING_GATE_MESSAGE
+    if fetched and not is_investment_grade(fetched):
+        return RATING_GATE_MESSAGE
+    return None
 
 
-def autofetch_refusal(isin):
+def autofetch_refusal(isin, manual_rating=""):
     stored = session.get(AUTOFETCH_SESSION_KEY) or {}
     if stored.get("isin") != isin:
         return None
-    return rating_gate(stored.get("payload"))
+    return rating_gate(stored.get("payload"), manual_rating)
 
 
 def _source_names(sources):
@@ -738,7 +742,10 @@ def watch_list():
     if request.method == "POST":
         form = request.form
         try:
-            refusal = autofetch_refusal(str(form.get("isin", "")).strip().upper())
+            refusal = autofetch_refusal(
+                str(form.get("isin", "")).strip().upper(),
+                str(form.get("rating", "")).strip(),
+            )
             if refusal:
                 raise AppError("ERR-watch-rating-gate", refusal)
             values = watch_form_values(form)
