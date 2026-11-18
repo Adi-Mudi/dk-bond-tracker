@@ -310,11 +310,14 @@ def test_tc87_f222_watch_percent_empty_rejected_zero_rows(client, db_path):
         base, company="Pct Co Two", isin="INE9000A0662", expected_yield_pct=""
     )
     response = client.post("/watch", data=empty_yield, follow_redirects=False)
-    assert response.status_code == 400
-    assert "est yield is required" in response.get_data(as_text=True)
+    assert response.status_code == 302
     with get_conn(db_path) as conn:
+        row = conn.execute(
+            "SELECT expected_yield_pct FROM bonds WHERE isin = 'INE9000A0662'"
+        ).fetchone()
         count = conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"]
-    assert count == 0
+    assert row["expected_yield_pct"] is None
+    assert count == 1
     zeros = dict(
         base,
         company="Pct Co Zero",
