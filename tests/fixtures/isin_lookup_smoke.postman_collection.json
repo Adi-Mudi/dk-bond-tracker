@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "isin-lookup-smoke",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "dkbt-isin-lookup-smoke-20261118",
+    "description": "Bulk ISIN lookup smoke for DK Bond Tracker staging (charter 4 data). Data file: isin_smoke_120.csv (isin, expect, company, maturity). expect=200 rows cross-check company/maturity against the response (same snapshot source - mismatch = data-integrity finding). expect=400 rows must be rejected by validation."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5001"
+    }
+  ],
+  "item": [
+    {
+      "name": "Lookup ISIN (expect status + integrity)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const exp = Number(pm.iterationData.get('expect') || pm.collectionVariables.get('expect'));",
+              "pm.test('HTTP status matches expected (' + exp + ')', function () { pm.expect(pm.response.code).to.eql(exp); });",
+              "if (exp === 200) {",
+              "  const body = pm.response.json();",
+              "  pm.test('response echoes the ISIN', function () { pm.expect(String(body.isin || '').toUpperCase()).to.eql(pm.iterationData.get('isin').toUpperCase()); });",
+              "  pm.test('facts object present', function () { pm.expect(body).to.have.property('facts'); });",
+              "  pm.test('sources/labels present (ILF-05)', function () { pm.expect(body).to.have.property('sources'); pm.expect(body).to.have.property('labels'); });",
+              "  const expCo = pm.iterationData.get('company') || '';",
+              "  if (expCo.length > 0) {",
+              "    pm.test('company matches CSV row (data integrity)', function () {",
+              "      const got = ((body.facts && body.facts.company) || '').trim();",
+              "      pm.expect(got).to.eql(expCo.trim());",
+              "    });",
+              "  }",
+              "  const expMat = pm.iterationData.get('maturity') || '';",
+              "  if (expMat.length > 0) {",
+              "    pm.test('maturity matches CSV row when present in facts', function () {",
+              "      const got = ((body.facts && body.facts.maturity) || '').trim();",
+              "      if (got.length > 0) { pm.expect(got).to.eql(expMat.trim()); }",
+              "    });",
+              "  }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/watch/lookup?isin={{isin}}",
+        "header": []
+      }
+    },
+    {
+      "name": "Months remaining (numeric for dated rows)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const exp = Number(pm.iterationData.get('expect') || 0);",
+              "const mat = pm.iterationData.get('maturity') || '';",
+              "if (exp === 200 && mat.length > 0) {",
+              "  pm.test('months_remaining is a number', function () {",
+              "    const b = pm.response.json();",
+              "    pm.expect(b).to.have.property('months_remaining');",
+              "    pm.expect(Number.isFinite(Number(b.months_remaining))).to.be.true;",
+              "  });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/watch/months?purchase=2026-11-18&maturity={{maturity}}&cycle=quarterly",
+        "header": []
+      }
+    }
+  ]
+}
