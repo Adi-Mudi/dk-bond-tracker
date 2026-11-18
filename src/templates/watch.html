@@ -452,15 +452,18 @@
               </fieldset>
               <fieldset class="move-group">
                 <legend>Optional</legend>
-                {% if goals %}
                 <div class="move-field">
                   <label for="move-goal-{{ candidate.id }}">Financial goal {{ tip("move-goal-" ~ candidate.id, "howto", "Link this bond to a goal. The link is permanent once saved.") }}</label>
                   <select id="move-goal-{{ candidate.id }}" name="goal_id">
                     <option value="">&#8212; none &#8212;</option>
                     {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
                   </select>
+                  {% if goals %}
+                  <span class="caption">optional; the link is permanent once saved</span>
+                  {% else %}
+                  <span class="caption">optional; the link is permanent once saved &#8212; no goals yet, <a href="/goals">create a goal first</a></span>
+                  {% endif %}
                 </div>
-                {% endif %}
                 <div class="move-field">
                   <label for="move-credit-{{ candidate.id }}">Interest credit day {{ tip("move-credit-" ~ candidate.id, "howto", "The day of each month when interest is credited to your account.") }}</label>
                   <select id="move-credit-{{ candidate.id }}" name="credit_day">

@@ -271,7 +271,8 @@ def test_ui04_move_form_has_no_tabs_goal_is_plain_field(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
     html = client.get("/watch").get_data(as_text=True)
     assert 'data-mtab=' not in html, "owner removed tabs — goal must be a plain field"
-    assert 'name="goal_id"' not in html, "goal field hidden while zero goals"
+    assert 'name="goal_id"' in html, "goal field always visible, zero goals included (#299)"
+    assert "&#8212; none &#8212;" in html
     with get_conn(db_path) as conn:
         conn.execute("INSERT INTO financial_goals (name, target_amount) VALUES ('House', 600000)")
     html = client.get("/watch").get_data(as_text=True)
