@@ -1,0 +1,1071 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+(function () {
+  var stored = localStorage.getItem('dk-theme') || 'system';
+  document.documentElement.setAttribute('data-theme', stored);
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var reapply = function () {
+    var current = localStorage.getItem('dk-theme') || 'system';
+    document.documentElement.setAttribute('data-theme', current);
+  };
+  if (mq.addEventListener) {
+    mq.addEventListener('change', reapply);
+  } else if (mq.addListener) {
+    mq.addListener(reapply);
+  }
+})();
+</script>
+  <title>DK Bond Tracker</title>
+  <style>
+    .privacy-on .money { font-size: 0; }
+    .privacy-on .money::after { content: "••••"; font-size: 14px; letter-spacing: 0.14em; }
+    .privacy-on .money-input { color: transparent; }
+    .brand-mark { width: 24px; height: 24px; vertical-align: middle; margin-right: 0.375rem; }
+    th { border-bottom: 2px solid var(--border); }
+    td { border-bottom: 1px solid var(--border); }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="/static/img/logo/favicon.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/favicon-32.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/img/logo/apple-touch-icon-180.png?v=2">
+<link rel="manifest" href="/static/site.webmanifest?v=2">
+  <link rel="stylesheet" href="/static/theme.css?v=3">
+  <link rel="stylesheet" href="/static/guide.css?v=3">
+  
+<style>
+  a.tab {
+    text-decoration: none;
+  }
+  tr.position-row {
+    cursor: pointer;
+  }
+  .position-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(22.5rem, 92vw);
+    max-width: 92vw;
+    height: 100%;
+    overflow: auto;
+    background: var(--card);
+    border-left: 1.5px solid var(--border);
+    padding: 16px;
+    z-index: 30;
+  }
+  .drawer-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .drawer-head h2 {
+    font-size: 15px;
+    margin: 0;
+  }
+  .drawer-facts {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .drawer-facts th,
+  .drawer-facts td {
+    text-align: left;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .drawer-facts th {
+    width: 42%;
+  }
+  .invalid-note { display: block; margin-top: 2px; }
+  .invalid-remove { margin-top: 4px; }
+  .payout-cell {
+    font: inherit;
+    font-size: 13px;
+    border: 1px dashed transparent;
+    background: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: var(--text);
+    text-align: left;
+  }
+  .payout-cell:hover { border-color: var(--border); background: var(--card); }
+  .payout-cell.pending { color: var(--muted); }
+  .payout-editor {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .payout-editor input[type="number"] {
+    font: inherit;
+    font-size: 13px;
+    height: 30px;
+    width: 6.25rem;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--text);
+  }
+  .check-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .check-inline input { width: 14px; height: 14px; accent-color: var(--accent); }
+  .payouts-table th:first-child,
+  .payouts-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--card);
+    z-index: 2;
+    box-shadow: 1px 0 0 var(--border);
+  }
+  .month {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.875rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .month.paid { background: var(--paid); color: var(--ongoing-fg); }
+  .month.unpaid { background: var(--due); color: var(--danger-fg); font-weight: 700; }
+  .invested-value { font-size: 20px; font-weight: 600; }
+  .month.soon { background: var(--warn-bg); color: var(--warn-fg); font-weight: 700; }
+  .month.neutral { background: var(--card); color: var(--muted); }
+  .attr-strip { background: var(--header-row); font-size: 12px; }
+  .attr-row b { font-weight: 700; }
+  .holdings-scroll { overflow-x: auto; }
+  #holdings-table { min-width: 47.5rem; }
+  #holdings-table td.cell-sticky { position: sticky; background: var(--card); z-index: 1; }
+  #holdings-table thead th.cell-sticky { position: sticky; background: var(--card); z-index: 3; }
+  #holdings-table .cell-left { left: 0; border-right: 1px solid var(--border); }
+  #holdings-table .cell-right { right: 0; border-left: 1px solid var(--border); }
+  #holdings-table td.cell-left { z-index: 2; }
+  #holdings-table td.cell-right { z-index: 2; }
+  #holdings-table thead th.cell-left { left: 0; z-index: 4; }
+  #holdings-table thead th.cell-right { right: 0; z-index: 5; }
+  .detail-link { font-size: 12px; font-weight: 700; margin-left: 0.375rem; white-space: nowrap; }
+  .group-head-row .group-head { background: var(--bg); font-weight: 700; }
+  .group-head .group-name { margin-right: 0.5rem; }
+  .group-by-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .group-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .group-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+</style>
+<style>
+  .detail-page { display: flex; flex-direction: column; gap: 0.75rem; }
+  .detail-head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .detail-title { display: flex; flex-direction: column; gap: 2px; }
+  .detail-title .page-title { margin: 0; }
+  .detail-head .co-isin { display: block; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .detail-tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); }
+  .dt-tab {
+    font: inherit;
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.5rem 0.75rem;
+    min-height: 2.75rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .dt-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+  .dt-panel { display: none; }
+  .dt-panel.active { display: block; }
+  .detail-group {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .group-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .group-facts {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  .group-facts dt { color: var(--muted); }
+  .group-facts dd { margin: 0; }
+  .detail-months { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+  .month-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 3.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  .month-chip .m-name { font-weight: 700; }
+  .month-chip .m-amt { font-variant-numeric: tabular-nums; }
+  .month-chip .m-status { font-weight: 700; }
+  .month-paid { background: #DCFCE7; color: var(--c-green); border-color: #BBF7D0; }
+  .month-unpaid { background: #FEE2E2; color: var(--c-red); border-color: #FECACA; }
+  .month-soon { background: #FEF3C7; color: var(--c-amber); border-color: #FDE68A; }
+  .readonly-note { font-size: 0.8rem; color: var(--muted); }
+  .position-drawer .back-link { display: none; }
+</style>
+
+</head>
+<body data-page="/portfolio">
+
+
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="brand"><img class="brand-mark" src="/static/img/logo/logo-mark.svg?v=2" alt="" width="24" height="24">DK Bond Tracker</span>
+    <button type="button" class="collapse-btn" id="sidebarToggle" aria-controls="sidebar" aria-expanded="true" title="Hide menu">&#9664;<span class="collapse-label"> hide</span></button>
+  </div>
+  <nav aria-label="Main">
+    <a href="/">Dashboard</a>
+    <a href="/portfolio">Portfolio</a>
+    <a href="/watch">Watchlist</a>
+    <a href="/goals">Financial Goals</a>
+    <a href="/notifications">Alerts</a>
+    <a href="/settings">Settings</a>
+    <a href="/about">About</a>
+    <a href="/feedback">Feedback</a>
+  </nav>
+</aside>
+
+<div class="app-body">
+<header class="topbar">
+  <button type="button" class="icon-btn drawer-btn" id="drawerToggle" aria-controls="sidebar" aria-expanded="false" title="Menu" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+  <div class="page-title" id="pageTitle">DK Bond Tracker</div>
+  <div class="topbar-actions">
+    <div class="bell-wrap" id="notificationsBell" title="Notifications" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="notificationDropdown" aria-label="Notifications">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+      <span class="bell-badge-v3" id="unreadCount" data-count="0">0</span>
+      <div class="alert-dropdown-v3" id="notificationDropdown">
+        <div class="dd-head">Alerts</div>
+        
+        <div class="alert-item-v3"><span class="msg">No alerts yet.</span><span class="ts"></span></div>
+        
+        <div class="dd-actions">
+          <a class="ui-btn ui-btn-text ui-btn-compact" id="open-all-alerts" href="/notifications">See all alerts</a>
+          <form method="post" action="/notifications/read_all">
+            <button class="ui-btn ui-btn-text ui-btn-compact" type="submit">Mark all as read</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="search-wrap" id="searchWrap">
+      <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds" aria-haspopup="true" aria-expanded="false" aria-controls="searchPanel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </button>
+      <div class="search-panel" id="searchPanel" hidden>
+        <form method="get" action="/search" id="searchForm" role="search">
+          <input type="search" id="searchInput" name="q" class="search-input" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list" placeholder="Search company or ISIN" autocomplete="off" aria-label="Search holdings and watchlist">
+        </form>
+        <ul id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></ul>
+        <p class="caption" id="searchHint">Type to search both lists together — press / to open search from anywhere.</p>
+      </div>
+    </div>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Help" aria-label="Help" aria-haspopup="dialog" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
+    </button>
+    <div class="overflow" id="overflow">
+      <button type="button" class="icon-btn" id="overflowToggle" aria-haspopup="true" aria-expanded="false" aria-controls="overflowPanel" title="More options" aria-label="More options"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+      <div class="overflow-panel" id="overflowPanel">
+        <div class="theme-switch" role="group" aria-label="Theme">
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+          
+        </div>
+        <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="main">
+  
+
+<h1 style="font-size:18px;margin-bottom:12px;">Portfolio</h1>
+
+
+
+
+
+
+
+<div id="portfolio-body">
+  <div class="tabs">
+    <a class="tab active" href="/portfolio?tab=holdings" data-tab="holdings">My Holdings</a>
+    <a class="tab" href="/portfolio?tab=payouts" data-tab="payouts">Payouts</a>
+  </div>
+
+  <div id="portfolio-panels">
+    
+    <div id="panel-holdings" class="panel active">
+      <div class="group-by-row" id="group-by-row">
+        <span class="caption">Group by</span>
+        <a class="group-btn active" id="group-none" href="/portfolio?group=none">None (default)</a>
+        <a class="group-btn" id="group-goal" href="/portfolio?group=goal">Goal</a>
+      </div>
+      <div class="table-wrap holdings-scroll" id="holdings-scroll" tabindex="0" role="region" aria-label="Holdings table — scroll horizontally for more columns">
+        <table id="holdings-table">
+          <thead>
+            <tr>
+              <th class="cell-sticky cell-left">Company/ISIN</th>
+              <th>Rating</th>
+              <th class="num">Qty</th>
+              <th>Coupon</th>
+              <th>Yield</th>
+              <th>Frequency</th>
+              <th class="num">Invested &#8377;</th>
+              <th class="num">Received &#8377;</th>
+              <th>Next Payout</th>
+              <th class="num">Months Remaining</th>
+              <th class="cell-sticky cell-right">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr>
+              <td colspan="11" class="empty-note" id="holdings-empty">No positions yet. Positions added here appear in My Holdings and Payouts.</td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<aside id="position-drawer" class="position-drawer" hidden aria-label="Position detail">
+  <div class="drawer-head">
+    <h2 id="drawer-title">Position detail</h2>
+    <button class="btn btn-sm" type="button" id="drawer-close">Close</button>
+  </div>
+  <div id="drawer-body"></div>
+</aside>
+
+<script>
+(function () {
+  var body = document.getElementById("portfolio-body");
+  if (!body || !window.fetch || !window.DOMParser) {
+    return;
+  }
+  function bindTabs() {
+    body.querySelectorAll(".tab").forEach(function (tab) {
+      tab.addEventListener("click", function (event) {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        var href = tab.getAttribute("href");
+        event.preventDefault();
+        fetch(href, { credentials: "same-origin" })
+          .then(function (response) {
+            return response.text();
+          })
+          .then(function (html) {
+            var doc = new DOMParser().parseFromString(html, "text/html");
+            var fresh = doc.getElementById("portfolio-body");
+            if (!fresh) {
+              window.location.href = href;
+              return;
+            }
+            body.innerHTML = fresh.innerHTML;
+            window.history.replaceState(null, "", href);
+            bindTabs();
+            if (typeof window.bindPayoutCells === "function") {
+              window.bindPayoutCells();
+            }
+            if (typeof window.bindPortfolioRows === "function") {
+              window.bindPortfolioRows();
+            }
+          })
+          .catch(function () {
+            window.location.href = href;
+          });
+      });
+    });
+  }
+  bindTabs();
+  window.bindPortfolioTabs = bindTabs;
+  window.addEventListener("popstate", function () {
+    window.location.reload();
+  });
+})();
+</script>
+<script>
+(function () {
+  var startInput = document.getElementById("f-start");
+  var endInput = document.getElementById("f-end");
+  var tenureInput = document.getElementById("f-tenure");
+  if (!startInput || !endInput || !tenureInput) {
+    return;
+  }
+  function recalc() {
+    if (!startInput.value || !endInput.value) {
+      tenureInput.value = "";
+      return;
+    }
+    var startDate = new Date(startInput.value);
+    var endDate = new Date(endInput.value);
+    var months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+    if (months > 0) {
+      tenureInput.value = months + " months";
+    } else {
+      tenureInput.value = "invalid range (end date must be after start date)";
+    }
+  }
+  startInput.addEventListener("change", recalc);
+  endInput.addEventListener("change", recalc);
+  recalc();
+})();
+</script>
+<script>
+(function () {
+  var drawer = document.getElementById("position-drawer");
+  var body = document.getElementById("drawer-body");
+  var title = document.getElementById("drawer-title");
+  var closeBtn = document.getElementById("drawer-close");
+  if (!drawer || !body || !title || !closeBtn || !window.fetch) {
+    return;
+  }
+  function esc(value) {
+    return String(value === null || value === undefined ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function pct(value) {
+    return value === null || value === undefined ? "" : Number(value).toFixed(1) + "%";
+  }
+  function moneySpan(value) {
+    var amount = Number(value || 0).toFixed(2);
+    return '<span class="value money" data-amount="' + amount + '">&#8377;' + amount + "</span>";
+  }
+  function factRow(label, value) {
+    var text = value === null || value === undefined || value === "" ? "&#8212;" : esc(value);
+    return "<tr><th>" + esc(label) + "</th><td>" + text + "</td></tr>";
+  }
+  function moneyFactRow(label, value) {
+    return "<tr><th>" + esc(label) + "</th><td>" + moneySpan(value) + "</td></tr>";
+  }
+  function chipHtml(chip) {
+    var name = '<span class="m-name">' + esc(chip.label) + "</span>";
+    if (chip.state === "paid") {
+      return '<div class="month-chip month-paid" data-month="' + esc(chip.key) + '">' + name +
+        '<span class="m-amt">' + moneySpan(chip.amount) + "</span></div>";
+    }
+    if (chip.state === "unpaid") {
+      return '<div class="month-chip month-unpaid" data-month="' + esc(chip.key) + '">' + name +
+        '<span class="m-status">unpaid</span></div>';
+    }
+    return '<div class="month-chip month-soon" data-month="' + esc(chip.key) + '">' + name +
+      '<span class="m-status">due soon</span></div>';
+  }
+  function monthChips(chips) {
+    if (!chips || !chips.length) {
+      return '<p class="readonly-note" id="detail-months-empty">no payments recorded yet</p>';
+    }
+    return '<div class="detail-months" id="detail-months">' + chips.map(chipHtml).join("") + "</div>";
+  }
+  function activateDetailTabs(root) {
+    var tabs = root.querySelectorAll(".dt-tab");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var name = tab.getAttribute("data-dtab");
+        tabs.forEach(function (other) {
+          other.classList.toggle("active", other === tab);
+        });
+        root.querySelectorAll(".dt-panel").forEach(function (panel) {
+          panel.classList.toggle("active", panel.id === "dt-" + name);
+        });
+      });
+    });
+  }
+  function render(data) {
+    var issuerLabels = { corporate_bond: "Corporate Bond", ncd: "NCD", sdi: "SDI", government: "Government", fd: "FD" };
+    var cycleLabels = { monthly: "Monthly", quarterly: "Quarterly", annual: "Annual" };
+    var securedText = data.secured === null || data.secured === undefined ? "—" : (Number(data.secured) === 1 ? "Secured" : "Not secured");
+    var statusSlug = String(data.status || "").toLowerCase().replace("-", "");
+    title.textContent = data.company || "Position detail";
+    body.innerHTML =
+      '<div class="detail-page" id="detail-page" data-company="' + esc(data.company) + '">' +
+      '<div class="detail-head"><h1>' + esc(data.company) + '</h1>' +
+      '<span class="chip chip-' + esc(statusSlug) + '" data-status="' + esc(data.status) + '">' + esc(data.status) + '</span>' +
+      (data.isin ? '<span class="co-isin">' + esc(data.isin) + "</span>" : "") + "</div>" +
+      '<div class="detail-tabs" id="detail-tabs" role="tablist">' +
+      '<button type="button" class="dt-tab active" data-dtab="overview">Overview</button>' +
+      '<button type="button" class="dt-tab" data-dtab="payments">Payments</button>' +
+      '<button type="button" class="dt-tab" data-dtab="goal">Goal</button></div>' +
+      '<section class="dt-panel active" id="dt-overview">' +
+      '<div class="detail-group" id="grp-identity"><div class="group-title">1 &#183; Identity</div><table class="drawer-facts">' +
+      factRow("ISIN", data.isin) +
+      factRow("Rating", data.rating) +
+      factRow("Rating agency", data.rating_agency) +
+      factRow("Status", data.status) +
+      "</table></div>" +
+      '<div class="detail-group" id="grp-investment"><div class="group-title">2 &#183; Investment</div><table class="drawer-facts">' +
+      factRow("Purchase date", data.purchase_date) +
+      factRow("Quantity", data.qty) +
+      moneyFactRow("Invested", data.invested) +
+      (data.face_value === null || data.face_value === undefined ? factRow("Face value", "") : moneyFactRow("Face value", data.face_value)) +
+      "</table></div>" +
+      '<div class="detail-group" id="grp-returns"><div class="group-title">3 &#183; Returns</div><table class="drawer-facts">' +
+      factRow("Coupon", pct(data.coupon_pct)) +
+      factRow("Yield", pct(data.expected_yield_pct)) +
+      moneyFactRow("Received in bank (net)", data.received) +
+      moneyFactRow("TDS deducted to govt", data.tds) +
+      moneyFactRow("Gross returns", data.gross) +
+      "</table>" +
+      '<p class="caption" id="grp-returns-note">TDS applies to interest only (s.193) &#8212; claimable tax credit (Form 16A).</p></div>' +
+      '<div class="detail-group" id="grp-schedule"><div class="group-title">4 &#183; Schedule</div><table class="drawer-facts">' +
+      factRow("Payout cycle", data.frequency ? (cycleLabels[data.frequency] || data.frequency) : "") +
+      factRow("Interest credit day", data.credit_day) +
+      factRow("Next payout", data.next_payout) +
+      factRow("End date", data.end_date) +
+      "</table></div>" +
+      '<div class="detail-group" id="grp-classification"><div class="group-title">5 &#183; Classification</div><table class="drawer-facts">' +
+      factRow("Issuer type", data.issuer_type ? (issuerLabels[data.issuer_type] || data.issuer_type) : "") +
+      factRow("Secured", securedText) +
+      factRow("Broker", data.broker) +
+      factRow("Where you found it", data.source_note) +
+      (data.provenance ? factRow("Fetched facts", "from " + data.provenance.source + (data.provenance.as_of ? " · as of " + data.provenance.as_of : "")) : "") +
+      "</table></div></section>" +
+      '<section class="dt-panel" id="dt-payments"><div class="detail-group" id="grp-payment-history">' +
+      '<div class="group-title">6 &#183; Payment history</div>' + monthChips(data.payment_months) + "</div></section>" +
+      '<section class="dt-panel" id="dt-goal"><div class="detail-group" id="grp-goal">' +
+      '<div class="group-title">Financial goal (read-only)</div>' +
+      (data.goal_name
+        ? '<p class="readonly-note" id="detail-goal-note">' + esc(data.goal_name) + "</p>" +
+          '<p class="caption"><span class="chip chip-ongoing" id="detail-goal-badge">&#128274; permanent</span></p>'
+        : '<p class="readonly-note" id="detail-goal-note">No goal linked to this bond</p>') +
+      "</div></section>" +
+      "</div>";
+    activateDetailTabs(body);
+  }
+  function openDrawer(id) {
+    fetch("/portfolio/" + id + "/detail", { credentials: "same-origin" })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("detail unavailable");
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        render(data);
+        drawer.hidden = false;
+      })
+      .catch(function () {
+        title.textContent = "Position detail";
+        body.innerHTML = '<p class="empty-note" id="drawer-error">detail unavailable for this position</p>';
+        drawer.hidden = false;
+      });
+  }
+  function refreshIsin(button, url, force) {
+    button.disabled = true;
+    fetch(url + (force ? "?force=1" : ""), { method: "POST", headers: { "X-Requested-With": "fetch" } })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { status: response.status, data: data };
+        });
+      })
+      .then(function (result) {
+        if (result.status === 409 && !force) {
+          window.appConfirm(result.data.message, function () {
+            refreshIsin(button, url, true);
+          });
+          return;
+        }
+        button.title = (result.data && result.data.message) || "";
+      })
+      .catch(function () {
+        button.title = "Refresh failed - nothing is blocked.";
+      })
+      .then(function () {
+        button.disabled = false;
+      });
+  }
+  function bindRows() {
+    document.querySelectorAll("tr.position-row").forEach(function (row) {
+      row.addEventListener("click", function () {
+        openDrawer(row.getAttribute("data-id"));
+      });
+      row.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openDrawer(row.getAttribute("data-id"));
+        }
+      });
+    });
+    document.querySelectorAll("button.btn-refresh-isin").forEach(function (button) {
+      button.addEventListener("click", function (event) {
+        event.stopPropagation();
+        refreshIsin(button, button.getAttribute("data-refresh-url"), false);
+      });
+    });
+    document.querySelectorAll("a.detail-link").forEach(function (link) {
+      link.addEventListener("click", function (event) {
+        event.stopPropagation();
+        if (!window.matchMedia || !window.matchMedia("(min-width: 768px)").matches) {
+          return;
+        }
+        event.preventDefault();
+        openDrawer(link.getAttribute("data-id"));
+      });
+      link.addEventListener("keydown", function (event) {
+        event.stopPropagation();
+      });
+    });
+  }
+  window.bindPortfolioRows = bindRows;
+  closeBtn.addEventListener("click", function () {
+    drawer.hidden = true;
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      drawer.hidden = true;
+    }
+  });
+  bindRows();
+})();
+</script>
+<script>
+(function () {
+  function bindPayoutCells() {
+    document.querySelectorAll(".payout-cell").forEach(function (cell) {
+      if (cell.getAttribute("data-bound") === "1") {
+        return;
+      }
+      cell.setAttribute("data-bound", "1");
+      cell.addEventListener("click", function () {
+        var td = cell.parentNode;
+        if (td.querySelector(".payout-editor")) {
+          return;
+        }
+        var amount = cell.getAttribute("data-amount") || "";
+        var received = cell.getAttribute("data-received") === "1";
+        var tdsApplied = cell.getAttribute("data-tds") !== "0";
+        var editor = document.createElement("span");
+        editor.className = "payout-editor";
+        editor.innerHTML = '<input type="number" min="0" step="0.01" value="' + amount + '" aria-label="Amount"><label class="check-inline"><input type="checkbox" class="payout-received"' + (received ? " checked" : "") + '> Received?</label><label class="check-inline"><input type="checkbox" class="payout-tds"' + (tdsApplied ? " checked" : "") + '> TDS 10%</label><button type="button" class="btn btn-sm payout-save">Save</button><button type="button" class="btn btn-sm payout-cancel">Cancel</button>';
+        td.appendChild(editor);
+        cell.hidden = true;
+        editor.querySelector(".payout-cancel").addEventListener("click", function () {
+          cell.hidden = false;
+          editor.remove();
+        });
+        editor.querySelector(".payout-save").addEventListener("click", function () {
+          var value = editor.querySelector("input[type=\"number\"]").value;
+          var flag = editor.querySelector(".payout-received").checked;
+          var tdsFlag = editor.querySelector(".payout-tds").checked;
+          var payload = new URLSearchParams();
+          payload.set("amount", value === "" ? "0" : value);
+          if (flag) {
+            payload.set("paid", "on");
+          }
+          if (tdsFlag) {
+            payload.set("tds", "on");
+          }
+          fetch("/payment/" + cell.getAttribute("data-bond") + "/" + cell.getAttribute("data-month"), {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: payload.toString()
+          })
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("payment save failed");
+              }
+              return fetch("/portfolio?tab=payouts", { credentials: "same-origin" });
+            })
+            .then(function (response) {
+              return response.text();
+            })
+            .then(function (html) {
+              var doc = new DOMParser().parseFromString(html, "text/html");
+              var fresh = doc.getElementById("portfolio-body");
+              if (!fresh) {
+                window.location.reload();
+                return;
+              }
+              document.getElementById("portfolio-body").innerHTML = fresh.innerHTML;
+              if (typeof window.bindPortfolioTabs === "function") {
+                window.bindPortfolioTabs();
+              }
+              bindPayoutCells();
+            })
+            .catch(function () {
+              window.location.reload();
+            });
+        });
+      });
+    });
+  }
+  window.bindPayoutCells = bindPayoutCells;
+  bindPayoutCells();
+})();
+</script>
+<style>
+  .confirm-dialog[hidden] { display: none; }
+  .confirm-dialog { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, 0.45); }
+  .confirm-inner { width: min(28rem, 92vw); max-width: 100%; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 8px 30px var(--shadow-color-strong); }
+  .confirm-inner h2 { margin-bottom: 8px; }
+  .confirm-inner p { font-size: 13px; margin-bottom: 12px; }
+  .confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+</style>
+<div class="confirm-dialog" id="app-confirm" role="alertdialog" aria-modal="true" aria-labelledby="app-confirm-title" aria-describedby="app-confirm-body" hidden>
+  <div class="confirm-inner">
+    <h2 id="app-confirm-title"></h2>
+    <p id="app-confirm-body"></p>
+    <div class="confirm-actions">
+      <button type="button" class="ui-btn ui-btn-text ui-btn-compact" id="app-confirm-cancel">Cancel</button>
+      <button type="button" class="ui-btn ui-btn-primary ui-btn-compact" id="app-confirm-accept">Refresh anyway</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var dialog = document.getElementById("app-confirm");
+  var title = document.getElementById("app-confirm-title");
+  var body = document.getElementById("app-confirm-body");
+  var cancel = document.getElementById("app-confirm-cancel");
+  var accept = document.getElementById("app-confirm-accept");
+  if (!dialog || !title || !body || !cancel || !accept) {
+    return;
+  }
+  var pending = null;
+  function closeDialog() {
+    if (window.closeAppConfirm()) {
+      window.releaseOverlay();
+    }
+  }
+  window.closeAppConfirm = function () {
+    if (dialog.hidden) {
+      return false;
+    }
+    dialog.hidden = true;
+    pending = null;
+    return true;
+  };
+  window.appConfirm = function (message, onAccept) {
+    pending = onAccept;
+    title.textContent = "Refresh bond facts";
+    body.textContent = message;
+    dialog.hidden = false;
+    window.openOverlay();
+    cancel.focus();
+  };
+  cancel.addEventListener("click", closeDialog);
+  dialog.addEventListener("click", function (event) {
+    if (event.target === dialog) {
+      closeDialog();
+    }
+  });
+  accept.addEventListener("click", function () {
+    var next = pending;
+    closeDialog();
+    if (next) {
+      next();
+    }
+  });
+})();
+</script>
+
+  <footer class="app-footer">
+  </footer>
+</main>
+</div>
+</div>
+
+<div class="guide-popover" id="pageGuide" role="dialog" aria-label="How this page works" hidden>
+  <div class="guide-inner">
+    
+
+<div class="guide-title">How this page works</div>
+<div class="guide-sub">Your holdings, one row per bond.</div>
+
+<div class="guide-rule guide-howto"><span class="guide-icon" aria-hidden="true">&#9432;</span><span><span class="guide-word">Detail view</span> &#8212; Open Detail for identity, investment, returns, schedule, classification and payment history.</span></div>
+
+
+<div class="guide-rule guide-howto"><span class="guide-icon" aria-hidden="true">&#9432;</span><span><span class="guide-word">Pinned columns</span> &#8212; Company / ISIN and Status stay pinned while the middle columns scroll sideways.</span></div>
+
+
+<div class="guide-rule guide-status"><span class="guide-icon" aria-hidden="true">&#9679;</span><span><span class="guide-word">Payout months</span> &#8212; Green shows the amount received, red means unpaid, amber means due soon.</span></div>
+
+
+<div class="guide-rule guide-status"><span class="guide-icon" aria-hidden="true">&#9679;</span><span><span class="guide-word">Status chips</span> &#8212; Watching = candidate only; On-going = payments healthy; Danger = a credit day was missed; Matured = finished, no longer pays.</span></div>
+
+
+<div class="guide-rule guide-warning"><span class="guide-icon" aria-hidden="true">&#9888;</span><span><span class="guide-word">Removing rows</span> &#8212; Positions are kept for your records; remove a row only when its dates need review.</span></div>
+
+
+
+    <div class="guide-sub legend">Colour-coded field tooltips &#8212; hover, tap or focus the marker:</div>
+    <ul class="guide-tips" id="guide-tips">
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-isin-lock" data-tip="tip-isin-lock">&#9432;</button><span class="tip-bubble tip-blocking" id="tip-isin-lock" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#128274;</span> Blocking rule</span><span class="tip-text">Same ISIN cannot be entered twice.</span></span></span><span>Blocked entries always explain the reason.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-status-green" data-tip="tip-status-green">&#9432;</button><span class="tip-bubble tip-status" id="tip-status-green" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#9679;</span> Status rule</span><span class="tip-text">Green cell = payment received.</span></span></span><span>Green, amber and red mean the same thing everywhere.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-goal-link" data-tip="tip-goal-link">&#9432;</button><span class="tip-bubble tip-howto" id="tip-goal-link" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#9432;</span> How to</span><span class="tip-text">Pick a goal while moving a bond out of the Watchlist; the link is permanent.</span></span></span><span>Actions the app can help you with.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-rating-ceiling" data-tip="tip-rating-ceiling">&#9432;</button><span class="tip-bubble tip-warning" id="tip-rating-ceiling" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#9888;</span> Warning</span><span class="tip-text">Rating below BBB- is not allowed.</span></span></span><span>Something to double-check before you continue.</span></li>
+    </ul>
+    <div class="guide-foot">
+      <button type="button" class="btn btn-sm" id="whyBondsBtn" aria-haspopup="dialog" aria-expanded="false">Why bonds?</button>
+      <button type="button" class="btn btn-sm" id="guideClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="why-popover" id="whyBonds" role="dialog" aria-label="Why bonds?" hidden>
+  <div class="why-inner">
+    <div class="why-title">Why bonds?</div>
+    <div class="why-body">
+      <p><strong>Fixed, predictable returns.</strong> That is what bonds are for — you know the coupon and the schedule up front. The share market can move a lot in either direction; bonds do not promise equity-level gains and are not built for them.</p>
+      <div class="why-point"><strong>Expectation check:</strong> if you are looking for more than roughly <strong>10&#8211;12% returns</strong>, that is the share market's territory — not bonds. Choose bonds for fixed returns; choose equity only if you accept its risk for higher expectations.</div>
+      <div class="why-flip"><strong>Flip side:</strong> if you have been putting daily effort into shares and still are not beating 10&#8211;12% — or you are losing — bonds deserve a serious look. Fixed returns, and you only need to analyse a few things <strong>once</strong>, not watch the market every day.</div>
+    </div>
+    <div class="disclaimer-box" id="why-disclaimer">
+      <strong>We do not recommend any bonds.</strong> This app is a personal tracking tool, information-only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal. Every investment decision is your own.
+    </div>
+    <div class="guide-foot">
+      <a class="btn btn-sm" id="why-about-link" href="/about">About and disclaimer</a>
+      <button type="button" class="btn btn-sm" id="whyClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-tabs" aria-label="Primary">
+  <a class="bottom-tab" href="/"><span class="tab-ico" aria-hidden="true">&#9638;</span>Dashboard</a>
+  <a class="bottom-tab" href="/portfolio"><span class="tab-ico" aria-hidden="true">&#9636;</span>Portfolio</a>
+  <a class="bottom-tab" href="/watch"><span class="tab-ico" aria-hidden="true">&#9678;</span>Watchlist</a>
+  <a class="bottom-tab" href="/goals"><span class="tab-ico" aria-hidden="true">&#9670;</span>Goals</a>
+  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true">&#9776;</span>More</button>
+</nav>
+
+<script>
+  window.closeTopOverlay = function () {
+    var confirmDialog = document.getElementById("delete-confirm");
+    if (confirmDialog && !confirmDialog.hidden) {
+      confirmDialog.hidden = true;
+      return true;
+    }
+    var appConfirm = document.getElementById("app-confirm");
+    if (appConfirm && !appConfirm.hidden && window.closeAppConfirm) {
+      window.closeAppConfirm();
+      return true;
+    }
+    var openTip = document.querySelector(".tip-wrap.tip-open");
+    if (openTip) {
+      openTip.classList.remove("tip-open");
+      return true;
+    }
+    var bell = document.getElementById("notificationsBell");
+    if (bell && bell.classList.contains("open")) {
+      bell.classList.remove("open");
+      bell.setAttribute("aria-expanded", "false");
+      return true;
+    }
+    var fetchPopup = document.getElementById("fetch-details");
+    if (fetchPopup && !fetchPopup.hidden) {
+      fetchPopup.hidden = true;
+      return true;
+    }
+    return false;
+  };
+  window.overlayDepth = 0;
+  window.openOverlay = function () {
+    window.overlayDepth += 1;
+    history.pushState({ overlay: true }, "");
+  };
+  window.releaseOverlay = function () {
+    if (window.overlayDepth > 0) {
+      window.overlayDepth -= 1;
+      history.back();
+    }
+  };
+  window.dismissOverlay = function () {
+    if (window.closeTopOverlay()) {
+      window.releaseOverlay();
+      return true;
+    }
+    return false;
+  };
+  window.addEventListener("popstate", function () {
+    if (window.overlayDepth > 0) {
+      window.overlayDepth -= 1;
+    }
+    window.closeTopOverlay();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      window.dismissOverlay();
+    }
+  });
+  (function () {
+    var body = document.body;
+    var stateLabel = document.getElementById("privacyState");
+    function applyPrivacy(on) {
+      body.classList.toggle("privacy-on", on);
+      document.querySelectorAll(".privacy-toggle").forEach(function (btn) {
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.classList.toggle("active", on);
+      });
+      if (stateLabel) {
+        stateLabel.textContent = on ? "ON" : "OFF";
+      }
+    }
+    var stored = null;
+    try {
+      stored = window.localStorage.getItem("privacy_mode");
+    } catch (err) {
+      stored = null;
+    }
+    applyPrivacy(stored === "on");
+    var toggle = document.getElementById("privacyToggle");
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        var next = !body.classList.contains("privacy-on");
+        applyPrivacy(next);
+        try {
+          window.localStorage.setItem("privacy_mode", next ? "on" : "off");
+        } catch (err) {
+          return;
+        }
+      });
+    }
+  })();
+</script>
+<script>
+  (function () {
+    var body = document.body;
+    var sidebarToggle = document.getElementById("sidebarToggle");
+    function setCollapsed(on) {
+      body.classList.toggle("sidebar-collapsed", on);
+      if (sidebarToggle) {
+        sidebarToggle.setAttribute("aria-expanded", on ? "false" : "true");
+      }
+      try {
+        window.localStorage.setItem("dk-sidebar", on ? "collapsed" : "expanded");
+      } catch (err) {
+        return;
+      }
+    }
+    var storedSidebar = null;
+    try {
+      storedSidebar = window.localStorage.getItem("dk-sidebar");
+    } catch (err) {
+      storedSidebar = null;
+    }
+    setCollapsed(storedSidebar === "collapsed");
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener("click", function () {
+        setCollapsed(!body.classList.contains("sidebar-collapsed"));
+      });
+    }
+    var overflow = document.getElementById("overflow");
+    var overflowToggle = document.getElementById("overflowToggle");
+    if (overflow && overflowToggle) {
+      overflowToggle.addEventListener("click", function (event) {
+        event.stopPropagation();
+        var open = overflow.classList.toggle("open");
+        overflowToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      document.addEventListener("click", function (event) {
+        if (!overflow.contains(event.target)) {
+          overflow.classList.remove("open");
+          overflowToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+    var drawerToggle = document.getElementById("drawerToggle");
+    function setDrawer(open) {
+      body.classList.toggle("drawer-open", open);
+      if (drawerToggle) {
+        drawerToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+    }
+    if (drawerToggle) {
+      drawerToggle.addEventListener("click", function () {
+        setDrawer(!body.classList.contains("drawer-open"));
+      });
+    }
+    var moreTab = document.getElementById("moreTab");
+    if (moreTab) {
+      moreTab.addEventListener("click", function () {
+        setDrawer(!body.classList.contains("drawer-open"));
+      });
+    }
+  })();
+</script>
+
+
+<div class="update-popup-backdrop" id="auto-fetch-consent" role="dialog" aria-modal="true" aria-labelledby="auto-fetch-consent-title">
+  <div class="update-popup">
+    <div class="zone-title" id="auto-fetch-consent-title">Auto-fetch bond facts?</div>
+    <p>Refresh your watched bonds in the background about every 12 hours. You can change this later in Settings.</p>
+    <div class="update-popup-actions">
+      <button class="btn btn-secondary" type="button" data-auto-fetch-choice="later">Not now</button>
+      <button class="btn btn-primary" type="button" data-auto-fetch-choice="auto">Auto-fetch</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var dialog = document.getElementById("auto-fetch-consent");
+  if (!dialog) return;
+  var buttons = dialog.querySelectorAll("[data-auto-fetch-choice]");
+  Array.prototype.forEach.call(buttons, function (button) {
+    button.addEventListener("click", function () {
+      var body = new URLSearchParams();
+      body.set("choice", button.getAttribute("data-auto-fetch-choice") || "");
+      fetch("/settings/auto-fetch/consent", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString(), credentials: "same-origin" });
+      dialog.hidden = true;
+    });
+  });
+})();
+</script>
+
+<script src="/static/theme.js?v=3"></script>
+<script src="/static/app.js?v=3"></script>
+<script src="/static/guide.js?v=3"></script>
+</body>
+</html>
