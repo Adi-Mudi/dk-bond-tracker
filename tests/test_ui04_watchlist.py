@@ -6,7 +6,7 @@ import pytest
 from conftest import add_bond
 from src.app import create_app
 from src.db import get_conn
-from src.views.watch import WATCH_BROKERS, WATCH_RATINGS
+from src.views.watch import ISIN_PATTERN, WATCH_BROKERS, WATCH_RATINGS
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = (ROOT / "src" / "templates" / "watch.html").read_text(encoding="utf-8")
@@ -311,3 +311,11 @@ def test_ui04_move_form_keeps_required_fields_inside_tab_panel(client, db_path):
     assert 'name="amount"' in panel
     assert f'id="move-cancel-{bond_id}"' in panel
     assert 'id="move-panel-purchase-%d"' % bond_id in panel
+
+
+def test_ui04_isin_error_example_is_a_valid_isin():
+    source = (ROOT / "src" / "views" / "watch.py").read_text(encoding="utf-8")
+    example = re.search(r"e\.g\. ([A-Z0-9]+)\)", source).group(1)
+    assert len(example) == 12
+    assert ISIN_PATTERN.match(example)
+    assert not ISIN_PATTERN.match(example + "1")

@@ -614,7 +614,7 @@ def watch_form_values(form):
     if not ISIN_PATTERN.match(isin):
         raise AppError(
             "ERR-watch-add",
-            f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A01001)",
+            f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A0101)",
         )
     if not rating:
         raise AppError("ERR-watch-add", "rating is required")
