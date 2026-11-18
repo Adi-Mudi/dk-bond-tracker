@@ -38,6 +38,7 @@ AF14_APPLY_FIELDS = (
     "rating_agency",
     "coupon_pct",
     "face_value",
+    "maturity_date",
     "issuer_type",
     "payout_cycle",
     "secured",
