@@ -8,12 +8,17 @@ F8 --info-*/--ok-* tokens defined in theme.css (light+dark+system-dark)
 F4 /print per-page <title> + page-title element, A4 paper output unchanged
 """
 import re
+from datetime import date
 from pathlib import Path
 
 import pytest
 
 from src.app import create_app
+from src.db import get_conn
 from src.print_palette import PRINT_PALETTE
+from src.status import month_key
+
+from conftest import add_bond
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATES = ROOT / "src" / "templates"
@@ -33,6 +38,9 @@ PAGE_TITLES = {
     "/goals": "Goals",
     "/notifications": "Alerts",
     "/settings": "Settings",
+    "/feedback": "Feedback",
+    "/payout": "Payout",
+    "/payment/{bond_id}/{month}": "Edit payment",
 }
 
 PRINT_PAPER_RULES = {
@@ -89,6 +97,24 @@ def client(db_path):
         yield c
 
 
+@pytest.fixture
+def title_client(db_path):
+    with get_conn(db_path) as conn:
+        bond_id = add_bond(conn, "Acme Ltd", "INE205A07DV2", "2026-01-05", 60)
+    app = create_app(str(db_path))
+    app.config["TESTING"] = True
+    with app.test_client() as c:
+        yield c, bond_id
+
+
+def resolve_route(bond_id, route):
+    if route == "/payout":
+        return f"/payout?bond_id={bond_id}"
+    if "{bond_id}" in route:
+        return route.format(bond_id=bond_id, month=month_key(date.today()))
+    return route
+
+
 def rendered(client, route):
     response = client.get(route)
     assert response.status_code == 200, route
@@ -116,18 +142,25 @@ def test_295_portfolio_drawer_uses_page_title_and_muted_isin():
 
 
 @pytest.mark.parametrize("route", sorted(PAGE_TITLES))
-def test_295_every_route_has_per_page_tab_title(client, route):
-    html = rendered(client, route)
+def test_295_every_route_has_per_page_tab_title(title_client, route):
+    client, bond_id = title_client
+    html = rendered(client, resolve_route(bond_id, route))
     expected = f"<title>{PAGE_TITLES[route]} — DK Bond Tracker</title>"
     assert expected in html, route
 
 
 @pytest.mark.parametrize("route", sorted(PAGE_TITLES))
-def test_295_tab_title_matches_page_title_text(client, route):
-    html = rendered(client, route)
+def test_295_tab_title_matches_page_title_text(title_client, route):
+    client, bond_id = title_client
+    html = rendered(client, resolve_route(bond_id, route))
     title = re.search(r"<title>(.*?)</title>", html, re.S).group(1)
     assert title.endswith(" — DK Bond Tracker"), route
     assert title.split(" — DK Bond Tracker")[0].startswith(PAGE_TITLES[route]), route
+
+
+def test_295_error_page_has_distinct_tab_title():
+    html = (TEMPLATES / "error.html").read_text(encoding="utf-8")
+    assert "{% block title %}Error — DK Bond Tracker{% endblock %}" in html
 
 
 @pytest.mark.parametrize("block", TOKEN_BLOCKS)
@@ -152,9 +185,9 @@ def test_295_info_ok_tokens_used_without_fallbacks():
 def test_295_no_template_defines_tokens_inline():
     offenders = []
     for template in sorted(TEMPLATES.glob("*.html")):
-        for line in template.read_text(encoding="utf-8").splitlines():
-            if re.match(r"\s*--[a-z-]+\s*:", line):
-                offenders.append(f"{template.name}: {line.strip()}")
+        for index, line in enumerate(template.read_text(encoding="utf-8").splitlines(), 1):
+            if re.search(r"--[a-z][a-z0-9-]*\s*:", line):
+                offenders.append(f"{template.name}:{index}: {line.strip()}")
     assert not offenders, offenders
 
 
