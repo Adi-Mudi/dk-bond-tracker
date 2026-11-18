@@ -3,7 +3,10 @@
 {% block title %}Watchlist — DK Bond Tracker{% endblock %}
 {% block head %}
 <style>
-  .move-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 8px; align-items: end; }
+  .move-form { display: flex; gap: 12px; }
+  .move-form-stack { flex-direction: column; align-items: stretch; }
+  .move-group { min-width: 0; margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+  .move-group legend { padding: 0 6px; font-weight: 600; }
   .move-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .move-field label { font-size: 14px; color: var(--text); line-height: 1.25; }
   .move-form input[type="date"],
@@ -20,7 +23,7 @@
     color: var(--text);
   }
   .move-form input[readonly] { background: var(--bg); color: var(--muted); }
-  .move-actions { display: flex; gap: 8px; align-items: flex-end; }
+  .move-actions { display: flex; gap: 8px; align-items: center; }
   .details-row td { height: auto; padding: 12px; background: var(--header-row); }
   .facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 12px 16px; }
   .fact-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
@@ -410,7 +413,7 @@
         <td colspan="3">
           <form method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
           <div class="move-panel active" id="move-panel-purchase-{{ candidate.id }}" data-mpanel="purchase">
-            <div class="move-form">
+            <div class="move-form move-form-stack">
               <fieldset class="move-group">
                 <legend>Dates</legend>
                 <div class="move-field">
@@ -421,10 +424,17 @@
                   <label for="move-start-{{ candidate.id }}">Interest start date {{ tip("move-start-" ~ candidate.id, "howto", "The day interest starts to build up. Usually the bond's dated date.") }}</label>
                   <input type="date" id="move-start-{{ candidate.id }}" name="start_date" value="">
                 </div>
-                {% if not candidate.maturity_date %}
+                {% if candidate.maturity_date %}
+                <div class="move-field">
+                  <label>End date</label>
+                  <input type="text" class="move-derived" value="{{ candidate.maturity_date }} — from maturity date" readonly>
+                  <span class="caption">never asked again; the input appears only when the watchlist entry has no maturity date</span>
+                </div>
+                {% else %}
                 <div class="move-field">
                   <label for="move-end-{{ candidate.id }}">End date</label>
                   <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
+                  <span class="caption">No maturity date on file. Enter the end date to complete the bond facts.</span>
                 </div>
                 {% endif %}
                 <div class="move-field">
