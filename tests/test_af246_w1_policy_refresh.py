@@ -93,9 +93,8 @@ def test_af09_1_fetched_bb_plus_refused_with_the_plain_message(db_path):
     assert candidate_isins(db_path) == []
 
 
-def test_af09_2_fetched_unrated_refused_with_the_same_message(db_path):
+def test_af09_2_fetched_unrated_with_manual_rating_is_accepted(db_path):
     result = FetchResult(isin=ISIN, company=COMPANY, sources={"company": "NSDL"})
-    assert rating_gate(fetch_payload(result)) == RATING_GATE_MESSAGE
     client, _ = make_client(db_path, service_with(db_path, result))
     assert client.get(f"/watch?isin={ISIN}").status_code == 200
     response = client.post(
@@ -108,10 +107,8 @@ def test_af09_2_fetched_unrated_refused_with_the_same_message(db_path):
             "expected_yield_pct": "8.5",
         },
     )
-    assert response.status_code == 400
-    html = response.get_data(as_text=True)
-    assert error_banner(html) == RATING_GATE_MESSAGE
-    assert candidate_isins(db_path) == []
+    assert response.status_code == 302
+    assert candidate_isins(db_path) == [ISIN]
 
 
 def test_af09_3_fetched_bbb_minus_accepted_and_prefilled(db_path):
