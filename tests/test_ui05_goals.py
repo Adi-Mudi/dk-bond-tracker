@@ -236,11 +236,12 @@ def moved_row(db_path, candidate):
         ).fetchone()
 
 
-def test_ui05_move_form_goal_picker_hidden_without_goals(client, db_path):
+def test_ui05_move_form_goal_picker_visible_without_goals(client, db_path):
     make_candidate(client, db_path)
     html = client.get("/watch").get_data(as_text=True)
     assert 'data-mtab=' not in html
-    assert 'name="goal_id"' not in html
+    assert 'name="goal_id"' in html
+    assert "&#8212; none &#8212;" in html
 
 
 def test_ui05_move_form_goal_picker_present_with_goals(client, db_path):
