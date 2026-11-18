@@ -102,18 +102,19 @@ def test_ui04_company_history_strip_beside_field(client, db_path):
     assert 'class="history-block"' in html
 
 
-def test_ui04_isin_forced_uppercase_on_store(client, db_path):
+def test_ui04_lowercase_isin_rejected_on_add(client, db_path):
     response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
-    assert response.status_code == 302
+    assert response.status_code == 400
+    assert "ISIN format invalid" in response.get_data(as_text=True)
     with get_conn(db_path) as conn:
         row = conn.execute("SELECT isin FROM bonds WHERE isin = 'INE4000A1001'").fetchone()
-    assert row is not None
+    assert row is None
     assert "toUpperCase" in TEMPLATE
 
 
 def test_ui04_duplicate_popup_with_inline_alert_and_aria_invalid(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
-    response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    response = client.post("/watch", data={**CANDIDATE, "isin": "INE4000A1001"})
     assert response.status_code == 409
     html = response.get_data(as_text=True)
     assert 'id="watch-error" role="alert"' in html
@@ -126,7 +127,7 @@ def test_ui04_duplicate_popup_with_inline_alert_and_aria_invalid(client, db_path
 
 def test_ui04_duplicate_highlights_isin_match_and_company_only(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
-    isin_dup = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    isin_dup = client.post("/watch", data={**CANDIDATE, "isin": "INE4000A1001"})
     assert isin_dup.status_code == 409
     isin_html = isin_dup.get_data(as_text=True)
     assert 'id="c-isin-error" role="alert"' in isin_html
@@ -167,7 +168,7 @@ def test_ui04_duplicate_holding_offers_view_existing_to_portfolio_detail(client,
 def test_ui04_duplicate_watching_offers_view_existing_to_candidate_row(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
     bond_id = candidate_id(db_path)
-    response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    response = client.post("/watch", data={**CANDIDATE, "isin": "INE4000A1001"})
     assert response.status_code == 409
     html = response.get_data(as_text=True)
     assert f'id="candidate-{bond_id}"' in html
