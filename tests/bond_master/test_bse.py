@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from src.bond_master import bse
@@ -7,6 +8,7 @@ from src.bond_master.base import (
     FAILURE_MALFORMED,
     FAILURE_NOT_FOUND,
     FAILURE_OK,
+    FAILURE_PARSE_ERROR,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
 )
@@ -15,7 +17,8 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ISIN = "INE205A07DZ6"
 OTHER_ISIN = "INE205A07E76"
 UNKNOWN_ISIN = "INE999A07999"
-EXPECTED_URL = "https://www.bseindia.com/download/debt/DEBT_SECURITY_MASTER.csv"
+EXPECTED_URL = "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w"
+MASTER = "bse_list_of_scrip_debt.json"
 
 
 def fixture_text(name):
@@ -28,27 +31,39 @@ def transport_for(payload):
 
 def adapter(payload=None):
     if payload is None:
-        payload = fixture_text("bse_security_master.csv")
+        payload = fixture_text(MASTER)
     return bse.BseAdapter(transport=transport_for(payload))
 
 
-def test_published_download_endpoint_is_a_bse_download_file():
-    assert bse.BSE_DEBT_SECURITY_MASTER_URL == EXPECTED_URL
-    url = bse.BSE_DEBT_SECURITY_MASTER_URL
+def test_published_endpoint_is_the_bse_json_api():
+    assert bse.BSE_LIST_OF_SCRIP_URL == EXPECTED_URL
+    url = bse.BSE_LIST_OF_SCRIP_URL
     assert url.startswith("https://")
-    assert bse.BSE_DOWNLOAD_HOST in url
-    assert bse.BSE_DOWNLOAD_PREFIX in url
-    assert url.endswith(".csv")
+    assert "api.bseindia.com" in url
+    assert url.endswith("/ListofScripData/w")
 
 
-def test_published_endpoint_never_uses_the_bse_api():
-    url = bse.BSE_DEBT_SECURITY_MASTER_URL
-    assert "api.bseindia.com" not in url
-    assert "/api/" not in url
+def test_endpoint_never_points_at_the_dead_csv_download():
+    lowered = bse.BSE_LIST_OF_SCRIP_URL.lower()
+    assert "www.bseindia.com/download/" not in lowered
+    assert ".csv" not in lowered
+    assert bse.BSE_DEBT_SEGMENT == "Debentures and Bonds"
 
 
-def test_user_agent_identifies_the_app():
-    assert bse.USER_AGENT.startswith("DK Bond Tracker")
+def test_build_url_carries_the_debt_segment_and_active_status():
+    url = bse.build_url()
+    assert url.startswith(EXPECTED_URL + "?")
+    assert "segment=Debentures%20and%20Bonds" in url
+    assert "status=Active" in url
+
+
+def test_user_agent_is_a_browser_fingerprint():
+    assert bse.USER_AGENT.startswith("Mozilla/5.0")
+    assert "Chrome/" in bse.USER_AGENT
+    assert bse.REQUEST_HEADERS["User-Agent"] == bse.USER_AGENT
+    assert bse.REQUEST_HEADERS["Referer"] == bse.BSE_BASE_URL
+    assert bse.REQUEST_HEADERS["Origin"] == bse.BSE_BASE_URL
+    assert "Accept-Language" in bse.REQUEST_HEADERS
 
 
 def test_adapter_name_is_bse():
@@ -102,7 +117,7 @@ def test_unknown_isin_is_not_found():
     assert result.has_facts() is False
 
 
-def test_invalid_isin_never_reads_the_file():
+def test_invalid_isin_never_calls_the_transport():
     calls = []
 
     def transport(url, timeout):
@@ -113,6 +128,17 @@ def test_invalid_isin_never_reads_the_file():
     result = subject.fetch("not-an-isin")
     assert result.failure_code == FAILURE_INVALID_ISIN
     assert calls == []
+
+
+def test_transport_receives_the_api_url_and_timeout():
+    seen = []
+
+    def transport(url, timeout):
+        seen.append((url, timeout))
+        return fixture_text(MASTER)
+
+    bse.BseAdapter(transport=transport, timeout=7.5).fetch(ISIN)
+    assert seen == [(bse.build_url(), 7.5)]
 
 
 def test_network_error_is_unreachable():
@@ -139,6 +165,13 @@ def test_timeout_is_reported():
     assert bse.BseAdapter(transport=transport).fetch(ISIN).failure_code == FAILURE_TIMEOUT
 
 
+def test_source_error_maps_its_failure_code():
+    def transport(url, timeout):
+        raise bse.SourceError(FAILURE_BLOCKED)
+
+    assert bse.BseAdapter(transport=transport).fetch(ISIN).failure_code == FAILURE_BLOCKED
+
+
 def test_html_page_at_http_200_is_blocked():
     result = adapter(fixture_text("bse_blocked_page.html")).fetch(ISIN)
     assert result.failure_code == FAILURE_BLOCKED
@@ -148,29 +181,40 @@ def test_blank_download_is_malformed():
     assert adapter("   ").fetch(ISIN).failure_code == FAILURE_MALFORMED
 
 
-def test_missing_isin_column_is_malformed():
-    assert adapter("FOO,BAR\n1,2\n").fetch(ISIN).failure_code == FAILURE_MALFORMED
+def test_non_json_payload_is_parse_error():
+    assert adapter("not json at all").fetch(ISIN).failure_code == FAILURE_PARSE_ERROR
 
 
 def test_without_a_transport_no_request_is_made():
     assert bse.BseAdapter().fetch(ISIN).failure_code == FAILURE_UNREACHABLE
 
 
-BSE_HEADER = (
-    "ISIN,ISSUER,COUPON RATE,PAYOUT FREQUENCY,FACE VALUE,CREDIT RATING,"
-    "RATING AGENCY,SECURITY TYPE,SECURED,LISTING STATUS,MATURITY DATE\n"
-)
+def _record(**overrides):
+    record = {
+        "ISIN_NUMBER": ISIN,
+        "Issuer_Name": "Zenith Ports Ltd",
+        "FACE_VALUE": "100000",
+        "COUPON_RATE": "10.25",
+        "PAYOUT_FREQUENCY": "Annual",
+        "CREDIT_RATING": "AA",
+        "SECURITY_TYPE": "ncd",
+        "SECURED": "Yes",
+        "LISTING_STATUS": "Listed",
+        "MATURITY_DATE": "2032-05-10",
+    }
+    record.update(overrides)
+    return json.dumps([record])
 
 
 def test_f5_embedded_agency_is_stripped_even_with_a_populated_agency_column():
-    row = "INE205A07DZ6,Zenith Ports Ltd,10.25,Annual,100000,CRISIL AA,ICRA,ncd,Yes,Listed,2032-05-10\n"
-    result = bse.BseAdapter(transport=transport_for(BSE_HEADER + row)).fetch(ISIN)
+    payload = _record(CREDIT_RATING="CRISIL AA", RATING_AGENCY="ICRA")
+    result = bse.BseAdapter(transport=transport_for(payload)).fetch(ISIN)
     assert result.rating == "AA"
     assert result.rating_agency == "ICRA"
 
 
 def test_f5_empty_agency_column_still_resolves_the_embedded_agency():
-    row = "INE205A07DZ6,Zenith Ports Ltd,10.25,Annual,100000,CARE BBB-,,ncd,Yes,Listed,2032-05-10\n"
-    result = bse.BseAdapter(transport=transport_for(BSE_HEADER + row)).fetch(ISIN)
+    payload = _record(CREDIT_RATING="CARE BBB-", RATING_AGENCY="")
+    result = bse.BseAdapter(transport=transport_for(payload)).fetch(ISIN)
     assert result.rating == "BBB-"
     assert result.rating_agency == "CARE"
