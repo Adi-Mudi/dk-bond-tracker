@@ -59,7 +59,7 @@ def test_persisted_answer_is_local_with_no_cooldown_and_no_official_call(tmp_pat
     assert cache.cooldown_remaining() > 0
 
 
-def test_snapshot_only_isin_is_local_and_never_calls_official_source(tmp_path):
+def test_snapshot_only_isin_attempts_official_collect_and_keeps_snapshot_facts(tmp_path):
     db_path = fresh_db(tmp_path)
     adapter = CountingAdapter()
     cache = BondMasterCache(db_path, cooldown_seconds=60)
@@ -68,7 +68,9 @@ def test_snapshot_only_isin_is_local_and_never_calls_official_source(tmp_path):
     result = service.lookup(ISIN_SNAPSHOT)
 
     assert result.has_facts()
-    assert adapter.calls == 0
+    assert adapter.calls == 1
+    assert result.source_of("rating") is None
+    assert cache.cooldown_remaining() > 0
 
 
 def test_local_hit_does_not_claim_the_cooldown(tmp_path):

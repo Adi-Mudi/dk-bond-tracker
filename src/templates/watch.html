@@ -131,6 +131,7 @@
     background: var(--ongoing-bg);
     color: var(--ongoing-fg);
   }
+  .fetch-unavailable { color: var(--muted); font-style: italic; }
   .fetch-spinner {
     display: inline-block;
     width: 0.85rem;
@@ -384,20 +385,40 @@
 {% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', 'maturity_date'), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
 {% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured'} %}
 {% set fetch_values = fetch['values'] or {} %}
+{% set fetch_full = fetch.tier == 'official' %}
 <div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.popup_facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.popup_facts else '' }}" hidden>
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
     <div class="facts-grid" id="fetch-sources">
       {% for fact, field in fetch_fact_order %}
-      {% if fetch.popup_facts.get(fact) is not none %}
+      {% set label = fetch_fact_labels[fact] %}
+      {% set available = fetch.popup_facts.get(fact) is not none %}
+      {% if available or fetch_full %}
+      {% if available %}
       {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.popup_facts.get(fact) %}
       <div class="fact" data-fetch-detail="{{ fact }}"{% if field %} data-apply-field="{{ field }}" data-apply-value="{{ detail_value }}"{% endif %}>
-        <span class="fact-label">{{ fetch_fact_labels[fact] }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
+        <span class="fact-label">{{ label }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
         <span class="fact-value">{{ detail_value }}</span>
       </div>
+      {% else %}
+      <div class="fact fact-unavailable" data-fetch-unavailable="{{ fact }}">
+        <span class="fact-label">{{ label }}</span>
+        <span class="fact-value fetch-unavailable">not provided by this source</span>
+      </div>
+      {% endif %}
       {% endif %}
       {% endfor %}
+      {% if fetch_full %}
+      <div class="fact fact-context" data-fetch-context="face_value">
+        <span class="fact-label">Face value<span class="fetch-source">form</span></span>
+        <span class="fact-value">{{ fetch_values.get('face_value') if fetch_values.get('face_value') is not none else '&#8212;' }}</span>
+      </div>
+      <div class="fact fact-context" data-fetch-context="listing_status">
+        <span class="fact-label">Listing status<span class="fetch-source">form</span></span>
+        <span class="fact-value">{{ fetch_values.get('listing_status') if fetch_values.get('listing_status') else 'Unknown' }}</span>
+      </div>
+      {% endif %}
     </div>
     <div class="confirm-actions">
       <button type="button" class="btn btn-sm" id="fetch-details-dismiss">Enter manually</button>
@@ -1084,24 +1105,30 @@
     var facts = payload.popup_facts || {};
     var values = payload.values || {};
     var sources = payload.sources || {};
+    var full = payload.tier === "official";
     FETCH_FACT_ORDER.forEach(function (entry) {
       var fact = entry[0];
       var field = entry[1];
-      if (facts[fact] === undefined || facts[fact] === null) {
+      var available = facts[fact] !== undefined && facts[fact] !== null;
+      if (!available && !full) {
         return;
       }
-      var detail = field && values[field] !== undefined && values[field] !== null ? values[field] : facts[fact];
+      var detail = available && field && values[field] !== undefined && values[field] !== null ? values[field] : facts[fact];
       var row = document.createElement("div");
-      row.className = "fact";
-      row.setAttribute("data-fetch-detail", fact);
-      if (field) {
-        row.setAttribute("data-apply-field", field);
-        row.setAttribute("data-apply-value", String(detail));
+      row.className = "fact" + (available ? "" : " fact-unavailable");
+      if (available) {
+        row.setAttribute("data-fetch-detail", fact);
+        if (field) {
+          row.setAttribute("data-apply-field", field);
+          row.setAttribute("data-apply-value", String(detail));
+        }
+      } else {
+        row.setAttribute("data-fetch-unavailable", fact);
       }
       var label = document.createElement("span");
       label.className = "fact-label";
       label.textContent = entry[2];
-      if (sources[fact]) {
+      if (available && sources[fact]) {
         var source = document.createElement("span");
         source.className = "fetch-source";
         source.setAttribute("data-fetch-source", fact);
@@ -1109,12 +1136,34 @@
         label.appendChild(source);
       }
       var value = document.createElement("span");
-      value.className = "fact-value";
-      value.textContent = String(detail);
+      value.className = "fact-value" + (available ? "" : " fetch-unavailable");
+      value.textContent = available ? String(detail) : "not provided by this source";
       row.appendChild(label);
       row.appendChild(value);
       grid.appendChild(row);
     });
+    if (full) {
+      [["face_value", "Face value"], ["listing_status", "Listing status"]].forEach(function (entry) {
+        var key = entry[0];
+        var row = document.createElement("div");
+        row.className = "fact fact-context";
+        row.setAttribute("data-fetch-context", key);
+        var label = document.createElement("span");
+        label.className = "fact-label";
+        label.textContent = entry[1];
+        var source = document.createElement("span");
+        source.className = "fetch-source";
+        source.textContent = "form";
+        label.appendChild(source);
+        var value = document.createElement("span");
+        value.className = "fact-value";
+        var shown = values[key];
+        value.textContent = shown !== undefined && shown !== null && shown !== "" ? String(shown) : (key === "listing_status" ? "Unknown" : "\u2014");
+        row.appendChild(label);
+        row.appendChild(value);
+        grid.appendChild(row);
+      });
+    }
   }
   function renderPopupCaption(payload) {
     var asof = document.getElementById("fetch-details-asof");

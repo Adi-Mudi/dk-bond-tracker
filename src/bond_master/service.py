@@ -44,6 +44,14 @@ _FAILURE_PRIORITY = (
     FAILURE_OK,
 )
 
+OFFICIAL_FACT_FIELDS = (
+    "rating",
+    "rating_agency",
+    "issuer_type",
+    "payout_cycle",
+    "secured",
+)
+
 _SOURCE_STATUS = {
     FAILURE_OK: "ok",
     FAILURE_NOT_FOUND: "not_found",
@@ -111,6 +119,20 @@ def _clean_rating(values, sources):
 def _merged_result(isin, values, sources):
     _clean_rating(values, sources)
     return FetchResult(isin=isin, sources=sources, **values)
+
+
+def _needs_official_facts(answer):
+    return not any(
+        getattr(answer, field) is not None for field in OFFICIAL_FACT_FIELDS
+    )
+
+
+def _merge_official(answer, official, isin):
+    values = {}
+    sources = {}
+    _absorb(values, sources, None, answer)
+    _absorb(values, sources, None, official)
+    return _merged_result(isin, values, sources)
 
 
 def primary_source(sources):
@@ -298,11 +320,16 @@ class BondMasterService:
         if normalized is None:
             return FetchResult(isin=isin, failure_code=FAILURE_INVALID_ISIN)
         local = self._local_answer(normalized)
-        if local is not None:
+        if local is not None and not _needs_official_facts(local):
             return local
         if not self._claim_refresh():
+            if local is not None:
+                return local
             return FetchResult(isin=normalized, failure_code=FAILURE_RATE_LIMITED)
-        return self._collect(normalized)
+        official = self._collect(normalized)
+        if local is None:
+            return official
+        return _merge_official(local, official, normalized)
 
     def refresh(self, isin):
         normalized = normalize_isin(isin)
