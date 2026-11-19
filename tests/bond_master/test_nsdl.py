@@ -26,7 +26,7 @@ VALID_ISIN = "INE205A07DV2"
 ABSENT_ISIN = "INE000A00AA1"
 MALFORMED_ISIN = "INE205A07DVX"
 MASTER = "nsdl_corporate_bond_master.json"
-EXPECTED_ENDPOINT = "https://nsdl.co.in/downloadables/corporate_bond_master.json"
+EXPECTED_ENDPOINT = "https://nsdl.com/web/api/v1/participant/search"
 
 
 def fixture_text(name):
@@ -59,22 +59,23 @@ def test_default_timeout_is_ten_seconds():
     assert nsdl.DEFAULT_TIMEOUT == 10.0
 
 
-def test_endpoint_is_an_https_published_download_file():
+def test_endpoint_is_the_https_web_search_api():
     assert nsdl.ENDPOINT.startswith("https://")
-    assert nsdl.ENDPOINT.endswith((".json", ".csv", ".zip", ".txt"))
+    assert nsdl.ENDPOINT.endswith("/web/api/v1/participant/search")
 
 
-def test_endpoint_never_points_at_the_nse_site_or_api():
+def test_endpoint_never_points_at_the_nse_site_or_old_bulk_download():
     lowered = nsdl.ENDPOINT.lower()
     assert "nseindia" not in lowered
-    assert "/api/" not in lowered
+    assert "nsdl.co.in" not in lowered
+    assert "downloadables" not in lowered
 
 
-def test_endpoint_equals_the_published_download_url():
+def test_endpoint_equals_the_web_search_api_url():
     assert nsdl.ENDPOINT == EXPECTED_ENDPOINT
 
 
-def test_transport_receives_the_endpoint_and_timeout():
+def test_transport_receives_a_per_isin_url_and_timeout():
     seen = []
 
     def transport(url, timeout):
@@ -82,7 +83,7 @@ def test_transport_receives_the_endpoint_and_timeout():
         return fixture_text(MASTER)
 
     nsdl.NsdlAdapter(transport=transport, timeout=7.5).fetch(VALID_ISIN)
-    assert seen == [(nsdl.ENDPOINT, 7.5)]
+    assert seen == [(nsdl.build_url(VALID_ISIN), 7.5)]
 
 
 def test_default_transport_reports_unreachable():
