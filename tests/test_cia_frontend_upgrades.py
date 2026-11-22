@@ -72,6 +72,42 @@ def test_html_has_scroll_padding_for_sticky_topbar():
     assert re.search(r"(^|\s)html\s*\{[^}]*scroll-padding-top:\s*4\.5rem", css)
 
 
+BASE_HTML = TEMPLATES / "base.html"
+BOTTOM_TABS = re.compile(r'<nav class="bottom-tabs".*?</nav>', re.S)
+UNICODE_GLYPHS = ("&#9638;", "&#9636;", "&#9678;", "&#9670;", "&#9776;")
+
+
+def test_viewport_meta_has_viewport_fit_cover():
+    html = BASE_HTML.read_text(encoding="utf-8")
+    match = re.search(r'<meta name="viewport" content="([^"]*)"', html)
+    assert match and "viewport-fit=cover" in match.group(1)
+
+
+def test_bottom_tabs_respect_safe_area_inset():
+    css = (STATIC / "theme.css").read_text(encoding="utf-8")
+    bodies = [body for header, body in _rules(css) if header == ".bottom-tabs"]
+    assert any("env(safe-area-inset-bottom)" in body for body in bodies)
+
+
+def test_bottom_tabs_use_svg_icons_not_unicode_glyphs():
+    html = BASE_HTML.read_text(encoding="utf-8")
+    block = BOTTOM_TABS.search(html)
+    assert block, "bottom-tabs nav not found"
+    tabs = block.group(0)
+    for glyph in UNICODE_GLYPHS:
+        assert glyph not in tabs
+    assert tabs.count("<svg") == 5
+    assert tabs.count('aria-hidden="true"') >= 5
+
+
+def test_mobile_hides_drawer_button_below_768px():
+    css = (STATIC / "theme.css").read_text(encoding="utf-8")
+    assert re.search(
+        r"@media \(max-width:\s*767px\)\s*\{\s*\.drawer-btn\s*\{\s*display:\s*none",
+        css,
+    )
+
+
 def test_interactive_controls_have_focus_visible_rings():
     css = (STATIC / "theme.css").read_text(encoding="utf-8")
     focus_rules = [header for header, _ in _rules(css) if ":focus-visible" in header]
