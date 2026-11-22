@@ -13,7 +13,7 @@ from src.bond_master.service import (
 from src.db import get_conn
 from src.import_csv import MAX_IMPORT_BYTES, import_backup_csv
 from src.mailer import send_alert_email
-from src.prefs import alert_prefs_map, set_pref
+from src.prefs import alert_prefs_map, get_pref, set_pref
 from src.validators import AppError
 from src.views.common import (
     APP_VERSION,
@@ -27,6 +27,7 @@ from src.views.common import (
 bp = Blueprint("settings", __name__)
 
 SECTIONS = ("general", "notifications", "share", "data")
+SYNC_NOTHING_TO_SYNC_KEY = "sync_nothing_to_sync"
 
 
 def active_section(raw):
@@ -38,6 +39,17 @@ def format_last_real_pass(stamp):
     if stamp is None:
         return "Never"
     return datetime.fromtimestamp(stamp).strftime("%Y-%m-%d %H:%M")
+
+
+def last_synced_label(db_file):
+    stamp = last_real_pass(db_file)
+    if stamp is not None:
+        return format_last_real_pass(stamp)
+    with get_conn(db_file) as conn:
+        nothing_to_sync = get_pref(conn, SYNC_NOTHING_TO_SYNC_KEY)
+    if nothing_to_sync == "1":
+        return "Nothing to sync yet"
+    return "Never"
 
 
 def settings_from_form(form):
@@ -121,7 +133,7 @@ def settings_page():
         data_dir=str(db_file.parent),
         active=active_section(request.args.get("section")),
         saved=request.args.get("saved") == "1",
-        last_synced=format_last_real_pass(last_real_pass(db_file)),
+        last_synced=last_synced_label(db_file),
     )
 
 
@@ -172,6 +184,9 @@ def settings_auto_fetch_consent():
 def settings_auto_fetch_sync():
     db_file = app_db()
     refresh_all(str(db_file), trigger="manual", transport=current_app.config.get("BOND_MASTER_TRANSPORT"))
+    if last_real_pass(db_file) is None:
+        with get_conn(db_file) as conn:
+            set_pref(conn, SYNC_NOTHING_TO_SYNC_KEY, "1")
     return redirect(url_for("settings.settings_page", section="data"))
 
 

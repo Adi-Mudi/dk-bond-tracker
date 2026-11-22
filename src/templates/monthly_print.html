@@ -4,27 +4,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DK Bond Tracker — Monthly Statement</title>
+<title>Monthly Print — A4 statement — DK Bond Tracker</title>
 <link rel="stylesheet" href="/static/theme.css?v=3">
 <style>
-  :root {
-    --border: {{ palette.ink }};
-    --text: {{ palette.ink }};
-    --muted: {{ palette.sub }};
-    --header-row: {{ palette.th_bg }};
-    --due: {{ palette.due }};
-    --ongoing-light: {{ palette.ongoing_light }};
-    --completed-light: {{ palette.completed_light }};
-    --blue-light: {{ palette.blue_light }};
-    --white: {{ palette.paper }};
-    --card-bg: {{ palette.card_bg }};
-    --screen-bg: {{ palette.screen_bg }};
-    --badge-bg: {{ palette.badge_bg }};
-    --sheet-border: {{ palette.sheet_border }};
-    --shadow-overlay: {{ palette.shadow_overlay }};
-    --shadow-soft: {{ palette.shadow_soft }};
-  }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -42,12 +24,15 @@
     border-radius: 6px;
     padding: 14px 18px;
   }
-  .screen-chrome h1 { font-size: 18px; margin-bottom: 6px; }
+  .screen-chrome .page-title { font-size: 18px; font-weight: 650; margin-bottom: 6px; white-space: normal; overflow: visible; text-overflow: clip; }
   .screen-chrome p { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.45; }
   .chrome-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   .print-btn {
     font-family: inherit;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
     font-size: 13px;
     font-weight: 700;
     padding: 8px 18px;
@@ -226,9 +211,9 @@
   }
 </style>
 </head>
-<body{% if privacy %} class="privacy-on"{% endif %}>
+<body class="print-statement{% if privacy %} privacy-on{% endif %}">
 <div class="screen-chrome">
-  <h1>Monthly Print — A4 statement</h1>
+  <div class="page-title" id="print-page-title">Monthly Print — A4 statement</div>
   <p>Dedicated print-optimized statement (D25 / FR-37): month header, portfolio summary, this-month payment table, status list, alerts footer. Figures computed live at render time.</p>
   <div class="chrome-row">
     <button type="button" class="print-btn" onclick="window.print()">Print</button>

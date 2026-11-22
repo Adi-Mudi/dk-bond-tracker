@@ -1,0 +1,40 @@
+{
+  "id": "fix_round_rulings_20261118",
+  "kind": "report",
+  "topic": "manual-staging-campaign fix round - PM rulings + 8 fixes delivered to foundation",
+  "date": "2026-11-18",
+  "author": "PM (dk-bond-tracker)",
+  "overall_status": "FIX_ROUND_COMPLETE_8_OF_8_MERGED_PENDING_HUMAN_UAT",
+  "source_discussions": ["#279", "#280", "#281", "#261", "#234", "#293"],
+  "process_reference": {
+    "incident_report": "agents_rules#191",
+    "closure_rule": "pm-initiative-lifecycle v1.0.17 standing rule 6 + verify-before-close skill",
+    "topology": "PM -> C1 -> W1 (captain sole sender); review lane flat PM -> R1"
+  },
+  "pm_rulings": [
+    {"id": "R-coupon", "decision": "coupon_pct REQUIRED (core fact, labeled required); expected_yield_pct OPTIONAL (labeled optional)", "issue": 305, "status": "IMPLEMENTED"},
+    {"id": "R-isin-case", "decision": "server REJECTS non-uppercase ISIN with standard 12-char format error", "issue": 305, "status": "IMPLEMENTED"},
+    {"id": "R-amount", "decision": "amount must be > 0 on add and move", "issue": 305, "status": "IMPLEMENTED"},
+    {"id": "R-date", "decision": "invalid purchase_date -> field-level error; valid stored verbatim", "issue": 305, "status": "IMPLEMENTED"},
+    {"id": "R-errors", "decision": "ALL validation errors rendered next to their own fields simultaneously (no coupon-first masking)", "issue": 305, "status": "IMPLEMENTED"},
+    {"id": "R6-rescope", "decision": "qty+amount together applies to MOVE form only (payment-edit amount-only is domain-correct; qty is bond-level); 18 payment tests untouched", "issue": 305, "status": "IMPLEMENTED", "source": "W1 ASK via C1, PM ruling Option 1"},
+    {"id": "R-rating-gate", "decision": "effective_rating = manual_choice OR fetched_rating; reject only when both empty; AF-09 below-threshold refusal stands as higher authority", "issue": 300, "status": "IMPLEMENTED"},
+    {"id": "R-goal-empty", "decision": "Move goal select always renders; empty state = none-option + caption + /goals hint link (d279 line 187)", "issue": 299, "status": "IMPLEMENTED"},
+    {"id": "R-sync-copy", "decision": "timestamp only when sync ran; Sync now + nothing-to-sync -> 'Nothing to sync yet'; fresh stays Never until first attempt", "issue": 304, "status": "IMPLEMENTED"},
+    {"id": "R-touch", "decision": "all tappables >= 48px effective + >= 8px neighbor gaps (community checklist T1/T2)", "issue": 303, "status": "IMPLEMENTED"}
+  ],
+  "status_items": [
+    {"item": "#300 rating gate (S2)", "status": "DONE", "evidence": ["PR #306 merged 2a2d249", "R1 AGREED", "CI 3/3", "tests/test_300_rating_gate.py"]},
+    {"item": "#301 fetch Apply full-facts", "status": "DONE", "evidence": ["PR #307 merged bbc6007", "R1 AGREED", "CI 3/3", "tests/test_301_fetch_apply.py 11 tests"]},
+    {"item": "#299 goal select always visible", "status": "DONE", "evidence": ["PR #308 merged 3ec3984", "R1 AGREED", "CI 3/3", "tests/test_299_goal_select_visible.py 7 tests"]},
+    {"item": "#302 consent first-launch visible", "status": "DONE", "evidence": ["PR #309 merged 7dd06bf", "R1 AGREED", "CI 3/3", "tests/test_302_consent_first_launch.py 5 tests"]},
+    {"item": "#298 Move panel derived End date + vertical layout", "status": "DONE", "evidence": ["PR #310 merged c2fdcd4", "R1 AGREED", "CI 3/3", "tests/test_298_move_panel.py 8 tests"]},
+    {"item": "#305 validation cluster (6 findings + R1-R6)", "status": "DONE", "evidence": ["PR #311 merged b4010f9", "R1 AGREED", "CI 3/3", "V0 all 6 REPRODUCED on foundation", "1471 tests"]},
+    {"item": "#303 touch targets >=48px", "status": "DONE", "evidence": ["PR #312 merged e7abd43", "R1 AGREED", "CI 3/3", "tests/test_303_touch_targets.py", "1482 tests", "device uiautomator re-stage still owed in Stage 5"]},
+    {"item": "#304 sync label honest copy", "status": "DONE", "evidence": ["PR #313 merged e546da3", "R1 AGREED", "CI 3/3", "tests/test_304_sync_label.py 5 tests", "1487 tests", "tmpfs flake disclosed + rerun green"]},
+    {"item": "Fresh APK + end-to-end UAT per discussions", "status": "PENDING", "evidence": ["foundation e546da3 is the UAT ref"]},
+    {"item": "Human closure of issues + discussions", "status": "PENDING", "evidence": ["verify-before-close gates; developer only"]}
+  ],
+  "foundation_head_at_close": "e546da3",
+  "tests_at_close": "1487 passed local; CI green on all 8 PRs"
+}

@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% from "_macros.html" import money, money_text %}
+{% block title %}Watchlist — DK Bond Tracker{% endblock %}
 {% block head %}
 <style>
-  .move-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 8px; align-items: end; }
+  .move-form { display: flex; gap: 12px; }
+  .move-form-stack { flex-direction: column; align-items: stretch; }
+  .move-group { min-width: 0; margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+  .move-group legend { padding: 0 6px; font-weight: 600; }
   .move-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .move-field label { font-size: 14px; color: var(--text); line-height: 1.25; }
   .move-form input[type="date"],
@@ -19,7 +23,7 @@
     color: var(--text);
   }
   .move-form input[readonly] { background: var(--bg); color: var(--muted); }
-  .move-actions { display: flex; gap: 8px; align-items: flex-end; }
+  .move-actions { display: flex; gap: 8px; align-items: center; }
   .details-row td { height: auto; padding: 12px; background: var(--header-row); }
   .facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 12px 16px; }
   .fact-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
@@ -56,13 +60,13 @@
     max-height: 12rem;
     overflow-y: auto;
   }
-  .combobox-option { padding: 8px 10px; font-size: 13px; cursor: pointer; }
+  .combobox-option { min-height: 3rem; display: flex; align-items: center; padding: 8px 10px; font-size: 13px; cursor: pointer; }
   .combobox-option.active { background: var(--watching-bg); color: var(--accent); font-weight: 600; }
   .field-error { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--danger-fg); }
   .field-error-icon { font-weight: 700; }
   .error-popup { border-width: 2px; }
   .error-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-  .history-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .history-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
   .details-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 8px; }
   .move-panel { display: none; }
   .move-panel.active { display: block; }
@@ -107,7 +111,7 @@
   .row-meta { display: block; margin-top: 2px; }
   .row-yield { display: block; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .row-yield-label { display: block; font-size: 12px; color: var(--muted); }
-  .row-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  .row-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
   .fetch-states { display: block; }
   .fetch-state[hidden] { display: none; }
   .fetch-state .fetch-spinner { display: inline-block; vertical-align: middle; }
@@ -127,6 +131,7 @@
     background: var(--ongoing-bg);
     color: var(--ongoing-fg);
   }
+  .fetch-unavailable { color: var(--muted); font-style: italic; }
   .fetch-spinner {
     display: inline-block;
     width: 0.85rem;
@@ -151,6 +156,13 @@
   }
   .isin-countdown[hidden] { display: none; }
   .isin-countdown-seconds { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .isin-hint[data-state="valid"] { color: var(--ongoing-fg); font-weight: 600; }
+  .isin-hint[data-state="invalid"] { color: var(--danger-fg); font-weight: 600; }
+  .isin-live-error { margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--danger-fg); }
+  .isin-live-error[hidden] { display: none; }
+  .isin-fetch-reason { display: block; margin-top: 6px; font-size: 12px; line-height: 20px; color: var(--warn-fg); }
+  .isin-fetch-reason[hidden] { display: none; }
+  #c-isin-fetch:disabled { opacity: 0.65; cursor: not-allowed; }
 </style>
 {% endblock %}
 {% block page_title %}Watchlist{% endblock %}
@@ -204,50 +216,65 @@
       <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="offline"{% if fetch.state != 'offline' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> {{ fetch.message }} {% if fetch.asof %}Last known data: {{ fetch.asof }} &#183; {% endif %}Nothing is blocked &mdash; you can add the bond manually.{% if fetch.cached %} {% for field, value in fetch.cached.items() %}<span class="fetch-source fetch-source-cached" data-fetch-cached="{{ field }}">{{ field }}: {{ value }}{% if fetch.asof %} &#183; {{ fetch.asof }}{% endif %}</span> {% endfor %}{% endif %}</p>
       <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="downgrade"{% if fetch.state != 'downgrade' %} hidden{% endif %}><span class="fetch-icon" aria-hidden="true">&#9888;</span> Filled from a lesser-confidence source. {{ fetch.message }} Each value keeps its source label. <a href="#fetch-sources" class="fetch-link">See sources</a></p>
     </div>
+    {% if other_field_errors %}
+    <div class="field-error-summary" id="c-other-errors" role="alert">
+      {% for field, message in other_field_errors.items() %}
+      <p class="field-error" id="c-{{ field }}-error"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
     <div class="form-grid" id="c-step-one">
       <div class="field">
         <label for="c-isin">ISIN {{ tip("c-isin", "howto", "A 12-character code, shown in capitals. Each ISIN can be on your list only once.") }}</label>
-        <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' %} aria-invalid="true"{% endif %}>
-        <span class="caption" id="c-isin-help" hidden>12 characters, forced uppercase, unique across the register</span>
-        <button type="button" class="btn btn-sm" id="c-isin-fetch" data-label-idle="Fetch bond details" data-label-busy="Looking up..." data-label-wait="Try again in 60s">Fetch bond details</button>
+        <input type="text" id="c-isin" name="isin" value="{{ form.get('isin', '') }}" aria-describedby="c-isin-help{% if error_field == 'isin' or field_errors.get('isin') %} c-isin-error{% endif %}" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()"{% if error_field == 'isin' or field_errors.get('isin') %} aria-invalid="true"{% endif %} data-isin-input>
+        <span class="caption isin-hint" id="c-isin-help" data-isin-hint role="status" aria-live="polite">12 characters, forced uppercase, unique across the register</span>
+        <p class="field-error isin-live-error" id="c-isin-live-error" role="alert" data-isin-live-error hidden></p>
+        <button type="button" class="btn btn-sm" id="c-isin-fetch" data-label-idle="Fetch bond details" data-label-busy="Looking up..." data-label-wait="Try again in 60s" disabled>Fetch bond details</button>
+        <span class="isin-fetch-reason" id="c-isin-fetch-reason" data-isin-fetch-reason role="status" aria-live="polite">Fetch needs 12 valid characters</span>
         <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="{{ fetch.countdown_seconds | default(60) }}" role="status" aria-live="polite"{% if not fetch.countdown_active %} hidden{% endif %}>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">{{ fetch.countdown_seconds | default(60) }}</span>s for the next live lookup &mdash; the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
-        {% if error_field == 'isin' %}
-        <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% if error_field == 'isin' or field_errors.get('isin') %}
+        <p class="field-error" id="c-isin-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('isin') or error }}</p>
         {% endif %}
       </div>
     </div>
     <div class="form-grid" id="c-details"{% if not (error or fetch.state in ['found', 'downgrade', 'notfound', 'offline']) %} hidden{% endif %}>
       <div class="field field-company">
         <label for="c-company">Company</label>
-        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" {% if error_field == 'company' %}aria-describedby="c-company-error" {% endif %} autocomplete="off"{% if error_field == 'company' %} aria-invalid="true"{% endif %}>
+        <input type="text" id="c-company" name="company" value="{{ form.get('company', '') }}" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" {% if error_field == 'company' or field_errors.get('company') %}aria-describedby="c-company-error" {% endif %} autocomplete="off"{% if error_field == 'company' or field_errors.get('company') %} aria-invalid="true"{% endif %}>
         <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
           {% for entry in register %}
           <li role="option" id="c-company-opt-{{ loop.index }}" class="combobox-option" data-value="{{ entry.company }}">{{ entry.company }}</li>
           {% endfor %}
         </ul>
-        {% if error_field == 'company' %}
-        <p class="field-error" id="c-company-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% if error_field == 'company' or field_errors.get('company') %}
+        <p class="field-error" id="c-company-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('company') or error }}</p>
         {% endif %}
       </div>
       <div class="field">
         <label for="c-rating">Rating</label>
-        <select id="c-rating" name="rating"{% if error_field == 'rating' %} aria-invalid="true" aria-describedby="c-rating-error"{% endif %}>
+        <select id="c-rating" name="rating"{% if error_field == 'rating' or field_errors.get('rating') %} aria-invalid="true" aria-describedby="c-rating-error"{% endif %}>
           <option value=""{% if not form.get('rating') %} selected{% endif %}>&#8212;</option>
           {% for rating in options.ratings %}
           <option value="{{ rating }}"{% if form.get('rating') == rating %} selected{% endif %}>{{ rating }}</option>
           {% endfor %}
         </select>
-        {% if error_field == 'rating' %}
-        <p class="field-error" id="c-rating-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ error }}</p>
+        {% if error_field == 'rating' or field_errors.get('rating') %}
+        <p class="field-error" id="c-rating-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('rating') or error }}</p>
         {% endif %}
       </div>
       <div class="field">
-        <label for="c-coupon">Coupon (%)</label>
-        <div class="field-input-suffix pct"><input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" value="{{ form.get('coupon_pct', '') }}"><span aria-hidden="true">%</span></div>
+        <label for="c-coupon">Coupon (%) <span class="caption">(required)</span></label>
+        <div class="field-input-suffix pct"><input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" required value="{{ form.get('coupon_pct', '') }}"><span aria-hidden="true">%</span></div>
+        {% if field_errors.get('coupon') %}
+        <p class="field-error" id="c-coupon-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('coupon') }}</p>
+        {% endif %}
       </div>
       <div class="field">
-        <label for="c-yield">Expected yield (%)</label>
+        <label for="c-yield">Expected yield (%) <span class="caption">(optional)</span></label>
         <div class="field-input-suffix pct"><input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" placeholder="e.g. 9.2" value="{{ form.get('expected_yield_pct', '') }}"><span aria-hidden="true">%</span></div>
+        {% if field_errors.get('yield') %}
+        <p class="field-error" id="c-yield-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('yield') }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-issuer">Issuer type</label>
@@ -259,6 +286,9 @@
           <option value="government"{% if form.get('issuer_type') == 'government' %} selected{% endif %}>Government</option>
           <option value="fd"{% if form.get('issuer_type') == 'fd' %} selected{% endif %}>FD</option>
         </select>
+        {% if field_errors.get('issuer_type') %}
+        <p class="field-error" id="c-issuer-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('issuer_type') }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-secured">Secured</label>
@@ -271,10 +301,16 @@
       <div class="field">
         <label for="c-face">Face value</label>
         <input type="number" id="c-face" name="face_value" step="any" min="0" placeholder="1000.00" value="{{ form.get('face_value', '') }}">
+        {% if field_errors.get('face_value') %}
+        <p class="field-error" id="c-face-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('face_value') }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-maturity">Maturity date</label>
         <input type="date" id="c-maturity" name="maturity_date" value="{{ form.get('maturity_date', '') }}">
+        {% if field_errors.get('maturity_date') %}
+        <p class="field-error" id="c-maturity-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('maturity_date') }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-listing">Listing status</label>
@@ -283,6 +319,9 @@
           <option value="listed"{% if form.get('listing_status') == 'listed' %} selected{% endif %}>Listed</option>
           <option value="unlisted"{% if form.get('listing_status') == 'unlisted' %} selected{% endif %}>Unlisted</option>
         </select>
+        {% if field_errors.get('listing_status') %}
+        <p class="field-error" id="c-listing-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('listing_status') }}</p>
+        {% endif %}
       </div>
       <div class="field">
         <label for="c-cycle">Payout cycle</label>
@@ -293,6 +332,9 @@
           <option value="annual"{% if form.get('payout_cycle') == 'annual' %} selected{% endif %}>Annual</option>
         </select>
         <span class="months-readout" id="c-months" data-months-for="add" aria-live="polite"></span>
+        {% if field_errors.get('payout_cycle') %}
+        <p class="field-error" id="c-cycle-error" role="alert"><span class="field-error-icon" aria-hidden="true">&#9888;</span> {{ field_errors.get('payout_cycle') }}</p>
+        {% endif %}
       </div>
       <details class="field span-all more-details" id="c-more"{% if form.get('rating_agency') or form.get('source_note') or form.get('broker') or error_field == 'broker' %} open{% endif %}>
         <summary>More details</summary>
@@ -340,23 +382,43 @@
   </form>
 </div>
 
-{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', ''), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
+{% set fetch_fact_order = [('company', 'company'), ('coupon', 'coupon_pct'), ('maturity', 'maturity_date'), ('rating', 'rating'), ('rating_agency', 'rating_agency'), ('issuer_type', 'issuer_type'), ('payout_cycle', 'payout_cycle'), ('secured', 'secured')] %}
 {% set fetch_fact_labels = {'company': 'Company', 'coupon': 'Coupon', 'maturity': 'Maturity', 'rating': 'Rating', 'rating_agency': 'Rating agency', 'issuer_type': 'Issuer type', 'payout_cycle': 'Payout cycle', 'secured': 'Secured'} %}
 {% set fetch_values = fetch['values'] or {} %}
+{% set fetch_full = fetch.tier == 'official' %}
 <div class="confirm-dialog fetch-popup" id="{{ 'fetch-details' if fetch.popup_facts else 'fetch-details-tpl' }}" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="{{ fetch.isin if fetch.popup_facts else '' }}" hidden>
   <div class="confirm-inner">
     <h2 id="fetch-details-title">Fetched details</h2>
     <p class="caption" id="fetch-details-asof">As of {{ fetch.asof }}{% if fetch.source_names %} &#183; {{ fetch.source_names|join(', ') }}{% endif %}</p>
     <div class="facts-grid" id="fetch-sources">
       {% for fact, field in fetch_fact_order %}
-      {% if fetch.popup_facts.get(fact) is not none %}
+      {% set label = fetch_fact_labels[fact] %}
+      {% set available = fetch.popup_facts.get(fact) is not none %}
+      {% if available or fetch_full %}
+      {% if available %}
       {% set detail_value = fetch_values.get(field) if (field and fetch_values.get(field) is not none) else fetch.popup_facts.get(fact) %}
       <div class="fact" data-fetch-detail="{{ fact }}"{% if field %} data-apply-field="{{ field }}" data-apply-value="{{ detail_value }}"{% endif %}>
-        <span class="fact-label">{{ fetch_fact_labels[fact] }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
+        <span class="fact-label">{{ label }}{% if fetch.sources.get(fact) %}<span class="fetch-source" data-fetch-source="{{ fact }}">{{ fetch.sources.get(fact) }}</span>{% endif %}</span>
         <span class="fact-value">{{ detail_value }}</span>
       </div>
+      {% else %}
+      <div class="fact fact-unavailable" data-fetch-unavailable="{{ fact }}">
+        <span class="fact-label">{{ label }}</span>
+        <span class="fact-value fetch-unavailable">not provided by this source</span>
+      </div>
+      {% endif %}
       {% endif %}
       {% endfor %}
+      {% if fetch_full %}
+      <div class="fact fact-context" data-fetch-context="face_value">
+        <span class="fact-label">Face value<span class="fetch-source">form</span></span>
+        <span class="fact-value">{{ fetch_values.get('face_value') if fetch_values.get('face_value') is not none else '&#8212;' }}</span>
+      </div>
+      <div class="fact fact-context" data-fetch-context="listing_status">
+        <span class="fact-label">Listing status<span class="fetch-source">form</span></span>
+        <span class="fact-value">{{ fetch_values.get('listing_status') if fetch_values.get('listing_status') else 'Unknown' }}</span>
+      </div>
+      {% endif %}
     </div>
     <div class="confirm-actions">
       <button type="button" class="btn btn-sm" id="fetch-details-dismiss">Enter manually</button>
@@ -409,7 +471,7 @@
         <td colspan="3">
           <form method="post" action="/watch/{{ candidate.id }}/move" id="move-form-{{ candidate.id }}">
           <div class="move-panel active" id="move-panel-purchase-{{ candidate.id }}" data-mpanel="purchase">
-            <div class="move-form">
+            <div class="move-form move-form-stack">
               <fieldset class="move-group">
                 <legend>Dates</legend>
                 <div class="move-field">
@@ -420,10 +482,17 @@
                   <label for="move-start-{{ candidate.id }}">Interest start date {{ tip("move-start-" ~ candidate.id, "howto", "The day interest starts to build up. Usually the bond's dated date.") }}</label>
                   <input type="date" id="move-start-{{ candidate.id }}" name="start_date" value="">
                 </div>
-                {% if not candidate.maturity_date %}
+                {% if candidate.maturity_date %}
+                <div class="move-field">
+                  <label>End date</label>
+                  <input type="text" class="move-derived" value="{{ candidate.maturity_date }} — from maturity date" readonly>
+                  <span class="caption">never asked again; the input appears only when the watchlist entry has no maturity date</span>
+                </div>
+                {% else %}
                 <div class="move-field">
                   <label for="move-end-{{ candidate.id }}">End date</label>
                   <input type="date" id="move-end-{{ candidate.id }}" name="end_date" required>
+                  <span class="caption">No maturity date on file. Enter the end date to complete the bond facts.</span>
                 </div>
                 {% endif %}
                 <div class="move-field">
@@ -434,7 +503,7 @@
                 <legend>Amount</legend>
                 <div class="move-field">
                   <label for="move-amount-{{ candidate.id }}">Amount invested</label>
-                  <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
+                  <input type="number" id="move-amount-{{ candidate.id }}" name="amount" step="any" min="0.01" placeholder="0.00" required oninput="perBond('move-amount-{{ candidate.id }}','move-qty-{{ candidate.id }}','move-perbond-{{ candidate.id }}')">
                 </div>
                 <div class="move-field">
                   <label for="move-qty-{{ candidate.id }}">Number of bonds</label>
@@ -451,15 +520,18 @@
               </fieldset>
               <fieldset class="move-group">
                 <legend>Optional</legend>
-                {% if goals %}
                 <div class="move-field">
                   <label for="move-goal-{{ candidate.id }}">Financial goal {{ tip("move-goal-" ~ candidate.id, "howto", "Link this bond to a goal. The link is permanent once saved.") }}</label>
                   <select id="move-goal-{{ candidate.id }}" name="goal_id">
                     <option value="">&#8212; none &#8212;</option>
                     {% for goal in goals %}<option value="{{ goal.id }}">{{ goal.name }}</option>{% endfor %}
                   </select>
+                  {% if goals %}
+                  <span class="caption">optional; the link is permanent once saved</span>
+                  {% else %}
+                  <span class="caption">optional; the link is permanent once saved &#8212; no goals yet, <a href="/goals">create a goal first</a></span>
+                  {% endif %}
                 </div>
-                {% endif %}
                 <div class="move-field">
                   <label for="move-credit-{{ candidate.id }}">Interest credit day {{ tip("move-credit-" ~ candidate.id, "howto", "The day of each month when interest is credited to your account.") }}</label>
                   <select id="move-credit-{{ candidate.id }}" name="credit_day">
@@ -735,12 +807,118 @@
   var popup = document.getElementById("fetch-details") || document.getElementById("fetch-details-tpl");
   var fetched = form.getAttribute("data-fetched-isin") || "";
   var dirty = {};
+  var appliedValues = {};
+  var hint = document.getElementById("c-isin-help");
+  var hintDefault = hint ? hint.textContent : "";
+  var liveError = document.getElementById("c-isin-live-error");
+  var fetchReason = document.getElementById("c-isin-fetch-reason");
+  var baseDescribedBy = isin ? (isin.getAttribute("aria-describedby") || "") : "";
+  var ISIN_LEN = 12;
+  function validationMessage(value, valid) {
+    if (valid) {
+      return "";
+    }
+    if (value.length < ISIN_LEN) {
+      return "ISIN needs " + ISIN_LEN + " characters - " + value.length + "/" + ISIN_LEN + " entered.";
+    }
+    return "ISIN format invalid - use 2 letters, 9 letters or digits, then 1 digit.";
+  }
+  function setValueState(value, valid) {
+    if (hint) {
+      if (value.length === 0) {
+        hint.textContent = hintDefault;
+        hint.setAttribute("data-state", "idle");
+      } else {
+        hint.textContent = valid
+          ? "\u2713 12/12 valid - ready to fetch"
+          : value.length + "/12 characters";
+        hint.setAttribute("data-state", valid ? "valid" : "invalid");
+      }
+    }
+    if (button) {
+      button.disabled = !valid;
+    }
+    if (fetchReason) {
+      fetchReason.hidden = valid;
+      if (!valid) {
+        var missing = ISIN_LEN - value.length;
+        fetchReason.textContent = missing > 0
+          ? "Fetch needs " + missing + " more character" + (missing === 1 ? "" : "s") + "."
+          : "Fetch needs a valid ISIN format.";
+      }
+    }
+  }
+  function clearInlineError() {
+    if (liveError) {
+      liveError.textContent = "";
+      liveError.hidden = true;
+    }
+    var serverError = document.getElementById("c-isin-error");
+    if (serverError) {
+      serverError.hidden = true;
+    }
+    if (isin) {
+      isin.removeAttribute("aria-invalid");
+      isin.setAttribute("aria-describedby", baseDescribedBy);
+    }
+  }
+  function showInlineError(value, valid) {
+    var message = validationMessage(value, valid);
+    if (!message) {
+      return;
+    }
+    if (liveError) {
+      liveError.textContent = message;
+      liveError.hidden = false;
+    }
+    if (isin) {
+      isin.setAttribute("aria-invalid", "true");
+      isin.setAttribute("aria-describedby", baseDescribedBy + " c-isin-live-error");
+    }
+  }
+  function onIsinInput() {
+    var value = isinValue();
+    var valid = shapeIsValid();
+    setValueState(value, valid);
+    if (valid) {
+      clearInlineError();
+    } else if (liveError && !liveError.hidden) {
+      showInlineError(value, valid);
+    }
+  }
+  function onIsinBlur() {
+    var value = isinValue();
+    var valid = shapeIsValid();
+    setValueState(value, valid);
+    if (valid) {
+      clearInlineError();
+      runFetch();
+    } else {
+      showInlineError(value, valid);
+    }
+  }
+  function writeFactValues(values) {
+    Object.keys(values || {}).forEach(function (field) {
+      if (dirty[field]) {
+        return;
+      }
+      var value = values[field];
+      if (value === null || value === undefined) {
+        return;
+      }
+      var element = fieldElement(field);
+      if (element) {
+        element.value = value;
+      }
+    });
+  }
   var FACT_FIELDS = [
     ["company", "company", "c-company"],
     ["rating", "rating", "c-rating"],
     ["rating_agency", "rating_agency", "c-rating-agency"],
     ["coupon", "coupon_pct", "c-coupon"],
     ["face_value", "face_value", "c-face"],
+    ["maturity", "maturity_date", "c-maturity"],
     ["issuer_type", "issuer_type", "c-issuer"],
     ["payout_cycle", "payout_cycle", "c-cycle"],
     ["secured", "secured", "c-secured"]
@@ -835,10 +1013,12 @@
       }
       clearField(document.getElementById(entry[2]));
     });
+    appliedValues = {};
     clearSourceBadges();
     showState("idle");
   }
   function applyFetchedFacts() {
+    writeFactValues(appliedValues);
     if (!popup) {
       return;
     }
@@ -907,7 +1087,7 @@
   var FETCH_FACT_ORDER = [
     ["company", "company", "Company"],
     ["coupon", "coupon_pct", "Coupon"],
-    ["maturity", "", "Maturity"],
+    ["maturity", "maturity_date", "Maturity"],
     ["rating", "rating", "Rating"],
     ["rating_agency", "rating_agency", "Rating agency"],
     ["issuer_type", "issuer_type", "Issuer type"],
@@ -925,24 +1105,30 @@
     var facts = payload.popup_facts || {};
     var values = payload.values || {};
     var sources = payload.sources || {};
+    var full = payload.tier === "official";
     FETCH_FACT_ORDER.forEach(function (entry) {
       var fact = entry[0];
       var field = entry[1];
-      if (facts[fact] === undefined || facts[fact] === null) {
+      var available = facts[fact] !== undefined && facts[fact] !== null;
+      if (!available && !full) {
         return;
       }
-      var detail = field && values[field] !== undefined && values[field] !== null ? values[field] : facts[fact];
+      var detail = available && field && values[field] !== undefined && values[field] !== null ? values[field] : facts[fact];
       var row = document.createElement("div");
-      row.className = "fact";
-      row.setAttribute("data-fetch-detail", fact);
-      if (field) {
-        row.setAttribute("data-apply-field", field);
-        row.setAttribute("data-apply-value", String(detail));
+      row.className = "fact" + (available ? "" : " fact-unavailable");
+      if (available) {
+        row.setAttribute("data-fetch-detail", fact);
+        if (field) {
+          row.setAttribute("data-apply-field", field);
+          row.setAttribute("data-apply-value", String(detail));
+        }
+      } else {
+        row.setAttribute("data-fetch-unavailable", fact);
       }
       var label = document.createElement("span");
       label.className = "fact-label";
       label.textContent = entry[2];
-      if (sources[fact]) {
+      if (available && sources[fact]) {
         var source = document.createElement("span");
         source.className = "fetch-source";
         source.setAttribute("data-fetch-source", fact);
@@ -950,12 +1136,34 @@
         label.appendChild(source);
       }
       var value = document.createElement("span");
-      value.className = "fact-value";
-      value.textContent = String(detail);
+      value.className = "fact-value" + (available ? "" : " fetch-unavailable");
+      value.textContent = available ? String(detail) : "not provided by this source";
       row.appendChild(label);
       row.appendChild(value);
       grid.appendChild(row);
     });
+    if (full) {
+      [["face_value", "Face value"], ["listing_status", "Listing status"]].forEach(function (entry) {
+        var key = entry[0];
+        var row = document.createElement("div");
+        row.className = "fact fact-context";
+        row.setAttribute("data-fetch-context", key);
+        var label = document.createElement("span");
+        label.className = "fact-label";
+        label.textContent = entry[1];
+        var source = document.createElement("span");
+        source.className = "fetch-source";
+        source.textContent = "form";
+        label.appendChild(source);
+        var value = document.createElement("span");
+        value.className = "fact-value";
+        var shown = values[key];
+        value.textContent = shown !== undefined && shown !== null && shown !== "" ? String(shown) : (key === "listing_status" ? "Unknown" : "\u2014");
+        row.appendChild(label);
+        row.appendChild(value);
+        grid.appendChild(row);
+      });
+    }
   }
   function renderPopupCaption(payload) {
     var asof = document.getElementById("fetch-details-asof");
@@ -1015,16 +1223,8 @@
   function applyLookupPayload(payload) {
     fetched = payload.isin || isinValue();
     form.setAttribute("data-fetched-isin", fetched);
-    var values = payload.values || {};
-    FACT_FIELDS.forEach(function (entry) {
-      if (dirty[entry[1]] || values[entry[1]] === undefined) {
-        return;
-      }
-      var element = document.getElementById(entry[2]);
-      if (element && values[entry[1]] !== null) {
-        element.value = values[entry[1]];
-      }
-    });
+    appliedValues = payload.values || {};
+    writeFactValues(appliedValues);
     showState(payload.state);
     if (popup && payload.popup_facts && Object.keys(payload.popup_facts).length) {
       renderFetchRows(payload);
@@ -1038,7 +1238,9 @@
   form.addEventListener("change", mark);
   if (isin) {
     isin.addEventListener("input", invalidateOnIsinChange);
-    isin.addEventListener("blur", runFetch);
+    isin.addEventListener("input", onIsinInput);
+    isin.addEventListener("blur", onIsinBlur);
+    onIsinInput();
   }
   if (button) {
     button.addEventListener("click", runFetch);

@@ -220,23 +220,27 @@ def fetch_message(state, failure_code=None):
     return ""
 
 
-def rating_gate(payload):
+def rating_gate(payload, manual_rating=""):
     if not payload:
         return None
     facts = payload.get("facts") or {}
     if not facts:
         return None
-    rating = str(facts.get("rating") or "").strip()
-    if is_investment_grade(rating):
-        return None
-    return RATING_GATE_MESSAGE
+    fetched = str(facts.get("rating") or "").strip()
+    manual = str(manual_rating or "").strip()
+    effective = manual or fetched
+    if not effective:
+        return RATING_GATE_MESSAGE
+    if fetched and not is_investment_grade(fetched):
+        return RATING_GATE_MESSAGE
+    return None
 
 
-def autofetch_refusal(isin):
+def autofetch_refusal(isin, manual_rating=""):
     stored = session.get(AUTOFETCH_SESSION_KEY) or {}
     if stored.get("isin") != isin:
         return None
-    return rating_gate(stored.get("payload"))
+    return rating_gate(stored.get("payload"), manual_rating)
 
 
 def _source_names(sources):
@@ -530,18 +534,44 @@ def watch_goals(db_file):
     return [dict(row) for row in rows]
 
 
+INLINE_ERROR_FIELDS = (
+    "isin",
+    "company",
+    "rating",
+    "coupon",
+    "yield",
+    "issuer_type",
+    "face_value",
+    "maturity_date",
+    "listing_status",
+    "payout_cycle",
+)
+
+
 def error_field(code, message):
     text = str(message or "").lower()
     if code == "ERR-watch-rating-gate":
         return "rating"
     if code == "ERR-watch-dup":
         return "isin"
-    if "isin" in text:
-        return "isin"
-    if "company" in text:
-        return "company"
-    if "rating" in text:
-        return "rating"
+    for field in (
+        "isin",
+        "company",
+        "rating",
+        "coupon",
+        "yield",
+        "amount",
+        "purchase_date",
+        "maturity_date",
+        "qty",
+        "face_value",
+        "issuer_type",
+        "listing_status",
+        "payout_cycle",
+        "watch_investment",
+    ):
+        if field in text:
+            return field
     return None
 
 
@@ -553,16 +583,21 @@ def watch_context(
     form_open=False,
     duplicate=None,
     fetch=None,
+    field_errors=None,
 ):
     field = error_field(error_code, error)
     if duplicate and duplicate.get("field"):
         field = duplicate["field"]
+    errors = field_errors or {}
+    other = {key: value for key, value in errors.items() if key not in INLINE_ERROR_FIELDS}
     return {
         "candidates": watch_candidates(db_file),
         "snapshot": watch_snapshot(db_file),
         "error": error,
         "error_code": error_code,
         "error_field": field,
+        "field_errors": errors,
+        "other_field_errors": other,
         "duplicate": duplicate,
         "form": form or {},
         "form_open": form_open,
@@ -600,65 +635,105 @@ def watch_percent(raw, field):
 
 
 def watch_form_values(form):
+    errors = {}
+
+    def capture(field, action, default=None):
+        try:
+            return action()
+        except AppError as exc:
+            errors.setdefault(field, exc.message)
+            return default
+
     company = str(form.get("company", "")).strip()
-    isin = str(form.get("isin", "")).strip().upper()
-    rating = str(form.get("rating", "")).strip()
-    source_note = str(form.get("source_note", "")).strip()
-    broker = str(form.get("broker", "")).strip() or None
-    coupon = watch_percent(form.get("coupon_pct", ""), "coupon")
-    est_yield = watch_percent(form.get("expected_yield_pct", ""), "est yield")
     if not company:
-        raise AppError("ERR-watch-add", "company is required")
+        errors.setdefault("company", "company is required")
+    isin = str(form.get("isin", "")).strip()
     if not isin:
-        raise AppError("ERR-watch-add", "ISIN is required")
-    if not ISIN_PATTERN.match(isin):
-        raise AppError(
-            "ERR-watch-add",
-            f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A01001)",
+        errors.setdefault("isin", "ISIN is required")
+    elif not ISIN_PATTERN.match(isin):
+        errors.setdefault(
+            "isin",
+            f"ISIN format invalid: {isin!r} (expected 12 characters, e.g. INE9000A0101)",
         )
+    rating = str(form.get("rating", "")).strip()
     if not rating:
-        raise AppError("ERR-watch-add", "rating is required")
-    if rating not in WATCH_RATINGS:
-        raise AppError(
-            "ERR-watch-add",
+        errors.setdefault("rating", "rating is required")
+    elif rating not in WATCH_RATINGS:
+        errors.setdefault(
+            "rating",
             f"rating must be investment grade AAA to BBB-: {rating!r}",
         )
+    coupon = capture("coupon", lambda: watch_percent(form.get("coupon_pct", ""), "coupon"))
+    est_yield = capture(
+        "yield",
+        lambda: percent_value(
+            form.get("expected_yield_pct", ""), "est yield", "ERR-watch-add", required=False
+        ),
+    )
+    amount_raw = str(form.get("amount", "") or "").strip()
+    amount = None
+    if amount_raw:
+        amount = capture(
+            "amount",
+            lambda: percent_value(amount_raw, "amount", "ERR-watch-add", required=False),
+        )
+        if amount is not None and amount <= 0:
+            errors.setdefault("amount", f"amount must be greater than 0: {amount_raw!r}")
+    purchase_raw = str(form.get("purchase_date", "") or "").strip()
+    purchase_date = None
+    if purchase_raw:
+        purchase_date = capture(
+            "purchase_date",
+            lambda: parse_date_value(purchase_raw, "purchase_date"),
+        )
+    source_note = str(form.get("source_note", "")).strip()
+    broker = str(form.get("broker", "")).strip() or None
     rating_agency = str(form.get("rating_agency", "")).strip() or None
     issuer_type = str(form.get("issuer_type", "")).strip() or None
     if issuer_type is not None and issuer_type not in WATCH_ISSUER_TYPES:
-        raise AppError(
-            "ERR-watch-add",
+        errors.setdefault(
+            "issuer_type",
             f"issuer_type must be one of corporate_bond, ncd, sdi, "
             f"government, fd: {issuer_type!r}",
         )
     maturity_raw = str(form.get("maturity_date", "")).strip()
-    maturity_date = (
-        parse_date_value(maturity_raw, "maturity_date").isoformat() if maturity_raw else None
-    )
+    maturity_date = None
+    if maturity_raw:
+        maturity_date = capture(
+            "maturity_date",
+            lambda: parse_date_value(maturity_raw, "maturity_date").isoformat(),
+        )
     listing_status = str(form.get("listing_status", "")).strip() or "unknown"
     if listing_status not in WATCH_LISTING_STATUSES:
-        raise AppError(
-            "ERR-watch-add",
+        errors.setdefault(
+            "listing_status",
             f"listing_status must be listed, unlisted or unknown: {listing_status!r}",
         )
     payout_cycle = str(form.get("payout_cycle", "")).strip() or None
     if payout_cycle is not None and payout_cycle not in WATCH_PAYOUT_CYCLES:
-        raise AppError(
-            "ERR-watch-add",
+        errors.setdefault(
+            "payout_cycle",
             f"payout_cycle must be monthly, quarterly or annual: {payout_cycle!r}",
         )
     secured = 1 if str(form.get("secured", "1")) == "1" else 0
-    face_value = percent_value(
-        form.get("face_value", ""), "face_value", "ERR-watch-add", required=False
+    face_value = capture(
+        "face_value",
+        lambda: percent_value(form.get("face_value", ""), "face_value", "ERR-watch-add", required=False),
     )
-    watch_investment = percent_value(
-        form.get("watch_investment", ""),
+    watch_investment = capture(
         "watch_investment",
-        "ERR-watch-add",
-        required=False,
+        lambda: percent_value(form.get("watch_investment", ""), "watch_investment", "ERR-watch-add", required=False),
     )
     qty_raw = str(form.get("qty", "")).strip()
-    qty = validate_positive_int(qty_raw, "qty", "ERR-watch-add") if qty_raw else None
+    qty = (
+        capture("qty", lambda: validate_positive_int(qty_raw, "qty", "ERR-watch-add"))
+        if qty_raw
+        else None
+    )
+    if errors:
+        error = AppError("ERR-watch-add", next(iter(errors.values())))
+        error.field_errors = errors
+        raise error
     return {
         "company": company,
         "isin": isin,
@@ -667,6 +742,8 @@ def watch_form_values(form):
         "broker": broker,
         "coupon": coupon,
         "est_yield": est_yield,
+        "amount": amount,
+        "purchase_date": purchase_date.isoformat() if purchase_date else None,
         "rating_agency": rating_agency,
         "issuer_type": issuer_type,
         "payout_cycle": payout_cycle,
@@ -706,8 +783,8 @@ def watch_insert_candidate(conn, values):
         "INSERT INTO bonds (company, isin, name, rating, coupon_pct, "
         "expected_yield_pct, watch_state, broker, rating_agency, issuer_type, "
         "secured, face_value, payout_cycle, qty, watch_investment, "
-        "maturity_date, listing_status) "
-        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "maturity_date, listing_status, amount, purchase_date) "
+        "VALUES (?, ?, ?, ?, ?, ?, 'watching', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (
             values["company"],
             values["isin"],
@@ -725,6 +802,8 @@ def watch_insert_candidate(conn, values):
             values["watch_investment"],
             values["maturity_date"],
             values["listing_status"],
+            values["amount"],
+            values["purchase_date"],
         ),
     )
     unmark_isin_deleted(conn, values["isin"])
@@ -738,7 +817,10 @@ def watch_list():
     if request.method == "POST":
         form = request.form
         try:
-            refusal = autofetch_refusal(str(form.get("isin", "")).strip().upper())
+            refusal = autofetch_refusal(
+                str(form.get("isin", "")).strip().upper(),
+                str(form.get("rating", "")).strip(),
+            )
             if refusal:
                 raise AppError("ERR-watch-rating-gate", refusal)
             values = watch_form_values(form)
@@ -757,6 +839,7 @@ def watch_list():
                         error_code=exc.code,
                         form_open=True,
                         duplicate=getattr(exc, "duplicate", None),
+                        field_errors=getattr(exc, "field_errors", None),
                     ),
                 ),
                 409 if exc.code == "ERR-watch-dup" else 400,
@@ -876,6 +959,11 @@ def watch_move(candidate_id):
         start_raw = str(form.get("start_date", "") or "").strip() or purchase_date.isoformat()
         quantity = validate_positive_int(form.get("qty", ""), "qty", "ERR-move-watching")
         invested = percent_value(form.get("amount", ""), "amount", "ERR-move-watching")
+        if invested <= 0:
+            raise AppError(
+                "ERR-move-watching",
+                f"amount must be greater than 0: {form.get('amount', '')!r}",
+            )
         broker = str(form.get("broker", "")).strip() or None
         goal_raw = str(form.get("goal_id", "") or "").strip()
         with get_conn(db_file) as conn:

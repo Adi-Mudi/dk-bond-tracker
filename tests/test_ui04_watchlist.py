@@ -6,7 +6,7 @@ import pytest
 from conftest import add_bond
 from src.app import create_app
 from src.db import get_conn
-from src.views.watch import WATCH_BROKERS, WATCH_RATINGS
+from src.views.watch import ISIN_PATTERN, WATCH_BROKERS, WATCH_RATINGS
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = (ROOT / "src" / "templates" / "watch.html").read_text(encoding="utf-8")
@@ -102,18 +102,19 @@ def test_ui04_company_history_strip_beside_field(client, db_path):
     assert 'class="history-block"' in html
 
 
-def test_ui04_isin_forced_uppercase_on_store(client, db_path):
+def test_ui04_lowercase_isin_rejected_on_add(client, db_path):
     response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
-    assert response.status_code == 302
+    assert response.status_code == 400
+    assert "ISIN format invalid" in response.get_data(as_text=True)
     with get_conn(db_path) as conn:
         row = conn.execute("SELECT isin FROM bonds WHERE isin = 'INE4000A1001'").fetchone()
-    assert row is not None
+    assert row is None
     assert "toUpperCase" in TEMPLATE
 
 
 def test_ui04_duplicate_popup_with_inline_alert_and_aria_invalid(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
-    response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    response = client.post("/watch", data={**CANDIDATE, "isin": "INE4000A1001"})
     assert response.status_code == 409
     html = response.get_data(as_text=True)
     assert 'id="watch-error" role="alert"' in html
@@ -126,7 +127,7 @@ def test_ui04_duplicate_popup_with_inline_alert_and_aria_invalid(client, db_path
 
 def test_ui04_duplicate_highlights_isin_match_and_company_only(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
-    isin_dup = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    isin_dup = client.post("/watch", data={**CANDIDATE, "isin": "INE4000A1001"})
     assert isin_dup.status_code == 409
     isin_html = isin_dup.get_data(as_text=True)
     assert 'id="c-isin-error" role="alert"' in isin_html
@@ -167,7 +168,7 @@ def test_ui04_duplicate_holding_offers_view_existing_to_portfolio_detail(client,
 def test_ui04_duplicate_watching_offers_view_existing_to_candidate_row(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
     bond_id = candidate_id(db_path)
-    response = client.post("/watch", data={**CANDIDATE, "isin": "ine4000a1001"})
+    response = client.post("/watch", data={**CANDIDATE, "isin": "INE4000A1001"})
     assert response.status_code == 409
     html = response.get_data(as_text=True)
     assert f'id="candidate-{bond_id}"' in html
@@ -271,7 +272,8 @@ def test_ui04_move_form_has_no_tabs_goal_is_plain_field(client, db_path):
     assert client.post("/watch", data=CANDIDATE).status_code == 302
     html = client.get("/watch").get_data(as_text=True)
     assert 'data-mtab=' not in html, "owner removed tabs — goal must be a plain field"
-    assert 'name="goal_id"' not in html, "goal field hidden while zero goals"
+    assert 'name="goal_id"' in html, "goal field always visible, zero goals included (#299)"
+    assert "&#8212; none &#8212;" in html
     with get_conn(db_path) as conn:
         conn.execute("INSERT INTO financial_goals (name, target_amount) VALUES ('House', 600000)")
     html = client.get("/watch").get_data(as_text=True)
@@ -311,3 +313,11 @@ def test_ui04_move_form_keeps_required_fields_inside_tab_panel(client, db_path):
     assert 'name="amount"' in panel
     assert f'id="move-cancel-{bond_id}"' in panel
     assert 'id="move-panel-purchase-%d"' % bond_id in panel
+
+
+def test_ui04_isin_error_example_is_a_valid_isin():
+    source = (ROOT / "src" / "views" / "watch.py").read_text(encoding="utf-8")
+    example = re.search(r"e\.g\. ([A-Z0-9]+)\)", source).group(1)
+    assert len(example) == 12
+    assert ISIN_PATTERN.match(example)
+    assert not ISIN_PATTERN.match(example + "1")

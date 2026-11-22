@@ -37,6 +37,7 @@ html[data-theme="dark"] {
 
 .tip-wrap { position: relative; display: inline-flex; align-items: center; gap: 0.25rem; }
 .tip-trigger {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -52,6 +53,7 @@ html[data-theme="dark"] {
   color: var(--muted);
   cursor: pointer;
 }
+.tip-trigger::after { content: ""; position: absolute; inset: -0.95rem; }
 .tip-bubble {
   display: none;
   position: absolute;
@@ -165,7 +167,7 @@ html[data-theme="dark"] {
   max-width: 100%;
   font: inherit;
   font-size: 0.85rem;
-  height: 2.25rem;
+  height: 3rem;
   padding: 0 0.5rem;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -173,13 +175,13 @@ html[data-theme="dark"] {
   color: var(--text);
 }
 .search-results { list-style: none; margin: 0.375rem 0 0; padding: 0; max-height: 16rem; overflow-y: auto; }
-.search-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.5rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; text-decoration: none; color: var(--text); }
+.search-option { display: flex; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0.375rem 0.5rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; text-decoration: none; color: var(--text); }
 .search-option.active,
 .search-option:hover { background: var(--watching-bg); color: var(--accent); }
 .search-option .so-name { flex: 1 1 auto; min-width: 0; }
 .search-empty { font-size: 0.8rem; color: var(--muted); padding: 0.5rem; }
 .search-group-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 0.75rem 0 0.375rem; }
-.search-hit { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.625rem; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.375rem; text-decoration: none; color: var(--text); }
+.search-hit { display: flex; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0.5rem 0.625rem; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.5rem; text-decoration: none; color: var(--text); }
 .search-hit:hover { background: var(--bg); }
 .search-hit .sh-body { flex: 1 1 auto; min-width: 0; }
 .search-hit .sh-name { display: block; font-weight: 600; }
@@ -190,7 +192,7 @@ html[data-theme="dark"] {
   min-width: 0;
   font: inherit;
   font-size: 0.9rem;
-  height: 2.5rem;
+  height: 3rem;
   padding: 0 0.625rem;
   border: 1px solid var(--border);
   border-radius: 6px;
