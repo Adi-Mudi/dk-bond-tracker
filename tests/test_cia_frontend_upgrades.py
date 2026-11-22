@@ -115,3 +115,51 @@ def test_interactive_controls_have_focus_visible_rings():
     joined = " ".join(focus_rules)
     for tag in INTERACTIVE:
         assert re.search(rf"(^|[\s,]){tag}:focus-visible", joined), f"no focus ring for {tag}"
+
+
+LAYER_DECLARATION = "@layer base, components, templates, overrides;"
+
+
+def _strip_layer_wrapper(css, layer):
+    stripped = css.strip()
+    opener = f"@layer {layer} {{"
+    assert stripped.startswith(opener), f"not wrapped in @layer {layer}"
+    assert stripped.endswith("}"), f"@layer {layer} wrapper not closed"
+    return stripped[len(opener):-1]
+
+
+def test_theme_declares_cascade_layer_order_first():
+    css = (STATIC / "theme.css").read_text(encoding="utf-8")
+    assert css.splitlines()[0].strip() == LAYER_DECLARATION
+
+
+def test_theme_body_is_wrapped_in_components_layer():
+    css = (STATIC / "theme.css").read_text(encoding="utf-8")
+    body = css.split(LAYER_DECLARATION, 1)[1].split("@layer overrides {", 1)[0]
+    assert _rules(_strip_layer_wrapper(body, "components")), "components layer has no rules"
+
+
+def test_every_template_style_block_is_wrapped_in_templates_layer():
+    wrapped = 0
+    for path in sorted(TEMPLATES.glob("*.html")):
+        for block in STYLE_BLOCK.findall(path.read_text(encoding="utf-8")):
+            body = block.strip()
+            if not body:
+                continue
+            if body.startswith(LAYER_DECLARATION):
+                body = body[len(LAYER_DECLARATION):]
+            _strip_layer_wrapper(body, "templates")
+            wrapped += 1
+    assert wrapped >= 16, f"expected 16 layered template style blocks, found {wrapped}"
+
+
+def test_no_unlayered_top_level_rules_remain():
+    for path in [STATIC / "theme.css", STATIC / "guide.css"]:
+        css = re.sub(r"/\*.*?\*/", "", path.read_text(encoding="utf-8"), flags=re.S)
+        depth = 0
+        for line in css.splitlines():
+            stripped = line.strip()
+            if depth == 0 and stripped:
+                assert stripped.startswith("@layer"), f"unlayered top-level content in {path.name}: {stripped[:60]}"
+            depth += line.count("{") - line.count("}")
+        assert depth == 0, f"unbalanced braces in {path.name}"
