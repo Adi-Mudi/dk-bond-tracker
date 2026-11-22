@@ -1,0 +1,578 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+(function () {
+  var stored = localStorage.getItem('dk-theme') || 'system';
+  document.documentElement.setAttribute('data-theme', stored);
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var reapply = function () {
+    var current = localStorage.getItem('dk-theme') || 'system';
+    document.documentElement.setAttribute('data-theme', current);
+  };
+  if (mq.addEventListener) {
+    mq.addEventListener('change', reapply);
+  } else if (mq.addListener) {
+    mq.addListener(reapply);
+  }
+})();
+</script>
+  <title>Goals — DK Bond Tracker</title>
+  <style>
+    .privacy-on .money { font-size: 0; }
+    .privacy-on .money::after { content: "••••"; font-size: 14px; letter-spacing: 0.14em; }
+    .privacy-on .money-input { color: transparent; }
+    .brand-mark { width: 24px; height: 24px; vertical-align: middle; margin-right: 0.375rem; }
+    th { border-bottom: 2px solid var(--border); }
+    td { border-bottom: 1px solid var(--border); }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="/static/img/logo/favicon.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/favicon-32.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/img/logo/apple-touch-icon-180.png?v=2">
+<link rel="manifest" href="/static/site.webmanifest?v=2">
+  <link rel="stylesheet" href="/static/theme.css?v=3">
+  <link rel="stylesheet" href="/static/guide.css?v=3">
+  
+<style>
+  .goal-create-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .goal-create-title { font-weight: 600; font-size: 13px; }
+  .goal-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: start; }
+  .goal-target-preview {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--warn-bg);
+    font-size: 13px;
+  }
+  .goal-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .locked-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--paid);
+    color: var(--ongoing-fg);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .legacy-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--matured-bg);
+    color: var(--matured-fg);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .goal-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+  .checkin-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .checkin-form { display: inline; }
+  .checkin-month {
+    min-height: 3rem;
+    min-width: 3.25rem;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .checkin-month.on { background: var(--paid); color: var(--ongoing-fg); font-weight: 600; }
+  .checkin-month.off .checkin-mark { color: var(--danger-fg); font-weight: 600; }
+  .intent-note { display: block; margin-top: 6px; }
+</style>
+
+</head>
+<body data-page="/goals">
+
+
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="brand"><img class="brand-mark" src="/static/img/logo/logo-mark.svg?v=2" alt="" width="24" height="24">DK Bond Tracker</span>
+    <button type="button" class="collapse-btn" id="sidebarToggle" aria-controls="sidebar" aria-expanded="true" title="Hide menu">&#9664;<span class="collapse-label"> hide</span></button>
+  </div>
+  <nav aria-label="Main">
+    <a href="/">Dashboard</a>
+    <a href="/portfolio">Portfolio</a>
+    <a href="/watch">Watchlist</a>
+    <a href="/goals">Financial Goals</a>
+    <a href="/notifications">Alerts</a>
+    <a href="/settings">Settings</a>
+    <a href="/about">About</a>
+    <a href="/feedback">Feedback</a>
+  </nav>
+</aside>
+
+<div class="app-body">
+<header class="topbar">
+  <button type="button" class="icon-btn drawer-btn" id="drawerToggle" aria-controls="sidebar" aria-expanded="false" title="Menu" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+  <div class="page-title" id="pageTitle">Goals</div>
+  <div class="topbar-actions">
+    <div class="bell-wrap" id="notificationsBell" title="Notifications" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="notificationDropdown" aria-label="Notifications">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+      <span class="bell-badge-v3" id="unreadCount" data-count="0">0</span>
+      <div class="alert-dropdown-v3" id="notificationDropdown">
+        <div class="dd-head">Alerts</div>
+        
+        <div class="alert-item-v3"><span class="msg">No alerts yet.</span><span class="ts"></span></div>
+        
+        <div class="dd-actions">
+          <a class="ui-btn ui-btn-text ui-btn-compact" id="open-all-alerts" href="/notifications">See all alerts</a>
+          <form method="post" action="/notifications/read_all">
+            <button class="ui-btn ui-btn-text ui-btn-compact" type="submit">Mark all as read</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="search-wrap" id="searchWrap">
+      <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds" aria-haspopup="true" aria-expanded="false" aria-controls="searchPanel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </button>
+      <div class="search-panel" id="searchPanel" hidden>
+        <form method="get" action="/search" id="searchForm" role="search">
+          <input type="search" id="searchInput" name="q" class="search-input" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list" placeholder="Search company or ISIN" autocomplete="off" aria-label="Search holdings and watchlist">
+        </form>
+        <ul id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></ul>
+        <p class="caption" id="searchHint">Type to search both lists together — press / to open search from anywhere.</p>
+      </div>
+    </div>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Help" aria-label="Help" aria-haspopup="dialog" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
+    </button>
+    <div class="overflow" id="overflow">
+      <button type="button" class="icon-btn" id="overflowToggle" aria-haspopup="true" aria-expanded="false" aria-controls="overflowPanel" title="More options" aria-label="More options"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+      <div class="overflow-panel" id="overflowPanel">
+        <div class="theme-switch" role="group" aria-label="Theme">
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="system">System</button>
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+          
+        </div>
+        <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="main">
+  
+<div class="stat-row" id="goals-kpi-strip">
+  <div class="stat-card" id="kpi-earned-month">
+    <div class="stat-label">Earned this month</div>
+    <div class="stat-value money" id="earned-this-month" data-amount="0.00">&#8377;0.00</div>
+    <p class="caption"><a href="/#returns" id="returns-link-earned">View full returns history on Dashboard &#8594;</a></p>
+  </div>
+  <div class="stat-card" id="kpi-total-received">
+    <div class="stat-label">Total received</div>
+    <div class="stat-value money" id="total-received-kpi" data-amount="0.00">&#8377;0.00</div>
+    <p class="caption"><a href="/#returns" id="returns-link-total">View full returns history on Dashboard &#8594;</a></p>
+  </div>
+</div>
+
+<div class="stat-row" id="goals-consolidated">
+  <div class="stat-card" id="consolidated-monthly-card">
+    <div class="stat-label">Monthly commitment (all goals)</div>
+    <div class="stat-value money" id="consolidated-monthly" data-amount="0.00">&#8377;0.00</div>
+    <div class="stat-sub">0 goals</div>
+  </div>
+  <div class="stat-card" id="consolidated-saved-card">
+    <div class="stat-label">Saved (all goals)</div>
+    <div class="stat-value money" id="consolidated-saved" data-amount="0.00">&#8377;0.00</div>
+  </div>
+  <div class="stat-card" id="consolidated-invested-card">
+    <div class="stat-label">Invested via bonds</div>
+    <div class="stat-value money" id="consolidated-invested" data-amount="0.00">&#8377;0.00</div>
+    <div class="stat-sub">auto</div>
+  </div>
+  <div class="stat-card" id="consolidated-returns-card">
+    <div class="stat-label">Returns received</div>
+    <div class="stat-value money" id="consolidated-returns" data-amount="0.00">&#8377;0.00</div>
+    <div class="stat-sub">auto</div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<div class="goal-create-bar" id="goal-create-bar">
+  <span class="goal-create-title">Financial Goals (0)</span>
+  <span style="flex:1"></span>
+  <button type="button" class="btn btn-primary" id="goal-create-toggle" aria-expanded="false" aria-controls="add-goal-form">+ New goal</button>
+</div>
+
+<form method="post" action="/goals" id="add-goal-form" hidden>
+  <div class="card">
+    <h2>New goal</h2>
+    <div class="goal-form-grid">
+      <div class="field">
+        <label for="goal-name">Goal name *</label>
+        <input type="text" id="goal-name" name="name" value="">
+      </div>
+      <div class="field">
+        <label for="goal-monthly">Monthly savings (INR) *</label>
+        <input type="text" id="goal-monthly" name="monthly_amount" value="">
+      </div>
+      <div class="field">
+        <label for="goal-start">Start date *</label>
+        <input type="date" id="goal-start" name="start_date" value="">
+      </div>
+      <div class="field">
+        <label for="goal-end">End date *</label>
+        <input type="date" id="goal-end" name="target_end_date" value="">
+      </div>
+      <div class="field">
+        <label for="goal-saved">Saved so far (INR)</label>
+        <input type="text" id="goal-saved" name="saved_amount" value="">
+      </div>
+      <div class="field">
+        <label for="goal-note">Note</label>
+        <input type="text" id="goal-note" name="note" value="">
+      </div>
+    </div>
+    <div class="goal-target-preview" id="goal-target-preview">Target (auto): enter monthly amount and both dates</div>
+    <div class="section-gap">
+      <button class="btn btn-primary" type="submit" id="add-goal-submit">Create goal</button>
+    </div>
+    <p class="caption">Target = monthly savings &#215; months. It is auto-calculated at create and LOCKED &#8212; there is no edit control afterwards.</p>
+  </div>
+</form>
+
+
+<div class="card">
+  <h2>No goals yet</h2>
+  <p class="caption" id="goals-empty">no goals yet &#8212; use + New goal to add the first one</p>
+</div>
+
+
+<script>
+(function () {
+  var toggle = document.getElementById("goal-create-toggle");
+  var form = document.getElementById("add-goal-form");
+  if (toggle && form) {
+    toggle.addEventListener("click", function () {
+      var opening = form.hasAttribute("hidden");
+      if (opening) {
+        form.removeAttribute("hidden");
+      } else {
+        form.setAttribute("hidden", "");
+      }
+      toggle.setAttribute("aria-expanded", opening ? "true" : "false");
+    });
+  }
+  var monthly = document.getElementById("goal-monthly");
+  var start = document.getElementById("goal-start");
+  var end = document.getElementById("goal-end");
+  var preview = document.getElementById("goal-target-preview");
+  function monthsBetween(a, b) {
+    var s = new Date(a);
+    var e = new Date(b);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) {
+      return 0;
+    }
+    var total = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+    if (e.getDate() < s.getDate()) {
+      total -= 1;
+    }
+    return total;
+  }
+  function refresh() {
+    if (!monthly || !start || !end || !preview) {
+      return;
+    }
+    var amount = parseFloat(monthly.value);
+    var count = monthsBetween(start.value, end.value);
+    if (!(amount > 0) || count < 1) {
+      preview.textContent = "Target (auto): enter monthly amount and both dates";
+      return;
+    }
+    preview.textContent = "Target (auto): " + (amount * count).toFixed(0) + " = " +
+      amount.toFixed(0) + " x " + count + " months - LOCKED after create, never editable";
+  }
+  [monthly, start, end].forEach(function (input) {
+    if (input) {
+      input.addEventListener("input", refresh);
+      input.addEventListener("change", refresh);
+    }
+  });
+  refresh();
+})();
+</script>
+
+  <footer class="app-footer">
+  </footer>
+</main>
+</div>
+</div>
+
+<div class="guide-popover" id="pageGuide" role="dialog" aria-label="How this page works" hidden>
+  <div class="guide-inner">
+    
+
+<div class="guide-title">How this page works</div>
+<div class="guide-sub">Savings targets linked to your bonds.</div>
+
+<div class="guide-rule guide-howto"><span class="guide-icon" aria-hidden="true">&#9432;</span><span><span class="guide-word">Target is locked</span> &#8212; The target is worked out once from monthly amount times months, then locked.</span></div>
+
+
+<div class="guide-rule guide-status"><span class="guide-icon" aria-hidden="true">&#9679;</span><span><span class="guide-word">Progress</span> &#8212; Progress adds your monthly check-ins to the bonds linked to that goal.</span></div>
+
+
+<div class="guide-rule guide-howto"><span class="guide-icon" aria-hidden="true">&#9432;</span><span><span class="guide-word">Linked bonds</span> &#8212; A bond links to a goal when you move it out of the Watchlist.</span></div>
+
+
+
+    <div class="guide-sub legend">Colour-coded field tooltips &#8212; hover, tap or focus the marker:</div>
+    <ul class="guide-tips" id="guide-tips">
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-isin-lock" data-tip="tip-isin-lock">&#9432;</button><span class="tip-bubble tip-blocking" id="tip-isin-lock" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#128274;</span> Blocking rule</span><span class="tip-text">Same ISIN cannot be entered twice.</span></span></span><span>Blocked entries always explain the reason.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-status-green" data-tip="tip-status-green">&#9432;</button><span class="tip-bubble tip-status" id="tip-status-green" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#9679;</span> Status rule</span><span class="tip-text">Green cell = payment received.</span></span></span><span>Green, amber and red mean the same thing everywhere.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-goal-link" data-tip="tip-goal-link">&#9432;</button><span class="tip-bubble tip-howto" id="tip-goal-link" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#9432;</span> How to</span><span class="tip-text">Pick a goal while moving a bond out of the Watchlist; the link is permanent.</span></span></span><span>Actions the app can help you with.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-rating-ceiling" data-tip="tip-rating-ceiling">&#9432;</button><span class="tip-bubble tip-warning" id="tip-rating-ceiling" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">&#9888;</span> Warning</span><span class="tip-text">Rating below BBB- is not allowed.</span></span></span><span>Something to double-check before you continue.</span></li>
+    </ul>
+    <div class="guide-foot">
+      <button type="button" class="btn btn-sm" id="whyBondsBtn" aria-haspopup="dialog" aria-expanded="false">Why bonds?</button>
+      <button type="button" class="btn btn-sm" id="guideClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="why-popover" id="whyBonds" role="dialog" aria-label="Why bonds?" hidden>
+  <div class="why-inner">
+    <div class="why-title">Why bonds?</div>
+    <div class="why-body">
+      <p><strong>Fixed, predictable returns.</strong> That is what bonds are for — you know the coupon and the schedule up front. The share market can move a lot in either direction; bonds do not promise equity-level gains and are not built for them.</p>
+      <div class="why-point"><strong>Expectation check:</strong> if you are looking for more than roughly <strong>10&#8211;12% returns</strong>, that is the share market's territory — not bonds. Choose bonds for fixed returns; choose equity only if you accept its risk for higher expectations.</div>
+      <div class="why-flip"><strong>Flip side:</strong> if you have been putting daily effort into shares and still are not beating 10&#8211;12% — or you are losing — bonds deserve a serious look. Fixed returns, and you only need to analyse a few things <strong>once</strong>, not watch the market every day.</div>
+    </div>
+    <div class="disclaimer-box" id="why-disclaimer">
+      <strong>We do not recommend any bonds.</strong> This app is a personal tracking tool, information-only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal. Every investment decision is your own.
+    </div>
+    <div class="guide-foot">
+      <a class="btn btn-sm" id="why-about-link" href="/about">About and disclaimer</a>
+      <button type="button" class="btn btn-sm" id="whyClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-tabs" aria-label="Primary">
+  <a class="bottom-tab" href="/"><span class="tab-ico" aria-hidden="true">&#9638;</span>Dashboard</a>
+  <a class="bottom-tab" href="/portfolio"><span class="tab-ico" aria-hidden="true">&#9636;</span>Portfolio</a>
+  <a class="bottom-tab" href="/watch"><span class="tab-ico" aria-hidden="true">&#9678;</span>Watchlist</a>
+  <a class="bottom-tab" href="/goals"><span class="tab-ico" aria-hidden="true">&#9670;</span>Goals</a>
+  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true">&#9776;</span>More</button>
+</nav>
+
+<script>
+  window.closeTopOverlay = function () {
+    var confirmDialog = document.getElementById("delete-confirm");
+    if (confirmDialog && !confirmDialog.hidden) {
+      confirmDialog.hidden = true;
+      return true;
+    }
+    var appConfirm = document.getElementById("app-confirm");
+    if (appConfirm && !appConfirm.hidden && window.closeAppConfirm) {
+      window.closeAppConfirm();
+      return true;
+    }
+    var openTip = document.querySelector(".tip-wrap.tip-open");
+    if (openTip) {
+      openTip.classList.remove("tip-open");
+      return true;
+    }
+    var bell = document.getElementById("notificationsBell");
+    if (bell && bell.classList.contains("open")) {
+      bell.classList.remove("open");
+      bell.setAttribute("aria-expanded", "false");
+      return true;
+    }
+    var fetchPopup = document.getElementById("fetch-details");
+    if (fetchPopup && !fetchPopup.hidden) {
+      fetchPopup.hidden = true;
+      return true;
+    }
+    return false;
+  };
+  window.overlayDepth = 0;
+  window.openOverlay = function () {
+    window.overlayDepth += 1;
+    history.pushState({ overlay: true }, "");
+  };
+  window.releaseOverlay = function () {
+    if (window.overlayDepth > 0) {
+      window.overlayDepth -= 1;
+      history.back();
+    }
+  };
+  window.dismissOverlay = function () {
+    if (window.closeTopOverlay()) {
+      window.releaseOverlay();
+      return true;
+    }
+    return false;
+  };
+  window.addEventListener("popstate", function () {
+    if (window.overlayDepth > 0) {
+      window.overlayDepth -= 1;
+    }
+    window.closeTopOverlay();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      window.dismissOverlay();
+    }
+  });
+  (function () {
+    var body = document.body;
+    var stateLabel = document.getElementById("privacyState");
+    function applyPrivacy(on) {
+      body.classList.toggle("privacy-on", on);
+      document.querySelectorAll(".privacy-toggle").forEach(function (btn) {
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.classList.toggle("active", on);
+      });
+      if (stateLabel) {
+        stateLabel.textContent = on ? "ON" : "OFF";
+      }
+    }
+    var stored = null;
+    try {
+      stored = window.localStorage.getItem("privacy_mode");
+    } catch (err) {
+      stored = null;
+    }
+    applyPrivacy(stored === "on");
+    var toggle = document.getElementById("privacyToggle");
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        var next = !body.classList.contains("privacy-on");
+        applyPrivacy(next);
+        try {
+          window.localStorage.setItem("privacy_mode", next ? "on" : "off");
+        } catch (err) {
+          return;
+        }
+      });
+    }
+  })();
+</script>
+<script>
+  (function () {
+    var body = document.body;
+    var sidebarToggle = document.getElementById("sidebarToggle");
+    function setCollapsed(on) {
+      body.classList.toggle("sidebar-collapsed", on);
+      if (sidebarToggle) {
+        sidebarToggle.setAttribute("aria-expanded", on ? "false" : "true");
+      }
+      try {
+        window.localStorage.setItem("dk-sidebar", on ? "collapsed" : "expanded");
+      } catch (err) {
+        return;
+      }
+    }
+    var storedSidebar = null;
+    try {
+      storedSidebar = window.localStorage.getItem("dk-sidebar");
+    } catch (err) {
+      storedSidebar = null;
+    }
+    setCollapsed(storedSidebar === "collapsed");
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener("click", function () {
+        setCollapsed(!body.classList.contains("sidebar-collapsed"));
+      });
+    }
+    var overflow = document.getElementById("overflow");
+    var overflowToggle = document.getElementById("overflowToggle");
+    if (overflow && overflowToggle) {
+      overflowToggle.addEventListener("click", function (event) {
+        event.stopPropagation();
+        var open = overflow.classList.toggle("open");
+        overflowToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      document.addEventListener("click", function (event) {
+        if (!overflow.contains(event.target)) {
+          overflow.classList.remove("open");
+          overflowToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+    var drawerToggle = document.getElementById("drawerToggle");
+    function setDrawer(open) {
+      body.classList.toggle("drawer-open", open);
+      if (drawerToggle) {
+        drawerToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+    }
+    if (drawerToggle) {
+      drawerToggle.addEventListener("click", function () {
+        setDrawer(!body.classList.contains("drawer-open"));
+      });
+    }
+    var moreTab = document.getElementById("moreTab");
+    if (moreTab) {
+      moreTab.addEventListener("click", function () {
+        setDrawer(!body.classList.contains("drawer-open"));
+      });
+    }
+  })();
+</script>
+<style>
+  .update-popup-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  .update-popup { background: var(--bg); color: var(--fg, inherit); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; max-width: 22.5rem; width: 100%; }
+  .update-popup-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+  .update-popup-backdrop[hidden] { display: none; }
+</style>
+
+
+<div class="update-popup-backdrop" id="auto-fetch-consent" role="dialog" aria-modal="true" aria-labelledby="auto-fetch-consent-title">
+  <div class="update-popup">
+    <div class="zone-title" id="auto-fetch-consent-title">Auto-fetch bond facts?</div>
+    <p>Refresh your watched bonds in the background about every 12 hours. You can change this later in Settings.</p>
+    <div class="update-popup-actions">
+      <button class="btn btn-secondary" type="button" data-auto-fetch-choice="later">Not now</button>
+      <button class="btn btn-primary" type="button" data-auto-fetch-choice="auto">Auto-fetch</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var dialog = document.getElementById("auto-fetch-consent");
+  if (!dialog) return;
+  var buttons = dialog.querySelectorAll("[data-auto-fetch-choice]");
+  Array.prototype.forEach.call(buttons, function (button) {
+    button.addEventListener("click", function () {
+      var body = new URLSearchParams();
+      body.set("choice", button.getAttribute("data-auto-fetch-choice") || "");
+      fetch("/settings/auto-fetch/consent", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString(), credentials: "same-origin" });
+      dialog.hidden = true;
+    });
+  });
+})();
+</script>
+
+<script src="/static/theme.js?v=3"></script>
+<script src="/static/app.js?v=3"></script>
+<script src="/static/guide.js?v=3"></script>
+</body>
+</html>

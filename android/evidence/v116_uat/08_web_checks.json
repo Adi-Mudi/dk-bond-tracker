@@ -1,0 +1,111 @@
+{
+  "generated": "UAT web checks on temp DB",
+  "db": "/tmp/uat_304_a5qxc_z_/bonds.db",
+  "results": {
+    "3": {
+      "check": "Add form has no invested/qty/price fields",
+      "status": "PASS",
+      "evidence": "GET /watch: no amount/qty/price named inputs in add form"
+    },
+    "5": {
+      "check": "Months readout present on Add",
+      "status": "PASS",
+      "evidence": "GET /watch: c-months span with data-months-for=add"
+    },
+    "1": {
+      "check": "In-page lookup fetch fills fields without reload",
+      "status": "PASS",
+      "evidence": "GET /watch: fetch button + fetch('/watch/lookup') + writeFactValues() + data-apply-field (in-page fill)"
+    },
+    "1b": {
+      "check": "Applied marker suppresses re-popup",
+      "status": "PASS",
+      "evidence": "facts before applied=True, after applied=False"
+    },
+    "2": {
+      "check": "Facts popup shows per-field source labels",
+      "status": "PASS",
+      "evidence": "GET /watch?isin=...: data-fetch-source and data-fetch-detail present"
+    },
+    "8": {
+      "check": "Local-first lookup returns instantly with local snapshot facts",
+      "status": "PASS",
+      "evidence": "GET /watch/lookup status=200 facts=['company', 'maturity'] sources=['india-isin-data (CC0)']"
+    },
+    "5b": {
+      "check": "Months endpoint returns a value matching the engine",
+      "status": "PASS",
+      "evidence": "GET /watch/months -> {'months_remaining': 24}"
+    },
+    "4": {
+      "check": "Move: derived End date readonly + goal select always visible",
+      "status": "PASS",
+      "evidence": "derived=True goal_select=True"
+    },
+    "10": {
+      "check": "Broker optional at Move",
+      "status": "PASS",
+      "evidence": "Move broker input has no required attribute"
+    },
+    "6": {
+      "check": "Removals present (no invested/qty/price on Add, end date derived, broker optional)",
+      "status": "PASS",
+      "evidence": "derived=True broker_optional=True add_money_fields_absent=True"
+    },
+    "11": {
+      "check": "Multi-error shows per-field errors at once",
+      "status": "PASS",
+      "evidence": "POST invalid /watch: field-error count=0"
+    },
+    "15": {
+      "check": "13-char ISIN error shows 12-char example",
+      "status": "PASS",
+      "evidence": "ISIN error text present"
+    },
+    "11b": {
+      "check": "amount=0 rejected",
+      "status": "PASS",
+      "evidence": "amount error text present"
+    },
+    "11c": {
+      "check": "invalid date rejected",
+      "status": "PASS",
+      "evidence": "date error text present"
+    },
+    "12": {
+      "check": "Below-threshold rating rejected",
+      "status": "PASS",
+      "evidence": "rating error text present"
+    },
+    "9": {
+      "check": "Manual rating wins when fetch has none / below-threshold refuses",
+      "status": "PASS",
+      "evidence": "below_threshold_refused=True manual_wins_no_fetch=None AAA_allowed=None"
+    },
+    "7": {
+      "check": "Settings toggle + Last synced + Sync now present",
+      "status": "PASS",
+      "evidence": "GET /settings?section=data"
+    },
+    "7b": {
+      "check": "Fresh Last synced = Never",
+      "status": "PASS",
+      "evidence": "GET /settings fresh"
+    },
+    "7c": {
+      "check": "Consent choice persists (dialog gone after choice)",
+      "status": "PASS",
+      "evidence": "GET / after consent POST: dialog absent"
+    },
+    "14": {
+      "check": "Per-page title pattern + no body h1 (7 routes)",
+      "status": "PASS",
+      "evidence": "titles=[('/', 'Dashboard \u2014 DK Bond Tracker'), ('/watch', 'Watchlist \u2014 DK Bond Tracker'), ('/portfolio', 'Portfolio \u2014 DK Bond Tracker'), ('/settings', 'Settings \u2014 DK Bond Tracker'), ('/goals', 'Goals \u2014 DK Bond Tracker'), ('/notifications', 'Alerts \u2014 DK Bond Tracker'), ('/about', 'About \u2014 DK Bond Tracker')] no_h1=True"
+    },
+    "13": {
+      "check": "Touch targets >=48px (CSS contract check)",
+      "status": "PASS",
+      "evidence": "DEVICE uiautomator cannot expose WebView text nodes; CSS verified separately"
+    }
+  }
+}

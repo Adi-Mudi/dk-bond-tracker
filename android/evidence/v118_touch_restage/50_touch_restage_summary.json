@@ -1,0 +1,5622 @@
+{
+ "id": "49",
+ "title": "Stage 5 touch-target re-stage evidence for #303 (developer-ordered)",
+ "mode": "FIND-ONLY - no code changes, no issue close",
+ "date": "2026-11-22",
+ "build": {
+  "versionName": "1.0.12",
+  "versionCode": "11",
+  "installed_by": "PM",
+  "carries_303": true,
+  "build_commit": "95e736c fix(#303) merged as e7abd43",
+  "note": "Installed build does carry #303. The sub-48 controls found here are outside #303 test contract (which enforces min-height only for named selectors, not width of short text chips nor inline caption links), so a fresh rebuild alone would NOT clear them."
+ },
+ "device": {
+  "serial": "192.168.240.112:5555",
+  "waydroid": "Session RUNNING, Container RUNNING (headed; window visible to developer)",
+  "adb": "/home/divakaran/.local/share/platform-tools/adb",
+  "idle_inhibitor": "active (pid 410781)",
+  "stay_on": 7,
+  "viewport_css": [
+   1707,
+   876
+  ],
+  "dpr": 1.125,
+  "screen_device_px": [
+   1920,
+   985
+  ]
+ },
+ "method": {
+  "navigation": "adb shell input tap only (no GUI taps, no ydotool, no device_smoke.sh)",
+  "state_reset": "adb shell pm clear com.dkbondtracker.app (Q8); adb logcat -c",
+  "consent": "first-launch dialog dismissed via adb tap at [972,548] device px",
+  "bounds": "Chrome DevTools Protocol Runtime.evaluate getBoundingClientRect() x devicePixelRatio, because uiautomator cannot see WebView DOM; uiautomator dumps + adb exec-out screencap saved for every surface as requested",
+  "threshold": "PASS iff effective width>=48 AND effective height>=48 device px; T2 neighbour gap>=8px",
+  "method_caveat": "uiautomator dumps show only the WebView container [0,0][1920,985]; DOM rects are the authoritative measurement"
+ },
+ "summary": {
+  "verdict": "BLOCKED-NEEDS-REBUILD",
+  "controls_measured": 247,
+  "pass": 240,
+  "fail": 7,
+  "unique_fail_controls": 5,
+  "t2_min_gap_px": 9,
+  "note": "Per developer order, any <48px control => record FAIL and report BLOCKED-NEEDS-REBUILD. Reported with the nuance that build carries #303 and these are contract gaps, not a missing-build regression."
+ },
+ "surfaces": [
+  {
+   "key": "01_dashboard",
+   "name": "Dashboard",
+   "path": "/",
+   "screenshot": "01_dashboard_screen.png",
+   "uiautomator_dump": "01_dashboard_uiautomator.xml",
+   "controls_json": "01_dashboard_controls.json"
+  },
+  {
+   "key": "02_watchlist",
+   "name": "Watchlist (empty)",
+   "path": "/watch",
+   "screenshot": "02_watchlist_screen.png",
+   "uiautomator_dump": "02_watchlist_uiautomator.xml",
+   "controls_json": "02_watchlist_controls.json"
+  },
+  {
+   "key": "03_watch_with_row",
+   "name": "Watchlist (1 row)",
+   "path": "/watch",
+   "screenshot": "03_watch_with_row_screen.png",
+   "uiautomator_dump": "03_watch_with_row_uiautomator.xml",
+   "controls_json": "03_watch_with_row_controls.json"
+  },
+  {
+   "key": "04c_fetch_apply",
+   "name": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "screenshot": "04c_fetch_apply_screen.png",
+   "uiautomator_dump": "04c_fetch_apply_uiautomator.xml",
+   "controls_json": "04c_fetch_apply_controls.json"
+  },
+  {
+   "key": "05_alerts",
+   "name": "Alerts",
+   "path": "/notifications",
+   "screenshot": "05_alerts_screen.png",
+   "uiautomator_dump": "05_alerts_uiautomator.xml",
+   "controls_json": "05_alerts_controls.json"
+  },
+  {
+   "key": "06_settings",
+   "name": "Settings",
+   "path": "/settings",
+   "screenshot": "06_settings_screen.png",
+   "uiautomator_dump": "06_settings_uiautomator.xml",
+   "controls_json": "06_settings_controls.json"
+  },
+  {
+   "key": "07_move_panel",
+   "name": "Move panel",
+   "path": "/watch",
+   "screenshot": "07_move_panel_screen.png",
+   "uiautomator_dump": "07_move_panel_uiautomator.xml",
+   "controls_json": "07_move_panel_controls.json"
+  },
+  {
+   "key": "08_move_with_maturity",
+   "name": "Move panel (derived End date)",
+   "path": "/watch",
+   "screenshot": "08_move_with_maturity_screen.png",
+   "uiautomator_dump": "08_move_with_maturity_uiautomator.xml",
+   "controls_json": "08_move_with_maturity_controls.json"
+  },
+  {
+   "key": "09_search",
+   "name": "Search input",
+   "path": "/watch",
+   "screenshot": "09_search_screen.png",
+   "uiautomator_dump": "09_search_uiautomator.xml",
+   "controls_json": "09_search_controls.json"
+  }
+ ],
+ "controls": [
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Overview",
+   "kind": "button",
+   "bounds": [
+    315,
+    118,
+    416,
+    172
+   ],
+   "width": 101,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 101,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "dtab-overview",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Returns history",
+   "kind": "button",
+   "bounds": [
+    425,
+    118,
+    567,
+    172
+   ],
+   "width": 142,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 142,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "dtab-returns",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "All",
+   "kind": "button",
+   "bounds": [
+    360,
+    618,
+    404,
+    672
+   ],
+   "width": 44,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 44,
+   "effective_height": 54,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "filter-all",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Danger",
+   "kind": "button",
+   "bounds": [
+    413,
+    618,
+    485,
+    672
+   ],
+   "width": 72,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 72,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "filter-danger",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "On-going",
+   "kind": "button",
+   "bounds": [
+    494,
+    618,
+    577,
+    672
+   ],
+   "width": 83,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 83,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "filter-ongoing",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "Matured",
+   "kind": "button",
+   "bounds": [
+    586,
+    618,
+    665,
+    672
+   ],
+   "width": 79,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 79,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "filter-matured",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Refresh the bond master",
+   "kind": "button",
+   "bounds": [
+    1706,
+    130,
+    1760,
+    184
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-refresh",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (empty)",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    1774,
+    130,
+    1860,
+    184
+   ],
+   "width": 86,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 86,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-toggle",
+   "screen_ref": "Watchlist (empty)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Refresh the bond master",
+   "kind": "button",
+   "bounds": [
+    1706,
+    235,
+    1760,
+    289
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-refresh",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    1774,
+    235,
+    1860,
+    289
+   ],
+   "width": 86,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 86,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-toggle",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Watchlist candidates \u2014 scroll horizontally for more columns",
+   "kind": "div[region]",
+   "bounds": [
+    315,
+    314,
+    1875,
+    467
+   ],
+   "width": 1560,
+   "height": 153,
+   "effective_bounds": null,
+   "effective_width": 1560,
+   "effective_height": 153,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-scroll",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    387,
+    1701,
+    441
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-1",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Watchlist (1 row)",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    387,
+    1861,
+    441
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-1",
+   "screen_ref": "Watchlist (1 row)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Refresh the bond master",
+   "kind": "button",
+   "bounds": [
+    1706,
+    235,
+    1760,
+    289
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-refresh",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    1774,
+    235,
+    1860,
+    289
+   ],
+   "width": 86,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 86,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-toggle",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    376,
+    418,
+    400,
+    443
+   ],
+   "width": 24,
+   "height": 25,
+   "effective_bounds": [
+    359,
+    401,
+    417,
+    460
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "INE2YB724070",
+   "kind": "input:text",
+   "bounds": [
+    343,
+    449,
+    1847,
+    503
+   ],
+   "width": 1504,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1504,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-isin",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Fetch bond details",
+   "kind": "button",
+   "bounds": [
+    524,
+    503,
+    664,
+    557
+   ],
+   "width": 140,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 140,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-isin-fetch",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-company",
+   "kind": "input:text[combobox]",
+   "bounds": [
+    343,
+    588,
+    542,
+    642
+   ],
+   "width": 199,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 199,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-company",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "\u2014 AAA AA+ AA AA- A+ A A- BBB+ BBB BBB-",
+   "kind": "select",
+   "bounds": [
+    560,
+    588,
+    760,
+    642
+   ],
+   "width": 200,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 200,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-rating",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-coupon",
+   "kind": "input:number",
+   "bounds": [
+    778,
+    588,
+    977,
+    642
+   ],
+   "width": 199,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 199,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-coupon",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-yield",
+   "kind": "input:number",
+   "bounds": [
+    995,
+    588,
+    1195,
+    642
+   ],
+   "width": 200,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 200,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-yield",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "\u2014 Corporate bond NCD SDI Government FD",
+   "kind": "select",
+   "bounds": [
+    1213,
+    588,
+    1412,
+    642
+   ],
+   "width": 199,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 199,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-issuer",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "\u2014 Secured Not secured",
+   "kind": "select",
+   "bounds": [
+    1430,
+    588,
+    1630,
+    642
+   ],
+   "width": 200,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 200,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-secured",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-face",
+   "kind": "input:number",
+   "bounds": [
+    1648,
+    588,
+    1847,
+    642
+   ],
+   "width": 199,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 199,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-face",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-maturity",
+   "kind": "input:date",
+   "bounds": [
+    343,
+    690,
+    542,
+    744
+   ],
+   "width": 199,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 199,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-maturity",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Unknown Listed Unlisted",
+   "kind": "select",
+   "bounds": [
+    560,
+    690,
+    760,
+    744
+   ],
+   "width": 200,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 200,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-listing",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "\u2014 Monthly Quarterly Annual",
+   "kind": "select",
+   "bounds": [
+    778,
+    690,
+    977,
+    744
+   ],
+   "width": 199,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 199,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-cycle",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "More details",
+   "kind": "summary",
+   "bounds": [
+    343,
+    762,
+    1847,
+    786
+   ],
+   "width": 1504,
+   "height": 24,
+   "effective_bounds": null,
+   "effective_width": 1504,
+   "effective_height": 24,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-rating-agency",
+   "kind": "input:text",
+   "bounds": [
+    343,
+    816,
+    832,
+    870
+   ],
+   "width": 489,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 489,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-rating-agency",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-source",
+   "kind": "input:text",
+   "bounds": [
+    850,
+    816,
+    1340,
+    870
+   ],
+   "width": 490,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 490,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-source",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "c-broker",
+   "kind": "input:text",
+   "bounds": [
+    1358,
+    816,
+    1847,
+    870
+   ],
+   "width": 489,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 489,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "c-broker",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    343,
+    813,
+    448,
+    867
+   ],
+   "width": 105,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-submit",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Enter manually",
+   "kind": "button",
+   "bounds": [
+    421,
+    129,
+    539,
+    183
+   ],
+   "width": 118,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 118,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "fetch-details-dismiss",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Apply",
+   "kind": "button",
+   "bounds": [
+    548,
+    129,
+    611,
+    183
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "fetch-details-apply",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Watchlist candidates \u2014 scroll horizontally for more columns",
+   "kind": "div[region]",
+   "bounds": [
+    315,
+    922,
+    1875,
+    1074
+   ],
+   "width": 1560,
+   "height": 152,
+   "effective_bounds": null,
+   "effective_width": 1560,
+   "effective_height": 152,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-scroll",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    995,
+    1701,
+    1049
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-1",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    995,
+    1861,
+    1049
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-1",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "All",
+   "kind": "a",
+   "bounds": [
+    315,
+    118,
+    361,
+    172
+   ],
+   "width": 46,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 46,
+   "effective_height": 54,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "feed-filter-all",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Due",
+   "kind": "a",
+   "bounds": [
+    370,
+    118,
+    424,
+    172
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "feed-filter-due",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Overdue",
+   "kind": "a",
+   "bounds": [
+    433,
+    118,
+    516,
+    172
+   ],
+   "width": 83,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 83,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "feed-filter-overdue",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Maturity",
+   "kind": "a",
+   "bounds": [
+    525,
+    118,
+    608,
+    172
+   ],
+   "width": 83,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 83,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "feed-filter-maturity",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Mark all read",
+   "kind": "button",
+   "bounds": [
+    1699,
+    118,
+    1806,
+    172
+   ],
+   "width": 107,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 107,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "mark-all-read",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Clear",
+   "kind": "button",
+   "bounds": [
+    1815,
+    118,
+    1875,
+    172
+   ],
+   "width": 60,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 60,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "clear-read",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    556,
+    435,
+    606,
+    451
+   ],
+   "width": 50,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 50,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "General",
+   "kind": "a",
+   "bounds": [
+    315,
+    153,
+    506,
+    207
+   ],
+   "width": 191,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 191,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "nav-general",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Notifications",
+   "kind": "a",
+   "bounds": [
+    315,
+    216,
+    506,
+    270
+   ],
+   "width": 191,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 191,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "nav-notifications",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Share / Export",
+   "kind": "a",
+   "bounds": [
+    315,
+    279,
+    506,
+    333
+   ],
+   "width": 191,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 191,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "nav-share",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Data",
+   "kind": "a",
+   "bounds": [
+    315,
+    342,
+    506,
+    396
+   ],
+   "width": 191,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 191,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "nav-data",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "About \u2192",
+   "kind": "a",
+   "bounds": [
+    315,
+    412,
+    506,
+    466
+   ],
+   "width": 191,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 191,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "nav-about",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "on",
+   "kind": "input:checkbox",
+   "bounds": [
+    554,
+    365,
+    608,
+    419
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "g-client-id",
+   "kind": "input:text",
+   "bounds": [
+    554,
+    830,
+    1847,
+    884
+   ],
+   "width": 1293,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1293,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "g-client-id",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "g-client-secret",
+   "kind": "input:password",
+   "bounds": [
+    554,
+    914,
+    1847,
+    968
+   ],
+   "width": 1293,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1293,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "g-client-secret",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Connect Gmail (opens browser)",
+   "kind": "a",
+   "bounds": [
+    554,
+    1013,
+    814,
+    1067
+   ],
+   "width": 260,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 260,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "g-connect",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Advanced email (SMTP)",
+   "kind": "summary",
+   "bounds": [
+    567,
+    1077,
+    1835,
+    1131
+   ],
+   "width": 1268,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1268,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "gmail",
+   "kind": "select",
+   "bounds": [
+    567,
+    1182,
+    806,
+    1236
+   ],
+   "width": 239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-provider",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "s-host",
+   "kind": "input:text",
+   "bounds": [
+    824,
+    1182,
+    1063,
+    1236
+   ],
+   "width": 239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-host",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "s-port",
+   "kind": "input:number",
+   "bounds": [
+    1081,
+    1182,
+    1320,
+    1236
+   ],
+   "width": 239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-port",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "TLS",
+   "kind": "select",
+   "bounds": [
+    1338,
+    1182,
+    1578,
+    1236
+   ],
+   "width": 240,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 240,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-security",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "s-from",
+   "kind": "input:email",
+   "bounds": [
+    1596,
+    1182,
+    1835,
+    1236
+   ],
+   "width": 239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-from",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "s-to",
+   "kind": "input:email",
+   "bounds": [
+    567,
+    1329,
+    806,
+    1383
+   ],
+   "width": 239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-to",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "s-pass",
+   "kind": "input:password",
+   "bounds": [
+    824,
+    1329,
+    1063,
+    1383
+   ],
+   "width": 239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-pass",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "",
+   "kind": "summary",
+   "bounds": [
+    581,
+    1522,
+    1820,
+    1576
+   ],
+   "width": 1239,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1239,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "s-send-test",
+   "kind": "button",
+   "bounds": [
+    567,
+    1617,
+    713,
+    1671
+   ],
+   "width": 146,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 146,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "s-send-test",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Settings",
+   "path": "/settings",
+   "control": "Save settings",
+   "kind": "button",
+   "bounds": [
+    527,
+    1196,
+    658,
+    1250
+   ],
+   "width": 131,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 131,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "save-settings",
+   "screen_ref": "Settings"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Refresh the bond master",
+   "kind": "button",
+   "bounds": [
+    1706,
+    130,
+    1760,
+    184
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-refresh",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    1774,
+    130,
+    1860,
+    184
+   ],
+   "width": 86,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 86,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-toggle",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Watchlist candidates \u2014 scroll horizontally for more columns",
+   "kind": "div[region]",
+   "bounds": [
+    315,
+    210,
+    1875,
+    1354
+   ],
+   "width": 1560,
+   "height": 1144,
+   "effective_bounds": null,
+   "effective_width": 1560,
+   "effective_height": 1144,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-scroll",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    283,
+    1701,
+    337
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    283,
+    1861,
+    337
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-purchase-1",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    421,
+    524,
+    475
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-purchase-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    473,
+    475,
+    497,
+    499
+   ],
+   "width": 24,
+   "height": 24,
+   "effective_bounds": [
+    456,
+    458,
+    514,
+    516
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-start-1",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    501,
+    524,
+    555
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-start-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-end-1",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    577,
+    524,
+    631
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-end-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-amount-1",
+   "kind": "input:number",
+   "bounds": [
+    344,
+    741,
+    1846,
+    795
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-amount-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-qty-1",
+   "kind": "input:number",
+   "bounds": [
+    344,
+    817,
+    1846,
+    871
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-qty-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-perbond-1",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    892,
+    1846,
+    946
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-perbond-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "move-broker-1",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    968,
+    1846,
+    1022
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-broker-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    445,
+    1088,
+    469,
+    1112
+   ],
+   "width": 24,
+   "height": 24,
+   "effective_bounds": [
+    428,
+    1071,
+    486,
+    1129
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "\u2014 none \u2014",
+   "kind": "select",
+   "bounds": [
+    344,
+    1114,
+    1846,
+    1168
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-goal-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "create a goal first",
+   "kind": "a",
+   "bounds": [
+    691,
+    1172,
+    796,
+    1188
+   ],
+   "width": 105,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    473,
+    1191,
+    498,
+    1215
+   ],
+   "width": 25,
+   "height": 24,
+   "effective_bounds": [
+    456,
+    1174,
+    515,
+    1232
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 ",
+   "kind": "select",
+   "bounds": [
+    344,
+    1217,
+    1846,
+    1271
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-credit-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Move",
+   "kind": "button",
+   "bounds": [
+    329,
+    1299,
+    397,
+    1353
+   ],
+   "width": 68,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 68,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "Cancel",
+   "kind": "button",
+   "bounds": [
+    406,
+    1299,
+    484,
+    1353
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-cancel-1",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Refresh the bond master",
+   "kind": "button",
+   "bounds": [
+    1706,
+    235,
+    1760,
+    289
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-refresh",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    1774,
+    235,
+    1860,
+    289
+   ],
+   "width": 86,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 86,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-toggle",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Watchlist candidates \u2014 scroll horizontally for more columns",
+   "kind": "div[region]",
+   "bounds": [
+    315,
+    314,
+    1875,
+    1585
+   ],
+   "width": 1560,
+   "height": 1271,
+   "effective_bounds": null,
+   "effective_width": 1560,
+   "effective_height": 1271,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-scroll",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    387,
+    1701,
+    441
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    387,
+    1861,
+    441
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "move-purchase-2",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    525,
+    524,
+    579
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-purchase-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    473,
+    579,
+    497,
+    603
+   ],
+   "width": 24,
+   "height": 24,
+   "effective_bounds": [
+    456,
+    562,
+    514,
+    620
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "move-start-2",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    605,
+    524,
+    659
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-start-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "2032-12-31 \u2014 from maturity date",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    681,
+    1846,
+    735
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "move-amount-2",
+   "kind": "input:number",
+   "bounds": [
+    344,
+    869,
+    1846,
+    923
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-amount-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "move-qty-2",
+   "kind": "input:number",
+   "bounds": [
+    344,
+    945,
+    1846,
+    999
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-qty-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "move-perbond-2",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    1020,
+    1846,
+    1074
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-perbond-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "move-broker-2",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    1096,
+    1846,
+    1150
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-broker-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    445,
+    1216,
+    469,
+    1240
+   ],
+   "width": 24,
+   "height": 24,
+   "effective_bounds": [
+    428,
+    1199,
+    486,
+    1257
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "\u2014 none \u2014",
+   "kind": "select",
+   "bounds": [
+    344,
+    1242,
+    1846,
+    1296
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-goal-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "create a goal first",
+   "kind": "a",
+   "bounds": [
+    691,
+    1300,
+    796,
+    1316
+   ],
+   "width": 105,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    473,
+    1319,
+    498,
+    1343
+   ],
+   "width": 25,
+   "height": 24,
+   "effective_bounds": [
+    456,
+    1302,
+    515,
+    1360
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 ",
+   "kind": "select",
+   "bounds": [
+    344,
+    1345,
+    1846,
+    1399
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-credit-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Move",
+   "kind": "button",
+   "bounds": [
+    329,
+    1427,
+    397,
+    1481
+   ],
+   "width": 68,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 68,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Cancel",
+   "kind": "button",
+   "bounds": [
+    406,
+    1427,
+    484,
+    1481
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-cancel-2",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    1506,
+    1701,
+    1560
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-1",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    1506,
+    1861,
+    1560
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-1",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Hide menu",
+   "kind": "button",
+   "bounds": [
+    184,
+    27,
+    247,
+    81
+   ],
+   "width": 63,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 63,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "sidebarToggle",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Dashboard",
+   "kind": "a",
+   "bounds": [
+    23,
+    113,
+    247,
+    167
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Portfolio",
+   "kind": "a",
+   "bounds": [
+    23,
+    181,
+    247,
+    235
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Watchlist",
+   "kind": "a",
+   "bounds": [
+    23,
+    248,
+    247,
+    302
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Financial Goals",
+   "kind": "a",
+   "bounds": [
+    23,
+    316,
+    247,
+    370
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Alerts",
+   "kind": "a",
+   "bounds": [
+    23,
+    383,
+    247,
+    437
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    23,
+    451,
+    247,
+    505
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "About",
+   "kind": "a",
+   "bounds": [
+    23,
+    518,
+    247,
+    572
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Feedback",
+   "kind": "a",
+   "bounds": [
+    23,
+    586,
+    247,
+    640
+   ],
+   "width": 224,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 224,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Notifications",
+   "kind": "div[button]",
+   "bounds": [
+    1661,
+    9,
+    1715,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "notificationsBell",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Search bonds",
+   "kind": "button",
+   "bounds": [
+    1724,
+    9,
+    1778,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchBtn",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Search holdings and watchlist",
+   "kind": "input:search[combobox]",
+   "bounds": [
+    1320,
+    80,
+    1768,
+    134
+   ],
+   "width": 448,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 448,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "searchInput",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Help",
+   "kind": "button",
+   "bounds": [
+    1787,
+    9,
+    1841,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "guideBtn",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "More options",
+   "kind": "button",
+   "bounds": [
+    1850,
+    9,
+    1904,
+    63
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "overflowToggle",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Refresh the bond master",
+   "kind": "button",
+   "bounds": [
+    1706,
+    235,
+    1760,
+    289
+   ],
+   "width": 54,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 54,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-refresh",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Add bond",
+   "kind": "button",
+   "bounds": [
+    1774,
+    235,
+    1860,
+    289
+   ],
+   "width": 86,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 86,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "add-candidate-toggle",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Watchlist candidates \u2014 scroll horizontally for more columns",
+   "kind": "div[region]",
+   "bounds": [
+    315,
+    314,
+    1875,
+    1585
+   ],
+   "width": 1560,
+   "height": 1271,
+   "effective_bounds": null,
+   "effective_width": 1560,
+   "effective_height": 1271,
+   "verdict": "PASS",
+   "note": "",
+   "id": "watch-scroll",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    387,
+    1701,
+    441
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    387,
+    1861,
+    441
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "move-purchase-2",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    525,
+    524,
+    579
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-purchase-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    473,
+    579,
+    497,
+    603
+   ],
+   "width": 24,
+   "height": 24,
+   "effective_bounds": [
+    456,
+    562,
+    514,
+    620
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "move-start-2",
+   "kind": "input:date",
+   "bounds": [
+    344,
+    605,
+    524,
+    659
+   ],
+   "width": 180,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 180,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-start-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "2032-12-31 \u2014 from maturity date",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    681,
+    1846,
+    735
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "move-amount-2",
+   "kind": "input:number",
+   "bounds": [
+    344,
+    869,
+    1846,
+    923
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-amount-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "move-qty-2",
+   "kind": "input:number",
+   "bounds": [
+    344,
+    945,
+    1846,
+    999
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-qty-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "move-perbond-2",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    1020,
+    1846,
+    1074
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-perbond-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "move-broker-2",
+   "kind": "input:text",
+   "bounds": [
+    344,
+    1096,
+    1846,
+    1150
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-broker-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    445,
+    1216,
+    469,
+    1240
+   ],
+   "width": 24,
+   "height": 24,
+   "effective_bounds": [
+    428,
+    1199,
+    486,
+    1257
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "\u2014 none \u2014",
+   "kind": "select",
+   "bounds": [
+    344,
+    1242,
+    1846,
+    1296
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-goal-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "create a goal first",
+   "kind": "a",
+   "bounds": [
+    691,
+    1300,
+    796,
+    1316
+   ],
+   "width": 105,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "\u24d8",
+   "kind": "button",
+   "bounds": [
+    473,
+    1319,
+    498,
+    1343
+   ],
+   "width": 25,
+   "height": 24,
+   "effective_bounds": [
+    456,
+    1302,
+    515,
+    1360
+   ],
+   "effective_width": 56,
+   "effective_height": 56,
+   "verdict": "PASS",
+   "note": "effective box via ::after inset -15.2px on each side (transparent hit expansion)",
+   "id": "",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 ",
+   "kind": "select",
+   "bounds": [
+    344,
+    1345,
+    1846,
+    1399
+   ],
+   "width": 1502,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 1502,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-credit-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Move",
+   "kind": "button",
+   "bounds": [
+    329,
+    1427,
+    397,
+    1481
+   ],
+   "width": 68,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 68,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Cancel",
+   "kind": "button",
+   "bounds": [
+    406,
+    1427,
+    484,
+    1481
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-cancel-2",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Details",
+   "kind": "button",
+   "bounds": [
+    1623,
+    1506,
+    1701,
+    1560
+   ],
+   "width": 78,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 78,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "details-toggle-1",
+   "screen_ref": "Search input"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "Move to portfolio",
+   "kind": "button",
+   "bounds": [
+    1710,
+    1506,
+    1861,
+    1560
+   ],
+   "width": 151,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 151,
+   "effective_height": 54,
+   "verdict": "PASS",
+   "note": "",
+   "id": "move-toggle-1",
+   "screen_ref": "Search input"
+  }
+ ],
+ "failures": [
+  {
+   "surface": "Dashboard",
+   "path": "/",
+   "control": "All",
+   "kind": "button",
+   "bounds": [
+    360,
+    618,
+    404,
+    672
+   ],
+   "width": 44,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 44,
+   "effective_height": 54,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "filter-all",
+   "screen_ref": "Dashboard"
+  },
+  {
+   "surface": "Fetch-details popup (Apply)",
+   "path": "/watch",
+   "control": "More details",
+   "kind": "summary",
+   "bounds": [
+    343,
+    762,
+    1847,
+    786
+   ],
+   "width": 1504,
+   "height": 24,
+   "effective_bounds": null,
+   "effective_width": 1504,
+   "effective_height": 24,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Fetch-details popup (Apply)"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "All",
+   "kind": "a",
+   "bounds": [
+    315,
+    118,
+    361,
+    172
+   ],
+   "width": 46,
+   "height": 54,
+   "effective_bounds": null,
+   "effective_width": 46,
+   "effective_height": 54,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "feed-filter-all",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Alerts",
+   "path": "/notifications",
+   "control": "Settings",
+   "kind": "a",
+   "bounds": [
+    556,
+    435,
+    606,
+    451
+   ],
+   "width": 50,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 50,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Alerts"
+  },
+  {
+   "surface": "Move panel",
+   "path": "/watch",
+   "control": "create a goal first",
+   "kind": "a",
+   "bounds": [
+    691,
+    1172,
+    796,
+    1188
+   ],
+   "width": 105,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel"
+  },
+  {
+   "surface": "Move panel (derived End date)",
+   "path": "/watch",
+   "control": "create a goal first",
+   "kind": "a",
+   "bounds": [
+    691,
+    1300,
+    796,
+    1316
+   ],
+   "width": 105,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Move panel (derived End date)"
+  },
+  {
+   "surface": "Search input",
+   "path": "/watch",
+   "control": "create a goal first",
+   "kind": "a",
+   "bounds": [
+    691,
+    1300,
+    796,
+    1316
+   ],
+   "width": 105,
+   "height": 16,
+   "effective_bounds": null,
+   "effective_width": 105,
+   "effective_height": 16,
+   "verdict": "FAIL",
+   "note": "",
+   "id": "",
+   "screen_ref": "Search input"
+  }
+ ],
+ "t2_gaps": [
+  {
+   "source": "v118_gaps_alerts.json",
+   "group": ".topbar-actions",
+   "n": 4,
+   "minGap": 9,
+   "pair": [
+    0,
+    1
+   ]
+  },
+  {
+   "source": "v118_gaps_alerts.json",
+   "group": ".sidebar nav",
+   "n": 8,
+   "minGap": 13.5,
+   "pair": [
+    2,
+    3
+   ]
+  },
+  {
+   "source": "v118_gaps_alerts.json",
+   "group": ".feed-toolbar",
+   "n": 7,
+   "minGap": 9,
+   "pair": [
+    5,
+    6
+   ]
+  },
+  {
+   "source": "v118_gaps_settings.json",
+   "group": ".topbar-actions",
+   "n": 4,
+   "minGap": 9,
+   "pair": [
+    0,
+    1
+   ]
+  },
+  {
+   "source": "v118_gaps_settings.json",
+   "group": ".sidebar nav",
+   "n": 8,
+   "minGap": 13.5,
+   "pair": [
+    2,
+    3
+   ]
+  },
+  {
+   "source": "v118_gaps_settings.json",
+   "group": ".settings-nav",
+   "n": 6,
+   "minGap": 9,
+   "pair": [
+    1,
+    2
+   ]
+  },
+  {
+   "source": "v118_gaps_watch.json",
+   "group": ".topbar-actions",
+   "n": 4,
+   "minGap": 9,
+   "pair": [
+    0,
+    1
+   ]
+  },
+  {
+   "source": "v118_gaps_watch.json",
+   "group": ".sidebar nav",
+   "n": 8,
+   "minGap": 13.5,
+   "pair": [
+    2,
+    3
+   ]
+  },
+  {
+   "source": "v118_gaps_watch.json",
+   "group": ".move-actions",
+   "n": 2,
+   "minGap": 9,
+   "pair": [
+    0,
+    1
+   ]
+  }
+ ],
+ "spot_checks": {
+  "298_derived_end_date": {
+   "verdict": "PASS",
+   "evidence": "08_move_with_maturity",
+   "detail": "readonly input value \"2032-12-31 \u2014 from maturity date\" + \"73 months remaining\"; typed End date input absent"
+  },
+  "304_last_synced": {
+   "verdict": "PASS",
+   "evidence": "06_settings",
+   "detail": "caption \"Last synced: Never\" + \"Sync now\" button present"
+  }
+ },
+ "hygiene": {
+  "logcat_fatal": [],
+  "temp_forwards": [
+   "tcp:9222 -> localabstract:webview_devtools_remote_1658"
+  ],
+  "forwards_removed": false,
+  "server": "on-device Flask at 127.0.0.1:5000 (not a host temp DB)"
+ },
+ "report_to": "hc send t1mk tagged RE-STAGE-DONE or BLOCKED"
+}
