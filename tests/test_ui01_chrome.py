@@ -11,7 +11,7 @@ from src.app import create_app
 
 ROOT = Path(__file__).resolve().parents[1]
 CSS = (ROOT / "src" / "static" / "theme.css").read_text(encoding="utf-8")
-VIEWPORT = '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+VIEWPORT = '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">'
 
 NEW_FLUID_SELECTORS = (
     ".app-shell",

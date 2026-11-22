@@ -1006,7 +1006,7 @@ body.drawer-open .sidebar { transform: translateX(0); }
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
-  padding: 0.5rem 0.75rem;
+  padding: calc(0.5rem + env(safe-area-inset-top)) 0.75rem 0.5rem;
   background: var(--card);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -1077,6 +1077,7 @@ body.drawer-open .sidebar { transform: translateX(0); }
   background: var(--card);
   border-top: 1px solid var(--border);
   z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .bottom-tab {
   flex: 1 1 0;
@@ -1118,6 +1119,9 @@ body.drawer-open .sidebar { transform: translateX(0); }
   .stat-row { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
 }
 body[data-page="/watch"] .drawer-btn { display: none; }
+@media (max-width: 767px) {
+  .drawer-btn { display: none; }
+}
 @media (min-width: 768px) {
   .drawer-btn { display: none; }
   .collapse-btn { display: inline-block; }
