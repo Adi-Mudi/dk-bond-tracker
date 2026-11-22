@@ -22,13 +22,16 @@
 </script>
   <title>{% block title %}DK Bond Tracker{% endblock %}</title>
   <style>
+@layer base, components, templates, overrides;
+@layer templates {
     .privacy-on .money { font-size: 0; }
     .privacy-on .money::after { content: "••••"; font-size: 14px; letter-spacing: 0.14em; }
     .privacy-on .money-input { color: transparent; }
     .brand-mark { width: 24px; height: 24px; vertical-align: middle; margin-right: 0.375rem; }
     th { border-bottom: 2px solid var(--border); }
     td { border-bottom: 1px solid var(--border); }
-  </style>
+  }
+</style>
   {{ brand_head() }}
   <link rel="stylesheet" href="/static/theme.css?v=3">
   <link rel="stylesheet" href="/static/guide.css?v=3">
@@ -316,10 +319,12 @@
   })();
 </script>
 <style>
+@layer templates {
   .update-popup-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .update-popup { background: var(--bg); color: var(--fg, inherit); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; max-width: 22.5rem; width: 100%; }
   .update-popup-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
   .update-popup-backdrop[hidden] { display: none; }
+}
 </style>
 {% if update_popup %}
 <div class="update-popup-backdrop" id="update-popup" role="dialog" aria-modal="true" aria-labelledby="update-popup-title">
