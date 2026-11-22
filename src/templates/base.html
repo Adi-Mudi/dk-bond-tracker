@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <script>
 (function () {
   var stored = localStorage.getItem('dk-theme') || 'system';
@@ -22,13 +22,16 @@
 </script>
   <title>{% block title %}DK Bond Tracker{% endblock %}</title>
   <style>
+@layer base, components, templates, overrides;
+@layer templates {
     .privacy-on .money { font-size: 0; }
     .privacy-on .money::after { content: "••••"; font-size: 14px; letter-spacing: 0.14em; }
     .privacy-on .money-input { color: transparent; }
     .brand-mark { width: 24px; height: 24px; vertical-align: middle; margin-right: 0.375rem; }
     th { border-bottom: 2px solid var(--border); }
     td { border-bottom: 1px solid var(--border); }
-  </style>
+  }
+</style>
   {{ brand_head() }}
   <link rel="stylesheet" href="/static/theme.css?v=3">
   <link rel="stylesheet" href="/static/guide.css?v=3">
@@ -153,11 +156,11 @@
 </div>
 
 <nav class="bottom-tabs" aria-label="Primary">
-  <a class="bottom-tab" href="/"><span class="tab-ico" aria-hidden="true">&#9638;</span>Dashboard</a>
-  <a class="bottom-tab" href="/portfolio"><span class="tab-ico" aria-hidden="true">&#9636;</span>Portfolio</a>
-  <a class="bottom-tab" href="/watch"><span class="tab-ico" aria-hidden="true">&#9678;</span>Watchlist</a>
-  <a class="bottom-tab" href="/goals"><span class="tab-ico" aria-hidden="true">&#9670;</span>Goals</a>
-  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true">&#9776;</span>More</button>
+  <a class="bottom-tab" href="/"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>Dashboard</a>
+  <a class="bottom-tab" href="/portfolio"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>Portfolio</a>
+  <a class="bottom-tab" href="/watch"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>Watchlist</a>
+  <a class="bottom-tab" href="/goals"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>Goals</a>
+  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></span>More</button>
 </nav>
 
 <script>
@@ -316,10 +319,12 @@
   })();
 </script>
 <style>
+@layer templates {
   .update-popup-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .update-popup { background: var(--bg); color: var(--fg, inherit); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; max-width: 22.5rem; width: 100%; }
   .update-popup-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
   .update-popup-backdrop[hidden] { display: none; }
+}
 </style>
 {% if update_popup %}
 <div class="update-popup-backdrop" id="update-popup" role="dialog" aria-modal="true" aria-labelledby="update-popup-title">

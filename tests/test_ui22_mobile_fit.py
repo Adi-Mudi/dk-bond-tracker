@@ -18,7 +18,7 @@ def rules_of(text):
             brace = block.find("{", pos)
             if brace == -1:
                 break
-            header = " ".join(block[pos:brace].split())
+            header = " ".join(re.split(r"[>;{}]", block[pos:brace])[-1].split())
             depth = 1
             end = brace + 1
             while end < len(block) and depth:

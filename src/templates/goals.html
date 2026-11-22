@@ -4,6 +4,7 @@
 {% block page_title %}Goals{% endblock %}
 {% block head %}
 <style>
+@layer templates {
   .goal-create-bar {
     display: flex;
     align-items: center;
@@ -62,6 +63,7 @@
   .checkin-month.on { background: var(--paid); color: var(--ongoing-fg); font-weight: 600; }
   .checkin-month.off .checkin-mark { color: var(--danger-fg); font-weight: 600; }
   .intent-note { display: block; margin-top: 6px; }
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -206,7 +208,7 @@
     </div>
   </div>
 
-  <div class="zone-title" style="margin-top:14px">Monthly check-in &#8212; INTENT LOG (not the progress authority)</div>
+  <div class="zone-title" style="margin-top:14px">Monthly check-in &#8212; Intent log (not the progress authority)</div>
   <div class="checkin-strip" id="checkin-strip-{{ goal.id }}">
     {% for month in goal.checkin_months %}
     <form class="checkin-form" method="post" action="/goals/{{ goal.id }}/checkin">

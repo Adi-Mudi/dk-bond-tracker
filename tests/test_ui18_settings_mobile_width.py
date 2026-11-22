@@ -59,6 +59,10 @@ def mobile_rules(css):
     for header, body in top_level_blocks(css):
         if MOBILE_QUERY.search(header):
             return rules_in(body)
+        if header.startswith("@layer"):
+            found = mobile_rules(body)
+            if found:
+                return found
     return {}
 
 

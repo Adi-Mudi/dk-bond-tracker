@@ -111,6 +111,8 @@ T1_DIRECT = (
     ".back-link",
     ".group-btn",
     ".filter-chip-feed",
+    ".filter-chip",
+    ".more-details > summary",
     ".checkin-month",
     ".payout-cell",
     ".generate-btn",
@@ -183,6 +185,7 @@ T2_EXCEPTIONS = {
     ".tip-wrap": "inline help marker: hit area expanded with a transparent pseudo-element, not by a layout gap",
     ".about-link": "inline prose link: hit area expanded with a transparent pseudo-element",
     ".fetch-link": "inline prose link: hit area expanded with a transparent pseudo-element",
+    ".caption-tap-link": "inline prose link: hit area expanded with a transparent pseudo-element, sentence visual unchanged",
 }
 
 
@@ -229,9 +232,33 @@ def test_t1_small_icon_controls_use_transparent_hit_expansion():
     assert any(prop == "content" and raw.strip('"') == "" for _s, prop, raw in expansion)
     insets = [px(raw) for _s, prop, raw in expansion if prop == "inset" and px(raw) is not None]
     assert insets and abs(min(insets)) * 2 + px("1.35rem") >= MIN_TOUCH, insets
-    for selector in (".about-link::after", ".fetch-link::after"):
+    for selector in (".about-link::after", ".fetch-link::after", ".caption-tap-link::after"):
         values = [px(raw) for _s, prop, raw in declarations(selector) if prop == "inset" and px(raw) is not None]
         assert values and abs(min(values)) * 2 + px("12px") * 1.5 >= MIN_TOUCH, (selector, values)
+
+
+def test_t1_round2_five_controls_extend_contract():
+    for selector in (".filter-chip", ".filter-chip-feed"):
+        width = first_px(selector, {"min-width", "width"})
+        assert width is not None and width >= MIN_TOUCH, (selector, width)
+    assert first_px(".more-details > summary", {"min-height"}) >= MIN_TOUCH
+    caption = declarations(".caption-tap-link")
+    assert any(prop == "position" and raw == "relative" for _s, prop, raw in caption)
+    values = [
+        px(raw)
+        for _s, prop, raw in declarations(".caption-tap-link::after")
+        if prop == "inset" and px(raw) is not None
+    ]
+    assert values and abs(min(values)) * 2 + px("12px") * 1.5 >= MIN_TOUCH, values
+    alerts = (TEMPLATES / "notifications.html").read_text(encoding="utf-8")
+    watch = (TEMPLATES / "watch.html").read_text(encoding="utf-8")
+    assert 'class="caption-tap-link" href="/settings"' in alerts
+    assert 'class="caption-tap-link" href="/goals"' in watch
+    corridor = declarations(".caption-tap-corridor")
+    for prop in ("margin-top", "margin-bottom"):
+        vals = [px(raw) for _s, p, raw in corridor if p == prop and px(raw) is not None]
+        assert vals and max(vals) >= px("1.75rem"), (prop, vals)
+    assert 'class="caption caption-tap-corridor"' in watch
 
 
 def test_t2_neighbor_gaps_are_at_least_8px():
