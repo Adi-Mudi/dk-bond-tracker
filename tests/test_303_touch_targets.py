@@ -254,6 +254,11 @@ def test_t1_round2_five_controls_extend_contract():
     watch = (TEMPLATES / "watch.html").read_text(encoding="utf-8")
     assert 'class="caption-tap-link" href="/settings"' in alerts
     assert 'class="caption-tap-link" href="/goals"' in watch
+    corridor = declarations(".caption-tap-corridor")
+    for prop in ("margin-top", "margin-bottom"):
+        vals = [px(raw) for _s, p, raw in corridor if p == prop and px(raw) is not None]
+        assert vals and max(vals) >= px("1.75rem"), (prop, vals)
+    assert 'class="caption caption-tap-corridor"' in watch
 
 
 def test_t2_neighbor_gaps_are_at_least_8px():
