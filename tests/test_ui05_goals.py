@@ -94,7 +94,7 @@ def test_ui05_checkin_records_intent_log(client, db_path):
     html = client.get("/goals").get_data(as_text=True)
     assert "checkin-month on" in html
     assert 'id="checkin-1-2026-01"' in html
-    assert "INTENT LOG (not the progress authority)" in html
+    assert "Intent log (not the progress authority)" in html
 
 
 def test_ui05_checkin_toggles_off(client, db_path):
