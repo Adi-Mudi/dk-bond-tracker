@@ -703,6 +703,14 @@ def watch_form_values(form):
             "maturity_date",
             lambda: parse_date_value(maturity_raw, "maturity_date").isoformat(),
         )
+    if purchase_date is not None and maturity_date is not None:
+        maturity_day = parse_date_value(maturity_date, "maturity_date")
+        if purchase_date > maturity_day:
+            errors.setdefault(
+                "purchase_date",
+                f"purchase_date must be on or before maturity_date: "
+                f"{purchase_date.isoformat()} .. {maturity_day.isoformat()}",
+            )
     listing_status = str(form.get("listing_status", "")).strip() or "unknown"
     if listing_status not in WATCH_LISTING_STATUSES:
         errors.setdefault(
