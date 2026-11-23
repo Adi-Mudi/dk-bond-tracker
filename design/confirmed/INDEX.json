@@ -2,34 +2,45 @@
   "id": "design_confirmed_index",
   "kind": "design_index",
   "title": "Confirmed designs registry — the ONLY source of truth for what is developer-confirmed",
-  "version": "v1.0",
+  "version": "v1.1",
   "project": "dk-bond-tracker",
   "rules": {
     "R1": "design/confirmed/ contains ONLY confirmed designs, organized per page in its own subfolder (dashboard/, portfolio/, mobile/...). Anything not confirmed stays in the track worktrees and MUST NOT appear here.",
     "R2": "REWORK on a confirmed item updates the SAME file IN PLACE (overwrite the existing file in its subfolder). Never create a new parallel file, new version folder, or copy — in-place only, so the confirmed set never fragments.",
     "R3": "Every future agent reads this INDEX first to know what is confirmed, its source, and its pending-rework state. New folders are created here only when the developer confirms a page.",
-    "R4": "A page enters this folder only on explicit developer confirmation. Status field tracks: confirmed | rework-pending (confirmed but developer requested changes) | superseded."
+    "R4": "A page enters this folder only on explicit developer confirmation. Status field tracks: confirmed | rework-pending (confirmed but developer requested changes) | superseded.",
+    "R5": "COMPLETE PACKAGE per confirmed page (D16): page HTML (web+mobile), design tokens (DESIGN.md reference), component inventory, navigation/flow references, research references, INDEX entry. PM runs a completeness check and reports missing pieces to the developer BEFORE the page counts as fully confirmed.",
+    "R6": "Worker branches design-track-a / design-track-b are NEVER merged. Only assembled packages land on the base (front-design-upgrade) via dev housekeeping commits."
   },
   "items": [
     {
       "page": "dashboard",
       "folder": "design/confirmed/dashboard/",
-      "files": ["dashboard_web.html", "dashboard_mobile.html"],
+      "files": [
+        "dashboard_web.html",
+        "dashboard_mobile.html"
+      ],
       "source_track": "Track A (W5, design-track-a)",
       "source_commit": "7da0a80",
       "confirmed_by": "developer 2026-11-23 ('i will select this design for dashboard' + mobile layout also Track A)",
-      "status": "rework-pending",
-      "rework_items": [
-        "item 4: status priority order Danger top / On-going mid / Matured bottom+dim",
-        "item 5: mobile KPI single row + priority lists + chip order",
-        "item 6: mobile structure (alert up, compact cashflow, stacked ledger tab)",
-        "F-TRKA-02 (critical): 17-file content/filename scramble fix",
-        "tabs split (Dashboard | Returns History) — landed in 7da0a80, verify after rework"
-      ],
-      "rework_rule": "When the track delivers the rework, OVERWRITE these same files in place (R2). INDEX status flips to confirmed. No new files."
+      "status": "confirmed",
+      "rework_items": [],
+      "rework_rule": "When the track delivers the rework, OVERWRITE these same files in place (R2). INDEX status flips to confirmed. No new files.",
+      "rework_delivered": "Track A F-TRKA-02 + items 4-6 rework; files overwritten in place per R2"
     }
   ],
   "changelog": [
-    {"date": "2026-11-23", "entry": "v1.0 created — dashboard registered from Track A @7da0a80 as rework-pending; folder rules R1-R4 established per developer directive (confirmed-only subfolder, in-place rework, agent source of truth)"}
+    {
+      "date": "2026-11-23",
+      "entry": "v1.0 created — dashboard registered from Track A @7da0a80 as rework-pending; folder rules R1-R4 established per developer directive (confirmed-only subfolder, in-place rework, agent source of truth)"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "dashboard status rework-pending -> confirmed; in-place rework delivered (F-TRKA-02 content/filename fix, item 4 status priority, item 5 mobile KPI strip/chips, item 6 mobile structure + stacked ledger tab)"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "D16 rules added: completeness checklist R5, no-worker-merge R6; confirmation flow = page-by-one with PM missing-piece reports"
+    }
   ]
 }
