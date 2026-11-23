@@ -1,315 +1,832 @@
 <!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard (Web)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'ledger-canvas': '#0D1520',
+            'ledger-card': '#16212E',
+            'ledger-elevated': '#1E2C3B',
+            'ledger-ink': '#E8EEF5',
+            'ledger-secondary': '#A8B6C4',
+            'ledger-muted': '#7A8A99',
+            'ledger-hairline': '#2A3A4C',
+            'bond-blue': '#2456E6',
+            'bond-blue-hover': '#1C46C2',
+            'info-blue-bg': '#14263D',
+            'info-blue': '#8FB4FF',
+            'danger-red': '#FF8A80',
+            'danger-red-bg': 'rgba(255, 138, 128, 0.12)',
+            'success-green': '#6FD898',
+            'success-green-bg': 'rgba(111, 216, 152, 0.12)',
+            'warning-amber': '#FFC46B',
+            'warning-amber-bg': 'rgba(255, 196, 107, 0.12)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #0D1520;
+      color: #E8EEF5;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-1 {
+      font-variation-settings: 'FILL' 1;
+    }
+    /* Custom thin scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0D1520;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2A3A4C;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-ledger-canvas text-ledger-ink min-h-screen flex">
 
-<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"ink":"#E8EEF5","secondary-fixed":"#1E2C3B","mist":"#7A8A99","ledger-canvas":"#0D1520","secondary-fixed-dim":"#2A3A4C","inverse-surface":"#E8EEF5","on-background":"#E8EEF5","surface-bright":"#1E2C3B","primary-fixed":"#1E2C3B","surface-container":"#16212E","secondary-container":"#1E2C3B","secondary":"#A8B6C4","on-error":"#FFFFFF","on-tertiary-fixed-variant":"#FFC46B","outline":"#2A3A4C","surface-dim":"#0D1520","paper-surface":"#16212E","on-tertiary":"#FFFFFF","due-red-bg":"rgba(255,138,128,0.12)","info-blue-bg":"rgba(143,180,255,0.12)","inverse-primary":"#2456E6","on-error-container":"#FF8A80","primary-fixed-dim":"#1E2C3B","tertiary-container":"rgba(255,196,107,0.15)","paid-green-fg":"#6FD898","tertiary-fixed-dim":"#FFC46B","on-secondary-fixed":"#E8EEF5","on-primary-fixed-variant":"#8FB4FF","surface-container-high":"#1E2C3B","on-tertiary-fixed":"#FFC46B","on-primary":"#FFFFFF","tertiary":"#FFC46B","surface-tint":"#2456E6","on-secondary-container":"#A8B6C4","surface":"#16212E","on-secondary-fixed-variant":"#7A8A99","tertiary-fixed":"#1E2C3B","error-container":"rgba(255,138,128,0.15)","primary":"#8FB4FF","on-tertiary-container":"#FFC46B","on-secondary":"#16212E","primary-container":"#2456E6","on-primary-container":"#E8EEF5","paid-green-bg":"rgba(111,216,152,0.12)","background":"#0D1520","info-blue-fg":"#8FB4FF","surface-container-highest":"#2A3A4C","surface-container-low":"#16212E","surface-variant":"#1E2C3B","on-surface-variant":"#A8B6C4","on-surface":"#E8EEF5","outline-variant":"#2A3A4C","error":"#FF8A80","on-primary-fixed":"#E8EEF5","inverse-on-surface":"#0D1520","upcoming-amber-fg":"#FFC46B","slate":"#A8B6C4","surface-container-lowest":"#0D1520","upcoming-amber-bg":"rgba(255,196,107,0.12)","hairline":"#2A3A4C","due-red-fg":"#FF8A80"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"1.5rem","space-xl":"2rem","gutter":"1rem","space-lg":"1.5rem","space-xs":"0.25rem","space-md":"1rem","space-sm":"0.5rem"},"fontFamily":{"body":["\"Inter, system-ui, sans-serif\""],"display":["\"Inter, system-ui, sans-serif\""],"headline-h2":["\"Inter, system-ui, sans-serif\""],"small":["\"Inter, system-ui, sans-serif\""],"headline-h1":["\"Inter, system-ui, sans-serif\""],"label":["\"Inter, system-ui, sans-serif\""]},"fontSize":{"body":["15px",{"lineHeight":"22px","fontWeight":"400"}],"display":["28px",{"lineHeight":"36px","fontWeight":"600"}],"headline-h2":["16px",{"lineHeight":"24px","fontWeight":"600"}],"small":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-h1":["22px",{"lineHeight":"30px","fontWeight":"600"}],"label":["12px",{"lineHeight":"16px","letterSpacing":"0.03em","fontWeight":"500"}]}}}}</script></head><body class="bg-ledger-canvas font-body text-body text-ink antialiased selection:bg-info-blue-bg selection:text-primary"><aside class="fixed left-0 top-0 h-full w-[240px] bg-paper-surface border-r border-hairline z-40 flex flex-col justify-between"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-hairline"><img alt="DK Bond Tracker Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDutVZvar7TtM6qHNIDNtqQw3VV1CzrGNSCHQ5GZ91o9dSRV0kNifZf288WY5cX_rxyRGjPcJxMm5Yeghe4oSl58mj00PDX8h7t010_-F-kjuWA7dRgDo2bI43iFBQN5-RE2Xr6dOHrSv8Iuy-o5A5-4YdIbGHFK8MxQE5Wc9QMmwYKo3l2jJubG7ZVBYBQF6icOpjb5X208JK0Yv0jy22oPDRSrHbTZh1bJ6ZT8-tzsiz9Q3T5FGex9gbR"/><span class="font-headline-h2 text-headline-h2 text-ink tracking-tight font-semibold">DK Bond Tracker</span></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md"><div class="mb-space-md"><div class="px-space-sm pb-space-xs font-label text-label uppercase text-mist tracking-wider">Main Ledger</div><nav class="space-y-space-xs" data-active-classes="bg-info-blue-bg text-primary font-semibold"><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl transition-colors bg-info-blue-bg text-primary font-semibold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">space_dashboard</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="portfolio" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Portfolio</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="watchlist" href="#"><span class="material-symbols-outlined text-[20px]">visibility</span><span>Watchlist</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="goals" href="#"><span class="material-symbols-outlined text-[20px]">flag</span><span>Goals</span></a></nav></div><div class="pt-space-sm border-t border-hairline"><div class="px-space-sm pb-space-xs font-label text-label uppercase text-mist tracking-wider">System</div><nav class="space-y-space-xs" data-active-classes="bg-info-blue-bg text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications_active</span><span>Alerts</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="about" href="#"><span class="material-symbols-outlined text-[20px]">info</span><span>About</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-secondary-fixed hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="feedback" href="#"><span class="material-symbols-outlined text-[20px]">rate_review</span><span>Feedback</span></a></nav></div></div></div><div class="p-space-sm border-t border-hairline bg-paper-surface"><div class="flex items-center justify-between p-space-sm rounded-xl bg-secondary-fixed"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="min-w-0 flex-1"><p class="text-small font-small font-semibold text-ink truncate">DK Yield Account</p><p class="text-label font-label text-mist truncate">Fixed Income Desk</p></div></div><span class="material-symbols-outlined text-mist text-[18px]">unfold_more</span></div></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-paper-surface/90 backdrop-blur-md border-b border-hairline z-30 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-small font-small text-mist"><span class="material-symbols-outlined text-[16px]">lock</span><span class="font-label text-label uppercase tracking-wider text-slate">Verified Bond Yields</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Add Bond" class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary-container hover:bg-primary text-on-primary transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">add</span></button><button aria-label="Search" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button aria-label="Alerts" class="relative w-12 h-12 rounded-xl flex items-center justify-center text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-4 h-4 bg-due-red-fg text-[#0D1520] font-label text-[10px] leading-none font-bold rounded-full flex items-center justify-center">2</span></button><button aria-label="Help" class="w-12 h-12 rounded-xl flex items-center justify-center text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">help</span></button><div class="h-5 w-px bg-hairline mx-space-xs"></div><div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-ledger-canvas min-h-screen"><div class="flex flex-col w-full">
-<div class="px-space-lg py-space-lg max-w-[1400px] w-full mx-auto space-y-space-lg">
-<!-- Top Action & Minimal Header Block -->
-<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-4">
-<div>
-<h1 class="text-display font-display text-ink tracking-tight">Dashboard</h1>
-<p class="text-small font-small text-mist mt-0.5">Last updated today at 09:30 AM • 14 Active Holdings</p>
-</div>
-<div class="flex items-center gap-space-sm self-start lg:self-center shrink-0">
-<button class="h-[48px] px-space-md rounded-[10px] bg-secondary-fixed hover:bg-secondary-fixed-dim text-ink font-body text-small font-semibold border border-hairline shadow-sm flex items-center gap-space-xs transition-colors" type="button">
-<span class="material-symbols-outlined text-[18px] text-slate">file_download</span>
-<span>Export Statement</span>
-</button>
-</div>
-</div>
-<!-- Filter Chips / Tab Bar Row -->
-<div class="w-full h-12 flex items-center p-1 bg-secondary-fixed rounded-xl border border-hairline"><button class="flex-1 h-full flex items-center justify-center gap-2 rounded-lg bg-paper-surface border border-hairline text-ink font-medium text-sm shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">space_dashboard</span><span>Dashboard</span></button><button class="flex-1 h-full flex items-center justify-center gap-2 rounded-lg text-mist hover:text-ink hover:bg-ledger-canvas transition font-medium text-sm" type="button"><span class="material-symbols-outlined text-[18px]">history</span><span>Returns History</span></button></div>
-<!-- Summary Stat Cards Grid -->
-<div class="space-y-4"><div class="grid grid-cols-3 gap-4 mt-4"><div class="bg-paper-surface border border-hairline rounded-xl p-4 shadow-sm flex flex-col justify-between"><div class="flex items-center justify-between h-5"><span class="text-xs tracking-wider uppercase font-medium text-mist">TOTAL INVESTED</span><span class="material-symbols-outlined text-[18px] text-mist">account_balance_wallet</span></div><div class="my-2 flex items-baseline min-w-0"><div class="text-[28px] leading-tight font-semibold text-ink font-mono tabular-nums truncate">₹ 24,50,000</div></div><div class="text-xs text-slate flex items-center justify-between min-w-0 truncate"><div class="flex items-center gap-1.5 min-w-0 truncate"><span class="w-2 h-2 rounded-full bg-primary-container shrink-0"></span><span class="truncate">Across 14 corporate bonds</span></div></div></div><div class="bg-paper-surface border border-hairline rounded-xl p-4 shadow-sm flex flex-col justify-between"><div class="flex items-center justify-between h-5"><span class="text-xs tracking-wider uppercase font-medium text-mist">OUTSTANDING PRINCIPAL</span><span class="material-symbols-outlined text-[18px] text-mist">pie_chart</span></div><div class="my-2 flex items-baseline min-w-0"><div class="text-[28px] leading-tight font-semibold text-ink font-mono tabular-nums truncate">₹ 19,67,550</div></div><div class="text-xs text-slate flex items-center justify-between min-w-0 truncate"><span class="text-mist uppercase tracking-wider text-[11px]">Portfolio Yield:</span><span class="font-semibold text-paid-green-fg tabular-nums ml-1">11.24% XIRR</span></div></div><div class="bg-paper-surface border border-hairline rounded-xl p-4 shadow-sm flex flex-col justify-between"><div class="flex items-center justify-between h-5"><span class="text-xs tracking-wider uppercase font-medium text-mist">NEXT PAYOUT</span><span class="material-symbols-outlined text-[18px] text-upcoming-amber-fg">event_upcoming</span></div><div class="my-2 flex items-baseline min-w-0"><div class="text-[28px] leading-tight font-semibold text-ink font-mono tabular-nums truncate">₹ 32,800</div></div><div class="text-xs text-slate flex items-center justify-between min-w-0"><span class="text-upcoming-amber-fg font-medium tabular-nums shrink-0">Due 15 Dec 2026</span><span class="text-mist truncate ml-2">HDFC Credila</span></div></div></div><div class="flex items-center gap-space-xs overflow-x-auto pb-1 no-scrollbar"><button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-label font-semibold shadow-sm border border-primary/20" type="button"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>All (14)</span></button><button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-paper-surface hover:bg-secondary-fixed text-slate font-label text-label transition-colors border border-hairline" type="button"><span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg"></span><span>On-going (10)</span></button><button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-paper-surface hover:bg-secondary-fixed text-slate font-label text-label transition-colors border border-hairline" type="button"><span class="w-1.5 h-1.5 rounded-full bg-upcoming-amber-fg"></span><span>Upcoming Due (2)</span></button><button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-paper-surface hover:bg-secondary-fixed text-slate font-label text-label transition-colors border border-hairline" type="button"><span class="w-1.5 h-1.5 rounded-full bg-due-red-fg"></span><span>Danger (1)</span></button><button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-paper-surface hover:bg-secondary-fixed text-slate font-label text-label transition-colors border border-hairline" type="button"><span class="w-1.5 h-1.5 rounded-full bg-mist"></span><span>Matured (3)</span></button></div></div>
-<!-- Two-Column Mid-Section: Invested vs Received & Upcoming Schedule Overview -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
-<!-- Left Column (8 cols): Invested vs Received Breakdown -->
-<div class="lg:col-span-8 bg-paper-surface border border-hairline rounded-[12px] p-space-md shadow-sm space-y-space-md">
-<div class="flex items-center justify-between pb-space-xs">
-<div>
-<h2 class="text-headline-h2 font-headline-h2 text-ink">Invested vs Received per Company</h2>
-<p class="text-small font-small text-slate">Holdings distribution, coupon servicing, and principal capital recovery</p>
-</div>
-<span class="text-label font-label text-mist uppercase tracking-wider">5 of 14 Listed</span>
-</div>
-<div class="space-y-space-md pt-1">
-<!-- Item 1 -->
-<div class="space-y-2">
-<div class="flex items-start justify-between gap-space-sm">
-<div class="min-w-0">
-<div class="flex items-center gap-2">
-<span class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Tata Capital Financial Services</span>
-<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="w-1 h-1 rounded-full bg-paid-green-fg"></span>
-<span>On-going</span>
-</span>
-</div>
-<p class="text-small font-small text-mist mt-0.5">ISIN: INE306N07MH1 • 9.15% Annual Coupon • AAA Stable</p>
-</div>
-<div class="text-right shrink-0">
-<div class="text-headline-h2 font-headline-h2 text-ink font-semibold tabular-nums">₹ 1,42,500 <span class="text-small font-normal text-slate">/ ₹ 5,00,000</span></div>
-<div class="text-label font-label text-primary font-medium tabular-nums">28.5% returned</div>
-</div>
-</div>
-<!-- Progress Bar -->
-<div class="w-full h-2 rounded-full bg-secondary-fixed overflow-hidden flex">
-<div class="h-full bg-primary-container rounded-full" style="width: 28.5%;"></div>
-</div>
-</div>
-<!-- Item 2 -->
-<div class="space-y-2 pt-2">
-<div class="flex items-start justify-between gap-space-sm">
-<div class="min-w-0">
-<div class="flex items-center gap-2">
-<span class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">L&amp;T Finance Holdings Ltd</span>
-<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="w-1 h-1 rounded-full bg-paid-green-fg"></span>
-<span>On-going</span>
-</span>
-</div>
-<p class="text-small font-small text-mist mt-0.5">ISIN: INE498L07185 • 8.85% Semi-Annual • AAA CRISIL</p>
-</div>
-<div class="text-right shrink-0">
-<div class="text-headline-h2 font-headline-h2 text-ink font-semibold tabular-nums">₹ 1,24,000 <span class="text-small font-normal text-slate">/ ₹ 4,00,000</span></div>
-<div class="text-label font-label text-primary font-medium tabular-nums">31.0% returned</div>
-</div>
-</div>
-<div class="w-full h-2 rounded-full bg-secondary-fixed overflow-hidden flex">
-<div class="h-full bg-primary-container rounded-full" style="width: 31.0%;"></div>
-</div>
-</div>
-<!-- Item 3 -->
-<div class="space-y-2 pt-2">
-<div class="flex items-start justify-between gap-space-sm">
-<div class="min-w-0">
-<div class="flex items-center gap-2">
-<span class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Piramal Capital &amp; Housing Fin</span>
-<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-label font-semibold border border-due-red-fg/20">
-<span class="material-symbols-outlined text-[12px]">warning</span>
-<span>Danger</span>
-</span>
-<span class="hidden sm:inline-block text-label font-label text-due-red-fg bg-due-red-bg px-1.5 py-0.5 rounded border border-due-red-fg/20">Rating Watch</span>
-</div>
-<p class="text-small font-small text-mist mt-0.5">ISIN: INE641A07137 • 10.25% Monthly • AA- Negative</p>
-</div>
-<div class="text-right shrink-0">
-<div class="text-headline-h2 font-headline-h2 text-ink font-semibold tabular-nums">₹ 89,750 <span class="text-small font-normal text-slate">/ ₹ 3,50,000</span></div>
-<div class="text-label font-label text-due-red-fg font-medium tabular-nums">25.6% returned</div>
-</div>
-</div>
-<div class="w-full h-2 rounded-full bg-secondary-fixed overflow-hidden flex">
-<div class="h-full bg-due-red-fg rounded-full" style="width: 25.6%;"></div>
-</div>
-</div>
-<!-- Item 4 -->
-<div class="space-y-2 pt-2">
-<div class="flex items-start justify-between gap-space-sm">
-<div class="min-w-0">
-<div class="flex items-center gap-2">
-<span class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Muthoot Finance Ltd</span>
-<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="w-1 h-1 rounded-full bg-paid-green-fg"></span>
-<span>On-going</span>
-</span>
-</div>
-<p class="text-small font-small text-mist mt-0.5">ISIN: INE414G07CJ9 • 9.50% Annual Coupon • AA+ Stable</p>
-</div>
-<div class="text-right shrink-0">
-<div class="text-headline-h2 font-headline-h2 text-ink font-semibold tabular-nums">₹ 76,000 <span class="text-small font-normal text-slate">/ ₹ 4,00,000</span></div>
-<div class="text-label font-label text-primary font-medium tabular-nums">19.0% returned</div>
-</div>
-</div>
-<div class="w-full h-2 rounded-full bg-secondary-fixed overflow-hidden flex">
-<div class="h-full bg-primary-container rounded-full" style="width: 19.0%;"></div>
-</div>
-</div>
-<!-- Item 5 -->
-<div class="space-y-2 pt-2">
-<div class="flex items-start justify-between gap-space-sm">
-<div class="min-w-0">
-<div class="flex items-center gap-2">
-<span class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Shree Cement NCD (Series I)</span>
-<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-slate font-label text-label font-semibold border border-hairline">
-<span class="material-symbols-outlined text-[12px]">check_circle</span>
-<span>Matured</span>
-</span>
-</div>
-<p class="text-small font-small text-mist mt-0.5">ISIN: INE070A07060 • 8.10% Annual • Fully Settled</p>
-</div>
-<div class="text-right shrink-0">
-<div class="text-headline-h2 font-headline-h2 text-ink font-semibold tabular-nums">₹ 3,00,000 <span class="text-small font-normal text-slate">/ ₹ 3,00,000</span></div>
-<div class="text-label font-label text-paid-green-fg font-medium tabular-nums">100% returned</div>
-</div>
-</div>
-<div class="w-full h-2 rounded-full bg-secondary-fixed overflow-hidden flex">
-<div class="h-full bg-paid-green-fg rounded-full" style="width: 100%;"></div>
-</div>
-</div>
-</div>
-</div>
-<!-- Right Column (4 cols): Cashflow Velocity & Upcoming Schedule Widget -->
-<div class="lg:col-span-4 space-y-space-md"><div class="bg-paper-surface border border-hairline rounded-[12px] p-space-md shadow-sm space-y-space-md flex flex-col justify-between h-full"><div class="space-y-space-sm"><div class="flex items-center justify-between pb-space-xs border-b border-hairline"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-due-red-fg text-[22px]">notification_important</span><h2 class="text-headline-h2 font-headline-h2 text-ink">Risk Alert</h2></div><span class="px-2 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-label font-semibold border border-due-red-fg/20">Rating Watch</span></div><div class="bg-due-red-bg border border-due-red-fg/20 rounded-[10px] p-space-md"><div class="text-headline-h2 font-headline-h2 text-due-red-fg">Action Required: Rating Watch</div><p class="text-small font-small text-slate mt-1.5 leading-snug">Piramal Capital NCD was placed under CRISIL credit watch with negative implications. Review redemption strategy.</p><div class="mt-space-md flex items-center gap-space-sm"><button class="h-8 px-3 rounded-lg bg-due-red-fg text-[#0D1520] font-label text-label font-semibold hover:opacity-90 transition-opacity" type="button">Read Advisory</button><button class="h-8 px-3 rounded-lg bg-secondary-fixed hover:bg-secondary-fixed-dim text-slate hover:text-ink font-label text-label font-semibold border border-hairline transition-colors" type="button">Dismiss</button></div></div></div><div class="p-space-sm rounded-[10px] bg-secondary-fixed border border-hairline flex items-center justify-between text-xs text-mist"><div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-due-red-fg"></span><span>Piramal Capital &amp; Housing Fin</span></div><span class="font-mono tabular-nums text-due-red-fg font-medium">₹ 89,750 at risk</span></div></div></div>
-</div>
-<!-- Returns History & Coupon Ledger Table -->
-<div class="bg-paper-surface border border-hairline rounded-[12px] p-space-md shadow-sm space-y-space-md"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs border-b border-hairline"><div><div class="flex items-center gap-2"><span class="material-symbols-outlined text-slate text-[20px]">calendar_month</span><h2 class="text-headline-h2 font-headline-h2 text-ink">Cashflow Rhythm</h2></div><p class="text-small font-small text-slate mt-0.5">Projected monthly earnings run-rate and upcoming coupon servicing queue</p></div><button class="h-[40px] px-space-md rounded-[8px] bg-secondary-fixed hover:bg-secondary-fixed-dim text-ink font-body text-label font-semibold flex items-center justify-center gap-1 transition-colors border border-hairline self-start sm:self-center shrink-0" type="button"><span>View Complete Cashflow Schedule</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span></button></div><div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-center"><div class="lg:col-span-4 p-space-sm rounded-[10px] bg-secondary-fixed border border-hairline flex items-center justify-between"><div class="pr-4 border-r border-hairline flex-1"><div class="font-label text-label uppercase text-mist">Monthly Run-rate</div><div class="text-headline-h1 font-headline-h1 text-ink tabular-nums mt-0.5">₹ 32,850</div></div><div class="pl-4 text-right flex-1"><div class="font-label text-label uppercase text-mist">Tax (TDS 10%)</div><div class="text-headline-h2 font-headline-h2 text-due-red-fg tabular-nums mt-0.5">-₹ 3,285</div></div></div><div class="lg:col-span-8 flex flex-col md:flex-row md:items-center justify-between gap-space-sm bg-secondary-fixed/50 p-space-sm rounded-[10px] border border-hairline"><div class="flex items-center justify-between flex-1 py-1 px-2"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-upcoming-amber-bg text-upcoming-amber-fg border border-upcoming-amber-fg/20 flex flex-col items-center justify-center shrink-0"><span class="text-[10px] font-bold leading-none uppercase">Dec</span><span class="text-small font-semibold leading-none tabular-nums mt-0.5">15</span></div><div class="min-w-0"><div class="text-small font-small font-semibold text-ink leading-tight truncate">HDFC Credila Fin</div><div class="text-label font-label text-mist truncate">Coupon Interest</div></div></div><div class="text-right shrink-0 ml-2"><div class="text-small font-small font-semibold text-ink tabular-nums">₹ 32,800</div><div class="text-label font-label text-upcoming-amber-fg font-medium">Pending</div></div></div><div class="hidden md:block w-px h-8 bg-hairline shrink-0"></div><div class="flex items-center justify-between flex-1 py-1 px-2"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-info-blue-bg text-info-blue-fg border border-info-blue-fg/20 flex flex-col items-center justify-center shrink-0"><span class="text-[10px] font-bold leading-none uppercase">Dec</span><span class="text-small font-semibold leading-none tabular-nums mt-0.5">28</span></div><div class="min-w-0"><div class="text-small font-small font-semibold text-ink leading-tight truncate">Tata Cap Financial</div><div class="text-label font-label text-mist truncate">Quarterly Coupon</div></div></div><div class="text-right shrink-0 ml-2"><div class="text-small font-small font-semibold text-ink tabular-nums">₹ 11,437</div><div class="text-label font-label text-slate">Scheduled</div></div></div><div class="hidden md:block w-px h-8 bg-hairline shrink-0"></div><div class="flex items-center justify-between flex-1 py-1 px-2"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-secondary-fixed text-slate border border-hairline flex flex-col items-center justify-center shrink-0"><span class="text-[10px] font-bold leading-none uppercase">Jan</span><span class="text-small font-semibold leading-none tabular-nums mt-0.5">10</span></div><div class="min-w-0"><div class="text-small font-small font-semibold text-ink leading-tight truncate">L&amp;T Finance Ltd</div><div class="text-label font-label text-mist truncate">Semi-Annual Payout</div></div></div><div class="text-right shrink-0 ml-2"><div class="text-small font-small font-semibold text-ink tabular-nums">₹ 17,700</div><div class="text-label font-label text-slate">Scheduled</div></div></div></div></div></div><div class="bg-paper-surface border border-hairline rounded-[12px] shadow-sm overflow-hidden">
-<!-- Card Header -->
-<div class="p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
-<div>
-<h2 class="text-headline-h2 font-headline-h2 text-ink">Returns History &amp; Coupon Ledger</h2>
-<p class="text-small font-small text-slate">Monthly coupon cashflow breakdown, TDS deductions, and bank credit receipts</p>
-</div>
-<div class="flex items-center gap-space-xs shrink-0">
-<button class="h-9 px-3 rounded-[8px] bg-secondary-fixed hover:bg-secondary-fixed-dim text-slate hover:text-ink font-label text-label flex items-center gap-1 transition-colors border border-hairline" type="button">
-<span class="material-symbols-outlined text-[16px]">filter_list</span>
-<span>Filter By Year</span>
-</button>
-<button class="h-9 px-3 rounded-[8px] bg-secondary-fixed hover:bg-secondary-fixed-dim text-slate hover:text-ink font-label text-label flex items-center gap-1 transition-colors border border-hairline" type="button">
-<span class="material-symbols-outlined text-[16px]">download</span>
-<span>Tax CSV</span>
-</button>
-</div>
-</div>
-<!-- Table Container -->
-<div class="w-full overflow-x-auto">
-<table class="w-full text-left">
-<thead>
-<tr class="h-12 bg-secondary-fixed text-mist font-label text-label uppercase tracking-wider select-none border-y border-hairline">
-<th class="px-space-md font-medium">Coupon Month</th>
-<th class="px-space-md font-medium text-right">Expected (₹)</th>
-<th class="px-space-md font-medium text-right">Received (₹)</th>
-<th class="px-space-md font-medium text-right">TDS (10%)</th>
-<th class="px-space-md font-medium text-right">Net Credit (₹)</th>
-<th class="px-space-md font-medium">Payment Date</th>
-<th class="px-space-md font-medium">Status</th>
-<th class="px-space-md font-medium text-center">Receipt</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-hairline font-body text-small">
-<!-- Row 1: Nov 2026 -->
-<tr class="h-12 hover:bg-secondary-fixed/50 transition-colors">
-<td class="px-space-md font-semibold text-ink">
-<span>Nov 2026</span>
-<span class="text-label text-mist font-normal block">3 Coupon credits</span>
-</td>
-<td class="px-space-md text-right text-slate tabular-nums font-medium">34,250.00</td>
-<td class="px-space-md text-right text-ink tabular-nums font-semibold">34,250.00</td>
-<td class="px-space-md text-right text-due-red-fg tabular-nums font-medium">-3,425.00</td>
-<td class="px-space-md text-right text-paid-green-fg tabular-nums font-semibold">30,825.00</td>
-<td class="px-space-md text-slate tabular-nums">28 Nov 2026</td>
-<td class="px-space-md">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="material-symbols-outlined text-[14px]">done_all</span>
-<span>Paid</span>
-</span>
-</td>
-<td class="px-space-md text-center">
-<button aria-label="Download statement for Nov 2026" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button">
-<span class="material-symbols-outlined text-[18px]">receipt_long</span>
-</button>
-</td>
-</tr>
-<!-- Row 2: Oct 2026 -->
-<tr class="h-12 hover:bg-secondary-fixed/50 transition-colors">
-<td class="px-space-md font-semibold text-ink">
-<span>Oct 2026</span>
-<span class="text-label text-mist font-normal block">2 Coupon credits</span>
-</td>
-<td class="px-space-md text-right text-slate tabular-nums font-medium">28,120.00</td>
-<td class="px-space-md text-right text-ink tabular-nums font-semibold">28,120.00</td>
-<td class="px-space-md text-right text-due-red-fg tabular-nums font-medium">-2,812.00</td>
-<td class="px-space-md text-right text-paid-green-fg tabular-nums font-semibold">25,308.00</td>
-<td class="px-space-md text-slate tabular-nums">27 Oct 2026</td>
-<td class="px-space-md">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="material-symbols-outlined text-[14px]">done_all</span>
-<span>Paid</span>
-</span>
-</td>
-<td class="px-space-md text-center">
-<button aria-label="Download statement for Oct 2026" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button">
-<span class="material-symbols-outlined text-[18px]">receipt_long</span>
-</button>
-</td>
-</tr>
-<!-- Row 3: Sep 2026 -->
-<tr class="h-12 hover:bg-secondary-fixed/50 transition-colors">
-<td class="px-space-md font-semibold text-ink">
-<span>Sep 2026</span>
-<span class="text-label text-mist font-normal block">4 Coupon credits</span>
-</td>
-<td class="px-space-md text-right text-slate tabular-nums font-medium">42,500.00</td>
-<td class="px-space-md text-right text-ink tabular-nums font-semibold">42,500.00</td>
-<td class="px-space-md text-right text-due-red-fg tabular-nums font-medium">-4,250.00</td>
-<td class="px-space-md text-right text-paid-green-fg tabular-nums font-semibold">38,250.00</td>
-<td class="px-space-md text-slate tabular-nums">25 Sep 2026</td>
-<td class="px-space-md">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="material-symbols-outlined text-[14px]">done_all</span>
-<span>Paid</span>
-</span>
-</td>
-<td class="px-space-md text-center">
-<button aria-label="Download statement for Sep 2026" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button">
-<span class="material-symbols-outlined text-[18px]">receipt_long</span>
-</button>
-</td>
-</tr>
-<!-- Row 4: Aug 2026 -->
-<tr class="h-12 hover:bg-secondary-fixed/50 transition-colors">
-<td class="px-space-md font-semibold text-ink">
-<span>Aug 2026</span>
-<span class="text-label text-mist font-normal block">3 Coupon credits</span>
-</td>
-<td class="px-space-md text-right text-slate tabular-nums font-medium">31,000.00</td>
-<td class="px-space-md text-right text-ink tabular-nums font-semibold">31,000.00</td>
-<td class="px-space-md text-right text-due-red-fg tabular-nums font-medium">-3,100.00</td>
-<td class="px-space-md text-right text-paid-green-fg tabular-nums font-semibold">27,900.00</td>
-<td class="px-space-md text-slate tabular-nums">28 Aug 2026</td>
-<td class="px-space-md">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold border border-paid-green-fg/20">
-<span class="material-symbols-outlined text-[14px]">done_all</span>
-<span>Paid</span>
-</span>
-</td>
-<td class="px-space-md text-center">
-<button aria-label="Download statement for Aug 2026" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button">
-<span class="material-symbols-outlined text-[18px]">receipt_long</span>
-</button>
-</td>
-</tr>
-<!-- Row 5: Dec 2026 (Upcoming) -->
-<tr class="h-12 bg-upcoming-amber-bg/30 hover:bg-upcoming-amber-bg/40 transition-colors">
-<td class="px-space-md font-semibold text-ink">
-<span>Dec 2026</span>
-<span class="text-label text-upcoming-amber-fg font-semibold block">Upcoming cycle</span>
-</td>
-<td class="px-space-md text-right text-slate tabular-nums font-medium">32,800.00</td>
-<td class="px-space-md text-right text-mist tabular-nums font-semibold">—</td>
-<td class="px-space-md text-right text-slate tabular-nums font-medium">~3,280.00</td>
-<td class="px-space-md text-right text-ink tabular-nums font-semibold">29,520.00</td>
-<td class="px-space-md text-upcoming-amber-fg font-medium tabular-nums">Due 15 Dec</td>
-<td class="px-space-md">
-<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-label font-semibold border border-upcoming-amber-fg/20">
-<span class="material-symbols-outlined text-[14px]">schedule</span>
-<span>Upcoming</span>
-</span>
-</td>
-<td class="px-space-md text-center">
-<button aria-label="Estimated breakdown for Dec 2026" class="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate hover:bg-secondary-fixed hover:text-ink transition-colors" type="button">
-<span class="material-symbols-outlined text-[18px]">visibility</span>
-</button>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Table Footer / Pagination -->
-<div class="px-space-md py-space-sm bg-secondary-fixed border-t border-hairline flex items-center justify-between text-small font-small text-slate">
-<span>Showing 5 of 24 completed accounting periods</span>
-<div class="flex items-center gap-space-xs">
-<button class="px-3 py-1 rounded bg-paper-surface hover:bg-secondary-fixed-dim text-ink font-label text-label border border-hairline shadow-sm disabled:opacity-50" disabled="" type="button">Previous</button>
-<button class="px-3 py-1 rounded bg-paper-surface hover:bg-secondary-fixed-dim text-ink font-label text-label border border-hairline shadow-sm" type="button">Next</button>
-</div>
-</div>
-</div>
-</div>
-</div></main></div></body></html>
+  <!-- SIDEBAR (Fixed Left 240px, #16212E) -->
+  <aside class="w-[240px] flex-shrink-0 bg-ledger-card border-r border-ledger-hairline flex flex-col fixed top-0 bottom-0 left-0 z-30">
+    <!-- Brand / Wordmark -->
+    <div class="h-16 px-5 flex items-center gap-3 border-b border-ledger-hairline flex-shrink-0">
+      <div class="w-9 h-9 rounded-lg bg-bond-blue flex items-center justify-center text-white shadow-sm flex-shrink-0">
+        <span class="material-symbols-outlined text-[20px]">account_balance</span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-sm font-semibold text-ledger-ink tracking-tight truncate leading-tight">DK Bond Tracker</span>
+        <span class="text-[11px] font-medium text-ledger-muted tracking-wider uppercase leading-none mt-1">Fixed Income Desk</span>
+      </div>
+    </div>
+
+    <!-- Navigation Scroll Area -->
+    <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      <!-- Main Ledger Group -->
+      <div>
+        <div class="px-3 pb-2 text-[11px] font-semibold text-ledger-muted uppercase tracking-wider">Main Ledger</div>
+        <nav class="space-y-1">
+          <!-- Dashboard (Active) -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-info-blue-bg text-info-blue border border-bond-blue/30 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px] text-info-blue">space_dashboard</span>
+            <span>Dashboard</span>
+          </a>
+          <!-- Portfolio -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px]">account_balance</span>
+            <span>Portfolio</span>
+          </a>
+          <!-- Watchlist -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px]">visibility</span>
+            <span>Watchlist</span>
+          </a>
+          <!-- Goals -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px]">flag</span>
+            <span>Goals</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- System Group -->
+      <div>
+        <div class="px-3 pb-2 text-[11px] font-semibold text-ledger-muted uppercase tracking-wider">System</div>
+        <nav class="space-y-1">
+          <!-- Alerts -->
+          <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+              <span>Alerts</span>
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-danger-red-bg text-danger-red border border-danger-red/30">2</span>
+          </a>
+          <!-- Settings -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            <span>Settings</span>
+          </a>
+          <!-- About -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px]">info</span>
+            <span>About</span>
+          </a>
+          <!-- Feedback -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated/60 font-medium text-sm transition-colors">
+            <span class="material-symbols-outlined text-[20px]">rate_review</span>
+            <span>Feedback</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Bottom User Account Card -->
+    <div class="p-3 border-t border-ledger-hairline flex-shrink-0">
+      <div class="flex items-center justify-between p-2 rounded-lg bg-ledger-elevated/60 border border-ledger-hairline/80 hover:border-ledger-hairline transition-colors cursor-pointer">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-full bg-bond-blue text-white flex items-center justify-center font-semibold text-xs flex-shrink-0">
+            DK
+          </div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-xs font-semibold text-ledger-ink truncate leading-tight">DK Yield Account</span>
+            <span class="text-[10px] text-ledger-muted truncate leading-tight">Fixed Income Desk</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-ledger-muted text-[18px]">unfold_more</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER (Left padding 240px for sidebar) -->
+  <div class="flex-1 ml-[240px] flex flex-col min-w-0">
+
+    <!-- SINGLE HEADER BAR (One row, surface bg, bottom border) -->
+    <header class="h-16 bg-ledger-card border-b border-ledger-hairline px-6 flex items-center justify-between sticky top-0 z-20">
+      <!-- Dynamic Left/Middle Zone -->
+      <div class="flex items-center gap-5 min-w-0">
+        <!-- Tagline with lock icon -->
+        <div class="flex items-center gap-1.5 text-success-green font-medium text-[11px] uppercase tracking-wider flex-shrink-0">
+          <span class="material-symbols-outlined text-[15px]">lock</span>
+          <span>VERIFIED BOND YIELDS</span>
+        </div>
+
+        <!-- Subtle vertical separator -->
+        <div class="h-5 w-[1px] bg-ledger-hairline flex-shrink-0"></div>
+
+        <!-- Compact Page Title (20px) -->
+        <h1 class="text-[20px] font-semibold text-ledger-ink tracking-tight flex-shrink-0 leading-none">
+          Dashboard
+        </h1>
+
+        <!-- Inline Segmented Tab Control in same row (44px tall) -->
+        <div class="flex items-center p-1 bg-ledger-canvas border border-ledger-hairline rounded-lg h-11 flex-shrink-0">
+          <!-- Dashboard Active -->
+          <button type="button" class="flex items-center gap-2 px-3.5 h-9 rounded-md bg-ledger-card border border-ledger-hairline text-ledger-ink text-xs font-semibold shadow-sm transition-all">
+            <span class="material-symbols-outlined text-[18px] text-info-blue">space_dashboard</span>
+            <span>Dashboard</span>
+          </button>
+          <!-- Returns History Inactive -->
+          <button type="button" class="flex items-center gap-2 px-3.5 h-9 rounded-md text-ledger-muted hover:text-ledger-ink text-xs font-medium transition-colors">
+            <span class="material-symbols-outlined text-[18px]">history</span>
+            <span>Returns History</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Static Right Zone -->
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <!-- 48px #2456E6 rounded-square Add icon button -->
+        <button type="button" class="w-10 h-10 rounded-lg bg-bond-blue hover:bg-bond-blue-hover text-white flex items-center justify-center shadow transition-colors" title="Add Bond">
+          <span class="material-symbols-outlined text-[22px]">add</span>
+        </button>
+
+        <!-- Search Icon Button -->
+        <button type="button" class="w-9 h-9 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated flex items-center justify-center transition-colors" title="Search">
+          <span class="material-symbols-outlined text-[20px]">search</span>
+        </button>
+
+        <!-- Notifications Icon Button with red '2' badge -->
+        <button type="button" class="w-9 h-9 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated flex items-center justify-center relative transition-colors" title="Notifications">
+          <span class="material-symbols-outlined text-[20px]">notifications</span>
+          <span class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-danger-red text-[#0D1520] font-bold text-[10px] flex items-center justify-center leading-none">2</span>
+        </button>
+
+        <!-- Help Icon Button -->
+        <button type="button" class="w-9 h-9 rounded-lg text-ledger-secondary hover:text-ledger-ink hover:bg-ledger-elevated flex items-center justify-center transition-colors" title="Help & Specs">
+          <span class="material-symbols-outlined text-[20px]">help</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="h-6 w-[1px] bg-ledger-hairline mx-1"></div>
+
+        <!-- Round #2456E6 Avatar -->
+        <button type="button" class="w-9 h-9 rounded-full bg-bond-blue text-white font-semibold text-xs flex items-center justify-center shadow-sm hover:ring-2 hover:ring-bond-blue/50 transition-all">
+          DK
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-1 px-8 py-6 max-w-[1400px] w-full mx-auto space-y-6">
+
+      <!-- BELOW THE BAR: Metadata Line + Export Action -->
+      <div class="flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2 text-ledger-muted">
+          <span class="w-2 h-2 rounded-full bg-success-green animate-pulse"></span>
+          <span>Last updated today at 09:30 AM • 14 Active Holdings</span>
+        </div>
+        <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ledger-card hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink text-xs font-medium transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">file_download</span>
+          <span>Export Statement</span>
+        </button>
+      </div>
+
+      <!-- KPI ROW: Three Equal Cards (repeat(3, 1fr), 16px padding, 16px gutters) -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Card 1: Total Invested -->
+        <div class="bg-ledger-card border border-ledger-hairline rounded-xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-ledger-muted mb-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider">TOTAL INVESTED</span>
+            <span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+          </div>
+          <div class="text-[28px] font-semibold text-ledger-ink tracking-tight tabular-nums leading-tight">
+            ₹ 24,50,000
+          </div>
+          <div class="mt-3 pt-2 border-t border-ledger-hairline/60 text-xs text-ledger-secondary flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px] text-info-blue">shield</span>
+            <span>Across 14 corporate bonds</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Outstanding Principal -->
+        <div class="bg-ledger-card border border-ledger-hairline rounded-xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-ledger-muted mb-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider">OUTSTANDING PRINCIPAL</span>
+            <span class="material-symbols-outlined text-[18px]">pie_chart</span>
+          </div>
+          <div class="text-[28px] font-semibold text-ledger-ink tracking-tight tabular-nums leading-tight">
+            ₹ 19,67,550
+          </div>
+          <div class="mt-3 pt-2 border-t border-ledger-hairline/60 text-xs text-ledger-secondary flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-success-green"></span>
+              <span>80.3% Active Book</span>
+            </span>
+            <span class="text-success-green font-medium tabular-nums">Portfolio Yield: 11.24% XIRR</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Next Payout -->
+        <div class="bg-ledger-card border border-ledger-hairline rounded-xl p-4 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-ledger-muted mb-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider">NEXT PAYOUT</span>
+            <span class="material-symbols-outlined text-[18px] text-warning-amber">event</span>
+          </div>
+          <div class="text-[28px] font-semibold text-ledger-ink tracking-tight tabular-nums leading-tight">
+            ₹ 32,800
+          </div>
+          <div class="mt-3 pt-2 border-t border-ledger-hairline/60 text-xs flex items-center justify-between">
+            <span class="text-warning-amber font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">schedule</span>
+              <span>Due 15 Dec 2026</span>
+            </span>
+            <span class="text-ledger-secondary font-medium">HDFC Credila</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTER CHIPS ROW -->
+      <div class="flex items-center gap-2 overflow-x-auto py-1">
+        <!-- All (14) Active Blue -->
+        <button type="button" class="px-3.5 py-1.5 rounded-full bg-bond-blue text-white text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 flex-shrink-0">
+          <span>All</span>
+          <span class="bg-white/20 text-white px-1.5 py-0.2 rounded-full text-[10px]">14</span>
+        </button>
+        <!-- On-going (10) -->
+        <button type="button" class="px-3.5 py-1.5 rounded-full bg-ledger-card hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink text-xs font-medium transition-colors flex items-center gap-1.5 flex-shrink-0">
+          <span class="w-1.5 h-1.5 rounded-full bg-success-green"></span>
+          <span>On-going (10)</span>
+        </button>
+        <!-- Upcoming Due (2) Amber -->
+        <button type="button" class="px-3.5 py-1.5 rounded-full bg-warning-amber-bg border border-warning-amber/40 text-warning-amber text-xs font-medium transition-colors flex items-center gap-1.5 flex-shrink-0">
+          <span class="material-symbols-outlined text-[14px]">timer</span>
+          <span>Upcoming Due (2)</span>
+        </button>
+        <!-- Danger (1) Red -->
+        <button type="button" class="px-3.5 py-1.5 rounded-full bg-danger-red-bg border border-danger-red/40 text-danger-red text-xs font-medium transition-colors flex items-center gap-1.5 flex-shrink-0">
+          <span class="material-symbols-outlined text-[14px]">warning</span>
+          <span>Danger (1)</span>
+        </button>
+        <!-- Matured (3) -->
+        <button type="button" class="px-3.5 py-1.5 rounded-full bg-ledger-card hover:bg-ledger-elevated border border-ledger-hairline text-ledger-muted hover:text-ledger-secondary text-xs font-medium transition-colors flex items-center gap-1.5 flex-shrink-0">
+          <span class="material-symbols-outlined text-[14px]">check_circle</span>
+          <span>Matured (3)</span>
+        </button>
+      </div>
+
+      <!-- TWO-COLUMN GRID (Left 8 cols / Right 4 cols) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT 8 COLS: Invested vs Received per Company -->
+        <div class="lg:col-span-8 bg-ledger-card border border-ledger-hairline rounded-xl p-5 shadow-sm space-y-4">
+          <!-- Card Header -->
+          <div class="flex items-start justify-between pb-3 border-b border-ledger-hairline">
+            <div>
+              <h2 class="text-base font-semibold text-ledger-ink tracking-tight">Invested vs Received per Company</h2>
+              <p class="text-xs text-ledger-muted mt-0.5">Holdings distribution, coupon servicing, and principal capital recovery</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-ledger-elevated text-ledger-secondary border border-ledger-hairline flex-shrink-0">
+              5 of 14 Listed
+            </span>
+          </div>
+
+          <!-- Exactly 5 Holding Rows in Status Order (Danger first, On-going center, Matured last) -->
+          <div class="space-y-3.5">
+            
+            <!-- ROW 1: Piramal Capital (Danger) -->
+            <div class="p-3.5 rounded-lg bg-ledger-canvas border border-danger-red/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-ledger-ink">Piramal Capital & Housing Fin</span>
+                  <!-- Danger chip + Rating Watch tag -->
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-danger-red-bg text-danger-red border border-danger-red/40 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">warning</span>
+                    <span>Danger</span>
+                  </span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-warning-amber-bg text-warning-amber border border-warning-amber/30">
+                    Rating Watch
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 89,750</span>
+                  <span class="text-xs text-ledger-muted tabular-nums"> / ₹ 3,50,000</span>
+                </div>
+              </div>
+
+              <!-- Metadata Line -->
+              <div class="flex items-center justify-between text-xs text-ledger-muted">
+                <span>ISIN: INE641A07137 • 10.25% Monthly • AA- Negative</span>
+                <span class="text-danger-red font-medium tabular-nums">25.6% returned</span>
+              </div>
+
+              <!-- Red Progress Bar -->
+              <div class="w-full h-2 bg-ledger-elevated rounded-full overflow-hidden">
+                <div class="h-full bg-danger-red rounded-full" style="width: 25.6%"></div>
+              </div>
+            </div>
+
+            <!-- ROW 2: Tata Capital (On-going) -->
+            <div class="p-3.5 rounded-lg bg-ledger-canvas border border-ledger-hairline space-y-2 hover:border-ledger-hairline/80 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-ledger-ink">Tata Capital Financial Services</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-success-green-bg text-success-green border border-success-green/40">
+                    On-going
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 1,42,500</span>
+                  <span class="text-xs text-ledger-muted tabular-nums"> / ₹ 5,00,000</span>
+                </div>
+              </div>
+
+              <!-- Metadata Line -->
+              <div class="flex items-center justify-between text-xs text-ledger-muted">
+                <span>ISIN: INE306N07MH1 • 9.15% Annual Coupon • AAA Stable</span>
+                <span class="text-info-blue font-medium tabular-nums">28.5% returned</span>
+              </div>
+
+              <!-- Blue/Green Progress Bar -->
+              <div class="w-full h-2 bg-ledger-elevated rounded-full overflow-hidden">
+                <div class="h-full bg-bond-blue rounded-full" style="width: 28.5%"></div>
+              </div>
+            </div>
+
+            <!-- ROW 3: L&T Finance Holdings (On-going) -->
+            <div class="p-3.5 rounded-lg bg-ledger-canvas border border-ledger-hairline space-y-2 hover:border-ledger-hairline/80 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-ledger-ink">L&T Finance Holdings Ltd</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-success-green-bg text-success-green border border-success-green/40">
+                    On-going
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 1,24,000</span>
+                  <span class="text-xs text-ledger-muted tabular-nums"> / ₹ 4,00,000</span>
+                </div>
+              </div>
+
+              <!-- Metadata Line -->
+              <div class="flex items-center justify-between text-xs text-ledger-muted">
+                <span>ISIN: INE498L07185 • 8.85% Semi-Annual • AAA CRISIL</span>
+                <span class="text-info-blue font-medium tabular-nums">31.0% returned</span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="w-full h-2 bg-ledger-elevated rounded-full overflow-hidden">
+                <div class="h-full bg-bond-blue rounded-full" style="width: 31.0%"></div>
+              </div>
+            </div>
+
+            <!-- ROW 4: Muthoot Finance Ltd (On-going) -->
+            <div class="p-3.5 rounded-lg bg-ledger-canvas border border-ledger-hairline space-y-2 hover:border-ledger-hairline/80 transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-ledger-ink">Muthoot Finance Ltd</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-success-green-bg text-success-green border border-success-green/40">
+                    On-going
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 76,000</span>
+                  <span class="text-xs text-ledger-muted tabular-nums"> / ₹ 4,00,000</span>
+                </div>
+              </div>
+
+              <!-- Metadata Line -->
+              <div class="flex items-center justify-between text-xs text-ledger-muted">
+                <span>ISIN: INE414G07CJ9 • 9.50% Annual Coupon • AA+ Stable</span>
+                <span class="text-info-blue font-medium tabular-nums">19.0% returned</span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="w-full h-2 bg-ledger-elevated rounded-full overflow-hidden">
+                <div class="h-full bg-bond-blue rounded-full" style="width: 19.0%"></div>
+              </div>
+            </div>
+
+            <!-- ROW 5: Shree Cement NCD (Matured, Dimmed) -->
+            <div class="p-3.5 rounded-lg bg-ledger-canvas/50 border border-ledger-hairline/50 space-y-2 opacity-65">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-medium text-ledger-secondary line-through">Shree Cement NCD (Series I)</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-ledger-elevated text-ledger-muted border border-ledger-hairline flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                    <span>Matured</span>
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-medium text-ledger-secondary tabular-nums">₹ 3,00,000</span>
+                  <span class="text-xs text-ledger-muted tabular-nums"> / ₹ 3,00,000</span>
+                </div>
+              </div>
+
+              <!-- Metadata Line -->
+              <div class="flex items-center justify-between text-xs text-ledger-muted">
+                <span>ISIN: INE070A07060 • 8.10% Annual • Fully Settled</span>
+                <span class="text-ledger-muted font-medium tabular-nums">100% returned</span>
+              </div>
+
+              <!-- Gray Progress Bar -->
+              <div class="w-full h-2 bg-ledger-elevated rounded-full overflow-hidden">
+                <div class="h-full bg-ledger-muted/60 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Card Footer -->
+          <div class="pt-3 border-t border-ledger-hairline flex items-center justify-between text-xs text-ledger-muted">
+            <span>Showing top 5 positions weighted by invested capital</span>
+            <a href="#" class="text-info-blue hover:underline font-medium flex items-center gap-1">
+              <span>View all 14 corporate holdings</span>
+              <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- RIGHT 4 COLS: Alert Card -->
+        <div class="lg:col-span-4 bg-ledger-card border border-danger-red/40 rounded-xl p-5 shadow-sm space-y-4 relative overflow-hidden">
+          <!-- Top alert glow accent -->
+          <div class="absolute top-0 left-0 right-0 h-1 bg-danger-red"></div>
+
+          <!-- Header / Tag -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-danger-red font-semibold text-xs uppercase tracking-wider">
+              <span class="material-symbols-outlined text-[18px]">notification_important</span>
+              <span>Risk Alert</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-danger-red-bg text-danger-red border border-danger-red/30">
+              Rating Watch
+            </span>
+          </div>
+
+          <!-- Alert Title in Red -->
+          <h3 class="text-base font-semibold text-danger-red leading-snug">
+            Action Required: Rating Watch
+          </h3>
+
+          <!-- Description -->
+          <p class="text-xs text-ledger-secondary leading-relaxed">
+            Piramal Capital NCD was placed under CRISIL credit watch with negative implications. Review redemption strategy.
+          </p>
+
+          <!-- Buttons: Read Advisory & Dismiss -->
+          <div class="flex items-center gap-2.5 pt-1">
+            <button type="button" class="flex-1 py-2 px-3 rounded-lg bg-danger-red hover:bg-danger-red/90 text-[#0D1520] font-semibold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+              <span>Read Advisory</span>
+              <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+            </button>
+            <button type="button" class="py-2 px-3 rounded-lg bg-ledger-canvas hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink font-medium text-xs transition-colors">
+              Dismiss
+            </button>
+          </div>
+
+          <!-- Alert Footer Note -->
+          <div class="pt-3 border-t border-ledger-hairline/60 flex items-center justify-between text-[11px] text-danger-red font-medium">
+            <span>Piramal Capital & Housing Fin</span>
+            <span class="tabular-nums font-semibold">₹ 89,750 at risk</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- FULL-WIDTH CARD: Cashflow Rhythm -->
+      <section class="bg-ledger-card border border-ledger-hairline rounded-xl p-5 shadow-sm space-y-5">
+        <!-- Section Header -->
+        <div class="flex items-start justify-between pb-3 border-b border-ledger-hairline">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-info-blue text-[20px]">calendar_month</span>
+              <h2 class="text-base font-semibold text-ledger-ink tracking-tight">Cashflow Rhythm</h2>
+            </div>
+            <p class="text-xs text-ledger-muted mt-0.5">Projected monthly earnings run-rate and upcoming coupon servicing queue</p>
+          </div>
+          <a href="#" class="text-xs text-info-blue hover:underline font-medium flex items-center gap-1 flex-shrink-0">
+            <span>View Complete Cashflow Schedule</span>
+            <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- Stats & Upcoming Servicing Queue -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+          <!-- Stats Summary (4 cols) -->
+          <div class="lg:col-span-4 grid grid-cols-2 gap-3 p-3.5 rounded-lg bg-ledger-canvas border border-ledger-hairline">
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted block mb-1">Monthly Run-rate</span>
+              <span class="text-xl font-semibold text-ledger-ink tabular-nums">₹ 32,850</span>
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted block mb-1">Tax (TDS 10%)</span>
+              <span class="text-xl font-semibold text-danger-red tabular-nums">-₹ 3,285</span>
+            </div>
+          </div>
+
+          <!-- Servicing Queue Rows Soonest-First (8 cols) -->
+          <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Queue Item 1: Dec 15 (Soonest) -->
+            <div class="p-3 rounded-lg bg-ledger-canvas border border-warning-amber/40 flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-warning-amber-bg text-warning-amber border border-warning-amber/30">
+                  Dec 15, 2026
+                </span>
+                <span class="text-[10px] font-semibold text-warning-amber uppercase">Pending</span>
+              </div>
+              <div>
+                <span class="text-xs font-semibold text-ledger-ink block truncate">HDFC Credila Fin</span>
+                <span class="text-[11px] text-ledger-muted block">Coupon Interest</span>
+              </div>
+              <div class="text-sm font-semibold text-ledger-ink tabular-nums pt-1 border-t border-ledger-hairline/60">
+                ₹ 32,800
+              </div>
+            </div>
+
+            <!-- Queue Item 2: Dec 28 -->
+            <div class="p-3 rounded-lg bg-ledger-canvas border border-ledger-hairline flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-ledger-elevated text-ledger-secondary">
+                  Dec 28, 2026
+                </span>
+                <span class="text-[10px] font-medium text-ledger-muted uppercase">Scheduled</span>
+              </div>
+              <div>
+                <span class="text-xs font-semibold text-ledger-ink block truncate">Tata Cap Financial</span>
+                <span class="text-[11px] text-ledger-muted block">Quarterly Coupon</span>
+              </div>
+              <div class="text-sm font-semibold text-ledger-ink tabular-nums pt-1 border-t border-ledger-hairline/60">
+                ₹ 11,437
+              </div>
+            </div>
+
+            <!-- Queue Item 3: Jan 10 -->
+            <div class="p-3 rounded-lg bg-ledger-canvas border border-ledger-hairline flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-ledger-elevated text-ledger-secondary">
+                  Jan 10, 2027
+                </span>
+                <span class="text-[10px] font-medium text-ledger-muted uppercase">Scheduled</span>
+              </div>
+              <div>
+                <span class="text-xs font-semibold text-ledger-ink block truncate">L&T Finance Ltd</span>
+                <span class="text-[11px] text-ledger-muted block">Semi-Annual Payout</span>
+              </div>
+              <div class="text-sm font-semibold text-ledger-ink tabular-nums pt-1 border-t border-ledger-hairline/60">
+                ₹ 17,700
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FULL-WIDTH CARD: Returns History & Coupon Ledger -->
+      <section class="bg-ledger-card border border-ledger-hairline rounded-xl p-5 shadow-sm space-y-4">
+        <!-- Table Header & Controls -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-ledger-hairline">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-info-blue text-[20px]">history</span>
+              <h2 class="text-base font-semibold text-ledger-ink tracking-tight">Returns History & Coupon Ledger</h2>
+            </div>
+            <p class="text-xs text-ledger-muted mt-0.5">Monthly coupon cashflow breakdown, TDS deductions, and net credits</p>
+          </div>
+          <!-- Controls: Filter By Year & Tax CSV -->
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ledger-canvas hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink text-xs font-medium transition-colors">
+              <span class="material-symbols-outlined text-[15px]">tune</span>
+              <span>Filter By Year</span>
+            </button>
+            <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ledger-canvas hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink text-xs font-medium transition-colors">
+              <span class="material-symbols-outlined text-[15px]">download</span>
+              <span>Tax CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sticky Header Table Container -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <!-- Sticky Table Header -->
+            <thead class="sticky top-0 bg-ledger-elevated text-ledger-muted uppercase text-[11px] tracking-wider border-b border-ledger-hairline font-semibold">
+              <tr>
+                <th class="py-3 px-3">Coupon Month</th>
+                <th class="py-3 px-3 text-right">Expected (₹)</th>
+                <th class="py-3 px-3 text-right">Received (₹)</th>
+                <th class="py-3 px-3 text-right">TDS (10%)</th>
+                <th class="py-3 px-3 text-right">Net Credit (₹)</th>
+                <th class="py-3 px-3">Payment Date</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3 px-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <!-- Table Body in Specified Order: Upcoming First, then Newest Paid First -->
+            <tbody class="divide-y divide-ledger-hairline/60">
+              
+              <!-- ROW 1: Dec 2026 (Upcoming Cycle) -->
+              <tr class="hover:bg-ledger-canvas/60 transition-colors bg-warning-amber-bg/10">
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ledger-ink">December 2026</div>
+                  <div class="text-[11px] text-warning-amber font-medium">Upcoming cycle</div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹32,800.00</td>
+                <td class="py-3 px-3 text-right text-ledger-muted tabular-nums">—</td>
+                <td class="py-3 px-3 text-right text-warning-amber tabular-nums">~₹3,280.00</td>
+                <td class="py-3 px-3 text-right font-semibold text-info-blue tabular-nums">₹29,520.00</td>
+                <td class="py-3 px-3">
+                  <span class="text-ledger-secondary font-medium">Due 15 Dec 2026</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-warning-amber-bg text-warning-amber border border-warning-amber/40 inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">schedule</span>
+                    <span>Upcoming</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <button type="button" class="text-ledger-muted hover:text-ledger-secondary p-1" title="Schedule Details">
+                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- ROW 2: Nov 2026 (Paid) -->
+              <tr class="hover:bg-ledger-canvas/60 transition-colors">
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ledger-ink">November 2026</div>
+                  <div class="text-[11px] text-ledger-muted">3 Coupon credits</div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹34,250.00</td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹34,250.00</td>
+                <td class="py-3 px-3 text-right text-danger-red tabular-nums">-₹3,425.00</td>
+                <td class="py-3 px-3 text-right font-semibold text-success-green tabular-nums">₹30,825.00</td>
+                <td class="py-3 px-3">
+                  <span class="text-ledger-secondary">28 Nov 2026</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-success-green-bg text-success-green border border-success-green/40 inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">done_all</span>
+                    <span>Paid</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center"></td>
+              </tr>
+
+              <!-- ROW 3: Oct 2026 (Paid) -->
+              <tr class="hover:bg-ledger-canvas/60 transition-colors">
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ledger-ink">October 2026</div>
+                  <div class="text-[11px] text-ledger-muted">2 Coupon credits</div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹28,120.00</td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹28,120.00</td>
+                <td class="py-3 px-3 text-right text-danger-red tabular-nums">-₹2,812.00</td>
+                <td class="py-3 px-3 text-right font-semibold text-success-green tabular-nums">₹25,308.00</td>
+                <td class="py-3 px-3">
+                  <span class="text-ledger-secondary">27 Oct 2026</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-success-green-bg text-success-green border border-success-green/40 inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">done_all</span>
+                    <span>Paid</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center"></td>
+              </tr>
+
+              <!-- ROW 4: Sep 2026 (Paid) -->
+              <tr class="hover:bg-ledger-canvas/60 transition-colors">
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ledger-ink">September 2026</div>
+                  <div class="text-[11px] text-ledger-muted">4 Coupon credits</div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹42,500.00</td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹42,500.00</td>
+                <td class="py-3 px-3 text-right text-danger-red tabular-nums">-₹4,250.00</td>
+                <td class="py-3 px-3 text-right font-semibold text-success-green tabular-nums">₹38,250.00</td>
+                <td class="py-3 px-3">
+                  <span class="text-ledger-secondary">25 Sep 2026</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-success-green-bg text-success-green border border-success-green/40 inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">done_all</span>
+                    <span>Paid</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center"></td>
+              </tr>
+
+              <!-- ROW 5: Aug 2026 (Paid) -->
+              <tr class="hover:bg-ledger-canvas/60 transition-colors">
+                <td class="py-3 px-3">
+                  <div class="font-semibold text-ledger-ink">August 2026</div>
+                  <div class="text-[11px] text-ledger-muted">3 Coupon credits</div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹31,000.00</td>
+                <td class="py-3 px-3 text-right font-medium text-ledger-ink tabular-nums">₹31,000.00</td>
+                <td class="py-3 px-3 text-right text-danger-red tabular-nums">-₹3,100.00</td>
+                <td class="py-3 px-3 text-right font-semibold text-success-green tabular-nums">₹27,900.00</td>
+                <td class="py-3 px-3">
+                  <span class="text-ledger-secondary">28 Aug 2026</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-success-green-bg text-success-green border border-success-green/40 inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">done_all</span>
+                    <span>Paid</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center"></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer / Pagination -->
+        <div class="pt-3 border-t border-ledger-hairline flex items-center justify-between text-xs text-ledger-muted">
+          <span>Showing 5 of 24 completed accounting periods</span>
+          <div class="flex items-center gap-1">
+            <button type="button" class="px-2.5 py-1 rounded bg-ledger-canvas border border-ledger-hairline text-ledger-muted cursor-not-allowed">
+              Previous
+            </button>
+            <button type="button" class="px-2.5 py-1 rounded bg-bond-blue text-white font-semibold">
+              1
+            </button>
+            <button type="button" class="px-2.5 py-1 rounded bg-ledger-canvas border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink">
+              2
+            </button>
+            <button type="button" class="px-2.5 py-1 rounded bg-ledger-canvas border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink">
+              Next
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
