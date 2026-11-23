@@ -341,6 +341,7 @@
       <!-- TWO-COLUMN GRID (Left 8 cols / Right 4 cols) -->
       <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
+
         <!-- LEFT 8 COLS: Invested vs Received per Company -->
         <div class="lg:col-span-8 bg-ledger-card border border-ledger-hairline rounded-xl p-5 shadow-sm space-y-4">
           <!-- Card Header -->
@@ -510,137 +511,134 @@
           </div>
         </div>
 
-        <!-- RIGHT 4 COLS: Alert Card -->
-        <div class="lg:col-span-4 bg-ledger-card border border-danger-red/40 rounded-xl p-5 shadow-sm space-y-4 relative overflow-hidden">
-          <!-- Top alert glow accent -->
-          <div class="absolute top-0 left-0 right-0 h-1 bg-danger-red"></div>
 
-          <!-- Header / Tag -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 text-danger-red font-semibold text-xs uppercase tracking-wider">
-              <span class="material-symbols-outlined text-[18px]">notification_important</span>
-              <span>Risk Alert</span>
+        <!-- RIGHT 4 COLS: Action Required alert (top) + Cashflow Rhythm (bottom) -->
+        <div class="lg:col-span-4 space-y-6">
+          <!-- Action Required alert card (top of right column) -->
+          <div class="bg-ledger-card border border-danger-red/40 rounded-xl p-5 shadow-sm space-y-4 relative overflow-hidden">
+            <!-- Top alert glow accent -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-danger-red"></div>
+
+            <!-- Header / Tag -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-danger-red font-semibold text-xs uppercase tracking-wider">
+                <span class="material-symbols-outlined text-[18px]">notification_important</span>
+                <span>Risk Alert</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-danger-red-bg text-danger-red border border-danger-red/30">
+                Rating Watch
+              </span>
             </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-danger-red-bg text-danger-red border border-danger-red/30">
-              Rating Watch
-            </span>
+
+            <!-- Alert Title in Red -->
+            <h3 class="text-base font-semibold text-danger-red leading-snug">
+              Action Required: Rating Watch
+            </h3>
+
+            <!-- Description -->
+            <p class="text-xs text-ledger-secondary leading-relaxed">
+              Piramal Capital NCD was placed under CRISIL credit watch with negative implications. Review redemption strategy.
+            </p>
+
+            <!-- Buttons: Read Advisory & Dismiss -->
+            <div class="flex items-center gap-2.5 pt-1">
+              <button type="button" class="flex-1 py-2 px-3 rounded-lg bg-danger-red hover:bg-danger-red/90 text-[#0D1520] font-semibold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                <span>Read Advisory</span>
+                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+              </button>
+              <button type="button" class="py-2 px-3 rounded-lg bg-ledger-canvas hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink font-medium text-xs transition-colors">
+                Dismiss
+              </button>
+            </div>
+
+            <!-- Alert Footer Note -->
+            <div class="pt-3 border-t border-ledger-hairline/60 flex items-center justify-between text-[11px] text-danger-red font-medium">
+              <span>Piramal Capital & Housing Fin</span>
+              <span class="tabular-nums font-semibold">₹ 89,750 at risk</span>
+            </div>
           </div>
 
-          <!-- Alert Title in Red -->
-          <h3 class="text-base font-semibold text-danger-red leading-snug">
-            Action Required: Rating Watch
-          </h3>
-
-          <!-- Description -->
-          <p class="text-xs text-ledger-secondary leading-relaxed">
-            Piramal Capital NCD was placed under CRISIL credit watch with negative implications. Review redemption strategy.
-          </p>
-
-          <!-- Buttons: Read Advisory & Dismiss -->
-          <div class="flex items-center gap-2.5 pt-1">
-            <button type="button" class="flex-1 py-2 px-3 rounded-lg bg-danger-red hover:bg-danger-red/90 text-[#0D1520] font-semibold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
-              <span>Read Advisory</span>
-              <span class="material-symbols-outlined text-[14px]">open_in_new</span>
-            </button>
-            <button type="button" class="py-2 px-3 rounded-lg bg-ledger-canvas hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink font-medium text-xs transition-colors">
-              Dismiss
-            </button>
-          </div>
-
-          <!-- Alert Footer Note -->
-          <div class="pt-3 border-t border-ledger-hairline/60 flex items-center justify-between text-[11px] text-danger-red font-medium">
-            <span>Piramal Capital & Housing Fin</span>
-            <span class="tabular-nums font-semibold">₹ 89,750 at risk</span>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- FULL-WIDTH CARD: Cashflow Rhythm -->
-      <section class="bg-ledger-card border border-ledger-hairline rounded-xl p-5 shadow-sm space-y-5">
-        <!-- Section Header -->
-        <div class="flex items-start justify-between pb-3 border-b border-ledger-hairline">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-info-blue text-[20px]">calendar_month</span>
+          <!-- Cashflow Rhythm card (compact, bottom of right column) -->
+          <div class="bg-ledger-card border border-ledger-hairline rounded-xl p-5 shadow-sm space-y-4">
+            <!-- Card Header -->
+            <div class="flex items-center justify-between">
               <h2 class="text-base font-semibold text-ledger-ink tracking-tight">Cashflow Rhythm</h2>
+              <span class="material-symbols-outlined text-ledger-muted text-[20px]">calendar_month</span>
             </div>
-            <p class="text-xs text-ledger-muted mt-0.5">Projected monthly earnings run-rate and upcoming coupon servicing queue</p>
-          </div>
-          <a href="#" class="text-xs text-info-blue hover:underline font-medium flex items-center gap-1 flex-shrink-0">
-            <span>View Complete Cashflow Schedule</span>
-            <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
-          </a>
-        </div>
 
-        <!-- Stats & Upcoming Servicing Queue -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
-          <!-- Stats Summary (4 cols) -->
-          <div class="lg:col-span-4 grid grid-cols-2 gap-3 p-3.5 rounded-lg bg-ledger-canvas border border-ledger-hairline">
-            <div>
-              <span class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted block mb-1">Monthly Run-rate</span>
-              <span class="text-xl font-semibold text-ledger-ink tabular-nums">₹ 32,850</span>
-            </div>
-            <div>
-              <span class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted block mb-1">Tax (TDS 10%)</span>
-              <span class="text-xl font-semibold text-danger-red tabular-nums">-₹ 3,285</span>
-            </div>
-          </div>
-
-          <!-- Servicing Queue Rows Soonest-First (8 cols) -->
-          <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-3">
-            <!-- Queue Item 1: Dec 15 (Soonest) -->
-            <div class="p-3 rounded-lg bg-ledger-canvas border border-warning-amber/40 flex flex-col justify-between space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-warning-amber-bg text-warning-amber border border-warning-amber/30">
-                  Dec 15, 2026
-                </span>
-                <span class="text-[10px] font-semibold text-warning-amber uppercase">Pending</span>
+            <!-- Stats Summary -->
+            <div class="grid grid-cols-2 gap-3 p-3.5 rounded-lg bg-ledger-canvas border border-ledger-hairline">
+              <div>
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted block mb-1">Monthly Run-rate</span>
+                <span class="text-xl font-semibold text-ledger-ink tabular-nums">₹ 32,850</span>
               </div>
               <div>
-                <span class="text-xs font-semibold text-ledger-ink block truncate">HDFC Credila Fin</span>
-                <span class="text-[11px] text-ledger-muted block">Coupon Interest</span>
-              </div>
-              <div class="text-sm font-semibold text-ledger-ink tabular-nums pt-1 border-t border-ledger-hairline/60">
-                ₹ 32,800
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted block mb-1">Tax (TDS 10%)</span>
+                <span class="text-xl font-semibold text-danger-red tabular-nums">-₹ 3,285</span>
               </div>
             </div>
 
-            <!-- Queue Item 2: Dec 28 -->
-            <div class="p-3 rounded-lg bg-ledger-canvas border border-ledger-hairline flex flex-col justify-between space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-ledger-elevated text-ledger-secondary">
-                  Dec 28, 2026
-                </span>
-                <span class="text-[10px] font-medium text-ledger-muted uppercase">Scheduled</span>
+            <!-- Immediate Payout Queue (vertical, soonest-first) -->
+            <div class="space-y-1">
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-ledger-muted mb-2">Immediate Payout Queue</div>
+              <div class="flex items-center justify-between py-1.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-9 h-9 rounded-lg bg-warning-amber-bg text-warning-amber border border-warning-amber/40 flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[10px] font-bold leading-none uppercase">Dec</span>
+                    <span class="text-xs font-semibold leading-none tabular-nums mt-0.5">15</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-ledger-ink leading-tight truncate">HDFC Credila Fin</div>
+                    <div class="text-[11px] text-ledger-muted">Coupon Interest</div>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 32,800</div>
+                  <div class="text-[11px] text-warning-amber font-medium">Pending</div>
+                </div>
               </div>
-              <div>
-                <span class="text-xs font-semibold text-ledger-ink block truncate">Tata Cap Financial</span>
-                <span class="text-[11px] text-ledger-muted block">Quarterly Coupon</span>
+              <div class="flex items-center justify-between py-1.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-9 h-9 rounded-lg bg-info-blue-bg text-info-blue border border-info-blue/30 flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[10px] font-bold leading-none uppercase">Dec</span>
+                    <span class="text-xs font-semibold leading-none tabular-nums mt-0.5">28</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-ledger-ink leading-tight truncate">Tata Cap Financial</div>
+                    <div class="text-[11px] text-ledger-muted">Quarterly Coupon</div>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 11,437</div>
+                  <div class="text-[11px] text-ledger-secondary font-medium">Scheduled</div>
+                </div>
               </div>
-              <div class="text-sm font-semibold text-ledger-ink tabular-nums pt-1 border-t border-ledger-hairline/60">
-                ₹ 11,437
+              <div class="flex items-center justify-between py-1.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-9 h-9 rounded-lg bg-ledger-elevated text-ledger-secondary border border-ledger-hairline flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[10px] font-bold leading-none uppercase">Jan</span>
+                    <span class="text-xs font-semibold leading-none tabular-nums mt-0.5">10</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-semibold text-ledger-ink leading-tight truncate">L&amp;T Finance Ltd</div>
+                    <div class="text-[11px] text-ledger-muted">Semi-Annual Payout</div>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-xs font-semibold text-ledger-ink tabular-nums">₹ 17,700</div>
+                  <div class="text-[11px] text-ledger-secondary font-medium">Scheduled</div>
+                </div>
               </div>
             </div>
 
-            <!-- Queue Item 3: Jan 10 -->
-            <div class="p-3 rounded-lg bg-ledger-canvas border border-ledger-hairline flex flex-col justify-between space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-ledger-elevated text-ledger-secondary">
-                  Jan 10, 2027
-                </span>
-                <span class="text-[10px] font-medium text-ledger-muted uppercase">Scheduled</span>
-              </div>
-              <div>
-                <span class="text-xs font-semibold text-ledger-ink block truncate">L&T Finance Ltd</span>
-                <span class="text-[11px] text-ledger-muted block">Semi-Annual Payout</span>
-              </div>
-              <div class="text-sm font-semibold text-ledger-ink tabular-nums pt-1 border-t border-ledger-hairline/60">
-                ₹ 17,700
-              </div>
-            </div>
+            <!-- View Schedule Button -->
+            <button type="button" class="w-full py-2 rounded-lg bg-ledger-canvas hover:bg-ledger-elevated border border-ledger-hairline text-ledger-secondary hover:text-ledger-ink text-xs font-medium transition-colors flex items-center justify-center gap-1">
+              <span>View Complete Cashflow Schedule</span>
+              <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+            </button>
           </div>
         </div>
+
       </section>
 
       <!-- FULL-WIDTH CARD: Returns History & Coupon Ledger -->
