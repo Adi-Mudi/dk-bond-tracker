@@ -2,7 +2,7 @@
   "id": "frontend_redesign_implementation_guide_20261123",
   "kind": "report",
   "title": "Frontend Redesign — Implementation Guide (foundation-first, batch page rollout, verification battery)",
-  "version": "v1.0",
+  "version": "v1.1",
   "status": "active",
   "project": "dk-bond-tracker",
   "source": "Community-researched approach (Playwright visual snapshots, BackstopJS, strangler-fig/incremental design-system migration) + developer clarifications D11-D14 + Q&A 2026-11-23",
@@ -106,6 +106,25 @@
     "Every merge: CI green + reviewer verdict + developer approval (Q9)"
   ],
   "changelog": [
-    {"date": "2026-11-23", "entry": "v1.0 created — community-researched implementation roadmap + foundation-vs-batch clarification for the post-selection build of issue #336's winning design"}
-  ]
+    {
+      "date": "2026-11-23",
+      "entry": "v1.0 created — community-researched implementation roadmap + foundation-vs-batch clarification for the post-selection build of issue #336's winning design"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "v1.1 — D18 Flutter path addendum (stages F1-F5, issue #337); old-frontend implementation phases superseded"
+    }
+  ],
+  "flutter_path": {
+    "decision": "D18 (2026-11-24): frontend = Flutter (web+Android, single Dart codebase); backend engine unchanged behind JSON API adapter; old frontend (Jinja/static/Java-UI) removed FIRST then rebuilt from scratch; all designs/documents state Flutter as implementation target",
+    "issue": "#337",
+    "stages": [
+      "F1 design-docs->Flutter references",
+      "F2 JSON API adapter (engine untouched, tests green)",
+      "F3 Flutter scaffold + ThemeData (3 themes) + shared components",
+      "F4 screen-by-screen widget build from design/confirmed/",
+      "F5 cutover + retire old frontend + device smoke"
+    ],
+    "supersedes_note": "Phases 1-5 of this guide assumed Flask-template implementation; the Flutter path (D18) replaces that implementation route while retaining the guide's verification battery and batch discipline"
+  }
 }
