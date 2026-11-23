@@ -1,0 +1,662 @@
+{
+  "id": "frontend_redesign_psrs_20261123",
+  "kind": "psrs",
+  "title": "DK Bond Tracker Full Frontend UX Redesign (Two Stitch Tracks) — V-model spec suite",
+  "version": "v1.3",
+  "status": "draft",
+  "project": "dk-bond-tracker",
+  "source_discussion": "https://github.com/Adi-Mudi/dk-bond-tracker/discussions/335",
+  "derived_from": "Locked brainstorm D1-D10 (Discussion #335, 2026-11-23) + developer brief Q1-Q3 + remote sweep G1-G7",
+  "requirements": [
+    {
+      "id": "RD-01",
+      "text": "The redesign SHALL change frontend presentation only: no business logic, routing, DB, or API code may be altered, and the existing pytest suite SHALL stay green after implementation.",
+      "category": "functional",
+      "check_method": "test",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the repository after any design-driven code change",
+          "when": "the existing pytest suite is run",
+          "then": "all tests pass with no test modified to accommodate the change"
+        },
+        {
+          "given": "the diff of a track's implementation",
+          "when": "files are classified by layer",
+          "then": "only src/templates/**, src/static/** and android UI-layer files are touched"
+        }
+      ]
+    },
+    {
+      "id": "RD-02",
+      "text": "Every existing web route and Android screen SHALL have a redesigned counterpart — the screen inventory SHALL be complete with no screen dropped.",
+      "category": "functional",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the current app's route/screen inventory",
+          "when": "a track's deliverable is checked",
+          "then": "each inventory entry maps to exactly one redesigned screen or documented exclusion"
+        }
+      ]
+    },
+    {
+      "id": "RD-03",
+      "text": "Both tracks SHALL receive byte-identical requirements briefs.",
+      "category": "functional",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the two track worktrees",
+          "when": "the brief file in each is compared",
+          "then": "checksums are identical"
+        }
+      ]
+    },
+    {
+      "id": "RD-04",
+      "text": "Each track SHALL work in its own git worktree (design-track-a, design-track-b) cut from dev, with no cross-writes between tracks.",
+      "category": "functional",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "git worktree list",
+          "when": "inspected during the initiative",
+          "then": "both worktrees exist, folder name equals branch name, and each track's commits stay in its own worktree"
+        }
+      ]
+    },
+    {
+      "id": "RD-05",
+      "text": "Each track SHALL deliver a Stitch Canvas project (primary design tool) PLUS committed repo evidence: screenshots, manifest and DESIGN.md.",
+      "category": "functional",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a finished track",
+          "when": "its worktree and Stitch status are inspected",
+          "then": "the Stitch project shows the redesigned screens and the worktree contains screenshots/, manifest and DESIGN.md"
+        }
+      ]
+    },
+    {
+      "id": "RD-06",
+      "text": "Each track SHALL cite at least 3 leading-app benchmark references and at least 3 modern UI/UX best-practice sources in its deliverable.",
+      "category": "functional",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "a track's research notes",
+          "when": "references are counted",
+          "then": ">=3 benchmarks and >=3 best-practice sources are present and resolvable"
+        }
+      ]
+    },
+    {
+      "id": "RD-07",
+      "text": "The redesigned UI SHALL be free of duplicate components, overflow and layout breakage, and SHALL use one consistent design-token system (color, type, spacing, radius) across all screens and both platforms.",
+      "category": "quality",
+      "check_method": "ui",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any delivered screen set",
+          "when": "an audit inspects for duplicated patterns, overflow and token drift",
+          "then": "no duplicate component definitions, no clipped/overlapping content, and all values resolve to shared tokens"
+        }
+      ]
+    },
+    {
+      "id": "RD-08",
+      "text": "Layouts SHALL be fluid and responsive: no horizontal scrolling or content clipping at 360px, 768px, 1280px and 1920px viewports on web, and correct fit on Android phone sizes.",
+      "category": "quality",
+      "check_method": "ui",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "each redesigned web page",
+          "when": "rendered at 360/768/1280/1920 px",
+          "then": "no horizontal scrollbar, no overlap, no clipped controls"
+        },
+        {
+          "given": "each redesigned Android screen",
+          "when": "viewed on a phone-size viewport",
+          "then": "content fits with readable hierarchy and reachable controls"
+        }
+      ]
+    },
+    {
+      "id": "RD-09",
+      "text": "The design SHALL meet accessibility basics: touch/click targets >=48px with >=8px gaps on touch surfaces, readable text contrast, and visible focus/pressed states.",
+      "category": "quality",
+      "check_method": "ui",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "any interactive control in the design",
+          "when": "measured",
+          "then": "target size >=48px, gap to neighbours >=8px, and a visible focus/active state is specified"
+        }
+      ]
+    },
+    {
+      "id": "RD-10",
+      "text": "Navigation SHALL be coherent and consistent: one navigation model across web pages and a matching model on Android, with predictable placement of primary actions.",
+      "category": "quality",
+      "check_method": "ui",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "the full screen set",
+          "when": "navigation patterns are compared screen-to-screen",
+          "then": "primary nav placement and interaction patterns are consistent and documented in DESIGN.md"
+        }
+      ]
+    },
+    {
+      "id": "RD-11",
+      "text": "Auditor A1 SHALL produce audit reports for both tracks covering design quality, consistency, UX issues, accessibility, responsiveness and compliance with this suite.",
+      "category": "process",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "each track milestone",
+          "when": "audit outputs are collected",
+          "then": "a report exists per track with findings, severities and evidence references"
+        }
+      ]
+    },
+    {
+      "id": "RD-12",
+      "text": "Reviewer R1 SHALL deliver an independent comparison review of both final designs with strengths, weaknesses, recommendations and evidence, supporting winner selection.",
+      "category": "process",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "both tracks delivered",
+          "when": "R1's review is collected",
+          "then": "a comparison report exists citing both designs with per-criterion findings and a recommendation"
+        }
+      ]
+    },
+    {
+      "id": "RD-13",
+      "text": "The developer SHALL select the winning design; the losing track SHALL be archived and never merged.",
+      "category": "process",
+      "check_method": "inspection",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "both final deliveries plus R1's comparison",
+          "when": "the developer decides",
+          "then": "the selection is recorded in the initiative report and only the winning track proceeds to implementation"
+        }
+      ]
+    },
+    {
+      "id": "RD-14",
+      "text": "All stage documents SHALL be projected into the SQLite store, gates SHALL pass green, and Discussion #335 SHALL remain the decision authority for the initiative.",
+      "category": "process",
+      "check_method": "test",
+      "status": "accepted",
+      "acceptance_criteria": [
+        {
+          "given": "each stage close",
+          "when": "store-projector and store-gates run",
+          "then": "verify and --all --strict pass and stage status rows advance"
+        }
+      ]
+    }
+  ],
+  "prd_items": [
+    {
+      "id": "PRD-FR-01",
+      "area": "scope",
+      "statement": "Redesign the frontend UX top-to-bottom for web and Android with zero functionality change.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D1",
+      "acceptance_criteria": [
+        {
+          "given": "the repository after the redesign implementation",
+          "when": "the existing pytest suite is run",
+          "then": "all tests pass and no logic file appears in the diff"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-02",
+      "area": "process",
+      "statement": "Run two competing design tracks with byte-identical briefs; developer picks the winner.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D2",
+      "acceptance_criteria": [
+        {
+          "given": "two tracks are briefed",
+          "when": "the brief files are compared",
+          "then": "checksums are byte-identical"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-03",
+      "area": "fleet",
+      "statement": "Track A = kimi + GLM-5.3-Flash (zai-coding-plan); Track B = agy + gemini-3.8-flash-high.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D3",
+      "acceptance_criteria": [
+        {
+          "given": "the fleet slots are configured",
+          "when": "fleet-guard --check-argv runs for both track argvs",
+          "then": "both exit 0 before spawn"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-04",
+      "area": "workspace",
+      "statement": "Isolate tracks in worktrees design-track-a and design-track-b cut from dev.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D4",
+      "acceptance_criteria": [
+        {
+          "given": "the initiative starts",
+          "when": "git worktree list is inspected",
+          "then": "design-track-a and design-track-b exist with folder==branch, cut from dev"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-05",
+      "area": "tooling",
+      "statement": "Stitch CLI is the primary design tool; each track exports evidence into its worktree.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D5",
+      "acceptance_criteria": [
+        {
+          "given": "a track finishes",
+          "when": "its Stitch status and worktree are inspected",
+          "then": "the Stitch project holds the redesigned screens and screenshots/manifest/DESIGN.md are committed"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-06",
+      "area": "governance",
+      "statement": "Track the initiative under one umbrella issue using the existing initiative:dk-bond-tracker-ui-redesign label.",
+      "priority": "P2",
+      "status": "accepted",
+      "decision_id": "D6",
+      "acceptance_criteria": [
+        {
+          "given": "the umbrella issue is created",
+          "when": "its labels are inspected",
+          "then": "only taxonomy labels from .fleet/config.json appear and it links Discussion #335"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-07",
+      "area": "governance",
+      "statement": "Auditor A1 audits both tracks throughout; Reviewer R1 compares the final designs.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D7",
+      "acceptance_criteria": [
+        {
+          "given": "the initiative runs",
+          "when": "audit and review outputs are collected",
+          "then": "A1 reports exist per track and R1 delivers the final comparison with evidence"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-08",
+      "area": "coverage",
+      "statement": "Redesign every existing screen on both platforms — no screen dropped.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D8",
+      "acceptance_criteria": [
+        {
+          "given": "a track delivers",
+          "when": "the screen inventory is mapped",
+          "then": "every existing web route and Android screen has a redesigned counterpart or documented exclusion"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-09",
+      "area": "research",
+      "statement": "Each track researches modern UI/UX best practices and benchmarks leading apps, with citations.",
+      "priority": "P2",
+      "status": "accepted",
+      "decision_id": "D9",
+      "acceptance_criteria": [
+        {
+          "given": "a track writes its research notes",
+          "when": "citations are counted",
+          "then": ">=3 benchmark and >=3 best-practice sources are present and resolvable"
+        }
+      ]
+    },
+    {
+      "id": "PRD-FR-10",
+      "area": "process",
+      "statement": "Execute the full 5-stage PM pipeline; developer selects the winner at delivery.",
+      "priority": "P1",
+      "status": "accepted",
+      "decision_id": "D10",
+      "acceptance_criteria": [
+        {
+          "given": "the pipeline runs",
+          "when": "stage records are inspected",
+          "then": "each stage gate has evidence and the developer's winner selection is recorded at delivery"
+        }
+      ]
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "TC-FR-01",
+      "title": "Existing pytest suite stays green after implementation (RD-01)",
+      "type": "integration",
+      "steps": "1. Check out the winning track's implementation. 2. Run the full pytest suite unchanged.",
+      "expected": "All tests pass; no test file modified.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-02",
+      "title": "Screen inventory completeness (RD-02)",
+      "type": "e2e",
+      "steps": "1. Extract route list from Flask app + Android screen list. 2. Map each to the deliverable checklist. 3. Flag unmapped entries.",
+      "expected": "Every inventory entry maps to a redesigned screen or a documented exclusion.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-03",
+      "title": "Identical briefs across tracks (RD-03)",
+      "type": "unit",
+      "steps": "1. sha256 the brief file in design-track-a. 2. sha256 the brief file in design-track-b. 3. Compare.",
+      "expected": "Checksums identical.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-04",
+      "title": "Worktree isolation (RD-04)",
+      "type": "unit",
+      "steps": "1. git worktree list. 2. Verify folder==branch for both. 3. Verify each track's commits are in its own worktree.",
+      "expected": "Both worktrees present, named correctly, no cross-writes.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-05",
+      "title": "Stitch project + repo evidence present (RD-05)",
+      "type": "e2e",
+      "steps": "1. stitch status per track. 2. Check worktree for screenshots/, manifest, DESIGN.md.",
+      "expected": "Stitch flow complete and all evidence files committed.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-06",
+      "title": "Research citations count (RD-06)",
+      "type": "gate",
+      "steps": "1. Open each track's research notes. 2. Count benchmark refs and best-practice sources.",
+      "expected": ">=3 benchmarks and >=3 best-practice sources per track.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-07",
+      "title": "Design quality audit: duplicates, overflow, token consistency (RD-07)",
+      "type": "e2e",
+      "steps": "1. A1 inspects all delivered screens. 2. Flags duplicate patterns, clipped content, off-token values.",
+      "expected": "Zero duplicates, zero overflow, all values on shared tokens (or findings logged with severity).",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-08",
+      "title": "Multi-width responsiveness check (RD-08)",
+      "type": "e2e",
+      "steps": "1. Render web designs at 360/768/1280/1920. 2. Inspect Android screens at phone viewport.",
+      "expected": "No horizontal scroll, overlap or clipping anywhere.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-09",
+      "title": "Accessibility: touch targets, gaps, focus states (RD-09)",
+      "type": "e2e",
+      "steps": "1. Measure interactive targets in designs. 2. Check contrast and focus/pressed state specs.",
+      "expected": "Targets >=48px, gaps >=8px, focus states specified.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-10",
+      "title": "Navigation consistency walkthrough (RD-10)",
+      "type": "e2e",
+      "steps": "1. Walk every screen comparing nav placement and primary-action patterns. 2. Diff against DESIGN.md claims.",
+      "expected": "Consistent navigation model documented and followed.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-11",
+      "title": "Audit reports delivered per track (RD-11)",
+      "type": "gate",
+      "steps": "1. Collect A1 outputs at each milestone. 2. Verify findings + severities + evidence present.",
+      "expected": "Audit report exists per track covering all six audit dimensions.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-12",
+      "title": "Independent comparison review delivered (RD-12)",
+      "type": "gate",
+      "steps": "1. Collect R1 comparison report. 2. Verify strengths/weaknesses/recommendation + evidence citations.",
+      "expected": "Comparison report exists with per-criterion findings and a recommendation.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-13",
+      "title": "Winner selection recorded, loser archived (RD-13)",
+      "type": "gate",
+      "steps": "1. Verify developer selection entry in initiative report. 2. Verify losing track never merged.",
+      "expected": "Selection recorded; losing worktree/branch archived, not merged.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-14",
+      "title": "DB projection + gates green at every stage close (RD-14)",
+      "type": "unit",
+      "steps": "1. store-projector --rebuild; --project; --verify. 2. store-gates --all --strict.",
+      "expected": "Verify passes; all gates green; stage rows advance.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-15",
+      "title": "Fleet pre-flight argv check for both track slots (PRD-FR-03)",
+      "type": "gate",
+      "steps": "1. fleet-guard --check-argv for Track A kimi/GLM argv. 2. Same for Track B agy/gemini argv.",
+      "expected": "Both exit 0 before spawn.",
+      "level": "LOCAL",
+      "status": "planned"
+    },
+    {
+      "id": "TC-FR-16",
+      "title": "Umbrella issue uses taxonomy labels only (PRD-FR-06)",
+      "type": "gate",
+      "steps": "1. Read the umbrella issue labels. 2. Compare against .fleet/config.json labels taxonomy.",
+      "expected": "Every label exists in the taxonomy; issue links Discussion #335.",
+      "level": "LOCAL",
+      "status": "planned"
+    }
+  ],
+  "test_bindings": [
+    {
+      "requirement_id": "RD-01",
+      "test_case_id": "TC-FR-01",
+      "covers": "regression gate"
+    },
+    {
+      "requirement_id": "RD-02",
+      "test_case_id": "TC-FR-02",
+      "covers": "inventory completeness"
+    },
+    {
+      "requirement_id": "RD-03",
+      "test_case_id": "TC-FR-03",
+      "covers": "brief identity"
+    },
+    {
+      "requirement_id": "RD-04",
+      "test_case_id": "TC-FR-04",
+      "covers": "lane isolation"
+    },
+    {
+      "requirement_id": "RD-05",
+      "test_case_id": "TC-FR-05",
+      "covers": "deliverable shape"
+    },
+    {
+      "requirement_id": "RD-06",
+      "test_case_id": "TC-FR-06",
+      "covers": "research bar"
+    },
+    {
+      "requirement_id": "RD-07",
+      "test_case_id": "TC-FR-07",
+      "covers": "quality bar"
+    },
+    {
+      "requirement_id": "RD-08",
+      "test_case_id": "TC-FR-08",
+      "covers": "responsiveness"
+    },
+    {
+      "requirement_id": "RD-09",
+      "test_case_id": "TC-FR-09",
+      "covers": "accessibility"
+    },
+    {
+      "requirement_id": "RD-10",
+      "test_case_id": "TC-FR-10",
+      "covers": "navigation coherence"
+    },
+    {
+      "requirement_id": "RD-11",
+      "test_case_id": "TC-FR-11",
+      "covers": "audit coverage"
+    },
+    {
+      "requirement_id": "RD-12",
+      "test_case_id": "TC-FR-12",
+      "covers": "review coverage"
+    },
+    {
+      "requirement_id": "RD-13",
+      "test_case_id": "TC-FR-13",
+      "covers": "selection + archive"
+    },
+    {
+      "requirement_id": "RD-14",
+      "test_case_id": "TC-FR-14",
+      "covers": "store gates"
+    },
+    {
+      "requirement_id": "PRD-FR-01",
+      "test_case_id": "TC-FR-01",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-02",
+      "test_case_id": "TC-FR-03",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-04",
+      "test_case_id": "TC-FR-04",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-05",
+      "test_case_id": "TC-FR-05",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-08",
+      "test_case_id": "TC-FR-02",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-09",
+      "test_case_id": "TC-FR-06",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-10",
+      "test_case_id": "TC-FR-14",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-07",
+      "test_case_id": "TC-FR-11",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-07",
+      "test_case_id": "TC-FR-12",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-03",
+      "test_case_id": "TC-FR-15",
+      "covers": "prd coverage"
+    },
+    {
+      "requirement_id": "PRD-FR-06",
+      "test_case_id": "TC-FR-16",
+      "covers": "prd coverage"
+    }
+  ],
+  "carry_over": [],
+  "changelog": [
+    {
+      "date": "2026-11-23",
+      "entry": "v1.0 created from locked Discussion #335 (D1-D10) — 14 requirements, 10 prd_items, 14 test cases, 14 bindings"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "v1.1 — added given/when/then acceptance_criteria to all prd_items (RTM uncovered-acceptance gate)"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "v1.2 — test case types normalized to store TYPES set (inspection -> gate x4) for RTM reconcile"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "v1.3 — requirement ids FR-* -> RD-* (collision with legacy SRS FR-01..14 broke Test_Plan trace resolution); +TC-FR-15/16; PRD-FR-* test bindings added for coverage gate"
+    }
+  ]
+}
