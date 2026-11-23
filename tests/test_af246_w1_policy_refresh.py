@@ -1,3 +1,4 @@
+import pytest
 import re
 from unittest.mock import patch
 
@@ -66,6 +67,7 @@ def candidate_isins(db_path):
         ]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af09_1_fetched_bb_plus_refused_with_the_plain_message(db_path):
     result = FetchResult(
         isin=ISIN,
@@ -93,6 +95,7 @@ def test_af09_1_fetched_bb_plus_refused_with_the_plain_message(db_path):
     assert candidate_isins(db_path) == []
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af09_2_fetched_unrated_with_manual_rating_is_accepted(db_path):
     result = FetchResult(isin=ISIN, company=COMPANY, sources={"company": "NSDL"})
     client, _ = make_client(db_path, service_with(db_path, result))
@@ -111,6 +114,7 @@ def test_af09_2_fetched_unrated_with_manual_rating_is_accepted(db_path):
     assert candidate_isins(db_path) == [ISIN]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af09_3_fetched_bbb_minus_accepted_and_prefilled(db_path):
     result = FetchResult(
         isin=ISIN,
@@ -137,6 +141,7 @@ def test_af09_3_fetched_bbb_minus_accepted_and_prefilled(db_path):
     assert candidate_isins(db_path) == [ISIN]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af09_fetch_failure_never_blocks_the_add(db_path):
     result = FetchResult(isin=ISIN, failure_code=FAILURE_UNREACHABLE)
     assert rating_gate(fetch_payload(result)) is None
@@ -156,6 +161,7 @@ def test_af09_fetch_failure_never_blocks_the_add(db_path):
     assert candidate_isins(db_path) == [ISIN]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af04_1_fetched_company_gets_the_same_error_as_a_typed_company(db_path):
     with get_conn(db_path) as conn:
         add_ongoing_seed(conn, HOLDING_COMPANY, HOLDING_ISIN)
@@ -196,6 +202,7 @@ def test_af04_1_fetched_company_gets_the_same_error_as_a_typed_company(db_path):
     assert candidate_isins(db_path) == [HOLDING_ISIN]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af04_2_fetched_company_without_a_conflict_saves(db_path):
     result = FetchResult(
         isin=NEW_ISIN_FETCHED,
@@ -275,6 +282,7 @@ def test_offline_banner_wording_distinguishes_reach_from_blocked():
     )
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_offline_blocked_fetch_renders_the_blocked_wording(db_path):
     client, _ = make_client(
         db_path, service_with(db_path, FetchResult(isin=ISIN, failure_code=FAILURE_BLOCKED))
@@ -284,6 +292,7 @@ def test_offline_blocked_fetch_renders_the_blocked_wording(db_path):
     assert "The source blocked or rate-limited the request" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_offline_unreachable_fetch_keeps_the_reach_wording(db_path):
     client, _ = make_client(
         db_path, service_with(db_path, FetchResult(isin=ISIN, failure_code=FAILURE_UNREACHABLE))

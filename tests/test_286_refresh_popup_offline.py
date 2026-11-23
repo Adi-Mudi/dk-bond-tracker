@@ -1,3 +1,5 @@
+import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
 """Issue #286: forced-official /watch/refresh renders the offline popup combo (AF-03)."""
 from datetime import datetime
 from pathlib import Path

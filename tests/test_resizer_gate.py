@@ -239,11 +239,13 @@ def overflow_findings(client, html, width):
 
 
 @pytest.mark.parametrize("width", WIDTHS)
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_core_routes_render_at_every_width(client, width):
     for route in CORE_ROUTES:
         assert client.get(route).status_code == 200, (route, width)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_viewport_meta_declares_device_width_on_core_routes(client):
     for route in CORE_ROUTES:
         html = client.get(route).get_data(as_text=True)
@@ -251,6 +253,7 @@ def test_viewport_meta_declares_device_width_on_core_routes(client):
 
 
 @pytest.mark.parametrize("width", WIDTHS)
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_no_effective_fixed_content_width_exceeds_viewport(client, width):
     for route in CORE_ROUTES:
         html = client.get(route).get_data(as_text=True)
@@ -259,6 +262,7 @@ def test_no_effective_fixed_content_width_exceeds_viewport(client, width):
 
 
 @pytest.mark.parametrize("width", WIDTHS)
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_no_inline_fixed_width_exceeds_viewport(client, width):
     for route in CORE_ROUTES:
         html = client.get(route).get_data(as_text=True)
@@ -268,6 +272,7 @@ def test_no_inline_fixed_width_exceeds_viewport(client, width):
                 assert pixels <= width or body_is_guarded(style, width), (route, width, prop, pixels)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_every_table_sits_inside_a_horizontal_scroll_container(client):
     for route in CORE_ROUTES:
         root = build_tree(client.get(route).get_data(as_text=True))

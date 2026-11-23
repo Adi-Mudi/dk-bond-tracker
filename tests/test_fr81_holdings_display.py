@@ -65,6 +65,7 @@ def holding_row(table_html, bond_id):
     return match.group(1)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr81_ac1_qty_column_and_secondary_line_render(client, db_path):
     candidate_id = make_candidate(client, db_path, "INE9000A8100")
     assert move_to_holding(client, candidate_id).status_code == 302
@@ -77,6 +78,7 @@ def test_fr81_ac1_qty_column_and_secondary_line_render(client, db_path):
     )
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr81_ac2_legacy_holding_omits_line_and_shows_em_dash(client, db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "Legacy Ltd", "INE9000A8101", "2024-01-01", 60)
@@ -88,6 +90,7 @@ def test_fr81_ac2_legacy_holding_omits_line_and_shows_em_dash(client, db_path):
     assert "None" not in table
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr81_ac3_detail_exposes_purchase_facts_and_drawer_rows(client, db_path):
     candidate_id = make_candidate(client, db_path, "INE9000A8102")
     assert move_to_holding(client, candidate_id).status_code == 302
@@ -107,6 +110,7 @@ def test_fr81_legacy_detail_returns_null_purchase_facts(client, db_path):
     assert data["qty"] is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr81_holdings_context_exposes_purchase_keys(client, db_path):
     candidate_id = make_candidate(client, db_path, "INE9000A8104")
     assert move_to_holding(client, candidate_id, qty="350").status_code == 302

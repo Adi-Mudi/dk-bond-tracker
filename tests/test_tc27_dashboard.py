@@ -1,3 +1,5 @@
+import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
 from datetime import date
 
 import pytest

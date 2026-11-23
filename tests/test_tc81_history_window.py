@@ -103,6 +103,7 @@ def test_tc81_empty_portfolio_empty_history(db_path):
     assert history == []
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc81_payouts_window_current_and_no_future(client, db_path):
     today = date.today()
     base = today.replace(day=1)

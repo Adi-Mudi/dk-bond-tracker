@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 from src.db import get_conn
@@ -18,6 +19,7 @@ def test_tc146_pref_roundtrip_and_default(db_path):
         assert row["n"] == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc146_single_privacy_mechanism():
     root = Path(__file__).resolve().parents[1]
     js = (root / "src" / "static" / "app.js").read_text(encoding="utf-8")

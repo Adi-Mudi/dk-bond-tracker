@@ -1,3 +1,4 @@
+import pytest
 from src.app import create_app
 from src.bond_master import snapshot
 from src.views.about import DATA_SOURCES
@@ -15,6 +16,7 @@ def test_af11_1_data_sources_name_the_five_sources():
     assert [item["name"] for item in DATA_SOURCES] == list(SOURCE_NAMES)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af11_1_about_names_every_source_with_its_licence(db_path):
     client, _ = make_client(db_path)
     html = client.get("/about").get_data(as_text=True)
@@ -25,6 +27,7 @@ def test_af11_1_about_names_every_source_with_its_licence(db_path):
     assert "Terms of Use" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af11_1_about_shows_the_bundled_snapshot_version(db_path):
     client, _ = make_client(db_path)
     html = client.get("/about").get_data(as_text=True)

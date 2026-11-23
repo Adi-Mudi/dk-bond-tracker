@@ -54,6 +54,7 @@ def seed_matured(conn, company, isin, today):
     return bond_id
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_131_dashboard_rows_emit_d43_priority_order(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
@@ -69,6 +70,7 @@ def test_tc139_131_dashboard_rows_emit_d43_priority_order(client, db_path):
     assert '<span class="chip chip-matured" id="bar-chip-3">Matured</span>' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_132_dashboard_tabs_and_filter_chips_markup(client, db_path):
     with get_conn(db_path) as conn:
         add_ongoing_seed(conn, "OngoingCo", "INE0000001394")
@@ -95,6 +97,7 @@ def test_tc139_132_dashboard_tabs_and_filter_chips_markup(client, db_path):
     assert "row.hidden = filter" in app_js
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_132_filter_preserves_shared_priority_order(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
@@ -121,6 +124,7 @@ def test_tc139_132_filter_preserves_shared_priority_order(client, db_path):
     assert "row.hidden = filter" in app_js
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_134_email_presets_and_setup_guide_markup(client, db_path):
     html = client.get("/settings").get_data(as_text=True)
     assert 'id="s-provider"' in html
@@ -210,6 +214,7 @@ def test_tc139_134_email_test_route_never_500s_on_send_error(client, db_path, mo
     assert "SMTP_USER" not in payload["message"]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_135_returns_history_math_and_received_equality(client, db_path, monkeypatch):
     monkeypatch.setattr("src.views.dashboard.date", make_sim_date(SIM_TODAY))
     monkeypatch.setattr("src.queries.date", make_sim_date(SIM_TODAY))
@@ -255,6 +260,7 @@ def test_tc139_135_returns_history_math_and_received_equality(client, db_path, m
     assert "(of 2 active)" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_135_goals_kpi_link_navigates_view_and_tab(client, db_path, monkeypatch):
     monkeypatch.setattr("src.views.dashboard.date", make_sim_date(SIM_TODAY))
     monkeypatch.setattr("src.views.goals.date", make_sim_date(SIM_TODAY))
@@ -280,6 +286,7 @@ def test_tc139_135_goals_kpi_link_navigates_view_and_tab(client, db_path, monkey
     assert "window.location.replace('/#returns')" in app_js
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc139_136_credit_day_31_accepted_on_current_schema(client, db_path):
     with get_conn(db_path) as conn:
         schema = conn.execute(

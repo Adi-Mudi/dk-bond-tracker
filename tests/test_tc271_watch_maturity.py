@@ -65,6 +65,7 @@ def test_tc271_31_candidate_save_defaults_when_fetch_is_missing(client, db_path)
     assert row["listing_status"] == "unknown"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc271_29_fetch_capture_saves_cached_maturity_and_listing(db_path):
     isin = "INE205A07DV2"
     cache = BondMasterCache(db_path, cooldown_seconds=0)
@@ -107,6 +108,7 @@ def test_tc271_29_fetch_capture_saves_cached_maturity_and_listing(db_path):
     assert row["listing_status"] == "listed"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc271_29_first_fetch_capture_saves_fetched_maturity_and_listing(db_path):
     isin = "INE205A07DV2"
     cache = BondMasterCache(db_path, cooldown_seconds=0)

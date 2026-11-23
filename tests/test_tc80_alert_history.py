@@ -31,6 +31,7 @@ def client(db_path):
     return app.test_client()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc80_history_rows_persist_with_timestamps(client, db_path):
     seed_history(db_path)
     html = client.get("/notifications").get_data(as_text=True)
@@ -45,6 +46,7 @@ def test_tc80_history_rows_persist_with_timestamps(client, db_path):
         assert conn.execute("SELECT COUNT(*) AS n FROM notifications").fetchone()["n"] == 3
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc80_history_survives_repeated_reads(client, db_path):
     seed_history(db_path)
     first = client.get("/notifications").get_data(as_text=True)
@@ -54,6 +56,7 @@ def test_tc80_history_survives_repeated_reads(client, db_path):
         assert conn.execute("SELECT COUNT(*) AS n FROM notifications").fetchone()["n"] == 3
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc80_mark_all_read_keeps_rows_and_clears_badge(client, db_path):
     seed_history(db_path)
     assert re.search(r'id="unreadCount"[^>]*>3<', client.get("/").get_data(as_text=True))
@@ -71,6 +74,7 @@ def test_tc80_mark_all_read_keeps_rows_and_clears_badge(client, db_path):
     assert "Beta Finance Ltd credit day 5 missed" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc80_severity_colors_render_in_bell_dropdown(client, db_path):
     seed_history(db_path)
     html = client.get("/").get_data(as_text=True)

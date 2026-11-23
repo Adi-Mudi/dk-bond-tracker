@@ -63,6 +63,7 @@ def move_panel(html, candidate_id):
     return match.group(1)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_ac1_candidate_qty_stored_and_watchlist_renders_it(client, db_path):
     response = client.post("/watch", data=candidate_form(qty="200"))
     assert response.status_code == 302
@@ -77,6 +78,7 @@ def test_fr79_ac1_candidate_qty_stored_and_watchlist_renders_it(client, db_path)
     assert 'value="200' in panel
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_ac2_candidate_without_qty_stored_null(client, db_path):
     response = client.post("/watch", data=candidate_form())
     assert response.status_code == 302
@@ -93,6 +95,7 @@ def test_fr79_ac2_candidate_with_blank_qty_stored_null(client, db_path):
 
 
 @pytest.mark.parametrize("bad_value", ["abc", "0", "-5", "2.5", "1e3"])
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_ac1_candidate_bad_qty_rejected_with_zero_writes(client, db_path, bad_value):
     response = client.post("/watch", data=candidate_form(qty=bad_value))
     assert response.status_code == 400
@@ -103,12 +106,14 @@ def test_fr79_ac1_candidate_bad_qty_rejected_with_zero_writes(client, db_path, b
         assert bond_count(conn) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_candidate_form_has_no_qty_field(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
     assert "Number of bonds" not in html
     assert not re.search(r'<input[^>]*id="c-qty"', html)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_ac3_move_without_qty_rejected_with_zero_writes(client, db_path):
     client.post("/watch", data=candidate_form())
     bond_id = candidate_row(db_path, "INE9000A0300")["id"]
@@ -122,6 +127,7 @@ def test_fr79_ac3_move_without_qty_rejected_with_zero_writes(client, db_path):
 
 
 @pytest.mark.parametrize("bad_value", ["0", "-1", "2.5"])
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_ac4_move_bad_qty_rejected_with_zero_writes(client, db_path, bad_value):
     client.post("/watch", data=candidate_form())
     bond_id = candidate_row(db_path, "INE9000A0300")["id"]
@@ -147,6 +153,7 @@ def test_fr79_move_with_qty_stored_on_holding_row(client, db_path):
     assert row["qty"] == 200
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr79_move_panel_qty_required_and_prefilled_from_candidate(client, db_path):
     client.post("/watch", data=candidate_form(qty="175"))
     bond_id = candidate_row(db_path, "INE9000A0300")["id"]

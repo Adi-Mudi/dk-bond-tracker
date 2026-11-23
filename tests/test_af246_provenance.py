@@ -1,3 +1,4 @@
+import pytest
 from src.app import create_app
 from src.bond_master.cache import BondMasterCache
 from src.db import get_conn
@@ -26,6 +27,7 @@ def make_client(db_path):
     return app.test_client(), app
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_position_detail_renders_provenance_when_present(db_path):
     bond_id = _add_holding(db_path)
     _seed_master(db_path, "NSDL")
@@ -35,6 +37,7 @@ def test_position_detail_renders_provenance_when_present(db_path):
     assert 'data-source="NSDL"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_position_detail_has_no_provenance_when_absent(db_path):
     bond_id = _add_holding(db_path)
     client, _ = make_client(db_path)
@@ -58,6 +61,7 @@ def test_position_detail_json_provenance_is_none_when_absent(db_path):
     assert payload["provenance"] is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_holdings_render_provenance_when_present(db_path):
     _add_holding(db_path)
     _seed_master(db_path, "NSDL")
@@ -67,6 +71,7 @@ def test_holdings_render_provenance_when_present(db_path):
     assert 'data-fetch-source="NSDL"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_holdings_are_unchanged_when_provenance_is_absent(db_path):
     _add_holding(db_path)
     client, _ = make_client(db_path)

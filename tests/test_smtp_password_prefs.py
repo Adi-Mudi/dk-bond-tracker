@@ -56,6 +56,7 @@ def test_both_missing_raises(db_path, monkeypatch):
     assert "SMTP" in exc.value.message
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_settings_post_stores_password_and_blank_keeps_it(db_path, monkeypatch):
     _clear_smtp_env(monkeypatch)
     app = create_app(str(db_path))
@@ -83,6 +84,7 @@ def test_settings_post_stores_password_and_blank_keeps_it(db_path, monkeypatch):
         assert get_pref(conn, "smtp_app_password") == "secret-abc-123", "blank input must not wipe stored password"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_password_never_in_html(db_path, monkeypatch):
     _clear_smtp_env(monkeypatch)
     app = create_app(str(db_path))

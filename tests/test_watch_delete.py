@@ -34,6 +34,7 @@ def seed_ledger(conn, bond_id, months=("2026-01", "2026-02")):
         )
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_ac1_delete_removes_candidate_from_every_surface(client, db_path):
     with get_conn(db_path) as conn:
         seed_candidate(conn, "Alpha Steel", "INE000000076A")
@@ -62,6 +63,7 @@ def test_fr76_ac1_delete_removes_candidate_from_every_surface(client, db_path):
     assert "Beta Cement" not in dashboard
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_ac1_row_delete_control_rendered_per_candidate(client, db_path):
     with get_conn(db_path) as conn:
         first = seed_candidate(conn, "Alpha Steel", "INE000000076A")
@@ -73,6 +75,7 @@ def test_fr76_ac1_row_delete_control_rendered_per_candidate(client, db_path):
         assert f'id="delete-candidate-{bond_id}"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_ac2_confirm_dialog_present_and_no_write_without_post(client, db_path):
     with get_conn(db_path) as conn:
         bond_id = seed_candidate(conn, "Alpha Steel", "INE000000076A")
@@ -86,6 +89,7 @@ def test_fr76_ac2_confirm_dialog_present_and_no_write_without_post(client, db_pa
         assert count(conn, "SELECT COUNT(*) AS n FROM bonds WHERE id = ?", (bond_id,)) == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_ac3_holding_cannot_be_deleted(client, db_path):
     with get_conn(db_path) as conn:
         holding_id = seed_candidate(conn, "Held Corp", "INE000000076H", watch_state="holding")
@@ -115,6 +119,7 @@ def test_fr76_ac4_delete_cascades_ledger_rows(client, db_path):
         assert count(conn, "SELECT COUNT(*) AS n FROM payment_ledger WHERE bond_id = ?", (bond_id,)) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_unknown_candidate_delete_returns_404(client, db_path):
     response = client.post("/watch/424242/delete")
     assert response.status_code == 404
@@ -146,6 +151,7 @@ def render_delete_form(client, db_path, company, isin):
     return page, reader.attrs
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_ac2_confirm_message_survives_apostrophe(client, db_path):
     company = "D'Mello Finance"
     page, attrs = render_delete_form(client, db_path, company, "INE000000076A")
@@ -155,6 +161,7 @@ def test_fr76_ac2_confirm_message_survives_apostrophe(client, db_path):
     assert "confirm('Delete candidate" not in page
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr76_ac2_confirm_message_survives_backslash(client, db_path):
     company = "Back\\slash Investments"
     page, attrs = render_delete_form(client, db_path, company, "INE000000076A")

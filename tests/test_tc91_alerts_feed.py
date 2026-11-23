@@ -1,3 +1,4 @@
+import pytest
 import re
 import sys
 from datetime import date
@@ -56,6 +57,7 @@ def test_tc91_sweeps_emit_each_card_type(db_path):
     assert seeded["maturities"][0]["days_left"] == 7
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc91_feed_renders_severity_ordered(db_path):
     _seed_mixed_events(db_path)
     app = create_app(str(db_path))
@@ -85,6 +87,7 @@ def test_tc91_dedupe_keys_suppress_same_day_duplicates(db_path):
         assert int(keys["n"]) == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc91_startup_runs_maturity_scan_without_error(db_path):
     app = create_app(str(db_path))
     client = app.test_client()

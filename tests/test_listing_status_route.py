@@ -45,6 +45,7 @@ def test_listing_status_post_redirects_to_detail_on_success(client, db_path):
     assert listing_of(db_path, bond_id) == "listed"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_listing_status_post_invalid_value_returns_error_page(client, db_path):
     bond_id = insert_holding(db_path, "INE9000A0275")
     response = client.post(
@@ -55,6 +56,7 @@ def test_listing_status_post_invalid_value_returns_error_page(client, db_path):
     assert listing_of(db_path, bond_id) == "unknown"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_listing_status_post_missing_bond_returns_not_found_page(client, db_path):
     response = client.post(
         "/portfolio/999999/listing_status", data={"listing_status": "listed"}

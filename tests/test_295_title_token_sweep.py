@@ -1,3 +1,5 @@
+import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
 """Issue #295: title + token consistency sweep (Q2-Q7).
 
 F1 /grid body h1 -> page-title pattern

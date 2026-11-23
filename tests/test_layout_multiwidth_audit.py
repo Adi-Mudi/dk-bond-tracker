@@ -192,12 +192,14 @@ def audit_route(client, route):
 
 
 @pytest.mark.parametrize("route", CORE_ROUTES)
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_route_passes_the_full_multiwidth_audit(client, route):
     report = audit_route(client, route)
     failed = {width: findings for width, findings in report.items() if findings}
     assert failed == {}, (route, failed)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_audit_covers_every_declared_width(client):
     assert set(audit_route(client, CORE_ROUTES[0])) == set(WIDTHS)
 

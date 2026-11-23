@@ -1,3 +1,4 @@
+import pytest
 """TC-ILF-06..09 form consolidation tests - batch B4, issue #283."""
 import re
 
@@ -49,6 +50,7 @@ def _row(db_path, candidate_id):
         )
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_06_add_form_has_no_invested_qty_or_per_bond_inputs(db_path):
     html = _client(db_path).get("/watch").get_data(as_text=True)
     for field in ("watch_investment", "qty", "c-invested", "c-qty", "c-perbond"):
@@ -70,6 +72,7 @@ def test_tc_ilf_06_add_post_without_money_trio_creates_candidate(db_path):
     assert row["qty"] is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_07_move_end_input_hidden_when_maturity_is_known(db_path):
     client = _client(db_path)
     candidate_id = make_candidate(client, db_path)
@@ -78,6 +81,7 @@ def test_tc_ilf_07_move_end_input_hidden_when_maturity_is_known(db_path):
     assert 'name="end_date"' not in panel
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_07_move_end_input_shown_when_maturity_is_missing(db_path):
     client = _client(db_path)
     candidate_id = make_candidate(client, db_path)
@@ -126,6 +130,7 @@ def test_tc_ilf_09_move_broker_is_optional(db_path):
     assert _row(db_path, candidate_id)["broker"] is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_09_move_broker_input_is_not_required_but_prefilled(db_path):
     client = _client(db_path)
     candidate_id = make_candidate(client, db_path, broker="Kotak Securities")

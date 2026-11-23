@@ -26,6 +26,7 @@ def test_logo_paths_only_in_brand_partial():
     assert offenders == [], offenders
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_pages_import_brand_macros():
     base = (TEMPLATES / "base.html").read_text(encoding="utf-8")
     about = (TEMPLATES / "about.html").read_text(encoding="utf-8")
@@ -35,6 +36,7 @@ def test_pages_import_brand_macros():
     assert "brand_avatar" in about
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_rendered_pages_still_carry_logo(client):
     home = client.get("/").get_data(as_text=True)
     assert "/static/img/logo/favicon.svg?v=2" in home

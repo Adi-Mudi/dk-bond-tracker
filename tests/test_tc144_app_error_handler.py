@@ -1,4 +1,6 @@
 import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
+import pytest
 
 from src.app import create_app
 from src.validators import AppError

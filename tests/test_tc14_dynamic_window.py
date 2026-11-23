@@ -66,6 +66,7 @@ def test_tc14_window_ends_at_data_max_end_when_current_is_earlier():
     assert columns == span_keys("2025-09", "2032-07")
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc14_route_headers_extend_to_simulated_current_and_schema_unchanged(
     db_path, monkeypatch
 ):

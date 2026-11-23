@@ -27,6 +27,7 @@ def current_bond_count(db_path):
         return bond_count(conn)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc68_dashboard_exposes_no_add_control(client, db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "PlainCo", "INE0000000682", "2026-01-01", 12)
@@ -36,6 +37,7 @@ def test_tc68_dashboard_exposes_no_add_control(client, db_path):
     assert 'action="/add"' not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc68_grid_exposes_no_add_control(client, db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "PlainCo", "INE0000000683", "2026-01-01", 12)
@@ -48,6 +50,7 @@ def test_tc68_grid_exposes_no_add_control(client, db_path):
         assert "/add" not in control.split(">")[0]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc68_hand_crafted_post_to_dashboard_rejected(client, db_path):
     response = client.post("/", data=ADD_LIKE_FORM)
     assert response.status_code == 403
@@ -57,6 +60,7 @@ def test_tc68_hand_crafted_post_to_dashboard_rejected(client, db_path):
     assert current_bond_count(db_path) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc68_hand_crafted_post_to_grid_rejected(client, db_path):
     response = client.post("/grid", data=ADD_LIKE_FORM)
     assert response.status_code == 403
@@ -85,6 +89,7 @@ def test_tc68_post_to_watch_route_creates_candidate_never_holding(client, db_pat
     assert states == ["watching"]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc68_only_add_path_is_the_watch_list_form(client, db_path):
     assert client.get("/add").status_code == 404
     assert client.post("/add", data=ADD_LIKE_FORM).status_code == 404
@@ -97,6 +102,7 @@ def test_tc68_only_add_path_is_the_watch_list_form(client, db_path):
     assert current_bond_count(db_path) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc68_tc59_new_company_rendered_on_every_surface(client, db_path):
     created = client.post(
         "/watch",

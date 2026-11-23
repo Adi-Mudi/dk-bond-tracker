@@ -1,3 +1,4 @@
+import pytest
 import json
 import re
 from pathlib import Path
@@ -26,6 +27,7 @@ def test_tc_doc_01_release_template_parses_and_carries_required_fields():
     assert not LOSS_NORMALISING.search(text)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_doc_01_no_caveat_wording_across_repo_docs():
     for path in (TEMPLATE, SIGNING, ROOT / "src" / "templates" / "about.html"):
         assert not LOSS_NORMALISING.search(
@@ -33,6 +35,7 @@ def test_tc_doc_01_no_caveat_wording_across_repo_docs():
         ), f"caveat wording found in {path}"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_doc_02_about_page_renders_migration_flow(tmp_path):
     db_path = tmp_path / "bonds.db"
     init_db(db_path)

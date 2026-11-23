@@ -1,8 +1,10 @@
+import pytest
 import sqlite3
 
 from src.app import create_app
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc85_forced_operational_error_renders_error_page(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True

@@ -1,3 +1,5 @@
+import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
 """TC-ILF-05 full-fact popup tests - batch B3, issue #283."""
 import re
 

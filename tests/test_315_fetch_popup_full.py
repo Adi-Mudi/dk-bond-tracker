@@ -1,3 +1,4 @@
+import pytest
 import json
 import re
 from pathlib import Path
@@ -103,6 +104,7 @@ def test_v2_cooldown_active_returns_cached_official_without_hammering(tmp_path):
     assert adapter.calls == [SNAPSHOT_ISIN]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_v3_popup_renders_every_fact_row_with_value_or_unavailability(db_path):
     BondMasterCache(db_path).save(
         {
@@ -135,6 +137,7 @@ def test_v3_popup_renders_every_fact_row_with_value_or_unavailability(db_path):
         assert re.search(rf'data-fetch-source="{fact}"', popup)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_v4_popup_shows_face_value_and_listing_status_as_form_context(db_path):
     client = make_client(db_path, lambda url, timeout: nsdl_body(NSDL_ISIN))
     html = client.get(f"/watch?isin={NSDL_ISIN}").get_data(as_text=True)

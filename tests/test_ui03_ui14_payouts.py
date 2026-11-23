@@ -46,6 +46,7 @@ class SimDate(date):
         return date(2026, 10, 10)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui03_grid_paid_cell_shows_value_only_due_cell_shows_unpaid(client, db_path, monkeypatch):
     monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
@@ -69,6 +70,7 @@ def test_ui03_grid_paid_cell_shows_value_only_due_cell_shows_unpaid(client, db_p
     assert text == "not due yet"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui03_grid_has_no_paid_or_due_words(client, db_path, monkeypatch):
     monkeypatch.setattr("src.views.dashboard.date", SimDate)
     with get_conn(db_path) as conn:
@@ -79,6 +81,7 @@ def test_ui03_grid_has_no_paid_or_due_words(client, db_path, monkeypatch):
     assert 'content: "due"' not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui03_portfolio_payouts_cells_follow_green_red_amber_rule(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -112,6 +115,7 @@ def test_ui03_portfolio_payouts_cells_follow_green_red_amber_rule(client, db_pat
     assert "Missed" not in unpaid
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui03_portfolio_payouts_prestart_cells_show_neutral_dash(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -128,6 +132,7 @@ def test_ui03_portfolio_payouts_prestart_cells_show_neutral_dash(client, db_path
     assert "not due yet" not in cell
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui03_payout_matrices_have_sticky_company_column(client, db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "StickyCo", "INE0000001384", "2026-07-01", 6, credit_day=5)
@@ -144,6 +149,7 @@ def test_ui14_tds_math_reuses_phase4_helper():
     assert tds_breakdown(6330, False) == {"net": 6330, "tds": 0, "gross": 6330}
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui14_payment_editor_renders_net_input_toggle_breakdown_and_explainer(client, db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "EditorCo", "INE0000001385", "2026-07-01", 6, credit_day=5)
@@ -164,6 +170,7 @@ def test_ui14_payment_editor_renders_net_input_toggle_breakdown_and_explainer(cl
     assert "Official TDS deposits round to the nearest Rs 10 (s.288B); this app shows exact whole-rupee values for clarity." in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui14_dashboard_kpi_shows_net_plus_tds_equals_gross(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -177,6 +184,7 @@ def test_ui14_dashboard_kpi_shows_net_plus_tds_equals_gross(client, db_path):
     assert 'id="received-gross" data-amount="5000.00"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui14_accuracy_gate_dashboard_portfolio_payouts_agree(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -235,6 +243,7 @@ def test_ui14_accuracy_gate_dashboard_portfolio_payouts_agree(client, db_path):
     assert tds_breakdown(schedule["total_net"])["gross"] == schedule["total_amount"]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui14_payment_toggle_persists_per_row(client, db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(conn, "ToggleCo", "INE0000001390", "2026-07-01", 6, credit_day=5)
@@ -289,6 +298,7 @@ def test_ui14_ledger_defaults_tds_applied_on(client, db_path):
     assert row["tds_applied"] == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui14_payout_quick_entry_sends_tds_defaulting_on(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -308,6 +318,7 @@ def test_ui14_payout_quick_entry_sends_tds_defaulting_on(client, db_path):
     assert 'data-tds="1"' in default_cell
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui14_full_detail_page_returns_block_matches_drawer(client, db_path):
     today = date.today()
     base = today.replace(day=1)

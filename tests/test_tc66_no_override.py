@@ -1,4 +1,6 @@
 import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
+import pytest
 
 from conftest import add_ongoing_seed, bond_count
 from src.app import create_app

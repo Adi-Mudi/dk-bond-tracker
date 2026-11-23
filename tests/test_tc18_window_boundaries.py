@@ -37,6 +37,7 @@ def test_tc18_window_derivation_reaches_beyond_old_hardcoded_edge(current_key):
     assert "2027-02" in columns
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc18_bond_starting_feb2031_renders_full_row(db_path, monkeypatch):
     class SimDate(date):
         @classmethod

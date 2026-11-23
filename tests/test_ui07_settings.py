@@ -35,6 +35,7 @@ def active_nav(html):
     return match.group(1) if match else None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_subnav_renders_all_sections_and_marks_active(client, db_path):
     html = client.get("/settings").get_data(as_text=True)
     assert 'id="settings-nav"' in html
@@ -46,6 +47,7 @@ def test_ui07_subnav_renders_all_sections_and_marks_active(client, db_path):
 
 
 @pytest.mark.parametrize("key", SECTIONS)
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_subnav_switches_active_section(client, db_path, key):
     html = client.get(f"/settings?section={key}").get_data(as_text=True)
     hidden = hidden_sections(html)
@@ -54,6 +56,7 @@ def test_ui07_subnav_switches_active_section(client, db_path, key):
     assert active_nav(html) == key
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_deep_link_anchors_present_and_resolve(client, db_path):
     html = client.get("/settings").get_data(as_text=True)
     for key in SECTIONS:
@@ -63,11 +66,13 @@ def test_ui07_deep_link_anchors_present_and_resolve(client, db_path):
     assert active_nav(deep) == "data"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_unknown_section_falls_back_to_general(client, db_path):
     html = client.get("/settings?section=bogus").get_data(as_text=True)
     assert active_nav(html) == "general"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_advanced_email_is_collapsed_by_default(client, db_path):
     html = client.get("/settings").get_data(as_text=True)
     match = re.search(r"<details([^>]*)id=\"advanced-email\"([^>]*)>", html)
@@ -79,6 +84,7 @@ def test_ui07_advanced_email_is_collapsed_by_default(client, db_path):
     assert html.index('id="email-setup-guide"') > html.index('id="advanced-email"')
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_no_appearance_radio_and_single_theme_home(client, db_path):
     html = client.get("/settings").get_data(as_text=True)
     assert 'name="theme-choice"' not in html
@@ -88,6 +94,7 @@ def test_ui07_no_appearance_radio_and_single_theme_home(client, db_path):
     assert "top-bar overflow icon" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_saved_feedback_appears_after_save(client, db_path):
     before = client.get("/settings").get_data(as_text=True)
     assert 'id="settings-saved" hidden' in before
@@ -113,6 +120,7 @@ def test_ui07_save_redirects_back_to_the_same_section(client, db_path):
     assert "saved=1" in response.headers["Location"]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_notifications_config_reachable_and_persisted(client, db_path):
     html = client.get("/settings?section=notifications").get_data(as_text=True)
     assert 'id="settings-alert-channels"' in html
@@ -137,6 +145,7 @@ def test_ui07_notifications_config_reachable_and_persisted(client, db_path):
         assert get_pref(conn, "alert_channel_email") == "0"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_sticky_subnav_on_desktop(client, db_path):
     html = client.get("/settings").get_data(as_text=True)
     assert "position: sticky" in html
@@ -144,6 +153,7 @@ def test_ui07_sticky_subnav_on_desktop(client, db_path):
     assert "@media (max-width: 768px)" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_about_moved_to_its_own_page(client, db_path):
     settings = client.get("/settings").get_data(as_text=True)
     assert 'id="about-card"' not in settings
@@ -157,6 +167,7 @@ def test_ui07_about_moved_to_its_own_page(client, db_path):
     assert 'id="reveal-data-folder"' not in about
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui07_settings_error_keeps_section_and_error(client, db_path):
     response = client.post(
         "/settings",

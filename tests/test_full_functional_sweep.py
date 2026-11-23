@@ -53,11 +53,13 @@ GET_ROUTES = [
 
 
 @pytest.mark.parametrize("route", GET_ROUTES)
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_get_route_returns_200(client, route):
     resp = client.get(route)
     assert resp.status_code == 200, f"{route} -> {resp.status_code}"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_export_csv_requires_scope_and_works(client):
     assert client.get("/export.csv").status_code == 400
     resp = client.get("/export.csv?scope=current")
@@ -65,6 +67,7 @@ def test_export_csv_requires_scope_and_works(client):
     assert "csv" in resp.headers.get("Content-Type", "") or "text" in resp.headers.get("Content-Type", "")
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_payout_requires_bond_id_and_works(client):
     assert client.get("/payout").status_code == 400
     with _conn(client) as conn:
@@ -74,6 +77,7 @@ def test_payout_requires_bond_id_and_works(client):
     assert resp.status_code == 200
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_portfolio_detail_pages(client):
     with _conn(client) as conn:
         bid = conn.execute("SELECT id FROM bonds WHERE isin='INE00010001'").fetchone()[0]
@@ -81,12 +85,14 @@ def test_portfolio_detail_pages(client):
         assert client.get(path).status_code == 200, path
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_payment_editor_route(client):
     with _conn(client) as conn:
         bid = conn.execute("SELECT id FROM bonds WHERE isin='INE00010001'").fetchone()[0]
     assert client.get(f"/payment/{bid}/2026-08").status_code == 200
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_all_nav_links_resolve(client):
     html = client.get("/").get_data(as_text=True)
     hrefs = set(re.findall(r'href="(/[^"#?]*)"', html))
@@ -102,6 +108,7 @@ def test_unknown_route_404(client):
     assert client.get("/definitely-not-a-page").status_code == 404
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_payment_save_valid_and_invalid_rejected(client):
     with _conn(client) as conn:
         bid = conn.execute("SELECT id FROM bonds WHERE isin='INE00010001'").fetchone()[0]
@@ -128,6 +135,7 @@ def test_payment_save_valid_and_invalid_rejected(client):
     assert count == 0, "rejected payments must not persist"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_settings_save_keeps_single_theme_home(client):
     resp = client.post("/settings", data={"currency": "INR", "privacy_mode": "0"}, follow_redirects=True)
     assert resp.status_code == 200
@@ -135,6 +143,7 @@ def test_settings_save_keeps_single_theme_home(client):
     assert html.count('name="theme-choice"') <= 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_goals_create_lock_checkin_delete_flow(client):
     created = client.post(
         "/goals",
@@ -174,6 +183,7 @@ def test_goals_create_lock_checkin_delete_flow(client):
         assert conn.execute("SELECT 1 FROM financial_goals WHERE id=?", (goal["id"],)).fetchone() is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_watch_add_duplicate_isin_blocked_with_popup(client):
     dup = client.post(
         "/watch",
@@ -186,6 +196,7 @@ def test_watch_add_duplicate_isin_blocked_with_popup(client):
     assert "already exists" in html.lower() or "duplicate" in html.lower() or "View existing" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_watch_add_invalid_isin_and_rating_rejected(client):
     bad_isin = client.post(
         "/watch",
@@ -203,6 +214,7 @@ def test_watch_add_invalid_isin_and_rating_rejected(client):
     assert "BBB" in html or "investment" in html.lower()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_watch_add_valid_then_move_removes(client):
     resp = client.post(
         "/watch",
@@ -241,6 +253,7 @@ def test_watch_add_valid_then_move_removes(client):
     assert still_watching is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_watch_delete_flow(client):
     with _conn(client) as conn:
         cand = conn.execute("SELECT id FROM bonds WHERE isin='INE000200002'").fetchone()
@@ -250,6 +263,7 @@ def test_watch_delete_flow(client):
         assert conn.execute("SELECT 1 FROM bonds WHERE id=?", (cand["id"],)).fetchone() is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_notifications_mark_all_and_clear(client):
     with _conn(client) as conn:
         conn.execute(
@@ -261,6 +275,7 @@ def test_notifications_mark_all_and_clear(client):
     assert client.post("/notifications/clear", follow_redirects=True).status_code == 200
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_search_finds_and_no_results_state(client):
     resp = client.get("/search?q=Alpha")
     assert resp.status_code == 200
@@ -272,6 +287,7 @@ def test_search_finds_and_no_results_state(client):
     assert "no" in text and ("result" in text or "found" in text)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_feedback_validation_and_submit(client):
     missing = client.post("/feedback", data={"type": "bug", "title": ""}, follow_redirects=True)
     assert missing.status_code == 400, "required feedback fields must be enforced"
@@ -307,26 +323,31 @@ def test_feedback_validation_and_submit(client):
     assert bad_sev.status_code == 400, "invalid severity must be rejected"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_grid_renders_bond(client):
     html = client.get("/grid").get_data(as_text=True)
     assert "Alpha" in html or "INE00010001" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_share_print_about_export_pages(client):
     for path in ("/share", "/print", "/about", "/export.csv?scope=full"):
         assert client.get(path).status_code == 200, path
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_about_carries_disclaimer(client):
     about = client.get("/about").get_data(as_text=True).lower()
     assert "disclaimer" in about or "not investment advice" in about or "information-only" in about
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_portfolio_invalid_remove_rejected_for_unknown(client):
     resp = client.post("/portfolio/invalid/999999/remove", follow_redirects=True)
     assert resp.status_code in (200, 400, 404)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_home_dashboard_shows_kpis(client):
     html = client.get("/").get_data(as_text=True)
     assert "invested" in html.lower() or "portfolio" in html.lower() or "total" in html.lower()

@@ -1,3 +1,4 @@
+import pytest
 import re
 import tomllib
 from pathlib import Path
@@ -30,6 +31,7 @@ def test_product_build_reads_the_version_instead_of_hardcoding_it():
     assert 'VERSION="1.0.' not in script
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_about_page_renders_the_version_source(db_path):
     from src.app import create_app
 

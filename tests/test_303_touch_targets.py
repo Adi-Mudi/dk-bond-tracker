@@ -1,3 +1,4 @@
+import pytest
 import re
 from pathlib import Path
 
@@ -195,6 +196,7 @@ def _client(db_path):
     return app.test_client()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_t1_every_named_tappable_has_48px_box():
     undersized = []
     for selector in T1_DIRECT:
@@ -204,6 +206,7 @@ def test_t1_every_named_tappable_has_48px_box():
     assert not undersized, undersized
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_t1_checkbox_hit_box_is_48_with_small_visual():
     for selector in (
         '.check-row input[type="checkbox"]',
@@ -225,6 +228,7 @@ def test_t1_checkbox_hit_box_is_48_with_small_visual():
         assert visual and max(visual) < MIN_TOUCH, (selector, visual)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_t1_small_icon_controls_use_transparent_hit_expansion():
     trigger = declarations(".tip-trigger")
     assert any(prop == "position" and raw == "relative" for _s, prop, raw in trigger)
@@ -237,6 +241,7 @@ def test_t1_small_icon_controls_use_transparent_hit_expansion():
         assert values and abs(min(values)) * 2 + px("12px") * 1.5 >= MIN_TOUCH, (selector, values)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_t1_round2_five_controls_extend_contract():
     for selector in (".filter-chip", ".filter-chip-feed"):
         width = first_px(selector, {"min-width", "width"})
@@ -261,6 +266,7 @@ def test_t1_round2_five_controls_extend_contract():
     assert 'class="caption caption-tap-corridor"' in watch
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_t2_neighbor_gaps_are_at_least_8px():
     narrow = []
     for selector, prop in T2_GAPS:
@@ -279,6 +285,7 @@ def test_t2_exceptions_are_documented_and_not_used_to_hide_offenders():
     assert ".ui-btn-compact" in T1_DIRECT
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_specific_charter3_bell_and_apply_are_fixed():
     bell = declarations(".bell-wrap")
     assert any(prop == "min-width" and px(raw) >= MIN_TOUCH for _s, prop, raw in bell)
@@ -291,6 +298,7 @@ def test_specific_charter3_bell_and_apply_are_fixed():
     )
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_no_color_or_wording_changes_in_touch_rules():
     theme = (STATIC / "theme.css").read_text(encoding="utf-8")
     assert "--accent: #2563eb" in theme
@@ -300,6 +308,7 @@ def test_no_color_or_wording_changes_in_touch_rules():
     assert 'content: "\\2713"' in theme
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_state_watch_form_and_move_panel_controls(db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "Touch Co", "INE303000001", "2026-01-05", 24)
@@ -316,6 +325,7 @@ def test_state_watch_form_and_move_panel_controls(db_path):
         assert marker in html, marker
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_state_settings_toggles_use_touch_checked_rows(db_path):
     html = _client(db_path).get("/settings").get_data(as_text=True)
     for name in ("privacy_on_startup", "alert_inapp", "alert_email", "auto_fetch_enabled"):
@@ -324,6 +334,7 @@ def test_state_settings_toggles_use_touch_checked_rows(db_path):
     assert first_px(".check-row", {"min-height"}) >= MIN_TOUCH
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_state_alerts_bell_has_unread_badge_and_48px_rule(db_path):
     with get_conn(db_path) as conn:
         conn.execute(
