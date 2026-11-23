@@ -1,0 +1,35 @@
+{
+  "id": "design_confirmed_index",
+  "kind": "design_index",
+  "title": "Confirmed designs registry — the ONLY source of truth for what is developer-confirmed",
+  "version": "v1.0",
+  "project": "dk-bond-tracker",
+  "rules": {
+    "R1": "design/confirmed/ contains ONLY confirmed designs, organized per page in its own subfolder (dashboard/, portfolio/, mobile/...). Anything not confirmed stays in the track worktrees and MUST NOT appear here.",
+    "R2": "REWORK on a confirmed item updates the SAME file IN PLACE (overwrite the existing file in its subfolder). Never create a new parallel file, new version folder, or copy — in-place only, so the confirmed set never fragments.",
+    "R3": "Every future agent reads this INDEX first to know what is confirmed, its source, and its pending-rework state. New folders are created here only when the developer confirms a page.",
+    "R4": "A page enters this folder only on explicit developer confirmation. Status field tracks: confirmed | rework-pending (confirmed but developer requested changes) | superseded."
+  },
+  "items": [
+    {
+      "page": "dashboard",
+      "folder": "design/confirmed/dashboard/",
+      "files": ["dashboard_web.html", "dashboard_mobile.html"],
+      "source_track": "Track A (W5, design-track-a)",
+      "source_commit": "7da0a80",
+      "confirmed_by": "developer 2026-11-23 ('i will select this design for dashboard' + mobile layout also Track A)",
+      "status": "rework-pending",
+      "rework_items": [
+        "item 4: status priority order Danger top / On-going mid / Matured bottom+dim",
+        "item 5: mobile KPI single row + priority lists + chip order",
+        "item 6: mobile structure (alert up, compact cashflow, stacked ledger tab)",
+        "F-TRKA-02 (critical): 17-file content/filename scramble fix",
+        "tabs split (Dashboard | Returns History) — landed in 7da0a80, verify after rework"
+      ],
+      "rework_rule": "When the track delivers the rework, OVERWRITE these same files in place (R2). INDEX status flips to confirmed. No new files."
+    }
+  ],
+  "changelog": [
+    {"date": "2026-11-23", "entry": "v1.0 created — dashboard registered from Track A @7da0a80 as rework-pending; folder rules R1-R4 established per developer directive (confirmed-only subfolder, in-place rework, agent source of truth)"}
+  ]
+}
