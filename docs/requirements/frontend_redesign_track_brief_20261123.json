@@ -1,0 +1,39 @@
+{
+  "brief_id": "frontend-redesign-track-brief-v1",
+  "identical_for": "design-track-a and design-track-b",
+  "objective": "Produce a complete, production-ready frontend redesign of DK Bond Tracker for BOTH web and Android using Stitch CLI as the primary design tool. Design only — ZERO functionality change. Two tracks compete; the developer picks the winner.",
+  "invariants": [
+    "Do NOT modify any application code (src/, android/ app logic, tests). Your worktree receives commits ONLY for evidence files you create (research/, evidence/, DESIGN.md, screenshots).",
+    "Preserve every existing route/screen: the screen inventory (web routes from Flask app + Android screens) must each get a redesigned counterpart — none dropped.",
+    "Do NOT fix bugs you find — REPORT them in your findings notes instead."
+  ],
+  "sequence": [
+    "1. RESEARCH first: study modern UI/UX best practices and benchmark >=3 leading web apps AND >=3 leading Android/finance apps. Save cited notes to research/notes.md (source URL + what you take from it).",
+    "2. AUDIT the existing UI: enumerate the full screen inventory (web + Android), note duplicate components, overflow spots, inconsistencies — save to evidence/screen_inventory.md.",
+    "3. CAPTURE current state: start the web app (./run.sh or python per README), use `stitch capture browser` for key routes; for Android use Waydroid screenshots if available, else document from code. Save under evidence/current/.",
+    "4. EXTRACT design manifest: `stitch status --flow=design --json`, then the extract step to produce DESIGN.md from the current code.",
+    "5. REDESIGN in Stitch: generate the full redesigned screen set (all inventory screens, web + mobile/Android) — simple, clean, modern, consistent tokens, responsive (360/768/1280/1920), accessible (targets >=48px, gaps >=8px, visible focus).",
+    "6. EXPORT evidence: screenshots of every redesigned screen under evidence/redesigned/, plus manifest and DESIGN.md at worktree root."
+  ],
+  "quality_bar": [
+    "RD-07: no duplicate components, no overflow, one shared token system across screens and platforms",
+    "RD-08: fluid/responsive — no horizontal scroll or clipping at 360/768/1280/1920",
+    "RD-09: touch targets >=48px, gaps >=8px, readable contrast, visible focus/pressed states",
+    "RD-10: one coherent navigation model, documented in DESIGN.md"
+  ],
+  "deliverables": [
+    "research/notes.md (>=3 benchmark + >=3 best-practice citations with URLs)",
+    "evidence/screen_inventory.md",
+    "evidence/current/ captures",
+    "DESIGN.md (design system: tokens, components, navigation, platform notes)",
+    "evidence/redesigned/ screenshots of every screen (web + Android)",
+    "Stitch Canvas project with the full redesigned screen set",
+    "findings.md — bugs/usability problems found in the EXISTING UI (report only, do not fix)"
+  ],
+  "reporting": "When complete (or blocked), reply exactly: DONE: <one-line summary>. Evidence: <paths>. or BLOCKED: <reason>. Keep the reply short; put detail in files.",
+  "tools": {
+    "primary": "Stitch CLI (stitch status/capture/generate/upload — see the stitch skill in .agents/skills/stitch)",
+    "web_server": "./run.sh (Flask)",
+    "android": "Waydroid optional; if unavailable, derive Android screens from android/app code + redesign natively in Stitch mobile"
+  }
+}
