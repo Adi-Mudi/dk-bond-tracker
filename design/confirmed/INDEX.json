@@ -2,7 +2,7 @@
   "id": "design_confirmed_index",
   "kind": "design_index",
   "title": "Confirmed designs registry — the ONLY source of truth for what is developer-confirmed",
-  "version": "v1.4",
+  "version": "v1.6",
   "project": "dk-bond-tracker",
   "rules": {
     "R1": "design/confirmed/ contains ONLY confirmed designs, organized per page in its own subfolder (dashboard/, portfolio/, mobile/...). Anything not confirmed stays in the track worktrees and MUST NOT appear here.",
@@ -70,6 +70,43 @@
       },
       "notes": "Rejected design removed: embedded PAYOUT DETAILS VIEW (never accepted). Import followed R2: same-name in-place iterations in worktree; base import removed-old-first (new folder).",
       "lock_scope": "FULL PAGE (holdings + payout sections both locked — developer 2026-11-24)"
+    },
+    {
+      "page": "app_frame",
+      "folder": "design/confirmed/app_frame/",
+      "files": [
+        "static_layout.html",
+        "static_layout_stitch_source.json"
+      ],
+      "kind": "system-level static layout (not a page) — every page inherits it",
+      "source_track": "Direct Stitch design (PM), grounded in APP_SKELETON §1 + DESIGN.md §5 + locked pages' chrome audit",
+      "source_screens": {
+        "static_layout": "398d626c974b459cbff5523b1534a50d"
+      },
+      "confirmed_by": "developer 2026-11-24 ('locked, layout')",
+      "status": "confirmed",
+      "contract": {
+        "top_bar": "56px — brand DK Bond Tracker left; sync, bell, avatar right; NO page title, NO search in bar, NO verified badge (mobile)",
+        "bottom_nav": "5 items Dashboard/Portfolio/Watchlist/Goals/More — active = page indicator",
+        "fab": "56px #2456E6 right:16 bottom:104 Add Bond",
+        "dynamic_zone": "page content only, 16px padding, 8px grid; search lives here",
+        "excluded": [
+          "navigation drawer",
+          "duplicate tab bars",
+          "second FAB style",
+          "page titles in bar",
+          "search in bar",
+          "web sidebar (Android-only)"
+        ],
+        "flutter": "Scaffold + NavigationNavigationBar + FloatingActionButton endFloat"
+      },
+      "completeness_check": {
+        "date": "2026-11-24",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "frame HTML + stitch source + INDEX contract — implementers need nothing else for chrome"
+      },
+      "pending_alignment": "dashboard_mobile bar (drop title, add sync) + portfolio bar (add avatar) — pending per plan steps 2-3"
     }
   ],
   "changelog": [
@@ -100,6 +137,10 @@
     {
       "date": "2026-11-24",
       "entry": "portfolio FULL PAGE lock: holdings + payout both confirmed; R5 completeness re-PASS with navigation_flow/design_notes/research_references added"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "v1.6 — app_frame registered as confirmed system-level static layout (developer 'locked, layout'); chrome contract captured; page alignment pending"
     }
   ]
 }

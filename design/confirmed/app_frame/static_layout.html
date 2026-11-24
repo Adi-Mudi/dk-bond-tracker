@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>static_layout_app_frame</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#0D1520',
+            surface: '#16212E',
+            'surface-alt': '#1C293A',
+            hairline: '#2A3A4C',
+            accent: '#2456E6',
+            'accent-hover': '#1C46C2',
+            ink: '#E8EEF5',
+            slate: '#9FABB9',
+            mist: '#7A8A99',
+            danger: '#FF8A80',
+            success: '#6FD898',
+            warning: '#FFC46B',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .grid-bg {
+      background-image: linear-gradient(to right, rgba(42, 58, 76, 0.25) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(42, 58, 76, 0.25) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0D1520;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #2A3A4C;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-canvas text-ink p-4 md:p-8 flex flex-col justify-between selection:bg-accent selection:text-white">
+
+  <!-- Header Specification Banner -->
+  <header class="w-full max-w-[1440px] mx-auto mb-8 border-b border-hairline pb-5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-surface border border-hairline flex items-center justify-center text-accent">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="2" width="14" height="20" rx="3"></rect>
+          <line x1="12" y1="18" x2="12.01" y2="18"></line>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono tracking-wider uppercase px-2 py-0.5 rounded bg-surface border border-hairline text-accent font-semibold">Android Frame Spec</span>
+          <span class="text-xs font-mono text-mist">412dp Ref Viewport • RD-10 Topology</span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-ink mt-0.5">DK Bond Tracker — Static App Shell Specification</h1>
+      </div>
+    </div>
+
+    <!-- Metadata Badges -->
+    <div class="flex items-center gap-3">
+      <div class="px-3 py-1.5 rounded-lg bg-surface border border-hairline text-xs flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+        <span class="text-slate">Theme:</span>
+        <span class="font-mono font-medium text-ink">Midnight Ledger (#0D1520)</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-lg bg-surface border border-hairline text-xs font-mono text-mist">
+        Engine: <span class="text-ink font-semibold">Flutter / Android Native Shell</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main 2-Column Workboard -->
+  <main class="w-full max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8 flex-1">
+
+    <!-- LEFT SIDE: RENDERED 412dp MOBILE FRAME MOCK -->
+    <section class="lg:col-span-5 flex flex-col items-center">
+      <!-- Section Label & Viewport Dimensions -->
+      <div class="w-full flex items-center justify-between mb-3 text-xs font-mono text-mist px-1">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-6 18.75h6" />
+          </svg>
+          CANONICAL ANDROID SHELL (412dp)
+        </span>
+        <span class="px-2 py-0.5 rounded bg-surface border border-hairline text-[11px] text-slate">W: 412px • H: 860px</span>
+      </div>
+
+      <!-- Mobile Device Chassis Frame -->
+      <div class="relative w-full max-w-[412px] h-[860px] bg-canvas border-2 border-hairline rounded-[36px] shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/5 select-none">
+
+        <!-- Physical Speaker & Status Bar Area -->
+        <div class="w-full h-8 px-6 bg-canvas flex items-center justify-between text-[11px] font-mono text-mist z-30 shrink-0 border-b border-hairline/30">
+          <span class="font-semibold text-slate">09:30</span>
+          <!-- Dynamic Island / Speaker Pill -->
+          <div class="w-20 h-4 bg-surface rounded-full border border-hairline/60 flex items-center justify-center">
+            <div class="w-2 h-2 rounded-full bg-slate/40"></div>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.66-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+            <span class="text-[10px] font-mono">100%</span>
+          </div>
+        </div>
+
+        <!-- 1. TOP APP BAR (EXACTLY 56px) -->
+        <div class="relative w-full h-[56px] px-4 bg-surface border-b border-hairline flex items-center justify-between z-30 shrink-0 shadow-sm">
+          <!-- Callout Marker (1) -->
+          <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shadow-lg border-2 border-canvas z-40">1</div>
+
+          <!-- Brand Text Left -->
+          <div class="flex items-center gap-2">
+            <span class="text-ink font-bold text-[16px] tracking-tight leading-none">DK Bond Tracker</span>
+          </div>
+
+          <!-- Static Utility Icons Right (Sync, Bell with badge 2, Avatar circle DK) -->
+          <div class="flex items-center gap-3">
+            <!-- Sync Icon (Circular arrows) -->
+            <button class="w-9 h-9 rounded-full flex items-center justify-center text-slate hover:text-ink hover:bg-surface-alt transition-colors" title="Depository Sync Status">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </button>
+
+            <!-- Notification Bell with Red Badge "2" -->
+            <div class="relative">
+              <button class="w-9 h-9 rounded-full flex items-center justify-center text-slate hover:text-ink hover:bg-surface-alt transition-colors" title="Notifications">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+              </button>
+              <span class="absolute top-1 right-1 w-4 h-4 bg-danger text-white rounded-full text-[9px] font-bold font-mono flex items-center justify-center ring-2 ring-surface">2</span>
+            </div>
+
+            <!-- Avatar Circle DK -->
+            <div class="w-8 h-8 rounded-full bg-surface-alt border border-hairline flex items-center justify-center text-ink text-xs font-bold font-mono shadow-inner cursor-pointer hover:border-slate transition-colors">
+              DK
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. CONTENT ZONE (DYNAMIC ZONE — PAGE CONTENT ONLY) -->
+        <div class="relative flex-1 p-4 bg-canvas grid-bg overflow-hidden flex flex-col justify-between">
+          <!-- Callout Marker (5) & (2) inside Dynamic Region -->
+          <div class="absolute -left-3 top-20 w-6 h-6 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shadow-lg border-2 border-canvas z-40">5</div>
+
+          <!-- Dashed Dynamic Placeholder Frame -->
+          <div class="w-full h-full border-2 border-dashed border-hairline/80 rounded-2xl bg-surface/30 p-5 flex flex-col items-center justify-center text-center relative backdrop-blur-sm">
+
+            <!-- Decorative Coordinate Matrix Tags -->
+            <div class="absolute top-3 left-3 text-[10px] font-mono text-mist/70 tracking-wider">
+              &lt;DYNAMIC_VIEWPORT&gt;
+            </div>
+            <div class="absolute top-3 right-3 text-[10px] font-mono text-mist/70">
+              PADDING: 16px • 8px GRID
+            </div>
+
+            <!-- Center Placeholder Badge & Copy -->
+            <div class="w-14 h-14 rounded-2xl bg-surface border border-hairline flex items-center justify-center mb-3.5 shadow-lg text-accent">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+              </svg>
+            </div>
+
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent font-mono text-xs font-semibold uppercase tracking-wider mb-2">
+              DYNAMIC ZONE — Page Content Only
+            </div>
+
+            <p class="text-xs text-slate max-w-[270px] leading-relaxed mb-4">
+              All screen-specific elements — section tabs, filters, search inputs, KPI cards, tables, and lists — <span class="text-ink font-semibold">live HERE</span>.
+            </p>
+
+            <!-- Callout Note regarding Search location -->
+            <div class="w-full max-w-[290px] p-2.5 rounded-lg bg-surface/80 border border-hairline text-left flex items-start gap-2.5">
+              <span class="w-4 h-4 rounded-full bg-accent text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-[11px] text-mist leading-tight">
+                <strong class="text-ink">Search & Filters:</strong> Mounted inside this content container (e.g. Holdings filter row), never placed in the static top bar.
+              </p>
+            </div>
+
+            <div class="absolute bottom-3 text-[10px] font-mono text-mist/60">
+              Scrolls vertically beneath static Top Bar and above Bottom Nav
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. FLOATING ACTION BUTTON (FAB) -->
+        <!-- Positioned right: 16px, bottom: 104px (absolute relative to device container) -->
+        <div class="absolute right-4 bottom-[104px] z-40">
+          <!-- Callout Marker (4) -->
+          <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shadow-lg border-2 border-canvas z-50">4</div>
+
+          <button class="w-[56px] h-[56px] rounded-full bg-accent hover:bg-accent-hover text-white flex items-center justify-center shadow-[0_8px_20px_rgba(36,86,230,0.45)] transition-all transform active:scale-95 group focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-canvas" aria-label="Add Bond Action">
+            <svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 3. BOTTOM NAVIGATION BAR (5 LABELED ITEMS) -->
+        <nav class="relative w-full h-[68px] bg-surface border-t border-hairline px-2 flex items-center justify-around z-30 shrink-0">
+          <!-- Callout Marker (3) -->
+          <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shadow-lg border-2 border-canvas z-40">3</div>
+
+          <!-- Item 1: Dashboard -->
+          <div class="flex flex-col items-center justify-center w-16 h-12 text-slate hover:text-ink cursor-pointer transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span class="text-[10px] font-medium leading-none">Dashboard</span>
+          </div>
+
+          <!-- Item 2: Portfolio (ACTIVE in Accent Blue) -->
+          <div class="flex flex-col items-center justify-center w-16 h-12 text-accent cursor-pointer">
+            <div class="relative">
+              <svg class="w-5 h-5 mb-1 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+              </svg>
+              <span class="absolute -top-1 right-0 w-1.5 h-1.5 bg-accent rounded-full ring-2 ring-surface"></span>
+            </div>
+            <span class="text-[10px] font-bold leading-none tracking-tight">Portfolio</span>
+          </div>
+
+          <!-- Item 3: Watchlist -->
+          <div class="flex flex-col items-center justify-center w-16 h-12 text-slate hover:text-ink cursor-pointer transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-[10px] font-medium leading-none">Watchlist</span>
+          </div>
+
+          <!-- Item 4: Goals -->
+          <div class="flex flex-col items-center justify-center w-16 h-12 text-slate hover:text-ink cursor-pointer transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+            </svg>
+            <span class="text-[10px] font-medium leading-none">Goals</span>
+          </div>
+
+          <!-- Item 5: More -->
+          <div class="flex flex-col items-center justify-center w-16 h-12 text-slate hover:text-ink cursor-pointer transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+            <span class="text-[10px] font-medium leading-none">More</span>
+          </div>
+        </nav>
+
+        <!-- Android Home Navigation Indicator Bar -->
+        <div class="w-full h-5 bg-surface flex items-center justify-center pb-1 shrink-0">
+          <div class="w-32 h-1 bg-slate/40 rounded-full"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE: SPECIFICATION PANEL WITH NUMBERED CALLOUTS -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- Spec Panel Header Card -->
+      <div class="bg-surface border border-hairline rounded-2xl p-6 shadow-md">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-hairline">
+          <div>
+            <h2 class="text-lg font-bold text-ink">Architectural Contract: Static Frame</h2>
+            <p class="text-xs text-mist font-mono mt-0.5">Component Breakdown & Layout Invariants</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-md bg-accent/10 border border-accent/30 text-accent font-mono text-xs font-semibold">
+            STRICT 1:1 CANON
+          </span>
+        </div>
+
+        <!-- Numbered Callouts (1) Through (6) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Callout (1) -->
+          <div class="p-4 rounded-xl bg-canvas border border-hairline flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">1</div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink">TOP APP BAR (56px)</h3>
+              <p class="text-xs text-slate mt-1 leading-relaxed">
+                Brand text <span class="text-ink font-semibold">DK Bond Tracker</span> (bold 16px) left-aligned. Static icons right in locked order: <span class="text-ink">Sync</span>, <span class="text-ink">Bell (badge 2)</span>, and <span class="text-ink">Avatar (DK)</span>.
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-mist bg-surface px-2 py-1 rounded border border-hairline/60">
+                • IDENTICAL on every page<br>
+                • Page names NEVER appear in the bar
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout (2) -->
+          <div class="p-4 rounded-xl bg-canvas border border-hairline flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">2</div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink">SEARCH &amp; QUERY INPUT</h3>
+              <p class="text-xs text-slate mt-1 leading-relaxed">
+                Search inputs and filter chips live strictly inside <span class="text-ink font-semibold">Page Content</span> (e.g. portfolio holdings filter row).
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-mist bg-surface px-2 py-1 rounded border border-hairline/60">
+                • Never placed in static top bar<br>
+                • Scrolls with screen data
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout (3) -->
+          <div class="p-4 rounded-xl bg-canvas border border-hairline flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">3</div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink">BOTTOM NAVIGATION (5 DESTINATIONS)</h3>
+              <p class="text-xs text-slate mt-1 leading-relaxed">
+                Exactly 5 destinations: <span class="text-ink font-medium">Dashboard, Portfolio, Watchlist, Goals, More</span>. Single primary navigation model.
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-mist bg-surface px-2 py-1 rounded border border-hairline/60">
+                • Active item = primary page indicator<br>
+                • "More" triggers secondary system sheet
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout (4) -->
+          <div class="p-4 rounded-xl bg-canvas border border-hairline flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">4</div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink">FLOATING ACTION BUTTON (56px)</h3>
+              <p class="text-xs text-slate mt-1 leading-relaxed">
+                56px circular button in <span class="text-accent font-semibold font-mono">#2456E6</span> with white plus icon. Fixed layout coordinates: <span class="text-ink font-mono text-xs">right: 16px, bottom: 104px</span>.
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-mist bg-surface px-2 py-1 rounded border border-hairline/60">
+                • Triggers "Add Bond" modal flow<br>
+                • Same position across all 5 destinations
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout (5) -->
+          <div class="p-4 rounded-xl bg-canvas border border-hairline flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">5</div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink">DYNAMIC CONTENT ZONE</h3>
+              <p class="text-xs text-slate mt-1 leading-relaxed">
+                The <span class="text-ink font-semibold">only</span> zone that varies across screens. Content begins here with 16px standard page padding and 8px spatial grid.
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-mist bg-surface px-2 py-1 rounded border border-hairline/60">
+                • Section tabs &amp; filter rows live here<br>
+                • Tabular figures with font-variant-numeric
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout (6) -->
+          <div class="p-4 rounded-xl bg-canvas border border-hairline flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-full bg-accent text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">6</div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink">TOUCH TARGETS &amp; STATUS ACCESSIBILITY</h3>
+              <p class="text-xs text-slate mt-1 leading-relaxed">
+                All interactive targets are sized <span class="text-ink font-semibold">≥48×48px</span> with 8px minimum spacing. Status pills are <span class="text-ink font-semibold">never color-only</span>.
+              </p>
+              <div class="mt-2 text-[11px] font-mono text-mist bg-surface px-2 py-1 rounded border border-hairline/60">
+                • Always paired with textual status label<br>
+                • Minimum 4.5:1 contrast on dark surface
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Excluded Anti-Pattern Register Card -->
+      <div class="bg-surface border border-hairline rounded-2xl p-6 shadow-md">
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-ink font-mono">Explicitly Excluded Patterns (Prohibited)</h2>
+        </div>
+        <p class="text-xs text-slate mb-4">
+          The following UI patterns are rejected by architectural governance and must never be introduced into the Android shell:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+          <div class="p-2.5 rounded-lg bg-canvas border border-danger/30 flex items-center gap-2">
+            <span class="text-danger font-bold text-xs">✕</span>
+            <span class="text-xs font-mono text-slate">Navigation Drawer</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-canvas border border-danger/30 flex items-center gap-2">
+            <span class="text-danger font-bold text-xs">✕</span>
+            <span class="text-xs font-mono text-slate">Duplicate Tab Bars</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-canvas border border-danger/30 flex items-center gap-2">
+            <span class="text-danger font-bold text-xs">✕</span>
+            <span class="text-xs font-mono text-slate">Second FAB Style</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-canvas border border-danger/30 flex items-center gap-2">
+            <span class="text-danger font-bold text-xs">✕</span>
+            <span class="text-xs font-mono text-slate">Page Titles in Bar</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-canvas border border-danger/30 flex items-center gap-2">
+            <span class="text-danger font-bold text-xs">✕</span>
+            <span class="text-xs font-mono text-slate">Search in Static Bar</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-canvas border border-danger/30 flex items-center gap-2">
+            <span class="text-danger font-bold text-xs">✕</span>
+            <span class="text-xs font-mono text-slate">Web Sidebar (Android)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Token Mapping & Implementation Specification Table -->
+      <div class="bg-surface border border-hairline rounded-2xl p-6 shadow-md">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-ink font-mono mb-3">Midnight Ledger Token Palette</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+          <div class="p-3 rounded-lg bg-canvas border border-hairline flex flex-col">
+            <span class="text-[10px] font-mono text-mist uppercase">Canvas</span>
+            <span class="text-xs font-mono font-bold text-ink mt-1">#0D1520</span>
+            <div class="w-full h-3 rounded mt-2 border border-hairline" style="background-color: #0D1520;"></div>
+          </div>
+          <div class="p-3 rounded-lg bg-canvas border border-hairline flex flex-col">
+            <span class="text-[10px] font-mono text-mist uppercase">Surface</span>
+            <span class="text-xs font-mono font-bold text-ink mt-1">#16212E</span>
+            <div class="w-full h-3 rounded mt-2 border border-hairline" style="background-color: #16212E;"></div>
+          </div>
+          <div class="p-3 rounded-lg bg-canvas border border-hairline flex flex-col">
+            <span class="text-[10px] font-mono text-mist uppercase">Hairline</span>
+            <span class="text-xs font-mono font-bold text-ink mt-1">#2A3A4C</span>
+            <div class="w-full h-3 rounded mt-2 border border-hairline" style="background-color: #2A3A4C;"></div>
+          </div>
+          <div class="p-3 rounded-lg bg-canvas border border-hairline flex flex-col">
+            <span class="text-[10px] font-mono text-mist uppercase">Accent</span>
+            <span class="text-xs font-mono font-bold text-ink mt-1">#2456E6</span>
+            <div class="w-full h-3 rounded mt-2 border border-hairline" style="background-color: #2456E6;"></div>
+          </div>
+          <div class="p-3 rounded-lg bg-canvas border border-hairline flex flex-col">
+            <span class="text-[10px] font-mono text-mist uppercase">Ink (Text)</span>
+            <span class="text-xs font-mono font-bold text-ink mt-1">#E8EEF5</span>
+            <div class="w-full h-3 rounded mt-2 border border-hairline" style="background-color: #E8EEF5;"></div>
+          </div>
+          <div class="p-3 rounded-lg bg-canvas border border-hairline flex flex-col">
+            <span class="text-[10px] font-mono text-mist uppercase">Mist</span>
+            <span class="text-xs font-mono font-bold text-ink mt-1">#7A8A99</span>
+            <div class="w-full h-3 rounded mt-2 border border-hairline" style="background-color: #7A8A99;"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Canonical Framework Implementation Footer -->
+  <footer class="w-full max-w-[1440px] mx-auto mt-auto pt-6 border-t border-hairline flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-mist">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-accent"></span>
+      <span class="text-ink font-semibold uppercase tracking-wider">STATIC ONCE — EVERY PAGE INHERITS THIS FRAME UNCHANGED</span>
+    </div>
+    <div class="px-3 py-1.5 rounded-lg bg-surface border border-hairline text-slate">
+      Flutter Implementation: <code class="text-ink font-semibold">Scaffold + NavigationBar + FloatingActionButton(endFloat)</code>
+    </div>
+    <div class="text-[11px] text-mist">
+      DK Bond Tracker • System Specification Board v2.5
+    </div>
+  </footer>
+
+</body>
+</html>
