@@ -31,7 +31,11 @@
         "Rebuild shared components in base template: topbar, sidebar/nav, cards, tables, buttons, inputs, dialogs, chips, alerts",
         "Clean-minimal ethos encoded (D14): few colors, hairline borders, no decorative clutter, no pulsing/flashing",
         "Touch targets >=48px, gaps >=8px baked into components (RD-09)",
-        "Component test-page: every component rendered in every theme"
+        "Component test-page: every component rendered in every theme",
+        {
+          "step": "app_frame chrome widgets",
+          "detail": "Static layout: build the chrome from design/confirmed/app_frame/ ONLY (app_frame_manifest.csv contract) — top bar/bottom nav/FAB are written once as shared widgets; no per-page chrome decisions."
+        }
       ],
       "why_not_simultaneous": "Pages consume the foundation. Starting pages first = each worker invents own tokens = recreates the duplicate-component mess being fixed.",
       "gate": "Component test-page green in all 3 themes + existing pytest suite green + axe/Lighthouse a11y pass + developer approves"
@@ -113,6 +117,10 @@
     {
       "date": "2026-11-24",
       "entry": "v1.1 — D18 Flutter path addendum (stages F1-F5, issue #337); old-frontend implementation phases superseded"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "app_frame static-layout contract referenced in foundation phase (chrome widgets built once from design/confirmed/app_frame/)"
     }
   ],
   "flutter_path": {

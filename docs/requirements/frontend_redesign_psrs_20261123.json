@@ -146,7 +146,7 @@
     },
     {
       "id": "RD-10",
-      "text": "Navigation SHALL be coherent and consistent: one navigation model across web pages and a matching model on Android, with predictable placement of primary actions.",
+      "text": "Navigation SHALL be coherent and consistent: the STATIC LAYOUT contract in design/confirmed/app_frame/ (top bar 56px brand left + sync/bell/avatar right; search in content; 5-item bottom nav; FAB 56px right:16/bottom:104; no page titles in bar) is the single chrome source of truth — every page inherits it unchanged; only the dynamic zone differs. One navigation model, predictable placement of primary actions.",
       "category": "quality",
       "check_method": "ui",
       "status": "accepted",
@@ -155,6 +155,11 @@
           "given": "the full screen set",
           "when": "navigation patterns are compared screen-to-screen",
           "then": "primary nav placement and interaction patterns are consistent and documented in DESIGN.md"
+        },
+        {
+          "given": "a page design produced after the app_frame lock (2026-11-24)",
+          "when": "its chrome is compared against design/confirmed/app_frame/app_frame_manifest.csv",
+          "then": "top bar, bottom nav, FAB and excluded-elements match the app_frame contract exactly (zero drift)"
         }
       ]
     },
@@ -661,6 +666,10 @@
     {
       "date": "2026-11-24",
       "entry": "v1.4 — implementation_target: Flutter (D18, issue #337)"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "RD-10 updated to cite the locked app_frame static-layout contract (design/confirmed/app_frame/); added frame-conformance acceptance criterion"
     }
   ],
   "implementation_target": "Flutter (D18 2026-11-24: web+Android single Dart codebase; backend engine preserved behind JSON API; old frontend removed first, rebuilt from scratch; issue #337)"
