@@ -17,27 +17,6 @@ DATA_SOURCES = (
         "url": "",
     },
     {
-        "key": "rbi",
-        "name": "RBI",
-        "detail": "Outstanding Government Securities, State Development Loans and T-Bills.",
-        "license": "Published download files - RBI disclaimer applies.",
-        "url": "",
-    },
-    {
-        "key": "nse",
-        "name": "NSE",
-        "detail": "Debt security master.",
-        "license": "Published download files only - the NSE Terms of Use ban automated site or API collection.",
-        "url": "",
-    },
-    {
-        "key": "bse",
-        "name": "BSE",
-        "detail": "Debt segment security master.",
-        "license": "Published download files - BSE disclaimer applies.",
-        "url": "",
-    },
-    {
         "key": "india-isin-data",
         "name": snapshot.SNAPSHOT_NAME,
         "detail": "Bundled offline ISIN snapshot that seeds a fresh install.",

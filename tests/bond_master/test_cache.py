@@ -52,7 +52,7 @@ def test_same_source_and_isin_served_from_session_result(db_path):
     second = cache.fetch_session("nsdl", "INE0000000001", fetcher)
     assert first is second
     assert calls == [1]
-    cache.fetch_session("rbi", "INE0000000001", fetcher)
+    cache.fetch_session("india-isin-data (CC0)", "INE0000000001", fetcher)
     assert calls == [1, 2]
 
 
@@ -109,9 +109,9 @@ def test_refresh_updates_provenance_and_asof(tmp_path):
     cache = BondMasterCache(db_path, clock=lambda: now[0])
     cache.save({"isin": "INE0000000001", "company": "Acme", "source": "nsdl", "listing_status": "listed"})
     now[0] += 120.0
-    cache.save({"isin": "INE0000000001", "company": "Acme Ltd", "source": "rbi", "listing_status": "unlisted"})
+    cache.save({"isin": "INE0000000001", "company": "Acme Ltd", "source": "nsdl", "listing_status": "unlisted"})
     row = cache.lookup("INE0000000001")
-    assert row["source"] == "rbi"
+    assert row["source"] == "nsdl"
     assert row["company"] == "Acme Ltd"
     assert row["listing_status"] == "unlisted"
     assert row["fetched_at"] == ASOF_AT_1700000120

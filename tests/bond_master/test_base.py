@@ -76,8 +76,8 @@ def test_listing_statuses_are_the_af08_set():
     assert tuple(LISTING_STATUSES) == ("listed", "unlisted", "unknown")
 
 
-def test_source_priority_is_nsdl_rbi_nse_bse():
-    assert tuple(SOURCE_PRIORITY) == ("NSDL", "RBI", "NSE", "BSE")
+def test_source_priority_is_nsdl_only():
+    assert tuple(SOURCE_PRIORITY) == ("NSDL",)
 
 
 def test_failure_codes_cover_the_af06_states():
@@ -109,7 +109,7 @@ def test_facts_sources_and_helpers():
         secured=1,
         listing_status="listed",
         maturity="2030-03-31",
-        sources={"company": "NSDL", "rating": "NSE", "maturity": "BSE"},
+        sources={"company": "NSDL", "rating": "india-isin-data (CC0)", "maturity": "india-isin-data (CC0)"},
     )
     assert result.facts() == {
         "company": "Acme Ltd",
@@ -123,7 +123,7 @@ def test_facts_sources_and_helpers():
         "listing_status": "listed",
         "maturity": "2030-03-31",
     }
-    assert result.source_of("rating") == "NSE"
+    assert result.source_of("rating") == "india-isin-data (CC0)"
     assert result.source_of("secured") is None
     assert result.has_facts() is True
 

@@ -178,7 +178,7 @@ def test_refresh_cooldown_gate_is_unchanged_and_carries_no_popup(db_path):
 def test_refresh_failure_code_maps_only_reach_and_blocked_failures():
     assert refresh_failure_code({"NSDL": {"failure_code": FAILURE_UNREACHABLE}}) == "OFFLINE"
     assert refresh_failure_code({"NSDL": {"failure_code": FAILURE_TIMEOUT}}) == "OFFLINE"
-    assert refresh_failure_code({"NSDL": {"failure_code": FAILURE_UNREACHABLE}, "RBI": {"failure_code": FAILURE_BLOCKED}}) == FAILURE_BLOCKED
+    assert refresh_failure_code({"NSDL": {"failure_code": FAILURE_BLOCKED}}) == FAILURE_BLOCKED
     assert refresh_failure_code({"NSDL": {"failure_code": FAILURE_OK}}) is None
     assert refresh_failure_code({"NSDL": {"failure_code": "PARSE_ERROR"}}) is None
     assert refresh_failure_code({}) is None

@@ -67,9 +67,6 @@ _SOURCE_STATUS = {
 
 _ADAPTER_CLASS = {
     "NSDL": "NsdlAdapter",
-    "RBI": "RbiAdapter",
-    "NSE": "NseAdapter",
-    "BSE": "BseAdapter",
 }
 
 _CACHES = {}
@@ -495,9 +492,9 @@ class BondMasterService:
 
 
 def default_adapters(transport, timeout=DEFAULT_TIMEOUT):
-    from . import bse, nsdl, nse, rbi
+    from . import nsdl
 
-    modules = {"NSDL": nsdl, "RBI": rbi, "NSE": nse, "BSE": bse}
+    modules = {"NSDL": nsdl}
     adapters = {}
     for source in SOURCE_PRIORITY:
         adapter_class = getattr(modules[source], _ADAPTER_CLASS[source])

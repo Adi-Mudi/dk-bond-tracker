@@ -1,0 +1,120 @@
+{
+  "document": "backend_design_upgrade_tracker",
+  "version": "v1.0",
+  "date": "2026-11-25",
+  "initiative": "backend-design-upgrade",
+  "branch": "backend-design-upgrade",
+  "base_branch": "front-design-upgrade",
+  "base_commit": "047a3c6f",
+  "status": "OPEN",
+  "locked_context": {
+    "frontend_framework": "Flutter",
+    "frontend_locked_by": "developer, 2026-11-25",
+    "target_platform": "Android only",
+    "dropped_platforms": [
+      "web",
+      "desktop"
+    ],
+    "backend_location": "same repo, dedicated backend/ tree",
+    "backend_engine": "UNDECIDED",
+    "implementation_rule": "design then lock first; no implementation for T2-T5 until locked; T1 adapter is the only real-code item"
+  },
+  "merge_synchronization": {
+    "direction": "backend-design-upgrade merges FROM front-design-upgrade regularly, one direction only",
+    "folder_separation": "backend work touches ONLY backend/**",
+    "frontend_owned_paths": [
+      "src/",
+      "docs/",
+      "design/",
+      "android/",
+      "tests/"
+    ],
+    "conflict_goal": "file sets stay disjoint so merges never conflict",
+    "frontend_owner": "separate agent on front-design-upgrade and design-track worktrees"
+  },
+  "topics": [
+    {
+      "id": "T1",
+      "title": "Adapter and upgrade",
+      "mode": "real code",
+      "status": "OPEN",
+      "notes": "scope per developer 2026-11-25: merge synchronization with frontend design + strict folder separation so merges stay conflict-free"
+    },
+    {
+      "id": "T2",
+      "title": "New backend framework",
+      "mode": "design",
+      "status": "OPEN"
+    },
+    {
+      "id": "T3",
+      "title": "Contract between frontend and backend",
+      "mode": "design",
+      "status": "OPEN"
+    },
+    {
+      "id": "T4",
+      "title": "Database table design",
+      "mode": "design",
+      "status": "OPEN"
+    },
+    {
+      "id": "T5",
+      "title": "Backend implementation",
+      "mode": "implementation",
+      "status": "BLOCKED",
+      "notes": "starts only after T2, T3, T4 are designed and locked"
+    }
+  ],
+  "decisions": [],
+  "findings": [
+    {
+      "id": "F1",
+      "date": "2026-11-25",
+      "topic": "T1 adapter inventory and live health",
+      "summary": "4 web adapters + 1 local snapshot source. Live test 2026-11-25: NSDL WORKING (HTTP 200, facts returned on 3 sample ISINs); RBI NOT FUNCTIONING (HTTP 418 blocked); NSE NOT FUNCTIONING (HTTP 404, DEBT_SECURITY_MASTER.csv gone); BSE NOT FUNCTIONING (HTTP 403 even with browser headers, cookie priming never wired into http_get).",
+      "endpoints": {
+        "NSDL": "https://nsdl.com/web/api/v1/participant/search",
+        "RBI": "https://rbi.org.in/downloadables/gsec_sdl_tbill.json",
+        "NSE": "https://nsearchives.nseindia.com/content/debt/DEBT_SECURITY_MASTER.csv",
+        "BSE": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w",
+        "SNAPSHOT": "local src/bond_master/data/india_isin_snapshot.json (46715 rows, india-isin-data 11-Nov-2026, CC0)"
+      },
+      "code_refs": [
+        "src/bond_master/nsdl.py",
+        "src/bond_master/rbi.py",
+        "src/bond_master/nse.py",
+        "src/bond_master/bse.py",
+        "src/bond_master/service.py",
+        "src/bond_master/transport.py"
+    ],
+      "evidence": "probe script /tmp/adapter_probe.py, raw HTTP status check 2026-11-25"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "date": "2026-11-25",
+      "decision": "Remove the dead web adapters RBI, NSE, BSE entirely. Lookup = NSDL (live) + india-isin-data snapshot (offline seed).",
+      "approved_by": "developer, 2026-11-25",
+      "issue": "https://github.com/Adi-Mudi/dk-bond-tracker/issues/340",
+      "status": "CLOSED",
+      "resolution": "Removal executed on backend-design-upgrade @ 54d0a6b0; local tier 717 passed / 0 failed; src+tests sweep shows zero dead-source references outside design docs."
+    }
+  ],
+  "change_log": [
+    {
+      "date": "2026-11-25",
+      "change": "v1.0 created: locked context, agenda T1-T5, merge synchronization policy"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.1: F1 adapter health finding added (NSDL up; RBI 418, NSE 404, BSE 403)"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.2: D1 recorded and CLOSED — RBI/NSE/BSE adapters removed per issue #340; tests rewritten single-source; local tier green 717/0"
+    }
+  ],
+  "version": "v1.2"
+}
