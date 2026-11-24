@@ -1,6 +1,8 @@
 # Design System: DK Bond Tracker (Frontend Redesign, Track A)
 
 > **Implementation target: Flutter** (developer decision D18, 2026-11-24) — this design system (tokens, components, navigation) is built as Flutter widgets (single Dart codebase → web + Android). The backend engine is preserved behind a JSON API adapter; the old Flask/Jinja and native-Java frontends are removed and rebuilt from scratch. Source of truth for colors/typography/spacing below maps directly to Flutter `ThemeData` + widget tokens.
+>
+> **Platform scope update (developer decision, 2026-11-24): ANDROID-ONLY going forward.** After the current redesign phase completes, the WEB application is dropped — all subsequent design and implementation work targets the Android application only. Web artifacts already produced remain as reference history; every new design ships as a MOBILE/ANDROID pair. The static chrome, tokens, and component contracts below remain authoritative for the Android build.
 
 Status: redesign specification v2.0 (2026-11-23, D13 multi-theme edition — supersedes the v1.0 single-theme directive). Extracted from the current UI (`src/static/theme.css`, `base.html`, evidence/current captures) and re-authored as one coherent, MULTI-THEME system for web + Android. This document governs all redesigned screen generation. Functionality is unchanged; only the design system, components, and navigation are redesigned.
 
