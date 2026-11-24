@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/version-1.0.4-informational.svg" alt="Version 1.0.4">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/Flask-3.1.3-black.svg" alt="Flask 3.1.3">
-  <img src="https://img.shields.io/badge/platform-desktop%20%7C%20Android-informational.svg" alt="Desktop and Android">
+  <img src="https://img.shields.io/badge/platform-Android-informational.svg" alt="Android">
 </p>
 
 ---
@@ -25,7 +25,7 @@
 - **One payment ledger.** Every payment is a row, not a month column — so months are not hardcoded and the history is not capped.
 - **Live dashboard and status.** Status recomputes the moment a payment changes; no open/save step.
 - **Danger means any unpaid past month**, not just the previous one.
-- **Desktop and Android from one core.** The APK packages the real `src/` through Chaquopy, so there is exactly one copy of the logic.
+- **Android only.** The web app has been dropped (2026-11-24); the frontend is being rebuilt in Flutter for Android from the confirmed designs in `design/confirmed/`. One core of logic behind a JSON API.
 - **Exports and sharing.** CSV export, a share page, and a monthly print view.
 - **Privacy toggle** in the header masks money amounts on screen, in the browser only.
 
@@ -36,16 +36,6 @@ This replaced a macro-enabled Excel workbook. Its VBA rebuilt the dashboard on e
 The rebuild keeps what worked — a month grid, a dashboard, a status view — and fixes the rest.
 
 ## Screenshots
-
-Desktop:
-
-| Dashboard | Holdings |
-| --- | --- |
-| ![Dashboard](android/evidence/after_desktop/dashboard.png) | ![Holdings](android/evidence/after_desktop/holdings.png) |
-
-| Watch list | Alerts |
-| --- | --- |
-| ![Watch list](android/evidence/after_desktop/watchlist.png) | ![Alerts](android/evidence/after_desktop/alerts.png) |
 
 On a phone:
 

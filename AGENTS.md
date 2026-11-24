@@ -2,6 +2,10 @@
 
 This file is the project rules loader. It supplements (does not replace) the global rules.
 
+## Platform Scope (developer rulings 2026-11-24/25)
+
+ANDROID / MOBILE ONLY. The web application is dropped — no web designs, no web builds, no web docs. The frontend is being rebuilt in Flutter for Android from the confirmed designs in `design/confirmed/` (app_frame static layout + locked pages). ALL design work happens in the Stitch MCP only (D17, zero direct file edits); HTML-only exports; same-filename in-place updates; imports to the base branch remove the old file first. The backend engine (Python/Flask JSON API) is unchanged and serves the Android app.
+
 ## Workflow Rules (Q1–Q5, user-defined 2026-11-06)
 
 Q1. Create a new worktree for each issue and name it after the problem being addressed.
