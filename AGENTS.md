@@ -6,7 +6,7 @@ This file is the project rules loader. It supplements (does not replace) the glo
 
 EVERY page ships as a proper mobile design at the 412dp reference viewport with the SAME layout language — no page may look like a different kind of UI. The standard = `design/confirmed/app_frame/` chrome (56px bar: brand left, sync/bell/avatar right; sticky section tabs; content one-column; FAB 56px right:16/bottom:104; 5-item bottom nav; 16px padding; Midnight Ledger tokens). One row, one column per screen — consistent mobile density, cards/lists only (no desktop tables or wide grids on mobile). This is the acceptance bar for every design review.
 
-## Design Lock Import Checklist (developer rule 2026-11-25 — never miss an item)
+## Design Lock Import Checklist (developer rule 2026-11-25, 12 items — never miss an item)
 
 When the developer locks a design, the PM imports ALL of these from the Stitch MCP into `design/confirmed/<page>/` in ONE pass — nothing ships locked without every row:
 
@@ -19,6 +19,9 @@ When the developer locks a design, the PM imports ALL of these from the Stitch M
 7. Stitch source JSON per screen (`stitch download --format json` by id).
 8. INDEX.json entry update — files list, status confirmed, completeness_check PASS (R5).
 9. Verify byte-identical md5 vs the worktree source; commit on `front-design-upgrade`.
+10. States coverage — empty / loading / error / long-content variants documented per section (community handoff research 2026-11-25; engineers must never invent them).
+11. Accessibility notes in the manifest — focus order, accessible names, contrast ≥4.5:1, touch ≥48px.
+12. Non-negotiables vs preferences — the WHY layer: locked constraints (chrome, ordering, tokens) vs adjustable, with rejected directions recorded in design_notes.
 
 Only locked inputs live in `design/confirmed/` — superseded/previous-work designs are removed from the active evidence folders (clean-input rule).
 
