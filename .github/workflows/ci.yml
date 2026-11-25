@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install -r requirements.txt && pip install pytest
       - name: Run unit tests
         run: python3 -m pytest tests/ -q --ignore=tests/journey --ignore=tests/integration -k 'not test_invariants'
 
@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install -r requirements.txt && pip install pytest
       - name: Run invariant tests
         run: python3 -m pytest tests/test_invariants.py -v
 
@@ -41,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install -r requirements.txt && pip install pytest
       - name: Run integration tests
         run: python3 -m pytest tests/integration/ -v
 
@@ -54,7 +54,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: pip install pytest
+        run: pip install -r requirements.txt && pip install pytest
       - name: Run journey tests
         run: python3 -m pytest tests/journey/ -v
       - name: Run guard smoke tests
