@@ -1,0 +1,62 @@
+{
+  "document": "nse_recipe_extraction",
+  "version": "v1.0",
+  "date": "2026-11-25",
+  "source": "nsepython 2.101 wheel, module nsepython/rahu.py (downloaded via pip download --no-deps for inspection; no install)",
+  "significance": "This is the current, working community recipe for scraping Akamai-protected Indian financial sites (NSE). The same pattern transfers to BSE (cookie priming) and RBI (fingerprint rejection 418).",
+  "recipe_steps": [
+    {
+      "step": 1,
+      "what": "curl_cffi session with browser impersonation",
+      "detail": "CurlSession(impersonate=\"chrome124\") - plain requests/plain curl gets blocked by Akamai Bot Manager purely on TLS fingerprint, regardless of IP or headers.",
+      "quote": "A plain `requests` session (and plain `curl`) gets blocked by NSE's Akamai Bot Manager purely on TLS fingerprint, regardless of where you are."
+    },
+    {
+      "step": 2,
+      "what": "Session warm-up to harvest Akamai cookies",
+      "detail": "GET https://www.nseindia.com -> sleep 1.2s -> GET https://www.nseindia.com/option-chain -> sleep 0.8s. This collects the nsit, _abck, ak_bmsc, bm_sv cookies that JSON API calls require.",
+      "quote": "The warm-up (visiting the homepage, then the option-chain page) is what gets NSE's Akamai Bot Manager to hand out the `nsit`/`_abck`/`ak_bmsc`/`bm_sv` cookies that most JSON API calls expect to see on the request."
+    },
+    {
+      "step": 3,
+      "what": "API request headers",
+      "detail": "Accept: application/json, text/plain, */* + Referer: https://www.nseindia.com/option-chain on every API call.",
+      "quote": "api_headers.update({\"Accept\": \"application/json, text/plain, */*\", \"Referer\": \"https://www.nseindia.com/option-chain\"})"
+    },
+    {
+      "step": 4,
+      "what": "Retry with fresh warm-up on block codes",
+      "detail": "On 401/403/404/429/503: assume stale/expired Akamai cookie jar, re-warm once, retry once, then raise a descriptive error (never silently return empty).",
+      "quote": "Could just be a stale/expired Akamai cookie jar -- re-warm once and retry before giving up."
+    },
+    {
+      "step": 5,
+      "what": "Endpoint fallback rewriting",
+      "detail": "Retired routes (confirmed 404 even with solved cookies) are transparently rewritten to live endpoints carrying the same data (e.g. /api/equity-stockIndices -> /api/market-data-pre-open?key=FO with response reshaping).",
+      "quote": "is a retired route on the live site (confirmed HTTP 404 ... with or without a fully browser-solved Akamai cookie jar)."
+    },
+    {
+      "step": 6,
+      "what": "Last resort: real browser cookie harvest",
+      "detail": "nse_harvest_playwright_cookies(url, timeout_ms=45000) - a real Playwright browser solves the Akamai challenge and the cookies are harvested into the programmatic session.",
+      "quote": "def nse_harvest_playwright_cookies(url=\"https://www.nseindia.com/option-chain\", timeout_ms=45000)"
+    },
+    {
+      "step": 7,
+      "what": "Descriptive failures, never silent empties",
+      "detail": "NSEEndpointError raised with reason; older versions silently returned {} and pushed failures downstream (their issues #74/#75).",
+      "quote": "Raising a descriptive exception here instead makes the real failure visible immediately instead of as a downstream KeyError."
+    }
+  ],
+  "transfer_to_our_sites": {
+    "NSE": "direct application of all 7 steps",
+    "BSE": "same pattern with warm-up at www.bseindia.com then api.bseindia.com calls (our COOKIE_PRIME_URL constant, currently unwired)",
+    "RBI": "step 1 primarily - 418 is a fingerprint rejection; warm-up pattern + curl_cffi chrome profile",
+    "NSDL": "works plain today; keep stdlib, add throttle only",
+    "agencies": "plain sessions + polite crawl; escalate to step 1 only if blocked"
+  },
+  "compliance_boundary": {
+    "in_scope": "browser-fingerprint-compatible HTTP clients, cookie warm-up, polite rates (1 req/s), caching, identified UA, public data only",
+    "out_of_scope": "auth bypass, login-wall circumvention, captcha-solving farms, DoS/high-frequency hammering, private/member feeds - these remain excluded regardless of instruction; this matches the developer's own framing: data collection, not hacking"
+  }
+}

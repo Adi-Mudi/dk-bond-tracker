@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v1.5",
+  "version": "v1.6",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -84,6 +84,15 @@
       "issue": "recorded in backend/docs/broker_data_sources_research_20261125.json (final_core_website_list)",
       "status": "CONFIRMED",
       "resolution": ""
+    },
+    {
+      "id": "D3",
+      "date": "2026-11-25",
+      "decision": "NSDL, BSE, NSE and the credit rating agencies are EXISTENTIAL sources - the product is waste without them. All 12 core sites (D2) are targeted for data collection: browser-fingerprint-compatible clients, cookie warm-up, polite rates, public data only. Boundary: no auth bypass, no login-wall circumvention, no high-frequency hammering - collection, not hacking (developer framing 2026-11-25).",
+      "approved_by": "developer, 2026-11-25",
+      "issue": "",
+      "status": "CONFIRMED",
+      "resolution": ""
     }
   ],
   "findings": [
@@ -122,6 +131,13 @@
         "src/bond_master/transport.py"
       ],
       "evidence": "probe script /tmp/adapter_probe.py, raw HTTP status check 2026-11-25"
+    },
+    {
+      "id": "F4",
+      "date": "2026-11-25",
+      "topic": "T2 — community handling recipe extracted from nsepython 2.101 source",
+      "summary": "Full working recipe for Akamai-protected sites: curl_cffi impersonate=chrome124 -> warm-up GET / then /option-chain (harvests nsit/_abck/ak_bmsc/bm_sv cookies) -> API calls with Accept+Referer headers -> re-warm+retry on 401/403/404/429/503 -> endpoint fallback rewriting -> Playwright cookie harvest as last resort -> descriptive errors never silent empties. Detail: backend/docs/research/nse_recipe_extraction_20261125.json.",
+      "relevance": "Transfers directly: NSE all steps; BSE via www.bseindia.com priming (our unwired COOKIE_PRIME_URL); RBI via fingerprint impersonation; agencies plain."
     }
   ],
   "change_log": [
@@ -148,6 +164,10 @@
     {
       "date": "2026-11-25",
       "change": "v1.5: F3 added — scraping-stack research (PM stream done; agy stream running, report to t1w4)"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.6: F4 community recipe extracted (nsepython source); D3 CONFIRMED — existential sources, penetration authorized for public-data collection within stated boundary"
     }
   ]
 }
