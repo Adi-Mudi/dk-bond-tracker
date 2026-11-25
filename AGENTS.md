@@ -25,6 +25,10 @@ When the developer locks a design, the PM imports ALL of these from the Stitch M
 
 Only locked inputs live in `frontend/confirmed/` — superseded/previous-work designs are removed from the active evidence folders (clean-input rule).
 
+## Lane Permission (developer ruling 2026-11-25 — CORE)
+
+Never touch another agent's lane without EXPLICIT developer permission: no commits, no merges, no file edits, no WIP commits on `backend-design-upgrade`, `db-store`, or any other active lane. Each branch is owned by whoever works it; the PM acts only on its own frontend lane and on `dev` after developer approval. (Violation 2026-11-25: PM committed + merged the backend lane unbidden — fully reverted to the backend agent's exact state.) Also: re-read AGENTS.md from disk before git-structural actions — session-start copies go stale.
+
 ## Platform Scope (developer rulings 2026-11-24/25)
 
 ANDROID / MOBILE ONLY. The web application is dropped — no web designs, no web builds, no web docs. The frontend is being rebuilt in Flutter for Android from the confirmed designs in `frontend/confirmed/` (app_frame static layout + locked pages). ALL design work happens in the Stitch MCP only (D17, zero direct file edits); HTML-only exports; same-filename in-place updates; imports to the base branch remove the old file first. The backend engine (Python/Flask JSON API) is unchanged and serves the Android app.
