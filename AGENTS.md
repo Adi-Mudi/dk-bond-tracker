@@ -33,6 +33,10 @@ Never touch another agent's lane without EXPLICIT developer permission: no commi
 
 ANDROID / MOBILE ONLY. The web application is dropped — no web designs, no web builds, no web docs. The frontend is being rebuilt in Flutter for Android from the confirmed designs in `frontend/confirmed/` (app_frame static layout + locked pages). ALL design work happens in the Stitch MCP only (D17, zero direct file edits); HTML-only exports; same-filename in-place updates; imports to the base branch remove the old file first. The backend engine (Python/Flask JSON API) is unchanged and serves the Android app.
 
+## Stitch Design Cycle (developer ruling 2026-11-25 — STRICT, backend boards included)
+
+Design changes happen ONLY via `stitch edit screen` on the SAME screen chain — the exported HTML file is never hand-edited (post-download duplication check catches Stitch multi-run corruption; recovery per the backend-design skill). New features are designed as NEW pages; existing-feature rework happens on the SAME design page — duplicate designs for rework are forbidden. Design-ready cycle: once a Stitch design is ready, remove the local design file, then import fresh from Stitch (same-filename rule). The local export only ever exists as a fresh Stitch download.
+
 ## Workflow Rules (Q1–Q5, user-defined 2026-11-06)
 
 Q1. Create a new worktree for each issue and name it after the problem being addressed.
