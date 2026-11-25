@@ -6,6 +6,22 @@ This file is the project rules loader. It supplements (does not replace) the glo
 
 EVERY page ships as a proper mobile design at the 412dp reference viewport with the SAME layout language — no page may look like a different kind of UI. The standard = `design/confirmed/app_frame/` chrome (56px bar: brand left, sync/bell/avatar right; sticky section tabs; content one-column; FAB 56px right:16/bottom:104; 5-item bottom nav; 16px padding; Midnight Ledger tokens). One row, one column per screen — consistent mobile density, cards/lists only (no desktop tables or wide grids on mobile). This is the acceptance bar for every design review.
 
+## Design Lock Import Checklist (developer rule 2026-11-25 — never miss an item)
+
+When the developer locks a design, the PM imports ALL of these from the Stitch MCP into `design/confirmed/<page>/` in ONE pass — nothing ships locked without every row:
+
+1. Section HTML files (one per section/view, mobile) — exported by screen id, old file removed first (same filename rule).
+2. All-sections review board HTML (the approved one-column-per-section board).
+3. `*_manifest.csv` — component/rule inventory rows for the page.
+4. `*_navigation_flow.md` — section switch, sticky tabs, back behavior.
+5. `*_design_notes.md` — feedback-fix log (every developer ruling applied).
+6. `*_research_references.md` — UI research + backend code sources.
+7. Stitch source JSON per screen (`stitch download --format json` by id).
+8. INDEX.json entry update — files list, status confirmed, completeness_check PASS (R5).
+9. Verify byte-identical md5 vs the worktree source; commit on `front-design-upgrade`.
+
+Only locked inputs live in `design/confirmed/` — superseded/previous-work designs are removed from the active evidence folders (clean-input rule).
+
 ## Platform Scope (developer rulings 2026-11-24/25)
 
 ANDROID / MOBILE ONLY. The web application is dropped — no web designs, no web builds, no web docs. The frontend is being rebuilt in Flutter for Android from the confirmed designs in `design/confirmed/` (app_frame static layout + locked pages). ALL design work happens in the Stitch MCP only (D17, zero direct file edits); HTML-only exports; same-filename in-place updates; imports to the base branch remove the old file first. The backend engine (Python/Flask JSON API) is unchanged and serves the Android app.
