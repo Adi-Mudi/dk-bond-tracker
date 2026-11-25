@@ -1,0 +1,93 @@
+{
+  "document": "pm_framework_research",
+  "version": "v1.0",
+  "date": "2026-11-26",
+  "initiative": "backend-design-upgrade",
+  "question": "Revamp the backend framework into FastAPI — or which framework is best for this app?",
+  "profile_constraints": {
+    "runtime": "Python 3.10+ embedded ON-DEVICE in the Android APK via Chaquopy",
+    "current_stack": "Flask 3.1.3 + stdlib only; proven on-device (current APK runs Flask)",
+    "serves": "Flutter Android app (JSON API layer to be built; 41 routes exist as HTML + 9 JSON)",
+    "data": "single-file SQLite, 264k-row ISIN master, 12 download channels parsed to canonical records",
+    "background": "custom scheduler already built (framework-agnostic)",
+    "users": "single user, offline-first, no accounts"
+  },
+  "frameworks": [
+    {
+      "name": "FastAPI",
+      "url": "https://fastapi.tiangolo.com/features/",
+      "strengths": [
+        "Pydantic models = the Flutter API CONTRACT, machine-checkable; auto OpenAPI/Swagger docs = the API-contract deliverable generates itself (checklist item 4 solved by the framework)",
+        "Best JSON ergonomics: validation, typed endpoints, dependency injection",
+        "Starlette underneath: background tasks, startup/shutdown events, test client via HTTPX",
+        "Huge community, AI-tooling friendly"
+      ],
+      "risks": [
+        "Pydantic v2 uses pydantic-core (Rust native). Chaquopy must ship an Android wheel for pydantic-core or the install fails on-device - UNVERIFIED, the decisive risk",
+        "uvicorn on-device must run pure-Python mode (uvloop/httptools are optional extras and will not build for Android) - workable but slower startup",
+        "More dependencies than Flask: bigger APK, longer Chaquopy build"
+      ],
+      "embedded_fit": "UNVERIFIED - gate with a 30-minute build spike (add fastapi+pydantic to the Chaquopy build; if the wheel resolves, FastAPI is viable)",
+      "verdict": "Best API ergonomics; contingent on the Chaquopy wheel spike"
+    },
+    {
+      "name": "Flask 3.1.3 (current)",
+      "url": "https://flask.palletsprojects.com/",
+      "strengths": [
+        "PROVEN on-device: the current APK embeds and runs Flask today",
+        "Lightest dependency footprint; smallest APK impact",
+        "All 41 routes already exist; queries/db/service layers framework-agnostic"
+      ],
+      "risks": [
+        "No automatic request validation or API contract - item 4 (API contract shapes) stays manual",
+        "No auto-generated OpenAPI for Flutter"
+      ],
+      "embedded_fit": "PROVEN (shipping APK)",
+      "verdict": "Safe default; weaker contract ergonomics"
+    },
+    {
+      "name": "Litestar",
+      "url": "https://litestar.dev/",
+      "strengths": ["Fast, pure-Python core option (msgspec validation), pydantic optional", "Strong DI, OpenAPI built in"],
+      "risks": ["Smaller community; Chaquopy fit unverified (same spike needed)", "Team familiarity lower"],
+      "embedded_fit": "UNVERIFIED - same spike class",
+      "verdict": " credible alternative if FastAPI's pydantic-core wheel fails and msgspec (pure wheel or sdist) resolves instead"
+    },
+    {
+      "name": "Django / Django-Ninja",
+      "url": "https://www.django-ninja.dev/",
+      "strengths": ["Batteries included"],
+      "risks": ["ORM/admin/migrations machinery is dead weight for a single-file SQLite offline app; heavy for embedded"],
+      "embedded_fit": "POOR",
+      "verdict": "reject"
+    },
+    {
+      "name": "Stdlib-only (extend current pattern)",
+      "url": "",
+      "strengths": ["Zero new deps; current 41 routes already work", "Smallest APK"],
+      "risks": ["Manual JSON validation; manual contract doc; every new endpoint hand-rolled"],
+      "embedded_fit": "PROVEN",
+      "verdict": "fallback if all frameworks fail the Chaquopy spike"
+    }
+  ],
+  "serving_mode_insight": {
+    "point": "With Flutter + Chaquopy the backend has TWO serving modes, and the framework question changes with each",
+    "mode_A": "Localhost HTTP server inside the app (current WebView pattern continues; Flutter calls 127.0.0.1). Framework = real (Flask/FastAPI/uvicorn). The locked JSON contract applies.",
+    "mode_B": "Direct Python bridge via platform channels (no HTTP server, no port, no socket). The framework question dissolves: what remains is a router + validation layer (FastAPI-style routing without uvicorn, or plain functions + pydantic/manual validation). Lighter and faster on-device; bigger Flutter-side refactor.",
+    "note": "The locked JSON contract (routes + shapes) is IDENTICAL in both modes - the contract survives the choice; only the transport changes."
+  },
+  "recommendation": {
+    "decision_gate": "30-minute Chaquopy build spike: add fastapi + pydantic to the Android build; if the pydantic-core Android wheel resolves, adopt FastAPI; if not, evaluate Litestar/msgspec; if neither, Flask stays and the contract is hand-documented.",
+    "recommended_primary": "FastAPI - pending the wheel spike. It directly produces the API contract (checklist item 4) as a maintained artifact, matches the outside-in design order, and its dependency injection fits our service/cache/provenance layering.",
+    "recommended_fallback": "Flask 3.1.3 stays (proven) + written contract; revisit per release.",
+    "what_survives_any_choice": "routes list, queries/, db.py, bond_master service/cache/adapters, scheduler, 717-test suite (mostly), the locked JSON contract"
+  },
+  "evidence": {
+    "chaquopy_pure_python": "https://chaquo.com/chaquopy/doc/current/android.html - 'can install almost all pure-Python packages'",
+    "chaquopy_python_3_13_16kb": "https://chaquo.com/chaquopy/doc/current/changelog.html - 16 KB page devices need Python 3.13+",
+    "fastapi_features": "https://fastapi.tiangolo.com/features/",
+    "chaquopy_flutter_pattern": "https://mindster.com/mindster-blogs/run-python-in-flutter-chaquopy/ - Flutter + Kotlin host + embedded CPython pattern",
+    "pydantic_core_android_wheel": "UNVERIFIED - the decisive open fact; gate = build spike"
+  },
+  "parallel_stream": "agy-research (t1w7) dispatched with the same question - report merges into F14 when it lands"
+}
