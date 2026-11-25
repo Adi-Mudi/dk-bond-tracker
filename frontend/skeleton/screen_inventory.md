@@ -27,8 +27,8 @@ Platform fact: the Android app is a WebView shell (`MainActivity.java` loads `ht
 | 9 | `/grid` | grid.html | Payment grid (matrix) | Month x bond payment matrix; no h1. |
 | 10 | `/payout` | payout.html | Payout schedule (per company) | Inline h1 with font-size override (18px). |
 | 11 | `/payment/<bond>/<month>` | payment_edit.html | Payment edit | Single-card form; inline-styled h1. |
-| 12 | `/print` | monthly_print.html | Monthly print statement | A4 print-only statement with its own token set (`print-statement`). |
-| 13 | `/share` | share.html | Share snapshot | Export/share options with checkbox + format radios. |
+| 12 | `/print` | — | REMOVED (developer 2026-11-25: no printing — personal financial data; CSV backup only) | 
+| 12x | `/share` | — | RENAMED: CSV Export only (no HTML/share links — developer 2026-11-25) |
 | 14 | `/feedback` | feedback.html | Feedback | Form + 3 confirmation states (opened issue / saved locally / thanks). |
 | 15 | `/about` | about.html | About | 8 zone sections: app+data, developer, source, data sources, updates, debug-signed updates, license, disclaimer. |
 | 16 | (any error) | error.html | Error page | Error message + recovery link. |
