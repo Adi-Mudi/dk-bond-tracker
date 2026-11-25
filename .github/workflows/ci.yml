@@ -43,7 +43,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt && pip install pytest
       - name: Run integration tests
-        run: python3 -m pytest tests/integration/ -v
+        run: |
+          if [ -d tests/integration ]; then python3 -m pytest tests/integration/ -v; else echo "no tests/integration on this branch — heavy tier covered by remote-tests (D28-D30 split)"; fi
 
   journey-test:
     runs-on: ubuntu-latest
@@ -56,7 +57,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt && pip install pytest
       - name: Run journey tests
-        run: python3 -m pytest tests/journey/ -v
+        run: |
+          if [ -d tests/journey ]; then python3 -m pytest tests/journey/ -v; else echo "no tests/journey on this branch — journey tier via remote-tests"; fi
       - name: Run guard smoke tests
         run: |
           for cmd in stage-format-guard sequence-guard skill-gate rules-gate; do
