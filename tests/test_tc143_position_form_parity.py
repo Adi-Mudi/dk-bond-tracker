@@ -66,6 +66,7 @@ def test_tc143_negative_amount_has_no_entry_point(client, db_path):
         assert bond_count(conn) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc143_bad_credit_day_rejected_on_move_path(client, db_path):
     response = watch_candidate(client, "INE9000A0141")
     assert response.status_code == 302
@@ -82,6 +83,7 @@ def test_tc143_bad_credit_day_rejected_on_move_path(client, db_path):
     assert row["watch_state"] == "watching"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc143_bad_issuer_type_rejected_on_watch_path(client, db_path):
     response = watch_candidate(client, "INE9000A0141", issuer_type="equity")
     assert response.status_code == 400

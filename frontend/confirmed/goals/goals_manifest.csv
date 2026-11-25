@@ -1,0 +1,13 @@
+item,value,source
+page,Goals (mobile, LOCKED 2026-11-25),frontend/confirmed/goals/
+board,4 columns: First Open empty | Goals list | Create/Edit form | Detail+Tracking,goals_all_sections.html
+shell,56px bar brand+sync/bell/avatar, sticky GOALS|FORM tabs, Goals nav active, FAB opens goal form, app_frame
+empty_first,GOALS 0, zeroed stats, empty placeholder, form hidden until FAB +,empty-state-first rule
+auto_target,Monthly amount + start + end computes target automatically (monthly x months),src/goals.py add_goal
+monthly_tracking,AUTO strip: current first then next ascending; green done / amber due-soon / RED MISSED; failure banner '2 months missed'; stats On track/Missed/Next due; derived from portfolio activity; manual check-in = fallback in overflow,developer Q1 + _checkin_months/goal_derived
+goal_derived,row shows linked N bonds + invested + returns per goal,src/queries/summary.py goal_derived
+status_ordering,soonest end-date first, Completed last dim,DESIGN.md 4-tier spirit
+form_fields,"name, target_amount OR monthly+start+end, saved_amount, note — all empty on open",add_goal fields
+guarded_delete,Details overflow -> Remove goal -> type goal name to confirm (no front-facing delete),watchlist pattern
+fab_semantics,FAB + on Goals page opens the GOAL form,developer Q2
+stitch_screen,865ad1f5c5f44e72a33c5c6c2d551ba6 (project 17110477162175329772),HTML only

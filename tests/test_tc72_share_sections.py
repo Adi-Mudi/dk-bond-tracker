@@ -119,6 +119,7 @@ def test_tc72_share_csv_contains_only_selected_sections(db_path):
     assert "section,alerts" not in text
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc72_route_share_form_renders(client):
     response = client.get("/share")
     assert response.status_code == 200
@@ -158,6 +159,7 @@ def test_tc72_route_generate_totals_excluded(client, db_path):
     assert "Total investment" not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc72_route_no_sections_is_named_error(client, db_path):
     seed_portfolio(db_path, date.today())
     response = client.post("/share/generate", data={"format": "html"})

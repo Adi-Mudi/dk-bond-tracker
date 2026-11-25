@@ -83,6 +83,7 @@ def test_gate_keeps_the_eight_declared_widths():
 
 
 @pytest.mark.parametrize("route", sorted(REDESIGNED_SCREENS))
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_every_gate_route_renders_with_the_page_guide(client, route):
     response = client.get(route)
     assert response.status_code == 200, route

@@ -131,6 +131,7 @@ def test_tc_and_05_no_storage_permission():
     assert storage == [], f"storage permissions present: {storage}"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend templates and WebView UI removed")
 def test_tc_and_05_export_share_wiring():
     provider = ET.parse(MANIFEST).getroot().find("application/provider")
     assert provider is not None, "ExportProvider not declared in the manifest"

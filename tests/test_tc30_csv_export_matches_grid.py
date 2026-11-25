@@ -151,6 +151,7 @@ def test_tc30_empty_ledger_headers_only(db_path):
     assert text == "bond,isin,month,amount,paid,status\r\n"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc30_unknown_scope_named_error(client, db_path):
     response = client.get("/export.csv?scope=everything")
     assert response.status_code == 400
@@ -159,6 +160,7 @@ def test_tc30_unknown_scope_named_error(client, db_path):
     assert "everything" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc30_invalid_month_named_error(client, db_path):
     response = client.get("/export.csv?scope=current&month=2026-99")
     assert response.status_code == 400

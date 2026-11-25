@@ -54,6 +54,7 @@ def test_tc87_watch_zero_variants_accepted(client):
         assert response.status_code == 302, value
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_watch_percent_rejections_still_named(client):
     empty = watch_post(client, coupon_pct="")
     assert empty.status_code == 400
@@ -66,6 +67,7 @@ def test_tc87_watch_percent_rejections_still_named(client):
     assert "must not be negative" in negative.get_data(as_text=True)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_move_same_month_rejected_no_row_inserted(client, db_path):
     watch_post(client)
     with get_conn(db_path) as conn:
@@ -95,6 +97,7 @@ def test_tc87_move_same_month_rejected_no_row_inserted(client, db_path):
     assert row["watch_state"] == "watching"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_tenure_zero_row_surfaces_stay_200_with_invalid_chip(client, db_path):
     bond_id = inject_tenure_zero(db_path)
     for path in ("/", "/portfolio", "/portfolio?tab=payouts", "/print"):
@@ -118,6 +121,7 @@ def test_tc87_remove_button_deletes_invalid_row(client, db_path):
     assert row is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_remove_refused_while_row_is_valid(client, db_path):
     with get_conn(db_path) as conn:
         cursor = conn.execute(
@@ -137,6 +141,7 @@ def test_tc87_remove_refused_while_row_is_valid(client, db_path):
     assert row is not None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_broker_roundtrip_candidate_move_detail(client, db_path):
     response = watch_post(client, broker="HDFC Securities")
     assert response.status_code == 302
@@ -221,6 +226,7 @@ def test_tc87_move_requires_broker(client, db_path):
     assert row["watch_state"] == "holding"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_labels_present_on_watch_moves(client):
     watch_post(client)
     watch_html = client.get("/watch").get_data(as_text=True)
@@ -232,6 +238,7 @@ def test_tc87_labels_present_on_watch_moves(client):
     assert 'id="add-position"' not in portfolio_html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_watchlist_row_shows_broker_in_meta_line(client):
     watch_post(client, broker="Axis Direct")
     html = client.get("/watch").get_data(as_text=True)
@@ -241,6 +248,7 @@ def test_tc87_watchlist_row_shows_broker_in_meta_line(client):
     assert "Axis Direct" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_holdings_table_stays_ten_columns(client):
     response = client.get("/portfolio")
     html = response.get_data(as_text=True)
@@ -278,6 +286,7 @@ def inject_bad_amount(db_path):
         return cursor.lastrowid
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_f221_non_numeric_amount_surfaces_stay_200_invalid_row(client, db_path):
     bond_id = inject_bad_amount(db_path)
     for path in ("/", "/portfolio", "/portfolio?tab=payouts", "/watch"):
@@ -294,6 +303,7 @@ def test_tc87_f221_non_numeric_amount_surfaces_stay_200_invalid_row(client, db_p
     assert detail["invested"] == 0.0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_f222_watch_percent_empty_rejected_zero_rows(client, db_path):
     base = {
         "rating": "AA",
@@ -335,6 +345,7 @@ def test_tc87_f222_watch_percent_empty_rejected_zero_rows(client, db_path):
     assert row["expected_yield_pct"] == 0.0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_f223_invalid_remove_rejects_watching_candidate(client, db_path):
     response = watch_post(client)
     assert response.status_code == 302
@@ -355,6 +366,7 @@ def test_tc87_f223_invalid_remove_rejects_watching_candidate(client, db_path):
     assert row["watch_state"] == "watching"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_f224a_payouts_invalid_row_shows_remove_and_post_works(client, db_path):
     bond_id = inject_tenure_zero(db_path)
     payouts = client.get("/portfolio?tab=payouts").get_data(as_text=True)
@@ -398,6 +410,7 @@ def test_tc87_f225_blank_broker_stores_null_on_watch_path_and_blocks_move(client
     assert row["watch_state"] == "holding"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc87_amount_fault_dashboard_note_and_removable(client, db_path):
     bond_id = inject_bad_amount(db_path)
     dash = client.get("/").get_data(as_text=True)

@@ -42,6 +42,7 @@ def parse_csv(text):
     return list(csv.reader(io.StringIO(text)))
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc54_payment_updates_dashboard_on_reload_without_restart(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
@@ -59,6 +60,7 @@ def test_tc54_payment_updates_dashboard_on_reload_without_restart(client, db_pat
     assert 'id="total-invested" data-amount="160000.00"' in after
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc54_status_coverage_survives_payment_round(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
@@ -71,6 +73,7 @@ def test_tc54_status_coverage_survives_payment_round(client, db_path):
         assert f'data-status="{status}"' in after
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc54_csv_matches_grid_again_after_edit(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:
@@ -111,6 +114,7 @@ def test_tc54_payment_correction_updates_ledger_single_row(client, db_path):
     assert int(rows[0]["paid"]) == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc54_alerts_still_fire_for_unpaid_credit_day(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:

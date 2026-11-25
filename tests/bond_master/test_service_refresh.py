@@ -1,3 +1,4 @@
+import pytest
 import time
 from types import SimpleNamespace
 
@@ -468,6 +469,7 @@ def test_tc_afr_07_portfolio_refresh_mirrors_the_watchlist_contract(db_path, mon
     assert "summary" in ran.get_json()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_afr_10_staleness_cue_renders_on_portfolio_and_detail(db_path):
     from datetime import datetime, timedelta, timezone
 
@@ -491,6 +493,7 @@ def test_tc_afr_10_staleness_cue_renders_on_portfolio_and_detail(db_path):
     assert f'data-refresh-url="/portfolio/{bond_id}/refresh"' in detail
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_afr_10_fresh_facts_show_no_staleness_cue(db_path):
     from datetime import datetime, timezone
 

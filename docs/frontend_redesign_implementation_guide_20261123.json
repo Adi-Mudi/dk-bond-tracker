@@ -1,0 +1,138 @@
+{
+  "id": "frontend_redesign_implementation_guide_20261123",
+  "kind": "report",
+  "title": "Frontend Redesign — Implementation Guide (foundation-first, batch page rollout, verification battery)",
+  "version": "v1.1",
+  "status": "active",
+  "project": "dk-bond-tracker",
+  "source": "Community-researched approach (Playwright visual snapshots, BackstopJS, strangler-fig/incremental design-system migration) + developer clarifications D11-D14 + Q&A 2026-11-23",
+  "applies_after": "Developer picks the winning design (or a curated combination of both tracks) from issue #336 deliverables",
+  "core_principle": "Foundation decided ONCE and built BEFORE any page. Pages picked batch-by-batch AFTER foundation is frozen. Pages can run in parallel AFTER a pilot proves the pattern. Never big-bang; never page-by-page without a foundation.",
+  "phases": [
+    {
+      "id": "0",
+      "name": "Finalize design target (curation)",
+      "when": "After both tracks delivered + R1 comparison + developer review",
+      "steps": [
+        "Developer picks winner OR curates a combination (e.g. Track B theme + Track A sidebar + Track B tables)",
+        "If combining: assemble the hybrid in design space first (Stitch/HTML, hours) — ONE approved target; never mix two references during implementation",
+        "Freeze the target: chosen theme(s), nav model, component styles, per-page source map (which track each page follows)",
+        "Record decisions as a new GitHub issue (foundation) per issue-first rule"
+      ],
+      "gate": "Developer approves the single frozen target (design + per-page source map)"
+    },
+    {
+      "id": "1",
+      "name": "Foundation (one-time, serial — NOT simultaneous with pages)",
+      "when": "After Phase 0 freeze",
+      "steps": [
+        "Extract design tokens from the winning DESIGN.md -> CSS variables: colors (all 3 themes), typography, spacing (8px grid), radius, elevation, semantic status colors",
+        "Multi-theme support: theme sets as switchable variable blocks (dark primary per D13 + alternates)",
+        "Rebuild shared components in base template: topbar, sidebar/nav, cards, tables, buttons, inputs, dialogs, chips, alerts",
+        "Clean-minimal ethos encoded (D14): few colors, hairline borders, no decorative clutter, no pulsing/flashing",
+        "Touch targets >=48px, gaps >=8px baked into components (RD-09)",
+        "Component test-page: every component rendered in every theme",
+        {
+          "step": "app_frame chrome widgets",
+          "detail": "Static layout: build the chrome from frontend/confirmed/app_frame/ ONLY (app_frame_manifest.csv contract) — top bar/bottom nav/FAB are written once as shared widgets; no per-page chrome decisions."
+        }
+      ],
+      "why_not_simultaneous": "Pages consume the foundation. Starting pages first = each worker invents own tokens = recreates the duplicate-component mess being fixed.",
+      "gate": "Component test-page green in all 3 themes + existing pytest suite green + axe/Lighthouse a11y pass + developer approves"
+    },
+    {
+      "id": "2",
+      "name": "Pilot page (serial — proves the pattern)",
+      "when": "After foundation gate",
+      "steps": [
+        "Implement ONE representative page fully (recommend Dashboard — hardest layout)",
+        "Run the full verification battery (below)",
+        "Side-by-side vs the frozen design target at 4 viewports",
+        "Developer signs off — this locks the implementation pattern for the rollout"
+      ],
+      "gate": "Pilot passes full battery + developer sign-off"
+    },
+    {
+      "id": "3",
+      "name": "Batch page rollout (parallel allowed)",
+      "when": "After pilot sign-off",
+      "steps": [
+        "Order by value: Dashboard -> Portfolio -> Watchlist -> Search/Holdings -> Goals -> Payouts -> Alerts -> Settings -> About/Share/Print -> remaining screens",
+        "Batch-by-batch: for each page the developer picks its source (Track A / Track B / combination) from the Phase 0 map",
+        "Multiple pages (or workers) may run IN PARALLEL — each in its own branch/PR, each against the frozen foundation",
+        "One page = one PR (project rule Q2); per-page verification battery must pass before merge",
+        "Foundation changes during rollout: STOP — re-freeze foundation first (never let pages fork the foundation)"
+      ],
+      "gate": "Each page: full battery green + reviewer approval before merge; batch closes with full-suite run"
+    },
+    {
+      "id": "4",
+      "name": "Android parity",
+      "when": "After (or parallel with) web pages once foundation exists",
+      "steps": [
+        "Apply same tokens/components to Android screens",
+        "Device testing per Q8: install once, pm clear between runs, headed mode per Q10",
+        "Screenshot compare vs design target; touch-target audit >=48px"
+      ],
+      "gate": "device_smoke.sh green + screenshots match + touch audit pass"
+    },
+    {
+      "id": "5",
+      "name": "Cleanup",
+      "when": "All pages migrated",
+      "steps": [
+        "Delete legacy CSS/classes/dead components (each removal confirmed per safety rules)",
+        "Remove old theme-switcher remnants per D11/OP5 decision if retired"
+      ],
+      "gate": "Full pytest + whole-app visual sweep + zero orphan styles"
+    }
+  ],
+  "verification_battery": {
+    "per_page": [
+      "1. Existing pytest suite green (RD-01 functionality invariant — the guardrail through EVERY step)",
+      "2. Playwright visual snapshot: expect(page).toHaveScreenshot() at 4 viewports (360/768/1280/1920) vs golden images committed to git — any layout drift fails (https://playwright.dev/docs/test-snapshots)",
+      "3. Optional deeper diff: BackstopJS reference-vs-test report, approving changes like a design review (https://github.com/garris/BackstopJS)",
+      "4. Accessibility scan: axe-core / Lighthouse — contrast, roles, focus order",
+      "5. Touch-target audit: all interactive elements >=48px with >=8px gaps (RD-09)",
+      "6. Page journey smoke: the page's real flows still work end-to-end",
+      "7. Visual side-by-side vs the frozen design target (winning gallery HTML is the ground truth)"
+    ],
+    "per_batch": "Full pytest suite + aggregated screenshot diff run",
+    "final": "Whole-app visual sweep + a11y + device smoke (Android) + developer acceptance",
+    "evidence": "Each PR carries: screenshot diffs, a11y report, journey results — recorded in the issue"
+  },
+  "rules": [
+    "Foundation BEFORE pages — serial one-time gate (Phase 1 cannot run simultaneously with Phase 3)",
+    "Pages IN PARALLEL after pilot — batch-by-batch, one page = one PR",
+    "Developer picks per-page sources batch-by-batch; the combination is frozen at Phase 0, not re-litigated per page",
+    "No logic/routing/DB/API changes — presentation only (RD-01); out-of-scope findings reported, never fixed silently",
+    "Multi-theme set stays (D14); clean-minimal is the quality bar (Zerodha philosophy); no-white primary per D13 unless developer reverses",
+    "Every merge: CI green + reviewer verdict + developer approval (Q9)"
+  ],
+  "changelog": [
+    {
+      "date": "2026-11-23",
+      "entry": "v1.0 created — community-researched implementation roadmap + foundation-vs-batch clarification for the post-selection build of issue #336's winning design"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "v1.1 — D18 Flutter path addendum (stages F1-F5, issue #337); old-frontend implementation phases superseded"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "app_frame static-layout contract referenced in foundation phase (chrome widgets built once from frontend/confirmed/app_frame/)"
+    }
+  ],
+  "flutter_path": {
+    "decision": "D18 (2026-11-24): frontend = Flutter (web+Android, single Dart codebase); backend engine unchanged behind JSON API adapter; old frontend (Jinja/static/Java-UI) removed FIRST then rebuilt from scratch; all designs/documents state Flutter as implementation target",
+    "issue": "#337",
+    "stages": [
+      "F1 design-docs->Flutter references",
+      "F2 JSON API adapter (engine untouched, tests green)",
+      "F3 Flutter scaffold + ThemeData (3 themes) + shared components",
+      "F4 screen-by-screen widget build from frontend/confirmed/",
+      "F5 cutover + retire old frontend + device smoke"
+    ],
+    "supersedes_note": "Phases 1-5 of this guide assumed Flask-template implementation; the Flutter path (D18) replaces that implementation route while retaining the guide's verification battery and batch discipline"
+  }
+}

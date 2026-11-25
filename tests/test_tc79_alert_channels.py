@@ -57,6 +57,7 @@ def notifications_rows(db_path):
         ]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc79_sweep_flip_creates_notification_and_sends_email(
     db_path, monkeypatch, fake_smtp, mail_log
 ):
@@ -92,6 +93,7 @@ def test_tc79_sweep_flip_creates_notification_and_sends_email(
     assert re.search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", page)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc79_unconfigured_smtp_keeps_app_alive_with_warn_notification(
     db_path, monkeypatch
 ):
@@ -138,6 +140,7 @@ def test_tc79_due_reminder_fires_both_channels_once(
     assert not any(entry[0] == "sendmail" for entry in mail_log)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc79_alert_lands_in_bell_and_history(db_path, monkeypatch, fake_smtp, mail_log):
     monkeypatch.setattr("src.app.date", make_sim_date(date(2026, 10, 30)))
     monkeypatch.setenv("SMTP_USER", "owner@example.test")

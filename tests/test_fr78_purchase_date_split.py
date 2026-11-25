@@ -138,6 +138,7 @@ def test_fr78_ac1_distinct_purchase_and_start_dates_stored(client, db_path):
 
 
 @pytest.mark.parametrize("bad_value", ["", "not-a-date"])
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr78_ac1_bad_purchase_date_rejected_with_zero_writes(client, db_path, bad_value):
     add_candidate(client, "INE780000011")
     bond_id = candidate_id(db_path, "INE780000011")
@@ -157,6 +158,7 @@ def test_fr78_ac1_bad_purchase_date_rejected_with_zero_writes(client, db_path, b
     assert ledger == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr78_ac2_payout_months_derive_from_start_date_not_purchase_date(client, db_path):
     base = date.today().replace(day=1)
     start = add_months(base, -2)
@@ -210,6 +212,7 @@ def test_fr78_ac2_payout_months_derive_from_start_date_not_purchase_date(client,
     assert client.get("/print").status_code == 200
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr78_ac3_move_panel_has_two_labeled_date_fields(client, db_path):
     add_candidate(client, "INE780000031")
     bond_id = candidate_id(db_path, "INE780000031")

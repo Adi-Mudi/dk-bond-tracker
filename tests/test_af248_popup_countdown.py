@@ -1,3 +1,5 @@
+import pytest
+pytest.skip("Retired per issue #337: old frontend removal", allow_module_level=True)
 """TC-AF-14 (popup) + TC-AF-15 (countdown) acceptance tests - wave P9-2, issue #248."""
 import re
 from pathlib import Path

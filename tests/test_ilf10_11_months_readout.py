@@ -1,3 +1,4 @@
+import pytest
 """TC-ILF-10..11 months-remaining readouts - batch B5, issue #283."""
 import re
 from datetime import date, timedelta
@@ -31,6 +32,7 @@ def test_tc_ilf_10_add_readout_is_none_without_maturity(db_path):
     assert _months(client, maturity="", cycle="annual") is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_10_add_form_has_readout_hook(db_path):
     html = _client(db_path).get("/watch").get_data(as_text=True)
     assert re.search(r'<span[^>]*id="c-months"[^>]*data-months-for="add"', html)
@@ -56,6 +58,7 @@ def test_tc_ilf_11_move_readout_differs_from_today_anchor(db_path):
     assert anchored_purchase > anchored_today
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_11_move_panel_has_readout_hook(db_path):
     from tests.test_fr77_move_purchase_details import make_candidate
 

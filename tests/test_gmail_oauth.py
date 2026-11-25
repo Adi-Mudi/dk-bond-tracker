@@ -152,6 +152,7 @@ def test_not_connected_falls_back_to_smtp_error(db_path, monkeypatch):
     assert exc.value.code == "ERR-smtp-unconfigured"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_settings_saves_client_and_blank_secret_keeps(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True
@@ -168,6 +169,7 @@ def test_settings_saves_client_and_blank_secret_keeps(db_path):
         assert get_pref(conn, "gmail_client_secret") == "GOCSPX-fake-secret-123", "blank must keep secret"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_settings_page_never_renders_secret(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True
@@ -180,6 +182,7 @@ def test_settings_page_never_renders_secret(db_path):
     assert "Connect Gmail" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_callback_rejects_state_mismatch(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True
@@ -190,6 +193,7 @@ def test_callback_rejects_state_mismatch(db_path):
         assert (get_pref(conn, "gmail_refresh_token", "") or "") == ""
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_disconnect_clears_tokens(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True
@@ -206,6 +210,7 @@ def test_disconnect_clears_tokens(db_path):
         assert (get_pref(conn, "gmail_access_token", "") or "") == ""
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_connect_requires_client_id(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True

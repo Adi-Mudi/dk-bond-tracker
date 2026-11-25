@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter,+system-ui,+sans-serif:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "upcoming-amber-fg": "#92400e", "surface-container-high": "#e7e7f3", "info-blue-bg": "#e8effc", "due-red-fg": "#b42318", "on-tertiary-container": "#ffdace", "slate": "#55606e", "secondary-fixed-dim": "#c3c7cb", "tertiary": "#8a2d00", "inverse-on-surface": "#f0f0fc", "error-container": "#ffdad6", "on-primary": "#ffffff", "inverse-surface": "#2e3039", "tertiary-container": "#b23d00", "on-primary-container": "#dbe0ff", "secondary-container": "#dde0e4", "surface-tint": "#194fe0", "tertiary-fixed-dim": "#ffb59a", "info-blue-fg": "#1d4ed8", "on-primary-fixed": "#001551", "error": "#ba1a1a", "on-secondary-fixed-variant": "#43474b", "surface-dim": "#d9d9e5", "on-primary-fixed-variant": "#0039b5", "paid-green-fg": "#166534", "ledger-canvas": "#f6f7f9", "on-tertiary-fixed": "#380d00", "surface-container": "#ededf9", "on-secondary-fixed": "#181c1f", "on-secondary-container": "#5f6367", "surface-variant": "#e2e1ed", "tertiary-fixed": "#ffdbcf", "paper-surface": "#ffffff", "primary": "#003dc1", "on-tertiary-fixed-variant": "#802a00", "on-background": "#191b24", "outline": "#747687", "secondary": "#5b5f62", "due-red-bg": "#fdeceb", "on-tertiary": "#ffffff", "primary-fixed": "#dce1ff", "surface-container-highest": "#e2e1ed", "hairline": "#e3e8ee", "surface-container-lowest": "#ffffff", "ink": "#16212e", "surface-container-low": "#f3f2ff", "outline-variant": "#c4c5d8", "on-error-container": "#93000a", "inverse-primary": "#b7c4ff", "surface": "#faf8ff", "primary-container": "#2456e6", "upcoming-amber-bg": "#fdf3e0", "background": "#faf8ff", "on-error": "#ffffff", "paid-green-bg": "#e8f6ee", "primary-fixed-dim": "#b7c4ff", "on-secondary": "#ffffff", "surface-bright": "#faf8ff", "secondary-fixed": "#e0e3e7", "mist": "#8592a1", "on-surface-variant": "#434655", "on-surface": "#191b24" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-xl": "2rem", "space-sm": "0.5rem", "gutter": "1rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "margin": "1.5rem", "space-md": "1rem" }, fontFamily: { "headline-h1": ["\"Inter, system-ui, sans-serif\""], "body": ["\"Inter, system-ui, sans-serif\""], "display": ["\"Inter, system-ui, sans-serif\""], "small": ["\"Inter, system-ui, sans-serif\""], "label": ["\"Inter, system-ui, sans-serif\""], "headline-h2": ["\"Inter, system-ui, sans-serif\""] }, fontSize: { "headline-h1": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "body": ["15px", { "lineHeight": "22px", "fontWeight": "400" }], "display": ["28px", { "lineHeight": "36px", "fontWeight": "600" }], "small": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "label": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }], "headline-h2": ["16px", { "lineHeight": "24px", "fontWeight": "600" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-ledger-canvas font-body text-body text-ink antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-paper-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(22,33,46,0.04)]"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm min-w-0"><h1 class="font-headline-h1 text-headline-h1 text-ink tracking-tight truncate">More</h1></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center rounded-xl text-ink hover:text-primary active:bg-secondary-container/40 transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full px-gutter pt-16 pb-28 bg-ledger-canvas"><div class="flex flex-col w-full pb-8">
+<!-- Top Banner / Summary Strip -->
+<div class="flex flex-col gap-space-sm mb-space-md pt-space-xs">
+<!-- Title & Global Quick Actions -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<h2 class="font-headline-h1 text-headline-h1 text-ink tracking-tight">Alerts & Feed</h2>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary text-on-primary font-label text-[11px] leading-tight font-semibold shadow-sm transition-all duration-300" id="unreadCounterBadge">
+          3 Unread
+        </span>
+</div>
+<div class="flex items-center gap-1">
+<button class="h-10 px-space-sm flex items-center gap-1.5 rounded-xl bg-paper-surface hover:bg-secondary-container/50 active:bg-secondary-container text-ink font-label text-label transition-colors" id="markAllReadBtn" title="Mark all alerts as read" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">done_all</span>
+<span class="hidden sm:inline">Mark read</span>
+</button>
+<button aria-label="Refresh alerts feed" class="w-10 h-10 flex items-center justify-center rounded-xl bg-paper-surface hover:bg-secondary-container/50 active:bg-secondary-container text-ink transition-colors" id="refreshFeedBtn" type="button">
+<span class="material-symbols-outlined text-[20px] text-slate">sync</span>
+</button>
+</div>
+</div>
+<!-- Tonal Stat Metrics Banner -->
+<div class="grid grid-cols-3 gap-space-xs bg-paper-surface rounded-full p-1.5 shadow-[0_1px_2px_rgba(22,33,46,0.06)]">
+<div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-ledger-canvas text-center">
+<span class="font-label text-label uppercase text-mist tracking-wider">Unread</span>
+<span class="font-headline-h2 text-headline-h2 text-primary font-semibold tabular-nums mt-0.5" id="statUnreadCount">3</span>
+</div>
+<div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-ledger-canvas text-center">
+<span class="font-label text-label uppercase text-mist tracking-wider">Attention</span>
+<span class="font-headline-h2 text-headline-h2 text-due-red-fg font-semibold tabular-nums mt-0.5">1 High</span>
+</div>
+<div class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-ledger-canvas text-center">
+<span class="font-label text-label uppercase text-mist tracking-wider">Scheduled</span>
+<span class="font-headline-h2 text-headline-h2 text-upcoming-amber-fg font-semibold tabular-nums mt-0.5">2 Payouts</span>
+</div>
+</div>
+</div>
+<!-- Filter Chips Bar & Toggle -->
+<div class="flex flex-col gap-space-sm mb-space-lg">
+<!-- Horizontal Chip Scroller -->
+<div aria-label="Alert category filters" class="flex items-center gap-2 overflow-x-auto pb-1 -mx-gutter px-gutter no-scrollbar" role="tablist">
+<button class="filter-chip active flex-shrink-0 h-9 px-3.5 rounded-full font-label text-label font-medium transition-all duration-150 flex items-center gap-1.5 bg-primary text-on-primary shadow-sm" data-category="all" type="button">
+<span>All</span>
+<span class="px-1.5 py-0.2 rounded-full text-[11px] bg-white/20 text-on-primary font-semibold">7</span>
+</button>
+<button class="filter-chip flex-shrink-0 h-9 px-3.5 rounded-full font-label text-label font-medium transition-all duration-150 flex items-center gap-1.5 bg-paper-surface hover:bg-surface-container text-ink shadow-[0_1px_2px_rgba(22,33,46,0.04)]" data-category="due" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-upcoming-amber-fg"></span>
+<span>Due</span>
+<span class="text-mist text-[11px]">1</span>
+</button>
+<button class="filter-chip flex-shrink-0 h-9 px-3.5 rounded-full font-label text-label font-medium transition-all duration-150 flex items-center gap-1.5 bg-paper-surface hover:bg-surface-container text-ink shadow-[0_1px_2px_rgba(22,33,46,0.04)]" data-category="danger" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-due-red-fg"></span>
+<span>Danger</span>
+<span class="text-mist text-[11px]">1</span>
+</button>
+<button class="filter-chip flex-shrink-0 h-9 px-3.5 rounded-full font-label text-label font-medium transition-all duration-150 flex items-center gap-1.5 bg-paper-surface hover:bg-surface-container text-ink shadow-[0_1px_2px_rgba(22,33,46,0.04)]" data-category="reminder" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-info-blue-fg"></span>
+<span>Reminder</span>
+<span class="text-mist text-[11px]">2</span>
+</button>
+<button class="filter-chip flex-shrink-0 h-9 px-3.5 rounded-full font-label text-label font-medium transition-all duration-150 flex items-center gap-1.5 bg-paper-surface hover:bg-surface-container text-ink shadow-[0_1px_2px_rgba(22,33,46,0.04)]" data-category="maturity" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg"></span>
+<span>Maturity</span>
+<span class="text-mist text-[11px]">1</span>
+</button>
+<button class="filter-chip flex-shrink-0 h-9 px-3.5 rounded-full font-label text-label font-medium transition-all duration-150 flex items-center gap-1.5 bg-paper-surface hover:bg-surface-container text-ink shadow-[0_1px_2px_rgba(22,33,46,0.04)]" data-category="tax" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-slate"></span>
+<span>Tax & Ops</span>
+<span class="text-mist text-[11px]">1</span>
+</button>
+</div>
+<!-- Filter Meta & Unread Only Switch -->
+<div class="flex items-center justify-between px-1">
+<span class="font-label text-label text-mist">Prioritized by audit ledger sequence</span>
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<span class="font-label text-label text-ink font-medium">Unread only</span>
+<div class="relative inline-flex items-center">
+<input class="sr-only peer" id="unreadToggle" type="checkbox"/>
+<div class="w-10 h-6 bg-secondary-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary shadow-inner"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Alert Stream Feed Grouped by Date -->
+<div class="flex flex-col gap-space-lg" id="alertsContainer">
+<!-- DAY GROUP 1: Today -->
+<section class="day-group flex flex-col gap-space-sm" data-day="today">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-slate">event_upcoming</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Today — 15 Dec 2026</h3>
+</div>
+<span class="day-count-badge font-label text-label text-mist bg-paper-surface px-2 py-0.5 rounded-full shadow-sm">2 Events</span>
+</div>
+<!-- Card 1: Due Today (Amber Left Border) -->
+<article class="alert-card relative bg-paper-surface rounded-full shadow-[0_1px_2px_rgba(22,33,46,0.06)] overflow-hidden transition-all duration-200" data-alert-id="alert-1" data-type="due" data-unread="true">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-upcoming-amber-fg"></div>
+<div class="pl-5 pr-4 py-4 flex flex-col gap-3">
+<!-- Top Row: Badge, Timestamp, Unread Dot -->
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-[11px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">payments</span>
+                DUE TODAY
+              </span>
+<span class="font-small text-small text-mist tabular-nums">09:15 AM (15m ago)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="unread-dot w-2 h-2 rounded-full bg-primary" title="Unread notification"></span>
+<button class="btn-dismiss p-1 text-mist hover:text-ink transition-colors rounded-lg" data-target="alert-1" title="Dismiss alert" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<!-- Body Content -->
+<div class="flex flex-col gap-1">
+<h4 class="font-headline-h2 text-headline-h2 text-ink leading-snug">
+              HDFC Credila Financial Services — Coupon Credit Due Today
+            </h4>
+<p class="font-body text-body text-slate leading-relaxed">
+              INE539K07106 • BSE: 938210 • <span class="font-semibold text-ink tabular-nums">₹ 32,800</span> gross coupon scheduled for ECS settlement to HDFC Bank (•••• 8821).
+            </p>
+</div>
+<!-- Ledger Metadata Pills -->
+<div class="flex flex-wrap items-center gap-2 pt-0.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+<span class="text-mist">Coupon:</span> 9.80% p.a.
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+<span class="text-mist">Ref:</span> ECS-88210-92
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-info-blue-bg font-label text-label text-info-blue-fg font-medium">
+              Settlement Pending
+            </span>
+</div>
+<!-- Action Row (48px Touch Targets) -->
+<div class="pt-2 flex flex-wrap items-center gap-2">
+<button class="btn-action-primary h-12 flex-1 sm:flex-initial px-5 rounded-xl bg-primary hover:bg-primary-container active:scale-[0.99] text-on-primary font-headline-h2 text-headline-h2 flex items-center justify-center gap-2 transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+<span>Verify Deposit</span>
+</button>
+<button class="btn-mark-read h-12 px-4 rounded-xl bg-ledger-canvas hover:bg-secondary-container/60 active:bg-secondary-container text-ink font-label text-label font-medium flex items-center justify-center gap-1.5 transition-colors" data-target="alert-1" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">check</span>
+<span>Mark Read</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 2: Danger / Credit Rating Watch (Due Red Left Border) -->
+<article class="alert-card relative bg-paper-surface rounded-full shadow-[0_1px_2px_rgba(22,33,46,0.06)] overflow-hidden transition-all duration-200" data-alert-id="alert-2" data-type="danger" data-unread="true">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-due-red-fg"></div>
+<div class="pl-5 pr-4 py-4 flex flex-col gap-3">
+<!-- Top Row -->
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-[11px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                RATING WATCH NEGATIVE
+              </span>
+<span class="font-small text-small text-mist tabular-nums">08:30 AM</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="unread-dot w-2 h-2 rounded-full bg-primary" title="Unread notification"></span>
+<button class="btn-dismiss p-1 text-mist hover:text-ink transition-colors rounded-lg" data-target="alert-2" title="Dismiss alert" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<!-- Body Content -->
+<div class="flex flex-col gap-1">
+<h4 class="font-headline-h2 text-headline-h2 text-due-red-fg leading-snug">
+              CRISIL Rating Watch Negative: Piramal Capital & Housing Fin
+            </h4>
+<p class="font-body text-body text-slate leading-relaxed">
+              Piramal Capital 10.25% NCD (INE641A07137) placed on Rating Watch with negative implications following Q3 asset quality disclosures.
+            </p>
+</div>
+<!-- Metadata Tags -->
+<div class="flex flex-wrap items-center gap-2 pt-0.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+<span class="text-mist">ISIN:</span> INE641A07137
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+<span class="text-mist">Exposure:</span> ₹ 3,50,000
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-due-red-bg text-due-red-fg font-label text-label font-medium">
+              Rating: AA- (Watch)
+            </span>
+</div>
+<!-- Action Row -->
+<div class="pt-2 flex flex-wrap items-center gap-2">
+<button class="h-12 flex-1 sm:flex-initial px-5 rounded-xl bg-due-red-bg hover:bg-error-container text-due-red-fg font-headline-h2 text-headline-h2 flex items-center justify-center gap-2 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">assignment_late</span>
+<span>View Advisory</span>
+</button>
+<button class="h-12 px-4 rounded-xl bg-ledger-canvas hover:bg-secondary-container/60 active:bg-secondary-container text-ink font-label text-label font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">pie_chart</span>
+<span>Portfolio Exposure</span>
+</button>
+</div>
+</div>
+</article>
+</section>
+<!-- DAY GROUP 2: Yesterday -->
+<section class="day-group flex flex-col gap-space-sm" data-day="yesterday">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-slate">history</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Yesterday — 14 Dec 2026</h3>
+</div>
+<span class="day-count-badge font-label text-label text-mist bg-paper-surface px-2 py-0.5 rounded-full shadow-sm">2 Events</span>
+</div>
+<!-- Card 3: Reminder / Payout Record Date (Info Blue Left Border) -->
+<article class="alert-card relative bg-paper-surface rounded-full shadow-[0_1px_2px_rgba(22,33,46,0.06)] overflow-hidden transition-all duration-200" data-alert-id="alert-3" data-type="reminder" data-unread="true">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-info-blue-fg"></div>
+<div class="pl-5 pr-4 py-4 flex flex-col gap-3">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-[11px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">notifications_active</span>
+                REMINDER
+              </span>
+<span class="font-small text-small text-mist tabular-nums">04:45 PM</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="unread-dot w-2 h-2 rounded-full bg-primary" title="Unread notification"></span>
+<button class="btn-dismiss p-1 text-mist hover:text-ink transition-colors rounded-lg" data-target="alert-3" title="Dismiss alert" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-headline-h2 text-headline-h2 text-ink leading-snug">
+              Record Date Approaching: Tata Capital Financial Services
+            </h4>
+<p class="font-body text-body text-slate leading-relaxed">
+              Ex-interest record date is in 15 days (03 Jan 2027) for annual coupon payout of <span class="font-semibold text-ink tabular-nums">₹ 45,750</span> on 18 Jan 2027.
+            </p>
+</div>
+<div class="flex flex-wrap items-center gap-2 pt-0.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+<span class="text-mist">ISIN:</span> INE306N07MH1
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+              500 Units
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+              Coupon 9.15% p.a.
+            </span>
+</div>
+<div class="pt-2 flex flex-wrap items-center gap-2">
+<button class="h-12 flex-1 sm:flex-initial px-5 rounded-xl bg-paper-surface hover:bg-secondary-container/40 text-primary font-headline-h2 text-headline-h2 flex items-center justify-center gap-1.5 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>View Specs</span>
+</button>
+<button class="h-12 px-4 rounded-xl bg-ledger-canvas hover:bg-secondary-container/60 active:bg-secondary-container text-ink font-label text-label font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">sync_alt</span>
+<span>Check Mandate</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 4: Info / Depository Sync (Read) (Neutral Slate Left Border) -->
+<article class="alert-card relative bg-paper-surface/90 rounded-full shadow-[0_1px_2px_rgba(22,33,46,0.06)] overflow-hidden transition-all duration-200" data-alert-id="alert-4" data-type="tax" data-unread="false">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-slate"></div>
+<div class="pl-5 pr-4 py-4 flex flex-col gap-3">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-slate font-label text-[11px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">cloud_done</span>
+                INFO • RECONCILED
+              </span>
+<span class="font-small text-small text-mist tabular-nums">11:42 AM</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="font-label text-[11px] text-mist flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px] text-paid-green-fg">done</span>
+                Read
+              </span>
+<button class="btn-dismiss p-1 text-mist hover:text-ink transition-colors rounded-lg ml-1" data-target="alert-4" title="Dismiss alert" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-headline-h2 text-headline-h2 text-ink leading-snug">
+              Depository Sync Complete (NSDL / CDSL Master Feed)
+            </h4>
+<p class="font-body text-body text-slate leading-relaxed">
+              All 14 active holdings successfully reconciled against NSDL weekly depository ledger. Zero mismatch detected.
+            </p>
+</div>
+<div class="pt-1 flex items-center justify-start">
+<button class="h-10 px-4 rounded-xl bg-ledger-canvas hover:bg-secondary-container/60 active:bg-secondary-container text-ink font-label text-label font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">receipt_long</span>
+<span>Audit Log</span>
+</button>
+</div>
+</div>
+</article>
+</section>
+<!-- DAY GROUP 3: Earlier This Week -->
+<section class="day-group flex flex-col gap-space-sm" data-day="earlier">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-slate">calendar_month</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Earlier this week — 11 Dec 2026</h3>
+</div>
+<span class="day-count-badge font-label text-label text-mist bg-paper-surface px-2 py-0.5 rounded-full shadow-sm">1 Event</span>
+</div>
+<!-- Card 5: Maturity Settled (Paid Green Left Border) -->
+<article class="alert-card relative bg-paper-surface/90 rounded-full shadow-[0_1px_2px_rgba(22,33,46,0.06)] overflow-hidden transition-all duration-200" data-alert-id="alert-5" data-type="maturity" data-unread="false">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-paid-green-fg"></div>
+<div class="pl-5 pr-4 py-4 flex flex-col gap-3">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold tracking-wide">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                MATURITY SETTLED
+              </span>
+<span class="font-small text-small text-mist tabular-nums">11 Dec 2026</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="font-label text-[11px] text-mist flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px] text-paid-green-fg">done</span>
+                Archived
+              </span>
+<button class="btn-dismiss p-1 text-mist hover:text-ink transition-colors rounded-lg ml-1" data-target="alert-5" title="Dismiss alert" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-headline-h2 text-headline-h2 text-ink leading-snug">
+              Shree Cement NCD (Series I) Final Redemption Processed
+            </h4>
+<p class="font-body text-body text-slate leading-relaxed">
+              Principal redemption of <span class="font-semibold text-ink tabular-nums">₹ 3,00,000</span> and terminal coupon settled. Position marked as Matured in active portfolio.
+            </p>
+</div>
+<div class="flex flex-wrap items-center gap-2 pt-0.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold tabular-nums">
+              ₹ 3,00,000 Settled
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-ink font-medium">
+              Tax Form: 15G Active
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-ledger-canvas font-label text-label text-mist font-medium">
+              Status: Archived
+            </span>
+</div>
+<div class="pt-2 flex flex-wrap items-center gap-2">
+<button class="h-12 flex-1 sm:flex-initial px-5 rounded-xl bg-paper-surface hover:bg-secondary-container/40 text-primary font-headline-h2 text-headline-h2 flex items-center justify-center gap-2 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Advice Slip</span>
+</button>
+<button class="h-12 px-4 rounded-xl bg-ledger-canvas hover:bg-secondary-container/60 active:bg-secondary-container text-ink font-label text-label font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">trending_up</span>
+<span>Reinvestment Options</span>
+</button>
+</div>
+</div>
+</article>
+</section>
+<!-- Empty State Fallback (Hidden by default) -->
+<div class="hidden flex-col items-center justify-center py-12 px-4 text-center bg-paper-surface rounded-full shadow-[0_1px_2px_rgba(22,33,46,0.06)]" id="alertsEmptyState">
+<div class="w-16 h-16 rounded-full bg-info-blue-bg flex items-center justify-center mb-space-sm text-info-blue-fg">
+<span class="material-symbols-outlined text-[32px]">mark_email_read</span>
+</div>
+<h3 class="font-headline-h2 text-headline-h2 text-ink mb-1">All Caught Up!</h3>
+<p class="font-body text-body text-slate max-w-xs mb-space-md">No unread or pending notifications match this criteria. Your fixed income schedule is clear.</p>
+<button class="h-12 px-6 rounded-xl bg-primary text-on-primary font-headline-h2 text-headline-h2 flex items-center gap-2" id="resetFiltersBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">filter_alt_off</span>
+<span>Reset Filters</span>
+</button>
+</div>
+</div>
+<!-- Pagination & Load More Section -->
+<div class="flex flex-col items-center justify-center gap-3 pt-space-xl pb-2">
+<span class="font-small text-small text-mist text-center" id="paginationIndicator">
+      Showing 5 of 24 historical alerts
+    </span>
+<button class="w-full sm:w-auto h-12 px-8 rounded-xl bg-paper-surface hover:bg-secondary-container/40 active:bg-secondary-container text-ink font-headline-h2 text-headline-h2 flex items-center justify-center gap-2 shadow-[0_1px_2px_rgba(22,33,46,0.06)] transition-all" id="loadMoreBtn" type="button">
+<span class="material-symbols-outlined text-[20px] text-slate">expand_more</span>
+<span>Load More Alerts</span>
+</button>
+</div>
+</div>
+<script>
+  (function () {
+    const unreadCounterBadge = document.getElementById('unreadCounterBadge');
+    const statUnreadCount = document.getElementById('statUnreadCount');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const unreadToggle = document.getElementById('unreadToggle');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const alertCards = document.querySelectorAll('.alert-card');
+    const dayGroups = document.querySelectorAll('.day-group');
+    const alertsEmptyState = document.getElementById('alertsEmptyState');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const paginationIndicator = document.getElementById('paginationIndicator');
+
+    let currentCategory = 'all';
+    let unreadOnly = false;
+
+    function updateUnreadCount() {
+      const activeUnreadCards = document.querySelectorAll('.alert-card[data-unread="true"]');
+      const count = activeUnreadCards.length;
+
+      if (unreadCounterBadge) {
+        if (count > 0) {
+          unreadCounterBadge.textContent = `${count} Unread`;
+          unreadCounterBadge.classList.remove('opacity-0', 'scale-90');
+        } else {
+          unreadCounterBadge.textContent = 'All caught up';
+          unreadCounterBadge.classList.add('opacity-70');
+        }
+      }
+
+      if (statUnreadCount) {
+        statUnreadCount.textContent = count;
+      }
+    }
+
+    function applyFilters() {
+      let visibleCount = 0;
+
+      alertCards.forEach(card => {
+        const isUnread = card.getAttribute('data-unread') === 'true';
+        const cardType = card.getAttribute('data-type');
+
+        const matchesCategory = (currentCategory === 'all') || (cardType === currentCategory);
+        const matchesUnread = !unreadOnly || isUnread;
+
+        if (matchesCategory && matchesUnread) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      // Update Day Group visibility and counter
+      dayGroups.forEach(group => {
+        const visibleInGroup = group.querySelectorAll('.alert-card:not(.hidden)');
+        const countBadge = group.querySelector('.day-count-badge');
+        if (visibleInGroup.length === 0) {
+          group.classList.add('hidden');
+        } else {
+          group.classList.remove('hidden');
+          if (countBadge) {
+            countBadge.textContent = `${visibleInGroup.length} Event${visibleInGroup.length > 1 ? 's' : ''}`;
+          }
+        }
+      });
+
+      if (visibleCount === 0) {
+        alertsEmptyState.classList.remove('hidden');
+        alertsEmptyState.classList.add('flex');
+      } else {
+        alertsEmptyState.classList.add('hidden');
+        alertsEmptyState.classList.remove('flex');
+      }
+    }
+
+    // Filter Chips Click
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => {
+          c.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm', 'active');
+          c.classList.add('bg-paper-surface', 'text-ink');
+          const badge = c.querySelector('span:last-child');
+          if (badge && !c.dataset.category) {
+            badge.classList.remove('bg-white/20', 'text-on-primary');
+            badge.classList.add('text-mist');
+          }
+        });
+
+        chip.classList.remove('bg-paper-surface', 'text-ink');
+        chip.classList.add('bg-primary', 'text-on-primary', 'shadow-sm', 'active');
+        const badge = chip.querySelector('span:last-child');
+        if (badge && badge.classList.contains('text-mist')) {
+          badge.classList.remove('text-mist');
+          badge.classList.add('bg-white/20', 'text-on-primary');
+        }
+
+        currentCategory = chip.getAttribute('data-category');
+        applyFilters();
+      });
+    });
+
+    // Unread Only Toggle
+    unreadToggle?.addEventListener('change', (e) => {
+      unreadOnly = e.target.checked;
+      applyFilters();
+    });
+
+    // Mark All as Read
+    markAllReadBtn?.addEventListener('click', () => {
+      alertCards.forEach(card => {
+        card.setAttribute('data-unread', 'false');
+        const dot = card.querySelector('.unread-dot');
+        if (dot) dot.remove();
+
+        const readActionBtn = card.querySelector('.btn-mark-read');
+        if (readActionBtn) {
+          readActionBtn.disabled = true;
+          readActionBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-paid-green-fg">done</span><span class="text-mist">Read</span>';
+          readActionBtn.classList.add('opacity-60', 'cursor-default');
+        }
+      });
+      updateUnreadCount();
+      applyFilters();
+    });
+
+    // Individual Mark Read
+    document.querySelectorAll('.btn-mark-read').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = btn.getAttribute('data-target');
+        const card = document.querySelector(`[data-alert-id="${targetId}"]`);
+        if (card) {
+          card.setAttribute('data-unread', 'false');
+          const dot = card.querySelector('.unread-dot');
+          if (dot) dot.remove();
+          btn.disabled = true;
+          btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-paid-green-fg">done</span><span class="text-mist">Read</span>';
+          btn.classList.add('opacity-60', 'cursor-default');
+          updateUnreadCount();
+          applyFilters();
+        }
+      });
+    });
+
+    // Individual Dismiss
+    document.querySelectorAll('.btn-dismiss').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const card = document.querySelector(`[data-alert-id="${targetId}"]`);
+        if (card) {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            card.remove();
+            updateUnreadCount();
+            applyFilters();
+          }, 200);
+        }
+      });
+    });
+
+    // Reset Filters from empty state
+    resetFiltersBtn?.addEventListener('click', () => {
+      unreadOnly = false;
+      if (unreadToggle) unreadToggle.checked = false;
+      const allChip = document.querySelector('.filter-chip[data-category="all"]');
+      if (allChip) allChip.click();
+    });
+
+    // Load More Interaction
+    loadMoreBtn?.addEventListener('click', () => {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin text-primary">progress_activity</span><span>Loading records...</span>';
+      
+      setTimeout(() => {
+        loadMoreBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] text-paid-green-fg">check</span><span>All 24 Records Loaded</span>';
+        loadMoreBtn.classList.add('opacity-80', 'cursor-default');
+        if (paginationIndicator) {
+          paginationIndicator.textContent = 'Showing all 24 historical ledger alerts';
+        }
+      }, 750);
+    });
+
+    updateUnreadCount();
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-paper-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(22,33,46,0.05)]" data-active-classes="text-primary"><div class="flex justify-between items-center h-16 px-space-xs"><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-mist hover:text-ink transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[22px]">space_dashboard</span><span class="font-label text-label leading-none mt-1">Dashboard</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-mist hover:text-ink transition-colors" data-path="portfolio" href="#"><span class="material-symbols-outlined text-[22px]">account_balance</span><span class="font-label text-label leading-none mt-1">Portfolio</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-mist hover:text-ink transition-colors" data-path="watchlist" href="#"><span class="material-symbols-outlined text-[22px]">candlestick_chart</span><span class="font-label text-label leading-none mt-1">Watchlist</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-mist hover:text-ink transition-colors" data-path="goals" href="#"><span class="material-symbols-outlined text-[22px]">savings</span><span class="font-label text-label leading-none mt-1">Goals</span></a><a aria-current="page" class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 transition-colors text-primary" data-path="more" href="#"><span class="material-symbols-outlined text-[22px]">grid_view</span><span class="font-label text-label leading-none mt-1">More</span></a></div></nav></body></html>

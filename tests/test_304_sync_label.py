@@ -1,3 +1,4 @@
+import pytest
 import re
 from datetime import datetime
 
@@ -60,6 +61,7 @@ def _label_from_page(client):
     return match.group(1).strip()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_s1_fresh_never_synced_shows_never(db_path):
     app = create_app(str(db_path))
     client = app.test_client()
@@ -68,6 +70,7 @@ def test_s1_fresh_never_synced_shows_never(db_path):
     assert _pref(db_path, SYNC_NOTHING_TO_SYNC_KEY) is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_s2_sync_now_on_empty_db_shows_nothing_to_sync_yet(db_path, monkeypatch):
     monkeypatch.setattr(svc, "_CACHES", {})
     monkeypatch.setattr(svc, "build_default_service", _builder(FactAdapter()))
@@ -79,6 +82,7 @@ def test_s2_sync_now_on_empty_db_shows_nothing_to_sync_yet(db_path, monkeypatch)
     assert _label_from_page(client) == "Nothing to sync yet"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_s3_real_sync_shows_actual_timestamp(db_path, monkeypatch):
     _seed_watch(db_path)
     adapter = FactAdapter()
@@ -95,6 +99,7 @@ def test_s3_real_sync_shows_actual_timestamp(db_path, monkeypatch):
     assert _pref(db_path, SYNC_NOTHING_TO_SYNC_KEY) is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_s4_u6_toggle_and_consent_unchanged(db_path):
     app = create_app(str(db_path))
     client = app.test_client()

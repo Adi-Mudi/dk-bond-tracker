@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"ink":"#16212e","secondary-fixed":"#e0e3e7","mist":"#8592a1","ledger-canvas":"#f6f7f9","secondary-fixed-dim":"#c3c7cb","inverse-surface":"#2e3039","on-background":"#191b24","surface-bright":"#faf8ff","primary-fixed":"#dce1ff","surface-container":"#ededf9","secondary-container":"#dde0e4","secondary":"#5b5f62","on-error":"#ffffff","on-tertiary-fixed-variant":"#802a00","outline":"#747687","surface-dim":"#d9d9e5","paper-surface":"#ffffff","on-tertiary":"#ffffff","due-red-bg":"#fdeceb","info-blue-bg":"#e8effc","inverse-primary":"#b7c4ff","on-error-container":"#93000a","primary-fixed-dim":"#b7c4ff","tertiary-container":"#b23d00","paid-green-fg":"#166534","tertiary-fixed-dim":"#ffb59a","on-secondary-fixed":"#181c1f","on-primary-fixed-variant":"#0039b5","surface-container-high":"#e7e7f3","on-tertiary-fixed":"#380d00","on-primary":"#ffffff","tertiary":"#8a2d00","surface-tint":"#194fe0","on-secondary-container":"#5f6367","surface":"#faf8ff","on-secondary-fixed-variant":"#43474b","tertiary-fixed":"#ffdbcf","error-container":"#ffdad6","primary":"#003dc1","on-tertiary-container":"#ffdace","on-secondary":"#ffffff","primary-container":"#2456e6","on-primary-container":"#dbe0ff","paid-green-bg":"#e8f6ee","background":"#faf8ff","info-blue-fg":"#1d4ed8","surface-container-highest":"#e2e1ed","surface-container-low":"#f3f2ff","surface-variant":"#e2e1ed","on-surface-variant":"#434655","on-surface":"#191b24","outline-variant":"#c4c5d8","error":"#ba1a1a","on-primary-fixed":"#001551","inverse-on-surface":"#f0f0fc","upcoming-amber-fg":"#92400e","slate":"#55606e","surface-container-lowest":"#ffffff","upcoming-amber-bg":"#fdf3e0","hairline":"#e3e8ee","due-red-fg":"#b42318"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"1.5rem","space-xl":"2rem","gutter":"1rem","space-lg":"1.5rem","space-xs":"0.25rem","space-md":"1rem","space-sm":"0.5rem"},"fontFamily":{"body":["Inter","system-ui","sans-serif"],"display":["Inter","system-ui","sans-serif"],"headline-h2":["Inter","system-ui","sans-serif"],"small":["Inter","system-ui","sans-serif"],"headline-h1":["Inter","system-ui","sans-serif"],"label":["Inter","system-ui","sans-serif"]},"fontSize":{"body":["15px",{"lineHeight":"22px","fontWeight":"400"}],"display":["28px",{"lineHeight":"36px","fontWeight":"600"}],"headline-h2":["16px",{"lineHeight":"24px","fontWeight":"600"}],"small":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-h1":["22px",{"lineHeight":"30px","fontWeight":"600"}],"label":["12px",{"lineHeight":"16px","letterSpacing":"0.03em","fontWeight":"500"}]}}}}</script></head><body class="bg-ledger-canvas font-body text-body text-ink antialiased selection:bg-info-blue-bg selection:text-primary"><aside class="fixed left-0 top-0 h-full w-[240px] bg-paper-surface border-r border-hairline z-40 flex flex-col justify-between"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-hairline"><img alt="DK Bond Tracker Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDutVZvar7TtM6qHNIDNtqQw3VV1CzrGNSCHQ5GZ91o9dSRV0kNifZf288WY5cX_rxyRGjPcJxMm5Yeghe4oSl58mj00PDX8h7t010_-F-kjuWA7dRgDo2bI43iFBQN5-RE2Xr6dOHrSv8Iuy-o5A5-4YdIbGHFK8MxQE5Wc9QMmwYKo3l2jJubG7ZVBYBQF6icOpjb5X208JK0Yv0jy22oPDRSrHbTZh1bJ6ZT8-tzsiz9Q3T5FGex9gbR"/><span class="font-headline-h2 text-headline-h2 text-ink tracking-tight font-semibold">DK Bond Tracker</span></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md"><div class="mb-space-md"><div class="px-space-sm pb-space-xs font-label text-label uppercase text-mist tracking-wider">Main Ledger</div><nav class="space-y-space-xs" data-active-classes="bg-info-blue-bg text-primary-container font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">space_dashboard</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="portfolio" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Portfolio</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="watchlist" href="#"><span class="material-symbols-outlined text-[20px]">visibility</span><span>Watchlist</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="goals" href="#"><span class="material-symbols-outlined text-[20px]">flag</span><span>Goals</span></a></nav></div><div class="pt-space-sm border-t border-hairline"><div class="px-space-sm pb-space-xs font-label text-label uppercase text-mist tracking-wider">System</div><nav class="space-y-space-xs" data-active-classes="bg-info-blue-bg text-primary-container font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications_active</span><span>Alerts</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="about" href="#"><span class="material-symbols-outlined text-[20px]">info</span><span>About</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="feedback" href="#"><span class="material-symbols-outlined text-[20px]">rate_review</span><span>Feedback</span></a></nav></div></div></div><div class="p-space-sm border-t border-hairline bg-paper-surface"><div class="flex items-center justify-between p-space-sm rounded-xl bg-ledger-canvas"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="min-w-0 flex-1"><p class="text-small font-small font-semibold text-ink truncate">DK Yield Account</p><p class="text-label font-label text-mist truncate">Fixed Income Desk</p></div></div><span class="material-symbols-outlined text-mist text-[18px]">unfold_more</span></div></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-paper-surface/90 backdrop-blur-md border-b border-hairline z-30 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-small font-small text-mist"><span class="material-symbols-outlined text-[16px]">lock</span><span class="font-label text-label uppercase tracking-wider text-slate">Verified Bond Yields</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Search" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate hover:bg-ledger-canvas hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button aria-label="Alerts" class="relative w-10 h-10 rounded-xl flex items-center justify-center text-slate hover:bg-ledger-canvas hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-4 h-4 bg-due-red-fg text-on-error font-label text-[10px] leading-none font-bold rounded-full flex items-center justify-center">2</span></button><button aria-label="Help" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate hover:bg-ledger-canvas hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">help</span></button><div class="h-5 w-px bg-hairline mx-space-xs"></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-ledger-canvas min-h-screen"><div class="flex flex-col w-full">
+<div class="px-space-md lg:px-space-lg py-space-md max-w-[1440px] mx-auto w-full space-y-space-lg">
+<!-- Header / Top Action Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-xs">
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs mb-1">
+<span class="w-2 h-2 rounded-full bg-paid-green-fg animate-pulse"></span>
+<span class="font-label text-label uppercase text-mist tracking-wider">Fixed Income Desk • Live Ledger</span>
+</div>
+<h1 class="font-display text-display text-ink tracking-tight font-semibold">Portfolio Overview</h1>
+<p class="font-small text-small text-slate mt-0.5">Last updated today at 09:30 AM • 14 Active Holdings across Corporate NCDs</p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="inline-flex items-center justify-center gap-2 px-4 h-12 rounded-[10px] bg-paper-surface hover:bg-surface-variant/40 text-ink font-headline-h2 text-headline-h2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20" type="button">
+<span class="material-symbols-outlined text-[19px] text-slate">download</span>
+<span>Export Statement</span>
+</button>
+<button class="inline-flex items-center justify-center gap-2 px-5 h-12 rounded-[10px] bg-primary-container hover:bg-primary text-on-primary font-headline-h2 text-headline-h2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-container/30" type="button">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Add Bond</span>
+</button>
+</div>
+</div>
+<!-- Filter Chips Row -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 -mx-space-xs px-space-xs scrollbar-none" id="filterChipsContainer">
+<button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-primary-container text-on-primary font-label text-label transition-colors shrink-0" type="button">
+<span class="font-semibold">All</span>
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-on-primary/20 text-on-primary text-[11px] leading-none font-bold">14</span>
+</button>
+<button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-paper-surface hover:bg-surface-variant/50 text-slate font-label text-label transition-colors shrink-0" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg"></span>
+<span>On-going</span>
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-ledger-canvas text-slate text-[11px] leading-none">10</span>
+</button>
+<button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-paper-surface hover:bg-surface-variant/50 text-slate font-label text-label transition-colors shrink-0" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-upcoming-amber-fg"></span>
+<span>Upcoming Due</span>
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg text-[11px] leading-none font-semibold">2</span>
+</button>
+<button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-paper-surface hover:bg-surface-variant/50 text-slate font-label text-label transition-colors shrink-0" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-due-red-fg"></span>
+<span>Danger / Watch</span>
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-due-red-bg text-due-red-fg text-[11px] leading-none font-semibold">1</span>
+</button>
+<button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-full bg-paper-surface hover:bg-surface-variant/50 text-slate font-label text-label transition-colors shrink-0" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-mist"></span>
+<span>Matured</span>
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-ledger-canvas text-mist text-[11px] leading-none">3</span>
+</button>
+</div>
+<!-- Section 1: Summary Stat Cards Row (4 cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Card 1: Total Invested -->
+<div class="bg-paper-surface rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label text-label uppercase text-mist tracking-wider">Total Invested</span>
+<div class="w-8 h-8 rounded-lg bg-info-blue-bg flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-info-blue-fg">wallet</span>
+</div>
+</div>
+<div class="font-display text-display text-ink tracking-tight font-semibold [font-variant-numeric:tabular-nums]">
+            ₹ 24,50,000
+          </div>
+</div>
+<div class="pt-3 mt-3 flex items-center justify-between text-small font-small text-slate">
+<span>Across 14 corporate bonds</span>
+<span class="text-mist font-label text-label uppercase">INR Book</span>
+</div>
+</div>
+<!-- Card 2: Received Till Date -->
+<div class="bg-paper-surface rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label text-label uppercase text-mist tracking-wider">Received Till Date</span>
+<div class="w-8 h-8 rounded-lg bg-paid-green-bg flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-paid-green-fg">savings</span>
+</div>
+</div>
+<div class="font-display text-display text-ink tracking-tight font-semibold [font-variant-numeric:tabular-nums]">
+            ₹ 4,82,450
+          </div>
+</div>
+<div class="pt-3 mt-3">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label">
+<span class="material-symbols-outlined text-[15px]">trending_up</span>
+<span class="font-medium">+₹ 28,500 credited this month</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Outstanding Principal -->
+<div class="bg-paper-surface rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label text-label uppercase text-mist tracking-wider">Outstanding Principal</span>
+<div class="w-8 h-8 rounded-lg bg-ledger-canvas flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-slate">pie_chart</span>
+</div>
+</div>
+<div class="font-display text-display text-ink tracking-tight font-semibold [font-variant-numeric:tabular-nums]">
+            ₹ 19,67,550
+          </div>
+</div>
+<div class="pt-3 mt-3 space-y-1.5">
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary-container h-1.5 rounded-full" style="width: 80.3%"></div>
+</div>
+<div class="flex items-center justify-between text-small font-small">
+<span class="text-slate font-medium">80.3% Active capital</span>
+<span class="text-paid-green-fg font-semibold [font-variant-numeric:tabular-nums]">11.24% XIRR</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Next Payout -->
+<div class="bg-paper-surface rounded-xl p-5 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label text-label uppercase text-mist tracking-wider">Next Payout</span>
+<div class="w-8 h-8 rounded-lg bg-upcoming-amber-bg flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-upcoming-amber-fg">event</span>
+</div>
+</div>
+<div class="font-display text-display text-ink tracking-tight font-semibold [font-variant-numeric:tabular-nums]">
+            ₹ 32,800
+          </div>
+</div>
+<div class="pt-3 mt-3 flex items-center justify-between">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-label">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span>Due 15 Dec 2026</span>
+</div>
+<span class="font-small text-small text-slate truncate max-w-[110px]" title="HDFC Credila Fin">HDFC Credila</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Two-column layout (Invested vs Received & Cashflow/Alerts) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left / Main column (8 cols): Invested vs Received per Company -->
+<div class="lg:col-span-8 bg-paper-surface rounded-xl p-5 shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 gap-2">
+<div>
+<h2 class="font-headline-h1 text-headline-h1 text-ink font-semibold">Invested vs Received per Company</h2>
+<p class="font-small text-small text-slate">Holdings distribution, coupon servicing, and principal capital recovery</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label text-label uppercase px-2 py-1 rounded bg-surface-container text-slate font-medium">5 of 14 Listed</span>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant flex items-center justify-center text-slate" type="button">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Item 1: Tata Capital -->
+<div class="p-3.5 rounded-xl bg-ledger-canvas/60 hover:bg-ledger-canvas transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+<div class="min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Tata Capital Financial Services</h3>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg"></span>
+                    On-going
+                  </span>
+<span class="font-label text-label px-1.5 py-0.5 rounded bg-surface-container text-slate">AAA Stable</span>
+</div>
+<p class="font-small text-small text-mist mt-0.5 truncate">ISIN: INE306N07MH1 • 9.15% Annual Coupon • Mat. 28 Aug 2029</p>
+</div>
+<div class="text-left sm:text-right shrink-0">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">
+                  ₹ 1,42,500 <span class="text-mist text-small font-normal">/ ₹ 5,00,000</span>
+</div>
+<div class="font-label text-label text-paid-green-fg font-medium">28.5% returned</div>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-paid-green-fg h-2 rounded-l-full transition-all duration-500" style="width: 28.5%"></div>
+<div class="bg-primary-container/25 h-2 rounded-r-full" style="width: 71.5%"></div>
+</div>
+</div>
+<!-- Item 2: L&T Finance -->
+<div class="p-3.5 rounded-xl bg-ledger-canvas/60 hover:bg-ledger-canvas transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+<div class="min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">L&amp;T Finance Holdings Ltd</h3>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg"></span>
+                    On-going
+                  </span>
+<span class="font-label text-label px-1.5 py-0.5 rounded bg-surface-container text-slate">AAA CRISIL</span>
+</div>
+<p class="font-small text-small text-mist mt-0.5 truncate">ISIN: INE498L07185 • 8.85% Semi-Annual • Mat. 14 Jan 2028</p>
+</div>
+<div class="text-left sm:text-right shrink-0">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">
+                  ₹ 1,24,000 <span class="text-mist text-small font-normal">/ ₹ 4,00,000</span>
+</div>
+<div class="font-label text-label text-paid-green-fg font-medium">31.0% returned</div>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-paid-green-fg h-2 rounded-l-full transition-all duration-500" style="width: 31.0%"></div>
+<div class="bg-primary-container/25 h-2 rounded-r-full" style="width: 69.0%"></div>
+</div>
+</div>
+<!-- Item 3: Piramal Capital (Danger / Rating watch) -->
+<div class="p-3.5 rounded-xl bg-due-red-bg/25 hover:bg-due-red-bg/40 transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+<div class="min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Piramal Capital &amp; Housing Fin</h3>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                    Danger
+                  </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-[11px] font-semibold">
+                    Rating Watch
+                  </span>
+<span class="font-label text-label px-1.5 py-0.5 rounded bg-surface-container text-due-red-fg font-medium">AA- Negative</span>
+</div>
+<p class="font-small text-small text-mist mt-0.5 truncate">ISIN: INE641A07137 • 10.25% Monthly • Mat. 20 Nov 2027</p>
+</div>
+<div class="text-left sm:text-right shrink-0">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">
+                  ₹ 89,750 <span class="text-mist text-small font-normal">/ ₹ 3,50,000</span>
+</div>
+<div class="font-label text-label text-upcoming-amber-fg font-medium">25.6% returned</div>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-upcoming-amber-fg h-2 rounded-l-full" style="width: 25.6%"></div>
+<div class="bg-due-red-fg/20 h-2 rounded-r-full" style="width: 74.4%"></div>
+</div>
+</div>
+<!-- Item 4: Muthoot Finance -->
+<div class="p-3.5 rounded-xl bg-ledger-canvas/60 hover:bg-ledger-canvas transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+<div class="min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Muthoot Finance Ltd</h3>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg"></span>
+                    On-going
+                  </span>
+<span class="font-label text-label px-1.5 py-0.5 rounded bg-surface-container text-slate">AA+ Stable</span>
+</div>
+<p class="font-small text-small text-mist mt-0.5 truncate">ISIN: INE414G07CJ9 • 9.50% Annual Coupon • Mat. 05 Apr 2028</p>
+</div>
+<div class="text-left sm:text-right shrink-0">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">
+                  ₹ 76,000 <span class="text-mist text-small font-normal">/ ₹ 4,00,000</span>
+</div>
+<div class="font-label text-label text-paid-green-fg font-medium">19.0% returned</div>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-paid-green-fg h-2 rounded-l-full transition-all duration-500" style="width: 19.0%"></div>
+<div class="bg-primary-container/25 h-2 rounded-r-full" style="width: 81.0%"></div>
+</div>
+</div>
+<!-- Item 5: Shree Cement (Matured) -->
+<div class="p-3.5 rounded-xl bg-ledger-canvas/60 hover:bg-ledger-canvas transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+<div class="min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline-h2 text-headline-h2 text-ink font-semibold truncate">Shree Cement NCD (Series I)</h3>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-ledger-canvas text-slate font-label text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+                    Matured
+                  </span>
+<span class="font-label text-label px-1.5 py-0.5 rounded bg-surface-container text-slate">Fully Settled</span>
+</div>
+<p class="font-small text-small text-mist mt-0.5 truncate">ISIN: INE070A07060 • 8.10% Annual • Redeemed 30 Oct 2026</p>
+</div>
+<div class="text-left sm:text-right shrink-0">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">
+                  ₹ 3,00,000 <span class="text-paid-green-fg text-small font-normal">/ ₹ 3,00,000</span>
+</div>
+<div class="font-label text-label text-paid-green-fg font-medium">100% principal &amp; coupons cleared</div>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-paid-green-fg h-2 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-small font-small text-slate">
+<span class="text-mist">Showing top 5 positions weighted by invested capital</span>
+<a class="text-primary hover:text-primary-container font-semibold inline-flex items-center gap-1" href="#">
+<span>View all 14 corporate holdings</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Right column / Widgets (4 cols): Cashflow & Rating Alert -->
+<div class="lg:col-span-4 space-y-space-md">
+<!-- Cashflow Rhythm Card -->
+<div class="bg-paper-surface rounded-xl p-5 shadow-sm space-y-space-md">
+<div class="flex items-center justify-between pb-3">
+<div>
+<h2 class="font-headline-h1 text-headline-h1 text-ink font-semibold">Cashflow Rhythm</h2>
+<p class="font-small text-small text-mist">Monthly run-rate &amp; next credits</p>
+</div>
+<div class="w-8 h-8 rounded-lg bg-info-blue-bg flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-primary">calendar_month</span>
+</div>
+</div>
+<!-- Quick Metrics Bar -->
+<div class="grid grid-cols-2 gap-2 p-3 bg-ledger-canvas rounded-lg">
+<div>
+<span class="font-label text-label uppercase text-mist">Run-rate / Mo</span>
+<p class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">₹ 32,850</p>
+</div>
+<div>
+<span class="font-label text-label uppercase text-mist">TDS (10%)</span>
+<p class="font-headline-h2 text-headline-h2 text-due-red-fg font-semibold [font-variant-numeric:tabular-nums]">-₹ 3,285</p>
+</div>
+</div>
+<!-- Immediate Payout Queue -->
+<div class="space-y-3">
+<span class="font-label text-label uppercase tracking-wider text-mist">Immediate Payout Queue</span>
+<div class="space-y-2.5">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-ledger-canvas/60">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-upcoming-amber-bg text-upcoming-amber-fg flex flex-col items-center justify-center shrink-0 leading-tight">
+<span class="text-[10px] font-bold uppercase">DEC</span>
+<span class="text-[14px] font-bold">15</span>
+</div>
+<div class="min-w-0">
+<p class="font-headline-h2 text-headline-h2 text-ink truncate font-medium">HDFC Credila Fin</p>
+<p class="font-small text-small text-mist">Annual Coupon</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">₹ 32,800</span>
+<div class="text-[11px] font-label text-upcoming-amber-fg font-medium">Pending</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-ledger-canvas/60">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-slate flex flex-col items-center justify-center shrink-0 leading-tight">
+<span class="text-[10px] font-bold uppercase">DEC</span>
+<span class="text-[14px] font-bold">28</span>
+</div>
+<div class="min-w-0">
+<p class="font-headline-h2 text-headline-h2 text-ink truncate font-medium">Tata Cap Financial</p>
+<p class="font-small text-small text-mist">Quarterly Coupon</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">₹ 11,437</span>
+<div class="text-[11px] font-label text-slate">Scheduled</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-ledger-canvas/60">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container text-slate flex flex-col items-center justify-center shrink-0 leading-tight">
+<span class="text-[10px] font-bold uppercase">JAN</span>
+<span class="text-[14px] font-bold">10</span>
+</div>
+<div class="min-w-0">
+<p class="font-headline-h2 text-headline-h2 text-ink truncate font-medium">L&amp;T Finance Ltd</p>
+<p class="font-small text-small text-mist">Semi-Annual</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-headline-h2 text-headline-h2 text-ink font-semibold [font-variant-numeric:tabular-nums]">₹ 17,700</span>
+<div class="text-[11px] font-label text-slate">Scheduled</div>
+</div>
+</div>
+</div>
+</div>
+<a class="block text-center py-2.5 rounded-lg bg-ledger-canvas hover:bg-surface-variant font-headline-h2 text-headline-h2 text-primary font-semibold transition-colors" href="#">
+            View Complete Cashflow Schedule →
+          </a>
+</div>
+<!-- Critical Alert Banner Card -->
+<div class="bg-paper-surface rounded-xl p-5 shadow-sm space-y-3">
+<div class="flex items-start gap-3">
+<div class="w-9 h-9 rounded-lg bg-due-red-bg text-due-red-fg flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">notification_important</span>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-h2 text-headline-h2 text-due-red-fg font-semibold">Action Required: Rating Watch</span>
+</div>
+<p class="font-small text-small text-slate mt-1">
+                Piramal Capital &amp; Housing Fin NCD placed under CRISIL credit watch with negative implications. Review portfolio exposure.
+              </p>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 pt-2">
+<button class="font-small text-small text-mist hover:text-ink transition-colors px-2 py-1" type="button">
+              Dismiss
+            </button>
+<button class="font-small text-small text-due-red-fg hover:text-ink font-semibold inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-due-red-bg transition-colors" type="button">
+<span>Read Advisory</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Returns History & Coupon Ledger Table Card -->
+<div class="bg-paper-surface rounded-xl shadow-sm overflow-hidden">
+<!-- Card Header -->
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<h2 class="font-headline-h1 text-headline-h1 text-ink font-semibold">Returns History &amp; Coupon Ledger</h2>
+<p class="font-small text-small text-slate">Monthly coupon cashflow breakdown, TDS deductions, and bank credit receipts</p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg bg-ledger-canvas hover:bg-surface-variant text-ink font-small text-small font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px] text-slate">calendar_today</span>
+<span>FY 2026-27</span>
+<span class="material-symbols-outlined text-[16px] text-mist">expand_more</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg bg-ledger-canvas hover:bg-surface-variant text-ink font-small text-small font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px] text-slate">table_view</span>
+<span>Tax CSV</span>
+</button>
+</div>
+</div>
+<!-- Ledger Table (Desktop) -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-secondary-container/30 text-mist font-label text-label uppercase tracking-wider">
+<th class="py-3.5 px-5 font-semibold" scope="col">Coupon Month</th>
+<th class="py-3.5 px-5 font-semibold text-right" scope="col">Expected (₹)</th>
+<th class="py-3.5 px-5 font-semibold text-right" scope="col">Received (₹)</th>
+<th class="py-3.5 px-5 font-semibold text-right" scope="col">TDS (10%)</th>
+<th class="py-3.5 px-5 font-semibold text-right" scope="col">Net Credit (₹)</th>
+<th class="py-3.5 px-5 font-semibold" scope="col">Payment Date</th>
+<th class="py-3.5 px-5 font-semibold" scope="col">Status</th>
+<th class="py-3.5 px-5 font-semibold text-center" scope="col">Receipt</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline font-body text-body">
+<!-- Row 1: Nov 2026 -->
+<tr class="hover:bg-ledger-canvas/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold">Nov 2026</div>
+<div class="font-small text-small text-mist">3 Coupon credits</div>
+</td>
+<td class="py-4 px-5 text-right font-medium text-slate [font-variant-numeric:tabular-nums]">34,250.00</td>
+<td class="py-4 px-5 text-right font-semibold text-ink [font-variant-numeric:tabular-nums]">34,250.00</td>
+<td class="py-4 px-5 text-right font-medium text-due-red-fg [font-variant-numeric:tabular-nums]">-3,425.00</td>
+<td class="py-4 px-5 text-right font-bold text-paid-green-fg [font-variant-numeric:tabular-nums]">30,825.00</td>
+<td class="py-4 px-5 text-slate font-small text-small">28 Nov 2026</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[13px]">check</span>
+                  Paid
+                </span>
+</td>
+<td class="py-4 px-5 text-center">
+<button aria-label="View receipt Nov 2026" class="w-8 h-8 rounded-lg text-slate hover:text-ink hover:bg-surface-variant inline-flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 2: Oct 2026 -->
+<tr class="hover:bg-ledger-canvas/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold">Oct 2026</div>
+<div class="font-small text-small text-mist">2 Coupon credits</div>
+</td>
+<td class="py-4 px-5 text-right font-medium text-slate [font-variant-numeric:tabular-nums]">28,120.00</td>
+<td class="py-4 px-5 text-right font-semibold text-ink [font-variant-numeric:tabular-nums]">28,120.00</td>
+<td class="py-4 px-5 text-right font-medium text-due-red-fg [font-variant-numeric:tabular-nums]">-2,812.00</td>
+<td class="py-4 px-5 text-right font-bold text-paid-green-fg [font-variant-numeric:tabular-nums]">25,308.00</td>
+<td class="py-4 px-5 text-slate font-small text-small">27 Oct 2026</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[13px]">check</span>
+                  Paid
+                </span>
+</td>
+<td class="py-4 px-5 text-center">
+<button aria-label="View receipt Oct 2026" class="w-8 h-8 rounded-lg text-slate hover:text-ink hover:bg-surface-variant inline-flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: Sep 2026 -->
+<tr class="hover:bg-ledger-canvas/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold">Sep 2026</div>
+<div class="font-small text-small text-mist">4 Coupon credits</div>
+</td>
+<td class="py-4 px-5 text-right font-medium text-slate [font-variant-numeric:tabular-nums]">42,500.00</td>
+<td class="py-4 px-5 text-right font-semibold text-ink [font-variant-numeric:tabular-nums]">42,500.00</td>
+<td class="py-4 px-5 text-right font-medium text-due-red-fg [font-variant-numeric:tabular-nums]">-4,250.00</td>
+<td class="py-4 px-5 text-right font-bold text-paid-green-fg [font-variant-numeric:tabular-nums]">38,250.00</td>
+<td class="py-4 px-5 text-slate font-small text-small">25 Sep 2026</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[13px]">check</span>
+                  Paid
+                </span>
+</td>
+<td class="py-4 px-5 text-center">
+<button aria-label="View receipt Sep 2026" class="w-8 h-8 rounded-lg text-slate hover:text-ink hover:bg-surface-variant inline-flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 4: Aug 2026 -->
+<tr class="hover:bg-ledger-canvas/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold">Aug 2026</div>
+<div class="font-small text-small text-mist">3 Coupon credits</div>
+</td>
+<td class="py-4 px-5 text-right font-medium text-slate [font-variant-numeric:tabular-nums]">31,000.00</td>
+<td class="py-4 px-5 text-right font-semibold text-ink [font-variant-numeric:tabular-nums]">31,000.00</td>
+<td class="py-4 px-5 text-right font-medium text-due-red-fg [font-variant-numeric:tabular-nums]">-3,100.00</td>
+<td class="py-4 px-5 text-right font-bold text-paid-green-fg [font-variant-numeric:tabular-nums]">27,900.00</td>
+<td class="py-4 px-5 text-slate font-small text-small">28 Aug 2026</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[13px]">check</span>
+                  Paid
+                </span>
+</td>
+<td class="py-4 px-5 text-center">
+<button aria-label="View receipt Aug 2026" class="w-8 h-8 rounded-lg text-slate hover:text-ink hover:bg-surface-variant inline-flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 5: Dec 2026 (Upcoming cycle) -->
+<tr class="hover:bg-ledger-canvas/60 bg-upcoming-amber-bg/15 transition-colors">
+<td class="py-4 px-5">
+<div class="font-headline-h2 text-headline-h2 text-ink font-semibold flex items-center gap-2">
+<span>Dec 2026</span>
+<span class="font-label text-[10px] px-1.5 py-0.2 rounded bg-upcoming-amber-bg text-upcoming-amber-fg font-bold uppercase">Upcoming</span>
+</div>
+<div class="font-small text-small text-mist">3 Coupon credits forecasted</div>
+</td>
+<td class="py-4 px-5 text-right font-medium text-slate [font-variant-numeric:tabular-nums]">32,800.00</td>
+<td class="py-4 px-5 text-right font-medium text-mist [font-variant-numeric:tabular-nums]">—</td>
+<td class="py-4 px-5 text-right font-medium text-slate [font-variant-numeric:tabular-nums]">~3,280.00</td>
+<td class="py-4 px-5 text-right font-semibold text-slate [font-variant-numeric:tabular-nums]">29,520.00</td>
+<td class="py-4 px-5 text-upcoming-amber-fg font-small text-small font-medium">Due 15 Dec 2026</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-label font-semibold">
+<span class="material-symbols-outlined text-[13px]">schedule</span>
+                  Upcoming
+                </span>
+</td>
+<td class="py-4 px-5 text-center">
+<button aria-label="Preview Dec 2026 forecast" class="w-8 h-8 rounded-lg text-slate hover:text-ink hover:bg-surface-variant inline-flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Ledger Footer & Pagination -->
+<div class="p-4 bg-paper-surface flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm text-small font-small">
+<span class="text-mist">
+          Showing <span class="text-ink font-medium">5</span> of <span class="text-ink font-medium">24</span> completed accounting periods
+        </span>
+<div class="flex items-center gap-space-xs">
+<button class="px-3 h-8 rounded-lg bg-ledger-canvas hover:bg-surface-variant text-slate hover:text-ink font-medium disabled:opacity-50 inline-flex items-center gap-1" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+<span>Previous</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary-container text-on-primary font-semibold" type="button">1</button>
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas text-slate" type="button">2</button>
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas text-slate" type="button">3</button>
+<button class="px-3 h-8 rounded-lg bg-ledger-canvas hover:bg-surface-variant text-slate hover:text-ink font-medium inline-flex items-center gap-1" type="button">
+<span>Next</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Filter chips interactive toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const chipsContainer = document.getElementById('filterChipsContainer');
+    if (chipsContainer) {
+      const chips = chipsContainer.querySelectorAll('button');
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          chips.forEach(c => {
+            c.classList.remove('bg-primary-container', 'text-on-primary');
+            c.classList.add('bg-paper-surface', 'text-slate');
+            const counter = c.querySelector('span:last-child');
+            if (counter && !c.innerText.includes('Danger') && !c.innerText.includes('Upcoming')) {
+              counter.classList.remove('bg-on-primary/20', 'text-on-primary');
+              counter.classList.add('bg-ledger-canvas', 'text-slate');
+            }
+          });
+          chip.classList.remove('bg-paper-surface', 'text-slate');
+          chip.classList.add('bg-primary-container', 'text-on-primary');
+          const counter = chip.querySelector('span:last-child');
+          if (counter) {
+            counter.classList.remove('bg-ledger-canvas', 'text-slate', 'bg-upcoming-amber-bg', 'text-upcoming-amber-fg', 'bg-due-red-bg', 'text-due-red-fg');
+            counter.classList.add('bg-on-primary/20', 'text-on-primary');
+          }
+        });
+      });
+    }
+  });
+</script></main></div></body></html>

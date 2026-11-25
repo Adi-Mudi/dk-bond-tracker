@@ -1,0 +1,736 @@
+{
+  "document": "agy_scraping_research",
+  "version": "v1.0",
+  "date": "2026-11-25",
+  "initiative": "backend-design-upgrade",
+  "scope": "Deep research report on web scraping stack, per-site feasibility, prior art, library trade-offs, and official bulk/non-scraping endpoints for the 12 core Indian financial websites in backend/docs/broker_data_sources_research_20261125.json (tracker v1.4, D2).",
+  "sites": [
+    {
+      "site": "NSDL (National Securities Depository Limited)",
+      "domain": "nsdl.com / indiabondinfo.nsdl.com",
+      "feasibility": "HIGH (live production adapter already working; bulk CSV + JSON search API usable without HTML scraping)",
+      "data_paths": [
+        {
+          "type": "public_json_api",
+          "url": "https://nsdl.com/web/api/v1/participant/search?search_type=DetailedSearch&name=&isin=<ISIN>&page=1&per_page=100",
+          "verified_status": "HTTP 200 JSON (live adapter in src/bond_master/nsdl.py and captn3m0/india-isin-data)",
+          "fields": "field_isin / isin, name, isin_description__value, coupon_rate, interest_frequency, face_value, credit_rating, rating_agency, security_type / security_description, secured, listing_status, maturity_date, isin_status"
+        },
+        {
+          "type": "bulk_discovery_json_api",
+          "url": "https://nsdl.com/web/api//view/annual-reports/id-listing/securities_isin_code",
+          "verified_status": "HTTP 200 JSON (verified live 2026-11-25 returning f='/nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv')",
+          "download_pattern": "https://nsdl.com<f> (e.g. https://nsdl.com/nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv)"
+        },
+        {
+          "type": "spa_portal",
+          "url": "https://www.indiabondinfo.nsdl.com/CBDServices/#/home",
+          "verified_status": "HTTP 200 frameset wrapping Angular SPA; internal CBDServices XHR endpoints UNVERIFIED without browser network capture"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://nsdl.com/robots.txt",
+          "verified_status": "HTTP 200; Allow: / (disallows /*?_rsc, /*?sfvrsn=, /*?searchTag=); explicitly permits GPTBot and ChatGPT-User. indiabondinfo.nsdl.com/robots.txt returns HTTP 404."
+        }
+      ],
+      "known_technique": "Direct HTTPS GET to /web/api/v1/participant/search with standard browser User-Agent and retry/backoff when WAF intermittently returns HTTP 200 HTML block pages (as implemented in src/bond_master/nsdl.py and captn3m0/india-isin-data/src/fetch.sh). NetScaler/F5 persistence cookies (NL019c819f on nsdl.com, NL01c56245 / NLdd8ca2d8027 on indiabondinfo.nsdl.com) are set on responses; session reuse avoids unnecessary cookie churn.",
+      "blocking_behavior": "Observed NetScaler/F5 load-balancer persistence cookies (NL019c819f) and HSTS/DENY frame headers. captn3m0/india-isin-data documents that NSDL's WAF occasionally answers HTTP 200 with an HTML block page under high volume, requiring JSON schema validation and exponential/linear backoff (15s * try in fetch.sh; 0.5s * attempt in src/bond_master/nsdl.py).",
+      "prior_art": [
+        {
+          "name": "captn3m0/india-isin-data",
+          "url": "https://github.com/captn3m0/india-isin-data",
+          "technique": "Shell + curl + jq pipeline hitting https://nsdl.com/web/api/v1/participant/search across issuer classes (INE, INF, IN9, IN0-IN4, INA-IND, ING) with per_page=50000 and date-bucketed rotation, plus resolving the daily ISIN_DETAILS CSV via https://nsdl.com/web/api//view/annual-reports/id-listing/securities_isin_code.",
+          "blocking_handling": "Browser User-Agent, 5s PAGE_DELAY between pages, --retry 10 on curl, and jq body validation retrying up to 6 times with try * 15s sleep when WAF returns HTTP 200 HTML error pages (documented in https://github.com/captn3m0/india-isin-data/blob/main/src/fetch.sh and HACKING.md)."
+        },
+        {
+          "name": "DK Bond Tracker NsdlAdapter (in-repo)",
+          "url": "https://nsdl.com/web/api/v1/participant/search",
+          "technique": "Stdlib urllib GET to participant/search with per_page=100, normalizing JSON fields and parsing maturity/face value fallbacks from isin_description__value.",
+          "blocking_handling": "Detects HTML block page via leading '<' character (FAILURE_BLOCKED) or JSONDecodeError and retries up to MAX_ATTEMPTS=3 with linear backoff (0.5s * attempt)."
+        }
+      ],
+      "notes": "Primary live source per tracker D1. Prefer the bulk ISIN_DETAILS CSV discovery API + participant search JSON API + local CC0 snapshot (india-isin-data) rather than scraping indiabondinfo.nsdl.com SPA HTML. Citations: https://nsdl.com/robots.txt, https://nsdl.com/web/api//view/annual-reports/id-listing/securities_isin_code, https://www.indiabondinfo.nsdl.com/, https://github.com/captn3m0/india-isin-data/blob/main/HACKING.md, https://github.com/captn3m0/india-isin-data/blob/main/Makefile"
+    },
+    {
+      "site": "CDSL (Central Depository Services India Limited)",
+      "domain": "cdslindia.com",
+      "feasibility": "MEDIUM (public ASP.NET ISIN lookup endpoint works on single-shot HTTP 200, but site sits behind Cloudflare WAF with __cf_bm bot cookie)",
+      "data_paths": [
+        {
+          "type": "public_html_lookup",
+          "url": "https://www.cdslindia.com/investors/popup-isin.aspx?isin_code=<ISIN>",
+          "verified_status": "HTTP 200 HTML (verified live 2026-11-25 for equity INE002A01018 and corporate bond INE020B08831 returning ISIN Description and metadata)"
+        },
+        {
+          "type": "portal_pages",
+          "url": "https://www.cdslindia.com/eservices/Investors/InvestorCorner",
+          "verified_status": "HTTP 200 HTML; https://www.cdslindia.com/CorporateBond/CorporateBonds.aspx also returned HTTP 200 (3587 bytes, minimal shell/redirect)"
+        },
+        {
+          "type": "udiff_harmonization_specs",
+          "url": "https://www.cdslindia.com/ (Investor Corner / Harmonization UDiFF documentation; exact unauthenticated bulk ISIN master download URL UNVERIFIED)",
+          "verified_status": "UNVERIFIED for unauthenticated bulk download (CDSL DP/Issuer APIs require DP credentials)"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.cdslindia.com/robots.txt",
+          "verified_status": "HTTP 200; includes Cloudflare Content-Signal policy notice (CF-RAY: ...-BLR)."
+        }
+      ],
+      "known_technique": "HTTP GET to /investors/popup-isin.aspx?isin_code=<ISIN> with curl_cffi (Chrome TLS impersonation) and session cookie jar to retain Cloudflare __cf_bm token, parsed with lxml/BeautifulSoup. For user-uploaded statements, parse CDSL CAS PDFs offline with casparser rather than scraping authenticated portals.",
+      "blocking_behavior": "Cloudflare CDN/WAF observed directly (Server: cloudflare, CF-RAY, __cf_bm cookie with SameSite=None; Partitioned; Secure). Single probes passed stdlib urllib with browser User-Agent, but sustained automated crawling risks Cloudflare bot scoring / Turnstile challenges under __cf_bm.",
+      "prior_art": [
+        {
+          "name": "yakhil5/data-cdsl",
+          "url": "https://github.com/yakhil5/data-cdsl",
+          "technique": "Uses pandas.read_html() directly against https://www.cdslindia.com/investors/popup-isin.aspx?isin_code=<ISIN> (verified in t.py).",
+          "blocking_handling": "None (simple one-off script; no Cloudflare/rate-limit handling)."
+        },
+        {
+          "name": "codereverser/casparser (and akhilnarang/cas-parser)",
+          "url": "https://github.com/codereverser/casparser",
+          "technique": "Offline parsing of CDSL/NSDL Consolidated Account Statement (CAS) PDFs into structured JSON/CSV (PyPI casparser v1.4.1).",
+          "blocking_handling": "Avoids web scraping entirely by processing user-supplied official PDF statements."
+        }
+      ],
+      "notes": "Useful secondary depository check for CDSL-only ISINs via popup-isin.aspx, though NSDL already allocates most corporate bond ISINs. Official CDSL DP/e-DIS APIs require Depository Participant registration (https://www.cdslindia.com/). Citations: https://www.cdslindia.com/robots.txt, https://www.cdslindia.com/investors/popup-isin.aspx?isin_code=INE020B08831, https://github.com/yakhil5/data-cdsl/blob/master/t.py, https://github.com/codereverser/casparser"
+    },
+    {
+      "site": "BSE India (Bombay Stock Exchange)",
+      "domain": "bseindia.com / api.bseindia.com",
+      "feasibility": "LOW-TO-MEDIUM (Akamai WAF enforces strict Referer/Origin/header checks and blocks malformed or unprimed queries with 403; Angular SPA frontend; previously dropped in tracker D1)",
+      "data_paths": [
+        {
+          "type": "internal_json_api",
+          "url": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w?Group=&Scripcode=&industry=&segment=Equity&status=Active",
+          "verified_status": "HTTP 200 JSON ONLY when Referer: https://www.bseindia.com/ and Origin: https://www.bseindia.com are sent. Returns HTTP 403 Access Denied without Referer/Origin (confirmed on api.bseindia.com/robots.txt and tracker F1) or on segment=Fixed+Income. Debt/Debenture filtering via ListofScripData returned Equity rows when queried with segment=Debt or segment=Debentures; exact BSE debt-segment JSON endpoint UNVERIFIED."
+        },
+        {
+          "type": "spa_html",
+          "url": "https://www.bseindia.com/",
+          "verified_status": "HTTP 200 Angular SSR/critters shell (Akamai-GRN header); /robots.txt returns SPA HTML rather than plain-text directives."
+        }
+      ],
+      "known_technique": "Persistent requests.Session or curl_cffi Session setting Origin: https://www.bseindia.com/, Referer: https://www.bseindia.com/, Accept: application/json, text/plain, */*, browser User-Agent, and strict client-side throttling (BennyThadikaran/BseIndiaApi throttles to 8 req/s default, 15 req/s lookup via mthrottle). Use curl_cffi when Akamai enforces TLS fingerprinting.",
+      "blocking_behavior": "Akamai Edge/WAF confirmed via Akamai-GRN response headers and Akamai 'Access Denied' 403 HTML pages. Triggers HTTP 403 immediately if Referer/Origin headers are missing (which caused DK Bond Tracker's prior stdlib bse.py to fail 403 per tracker F1) or when query parameters violate WAF inspection rules (e.g. segment=Fixed+Income returned 403).",
+      "prior_art": [
+        {
+          "name": "BennyThadikaran/BseIndiaApi (PyPI: bse v3.3.4)",
+          "url": "https://github.com/BennyThadikaran/BseIndiaApi",
+          "technique": "Python wrapper using requests.Session against https://api.bseindia.com/BseIndiaAPI/api with mandatory Origin and Referer headers set to https://www.bseindia.com/.",
+          "blocking_handling": "Rate-limits requests using mthrottle (8 rps default, 15 rps lookup) and handles ReadTimeout; does not use TLS impersonation (verified in src/bse/BSE.py)."
+        },
+        {
+          "name": "sdabhi23/bsedata (PyPI: bsedata v0.6.0)",
+          "url": "https://github.com/sdabhi23/bsedata",
+          "technique": "Scrapes BSE mobile/web endpoints for quotes, gainers, losers, and scrip lists.",
+          "blocking_handling": "Uses static browser User-Agent headers; equity-focused and vulnerable to Akamai/endpoint drift."
+        },
+        {
+          "name": "Sachin-Kahandal/bselib (PyPI: bselib v0.0.5) & shahronak47/bsetools (PyPI: bsetools v0.3.3)",
+          "url": "https://github.com/Sachin-Kahandal/bselib",
+          "technique": "Older requests/BeautifulSoup BSE scrapers for equity quotes and corporate actions (bsetools last pushed 2019: https://github.com/shahronak47/bsetools).",
+          "blocking_handling": "Minimal or outdated header spoofing; largely broken against modern Akamai rules and Angular SPA migration."
+        },
+        {
+          "name": "RuchiTanmay/bseindia (PyPI: bseindia v1.1)",
+          "url": "https://github.com/RuchiTanmay/bseindia",
+          "technique": "Wraps BSE public list/bhavcopy endpoints into pandas DataFrames.",
+          "blocking_handling": "Header spoofing; equity-oriented."
+        }
+      ],
+      "notes": "Per tracker D1 (#340), BSE was removed from active bond lookups because public exchange feeds block/rate-limit non-members and brokers use member feeds (GoldenPi 6809, IndiaBonds 6811). Even if headers pass ListofScripData, debt-specific BSE API endpoints remain UNVERIFIED for automated bond master extraction. Citations: https://www.bseindia.com/, https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w, https://github.com/BennyThadikaran/BseIndiaApi/blob/main/src/bse/BSE.py, https://github.com/sdabhi23/bsedata, https://github.com/Sachin-Kahandal/bselib, https://github.com/shahronak47/bsetools, https://github.com/RuchiTanmay/bseindia"
+    },
+    {
+      "site": "NSE India (National Stock Exchange of India)",
+      "domain": "nseindia.com / nsearchives.nseindia.com",
+      "feasibility": "LOW (hard Akamai Bot Manager TLS/JA3 + cookie wall on homepage; legacy DEBT_SECURITY_MASTER.csv URL returns 404; previously dropped in tracker D1)",
+      "data_paths": [
+        {
+          "type": "internal_json_apis_and_archives",
+          "url": "https://www.nseindia.com/api/daily-reports and https://nsearchives.nseindia.com/ (listed in jugaad-py/jugaad-data)",
+          "verified_status": "UNVERIFIED live payload (homepage returned HTTP 403 AkamaiGHost to stdlib urllib; legacy https://nsearchives.nseindia.com/content/debt/DEBT_SECURITY_MASTER.csv is HTTP 404 per tracker F1)"
+        },
+        {
+          "type": "debt_portal_pages_from_sitemap",
+          "url": "https://www.nseindia.com/sitemap.xml",
+          "verified_status": "HTTP 200 XML; lists /market-data/debt-market-trade-repository, /market-data/debt-market-reporting-corporate-bonds-traded-on-exchange, /market-data/debt-market-negotiated-trades-reporting, and /all-reports-debt"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.nseindia.com/robots.txt",
+          "verified_status": "HTTP 200 (Allow: /; Disallow: /market-data-test; Sitemap: https://www.nseindia.com/sitemap.xml; Akamai-GRN header). nsearchives.nseindia.com/robots.txt returns HTTP 404."
+        }
+      ],
+      "known_technique": "TLS/JA3/HTTP2 fingerprint impersonation via curl_cffi (Chrome profile) combined with homepage cookie priming (visiting https://www.nseindia.com to obtain Akamai/NSE cookies such as nsit/nseappid/bm_sz before querying /api/... or nsearchives.nseindia.com with Referer), persisted in a cookie jar and strictly throttled (<=3 req/s). Plain urllib/requests fails on the homepage itself.",
+      "blocking_behavior": "Akamai Bot Manager (Server: AkamaiGHost, Akamai-GRN) observed directly returning HTTP 403 on https://www.nseindia.com/ to Python stdlib urllib even with Chrome User-Agent. aeron7/nsepython source code explicitly documents that plain requests.Session() and plain curl get HTTP 403 on the homepage due to Akamai TLS/JA3 fingerprinting, forcing migration to curl_cffi.",
+      "prior_art": [
+        {
+          "name": "aeron7/nsepython (PyPI: nsepython v2.101)",
+          "url": "https://github.com/aeron7/nsepython",
+          "technique": "Queries NSE REST APIs via nsefetch(); migrated transport exclusively to curl_cffi.requests.Session impersonating Chrome.",
+          "blocking_handling": "Hard dependency on curl_cffi (verified in requirements.txt and nsepython/rahu.py) to clear Akamai Bot Manager TLS/JA3 checks; raises NSEEndpointError on non-JSON/block responses."
+        },
+        {
+          "name": "BennyThadikaran/NseIndiaApi (PyPI: nse v5.2.0)",
+          "url": "https://github.com/BennyThadikaran/NseIndiaApi",
+          "technique": "Uses httpx.Client (optional HTTP/2) against NSE APIs and daily report downloads.",
+          "blocking_handling": "Persists cookies in FileCookieStore (MozillaCookieJar) warmed from NSE pages, enforces 3 req/s rate limit via pyrate_limiter, and uses configurable RetryConfig (excluding 404). Verified in src/nse/transport.py and cookie_store.py."
+        },
+        {
+          "name": "jugaad-py/jugaad-data (PyPI: jugaad-data v0.37.4)",
+          "url": "https://github.com/jugaad-py/jugaad-data",
+          "technique": "Uses requests.Session with Chrome Sec-CH-UA headers against https://www.nseindia.com/api/daily-reports (UDiFF bhavcopy on nsearchives.nseindia.com) and live APIs.",
+          "blocking_handling": "Session cookie warm-up, local file caching (live_cache), and NSEBlockedError detection; vulnerable whenever Akamai tightens JA3 checks against OpenSSL/requests."
+        },
+        {
+          "name": "vsjha18/nsetools (PyPI: nsetools v2.0.1)",
+          "url": "https://github.com/vsjha18/nsetools",
+          "technique": "Lightweight requests-based wrapper for live quotes and index codes.",
+          "blocking_handling": "Header rotation (ua.py) and requests session; older architecture frequently impacted by Akamai WAF updates."
+        }
+      ],
+      "notes": "Avoid relying on NSE scraping for bond master data unless using official broker/member feeds or UDiFF daily debt reports via curl_cffi + cookie priming. Citations: https://www.nseindia.com/robots.txt, https://www.nseindia.com/sitemap.xml, https://github.com/aeron7/nsepython/blob/master/nsepython/rahu.py, https://github.com/BennyThadikaran/NseIndiaApi/blob/main/src/nse/transport.py, https://github.com/jugaad-py/jugaad-data/blob/master/jugaad_data/nse/archives.py, https://github.com/vsjha18/nsetools"
+    },
+    {
+      "site": "RBI (Reserve Bank of India)",
+      "domain": "rbi.org.in / data.rbi.org.in",
+      "feasibility": "HIGH for official RSS feeds (200 XML, no scraping needed); LOW for legacy/unverified JSON paths (HTTP 418 custom WAF) and DBIE SPA (F5 BIG-IP ASM)",
+      "data_paths": [
+        {
+          "type": "official_rss_feeds",
+          "url": "https://rbi.org.in/pressreleases_rss.xml",
+          "verified_status": "HTTP 200 text/xml (RSS 2.0); also https://rbi.org.in/notifications_rss.xml (HTTP 200) and https://www.rbi.org.in/Publication_rss.xml (HTTP 200)"
+        },
+        {
+          "type": "public_html_pages",
+          "url": "https://www.rbi.org.in/",
+          "verified_status": "HTTP 200 HTML (sets ASP.NET_SessionId cookie)"
+        },
+        {
+          "type": "dbie_portal_spa",
+          "url": "https://data.rbi.org.in/",
+          "verified_status": "HTTP 200 Angular SPA behind F5 BIG-IP ASM (TS01eeff17 cookie, Via: uproxy-7); internal DBIE API endpoints require session/Playwright capture and are UNVERIFIED"
+        },
+        {
+          "type": "robots_txt_and_dead_json",
+          "url": "https://www.rbi.org.in/robots.txt and https://rbi.org.in/downloadables/gsec_sdl_tbill.json",
+          "verified_status": "HTTP 418 custom HTML ('Unauthorised Access', meta author='RBIWEBSITE')"
+        }
+      ],
+      "known_technique": "Consume official XML RSS feeds (pressreleases_rss.xml, notifications_rss.xml, Publication_rss.xml) via standard HTTP client + XML/feedparser without scraping. For HTML pages (e.g. policy rates/circulars), use requests/curl_cffi with browser headers and ASP.NET_SessionId session persistence. For DBIE (data.rbi.org.in), use Playwright if interactive export triggers are required.",
+      "blocking_behavior": "Custom server/WAF filter returns HTTP 418 'Unauthorised Access' (<meta name='author' content='RBIWEBSITE'>) on blocked/non-existent endpoints (observed on both /robots.txt and /downloadables/gsec_sdl_tbill.json). DBIE (data.rbi.org.in) enforces F5 BIG-IP ASM (TS01eeff17 cookie).",
+      "prior_art": [
+        {
+          "name": "jugaad-py/jugaad-data (jugaad_data/rbi)",
+          "url": "https://github.com/jugaad-py/jugaad-data/tree/master/jugaad_data/rbi",
+          "technique": "Uses requests.Session + BeautifulSoup to parse RBI homepage key policy rates (Repo, SDF, MSF, CRR, SLR, Call Rates).",
+          "blocking_handling": "Session persistence and regex/HTML table extraction; does not target DBIE SPA."
+        },
+        {
+          "name": "niks-data/sebi-rbi-regulatory-scraper",
+          "url": "https://github.com/niks-data/sebi-rbi-regulatory-scraper",
+          "technique": "Uses Playwright + lxml/XPath to scrape RBI circulars and SEBI enforcement orders into JSON/CSV.",
+          "blocking_handling": "Real headless Chromium browser execution handles JS rendering and session state."
+        },
+        {
+          "name": "ArchishmanSengupta/frc & Akhilgovind02/india-regulatory-mcp",
+          "url": "https://github.com/Akhilgovind02/india-regulatory-mcp",
+          "technique": "Polls RBI master circulars / SEBI circular pages (frc uses requests + BeautifulSoup; india-regulatory-mcp indexes RBI/SEBI PDFs and HTML into SQLite).",
+          "blocking_handling": "Simple HTTP polling intervals (frc) or batch indexing (india-regulatory-mcp)."
+        }
+      ],
+      "notes": "No bond-level ISIN master exists on rbi.org.in at the retired gsec_sdl_tbill.json path (tracker D1). Use official RBI RSS feeds for regulatory/G-sec auction announcements without scraping. Citations: https://rbi.org.in/pressreleases_rss.xml, https://rbi.org.in/notifications_rss.xml, https://www.rbi.org.in/Publication_rss.xml, https://data.rbi.org.in/, https://github.com/jugaad-py/jugaad-data, https://github.com/niks-data/sebi-rbi-regulatory-scraper, https://github.com/ArchishmanSengupta/frc"
+    },
+    {
+      "site": "SEBI (Securities and Exchange Board of India)",
+      "domain": "sebi.gov.in",
+      "feasibility": "HIGH (server-rendered Apache/Java portal + official RSS feed; regulatory circulars/OBPP rules only, no bond ISIN data)",
+      "data_paths": [
+        {
+          "type": "official_rss_feed",
+          "url": "https://www.sebi.gov.in/sebirss.xml",
+          "verified_status": "HTTP 200 text/xml (RSS 2.0 feed for SEBI updates, TTL 60)"
+        },
+        {
+          "type": "server_rendered_html",
+          "url": "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=7&smid=0",
+          "verified_status": "HTTP 200 HTML (Server: Apache, JSESSIONID cookie) linking to circular HTML/PDF documents"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.sebi.gov.in/robots.txt",
+          "verified_status": "HTTP 200 text/plain; allows crawling except /js, /hindi/js, /css, /hindi/css."
+        }
+      ],
+      "known_technique": "Consume https://www.sebi.gov.in/sebirss.xml directly with stdlib xml.etree or feedparser (no scraping). For historical circulars, polite HTTP GET via requests/httpx with JSESSIONID session reuse and PDF text extraction (pdfplumber/pypdf).",
+      "blocking_behavior": "Lightweight Apache + Java Struts/Servlet backend (JSESSIONID; SameSite=Strict). No Cloudflare or Akamai fingerprint blocks observed on /robots.txt, /sebirss.xml, or HomeAction.do; rate-limiting/WAF thresholds under heavy concurrency are UNVERIFIED.",
+      "prior_art": [
+        {
+          "name": "ArchishmanSengupta/frc",
+          "url": "https://github.com/ArchishmanSengupta/frc",
+          "technique": "requests.get() + BeautifulSoup against HomeAction.do?doListingAll=yes&sid=1&ssid=7&smid=0 to alert Slack on new SEBI circulars.",
+          "blocking_handling": "Simple loop polling without special WAF bypass."
+        },
+        {
+          "name": "niks-data/sebi-rbi-regulatory-scraper",
+          "url": "https://github.com/niks-data/sebi-rbi-regulatory-scraper",
+          "technique": "Playwright + lxml/XPath for SEBI enforcement orders and circulars.",
+          "blocking_handling": "Headless browser session."
+        },
+        {
+          "name": "Akhilgovind02/india-regulatory-mcp",
+          "url": "https://github.com/Akhilgovind02/india-regulatory-mcp",
+          "technique": "Syncs and indexes SEBI and RBI circulars/PDFs into SQLite FTS.",
+          "blocking_handling": "Offline batch sync."
+        }
+      ],
+      "notes": "Per broker_data_sources_research_20261125.json, sebi.gov.in carries OBPP regulatory circulars (e.g. CIR/2024/54), not bond ISIN datasets. Citations: https://www.sebi.gov.in/robots.txt, https://www.sebi.gov.in/sebirss.xml, https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=7&smid=0, https://github.com/ArchishmanSengupta/frc, https://github.com/niks-data/sebi-rbi-regulatory-scraper, https://github.com/Akhilgovind02/india-regulatory-mcp"
+    },
+    {
+      "site": "CRISIL Ratings",
+      "domain": "crisilratings.com",
+      "feasibility": "HIGH (discovered live public AEM JSON search servlet + direct HTML rating rationale documents, subject to strict robots.txt/rate discipline)",
+      "data_paths": [
+        {
+          "type": "public_aem_json_servlet",
+          "url": "https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=RR&start=0&limit=5",
+          "verified_status": "HTTP 200 JSON (verified live 2026-11-25 returning docs[] with companyCode, companyName, industryName, ratingDate, heading, ratingFileName, transDate)"
+        },
+        {
+          "type": "rationale_html_documents",
+          "url": "https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/<ratingFileName>",
+          "verified_status": "HTTP 200 HTML (verified live 2026-11-25 on PrakashAutoPrivateLimited_November%2024_%202026_RR_410880.html, 93KB full rationale)"
+        },
+        {
+          "type": "portal_pages",
+          "url": "https://www.crisilratings.com/en/home/our-business/ratings/credit-ratings-list.html",
+          "verified_status": "HTTP 200 (AEM /content/crisilratings/...; older path /en/home/latest-ratings.html returns custom 404)"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.crisilratings.com/robots.txt",
+          "verified_status": "HTTP 200; explicitly disallows Scrapy/1.5.1, Scrapy/1.3.3, Baiduspider, DotBot, MJ12bot, GPTBot, ChatGPT-User, CCBot, PetalBot."
+        }
+      ],
+      "known_technique": "Query the AEM JSON listing servlet /bin/crisil/listing/rating_sme_listing_service.json with pagination (start, limit) and fetch the referenced RatingDocs HTML file directly via requests/httpx/curl_cffi while retaining the sess_map cookie and keeping low concurrency. Parse rationale HTML tables with lxml/BeautifulSoup to extract ISINs (where listed in instrument annexures) and credit ratings. Note: bulk commercial feeds are sold via S&P Global Marketplace.",
+      "blocking_behavior": "Sits behind Tata Communications CDN/proxy (Server: v/7.0.6/6.6.9/v104blr1-www, X-TATA-Request-ID, X-Cache, sess_map HttpOnly Secure cookie) and returns HTTP 400 on /sitemap.xml. Explicitly blocks Scrapy user-agents and AI crawlers in robots.txt.",
+      "prior_art": [
+        {
+          "name": "No dedicated maintained open-source CRISIL rationale scraper found on GitHub",
+          "url": "https://www.crisilratings.com/en/home/our-business/ratings/credit-ratings-list.html",
+          "technique": "GitHub repository search for 'crisil rating scraper' returned 0 repositories; prior-art pattern documented in developer workflows relies on inspecting AEM /bin/crisil/... XHR servlets and parsing RatingDocs HTML.",
+          "blocking_handling": "UNVERIFIED at scale; low-rate session requests respecting sess_map cookie and non-Scrapy User-Agent."
+        }
+      ],
+      "notes": "Top candidate among rating agencies because rating_sme_listing_service.json + RatingDocs HTML avoids headless browsers completely. Verify whether cmd=RR covers all corporate debt rationales or additional cmd values exist (UNVERIFIED). Commercial feed alternative: https://www.spglobal.com/. Citations: https://www.crisilratings.com/robots.txt, https://www.crisilratings.com/en/home/our-business/ratings/credit-ratings-list.html, https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=RR&start=0&limit=5"
+    },
+    {
+      "site": "ICRA Limited",
+      "domain": "icra.in",
+      "feasibility": "MEDIUM (rationale viewer URLs return HTTP 200 SSR HTML, but homepage timed out under stdlib probe behind CloudFront + Microsoft Entra Application Proxy)",
+      "data_paths": [
+        {
+          "type": "rationale_html_page",
+          "url": "https://www.icra.in/Rationale/ShowRationaleReport/?Id=<RATIONALE_ID>",
+          "verified_status": "HTTP 200 HTML (verified live 2026-11-25 for Id=132755, 176KB HTML containing rationale details and PDF links)"
+        },
+        {
+          "type": "sitemap_and_listing",
+          "url": "https://www.icra.in/sitemap.xml and https://www.icra.in/Rating",
+          "verified_status": "sitemap.xml HTTP 200 XML; homepage https://www.icra.in/ timed out at 10s in stdlib probe; Rating search XHR endpoint UNVERIFIED"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.icra.in/robots.txt",
+          "verified_status": "HTTP 200; Allow: / (explicitly allows Googlebot, Bingbot, OAI-SearchBot, PerplexityBot, Claude-SearchBot) and points to https://www.icra.in/sitemap.xml."
+        }
+      ],
+      "known_technique": "Maintain a curl_cffi or httpx session that preserves BNIS_vid / BNIS___utm_is3 affinity cookies, uses generous timeouts (15-30s) with retry/backoff, discovers rationale IDs via Rating search pages (Playwright or XHR inspection if AJAX-driven — UNVERIFIED), and fetches /Rationale/ShowRationaleReport/?Id=<id> directly via HTTP.",
+      "blocking_behavior": "Routed via AWS CloudFront (Via: cloudfront.net) and Microsoft Entra ID Application Proxy (BNIS_vid and BNIS___utm_is3 cookies). Root URL timed out at 10s in our urllib probe (slow origin or connection tarpitting), whereas /robots.txt, /sitemap.xml, and /Rationale/ShowRationaleReport/?Id=132755 succeeded at 15s timeout.",
+      "prior_art": [
+        {
+          "name": "No dedicated open-source ICRA rationale scraper found on GitHub",
+          "url": "https://www.icra.in/Rationale/ShowRationaleReport/?Id=132755",
+          "technique": "GitHub repository search for 'icra rating rationale' returned 0 repositories; community scripts target ShowRationaleReport/?Id=<id> with BeautifulSoup or parse corporate announcement links from BSE/NSE.",
+          "blocking_handling": "Browser User-Agent, cookie persistence for BNIS_* affinity cookies, and higher read timeouts."
+        }
+      ],
+      "notes": "ISIN searchability on icra.in (whether ShowRationaleReport or ICRA search supports direct ISIN query vs company name only) is UNVERIFIED. Citations: https://www.icra.in/robots.txt, https://www.icra.in/sitemap.xml, https://www.icra.in/Rationale/ShowRationaleReport/?Id=132755"
+    },
+    {
+      "site": "CARE Ratings (CareEdge)",
+      "domain": "careratings.com",
+      "feasibility": "MEDIUM (Laravel web app returns HTTP 200 HTML directly, but search relies on CSRF-protected POST forms and some detailed portals gate behind OTP login)",
+      "data_paths": [
+        {
+          "type": "public_html_search_forms",
+          "url": "https://www.careratings.com/find-ratings (POST targets https://www.careratings.com/search and https://www.careratings.com/findsearch)",
+          "verified_status": "HTTP 200 HTML; actual search response schema and rationale PDF URL format UNVERIFIED"
+        },
+        {
+          "type": "otp_gated_features",
+          "url": "https://www.careratings.com/find-ratings",
+          "verified_status": "Observed get_otp_login_form and otp_validate_form embedded in /find-ratings HTML"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.careratings.com/robots.txt",
+          "verified_status": "HTTP 200 (User-agent: *, Disallow: empty)."
+        }
+      ],
+      "known_technique": "Session-based HTTP client (httpx or curl_cffi) that GETs /find-ratings to obtain the Laravel XSRF-TOKEN / laravel_session cookies and CSRF token, then submits POST requests to /findsearch or /search with X-XSRF-TOKEN header; fall back to Playwright for JS-driven search flows or if OTP/captcha triggers.",
+      "blocking_behavior": "No Cloudflare/Akamai WAF headers observed on initial GET; uses Laravel framework XSRF-TOKEN CSRF protection (2h expiry) and embeds OTP login forms for gated actions.",
+      "prior_art": [
+        {
+          "name": "No dedicated open-source CARE Ratings scraper found on GitHub",
+          "url": "https://www.careratings.com/find-ratings",
+          "technique": "GitHub repository search for 'careratings scraper' returned 0 repositories; standard pattern uses session GET + CSRF POST or Playwright.",
+          "blocking_handling": "Session cookie + XSRF-TOKEN handling; cannot bypass OTP-gated sections."
+        }
+      ],
+      "notes": "Because /find-ratings contains OTP login forms, verify whether public press-release rationales are downloadable unauthenticated via /findsearch before building a production adapter (UNVERIFIED). Citations: https://www.careratings.com/robots.txt, https://www.careratings.com/, https://www.careratings.com/find-ratings"
+    },
+    {
+      "site": "Acuite Ratings & Research",
+      "domain": "acuite.in / connect.acuite.in",
+      "feasibility": "MEDIUM-HIGH (live ratings paginated HTML on connect.acuite.in returns HTTP 200 directly behind Cloudflare, with predictable detail URLs)",
+      "data_paths": [
+        {
+          "type": "paginated_ssr_html",
+          "url": "https://connect.acuite.in/liveratings?page=1",
+          "verified_status": "HTTP 200 HTML (Laravel app with csrf-token meta tag behind Cloudflare), linking to https://connect.acuite.in/fcompany-details/<COMPANY_SLUG>/<DATE>"
+        },
+        {
+          "type": "corporate_portal",
+          "url": "https://www.acuite.in/",
+          "verified_status": "HTTP 200 HTML (Server: Microsoft-IIS/10.0); /robots.txt returns HTTP 404"
+        }
+      ],
+      "known_technique": "HTTP GET to https://connect.acuite.in/liveratings?page=<N> and https://connect.acuite.in/fcompany-details/<slug>/<date> using curl_cffi (Chrome TLS impersonation to stay resilient against Cloudflare) and HTML parsing with lxml/BeautifulSoup. Note Acuite terms prohibit bulk commercial aggregation/redistribution without agreement.",
+      "blocking_behavior": "Main site (www.acuite.in) runs Microsoft-IIS/10.0 without CDN WAF headers; ratings subdomain (connect.acuite.in) sits behind Cloudflare (Server: cloudflare, CF-RAY: ...-MRS) which served HTTP 200 directly in single-request testing but can rate-limit or challenge high-rate clients.",
+      "prior_art": [
+        {
+          "name": "MasterAdnan/AcuiteRating & vidhikapoor20/Default-credit-companies",
+          "url": "https://github.com/MasterAdnan/AcuiteRating",
+          "technique": "Minimal/historical GitHub repositories referencing Acuite data (vidhikapoor20 contains 2009-2019 static collated dataset); no actively maintained Python API client found.",
+          "blocking_handling": "UNVERIFIED (repos contain minimal/static files without documented WAF handling)."
+        }
+      ],
+      "notes": "Check exact fcompany-details HTML structure for ISIN presence (UNVERIFIED) and respect Acuite ToS restrictions on bulk redistribution. Citations: https://www.acuite.in/, https://connect.acuite.in/liveratings?page=1, https://github.com/MasterAdnan/AcuiteRating, https://github.com/vidhikapoor20/Default-credit-companies"
+    },
+    {
+      "site": "India Ratings & Research (Fitch Group)",
+      "domain": "indiaratings.co.in",
+      "feasibility": "LOW-TO-MEDIUM (Angular SPA served over CloudFront + IIS; requires Playwright or reverse-engineering SPA XHR calls to extract rationale/press release APIs)",
+      "data_paths": [
+        {
+          "type": "angular_spa",
+          "url": "https://www.indiaratings.co.in/",
+          "verified_status": "HTTP 200 Angular SPA shell (7020 bytes, main.0988cc70ba733c95.js) on Microsoft-IIS/10.0 behind AWS CloudFront"
+        },
+        {
+          "type": "static_pdf_reports",
+          "url": "https://www.indiaratings.co.in/data/Uploads/TransitionandDefaultStudy.pdf",
+          "verified_status": "Referenced in main JS bundle; individual issuer press-release/rationale API endpoint UNVERIFIED without executing SPA"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://www.indiaratings.co.in/robots.txt",
+          "verified_status": "HTTP 200; disallows /admin/, /cgi-bin/, /tmp/, /private/, /logs/, /wp-admin/, /wp-includes/, /wp-content/plugins/."
+        }
+      ],
+      "known_technique": "Use Playwright (headless Chromium) to render the Angular SPA and intercept network XHR/Fetch responses for press releases and rating actions, then switch to direct httpx/curl_cffi calls once the underlying JSON API endpoints are captured.",
+      "blocking_behavior": "Runs Microsoft-IIS/10.0 behind AWS CloudFront (Via: cloudfront.net). No immediate 403 block observed on root HTML or JS bundle, but SSR content is absent (client-side Angular rendering).",
+      "prior_art": [
+        {
+          "name": "No dedicated maintained open-source India Ratings scraper found on GitHub",
+          "url": "https://www.indiaratings.co.in/",
+          "technique": "GitHub repository search for 'indiaratings' yielded only a 0-star empty/unclear repo (indiaratings/indiaratings1); SPA requires browser DevTools network capture or Playwright.",
+          "blocking_handling": "UNVERIFIED."
+        }
+      ],
+      "notes": "Highest engineering effort among the 5 rating agencies because content is client-side Angular-rendered and internal rating-action JSON routes are not exposed in static HTML. Citations: https://www.indiaratings.co.in/robots.txt, https://www.indiaratings.co.in/, https://github.com/indiaratings/indiaratings1"
+    },
+    {
+      "site": "SEBI SCORES / SmartODR (Grievance & Dispute Rails)",
+      "domain": "scores.sebi.gov.in / smartodr.in",
+      "feasibility": "DO_NOT_SCRAPE (authenticated PII/dispute portals; compliance plumbing only per broker_data_sources_research_20261125.json rank 12; zero bond/ISIN data)",
+      "data_paths": [
+        {
+          "type": "authenticated_portals",
+          "url": "https://scores.sebi.gov.in/ and https://smartodr.in/",
+          "verified_status": "Both return HTTP 200 landing shells (SCORES runs Liferay portal with Server: Secure and SameSite=Strict GUEST_LANGUAGE_ID; SmartODR is a client-side SPA returning index.html for /robots.txt)"
+        },
+        {
+          "type": "robots_txt",
+          "url": "https://scores.sebi.gov.in/robots.txt",
+          "verified_status": "HTTP 200; disallows /c/* and /login; lists https://scores.sebi.gov.in:443/sitemap.xml. smartodr.in/robots.txt returns SPA HTML (no plain-text robots rules)."
+        }
+      ],
+      "known_technique": "Not applicable for scraping. Official SCORES APIs exist strictly for SEBI-regulated intermediaries/MIIs under circular integration specs.",
+      "blocking_behavior": "Authenticated session/2FA walls, Liferay CSRF/session controls (SCORES), and PII/quasi-judicial regulatory restrictions.",
+      "prior_art": [
+        {
+          "name": "None (regulated authenticated portals)",
+          "url": "https://scores.sebi.gov.in/",
+          "technique": "Official intermediary APIs only; public scraping is out-of-bounds legally and functionally irrelevant to bond facts.",
+          "blocking_handling": "Authentication required."
+        }
+      ],
+      "notes": "Confirm dropping from data-adapter scope as flagged in broker_data_sources_research_20261125.json ('compliance plumbing only - droppable from a pure data list'). Citations: https://scores.sebi.gov.in/robots.txt, https://scores.sebi.gov.in/, https://smartodr.in/"
+    }
+  ],
+  "libraries": [
+    {
+      "name": "curl_cffi",
+      "use_for": "Primary HTTP client for WAF-protected Indian financial sites (Akamai on NSE/BSE, Cloudflare on CDSL/Acuite, Tata CDN on CRISIL, CloudFront/Entra on ICRA)",
+      "pros": [
+        "Impersonates real Chrome/Firefox/Safari TLS (JA3/JA4) and HTTP/2 SETTINGS fingerprints via curl-impersonate / BoringSSL",
+        "Requests-compatible synchronous Session API plus native asyncio AsyncSession",
+        "Actively maintained (PyPI v0.17.0, 6.9k+ GitHub stars, pushed 2026-11-23); battle-tested by aeron7/nsepython against NSE Akamai Bot Manager",
+        "Orders of magnitude faster and lighter than headless browsers (~MBs RAM vs hundreds of MBs for Chromium)"
+      ],
+      "cons": [
+        "Cannot execute JavaScript challenges (Cloudflare Turnstile, Angular/React SPAs like India Ratings or DBIE)",
+        "C-extension binary wheels (manylinux/macOS/Windows) slightly heavier to build in minimal Alpine containers than pure Python"
+      ],
+      "url": "https://github.com/lexiforest/curl_cffi"
+    },
+    {
+      "name": "httpx",
+      "use_for": "Clean async/HTTP2 client for open JSON APIs, RSS feeds, and non-TLS-fingerprinted endpoints (NSDL API/CSV, SEBI RSS/HTML, RBI RSS, CRISIL JSON servlet, local FastAPI/Flask internal services)",
+      "pros": [
+        "Clean sync + async API, native HTTP/2 support (via h2), strict timeouts, connection pooling, custom transports/hooks",
+        "Pure Python (easy packaging, PyPI v0.28.1, 15.8k+ GitHub stars)",
+        "Used by BennyThadikaran/NseIndiaApi with FileCookieStore + pyrate_limiter"
+      ],
+      "cons": [
+        "Uses Python stdlib OpenSSL TLS fingerprint — immediately flagged (HTTP 403) by Akamai Bot Manager on NSE homepage and strict Cloudflare rules",
+        "Does not execute JavaScript"
+      ],
+      "url": "https://github.com/encode/httpx"
+    },
+    {
+      "name": "requests",
+      "use_for": "Simple synchronous scripts and legacy wrappers (jugaad-data, BseIndiaApi, nsetools) on unprotected or header-only endpoints",
+      "pros": [
+        "Ubiquitous API (54.7k+ GitHub stars), huge ecosystem, zero learning curve",
+        "Session cookie jar + urllib3 Retry adapter well understood"
+      ],
+      "cons": [
+        "HTTP/1.1 only (no HTTP/2) and exposes standard OpenSSL TLS fingerprint (blocked by NSE AkamaiGHost)",
+        "Synchronous-only (blocks asyncio event loops without thread pools)"
+      ],
+      "url": "https://github.com/psf/requests"
+    },
+    {
+      "name": "playwright (playwright-python)",
+      "use_for": "SPA rendering and XHR endpoint discovery (India Ratings Angular SPA, RBI DBIE data.rbi.org.in, indiabondinfo.nsdl.com SPA discovery, fallback if Cloudflare issues JS Turnstile)",
+      "pros": [
+        "Real Chromium/Firefox/WebKit engine executes full JavaScript, handles dynamic SPAs, and allows intercepting XHR JSON payloads",
+        "First-party Python sync and async APIs (PyPI v1.65.2, 15.1k+ GitHub stars); used by niks-data/sebi-rbi-regulatory-scraper"
+      ],
+      "cons": [
+        "High CPU/RAM footprint (~150-400 MB per browser context) and slow startup/render latency",
+        "Default Playwright leaks automation signals (navigator.webdriver) to Akamai/Cloudflare Bot Manager unless mitigated; overkill for JSON/RSS/SSR sources"
+      ],
+      "url": "https://github.com/microsoft/playwright-python"
+    },
+    {
+      "name": "scrapy",
+      "use_for": "Large-scale multi-page crawling frameworks (not recommended for our targeted ISIN/agency lookup backend unless paired with scrapy-impersonate)",
+      "pros": [
+        "Battle-tested Twisted async crawl scheduler, item pipelines, AutoThrottle, built-in retry/caching middlewares (PyPI v2.20.0, 65.5k+ stars)"
+      ],
+      "cons": [
+        "Heavy framework architecture misaligned with on-demand REST API lookups in our Flask/Python backend",
+        "Default Twisted HTTP downloader is trivially fingerprinted and explicitly blocked by user-agent in CRISIL robots.txt (Scrapy/1.5.1, Scrapy/1.3.3)"
+      ],
+      "url": "https://github.com/scrapy/scrapy"
+    },
+    {
+      "name": "tls-client (Python-Tls-Client / bogdanfinn/tls-client)",
+      "use_for": "Alternative TLS fingerprint spoofing HTTP client (Go uTLS shared library wrapped for Python)",
+      "pros": [
+        "Supports fine-grained custom TLS ClientHello / JA3 profiles via bogdanfinn/tls-client (Go uTLS)",
+        "Actively updated (PyPI tls-client v2.0.0)"
+      ],
+      "cons": [
+        "Crosses Python-to-Go FFI shared-library boundary, historically carrying higher memory/concurrency management overhead than curl_cffi",
+        "No meaningful advantage over curl_cffi for standard Chrome/Firefox impersonation in Python"
+      ],
+      "url": "https://github.com/FlorianREGAZ/Python-Tls-Client"
+    },
+    {
+      "name": "cloudscraper",
+      "use_for": "Legacy Cloudflare IUAM JS challenge solver (NOT recommended for new builds)",
+      "pros": [
+        "Drop-in requests.Session subclass for legacy Cloudflare v1 JS challenges (PyPI v1.2.71)"
+      ],
+      "cons": [
+        "Ineffective against modern Cloudflare Turnstile / Managed Challenges and Akamai Bot Manager (NSE/BSE)",
+        "Retains requests/OpenSSL TLS fingerprint; slower release cadence (last pushed 2025-06-10)"
+      ],
+      "url": "https://github.com/VeNoMouS/cloudscraper"
+    }
+  ],
+  "framework_recommendation": {
+    "current_backend_baseline": "Today the repo (pyproject.toml / requirements.txt) uses Flask 3.1.3 + Python 3.14 stdlib urllib.request only (zero scraping dependencies installed).",
+    "recommended_stack": {
+      "tier_1_bulk_and_official_feeds": {
+        "libraries": ["stdlib urllib / httpx", "feedparser or xml.etree.ElementTree", "sqlite3 (existing store)"],
+        "applies_to": ["NSDL participant search API + ISIN_DETAILS CSV", "india-isin-data CC0 snapshot", "RBI official RSS feeds", "SEBI official RSS feed"],
+        "rationale": "Zero WAF friction; keeps backend lightweight and deterministic without browser overhead."
+      },
+      "tier_2_waf_protected_http_and_agencies": {
+        "libraries": ["curl_cffi (primary transport with Chrome impersonation)", "lxml or beautifulsoup4 (HTML parsing for CRISIL RatingDocs, ICRA ShowRationaleReport, Acuite liveratings, CDSL popup-isin)", "pypdf or pdfplumber (only if parsing agency/SEBI PDF rationales)"],
+        "applies_to": ["CRISIL JSON servlet + RatingDocs HTML", "Acuite connect.acuite.in", "CDSL popup-isin.aspx", "ICRA ShowRationaleReport", "CARE find-ratings", "BSE/NSE only if ever re-enabled behind explicit feature flag"],
+        "rationale": "curl_cffi gives requests-style simplicity with real BoringSSL Chrome TLS/HTTP2 fingerprints (clearing Cloudflare/Akamai/Tata CDN) at <10ms transport overhead."
+      },
+      "tier_3_spa_discovery_and_fallback": {
+        "libraries": ["playwright (dev/discovery tool or isolated background worker only, NOT inside Flask request handlers)"],
+        "applies_to": ["India Ratings Angular SPA XHR discovery", "RBI DBIE SPA", "indiabondinfo.nsdl.com SPA XHR discovery"],
+        "rationale": "Use Playwright during adapter development to capture hidden XHR JSON routes, or in an offline scheduled job — never block mobile API requests on Chromium startup."
+      }
+    },
+    "operational_hardening": {
+      "rate_limiting": "Token-bucket per-domain rate limiters (e.g. pyrate_limiter as in NseIndiaApi or mthrottle as in BseIndiaApi): <=1-2 req/s for rating agencies & CDSL, <=3 req/s for exchanges, >=5s delay between bulk pagination pages (matching india-isin-data).",
+      "retry_and_backoff": "Differentiate permanent 404/400 from transient 429/5xx/WAF HTML-200 blocks. Use exponential backoff with full jitter (e.g. base 1s * 2^attempt + jitter, cap 30-60s) and honor Retry-After headers; never retry HTTP 404 or 401/418 endlessly.",
+      "caching": "Two-tier cache: (1) local SQLite/disk cache with source-appropriate TTLs (ISIN static facts: 7-30 days; rating rationales: 24h-7d; RSS circulars: 1-6h) + negative caching (short TTL on not-found) and conditional GETs (ETag / Last-Modified) for bulk CSVs/RSS.",
+      "schema_drift_defenses": "Validate every response before parsing (check Content-Type != text/html when expecting JSON, verify required keys like .count / .data / .docs as india-isin-data and src/bond_master/nsdl.py do), emit structured failure codes (FAILURE_BLOCKED, FAILURE_MALFORMED, FAILURE_PARSE_ERROR) and health metrics, and preserve snapshot fallback so upstream HTML/WAF drift degrades gracefully.",
+      "robots_and_tos_discipline": "Check and cache robots.txt per domain (respecting CRISIL's explicit crawler rules, SEBI's /js /css disallows, ICRA's sitemap guidance, and CDSL's Content-Signal headers); never scrape authenticated/PII portals (SCORES, SmartODR, CARE OTP flows); prefer official RSS/bulk CSV/API feeds and commercial data licenses (e.g. S&P Global/CRISIL, Acuite redistribution agreements) if moving beyond personal/tracker usage."
+    }
+  },
+  "bulk_endpoints": [
+    {
+      "site": "NSDL",
+      "endpoint": "https://nsdl.com/web/api/v1/participant/search?search_type=DetailedSearch&name=&isin=<ISIN>&page=1&per_page=100",
+      "format": "JSON API",
+      "usable_without_scraping": true,
+      "notes": "Live in src/bond_master/nsdl.py; supports paginated queries up to per_page=50000 by ISIN prefix."
+    },
+    {
+      "site": "NSDL",
+      "endpoint": "https://nsdl.com/web/api//view/annual-reports/id-listing/securities_isin_code",
+      "format": "JSON discovery -> CSV download (https://nsdl.com<f>)",
+      "usable_without_scraping": true,
+      "notes": "Verified HTTP 200 on 2026-11-25 pointing to /nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv. Official full ISIN bulk dump."
+    },
+    {
+      "site": "NSDL / Community Mirror",
+      "endpoint": "https://github.com/captn3m0/india-isin-data (ISIN.csv / isin.db releases)",
+      "format": "CC0 CSV / SQLite release artifact",
+      "usable_without_scraping": true,
+      "notes": "Already powers local src/bond_master/data/india_isin_snapshot.json (46,715 rows, CC0-1.0)."
+    },
+    {
+      "site": "RBI",
+      "endpoint": "https://rbi.org.in/pressreleases_rss.xml | https://rbi.org.in/notifications_rss.xml | https://www.rbi.org.in/Publication_rss.xml",
+      "format": "RSS 2.0 XML",
+      "usable_without_scraping": true,
+      "notes": "All three verified HTTP 200 XML directly on 2026-11-25."
+    },
+    {
+      "site": "SEBI",
+      "endpoint": "https://www.sebi.gov.in/sebirss.xml",
+      "format": "RSS 2.0 XML",
+      "usable_without_scraping": true,
+      "notes": "Verified HTTP 200 XML on 2026-11-25; covers circulars, press releases, and OBPP orders."
+    },
+    {
+      "site": "CRISIL",
+      "endpoint": "https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=RR&start=0&limit=50",
+      "format": "JSON servlet + linked HTML RatingDocs",
+      "usable_without_scraping": true,
+      "notes": "Verified HTTP 200 JSON on 2026-11-25; eliminates HTML search scraping for listing metadata (rationale body still requires fetching RatingDocs HTML)."
+    },
+    {
+      "site": "BSE",
+      "endpoint": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w",
+      "format": "JSON API (requires Referer + Origin headers)",
+      "usable_without_scraping": false,
+      "notes": "Blocked 403 without browser Referer/Origin; debt-segment filtering behavior UNVERIFIED for bond master use (tracker D1 removed BSE)."
+    },
+    {
+      "site": "NSE",
+      "endpoint": "https://www.nseindia.com/api/daily-reports (and UDiFF archives on nsearchives.nseindia.com)",
+      "format": "JSON metadata -> ZIP/CSV UDiFF files",
+      "usable_without_scraping": false,
+      "notes": "Gated by Akamai Bot Manager TLS/cookie checks; legacy DEBT_SECURITY_MASTER.csv path is HTTP 404 (tracker D1 removed NSE)."
+    },
+    {
+      "site": "CDSL",
+      "endpoint": "https://www.cdslindia.com/investors/popup-isin.aspx?isin_code=<ISIN>",
+      "format": "HTML lookup (no public unauthenticated bulk JSON/CSV verified)",
+      "usable_without_scraping": false,
+      "notes": "Requires HTML table parsing; official CDSL UDiFF/API feeds require DP credentials."
+    }
+  ],
+  "references": [
+    "https://nsdl.com/robots.txt",
+    "https://nsdl.com/web/api/v1/participant/search",
+    "https://nsdl.com/web/api//view/annual-reports/id-listing/securities_isin_code",
+    "https://www.indiabondinfo.nsdl.com/",
+    "https://github.com/captn3m0/india-isin-data",
+    "https://github.com/captn3m0/india-isin-data/blob/main/HACKING.md",
+    "https://github.com/captn3m0/india-isin-data/blob/main/Makefile",
+    "https://github.com/captn3m0/india-isin-data/blob/main/src/fetch.sh",
+    "https://www.cdslindia.com/",
+    "https://www.cdslindia.com/robots.txt",
+    "https://www.cdslindia.com/investors/popup-isin.aspx?isin_code=INE020B08831",
+    "https://github.com/yakhil5/data-cdsl",
+    "https://github.com/codereverser/casparser",
+    "https://www.bseindia.com/",
+    "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w",
+    "https://github.com/BennyThadikaran/BseIndiaApi",
+    "https://github.com/sdabhi23/bsedata",
+    "https://github.com/Sachin-Kahandal/bselib",
+    "https://github.com/shahronak47/bsetools",
+    "https://github.com/RuchiTanmay/bseindia",
+    "https://www.nseindia.com/robots.txt",
+    "https://www.nseindia.com/sitemap.xml",
+    "https://github.com/aeron7/nsepython",
+    "https://github.com/aeron7/nsepython/blob/master/nsepython/rahu.py",
+    "https://github.com/BennyThadikaran/NseIndiaApi",
+    "https://github.com/jugaad-py/jugaad-data",
+    "https://github.com/vsjha18/nsetools",
+    "https://www.rbi.org.in/",
+    "https://rbi.org.in/pressreleases_rss.xml",
+    "https://rbi.org.in/notifications_rss.xml",
+    "https://www.rbi.org.in/Publication_rss.xml",
+    "https://data.rbi.org.in/",
+    "https://github.com/niks-data/sebi-rbi-regulatory-scraper",
+    "https://github.com/ArchishmanSengupta/frc",
+    "https://github.com/Akhilgovind02/india-regulatory-mcp",
+    "https://www.sebi.gov.in/robots.txt",
+    "https://www.sebi.gov.in/sebirss.xml",
+    "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=7&smid=0",
+    "https://www.crisilratings.com/robots.txt",
+    "https://www.crisilratings.com/en/home/our-business/ratings/credit-ratings-list.html",
+    "https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=RR&start=0&limit=5",
+    "https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/PrakashAutoPrivateLimited_November%2024_%202026_RR_410880.html",
+    "https://www.spglobal.com/",
+    "https://www.icra.in/robots.txt",
+    "https://www.icra.in/sitemap.xml",
+    "https://www.icra.in/Rationale/ShowRationaleReport/?Id=132755",
+    "https://www.careratings.com/robots.txt",
+    "https://www.careratings.com/find-ratings",
+    "https://www.acuite.in/",
+    "https://connect.acuite.in/liveratings?page=1",
+    "https://github.com/MasterAdnan/AcuiteRating",
+    "https://github.com/vidhikapoor20/Default-credit-companies",
+    "https://www.indiaratings.co.in/",
+    "https://www.indiaratings.co.in/robots.txt",
+    "https://github.com/indiaratings/indiaratings1",
+    "https://scores.sebi.gov.in/robots.txt",
+    "https://smartodr.in/",
+    "https://github.com/lexiforest/curl_cffi",
+    "https://github.com/encode/httpx",
+    "https://github.com/psf/requests",
+    "https://github.com/microsoft/playwright-python",
+    "https://github.com/scrapy/scrapy",
+    "https://github.com/FlorianREGAZ/Python-Tls-Client",
+    "https://github.com/VeNoMouS/cloudscraper"
+  ]
+}

@@ -124,12 +124,14 @@ JS_CASES = [
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node runtime not available")
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr80_ac1_ac2_ac3_per_bond_js_derives_recomputes_and_clears():
     results = run_per_bond_cases(JS_CASES)
     assert results == [case[3] for case in JS_CASES]
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node runtime not available")
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr80_ac1_ac2_ac3_per_bond_js_clears_stale_value_on_invalid_input():
     seed = "1000.00"
     for total, qty in [("", "200"), ("200000", ""), ("200000", "0"), ("200000", "abc")]:
@@ -137,6 +139,7 @@ def test_fr80_ac1_ac2_ac3_per_bond_js_clears_stale_value_on_invalid_input():
     assert run_per_bond_cases([("200000", "200", "")]) == ["1000.00"]
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr80_app_js_exposes_guarded_per_bond_helper(client, db_path):
     source = APP_JS.read_text(encoding="utf-8")
     assert "function perBond(totalId, qtyId, outId)" in source
@@ -147,12 +150,14 @@ def test_fr80_app_js_exposes_guarded_per_bond_helper(client, db_path):
     assert "function perBond" in served
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr80_candidate_form_has_no_per_bond_output(client, db_path):
     html = client.get("/watch").get_data(as_text=True)
     assert not re.search(r'<input[^>]*id="c-perbond"', html)
     assert not re.search(r'<input[^>]*id="c-invested"', html)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr80_move_panel_has_readonly_per_bond_output_and_wiring(client, db_path):
     client.post("/watch", data=candidate_form(qty="200"))
     bond_id = candidate_id(db_path)

@@ -1,3 +1,4 @@
+import pytest
 import re
 from pathlib import Path
 
@@ -36,6 +37,7 @@ def test_every_template_asset_reference_is_cache_busted():
     assert offenders == []
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_base_template_versions_core_assets():
     base = (TEMPLATES / "base.html").read_text(encoding="utf-8")
     for asset in ("theme.css", "guide.css", "theme.js", "app.js", "guide.js"):

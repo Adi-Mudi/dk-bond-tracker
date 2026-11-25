@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"ink":"#16212e","secondary-fixed":"#e0e3e7","mist":"#8592a1","ledger-canvas":"#f6f7f9","secondary-fixed-dim":"#c3c7cb","inverse-surface":"#2e3039","on-background":"#191b24","surface-bright":"#faf8ff","primary-fixed":"#dce1ff","surface-container":"#ededf9","secondary-container":"#dde0e4","secondary":"#5b5f62","on-error":"#ffffff","on-tertiary-fixed-variant":"#802a00","outline":"#747687","surface-dim":"#d9d9e5","paper-surface":"#ffffff","on-tertiary":"#ffffff","due-red-bg":"#fdeceb","info-blue-bg":"#e8effc","inverse-primary":"#b7c4ff","on-error-container":"#93000a","primary-fixed-dim":"#b7c4ff","tertiary-container":"#b23d00","paid-green-fg":"#166534","tertiary-fixed-dim":"#ffb59a","on-secondary-fixed":"#181c1f","on-primary-fixed-variant":"#0039b5","surface-container-high":"#e7e7f3","on-tertiary-fixed":"#380d00","on-primary":"#ffffff","tertiary":"#8a2d00","surface-tint":"#194fe0","on-secondary-container":"#5f6367","surface":"#faf8ff","on-secondary-fixed-variant":"#43474b","tertiary-fixed":"#ffdbcf","error-container":"#ffdad6","primary":"#003dc1","on-tertiary-container":"#ffdace","on-secondary":"#ffffff","primary-container":"#2456e6","on-primary-container":"#dbe0ff","paid-green-bg":"#e8f6ee","background":"#faf8ff","info-blue-fg":"#1d4ed8","surface-container-highest":"#e2e1ed","surface-container-low":"#f3f2ff","surface-variant":"#e2e1ed","on-surface-variant":"#434655","on-surface":"#191b24","outline-variant":"#c4c5d8","error":"#ba1a1a","on-primary-fixed":"#001551","inverse-on-surface":"#f0f0fc","upcoming-amber-fg":"#92400e","slate":"#55606e","surface-container-lowest":"#ffffff","upcoming-amber-bg":"#fdf3e0","hairline":"#e3e8ee","due-red-fg":"#b42318"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"1.5rem","space-xl":"2rem","gutter":"1rem","space-lg":"1.5rem","space-xs":"0.25rem","space-md":"1rem","space-sm":"0.5rem"},"fontFamily":{"body":["Inter","system-ui","sans-serif"],"display":["Inter","system-ui","sans-serif"],"headline-h2":["Inter","system-ui","sans-serif"],"small":["Inter","system-ui","sans-serif"],"headline-h1":["Inter","system-ui","sans-serif"],"label":["Inter","system-ui","sans-serif"]},"fontSize":{"body":["15px",{"lineHeight":"22px","fontWeight":"400"}],"display":["28px",{"lineHeight":"36px","fontWeight":"600"}],"headline-h2":["16px",{"lineHeight":"24px","fontWeight":"600"}],"small":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-h1":["22px",{"lineHeight":"30px","fontWeight":"600"}],"label":["12px",{"lineHeight":"16px","letterSpacing":"0.03em","fontWeight":"500"}]}}}}</script></head><body class="bg-ledger-canvas font-body text-body text-ink antialiased selection:bg-info-blue-bg selection:text-primary"><aside class="fixed left-0 top-0 h-full w-[240px] bg-paper-surface border-r border-hairline z-40 flex flex-col justify-between"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-hairline"><img alt="DK Bond Tracker Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrDutVZvar7TtM6qHNIDNtqQw3VV1CzrGNSCHQ5GZ91o9dSRV0kNifZf288WY5cX_rxyRGjPcJxMm5Yeghe4oSl58mj00PDX8h7t010_-F-kjuWA7dRgDo2bI43iFBQN5-RE2Xr6dOHrSv8Iuy-o5A5-4YdIbGHFK8MxQE5Wc9QMmwYKo3l2jJubG7ZVBYBQF6icOpjb5X208JK0Yv0jy22oPDRSrHbTZh1bJ6ZT8-tzsiz9Q3T5FGex9gbR"/><span class="font-headline-h2 text-headline-h2 text-ink tracking-tight font-semibold">DK Bond Tracker</span></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md"><div class="mb-space-md"><div class="px-space-sm pb-space-xs font-label text-label uppercase text-mist tracking-wider">Main Ledger</div><nav class="space-y-space-xs" data-active-classes="bg-info-blue-bg text-primary-container font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">space_dashboard</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="portfolio" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Portfolio</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="watchlist" href="#"><span class="material-symbols-outlined text-[20px]">visibility</span><span>Watchlist</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="goals" href="#"><span class="material-symbols-outlined text-[20px]">flag</span><span>Goals</span></a></nav></div><div class="pt-space-sm border-t border-hairline"><div class="px-space-sm pb-space-xs font-label text-label uppercase text-mist tracking-wider">System</div><nav class="space-y-space-xs" data-active-classes="bg-info-blue-bg text-primary-container font-semibold"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications_active</span><span>Alerts</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="about" href="#"><span class="material-symbols-outlined text-[20px]">info</span><span>About</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-xl text-slate hover:bg-ledger-canvas hover:text-ink transition-colors font-headline-h2 text-headline-h2" data-path="feedback" href="#"><span class="material-symbols-outlined text-[20px]">rate_review</span><span>Feedback</span></a></nav></div></div></div><div class="p-space-sm border-t border-hairline bg-paper-surface"><div class="flex items-center justify-between p-space-sm rounded-xl bg-ledger-canvas"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="min-w-0 flex-1"><p class="text-small font-small font-semibold text-ink truncate">DK Yield Account</p><p class="text-label font-label text-mist truncate">Fixed Income Desk</p></div></div><span class="material-symbols-outlined text-mist text-[18px]">unfold_more</span></div></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-paper-surface/90 backdrop-blur-md border-b border-hairline z-30 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-small font-small text-mist"><span class="material-symbols-outlined text-[16px]">lock</span><span class="font-label text-label uppercase tracking-wider text-slate">Verified Bond Yields</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Search" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate hover:bg-ledger-canvas hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button aria-label="Alerts" class="relative w-10 h-10 rounded-xl flex items-center justify-center text-slate hover:bg-ledger-canvas hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-4 h-4 bg-due-red-fg text-on-error font-label text-[10px] leading-none font-bold rounded-full flex items-center justify-center">2</span></button><button aria-label="Help" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate hover:bg-ledger-canvas hover:text-ink transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">help</span></button><div class="h-5 w-px bg-hairline mx-space-xs"></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-ledger-canvas min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive Feedback Banner (Hidden by default, triggered on actions) -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-space-sm bg-ink text-on-primary px-space-md py-space-sm rounded-xl shadow-xl" id="toastNotification">
+<span class="material-symbols-outlined text-[18px] text-paid-green-fg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-small text-small" id="toastMessage">ISIN copied to clipboard</span>
+</div>
+<div class="max-w-[1400px] w-full mx-auto px-space-lg py-space-md space-y-space-md">
+<!-- Top Navigation / Breadcrumb -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs font-small text-small text-slate">
+<a class="inline-flex items-center gap-1 hover:text-ink transition-colors font-medium text-primary" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span>Back to Portfolio</span>
+</a>
+<span class="text-hairline">/</span>
+<span class="text-mist">Fixed Income Ledger</span>
+<span class="text-hairline">/</span>
+<span class="text-ink font-semibold">Tata Capital Financial Services (INE306N07MH1)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-label font-label bg-paid-green-bg text-paid-green-fg">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg animate-pulse"></span>
+          Active Portfolio Asset
+        </span>
+<span class="text-label font-label text-mist font-mono">SYS_ID: #BND-TCF-2024</span>
+</div>
+</div>
+<!-- Security Header Card -->
+<div class="bg-paper-surface rounded-xl p-space-lg shadow-sm border border-hairline">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<!-- Entity Identity & Metadata Badges -->
+<div class="space-y-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-label font-semibold">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+              AAA CRISIL (Stable)
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-semibold">
+<span class="material-symbols-outlined text-[14px]">radio_button_checked</span>
+              On-going
+            </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-ledger-canvas text-slate font-label text-label border border-hairline">
+              NSE / BSE Listed
+            </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-ledger-canvas text-slate font-label text-label border border-hairline">
+              Catalyst Trusteeship Ltd
+            </span>
+</div>
+<h1 class="font-display text-display text-ink tracking-tight font-semibold">
+            Tata Capital Financial Services Limited
+          </h1>
+<div class="flex flex-wrap items-center gap-space-md text-small font-small text-slate pt-0.5">
+<div class="inline-flex items-center gap-1.5 bg-ledger-canvas px-2.5 py-1 rounded border border-hairline font-mono text-[13px] text-ink">
+<span class="text-mist font-normal">ISIN:</span>
+<span class="font-semibold tracking-wider" id="isinText">INE306N07MH1</span>
+<button aria-label="Copy ISIN" class="text-slate hover:text-primary transition-colors flex items-center ml-1" onclick="copyISIN()">
+<span class="material-symbols-outlined text-[15px]">content_copy</span>
+</button>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-mist">account_balance</span>
+<span>Scrip: <span class="font-mono text-ink font-medium">938210 (BSE)</span> | <span class="font-mono text-ink font-medium">TATACAP (NSE)</span></span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-mist">security</span>
+<span>Senior Secured NCD</span>
+</div>
+</div>
+</div>
+<!-- Action Control Group -->
+<div class="flex flex-wrap items-center gap-space-xs pt-2 lg:pt-0">
+<button class="h-10 px-3.5 rounded-xl border border-hairline bg-paper-surface hover:bg-ledger-canvas text-ink font-label text-label font-medium transition-colors inline-flex items-center gap-1.5 shadow-sm" onclick="triggerToast('Security details refreshed with exchange feeds.')" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">sync</span>
+<span>Refresh</span>
+</button>
+<button class="h-10 px-3.5 rounded-xl border border-hairline bg-paper-surface hover:bg-ledger-canvas text-ink font-label text-label font-medium transition-colors inline-flex items-center gap-1.5 shadow-sm" onclick="triggerToast('Downloading IM &amp; Term Sheet PDF...')" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">description</span>
+<span>Security Note</span>
+</button>
+<button class="h-10 px-3.5 rounded-xl border border-hairline bg-paper-surface hover:bg-ledger-canvas text-ink font-label text-label font-medium transition-colors inline-flex items-center gap-1.5 shadow-sm" onclick="triggerToast('Editing holding allocation parameters...')" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate">tune</span>
+<span>Edit Holding</span>
+</button>
+<button class="h-10 px-4 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label text-label font-semibold transition-all inline-flex items-center gap-2 shadow-sm" onclick="triggerToast('Coupon cycle entry modal initialized.')" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Record Coupon</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Two-Column Layout (70% Ledger / 30% Schedule & Analytics) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
+<!-- LEFT COLUMN: 70% (8 Cols in standard 12-col layout) -->
+<div class="lg:col-span-8 space-y-space-md">
+<!-- Summary KPI Bar -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-sm">
+<div class="bg-paper-surface p-space-md rounded-xl border border-hairline shadow-sm">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label text-label uppercase text-mist tracking-wider">Total Invested</span>
+<span class="material-symbols-outlined text-[16px] text-slate">account_balance_wallet</span>
+</div>
+<div class="font-headline-h1 text-headline-h1 text-ink font-semibold tabular-nums mt-0.5">
+              ₹ 5,00,000
+            </div>
+<div class="font-small text-small text-slate mt-1 flex items-center gap-1">
+<span class="text-mist">Units:</span>
+<span class="font-medium font-mono text-ink">500</span>
+<span class="text-mist text-[11px]">@ ₹1,000 FV</span>
+</div>
+</div>
+<div class="bg-paper-surface p-space-md rounded-xl border border-hairline shadow-sm">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label text-label uppercase text-mist tracking-wider">Coupon Yield</span>
+<span class="material-symbols-outlined text-[16px] text-primary">percent</span>
+</div>
+<div class="font-headline-h1 text-headline-h1 text-primary font-semibold tabular-nums mt-0.5">
+              9.15% <span class="font-label text-label text-slate font-normal">p.a.</span>
+</div>
+<div class="font-small text-small text-slate mt-1 flex items-center gap-1">
+<span class="text-mist">IRR / XIRR:</span>
+<span class="font-medium text-paid-green-fg font-mono">9.30%</span>
+</div>
+</div>
+<div class="bg-paper-surface p-space-md rounded-xl border border-hairline shadow-sm">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label text-label uppercase text-mist tracking-wider">Total Received</span>
+<span class="material-symbols-outlined text-[16px] text-paid-green-fg">payments</span>
+</div>
+<div class="font-headline-h1 text-headline-h1 text-paid-green-fg font-semibold tabular-nums mt-0.5">
+              ₹ 1,42,500
+            </div>
+<div class="font-small text-small text-slate mt-1">
+<span>3 cycles settled</span>
+</div>
+</div>
+<div class="bg-paper-surface p-space-md rounded-xl border border-hairline shadow-sm">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label text-label uppercase text-mist tracking-wider">Next Payout</span>
+<span class="material-symbols-outlined text-[16px] text-upcoming-amber-fg">event</span>
+</div>
+<div class="font-headline-h1 text-headline-h1 text-ink font-semibold tabular-nums mt-0.5">
+              ₹ 45,750
+            </div>
+<div class="font-small text-small text-upcoming-amber-fg font-medium mt-1 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-upcoming-amber-fg"></span>
+<span>18 Jan 2027 (Annual)</span>
+</div>
+</div>
+</div>
+<!-- Facts Grid (2-Column Key-Value Ledger Card) -->
+<div class="bg-paper-surface rounded-xl border border-hairline shadow-sm overflow-hidden">
+<div class="px-space-md py-space-sm bg-ledger-canvas border-b border-hairline flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-slate">dataset</span>
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Debenture Specifications &amp; Terms</h2>
+</div>
+<span class="font-label text-label text-mist uppercase tracking-wider">Regulated Bond Spec</span>
+</div>
+<div class="p-space-md grid grid-cols-1 md:grid-cols-2 gap-x-space-lg gap-y-space-sm">
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Face Value (Par)</span>
+<span class="font-body text-body font-medium text-ink font-mono tabular-nums">₹ 1,000 / unit</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Issue Type &amp; Lien</span>
+<span class="font-body text-body font-medium text-ink">Senior Secured Taxable NCD</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Coupon Rate</span>
+<span class="font-body text-body font-semibold text-primary font-mono tabular-nums">9.15% per annum</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Interest Payout Frequency</span>
+<span class="font-body text-body font-medium text-ink">Annual (Every 18th January)</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Invested Principal</span>
+<span class="font-body text-body font-medium text-ink font-mono tabular-nums">₹ 5,00,000.00</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Allocated Quantity</span>
+<span class="font-body text-body font-medium text-ink font-mono tabular-nums">500 Units</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Allotment / Purchase Date</span>
+<span class="font-body text-body font-medium text-ink font-mono">18 Jan 2024</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Redemption / Maturity Date</span>
+<span class="font-body text-body font-semibold text-ink font-mono">18 Jan 2029 (5.0 Yrs)</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Record Date Offset</span>
+<span class="font-body text-body font-medium text-ink">15 days prior to coupon date</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Credit Day of Month</span>
+<span class="font-body text-body font-medium text-ink">18th of January</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Depository Mode</span>
+<span class="font-body text-body font-medium text-ink">NSDL / CDSL Dematerialised</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-hairline">
+<span class="font-small text-small text-slate">Security Cover / Asset Backing</span>
+<span class="font-body text-body font-medium text-paid-green-fg flex items-center gap-1 font-mono">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+                1.10x Book Debts &amp; Receivables
+              </span>
+</div>
+</div>
+</div>
+<!-- Payment History Table -->
+<div class="bg-paper-surface rounded-xl border border-hairline shadow-sm overflow-hidden">
+<div class="px-space-md py-space-sm bg-ledger-canvas border-b border-hairline flex flex-wrap items-center justify-between gap-2">
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Historical &amp; Scheduled Ledger</h2>
+<p class="font-small text-small text-slate">Record of coupon distributions, TDS adjustments, and upcoming dues.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-8 px-2.5 rounded-lg border border-hairline bg-paper-surface text-ink hover:bg-ledger-canvas font-label text-label flex items-center gap-1" onclick="triggerToast('Generating Excel ledger export with TDS breakdown...')" type="button">
+<span class="material-symbols-outlined text-[16px] text-slate">download</span>
+<span>Export Ledger</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-ledger-canvas/80 text-mist border-b border-hairline font-label text-label uppercase tracking-wider">
+<th class="py-3 px-space-md font-medium">Payout Cycle</th>
+<th class="py-3 px-space-md font-medium text-right">Expected (₹)</th>
+<th class="py-3 px-space-md font-medium text-right">Received (₹)</th>
+<th class="py-3 px-space-md font-medium text-right">TDS (10%)</th>
+<th class="py-3 px-space-md font-medium text-right">Net Credited</th>
+<th class="py-3 px-space-md font-medium">Bank Reference / Account</th>
+<th class="py-3 px-space-md font-medium text-center">Status</th>
+<th class="py-3 px-space-md font-medium text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline font-body text-body">
+<!-- Row: Upcoming 2027 -->
+<tr class="hover:bg-ledger-canvas/50 transition-colors">
+<td class="py-3.5 px-space-md">
+<div class="font-medium text-ink font-mono text-[14px]">18 Jan 2027</div>
+<div class="font-small text-small text-mist">Coupon Cycle #4</div>
+</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-ink font-medium">₹ 45,750</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-mist">-</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-mist">- ₹ 4,575</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-ink font-semibold">~₹ 41,175</td>
+<td class="py-3.5 px-space-md text-slate font-small text-small">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-mist">account_balance</span>
+<span>HDFC •••• 8821</span>
+</div>
+<div class="text-[11px] text-mist font-mono">Scheduled direct ECS</div>
+</td>
+<td class="py-3.5 px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+                      Upcoming
+                    </span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas inline-flex items-center justify-center text-slate hover:text-ink transition-colors" onclick="triggerToast('Editing scheduled 2027 payout note.')" title="Edit Schedule" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row: 2026 Paid -->
+<tr class="hover:bg-ledger-canvas/50 transition-colors">
+<td class="py-3.5 px-space-md">
+<div class="font-medium text-ink font-mono text-[14px]">18 Jan 2026</div>
+<div class="font-small text-small text-mist">Coupon Cycle #3</div>
+</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-slate">₹ 45,750</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-paid-green-fg font-medium">₹ 45,750</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-due-red-fg">- ₹ 4,575</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-ink font-semibold">₹ 41,175</td>
+<td class="py-3.5 px-space-md text-slate font-small text-small">
+<div class="text-ink font-medium">HDFC Bank</div>
+<div class="font-mono text-mist text-[11px]">UTR: CMS891204821</div>
+</td>
+<td class="py-3.5 px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                      Paid
+                    </span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas inline-flex items-center justify-center text-slate hover:text-primary transition-colors" onclick="triggerToast('Viewing UTR #CMS891204821 slip...')" title="View UTR" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas inline-flex items-center justify-center text-slate hover:text-ink transition-colors" onclick="triggerToast('Editing transaction record #18-JAN-2026')" title="Edit Row" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row: 2025 Paid -->
+<tr class="hover:bg-ledger-canvas/50 transition-colors">
+<td class="py-3.5 px-space-md">
+<div class="font-medium text-ink font-mono text-[14px]">18 Jan 2025</div>
+<div class="font-small text-small text-mist">Coupon Cycle #2</div>
+</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-slate">₹ 45,750</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-paid-green-fg font-medium">₹ 45,750</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-due-red-fg">- ₹ 4,575</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-ink font-semibold">₹ 41,175</td>
+<td class="py-3.5 px-space-md text-slate font-small text-small">
+<div class="text-ink font-medium">HDFC Bank</div>
+<div class="font-mono text-mist text-[11px]">UTR: CMS302199201</div>
+</td>
+<td class="py-3.5 px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                      Paid
+                    </span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas inline-flex items-center justify-center text-slate hover:text-primary transition-colors" onclick="triggerToast('Viewing UTR #CMS302199201 slip...')" title="View UTR" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</button>
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas inline-flex items-center justify-center text-slate hover:text-ink transition-colors" onclick="triggerToast('Editing transaction record #18-JAN-2025')" title="Edit Row" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row: 2024 Initial Settlement -->
+<tr class="hover:bg-ledger-canvas/50 transition-colors bg-ledger-canvas/20">
+<td class="py-3.5 px-space-md">
+<div class="font-medium text-ink font-mono text-[14px]">18 Jan 2024</div>
+<div class="font-small text-small text-mist">Allotment / Primary Issue</div>
+</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-slate">-</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-slate">-</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-slate">-</td>
+<td class="py-3.5 px-space-md text-right font-mono tabular-nums text-slate">-</td>
+<td class="py-3.5 px-space-md text-slate font-small text-small">
+<div class="text-ink font-medium">Primary Allotment Advice</div>
+<div class="font-mono text-mist text-[11px]">Demat Credit (NSDL)</div>
+</td>
+<td class="py-3.5 px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[12px]">task_alt</span>
+                      Settled
+                    </span>
+</td>
+<td class="py-3.5 px-space-md text-right">
+<button class="w-8 h-8 rounded-lg hover:bg-ledger-canvas inline-flex items-center justify-center text-slate hover:text-ink transition-colors" onclick="triggerToast('Primary Demat Allotment Slip downloaded.')" title="Allotment Letter" type="button">
+<span class="material-symbols-outlined text-[18px]">attachment</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-space-md py-3 bg-ledger-canvas border-t border-hairline flex flex-wrap items-center justify-between text-small font-small text-slate">
+<span>Showing 4 recorded tenure cycles</span>
+<div class="flex items-center gap-space-sm font-mono text-[13px]">
+<span>Cumulative Gross Yield Received: <strong class="text-paid-green-fg tabular-nums font-semibold">₹ 1,42,500.00</strong></span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: 30% (4 Cols) Side Panel -->
+<div class="lg:col-span-4 space-y-space-md">
+<!-- Progress of Tenure Card -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm border-b border-hairline">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-slate">timelapse</span>
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Tenure Progress</h2>
+</div>
+<span class="font-mono text-small font-small text-primary font-semibold">40% Elapsed</span>
+</div>
+<!-- Custom Gauge / Progress Display -->
+<div class="mt-space-md space-y-space-xs">
+<div class="flex items-center justify-between font-label text-label text-slate">
+<span>Allotment: 18 Jan 2024</span>
+<span>Maturity: 18 Jan 2029</span>
+</div>
+<!-- Visual Bar -->
+<div class="w-full h-3 bg-ledger-canvas rounded-full overflow-hidden p-0.5 border border-hairline">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 40%"></div>
+</div>
+<div class="flex items-center justify-between font-small text-small pt-1">
+<span class="text-ink font-medium">24 Months Done</span>
+<span class="text-slate font-medium">36 Months Remaining</span>
+</div>
+</div>
+<!-- Total Lifetime Cashflows Breakdown -->
+<div class="mt-space-md p-space-sm bg-ledger-canvas rounded-xl border border-hairline space-y-2">
+<span class="font-label text-label uppercase text-mist tracking-wider">Total Expected Lifetime Cashflows</span>
+<div class="font-headline-h1 text-headline-h1 text-ink font-semibold tabular-nums">
+              ₹ 7,28,750
+            </div>
+<div class="grid grid-cols-2 gap-2 pt-2 border-t border-hairline text-small font-small">
+<div>
+<span class="text-mist block">Principal Returned</span>
+<span class="font-mono font-medium text-ink tabular-nums">₹ 5,00,000</span>
+</div>
+<div>
+<span class="text-mist block">Total Coupon Yield</span>
+<span class="font-mono font-medium text-primary tabular-nums">₹ 2,28,750</span>
+</div>
+</div>
+</div>
+<!-- Principal Recovery & Credit Protection Badge -->
+<div class="mt-space-md pt-space-sm border-t border-hairline flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-paid-green-fg shrink-0 mt-0.5">verified_user</span>
+<div>
+<p class="font-headline-h2 text-[14px] text-ink font-semibold">Lien Protection Confirmed</p>
+<p class="font-small text-small text-slate mt-0.5">
+                First pari-passu charge on standard receivables. Trustee audit cleared on 15 Dec 2025.
+              </p>
+</div>
+</div>
+</div>
+<!-- Payout Schedule Mini List (Remaining Cycles Timeline) -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm border-b border-hairline">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-slate">date_range</span>
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Future Cashflow Timeline</h2>
+</div>
+<span class="font-label text-label text-mist">3 Cycles</span>
+</div>
+<div class="mt-space-md relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-hairline">
+<!-- Item 1: Jan 2027 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-primary bg-paper-surface"></span>
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono font-medium text-ink text-[14px]">18 Jan 2027</span>
+<span class="text-label font-label text-upcoming-amber-fg bg-upcoming-amber-bg px-2 py-0.5 rounded-full">In 11 months</span>
+</div>
+<div class="font-headline-h2 text-headline-h2 text-ink tabular-nums font-semibold mt-0.5">
+                  ₹ 45,750
+                </div>
+<div class="font-small text-small text-slate">
+                  Coupon #3 • Annual 9.15% Yield
+                </div>
+</div>
+</div>
+<!-- Item 2: Jan 2028 -->
+<div class="relative group">
+<span class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-mist bg-paper-surface"></span>
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono font-medium text-ink text-[14px]">18 Jan 2028</span>
+<span class="text-label font-label text-mist bg-ledger-canvas px-2 py-0.5 rounded-full border border-hairline">In 23 months</span>
+</div>
+<div class="font-headline-h2 text-headline-h2 text-ink tabular-nums font-semibold mt-0.5">
+                  ₹ 45,750
+                </div>
+<div class="font-small text-small text-slate">
+                  Coupon #4 • Annual 9.15% Yield
+                </div>
+</div>
+</div>
+<!-- Item 3: Jan 2029 Maturity & Bullet Repayment -->
+<div class="relative group">
+<span class="absolute -left-6 top-1 w-4 h-4 rounded-full border-2 border-paid-green-fg bg-paid-green-fg"></span>
+<div class="p-space-sm bg-ledger-canvas rounded-lg border border-hairline">
+<div class="flex items-center justify-between">
+<span class="font-mono font-semibold text-ink text-[14px]">18 Jan 2029</span>
+<span class="text-label font-label text-paid-green-fg bg-paid-green-bg px-2 py-0.5 rounded-full font-medium">Maturity Bullet</span>
+</div>
+<div class="font-headline-h2 text-headline-h2 text-paid-green-fg tabular-nums font-semibold mt-0.5">
+                  ₹ 5,45,750
+                </div>
+<div class="font-small text-small text-slate mt-0.5">
+                  Final Coupon (₹ 45,750) + Principal Repayment (₹ 5,00,000)
+                </div>
+</div>
+</div>
+</div>
+<!-- Bank Mandate Verification Note -->
+<div class="mt-space-lg pt-space-sm border-t border-hairline bg-ledger-canvas p-space-sm rounded-lg flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">account_balance</span>
+<div class="text-small font-small text-slate">
+<span class="text-ink font-medium block">Direct ECS Bank Mandate Active</span>
+              Linked to HDFC Bank A/c ending in <strong class="font-mono text-ink">•••• 8821</strong> via NACH mandate authentication.
+            </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+    function triggerToast(message) {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastMessage');
+      if (!toast || !text) return;
+      text.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-16', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-16', 'pointer-events-none');
+      }, 3000);
+    }
+
+    function copyISIN() {
+      const isin = document.getElementById('isinText').innerText;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(isin).then(() => {
+          triggerToast('ISIN ' + isin + ' copied to clipboard');
+        }).catch(() => {
+          triggerToast('ISIN: ' + isin);
+        });
+      } else {
+        triggerToast('ISIN: ' + isin);
+      }
+    }
+  </script>
+</div></main></div></body></html>

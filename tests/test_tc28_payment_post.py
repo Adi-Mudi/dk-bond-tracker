@@ -45,6 +45,7 @@ def seed_paid_ongoing(db_path):
     return bond_id, base, start
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc28_post_zero_amount_flips_status_and_redirects(client, db_path):
     bond_id, base, start = seed_paid_ongoing(db_path)
     with get_conn(db_path) as conn:
@@ -87,6 +88,7 @@ def test_tc28_duplicate_post_takes_correction_path(client, db_path):
         assert int(row["paid"]) == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc28_edit_completing_tenure_flips_completed(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -107,6 +109,7 @@ def test_tc28_edit_completing_tenure_flips_completed(client, db_path):
     assert f'cell cell-paid" data-bond="{bond_id}" data-month="{target}"' in page
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc28_invalid_amount_shows_named_error_no_redirect(client, db_path):
     bond_id, base, start = seed_paid_ongoing(db_path)
     target = month_key_of(start)
@@ -123,12 +126,14 @@ def test_tc28_invalid_amount_shows_named_error_no_redirect(client, db_path):
         assert float(row["amount"]) == 1000.0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc28_missing_bond_shows_named_error(client, db_path):
     response = client.post("/payment/9999/2026-01", data={"amount": "100", "paid": "on"})
     assert response.status_code == 400
     assert "operation: ERR-ledger-insert" in response.get_data(as_text=True)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc28_unknown_month_string_shows_named_error(client, db_path):
     bond_id, base, start = seed_paid_ongoing(db_path)
     response = client.post(

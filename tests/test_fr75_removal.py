@@ -28,6 +28,7 @@ def client(db_path):
     return app.test_client()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr75_ac1_portfolio_has_no_add_position_ui(client, db_path):
     with get_conn(db_path) as conn:
         assert bond_count(conn) == 0

@@ -162,6 +162,7 @@ def test_importing_twice_is_refused_without_duplicates(tmp_path):
     assert row_count(target) == before
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_settings_page_shows_import_form_and_warning(tmp_path):
     db_path = tmp_path / "bonds.db"
     init_db(db_path)
@@ -172,6 +173,7 @@ def test_settings_page_shows_import_form_and_warning(tmp_path):
     assert 'href="/export.csv?scope=backup"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_post_import_valid_redirects_with_counts_and_invalid_is_named(tmp_path):
     source = tmp_path / "source.db"
     seed(source)

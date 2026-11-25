@@ -74,6 +74,7 @@ def test_tc42_this_month_returns_exact_sum(db_path):
     assert result == {"month": "2026-10", "total": 3300.0, "message": None}
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc42_dashboard_page_amounts_match_queries(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:

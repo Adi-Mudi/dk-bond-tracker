@@ -1,3 +1,4 @@
+import pytest
 import re
 from pathlib import Path
 
@@ -121,11 +122,13 @@ def test_guard_rejects_missing_mobile_anchor():
     assert search_panel_guard(no_mobile) is False
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_search_panel_cannot_collapse_to_the_icon_width():
     css = GUIDE_CSS.read_text(encoding="utf-8")
     assert search_panel_guard(css) is True
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_overflow_panel_is_not_clamped_to_its_icon_wrapper():
     css = THEME_CSS.read_text(encoding="utf-8")
     assert overflow_panel_guard(css) is True

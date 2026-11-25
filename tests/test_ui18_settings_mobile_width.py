@@ -1,3 +1,4 @@
+import pytest
 import re
 from pathlib import Path
 
@@ -82,6 +83,7 @@ def test_parser_reads_mobile_block_rules():
     assert rules[".settings-content"]["width"] == "100%"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_settings_mobile_block_prevents_content_collapse():
     rules = mobile_rules(inline_css(SETTINGS))
     assert rules, "missing @media (max-width: 768px) block in settings.html"

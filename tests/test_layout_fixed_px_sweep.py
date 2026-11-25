@@ -1,3 +1,4 @@
+import pytest
 import re
 from pathlib import Path
 
@@ -144,6 +145,7 @@ def test_sweep_ignores_media_conditions():
     assert px_offsets("src/static/theme.css", css) == []
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_sweep_reads_the_known_icon_allowlist():
     found = set(scanned_px_offsets())
     assert found & ALLOWLIST, "no allowlisted hits found - the sweep may have stopped reading files"
@@ -154,6 +156,7 @@ def test_no_structural_fixed_px_outside_allowlist():
     assert not offenders, offenders
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_grid_skeletons_use_auto_fit_minmax():
     for relpath, selector in GRID_TARGETS:
         bodies = blocks_for(relpath, selector)

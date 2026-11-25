@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 from src.app import create_app
@@ -13,6 +14,7 @@ def make_client(db_path):
     return app.test_client(), app
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_af11_2_fresh_install_answers_a_common_isin_with_no_network(db_path):
     def transport(url, timeout):
         raise FileNotFoundError("no local download configured")

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Print (Web) - DK Bond Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f1f3f6;
+      color: #16212e;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+    }
+    /* A4 document dimensions */
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 32px auto;
+      background: #ffffff;
+      padding: 22mm 20mm;
+      box-sizing: border-box;
+      box-shadow: 0 4px 20px rgba(22, 33, 46, 0.08), 0 1px 3px rgba(22, 33, 46, 0.04);
+      position: relative;
+    }
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .a4-sheet {
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: 100% !important;
+        padding: 16mm 14mm !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16 flex flex-col items-center">
+
+  <!-- Floating Utility / Action Bar (Top / Non-Print) -->
+  <header class="no-print w-full sticky top-0 z-50 bg-[#ffffff] border-b border-[#e3e8ee] px-6 py-3.5 shadow-sm">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="#" onclick="window.history.back(); return false;" class="inline-flex items-center text-sm font-medium text-[#55606e] hover:text-[#16212e] transition-colors p-1.5 -ml-1.5 rounded-md hover:bg-[#eef1f5]">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Ledger
+        </a>
+        <span class="text-[#e3e8ee]">|</span>
+        <div class="flex items-center space-x-2">
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#eef1f5] text-[#55606e]">A4 Standard</span>
+          <span class="text-xs text-[#8592a1]">Monthly Payout Statement &bull; December 2026</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Scale / Orientation Indicator -->
+        <span class="text-xs text-[#55606e] hidden sm:inline">100% Scale &bull; Ink-on-White</span>
+
+        <!-- Print Action Button -->
+        <button onclick="window.print()" class="inline-flex items-center justify-center px-4 py-2 bg-[#2456e6] hover:bg-[#1c46c2] text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#2456e6] focus:ring-offset-2">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Print / Save PDF
+        </button>
+
+        <button onclick="alert('Exporting CSV ledger statement...')" class="inline-flex items-center justify-center px-3.5 py-2 border border-[#e3e8ee] hover:bg-[#eef1f5] text-[#16212e] text-sm font-medium rounded-lg transition-colors">
+          <svg class="w-4 h-4 mr-1.5 text-[#55606e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          CSV
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Document Canvas / Centered A4 Page -->
+  <main class="w-full flex justify-center px-4 sm:px-6">
+    <article class="a4-sheet border border-[#e3e8ee] print:border-0 text-[#16212e] flex flex-col justify-between">
+      
+      <div>
+        <!-- 1. Document Header -->
+        <header class="border-b-2 border-[#16212e] pb-6 mb-7">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="inline-block w-3.5 h-3.5 bg-[#2456e6] rounded-sm"></span>
+                <h1 class="text-xl font-bold tracking-tight text-[#16212e]">DK BOND TRACKER</h1>
+              </div>
+              <p class="text-xs uppercase tracking-wider text-[#55606e] font-medium mt-1">Fixed Income Investment Ledger &amp; Depository CAS Reconciliation</p>
+              <div class="mt-3 text-xs text-[#55606e] space-y-0.5">
+                <p><span class="text-[#8592a1]">Account Holder:</span> DK Yield Account (Primary Demat)</p>
+                <p><span class="text-[#8592a1]">DP ID / Client Ref:</span> IN300126-118290 &bull; NSDL / CDSL Synced</p>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <div class="inline-block border border-[#e3e8ee] px-3 py-1.5 rounded bg-[#faf8ff] text-right mb-2">
+                <span class="block text-[10px] font-semibold tracking-wider uppercase text-[#55606e]">Statement Cycle</span>
+                <span class="text-sm font-bold text-[#16212e]">DECEMBER 2026</span>
+              </div>
+              <p class="text-xs text-[#55606e]"><span class="text-[#8592a1]">Generated:</span> 15 Dec 2026, 09:30 IST</p>
+              <p class="text-xs text-[#55606e]"><span class="text-[#8592a1]">Document Ref:</span> STMT-202612-DKB</p>
+            </div>
+          </div>
+        </header>
+
+        <!-- 2. Statement Executive Summary Line -->
+        <section class="mb-7">
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-[#55606e] mb-2.5">
+            Monthly Coupon Cashflow Summary
+          </div>
+          
+          <div class="grid grid-cols-4 border border-[#e3e8ee] rounded-md divide-x divide-[#e3e8ee] bg-[#ffffff]">
+            <!-- Col 1: Expected Gross -->
+            <div class="p-3.5">
+              <span class="block text-[11px] font-medium text-[#8592a1] uppercase">Total Expected</span>
+              <span class="text-lg font-bold text-[#16212e] num mt-0.5 block">&#8377; 98,562<span class="text-xs text-[#55606e] font-normal">.00</span></span>
+              <span class="text-[11px] text-[#55606e] mt-1 block">5 scheduled coupons</span>
+            </div>
+
+            <!-- Col 2: Total Received -->
+            <div class="p-3.5">
+              <span class="block text-[11px] font-medium text-[#8592a1] uppercase">Total Received</span>
+              <span class="text-lg font-bold text-[#166534] num mt-0.5 block">&#8377; 41,175<span class="text-xs text-[#166534] font-normal">.00</span></span>
+              <span class="text-[11px] text-[#55606e] mt-1 block">1 settled ECS credit</span>
+            </div>
+
+            <!-- Col 3: Statutory TDS -->
+            <div class="p-3.5">
+              <span class="block text-[11px] font-medium text-[#8592a1] uppercase">TDS Withheld (10%)</span>
+              <span class="text-lg font-bold text-[#92400e] num mt-0.5 block">&#8377; 4,575<span class="text-xs text-[#92400e] font-normal">.00</span></span>
+              <span class="text-[11px] text-[#55606e] mt-1 block">Sec 193 deduction</span>
+            </div>
+
+            <!-- Col 4: Pending / Overdue -->
+            <div class="p-3.5">
+              <span class="block text-[11px] font-medium text-[#8592a1] uppercase">Pending / Action</span>
+              <span class="text-lg font-bold text-[#b42318] num mt-0.5 block">&#8377; 52,812<span class="text-xs text-[#b42318] font-normal">.00</span></span>
+              <span class="text-[11px] text-[#55606e] mt-1 block">1 due, 1 overdue, 2 sched</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Per-Bond Detailed Coupon Table -->
+        <section class="mb-8">
+          <div class="flex items-center justify-between mb-2.5">
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-[#55606e]">
+              Coupon Disbursement Schedule &amp; Audit Log
+            </h2>
+            <span class="text-xs text-[#55606e]">Currency: INR (&#8377;)</span>
+          </div>
+
+          <div class="border border-[#e3e8ee] rounded-md overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-[#eef1f5] border-b border-[#e3e8ee] text-[#16212e] font-semibold uppercase text-[10px] tracking-wider">
+                  <th class="py-2.5 px-3">Company &amp; Security Specs</th>
+                  <th class="py-2.5 px-3">ISIN Identifier</th>
+                  <th class="py-2.5 px-3 text-center">Due Date</th>
+                  <th class="py-2.5 px-3 text-right">Expected (&#8377;)</th>
+                  <th class="py-2.5 px-3 text-right">Received (&#8377;)</th>
+                  <th class="py-2.5 px-3 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#e3e8ee] bg-white">
+                
+                <!-- Row 1: Tata Capital (Settled) -->
+                <tr>
+                  <td class="py-3 px-3">
+                    <div class="font-semibold text-[#16212e]">Tata Capital Financial Services Ltd</div>
+                    <div class="text-[11px] text-[#55606e]">9.15% Annual Unsecured NCD &bull; AAA CRISIL</div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="font-mono text-[11px] text-[#16212e]">INE306N07MH1</span>
+                    <div class="text-[10px] text-[#8592a1]">UTR: CMS891204821</div>
+                  </td>
+                  <td class="py-3 px-3 text-center num text-[#55606e]">05 Dec 2026</td>
+                  <td class="py-3 px-3 text-right num text-[#55606e]">45,750.00</td>
+                  <td class="py-3 px-3 text-right font-medium num text-[#166534]">41,175.00</td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#e8f6ee] text-[#166534] border border-[#166534]/20">
+                      Paid
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Row 2: HDFC Credila (Due Today) -->
+                <tr>
+                  <td class="py-3 px-3">
+                    <div class="font-semibold text-[#16212e]">HDFC Credila Financial Services</div>
+                    <div class="text-[11px] text-[#55606e]">9.45% Annual Senior NCD &bull; AAA CRISIL</div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="font-mono text-[11px] text-[#16212e]">INE539K07106</span>
+                    <div class="text-[10px] text-[#8592a1]">HDFC &bull;&bull;&bull;&bull; 8821 Mandate</div>
+                  </td>
+                  <td class="py-3 px-3 text-center num text-[#92400e] font-medium">15 Dec 2026</td>
+                  <td class="py-3 px-3 text-right num font-medium text-[#16212e]">32,800.00</td>
+                  <td class="py-3 px-3 text-right num text-[#8592a1]">&mdash;</td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#fdf3e0] text-[#92400e] border border-[#92400e]/20">
+                      Due Today
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Row 3: Piramal Capital (Overdue / Review) -->
+                <tr>
+                  <td class="py-3 px-3">
+                    <div class="font-semibold text-[#16212e]">Piramal Capital &amp; Housing Finance</div>
+                    <div class="text-[11px] text-[#b42318]">10.20% Monthly NCD &bull; AA- Rating Watch</div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="font-mono text-[11px] text-[#16212e]">INE641A07137</span>
+                    <div class="text-[10px] text-[#b42318]">ECS Query Pending</div>
+                  </td>
+                  <td class="py-3 px-3 text-center num text-[#b42318] font-medium">01 Dec 2026</td>
+                  <td class="py-3 px-3 text-right num font-medium text-[#16212e]">12,750.00</td>
+                  <td class="py-3 px-3 text-right num text-[#b42318]">&mdash;</td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#fdeceb] text-[#b42318] border border-[#b42318]/20">
+                      Overdue
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Row 4: Muthoot Finance (Upcoming) -->
+                <tr>
+                  <td class="py-3 px-3">
+                    <div class="font-semibold text-[#16212e]">Muthoot Finance NCD</div>
+                    <div class="text-[11px] text-[#55606e]">9.75% Monthly Regular &bull; AA+ Stable</div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="font-mono text-[11px] text-[#16212e]">INE414G07GF3</span>
+                    <div class="text-[10px] text-[#8592a1]">Direct ECS Link</div>
+                  </td>
+                  <td class="py-3 px-3 text-center num text-[#55606e]">22 Dec 2026</td>
+                  <td class="py-3 px-3 text-right num text-[#55606e]">4,062.00</td>
+                  <td class="py-3 px-3 text-right num text-[#8592a1]">&mdash;</td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#eef1f5] text-[#55606e]">
+                      Scheduled
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Row 5: Shriram Finance (Upcoming) -->
+                <tr>
+                  <td class="py-3 px-3">
+                    <div class="font-semibold text-[#16212e]">Shriram Finance Ltd</div>
+                    <div class="text-[11px] text-[#55606e]">9.60% Monthly Subordinated &bull; AA+ CRISIL</div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="font-mono text-[11px] text-[#16212e]">INE721A07QE2</span>
+                    <div class="text-[10px] text-[#8592a1]">HDFC &bull;&bull;&bull;&bull; 8821 Mandate</div>
+                  </td>
+                  <td class="py-3 px-3 text-center num text-[#55606e]">28 Dec 2026</td>
+                  <td class="py-3 px-3 text-right num text-[#55606e]">3,200.00</td>
+                  <td class="py-3 px-3 text-right num text-[#8592a1]">&mdash;</td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#eef1f5] text-[#55606e]">
+                      Scheduled
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+
+              <!-- 4. Totals Row -->
+              <tfoot>
+                <tr class="bg-[#faf8ff] border-t-2 border-[#16212e] font-bold text-xs">
+                  <td colspan="3" class="py-3 px-3 text-[#16212e] uppercase tracking-wide">
+                    Monthly Totals (5 Active Entitlements)
+                  </td>
+                  <td class="py-3 px-3 text-right num text-[#16212e] text-sm">
+                    &#8377; 98,562.00
+                  </td>
+                  <td class="py-3 px-3 text-right num text-[#166534] text-sm">
+                    &#8377; 41,175.00
+                  </td>
+                  <td class="py-3 px-3 text-center">
+                    <span class="text-[11px] font-semibold text-[#55606e] num">41.8% Settled</span>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- Statutory Notes & Tax Compliance Sub-Block -->
+        <section class="border border-[#e3e8ee] bg-[#ffffff] p-3.5 rounded-md mb-6 text-xs text-[#55606e]">
+          <div class="flex items-center justify-between mb-1.5 font-semibold text-[#16212e]">
+            <span>Income Tax &amp; TDS Withholding (Section 193):</span>
+            <span class="num text-[#16212e]">Form 26AS Matched</span>
+          </div>
+          <p class="leading-relaxed">
+            Statutory 10% TDS of &#8377; 4,575.00 was withheld by Tata Capital Financial Services Ltd for Coupon Cycle #PAY-8921. 
+            Quarterly Form 16A certificates are automatically archived into your tax folder upon depository registrar synchronization.
+            Nil deduction is applicable only if an exemption certificate (Form 15G / 15H) is on active depository record prior to record date.
+          </p>
+        </section>
+      </div>
+
+      <!-- 5. Footer Disclaimer Text & Certification -->
+      <footer class="border-t border-[#e3e8ee] pt-4 mt-auto">
+        <div class="flex items-start justify-between text-[10px] text-[#8592a1] leading-relaxed">
+          <div class="max-w-[70%] space-y-1">
+            <p class="font-medium text-[#55606e]">Important Regulatory &amp; Audit Disclaimer</p>
+            <p>
+              This document is an automated monthly record generated from verified depository cashflow schedules (NSDL / CDSL) and registered banking ECS mandate confirmations. 
+              Coupon amounts reflect net calculations after statutory deductions under Section 193 of the Indian Income Tax Act, 1961. 
+              This statement is intended for internal portfolio accounting, auditor reconciliation, and tax assessment preparation.
+            </p>
+            <p class="pt-0.5">
+              DK Bond Tracker v2.4.1 &bull; Certified System Hash: <span class="font-mono">SHA-256: 8a4f91e0bc39...</span>
+            </p>
+          </div>
+
+          <div class="text-right space-y-1">
+            <div class="border border-[#e3e8ee] px-2.5 py-1 rounded inline-block bg-[#ffffff]">
+              <span class="text-[#166534] font-semibold block">&check; AUDIT VERIFIED</span>
+              <span class="text-[9px] text-[#55606e]">NSDL 26AS Compatible</span>
+            </div>
+            <p class="text-[9px] text-[#8592a1]">Page 1 of 1</p>
+          </div>
+        </div>
+      </footer>
+
+    </article>
+  </main>
+
+  <!-- Print-specific script for keyboard shortcut and trigger -->
+  <script>
+    // Hotkey support for Ctrl+P / Cmd+P is native, but ensures clean focus
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        // native handler will trigger window.print()
+      }
+    });
+  </script>
+</body>
+</html>

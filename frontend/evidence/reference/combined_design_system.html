@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>design_document_combined_system</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'canvas': '#0D1520',
+            'surface': '#16212E',
+            'surface-alt': '#1C293A',
+            'border-hairline': '#2A3A4C',
+            'accent': '#2456E6',
+            'accent-hover': '#1B45C4',
+            'ink': '#E8EEF5',
+            'muted': '#7A8A99',
+            'danger': '#FF8A80',
+            'success': '#6FCF97',
+            'warning': '#F2C94C',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .num-tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0D1520;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #2A3A4C;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-canvas text-ink p-6 lg:p-8">
+
+  <!-- Main Canvas Board Container -->
+  <main class="max-w-[1560px] mx-auto space-y-6">
+
+    <!-- Header Section -->
+    <header class="bg-surface border border-border-hairline rounded-xl p-5 lg:px-7 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center text-accent">
+          <span class="material-symbols-outlined text-[24px]">architecture</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] font-semibold tracking-wider uppercase text-accent bg-accent/15 px-2.5 py-0.5 rounded-full border border-accent/30">Architecture Spec • Canonical</span>
+            <span class="text-[12px] text-muted font-medium">Merge Status: Track A + Track B Harmonized</span>
+          </div>
+          <h1 class="text-[20px] font-bold text-ink mt-0.5 tracking-tight">Combined Design System — DK Bond Tracker (Track A + Track B merge)</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 text-[13px]">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-canvas border border-border-hairline text-muted">
+          <span class="w-2 h-2 rounded-full bg-success"></span>
+          <span>Midnight Ledger Engine</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-canvas border border-border-hairline text-muted font-mono text-[12px]">
+          v2.5.0-MERGE
+        </div>
+      </div>
+    </header>
+
+    <!-- 2x2 Grid of Documentation Panels -->
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+      <!-- ========================================== -->
+      <!-- PANEL 1: THEME TOKENS                      -->
+      <!-- ========================================== -->
+      <article class="bg-surface border border-border-hairline rounded-xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+        <div>
+          <!-- Panel Header -->
+          <div class="flex items-center justify-between border-b border-border-hairline pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-[12px] font-bold text-accent bg-accent/15 px-2 py-0.5 rounded border border-accent/20">01</span>
+              <h2 class="text-[16px] font-bold uppercase tracking-wider text-ink">THEME TOKENS</h2>
+            </div>
+            <span class="text-[11px] text-muted uppercase font-medium tracking-wide">Foundational Palette</span>
+          </div>
+
+          <!-- Color Swatches Grid -->
+          <div class="mt-5 space-y-3">
+            <p class="text-[12px] font-semibold uppercase tracking-wider text-muted">Core Swatches & Hex Mapping</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              
+              <!-- Canvas -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #0D1520;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-ink">Canvas</div>
+                  <div class="text-[11px] font-mono text-muted">#0D1520</div>
+                </div>
+              </div>
+
+              <!-- Surface -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #16212E;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-ink">Surface</div>
+                  <div class="text-[11px] font-mono text-muted">#16212E</div>
+                </div>
+              </div>
+
+              <!-- Border -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #2A3A4C;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-ink">Border</div>
+                  <div class="text-[11px] font-mono text-muted">#2A3A4C</div>
+                </div>
+              </div>
+
+              <!-- Accent -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #2456E6;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-ink">Accent</div>
+                  <div class="text-[11px] font-mono text-muted">#2456E6</div>
+                </div>
+              </div>
+
+              <!-- Text -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #E8EEF5;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-ink">Text</div>
+                  <div class="text-[11px] font-mono text-muted">#E8EEF5</div>
+                </div>
+              </div>
+
+              <!-- Muted -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #7A8A99;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-ink">Muted</div>
+                  <div class="text-[11px] font-mono text-muted">#7A8A99</div>
+                </div>
+              </div>
+
+              <!-- Danger -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #FF8A80;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-danger">Danger</div>
+                  <div class="text-[11px] font-mono text-muted">#FF8A80</div>
+                </div>
+              </div>
+
+              <!-- Success -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #6FCF97;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-success">Success</div>
+                  <div class="text-[11px] font-mono text-muted">#6FCF97</div>
+                </div>
+              </div>
+
+              <!-- Warning -->
+              <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline flex items-center gap-3">
+                <div class="w-8 h-8 rounded border border-border-hairline flex-shrink-0" style="background-color: #F2C94C;"></div>
+                <div class="min-w-0">
+                  <div class="text-[13px] font-semibold text-warning">Warning</div>
+                  <div class="text-[11px] font-mono text-muted">#F2C94C</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Typography Specs -->
+          <div class="mt-6 pt-5 border-t border-border-hairline space-y-3">
+            <p class="text-[12px] font-semibold uppercase tracking-wider text-muted">Typography Rules & Hierarchy</p>
+            <div class="p-3.5 rounded-lg bg-canvas border border-border-hairline space-y-2.5">
+              <div class="flex items-baseline justify-between">
+                <span class="text-[20px] font-bold text-ink">Page Title Spec</span>
+                <span class="text-[12px] font-mono text-muted">20px / Bold (700)</span>
+              </div>
+              <div class="flex items-baseline justify-between border-t border-border-hairline/60 pt-2">
+                <span class="text-[14px] text-ink">Body Typography Standard</span>
+                <span class="text-[12px] font-mono text-muted">14px / Regular (400)</span>
+              </div>
+              <div class="flex items-baseline justify-between border-t border-border-hairline/60 pt-2">
+                <span class="text-[12px] uppercase tracking-wider text-muted font-medium">CAPTION LABELS & METADATA</span>
+                <span class="text-[12px] font-mono text-muted">12px / Uppercase (500)</span>
+              </div>
+              <div class="text-[11px] text-muted italic pt-1">
+                Note: All financial sums and ISIN codes mandate <code class="text-ink font-mono">font-variant-numeric: tabular-nums</code>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Component Geometry Rules -->
+          <div class="mt-6 pt-5 border-t border-border-hairline space-y-2.5">
+            <p class="text-[12px] font-semibold uppercase tracking-wider text-muted">Corner Radii Specifications</p>
+            <div class="flex flex-wrap items-center gap-4 text-[13px]">
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-[12px] bg-canvas border border-border-hairline">
+                <span class="material-symbols-outlined text-[18px] text-accent">crop_portrait</span>
+                <span>Cards: <strong class="text-ink">12px radius</strong></span>
+              </div>
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-canvas border border-border-hairline">
+                <span class="material-symbols-outlined text-[18px] text-accent">radio_button_checked</span>
+                <span>Chips & Badges: <strong class="text-ink">Pill (999px)</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strict Directive Banner -->
+        <div class="bg-danger/10 border border-danger/30 rounded-lg p-3 flex items-start gap-2.5">
+          <span class="material-symbols-outlined text-danger text-[20px] flex-shrink-0 mt-0.5">report</span>
+          <div class="text-[12px] text-danger leading-relaxed">
+            <strong class="font-semibold uppercase tracking-wide">Directive D13 Compliance:</strong> Strictly NO white or near-white backgrounds anywhere on the canvas or components. All containers adhere to <code class="font-mono bg-canvas px-1 py-0.5 rounded border border-danger/40">#16212E</code> or <code class="font-mono bg-canvas px-1 py-0.5 rounded border border-danger/40">#0D1520</code>.
+          </div>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- PANEL 2: SHARED STATIC CHROME              -->
+      <!-- ========================================== -->
+      <article class="bg-surface border border-border-hairline rounded-xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+        <div>
+          <!-- Panel Header -->
+          <div class="flex items-center justify-between border-b border-border-hairline pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-[12px] font-bold text-accent bg-accent/15 px-2 py-0.5 rounded border border-accent/20">02</span>
+              <h2 class="text-[16px] font-bold uppercase tracking-wider text-ink">SHARED STATIC CHROME</h2>
+            </div>
+            <span class="text-[11px] text-muted uppercase font-medium tracking-wide">Layout Architecture</span>
+          </div>
+
+          <!-- Mini Wireframe Diagram -->
+          <div class="mt-5 border border-border-hairline rounded-lg bg-canvas overflow-hidden">
+            <!-- Simulated Topbar (64px proportional) -->
+            <div class="h-14 bg-surface border-b border-border-hairline px-3 flex items-center justify-between">
+              <!-- Dynamic Left Zone -->
+              <div class="flex items-center gap-2.5 py-1 px-2 rounded border border-accent/40 bg-accent/5">
+                <span class="material-symbols-outlined text-[16px] text-accent">lock</span>
+                <span class="text-[10px] font-semibold text-accent uppercase tracking-wider">VERIFIED BOND YIELDS</span>
+                <span class="text-muted text-[11px]">•</span>
+                <span class="text-[12px] font-bold text-ink">Dashboard</span>
+                <div class="hidden sm:flex items-center gap-1 ml-1 bg-surface-alt px-1.5 py-0.5 rounded text-[10px] text-muted border border-border-hairline">
+                  <span class="text-ink font-medium">Dashboard</span>
+                  <span>|</span>
+                  <span>Returns</span>
+                </div>
+                <span class="text-[9px] font-mono text-accent bg-accent/20 px-1 rounded ml-1">DYNAMIC ZONE</span>
+              </div>
+
+              <!-- Static Right Zone -->
+              <div class="flex items-center gap-2 border border-border-hairline/80 px-2 py-1 rounded bg-surface-alt/50">
+                <span class="text-[9px] font-mono text-muted uppercase">STATIC ZONE:</span>
+                <!-- Blue Circular + Add First -->
+                <button class="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-[14px] font-bold hover:bg-accent-hover">
+                  +
+                </button>
+                <span class="material-symbols-outlined text-[16px] text-muted">search</span>
+                <div class="relative">
+                  <span class="material-symbols-outlined text-[16px] text-muted">notifications</span>
+                  <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-danger"></span>
+                </div>
+                <span class="material-symbols-outlined text-[16px] text-muted">help</span>
+                <div class="w-5 h-5 rounded-full bg-accent/30 text-ink text-[10px] flex items-center justify-center font-bold">
+                  DK
+                </div>
+              </div>
+            </div>
+
+            <!-- Body Wireframe (Sidebar + Slot) -->
+            <div class="flex min-h-[220px]">
+              <!-- Left Sidebar (240px representation) -->
+              <div class="w-48 bg-surface border-r border-border-hairline p-2.5 flex flex-col justify-between">
+                <div class="space-y-1">
+                  <div class="text-[9px] uppercase tracking-wider text-muted font-bold px-1.5 mb-1.5 flex items-center justify-between">
+                    <span>Sidebar Rail</span>
+                    <span class="font-mono text-accent">240px</span>
+                  </div>
+                  <!-- Nav Items list -->
+                  <div class="space-y-0.5 text-[11px]">
+                    <div class="flex items-center gap-2 px-2 py-1 rounded bg-accent text-white font-medium">
+                      <span class="material-symbols-outlined text-[14px]">grid_view</span>
+                      <span>Dashboard</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-2 py-0.5 rounded text-muted hover:text-ink">
+                      <span class="material-symbols-outlined text-[14px]">account_balance_wallet</span>
+                      <span>Portfolio</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-2 py-0.5 rounded text-muted hover:text-ink">
+                      <span class="material-symbols-outlined text-[14px]">visibility</span>
+                      <span>Watchlist</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-2 py-0.5 rounded text-muted hover:text-ink">
+                      <span class="material-symbols-outlined text-[14px]">flag</span>
+                      <span>Goals</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-2 py-0.5 rounded text-muted hover:text-ink">
+                      <span class="material-symbols-outlined text-[14px]">calendar_month</span>
+                      <span>Cashflow Calendar</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-2 py-0.5 rounded text-muted hover:text-ink">
+                      <span class="material-symbols-outlined text-[14px]">analytics</span>
+                      <span>Analytics</span>
+                    </div>
+                    <div class="pt-1.5 border-t border-border-hairline/60">
+                      <div class="flex items-center justify-between px-2 py-0.5 rounded text-muted text-[10px]">
+                        <span>System Alerts</span>
+                        <span class="bg-danger/20 text-danger px-1 rounded text-[9px]">2</span>
+                      </div>
+                      <div class="px-2 py-0.5 text-muted text-[10px]">Settings • About • Feedback</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Account Card Bottom -->
+                <div class="mt-2 p-1.5 rounded bg-canvas border border-border-hairline flex items-center gap-1.5 text-[10px]">
+                  <div class="w-5 h-5 rounded-full bg-accent/30 text-ink flex items-center justify-center font-bold text-[9px]">
+                    DK
+                  </div>
+                  <div class="min-w-0">
+                    <div class="truncate text-ink font-semibold">DK Yield Account</div>
+                    <div class="text-[8px] text-muted">Fixed Income Desk</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Main Dynamic View Slot -->
+              <div class="flex-1 p-4 bg-canvas/60 flex flex-col items-center justify-center text-center">
+                <div class="border border-dashed border-border-hairline rounded-lg p-5 w-full h-full flex flex-col items-center justify-center space-y-2">
+                  <span class="material-symbols-outlined text-muted text-[28px]">dashboard_customize</span>
+                  <div class="text-[13px] font-semibold text-ink">Page Content Dynamic Slot</div>
+                  <p class="text-[11px] text-muted max-w-xs">
+                    Router switches interior screen content while preserving top navigation and left sidebar chrome.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Frame Caption -->
+        <div class="p-3 bg-canvas border border-border-hairline rounded-lg text-[12px] text-muted leading-relaxed">
+          <strong class="text-ink font-semibold">Architecture Contract:</strong> Every single page across the suite mounts within this identical, unmoving layout shell. Navigation items, right utility actions (Search, Notifications, Help, Profile, Add), and sidebar width remain static; <em class="text-accent">only the topbar dynamic zone and inner slot adapt per route.</em>
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- PANEL 3: PAGE INVENTORY                    -->
+      <!-- ========================================== -->
+      <article class="bg-surface border border-border-hairline rounded-xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+        <div>
+          <!-- Panel Header -->
+          <div class="flex items-center justify-between border-b border-border-hairline pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-[12px] font-bold text-accent bg-accent/15 px-2 py-0.5 rounded border border-accent/20">03</span>
+              <h2 class="text-[16px] font-bold uppercase tracking-wider text-ink">PAGE INVENTORY</h2>
+            </div>
+            <span class="text-[11px] text-muted uppercase font-medium tracking-wide">17 Core Screen Families</span>
+          </div>
+
+          <!-- Grid of Page Items -->
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px] max-h-[310px] overflow-y-auto pr-1 custom-scrollbar">
+            
+            <!-- 1. Dashboard -->
+            <div class="p-2 rounded bg-canvas border border-accent/40 flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-accent text-[11px]">01</span>
+                <span class="font-semibold text-ink truncate">Dashboard</span>
+                <span class="text-[9px] bg-accent/20 text-accent px-1.5 py-0.2 rounded font-bold">LOCKED</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 2. Portfolio -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">02</span>
+                <span class="text-ink truncate">Portfolio</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 3. Bond Detail -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">03</span>
+                <span class="text-ink truncate">Bond Detail</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 4. Watchlist -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">04</span>
+                <span class="text-ink truncate">Watchlist</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 5. Goals -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">05</span>
+                <span class="text-ink truncate">Goals</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 6. Alerts -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">06</span>
+                <span class="text-ink truncate">Alerts</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 7. Payouts -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">07</span>
+                <span class="text-ink truncate">Payouts</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 8. Payment Edit -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">08</span>
+                <span class="text-ink truncate">Payment Edit</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 9. Settings -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">09</span>
+                <span class="text-ink truncate">Settings</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 10. About -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">10</span>
+                <span class="text-ink truncate">About</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 11. Feedback -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">11</span>
+                <span class="text-ink truncate">Feedback</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 12. Search -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">12</span>
+                <span class="text-ink truncate">Search</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 13. Grid -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">13</span>
+                <span class="text-ink truncate">Grid</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 14. Print -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">14</span>
+                <span class="text-ink truncate">Print</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 15. Share -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">15</span>
+                <span class="text-ink truncate">Share</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 16. Error -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="font-mono text-muted text-[11px]">16</span>
+                <span class="text-ink truncate">Error</span>
+              </div>
+              <div class="flex gap-1">
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">WEB</span>
+                <span class="px-1 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-muted">MOB</span>
+              </div>
+            </div>
+
+            <!-- 17. Skeleton Boards -->
+            <div class="p-2 rounded bg-canvas border border-border-hairline flex items-center justify-between sm:col-span-2">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-accent text-[11px]">17</span>
+                <span class="text-ink font-medium">Skeleton Boards 1–5 (Flow, Components, Nav, Skeletons)</span>
+              </div>
+              <span class="px-1.5 py-0.5 rounded bg-surface border border-border-hairline text-[10px] text-accent font-semibold">SPEC BOARDS</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Inventory Caption -->
+        <div class="p-3 bg-canvas border border-border-hairline rounded-lg text-[12px] text-muted leading-relaxed">
+          <strong class="text-ink font-semibold">Dual Platform Standard:</strong> Every design asset ships strictly as a synchronized <strong class="text-ink">WEB + MOBILE pair</strong>. No standalone un-adapted web pages or mobile-only orphan views exist within the merged codebase.
+        </div>
+      </article>
+
+      <!-- ========================================== -->
+      <!-- PANEL 4: PORTFOLIO STRUCTURE               -->
+      <!-- ========================================== -->
+      <article class="bg-surface border border-border-hairline rounded-xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+        <div>
+          <!-- Panel Header -->
+          <div class="flex items-center justify-between border-b border-border-hairline pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="text-[12px] font-bold text-accent bg-accent/15 px-2 py-0.5 rounded border border-accent/20">04</span>
+              <h2 class="text-[16px] font-bold uppercase tracking-wider text-ink">PORTFOLIO STRUCTURE</h2>
+            </div>
+            <span class="text-[11px] text-muted uppercase font-medium tracking-wide">Track A + B Harmonized</span>
+          </div>
+
+          <!-- Section Tabs HOLDINGS | PAYOUT DETAILS -->
+          <div class="mt-5 space-y-4">
+            <div class="flex items-center gap-2 border-b border-border-hairline pb-2">
+              <button class="px-3 py-1 rounded bg-accent text-white font-semibold text-[12px] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">table_rows</span>
+                <span>HOLDINGS (14)</span>
+              </button>
+              <button class="px-3 py-1 rounded bg-canvas border border-border-hairline text-muted font-medium text-[12px] hover:text-ink flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">calendar_month</span>
+                <span>PAYOUT DETAILS</span>
+              </button>
+            </div>
+
+            <!-- Compact Control Row -->
+            <div class="p-2.5 rounded-lg bg-canvas border border-border-hairline space-y-2">
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-muted">Compact Control Row: Icon Filters + Density</div>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <!-- Icon filters + Chips -->
+                <div class="flex items-center gap-1.5">
+                  <div class="p-1 rounded bg-surface border border-border-hairline text-accent">
+                    <span class="material-symbols-outlined text-[16px]">filter_alt</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full bg-accent text-white text-[11px] font-medium">All (14)</span>
+                  <span class="px-2 py-0.5 rounded-full bg-surface border border-border-hairline text-danger text-[11px] font-medium flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-danger"></span> Danger (1)
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full bg-surface border border-border-hairline text-muted text-[11px]">On-going (10)</span>
+                  <span class="px-2 py-0.5 rounded-full bg-surface border border-border-hairline text-muted text-[11px]">Matured (3)</span>
+                </div>
+
+                <!-- Utilities -->
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-1 px-2 py-1 rounded bg-surface border border-border-hairline text-[11px] text-muted">
+                    <span class="material-symbols-outlined text-[14px]">search</span>
+                    <span>Search ISIN...</span>
+                  </div>
+                  <span class="material-symbols-outlined text-[16px] text-muted">swap_vert</span>
+                  <span class="material-symbols-outlined text-[16px] text-muted">today</span>
+                  <input type="checkbox" checked class="accent-accent rounded">
+                </div>
+              </div>
+            </div>
+
+            <!-- 11-Column Table Architecture Preview -->
+            <div class="border border-border-hairline rounded-lg bg-canvas overflow-hidden">
+              <div class="bg-surface px-3 py-1.5 border-b border-border-hairline flex items-center justify-between text-[11px] text-muted font-mono">
+                <span>11-Column Table Structure (Ordered by Status Priority)</span>
+                <span class="text-accent">Danger First → On-going → Matured Last</span>
+              </div>
+              <div class="p-2 space-y-1.5 text-[11px]">
+                <!-- Danger Row -->
+                <div class="p-1.5 rounded bg-surface/80 border border-danger/40 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-danger"></span>
+                    <span class="font-medium text-ink">Piramal Capital 10.25% NCD</span>
+                    <span class="text-[9px] bg-danger/20 text-danger px-1 rounded">RATING WATCH</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-muted font-mono text-[10px]">
+                    <span class="text-danger font-semibold">10.25%</span>
+                    <span>₹ 3,50,000</span>
+                    <span class="text-danger">Overdue 01 Dec</span>
+                  </div>
+                </div>
+
+                <!-- Ongoing Row -->
+                <div class="p-1.5 rounded bg-surface/50 border border-border-hairline flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-success"></span>
+                    <span class="font-medium text-ink">Tata Capital Financial Services</span>
+                    <span class="text-[9px] bg-success/20 text-success px-1 rounded">ON-GOING</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-muted font-mono text-[10px]">
+                    <span class="text-success font-semibold">9.15%</span>
+                    <span>₹ 5,00,000</span>
+                    <span>Due 18 Jan</span>
+                  </div>
+                </div>
+
+                <!-- Matured Row -->
+                <div class="p-1.5 rounded bg-surface/20 border border-border-hairline/60 opacity-60 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-muted"></span>
+                    <span class="font-medium text-muted">Shree Cement NCD (Series I)</span>
+                    <span class="text-[9px] bg-muted/20 text-muted px-1 rounded">MATURED</span>
+                  </div>
+                  <div class="flex items-center gap-4 text-muted font-mono text-[10px]">
+                    <span>8.10%</span>
+                    <span>₹ 3,00,000</span>
+                    <span>Fully Settled</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payout Details mini note -->
+            <div class="p-2.5 rounded bg-canvas border border-border-hairline flex items-center justify-between text-[11px]">
+              <span class="text-muted"><strong class="text-ink">Payout Details View:</strong> Dual-horizon monthly ledger layout.</span>
+              <span class="font-mono text-accent text-[10px]">Current Month [LEFT] • Older Cycles [RIGHT]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portfolio Caption -->
+        <div class="p-3 bg-canvas border border-border-hairline rounded-lg text-[12px] text-muted leading-relaxed">
+          <strong class="text-ink font-semibold">Merger Governance:</strong> Combines <em class="text-ink">Track A's dense financial ledger</em> with <em class="text-ink">Track B's visual clarity and whitespace discipline</em>. Modifications go through Stitch first, then import into the base branch while completely purging deprecated light-theme tokens and duplicate variants.
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Footer Summary Bar -->
+    <footer class="bg-surface border border-border-hairline rounded-xl p-4 flex flex-wrap items-center justify-between text-[12px] text-muted gap-3">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-accent"></span>
+        <span>Single Canonical System Specification</span>
+        <span>•</span>
+        <span>Zero Dark-Light Theme Switchers (Sole Midnight Ledger Runtime)</span>
+      </div>
+      <div class="text-[11px] font-mono text-muted">
+        Ref: DK-MERGE-SYSTEM-SPEC-2026 • Compliant with Rule 4.2 & D13
+      </div>
+    </footer>
+
+  </main>
+
+</body>
+</html>

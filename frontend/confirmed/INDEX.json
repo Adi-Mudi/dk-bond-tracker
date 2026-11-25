@@ -1,0 +1,298 @@
+{
+  "id": "design_confirmed_index",
+  "kind": "design_index",
+  "title": "Confirmed designs registry — the ONLY source of truth for what is developer-confirmed",
+  "version": "v1.9",
+  "project": "dk-bond-tracker",
+  "rules": {
+    "R1": "frontend/confirmed/ contains ONLY confirmed designs, organized per page in its own subfolder (dashboard/, portfolio/, mobile/...). Anything not confirmed stays in the track worktrees and MUST NOT appear here.",
+    "R2": "REWORK on a confirmed item updates the SAME file IN PLACE (overwrite the existing file in its subfolder). Never create a new parallel file, new version folder, or copy — in-place only, so the confirmed set never fragments.",
+    "R3": "Every future agent reads this INDEX first to know what is confirmed, its source, and its pending-rework state. New folders are created here only when the developer confirms a page.",
+    "R4": "A page enters this folder only on explicit developer confirmation. Status field tracks: confirmed | rework-pending (confirmed but developer requested changes) | superseded.",
+    "R5": "FULL DETAIL PACKAGE per confirmed page (D16, developer: 'full detail and everything'): page HTML (web+mobile) with all feedback fixes applied, design tokens, component inventory, navigation/flow references, research references, INDEX entry. Nothing left for implementers to guess. PM runs the completeness check and reports missing pieces to the developer BEFORE the page counts as fully confirmed.",
+    "R6": "Merge target = BASE branch front-design-upgrade (NOT dev). Every confirmed design package merges into front-design-upgrade. Worker branches design-track-a / design-track-b are NEVER merged. Pushes to dev happen only to share briefs/specs with the track worktrees — the confirmed home is front-design-upgrade."
+  },
+  "items": [
+    {
+      "page": "dashboard",
+      "folder": "frontend/confirmed/dashboard/",
+      "files": [
+        "dashboard_mobile.html",
+        "DESIGN.md",
+        "navigation_flow.md",
+        "research_references.md",
+        "feedback_fix_log.md",
+        "dashboard_returns_mobile.html",
+        "dashboard_mobile_stitch_source.json",
+        "dashboard_returns_mobile_stitch_source.json",
+        "dashboard_manifest.csv",
+        "dashboard_all_sections.html",
+        "dashboard_review_board_stitch_source.json",
+        "dashboard_cashflow_tab.html",
+        "dashboard_cashflow_tab_stitch_source.json"
+      ],
+      "source_track": "Track A (W5, design-track-a)",
+      "source_commit": "7da0a80",
+      "confirmed_by": "developer 2026-11-23 ('i will select this design for dashboard' + mobile layout also Track A)",
+      "status": "confirmed",
+      "rework_items": [],
+      "rework_rule": "When the track delivers the rework, OVERWRITE these same files in place (R2). INDEX status flips to confirmed. No new files.",
+      "rework_delivered": "Track A F-TRKA-02 + items 4-6 rework; files overwritten in place per R2",
+      "completeness_check": {
+        "date": "2026-11-25",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "2 section HTMLs + review board HTML + manifest CSV + 3 stitch sources + DESIGN.md + flow/notes/refs + INDEX — full detail present"
+      },
+      "final_commit": "a6fc33c (track branch); package assembled to base per D16",
+      "platform": "ANDROID-ONLY (web removed from confirmed package per developer 2026-11-25)",
+      "notes": "dashboard_web.html removed 2026-11-25 (web dropped; git history retains it)",
+      "lock_note": "FULL LOCK 2026-11-25: three sections + review board approved by developer",
+      "cashflow_tab": "LOCKED 2026-11-25 — dashboard_cashflow_tab.html (screen 718fd38d); placement = Dashboard Cashflow tab"
+    },
+    {
+      "page": "portfolio",
+      "folder": "frontend/confirmed/portfolio/",
+      "files": [
+        "portfolio_holdings_mobile.html",
+        "portfolio_payout_mobile.html",
+        "portfolio_manifest.csv",
+        "portfolio_navigation_flow.md",
+        "portfolio_design_notes.md",
+        "portfolio_research_references.md",
+        "portfolio_holdings_stitch_source.json",
+        "portfolio_payout_stitch_source.json",
+        "portfolio_all_sections.html",
+        "portfolio_review_board_stitch_source.json"
+      ],
+      "source_track": "Direct Stitch redesign (PM session, redesign-only edits on A+B references)",
+      "source_screens": {
+        "holdings": "1e13609e9940410b88951aa03ebc1dbc",
+        "payout": "53cab5093200438a88e7d55b01d65654"
+      },
+      "source_commit": "360a367f (design-skeleton package)",
+      "confirmed_by": "developer 2026-11-24 ('Everything is really good' + payout matrix 'that is the design we need' + portfolio locked)",
+      "status": "confirmed",
+      "rework_items": [],
+      "scope": "ANDROID-ONLY (platform pivot 2026-11-24) — mobile pair is the deliverable; web artifacts remain reference-only in worktrees",
+      "completeness_check": {
+        "date": "2026-11-25",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "2 section HTMLs + review board + manifest + navigation/notes/research + 3 stitch sources + INDEX — full detail present"
+      },
+      "notes": "Rejected design removed: embedded PAYOUT DETAILS VIEW (never accepted). Import followed R2: same-name in-place iterations in worktree; base import removed-old-first (new folder).",
+      "lock_scope": "FULL PAGE (holdings + payout sections both locked — developer 2026-11-24)",
+      "lock_note": "FULL LOCK 2026-11-25: review board approved (placement/ISIN/4-tier fixes)"
+    },
+    {
+      "page": "app_frame",
+      "folder": "frontend/confirmed/app_frame/",
+      "files": [
+        "static_layout.html",
+        "static_layout_stitch_source.json",
+        "app_frame_manifest.csv",
+        "app_frame_notes.md"
+      ],
+      "kind": "system-level static layout (not a page) — every page inherits it",
+      "source_track": "Direct Stitch design (PM), grounded in APP_SKELETON §1 + DESIGN.md §5 + locked pages' chrome audit",
+      "source_screens": {
+        "static_layout": "398d626c974b459cbff5523b1534a50d"
+      },
+      "confirmed_by": "developer 2026-11-24 ('locked, layout')",
+      "status": "confirmed",
+      "contract": {
+        "top_bar": "56px — brand DK Bond Tracker left; sync, bell, avatar right; NO page title, NO search in bar, NO verified badge (mobile)",
+        "bottom_nav": "5 items Dashboard/Portfolio/Watchlist/Goals/More — active = page indicator",
+        "fab": "56px #2456E6 right:16 bottom:104 Add Bond",
+        "dynamic_zone": "page content only, 16px padding, 8px grid; search lives here",
+        "excluded": [
+          "navigation drawer",
+          "duplicate tab bars",
+          "second FAB style",
+          "page titles in bar",
+          "search in bar",
+          "web sidebar (Android-only)"
+        ],
+        "flutter": "Scaffold + NavigationBar + FloatingActionButton (endFloat)"
+      },
+      "completeness_check": {
+        "date": "2026-11-24",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "frame HTML + stitch source + manifest (25 rows) + notes (grounding/contract/sequencing) + INDEX contract — full detail present"
+      },
+      "pending_alignment": "dashboard_mobile bar (drop title, add sync) + portfolio bar (add avatar) — pending per plan steps 2-3"
+    },
+    {
+      "page": "watchlist",
+      "folder": "frontend/confirmed/watchlist/",
+      "files": [
+        "watchlist_all_sections.html",
+        "watchlist_manifest.csv",
+        "watchlist_navigation_flow.md",
+        "watchlist_design_notes.md",
+        "watchlist_research_references.md",
+        "watchlist_stitch_source.json"
+      ],
+      "kind": "single-file all-sections design (5-column board IS the page deliverable — developer single-file rule)",
+      "source_track": "Direct Stitch redesign (PM session)",
+      "source_screens": {
+        "board": "82d410aa4aeb43a3b05fd4faf82174df"
+      },
+      "confirmed_by": "developer 2026-11-25 ('design locaked')",
+      "status": "confirmed",
+      "lock_scope": "FULL PAGE incl. first-open state, integrated ledger, move+goals, guarded delete, FAB semantics",
+      "completeness_check": {
+        "date": "2026-11-25",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "board HTML + manifest (24 rows) + navigation flow + design notes (18 rulings) + research refs + stitch source + INDEX — full detail present"
+      },
+      "pending_alignment": null
+    },
+    {
+      "page": "goals",
+      "folder": "frontend/confirmed/goals/",
+      "files": [
+        "goals_all_sections.html",
+        "goals_manifest.csv",
+        "goals_design_notes.md",
+        "goals_stitch_source.json"
+      ],
+      "kind": "single-file all-sections board (page deliverable)",
+      "source_track": "Direct Stitch redesign (PM)",
+      "source_screens": {
+        "board": "865ad1f5c5f44e72a33c5c6c2d551ba6"
+      },
+      "confirmed_by": "developer 2026-11-25 'all good, locked'",
+      "status": "confirmed",
+      "lock_note": "FULL: auto monthly tracking with MISSED failures, empty-first, guarded delete",
+      "completeness_check": {
+        "date": "2026-11-25",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "board HTML + manifest + design_notes (flow/research) + stitch source + INDEX"
+      }
+    },
+    {
+      "page": "settings",
+      "folder": "frontend/confirmed/settings/",
+      "files": [
+        "settings_all_sections.html",
+        "settings_manifest.csv",
+        "settings_design_notes.md",
+        "settings_stitch_source.json"
+      ],
+      "kind": "single-file all-sections board (page deliverable)",
+      "source_track": "Direct Stitch redesign (PM)",
+      "source_screens": {
+        "board": "34cc0760d1fa40f6ae86ac2b2ae7d456"
+      },
+      "confirmed_by": "developer 2026-11-25 'settings okay'",
+      "status": "confirmed",
+      "lock_note": "4 backend sections + search upgrade, factory-default empty state",
+      "completeness_check": {
+        "date": "2026-11-25",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "board HTML + manifest + design_notes (flow/research) + stitch source + INDEX"
+      }
+    },
+    {
+      "page": "about",
+      "folder": "frontend/confirmed/about/",
+      "files": [
+        "about_all_sections.html",
+        "about_manifest.csv",
+        "about_design_notes.md",
+        "about_stitch_source.json"
+      ],
+      "kind": "single-file all-sections board (page deliverable)",
+      "source_track": "Direct Stitch redesign (PM)",
+      "source_screens": {
+        "board": "e6caf942db36496a9bb4cd97632444ec"
+      },
+      "confirmed_by": "developer 2026-11-25 'About all good'",
+      "status": "confirmed",
+      "lock_note": "minimal redesign + AUTO update popup (newer version only)",
+      "completeness_check": {
+        "date": "2026-11-25",
+        "by": "PM",
+        "result": "PASS",
+        "r5": "board HTML + manifest + design_notes (flow/research) + stitch source + INDEX"
+      }
+    }
+  ],
+  "changelog": [
+    {
+      "date": "2026-11-23",
+      "entry": "v1.0 created — dashboard registered from Track A @7da0a80 as rework-pending; folder rules R1-R4 established per developer directive (confirmed-only subfolder, in-place rework, agent source of truth)"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "dashboard status rework-pending -> confirmed; in-place rework delivered (F-TRKA-02 content/filename fix, item 4 status priority, item 5 mobile KPI strip/chips, item 6 mobile structure + stacked ledger tab)"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "D16 rules added: completeness checklist R5, no-worker-merge R6; confirmation flow = page-by-one with PM missing-piece reports"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "D16 round-2: R5 = full detail floor; R6 = merge target front-design-upgrade explicitly"
+    },
+    {
+      "date": "2026-11-23",
+      "entry": "Dashboard package completed + R5 completeness PASS (web/mobile HTML, DESIGN.md, navigation_flow, research refs, feedback fix log); status confirmed"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "v1.4 — portfolio registered as confirmed (mobile holdings + payout matrix pair, Stitch screen ids, manifest); Android-only scope noted per platform pivot"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "portfolio FULL PAGE lock: holdings + payout both confirmed; R5 completeness re-PASS with navigation_flow/design_notes/research_references added"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "v1.6 — app_frame registered as confirmed system-level static layout (developer 'locked, layout'); chrome contract captured; page alignment pending"
+    },
+    {
+      "date": "2026-11-24",
+      "entry": "app_frame R5 package completed: manifest + notes added; full import of necessary details before page-by-page pass (developer sequencing)"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "web cleanup: dashboard_web.html removed from confirmed package; dashboard entry Android-only; AGENTS + README updated per developer order"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "dashboard lock complete: returns mobile + stitch sources added to files list; completeness re-PASS after app_frame bar alignment + sticky tabs"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "dashboard FULL LOCK: review board approved, manifest CSV + board + stitch source imported; R5 PASS"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "portfolio FULL LOCK: review board + stitch source imported; R5 PASS"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "v1.7 — watchlist registered confirmed as single-file all-sections board; R5 PASS; FAB page-specific semantics + form-hidden-on-open recorded"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "Cashflow Calendar placement decided: Dashboard 3rd tab content (Q7); app_frame hide-amounts contract committed 7d5fcf0d"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "v1.8 — cashflow tab LOCKED + imported; STITCH_LOCK_REGISTRY.json created (9 locked screens); Stitch scope rule recorded"
+    },
+    {
+      "date": "2026-11-25",
+      "entry": "v1.9 — goals, settings, about LOCKED with full packages (developer approval); locked pages now: app_frame, dashboard(+cashflow tab), portfolio, watchlist, goals, settings, about"
+    }
+  ],
+  "stitch_lock_registry": "frontend/confirmed/STITCH_LOCK_REGISTRY.json — authoritative list of locked Stitch screens; work ONLY with these"
+}

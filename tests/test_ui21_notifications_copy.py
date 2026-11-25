@@ -20,6 +20,7 @@ def test_every_severity_has_a_human_label():
         assert label == label.strip() and label, severity
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_feed_renders_friendly_labels_not_machine_tokens(db_path):
     with get_conn(db_path) as conn:
         notify(conn, "due_today", "HDFC Bank — payout due today (credit day 12)")
@@ -33,6 +34,7 @@ def test_feed_renders_friendly_labels_not_machine_tokens(db_path):
     assert "MATURITY_SOON" not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_template_never_prints_the_raw_severity_token():
     text = TEMPLATE.read_text(encoding="utf-8")
     assert "{{ row.severity_label }}" in text

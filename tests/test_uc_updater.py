@@ -1,3 +1,4 @@
+import pytest
 import json
 import time
 from datetime import datetime, timedelta, timezone
@@ -140,6 +141,7 @@ def test_store_result_saves_html_url_and_release_payload(db_path, monkeypatch):
         assert stored["tag_name"] == "v1.0.10-release"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_about_post_check_renders_banner_and_redirects(db_path, monkeypatch):
     monkeypatch.setattr(updater, "APP_VERSION", "1.0.9")
     app = create_app(str(db_path))
@@ -154,6 +156,7 @@ def test_about_post_check_renders_banner_and_redirects(db_path, monkeypatch):
     assert 'id="check-updates"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_about_post_check_local_ahead_has_no_newest_claim(db_path, monkeypatch):
     monkeypatch.setattr(updater, "APP_VERSION", "1.0.11")
     monkeypatch.setattr(about_view, "APP_VERSION", "1.0.11")
@@ -168,6 +171,7 @@ def test_about_post_check_local_ahead_has_no_newest_claim(db_path, monkeypatch):
     assert 'id="update-download"' not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_about_post_check_offline_banner(db_path):
     app = create_app(str(db_path))
     app.config["TESTING"] = True
@@ -184,6 +188,7 @@ def stamp_recent_check(db_path):
         set_pref(conn, "update_checked_at", datetime.now(timezone.utc).isoformat())
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_popup_is_shown_when_update_available(db_path):
     stamp_recent_check(db_path)
     with get_conn(db_path) as conn:
@@ -196,6 +201,7 @@ def test_popup_is_shown_when_update_available(db_path):
     assert "v1.0.10" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_popup_dismiss_hides_popup_and_is_not_persisted(db_path):
     stamp_recent_check(db_path)
     with get_conn(db_path) as conn:
@@ -232,6 +238,7 @@ def wait_auto_idle(app):
         time.sleep(0.01)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_auto_check_skipped_when_disabled(db_path):
     set_check_age(db_path, 25)
     with get_conn(db_path) as conn:
@@ -243,6 +250,7 @@ def test_auto_check_skipped_when_disabled(db_path):
     fetch.assert_not_called()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_auto_check_skipped_within_24h(db_path):
     set_check_age(db_path, 12)
     app = auto_app(db_path)
@@ -252,6 +260,7 @@ def test_auto_check_skipped_within_24h(db_path):
     fetch.assert_not_called()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_auto_check_runs_past_24h(db_path, monkeypatch):
     monkeypatch.setattr(updater, "APP_VERSION", "1.0.9")
     set_check_age(db_path, 25)
@@ -262,6 +271,7 @@ def test_auto_check_runs_past_24h(db_path, monkeypatch):
     fetch.assert_called_once()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_auto_check_failure_keeps_gate_open_for_next_request(db_path):
     app = auto_app(db_path)
     with fake_network_down():
@@ -275,6 +285,7 @@ def test_auto_check_failure_keeps_gate_open_for_next_request(db_path):
     fetch_ok.assert_called_once()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_auto_check_in_flight_guard_blocks_second_auto_check(db_path):
     app = auto_app(db_path)
     app.config["UPDATE_CHECK_RUNNING"] = True
@@ -295,6 +306,7 @@ def test_manual_check_runs_while_auto_check_in_flight(db_path, monkeypatch):
         assert get_pref(conn, "update_version") == "1.0.10"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_popup_css_hides_backdrop_when_hidden_attribute_set(db_path):
     stamp_recent_check(db_path)
     with get_conn(db_path) as conn:

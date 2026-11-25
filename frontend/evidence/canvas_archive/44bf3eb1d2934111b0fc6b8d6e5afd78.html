@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — DK Bond Tracker (Web)</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'canvas': '#0D1520',
+            'card': '#16212E',
+            'elevated': '#1A2735',
+            'container': '#1E2C3B',
+            'hairline': '#2A3A4C',
+            'ink': '#E8EEF5',
+            'slate': '#A8B6C4',
+            'mist': '#7A8A99',
+            'primary-blue': '#2456E6',
+            'primary-blue-container': '#1C46C2',
+            'info-bg': '#14263D',
+            'info-fg': '#8FB4FF',
+            'paid-bg': '#12301E',
+            'paid-fg': '#6FD898',
+            'overdue-bg': '#3A1310',
+            'overdue-fg': '#FF8A80',
+            'upcoming-bg': '#3A2A0E',
+            'upcoming-fg': '#FFC46B'
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0D1520;
+      color: #E8EEF5;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0D1520;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2A3A4C;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3A4E66;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-ink antialiased min-h-screen flex selection:bg-primary-blue selection:text-white">
+
+  <!-- ==================== FIXED LEFT SIDEBAR (240px) ==================== -->
+  <aside class="fixed top-0 bottom-0 left-0 w-[240px] bg-card border-r border-hairline flex flex-col justify-between z-30 select-none">
+    <div class="flex flex-col">
+      <!-- App Brand / Logo -->
+      <div class="h-16 px-5 border-b border-hairline flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-primary-blue flex items-center justify-center text-white shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-[22px]">account_balance</span>
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span class="text-ink font-semibold text-sm tracking-tight leading-none truncate">DK Bond Tracker</span>
+          <span class="text-[11px] text-mist font-medium tracking-wide mt-1 leading-none uppercase">Fixed Income Desk</span>
+        </div>
+      </div>
+
+      <!-- Navigation: Single Group MAIN LEDGER -->
+      <div class="px-3 pt-6 pb-2">
+        <div class="px-3 pb-2 text-[11px] font-semibold text-mist uppercase tracking-wider">
+          MAIN LEDGER
+        </div>
+        <nav class="space-y-1">
+          <!-- Dashboard (Active) -->
+          <a href="#" class="h-12 px-3 rounded-lg flex items-center gap-3.5 bg-info-bg text-info-fg font-semibold transition-colors border border-info-fg/20 focus:outline-none focus:ring-2 focus:ring-primary-blue">
+            <span class="material-symbols-outlined text-[20px] text-info-fg shrink-0" style="font-variation-settings: 'FILL' 1;">space_dashboard</span>
+            <span class="text-[14px] tracking-tight">Dashboard</span>
+          </a>
+
+          <!-- Portfolio -->
+          <a href="#" class="h-12 px-3 rounded-lg flex items-center gap-3.5 text-slate hover:text-ink hover:bg-elevated transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+            <span class="material-symbols-outlined text-[20px] shrink-0">account_balance</span>
+            <span class="text-[14px] font-medium tracking-tight">Portfolio</span>
+          </a>
+
+          <!-- Watchlist -->
+          <a href="#" class="h-12 px-3 rounded-lg flex items-center gap-3.5 text-slate hover:text-ink hover:bg-elevated transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+            <span class="material-symbols-outlined text-[20px] shrink-0">visibility</span>
+            <span class="text-[14px] font-medium tracking-tight">Watchlist</span>
+          </a>
+
+          <!-- Goals -->
+          <a href="#" class="h-12 px-3 rounded-lg flex items-center gap-3.5 text-slate hover:text-ink hover:bg-elevated transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+            <span class="material-symbols-outlined text-[20px] shrink-0">flag</span>
+            <span class="text-[14px] font-medium tracking-tight">Goals</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Sidebar Bottom User Profile Tile -->
+    <div class="p-3 border-t border-hairline">
+      <div class="h-14 px-3 py-2 rounded-lg bg-canvas border border-hairline flex items-center justify-between hover:border-slate/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-blue">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-full bg-primary-blue/20 border border-primary-blue/30 text-info-fg font-semibold text-xs flex items-center justify-center shrink-0">
+            DK
+          </div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-xs font-semibold text-ink truncate leading-tight">DK Yield Account</span>
+            <span class="text-[10px] text-mist truncate leading-tight mt-0.5">Fixed Income Desk</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-slate text-[18px] shrink-0 ml-1">unfold_more</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <div class="flex-1 ml-[240px] flex flex-col min-h-screen">
+
+    <!-- Fixed 64px Top Header -->
+    <header class="fixed top-0 right-0 left-[240px] h-16 bg-card/90 backdrop-blur border-b border-hairline px-8 flex items-center justify-between z-20">
+      <!-- Left side: Verified badge -->
+      <div class="flex items-center gap-2 text-mist">
+        <span class="material-symbols-outlined text-[17px] text-paid-fg">lock</span>
+        <span class="text-[11px] font-semibold tracking-wider uppercase text-slate">VERIFIED BOND YIELDS</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-paid-fg ml-1"></span>
+      </div>
+
+      <!-- Right side: 48px Icon Buttons -->
+      <div class="flex items-center gap-2">
+        <button class="w-12 h-12 rounded-lg flex items-center justify-center text-slate hover:text-ink hover:bg-elevated transition-colors border border-transparent hover:border-hairline focus:outline-none focus:ring-2 focus:ring-primary-blue" title="Search">
+          <span class="material-symbols-outlined text-[20px]">search</span>
+        </button>
+
+        <!-- Notification with Badge -->
+        <button class="relative w-12 h-12 rounded-lg flex items-center justify-center text-slate hover:text-ink hover:bg-elevated transition-colors border border-transparent hover:border-hairline focus:outline-none focus:ring-2 focus:ring-primary-blue" title="Notifications">
+          <span class="material-symbols-outlined text-[20px]">notifications</span>
+          <span class="absolute top-2.5 right-2.5 w-4 h-4 bg-[#FF4D4D] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow leading-none">2</span>
+        </button>
+
+        <button class="w-12 h-12 rounded-lg flex items-center justify-center text-slate hover:text-ink hover:bg-elevated transition-colors border border-transparent hover:border-hairline focus:outline-none focus:ring-2 focus:ring-primary-blue" title="Help & Documentation">
+          <span class="material-symbols-outlined text-[20px]">help</span>
+        </button>
+
+        <div class="w-px h-6 bg-hairline mx-1"></div>
+
+        <button class="w-12 h-12 rounded-lg flex items-center justify-center hover:bg-elevated transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue" title="User Menu">
+          <div class="w-8 h-8 rounded-full bg-primary-blue text-white font-semibold text-xs flex items-center justify-center shadow">
+            DK
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Body (offset by 64px header) -->
+    <main class="flex-1 pt-16 pb-16 px-8 flex justify-center">
+      <div class="w-full max-w-[1440px] px-6 py-6">
+
+        <!-- ==================== TITLE BLOCK ==================== -->
+        <section class="pt-2 pb-4">
+          <!-- Eyebrow row with green pulse dot -->
+          <div class="flex items-center gap-2 mb-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-paid-fg opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-paid-fg"></span>
+            </span>
+            <span class="text-[12px] font-medium tracking-wider uppercase text-mist">FIXED INCOME LEDGER • Q4 FY2026-27</span>
+          </div>
+
+          <!-- Main Title Row with Right Actions -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-[28px] font-semibold text-ink tracking-tight leading-tight">Dashboard</h1>
+              <p class="text-[13px] text-slate mt-1">Last updated today at 09:30 AM • 14 Active Holdings across Corporate NCDs</p>
+            </div>
+
+            <!-- Two 48px Action Buttons -->
+            <div class="flex items-center gap-3">
+              <button class="h-12 px-5 rounded-lg border border-hairline bg-card hover:bg-elevated text-ink font-medium text-[14px] flex items-center gap-2 transition-all hover:border-slate/50 focus:outline-none focus:ring-2 focus:ring-primary-blue">
+                <span class="material-symbols-outlined text-[19px] text-slate">file_download</span>
+                <span>Export Statement</span>
+              </button>
+
+              <button class="h-12 px-5 rounded-lg bg-primary-blue hover:bg-primary-blue-container text-white font-semibold text-[14px] flex items-center gap-2 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-canvas focus:ring-primary-blue">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>+ Add Bond</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== SEGMENTED FULL-WIDTH TAB BAR ==================== -->
+        <div class="mt-4 mb-4">
+          <div class="h-12 w-full p-1 bg-container rounded-lg border border-hairline flex items-center gap-1">
+            <!-- Active Tab: Dashboard -->
+            <button class="flex-1 h-10 rounded-md bg-elevated border border-hairline text-ink font-semibold text-[13px] flex items-center justify-center gap-2 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span class="material-symbols-outlined text-[17px] text-info-fg" style="font-variation-settings: 'FILL' 1;">space_dashboard</span>
+              <span>Dashboard</span>
+            </button>
+            <!-- Inactive Tab: Returns History -->
+            <button class="flex-1 h-10 rounded-md text-mist hover:text-slate hover:bg-elevated/40 font-medium text-[13px] flex items-center justify-center gap-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span class="material-symbols-outlined text-[17px]">history</span>
+              <span>Returns History</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ==================== KPI STRIP (EQUAL 3-COLUMN GRID) ==================== -->
+        <section class="mt-4 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <!-- Card 1: Total Invested -->
+            <div class="bg-card border border-hairline rounded-xl p-4 flex flex-col justify-between hover:border-slate/40 transition-colors shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-semibold text-mist uppercase tracking-wider">TOTAL INVESTED</span>
+                <span class="material-symbols-outlined text-slate text-[18px]">account_balance_wallet</span>
+              </div>
+              <div class="text-[22px] font-semibold text-ink tracking-tight tabular-nums py-0.5">
+                ₹ 24,50,000
+              </div>
+              <div class="text-[12px] text-slate flex items-center gap-1.5 mt-2 pt-2 border-t border-hairline/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-info-fg"></span>
+                <span>14 Active Holdings</span>
+                <span class="text-mist ml-auto text-[11px] font-medium">11.24% XIRR</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Outstanding Principal -->
+            <div class="bg-card border border-hairline rounded-xl p-4 flex flex-col justify-between hover:border-slate/40 transition-colors shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-semibold text-mist uppercase tracking-wider">OUTSTANDING PRINCIPAL</span>
+                <span class="material-symbols-outlined text-slate text-[18px]">pie_chart</span>
+              </div>
+              <div class="text-[22px] font-semibold text-ink tracking-tight tabular-nums py-0.5">
+                ₹ 19,67,550
+              </div>
+              <div class="text-[12px] text-slate flex items-center gap-1.5 mt-2 pt-2 border-t border-hairline/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-paid-fg"></span>
+                <span>80.3% active</span>
+                <span class="text-mist ml-auto text-[11px] font-medium">INR Book</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Next Payout -->
+            <div class="bg-card border border-hairline rounded-xl p-4 flex flex-col justify-between hover:border-slate/40 transition-colors shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-semibold text-mist uppercase tracking-wider">NEXT PAYOUT</span>
+                <span class="material-symbols-outlined text-slate text-[18px]">event</span>
+              </div>
+              <div class="text-[22px] font-semibold text-ink tracking-tight tabular-nums py-0.5">
+                ₹ 32,800
+              </div>
+              <div class="text-[12px] text-slate flex items-center gap-1.5 mt-2 pt-2 border-t border-hairline/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-upcoming-fg"></span>
+                <span class="truncate">HDFC Credila • Nov 30</span>
+                <span class="text-upcoming-fg bg-upcoming-bg border border-upcoming-fg/20 px-1.5 py-0.2 rounded text-[10px] font-semibold ml-auto shrink-0">Due 5d</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==================== FILTER ROW ==================== -->
+        <section class="mb-6 flex flex-wrap items-center justify-between gap-4 py-1">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate text-[18px]">date_range</span>
+            <span class="text-[13px] font-medium text-slate">Coupon Window: <strong class="text-ink font-semibold">Q4 FY2026-27</strong></span>
+          </div>
+
+          <!-- Filter Chips -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- All (Selected) -->
+            <button class="h-10 px-4 rounded-lg bg-primary-blue text-white font-semibold text-[13px] shadow-sm flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span>All (14)</span>
+            </button>
+            <!-- Paid -->
+            <button class="h-10 px-3.5 rounded-lg bg-card border border-hairline hover:bg-elevated text-slate hover:text-ink font-medium text-[13px] flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span class="w-2 h-2 rounded-full bg-paid-fg"></span>
+              <span>Paid (7)</span>
+            </button>
+            <!-- Due -->
+            <button class="h-10 px-3.5 rounded-lg bg-card border border-hairline hover:bg-elevated text-slate hover:text-ink font-medium text-[13px] flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span class="w-2 h-2 rounded-full bg-upcoming-fg"></span>
+              <span>Due (2)</span>
+            </button>
+            <!-- Overdue -->
+            <button class="h-10 px-3.5 rounded-lg bg-card border border-hairline hover:bg-elevated text-slate hover:text-ink font-medium text-[13px] flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span class="w-2 h-2 rounded-full bg-overdue-fg"></span>
+              <span>Overdue (1)</span>
+            </button>
+            <!-- Matured -->
+            <button class="h-10 px-3.5 rounded-lg bg-card border border-hairline hover:bg-elevated text-slate hover:text-ink font-medium text-[13px] flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-blue">
+              <span class="w-2 h-2 rounded-full bg-mist"></span>
+              <span>Matured (4)</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ==================== TWO-COLUMN SECTION (8 / 4) ==================== -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+
+          <!-- LEFT COLUMN (8 cols): Invested vs Received -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="bg-card border border-hairline rounded-xl p-5 shadow-sm">
+              <div class="flex items-center justify-between pb-4 border-b border-hairline">
+                <div>
+                  <h2 class="text-[16px] font-semibold text-ink tracking-tight">Invested vs Received</h2>
+                  <p class="text-[12px] text-slate mt-0.5">Holdings distribution, coupon servicing, and principal recovery</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-md bg-container text-slate text-[11px] font-semibold tracking-wide border border-hairline">
+                  5 OF 14 DISPLAYED
+                </span>
+              </div>
+
+              <!-- List of five issuer rows (48px+ touch targets, status pills) -->
+              <div class="divide-y divide-hairline">
+
+                <!-- Row 1: Piramal Capital (Overdue red pill) -->
+                <div class="py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-elevated/40 px-2 rounded-lg transition-colors">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-overdue-fg shrink-0"></span>
+                      <h3 class="text-[14px] font-semibold text-ink tracking-tight truncate">Piramal Capital & Housing Fin</h3>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-overdue-bg text-overdue-fg border border-overdue-fg/20 shrink-0">
+                        Overdue
+                      </span>
+                      <span class="text-[10px] text-mist font-mono uppercase ml-auto md:ml-0">INE641A07137</span>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1.5 text-[12px] text-slate">
+                      <span>10.25% Monthly</span>
+                      <span>•</span>
+                      <span>AA- Rating Watch</span>
+                      <span>•</span>
+                      <span class="text-overdue-fg font-medium">Action Required</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between md:justify-end gap-6 shrink-0">
+                    <div class="text-right">
+                      <div class="text-[14px] font-semibold text-ink tabular-nums">₹ 89,750 <span class="text-slate font-normal text-xs">/ ₹ 3,50,000</span></div>
+                      <div class="text-[11px] text-slate tabular-nums mt-0.5">25.6% returned</div>
+                    </div>
+                    <div class="w-24 bg-container h-2 rounded-full overflow-hidden shrink-0 hidden sm:block">
+                      <div class="bg-overdue-fg h-full rounded-full" style="width: 25.6%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Row 2: Tata Capital (On-going info pill) -->
+                <div class="py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-elevated/40 px-2 rounded-lg transition-colors">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-info-fg shrink-0"></span>
+                      <h3 class="text-[14px] font-semibold text-ink tracking-tight truncate">Tata Capital Financial Services</h3>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-info-bg text-info-fg border border-info-fg/20 shrink-0">
+                        On-going
+                      </span>
+                      <span class="text-[10px] text-mist font-mono uppercase ml-auto md:ml-0">INE306N07MH1</span>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1.5 text-[12px] text-slate">
+                      <span>9.15% Annual Coupon</span>
+                      <span>•</span>
+                      <span>AAA CRISIL Stable</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between md:justify-end gap-6 shrink-0">
+                    <div class="text-right">
+                      <div class="text-[14px] font-semibold text-ink tabular-nums">₹ 1,42,500 <span class="text-slate font-normal text-xs">/ ₹ 5,00,000</span></div>
+                      <div class="text-[11px] text-paid-fg tabular-nums mt-0.5">28.5% returned</div>
+                    </div>
+                    <div class="w-24 bg-container h-2 rounded-full overflow-hidden shrink-0 hidden sm:block">
+                      <div class="bg-info-fg h-full rounded-full" style="width: 28.5%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Row 3: L&T Finance (On-going info pill) -->
+                <div class="py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-elevated/40 px-2 rounded-lg transition-colors">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-info-fg shrink-0"></span>
+                      <h3 class="text-[14px] font-semibold text-ink tracking-tight truncate">L&T Finance Holdings Ltd</h3>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-info-bg text-info-fg border border-info-fg/20 shrink-0">
+                        On-going
+                      </span>
+                      <span class="text-[10px] text-mist font-mono uppercase ml-auto md:ml-0">INE498L07185</span>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1.5 text-[12px] text-slate">
+                      <span>8.85% Semi-Annual</span>
+                      <span>•</span>
+                      <span>AAA CRISIL</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between md:justify-end gap-6 shrink-0">
+                    <div class="text-right">
+                      <div class="text-[14px] font-semibold text-ink tabular-nums">₹ 1,24,000 <span class="text-slate font-normal text-xs">/ ₹ 4,00,000</span></div>
+                      <div class="text-[11px] text-paid-fg tabular-nums mt-0.5">31.0% returned</div>
+                    </div>
+                    <div class="w-24 bg-container h-2 rounded-full overflow-hidden shrink-0 hidden sm:block">
+                      <div class="bg-info-fg h-full rounded-full" style="width: 31%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Row 4: Muthoot Finance (On-going info pill) -->
+                <div class="py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-elevated/40 px-2 rounded-lg transition-colors">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-info-fg shrink-0"></span>
+                      <h3 class="text-[14px] font-semibold text-ink tracking-tight truncate">Muthoot Finance Ltd</h3>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-info-bg text-info-fg border border-info-fg/20 shrink-0">
+                        On-going
+                      </span>
+                      <span class="text-[10px] text-mist font-mono uppercase ml-auto md:ml-0">INE414G07CJ9</span>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1.5 text-[12px] text-slate">
+                      <span>9.50% Annual Coupon</span>
+                      <span>•</span>
+                      <span>AA+ Stable</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between md:justify-end gap-6 shrink-0">
+                    <div class="text-right">
+                      <div class="text-[14px] font-semibold text-ink tabular-nums">₹ 76,000 <span class="text-slate font-normal text-xs">/ ₹ 4,00,000</span></div>
+                      <div class="text-[11px] text-paid-fg tabular-nums mt-0.5">19.0% returned</div>
+                    </div>
+                    <div class="w-24 bg-container h-2 rounded-full overflow-hidden shrink-0 hidden sm:block">
+                      <div class="bg-info-fg h-full rounded-full" style="width: 19%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Row 5: Shree Cement (Dimmed, Matured) -->
+                <div class="py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 opacity-60 hover:opacity-80 px-2 rounded-lg transition-opacity">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-mist shrink-0"></span>
+                      <h3 class="text-[14px] font-semibold text-slate tracking-tight truncate line-through">Shree Cement NCD (Series I)</h3>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-container text-mist border border-hairline shrink-0">
+                        Matured
+                      </span>
+                      <span class="text-[10px] text-mist font-mono uppercase ml-auto md:ml-0">INE070A07060</span>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1.5 text-[12px] text-mist">
+                      <span>8.10% Annual</span>
+                      <span>•</span>
+                      <span>100% Principal Repaid</span>
+                      <span>•</span>
+                      <span>Fully Settled</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between md:justify-end gap-6 shrink-0">
+                    <div class="text-right">
+                      <div class="text-[14px] font-medium text-slate tabular-nums">₹ 3,00,000 <span class="text-mist font-normal text-xs">/ ₹ 3,00,000</span></div>
+                      <div class="text-[11px] text-mist tabular-nums mt-0.5">100% settled</div>
+                    </div>
+                    <div class="w-24 bg-container h-2 rounded-full overflow-hidden shrink-0 hidden sm:block">
+                      <div class="bg-slate/40 h-full rounded-full" style="width: 100%"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Card Footer link -->
+              <div class="pt-3 border-t border-hairline text-right">
+                <a href="#" class="text-[12px] text-info-fg hover:underline font-medium inline-flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-primary-blue">
+                  <span>View all 14 corporate holdings</span>
+                  <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN (4 cols): Cashflow Health & Rating Risk Watch -->
+          <div class="lg:col-span-4 space-y-6">
+
+            <!-- Cashflow Health Card -->
+            <div class="bg-card border border-hairline rounded-xl p-5 shadow-sm">
+              <div class="flex items-center justify-between pb-3 border-b border-hairline">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-info-fg text-[18px]">payments</span>
+                  <h2 class="text-[15px] font-semibold text-ink tracking-tight">Cashflow Health</h2>
+                </div>
+                <span class="text-[11px] text-paid-fg font-semibold bg-paid-bg border border-paid-fg/20 px-2 py-0.5 rounded-full">
+                  Net Active
+                </span>
+              </div>
+
+              <!-- Monthly Inflow Metric & Bar -->
+              <div class="py-3">
+                <div class="flex items-baseline justify-between mb-1.5">
+                  <span class="text-[11px] text-mist uppercase font-semibold">Monthly Run-Rate</span>
+                  <span class="text-[11px] text-overdue-fg tabular-nums font-medium">TDS 10%: -₹ 3,285</span>
+                </div>
+                <div class="text-[20px] font-semibold text-ink tabular-nums">₹ 32,850</div>
+
+                <!-- Monthly Inflow Bar -->
+                <div class="w-full bg-container h-2.5 rounded-full overflow-hidden mt-2.5 flex">
+                  <div class="bg-paid-fg h-full" style="width: 62%" title="Paid (62%)"></div>
+                  <div class="bg-upcoming-fg h-full" style="width: 26%" title="Scheduled (26%)"></div>
+                  <div class="bg-overdue-fg h-full" style="width: 12%" title="Overdue (12%)"></div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-mist mt-1.5 font-medium">
+                  <span class="text-paid-fg">● 62% Settled</span>
+                  <span class="text-upcoming-fg">● 26% Due</span>
+                  <span class="text-overdue-fg">● 12% Risk</span>
+                </div>
+              </div>
+
+              <!-- Calendar-Style Schedule List -->
+              <div class="pt-3 border-t border-hairline">
+                <div class="text-[11px] font-semibold text-mist uppercase tracking-wider mb-2.5">
+                  Upcoming Queue
+                </div>
+                <div class="space-y-2">
+
+                  <div class="p-2.5 rounded-lg bg-elevated border border-hairline/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded bg-container border border-hairline flex flex-col items-center justify-center shrink-0">
+                        <span class="text-[9px] font-bold text-mist uppercase leading-none">NOV</span>
+                        <span class="text-[13px] font-bold text-ink leading-tight">30</span>
+                      </div>
+                      <div>
+                        <div class="text-[13px] font-semibold text-ink leading-tight">HDFC Credila Fin</div>
+                        <div class="text-[11px] text-slate mt-0.5">Coupon Interest</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[13px] font-semibold text-ink tabular-nums">₹ 32,800</div>
+                      <span class="text-[10px] text-upcoming-fg bg-upcoming-bg border border-upcoming-fg/20 px-1.5 py-0.2 rounded font-semibold">Pending</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-elevated border border-hairline/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded bg-container border border-hairline flex flex-col items-center justify-center shrink-0">
+                        <span class="text-[9px] font-bold text-mist uppercase leading-none">DEC</span>
+                        <span class="text-[13px] font-bold text-ink leading-tight">15</span>
+                      </div>
+                      <div>
+                        <div class="text-[13px] font-semibold text-ink leading-tight">Tata Cap Financial</div>
+                        <div class="text-[11px] text-slate mt-0.5">Quarterly Coupon</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[13px] font-semibold text-ink tabular-nums">₹ 11,437</div>
+                      <span class="text-[10px] text-slate bg-container border border-hairline px-1.5 py-0.2 rounded font-semibold">Scheduled</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-elevated border border-hairline/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded bg-container border border-hairline flex flex-col items-center justify-center shrink-0">
+                        <span class="text-[9px] font-bold text-mist uppercase leading-none">JAN</span>
+                        <span class="text-[13px] font-bold text-ink leading-tight">10</span>
+                      </div>
+                      <div>
+                        <div class="text-[13px] font-semibold text-ink leading-tight">L&T Finance Ltd</div>
+                        <div class="text-[11px] text-slate mt-0.5">Semi-Annual Payout</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[13px] font-semibold text-ink tabular-nums">₹ 17,700</div>
+                      <span class="text-[10px] text-slate bg-container border border-hairline px-1.5 py-0.2 rounded font-semibold">Scheduled</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Rating & Risk Watch Notice Card -->
+            <div class="bg-card border border-upcoming-fg/30 rounded-xl p-5 shadow-sm relative overflow-hidden">
+              <div class="absolute top-0 left-0 bottom-0 w-1 bg-upcoming-fg"></div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-upcoming-bg border border-upcoming-fg/30 flex items-center justify-center text-upcoming-fg shrink-0 mt-0.5">
+                  <span class="material-symbols-outlined text-[19px]">warning</span>
+                </div>
+                <div>
+                  <h3 class="text-[14px] font-semibold text-ink tracking-tight">Action Required: Rating Watch</h3>
+                  <p class="text-[12px] text-slate mt-1.5 leading-relaxed">
+                    Piramal Capital placed under CRISIL credit watch. Review exposure and redemption strategy prior to record date.
+                  </p>
+                  <div class="mt-3 flex items-center gap-3">
+                    <a href="#" class="h-9 px-3 rounded-md bg-upcoming-bg hover:bg-upcoming-bg/80 text-upcoming-fg border border-upcoming-fg/30 text-[12px] font-semibold inline-flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary-blue">
+                      <span>Read Advisory</span>
+                      <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                    </a>
+                    <button class="text-[12px] text-slate hover:text-ink font-medium transition-colors px-2 py-1">
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==================== FULL-WIDTH RETURNS HISTORY & COUPON LEDGER ==================== -->
+        <section class="mb-8">
+          <div class="bg-card border border-hairline rounded-xl p-5 shadow-sm">
+            
+            <!-- Table Header Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-hairline gap-3">
+              <div>
+                <div class="flex items-center gap-2.5">
+                  <h2 class="text-[16px] font-semibold text-ink tracking-tight">Returns History & Coupon Ledger</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-info-bg text-info-fg border border-info-fg/20 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">verified</span>
+                    <span>Audited</span>
+                  </span>
+                </div>
+                <p class="text-[12px] text-slate mt-0.5">Verified depository cashflows, TDS Section 193 withholding, and bank credit receipts</p>
+              </div>
+
+              <!-- Filter / Export Sub-action -->
+              <div class="flex items-center gap-2">
+                <button class="h-9 px-3 rounded-lg border border-hairline bg-elevated hover:bg-container text-slate hover:text-ink text-[12px] font-medium flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary-blue">
+                  <span class="material-symbols-outlined text-[15px]">filter_list</span>
+                  <span>Filter by Year</span>
+                </button>
+                <button class="h-9 px-3 rounded-lg border border-hairline bg-elevated hover:bg-container text-slate hover:text-ink text-[12px] font-medium flex items-center gap-1.5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary-blue">
+                  <span class="material-symbols-outlined text-[15px]">download</span>
+                  <span>Tax CSV</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto mt-2">
+              <table class="w-full text-left border-collapse text-[13px]">
+                <thead>
+                  <tr class="border-b border-hairline text-[11px] font-semibold text-mist uppercase tracking-wider">
+                    <th class="py-3 px-3">Issuer</th>
+                    <th class="py-3 px-3">ISIN</th>
+                    <th class="py-3 px-3 text-right">Coupon</th>
+                    <th class="py-3 px-3">Next Payout</th>
+                    <th class="py-3 px-3 text-right">TDS (10%)</th>
+                    <th class="py-3 px-3 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-hairline">
+                  
+                  <!-- Row 1: Piramal Capital -->
+                  <tr class="hover:bg-elevated/40 transition-colors">
+                    <td class="py-3.5 px-3 font-semibold text-ink">
+                      <div>Piramal Capital & Housing Fin</div>
+                      <div class="text-[11px] text-slate font-normal">Monthly Senior NCD</div>
+                    </td>
+                    <td class="py-3.5 px-3 font-mono text-[12px] text-slate">INE641A07137</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums font-medium text-ink">10.25% p.a.</td>
+                    <td class="py-3.5 px-3 text-slate tabular-nums">01 Nov 2026</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-overdue-fg">-₹ 898</td>
+                    <td class="py-3.5 px-3 text-center">
+                      <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-overdue-bg text-overdue-fg border border-overdue-fg/20">
+                        Overdue
+                      </span>
+                    </td>
+                  </tr>
+
+                  <!-- Row 2: Tata Capital Financial Services -->
+                  <tr class="hover:bg-elevated/40 transition-colors">
+                    <td class="py-3.5 px-3 font-semibold text-ink">
+                      <div>Tata Capital Financial Services</div>
+                      <div class="text-[11px] text-slate font-normal">Annual Secured Series V</div>
+                    </td>
+                    <td class="py-3.5 px-3 font-mono text-[12px] text-slate">INE306N07MH1</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums font-medium text-ink">9.15% p.a.</td>
+                    <td class="py-3.5 px-3 text-slate tabular-nums">18 Jan 2027</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-mist">-₹ 4,575</td>
+                    <td class="py-3.5 px-3 text-center">
+                      <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-paid-bg text-paid-fg border border-paid-fg/20">
+                        Paid
+                      </span>
+                    </td>
+                  </tr>
+
+                  <!-- Row 3: L&T Finance Holdings Ltd -->
+                  <tr class="hover:bg-elevated/40 transition-colors">
+                    <td class="py-3.5 px-3 font-semibold text-ink">
+                      <div>L&T Finance Holdings Ltd</div>
+                      <div class="text-[11px] text-slate font-normal">Semi-Annual Unsecured NCD</div>
+                    </td>
+                    <td class="py-3.5 px-3 font-mono text-[12px] text-slate">INE498L07185</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums font-medium text-ink">8.85% p.a.</td>
+                    <td class="py-3.5 px-3 text-slate tabular-nums">10 Jan 2027</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-mist">-₹ 1,770</td>
+                    <td class="py-3.5 px-3 text-center">
+                      <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-info-bg text-info-fg border border-info-fg/20">
+                        Scheduled
+                      </span>
+                    </td>
+                  </tr>
+
+                  <!-- Row 4: Muthoot Finance Ltd -->
+                  <tr class="hover:bg-elevated/40 transition-colors">
+                    <td class="py-3.5 px-3 font-semibold text-ink">
+                      <div>Muthoot Finance Ltd</div>
+                      <div class="text-[11px] text-slate font-normal">Annual Secured Bonds</div>
+                    </td>
+                    <td class="py-3.5 px-3 font-mono text-[12px] text-slate">INE414G07CJ9</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums font-medium text-ink">9.50% p.a.</td>
+                    <td class="py-3.5 px-3 text-slate tabular-nums">22 Feb 2027</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-mist">-₹ 3,800</td>
+                    <td class="py-3.5 px-3 text-center">
+                      <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-info-bg text-info-fg border border-info-fg/20">
+                        Scheduled
+                      </span>
+                    </td>
+                  </tr>
+
+                  <!-- Row 5: Shree Cement NCD Series I -->
+                  <tr class="hover:bg-elevated/40 transition-colors opacity-75">
+                    <td class="py-3.5 px-3 font-medium text-slate">
+                      <div class="line-through">Shree Cement NCD Series I</div>
+                      <div class="text-[11px] text-mist font-normal">Terminal Repayment Cleared</div>
+                    </td>
+                    <td class="py-3.5 px-3 font-mono text-[12px] text-mist">INE070A07060</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums font-medium text-slate">8.10% p.a.</td>
+                    <td class="py-3.5 px-3 text-mist tabular-nums">Settled (Oct '26)</td>
+                    <td class="py-3.5 px-3 text-right tabular-nums text-mist">-₹ 2,430</td>
+                    <td class="py-3.5 px-3 text-center">
+                      <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-container text-mist border border-hairline">
+                        Matured
+                      </span>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Pagination & Ledger Pagination Note -->
+            <div class="mt-4 pt-3 border-t border-hairline flex flex-col sm:flex-row items-center justify-between text-[12px] text-slate gap-2">
+              <div>
+                Showing <strong class="text-ink">5</strong> of <strong class="text-ink">24</strong> recorded ledger cashflow cycles
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="h-8 px-2.5 rounded border border-hairline hover:bg-elevated text-slate hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium">
+                  Previous
+                </button>
+                <div class="flex items-center gap-1">
+                  <span class="w-8 h-8 rounded bg-primary-blue text-white font-semibold text-xs flex items-center justify-center">1</span>
+                  <span class="w-8 h-8 rounded hover:bg-elevated text-slate hover:text-ink font-medium text-xs flex items-center justify-center cursor-pointer">2</span>
+                  <span class="w-8 h-8 rounded hover:bg-elevated text-slate hover:text-ink font-medium text-xs flex items-center justify-center cursor-pointer">3</span>
+                </div>
+                <button class="h-8 px-2.5 rounded border border-hairline hover:bg-elevated text-slate hover:text-ink text-xs font-medium">
+                  Next
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==================== FOOTER ==================== -->
+        <footer class="pt-4 border-t border-hairline flex flex-col sm:flex-row items-center justify-between text-[12px] text-mist gap-2">
+          <div class="flex items-center gap-4">
+            <a href="#" class="hover:text-slate transition-colors focus:outline-none">← Previous Cycle</a>
+            <span class="text-hairline">•</span>
+            <a href="#" class="hover:text-slate transition-colors focus:outline-none">Next Review (Q1 FY27) →</a>
+          </div>
+          <div class="text-center sm:text-right text-[11px]">
+            DK Bond Tracker • Fixed Income Ledger • Q4 FY2026-27 • Client-side 256-bit Encrypted Ledger
+          </div>
+        </footer>
+
+      </div>
+    </main>
+
+  </div>
+
+</body>
+</html>

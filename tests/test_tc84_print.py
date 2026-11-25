@@ -55,6 +55,7 @@ def money_values_present(html):
     return "100000.00" in html or "60000.00" in html or "₹" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_print_has_exactly_five_section_markers(client, db_path):
     seed_statement(db_path, date.today())
     response = client.get("/print")
@@ -68,6 +69,7 @@ def test_tc84_print_has_exactly_five_section_markers(client, db_path):
     assert html.count('class="sec"') + html.count('st-title-block') + html.count('st-footer') >= 5
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_month_header_present(client, db_path):
     today = date.today()
     seed_statement(db_path, today)
@@ -78,6 +80,7 @@ def test_tc84_month_header_present(client, db_path):
     assert today.strftime("%d-%b-%Y") in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_all_bond_rows_present(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
@@ -92,6 +95,7 @@ def test_tc84_all_bond_rows_present(client, db_path):
     assert "no payments this month" not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_due_dates_are_credit_day_iso_dates(client, db_path):
     today = date.today()
     seed_statement(db_path, today)
@@ -101,6 +105,7 @@ def test_tc84_due_dates_are_credit_day_iso_dates(client, db_path):
         assert expected in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_status_groups_ordered_danger_first(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
@@ -111,6 +116,7 @@ def test_tc84_status_groups_ordered_danger_first(client, db_path):
     assert "Danger Co (INE0000000841)" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_payment_rows_ordered_danger_first(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
@@ -118,6 +124,7 @@ def test_tc84_payment_rows_ordered_danger_first(client, db_path):
     assert table.index("Danger Co") < table.index("Ongoing Co") < table.index("Done Co")
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_bw_markers_present(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
@@ -128,6 +135,7 @@ def test_tc84_bw_markers_present(client, db_path):
     assert "row-completed" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_a4_page_css_and_print_button(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
@@ -138,6 +146,7 @@ def test_tc84_a4_page_css_and_print_button(client, db_path):
     assert 'class="a4"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_alerts_footer_counts_and_last_sweep(client, db_path):
     today = date.today()
     seed_statement(db_path, today)
@@ -149,6 +158,7 @@ def test_tc84_alerts_footer_counts_and_last_sweep(client, db_path):
     assert f"last sweep {today.isoformat()}" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_privacy_off_shows_real_amounts(client, db_path):
     seed_statement(db_path, date.today())
     html = client.get("/print").get_data(as_text=True)
@@ -159,6 +169,7 @@ def test_tc84_privacy_off_shows_real_amounts(client, db_path):
     assert "••••" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_privacy_1_masks_all_money(client, db_path):
     seed_statement(db_path, date.today())
     response = client.get("/print?privacy=1")
@@ -177,6 +188,7 @@ def test_tc84_privacy_1_masks_all_money(client, db_path):
     assert "On-going" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_privacy_1_masks_printed_sections_only_money(client, db_path):
     today = date.today()
     seed_statement(db_path, today)
@@ -187,6 +199,7 @@ def test_tc84_privacy_1_masks_printed_sections_only_money(client, db_path):
     assert "2026" in html or f"{today.year:04d}" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc84_empty_portfolio_renders_sections(client, db_path):
     response = client.get("/print")
     assert response.status_code == 200

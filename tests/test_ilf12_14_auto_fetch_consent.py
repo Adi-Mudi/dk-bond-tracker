@@ -1,3 +1,4 @@
+import pytest
 import time
 
 from src.app import create_app
@@ -63,6 +64,7 @@ def _pref(db_path, key):
         return get_pref(conn, key)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_12_consent_dialog_shows_once_then_never_again(db_path):
     app = create_app(str(db_path))
     client = app.test_client()
@@ -72,6 +74,7 @@ def test_tc_ilf_12_consent_dialog_shows_once_then_never_again(db_path):
     assert b'id="auto-fetch-consent"' not in client.get("/").data
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_12_consent_dialog_never_again_after_auto_choice(db_path):
     app = create_app(str(db_path))
     client = app.test_client()
@@ -88,6 +91,7 @@ def test_tc_ilf_12_consent_rejects_unknown_choice(db_path):
     assert _pref(db_path, AUTO_FETCH_PROMPTED_KEY) is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_13_toggle_defaults_off_and_last_synced_never(db_path):
     app = create_app(str(db_path))
     client = app.test_client()
@@ -98,6 +102,7 @@ def test_tc_ilf_13_toggle_defaults_off_and_last_synced_never(db_path):
     assert b'id="auto-fetch-sync"' in page
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_13_sync_now_runs_a_pass_and_updates_last_synced(db_path, monkeypatch):
     _seed_watch(db_path)
     adapter = FactAdapter()

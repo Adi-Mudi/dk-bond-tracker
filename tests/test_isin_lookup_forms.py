@@ -1,3 +1,4 @@
+import pytest
 import json
 from pathlib import Path
 
@@ -52,6 +53,7 @@ def test_tc_ilf_01_lookup_endpoint_rejects_a_bad_isin(db_path):
     assert json.loads(response.get_data(as_text=True))["error"] == "ERR-watch-lookup"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_01_template_fetches_json_and_has_no_page_navigation():
     template = (ROOT / "src" / "templates" / "watch.html").read_text(encoding="utf-8")
     assert 'fetch("/watch/lookup?" + serialize()' in template
@@ -59,6 +61,7 @@ def test_tc_ilf_01_template_fetches_json_and_has_no_page_navigation():
     assert "function applyLookupPayload(payload)" in template
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_02_apply_marks_the_isin_applied_and_suppresses_restore(db_path):
     client = make_client(db_path)
     client.get(f"/watch?isin={ISIN}")
@@ -71,6 +74,7 @@ def test_tc_ilf_02_apply_marks_the_isin_applied_and_suppresses_restore(db_path):
     assert 'data-fetch-isin="" hidden' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc_ilf_02_without_apply_get_still_shows_the_popup(db_path):
     client = make_client(db_path)
     html = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)

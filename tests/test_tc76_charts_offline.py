@@ -58,6 +58,7 @@ def test_tc76_cumulative_negative_flag_present(db_path):
     assert data["cumulative"][-1]["month"] == "2026-10"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc76_rendered_dashboard_zero_external_references(client, db_path):
     today = date.today()
     with get_conn(db_path) as conn:

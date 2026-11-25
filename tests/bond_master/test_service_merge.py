@@ -1,6 +1,8 @@
 from src.bond_master.base import SOURCE_PRIORITY, FetchResult
 from src.bond_master.cache import BondMasterCache
+from src.bond_master import service as service_module
 from src.bond_master.service import BondMasterService
+from src.bond_master.snapshot import SNAPSHOT_SOURCE
 from src.db import init_db
 
 ISIN = "INE205A07DV2"
@@ -25,107 +27,139 @@ def make_service(tmp_path, adapters):
     )
 
 
-def test_af01_2_missing_rating_comes_from_the_next_source_with_its_agency(tmp_path):
+def seed(monkeypatch, result):
+    monkeypatch.setattr(service_module, "snapshot_lookup", lambda isin: result)
+
+
+def test_af01_2_snapshot_seed_with_official_facts_answers_without_a_fetch(tmp_path, monkeypatch):
+    adapters = {
+        "NSDL": FakeAdapter(
+            "NSDL",
+            FetchResult(isin=ISIN, company="NSDL Co", sources={"company": "NSDL"}),
+        ),
+    }
+    seed(
+        monkeypatch,
+        FetchResult(
+            isin=ISIN,
+            company="Seed Co",
+            rating="AA+",
+            rating_agency="CRISIL",
+            sources={
+                "company": SNAPSHOT_SOURCE,
+                "rating": SNAPSHOT_SOURCE,
+                "rating_agency": SNAPSHOT_SOURCE,
+            },
+        ),
+    )
+    service = make_service(tmp_path, adapters)
+    result = service.lookup(ISIN)
+    assert result.company == "Seed Co"
+    assert result.source_of("company") == SNAPSHOT_SOURCE
+    assert result.rating == "AA+"
+    assert result.rating_agency == "CRISIL"
+    assert result.source_of("rating") == SNAPSHOT_SOURCE
+    assert adapters["NSDL"].calls == []
+
+
+def test_af01_2_nsdl_fills_the_official_fields_missing_from_the_seed(tmp_path, monkeypatch):
     adapters = {
         "NSDL": FakeAdapter(
             "NSDL",
             FetchResult(
                 isin=ISIN,
-                company="Acme Ltd",
-                coupon=8.75,
-                sources={"company": "NSDL", "coupon": "NSDL"},
-            ),
-        ),
-        "RBI": FakeAdapter(
-            "RBI",
-            FetchResult(
-                isin=ISIN,
+                company="NSDL Co",
                 rating="AA+",
                 rating_agency="CRISIL",
-                sources={"rating": "RBI", "rating_agency": "RBI"},
+                sources={"company": "NSDL", "rating": "NSDL", "rating_agency": "NSDL"},
             ),
         ),
     }
+    seed(
+        monkeypatch,
+        FetchResult(
+            isin=ISIN,
+            company="Seed Co",
+            coupon=9.0,
+            sources={"company": SNAPSHOT_SOURCE, "coupon": SNAPSHOT_SOURCE},
+        ),
+    )
     service = make_service(tmp_path, adapters)
     result = service.lookup(ISIN)
-    assert result.company == "Acme Ltd"
-    assert result.source_of("company") == "NSDL"
-    assert result.source_of("coupon") == "NSDL"
+    assert result.company == "Seed Co"
+    assert result.source_of("company") == SNAPSHOT_SOURCE
+    assert result.coupon == 9.0
     assert result.rating == "AA+"
     assert result.rating_agency == "CRISIL"
-    assert result.source_of("rating") == "RBI"
-    assert result.source_of("rating_agency") == "RBI"
+    assert result.source_of("rating") == "NSDL"
+    assert result.source_of("rating_agency") == "NSDL"
+    assert adapters["NSDL"].calls == [ISIN]
 
 
-def test_af01_2_fields_fall_back_in_nsdl_rbi_nse_bse_order(tmp_path):
+def test_af01_2_fields_fall_back_nsdl_then_snapshot(tmp_path, monkeypatch):
     adapters = {
         "NSDL": FakeAdapter(
             "NSDL", FetchResult(isin=ISIN, company="Acme Ltd", sources={"company": "NSDL"})
         ),
-        "RBI": FakeAdapter(
-            "RBI", FetchResult(isin=ISIN, coupon=9.0, sources={"coupon": "RBI"})
-        ),
-        "NSE": FakeAdapter(
-            "NSE",
-            FetchResult(
-                isin=ISIN,
-                rating="AA",
-                rating_agency="ICRA",
-                sources={"rating": "NSE", "rating_agency": "NSE"},
-            ),
-        ),
-        "BSE": FakeAdapter(
-            "BSE", FetchResult(isin=ISIN, maturity="2030-03-31", sources={"maturity": "BSE"})
-        ),
     }
+    seed(
+        monkeypatch,
+        FetchResult(
+            isin=ISIN,
+            coupon=9.0,
+            maturity="2030-03-31",
+            sources={"coupon": SNAPSHOT_SOURCE, "maturity": SNAPSHOT_SOURCE},
+        ),
+    )
     service = make_service(tmp_path, adapters)
     result = service.lookup(ISIN)
     assert result.source_of("company") == "NSDL"
-    assert result.source_of("coupon") == "RBI"
-    assert result.source_of("rating") == "NSE"
-    assert result.source_of("rating_agency") == "NSE"
-    assert result.source_of("maturity") == "BSE"
+    assert result.source_of("coupon") == SNAPSHOT_SOURCE
+    assert result.source_of("maturity") == SNAPSHOT_SOURCE
     assert result.source_of("face_value") is None
 
 
-def test_af01_2_a_higher_priority_source_wins_the_field_it_has(tmp_path):
+def test_af01_2_nsdl_result_fills_the_gap_when_no_seed_exists(tmp_path, monkeypatch):
     adapters = {
         "NSDL": FakeAdapter(
             "NSDL", FetchResult(isin=ISIN, company="NSDL Co", sources={"company": "NSDL"})
         ),
-        "NSE": FakeAdapter(
-            "NSE", FetchResult(isin=ISIN, company="NSE Co", sources={"company": "NSE"})
-        ),
     }
+    seed(monkeypatch, None)
     service = make_service(tmp_path, adapters)
     result = service.lookup(ISIN)
     assert result.company == "NSDL Co"
     assert result.source_of("company") == "NSDL"
 
 
-def test_af01_2_repeat_lookup_merges_the_cached_session_results(tmp_path):
+def test_af01_2_repeat_lookup_merges_the_cached_session_results(tmp_path, monkeypatch):
     adapters = {
         "NSDL": FakeAdapter(
-            "NSDL", FetchResult(isin=ISIN, company="Acme Ltd", sources={"company": "NSDL"})
-        ),
-        "RBI": FakeAdapter(
-            "RBI", FetchResult(isin=ISIN, rating="AA+", rating_agency="CRISIL", sources={"rating": "RBI"})
+            "NSDL",
+            FetchResult(
+                isin=ISIN,
+                company="Acme Ltd",
+                rating="AA+",
+                rating_agency="CRISIL",
+                sources={"company": "NSDL", "rating": "NSDL", "rating_agency": "NSDL"},
+            ),
         ),
     }
+    seed(monkeypatch, None)
     service = make_service(tmp_path, adapters)
     service.lookup(ISIN)
     result = service.lookup(ISIN)
     assert result.source_of("company") == "NSDL"
-    assert result.source_of("rating") == "RBI"
+    assert result.source_of("rating") == "NSDL"
     assert adapters["NSDL"].calls == [ISIN]
-    assert adapters["RBI"].calls == [ISIN]
 
 
-def test_af01_2_merge_never_raises_when_nothing_is_found(tmp_path):
+def test_af01_2_merge_never_raises_when_nothing_is_found(tmp_path, monkeypatch):
     adapters = {
         name: FakeAdapter(name, FetchResult(isin=ISIN))
         for name in SOURCE_PRIORITY
     }
+    seed(monkeypatch, None)
     service = make_service(tmp_path, adapters)
     result = service.lookup(ISIN)
     assert result.has_facts() is False
@@ -154,13 +188,13 @@ def test_f5_merge_keeps_only_the_grade_when_the_agency_column_is_populated(tmp_p
 
 def test_f5_merge_resolves_the_embedded_agency_when_the_column_is_empty(tmp_path):
     adapters = {
-        "RBI": FakeAdapter(
-            "RBI",
+        "NSDL": FakeAdapter(
+            "NSDL",
             FetchResult(
                 isin=ISIN,
                 company="Acme Ltd",
                 rating="CARE BBB+",
-                sources={"company": "RBI", "rating": "RBI"},
+                sources={"company": "NSDL", "rating": "NSDL"},
             ),
         ),
     }
@@ -168,8 +202,8 @@ def test_f5_merge_resolves_the_embedded_agency_when_the_column_is_empty(tmp_path
     result = service.lookup(ISIN)
     assert result.rating == "BBB+"
     assert result.rating_agency == "CARE"
-    assert result.source_of("rating") == "RBI"
-    assert result.source_of("rating_agency") == "RBI"
+    assert result.source_of("rating") == "NSDL"
+    assert result.source_of("rating_agency") == "NSDL"
 
 
 def test_f5_merge_is_idempotent_for_already_clean_values(tmp_path):

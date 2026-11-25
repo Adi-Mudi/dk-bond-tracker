@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Print (Web) - DK Bond Tracker</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ledger-canvas': '#0D1520',
+            background: '#0D1520',
+            'paper-surface': '#16212E',
+            surface: '#16212E',
+            'surface-container': '#1E2C3B',
+            'surface-container-high': '#1E2C3B',
+            'surface-container-lowest': '#16212E',
+            'surface-bright': '#1A2735',
+            'surface-dim': '#0A111A',
+            'surface-variant': '#1A2735',
+            'secondary-fixed': '#1A2735',
+            'secondary-fixed-dim': '#14202B',
+            'inverse-surface': '#E8EEF5',
+            'inverse-on-surface': '#0D1520',
+            'inverse-primary': '#8FB4FF',
+            hairline: '#2A3A4C',
+            outline: '#2A3A4C',
+            'outline-variant': '#2A3A4C',
+            ink: '#E8EEF5',
+            'on-surface': '#E8EEF5',
+            'on-background': '#E8EEF5',
+            slate: '#A8B6C4',
+            mist: '#7A8A99',
+            'on-surface-variant': '#A8B6C4',
+            secondary: '#A8B6C4',
+            'on-secondary-container': '#A8B6C4',
+            primary: '#2456E6',
+            'primary-container': '#1C46C2',
+            'primary-fixed': '#1C46C2',
+            'primary-fixed-dim': '#16409E',
+            'on-primary': '#FFFFFF',
+            'on-primary-container': '#DBE4FF',
+            'on-primary-fixed': '#DBE4FF',
+            'on-primary-fixed-variant': '#8FB4FF',
+            'info-blue-fg': '#8FB4FF',
+            'info-blue-bg': '#14263D',
+            'paid-green-fg': '#6FD898',
+            'paid-green-bg': '#12301E',
+            'due-red-fg': '#FF8A80',
+            'due-red-bg': '#3A1310',
+            'upcoming-amber-fg': '#FFC46B',
+            'upcoming-amber-bg': '#3A2A0E',
+            error: '#FF8A80',
+            'error-container': '#3A1310',
+            'on-error': '#0D1520',
+            'on-error-container': '#FF8A80',
+            'secondary-container': '#1E2C3B'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Inter', 'system-ui', 'sans-serif'],
+            'headline-h1': ['Inter', 'system-ui', 'sans-serif'],
+            'headline-h2': ['Inter', 'system-ui', 'sans-serif'],
+            label: ['Inter', 'system-ui', 'sans-serif'],
+            small: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0D1520;
+      color: #E8EEF5;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+    }
+    /* A4 document dimensions */
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 32px auto;
+      background: #16212E;
+      padding: 22mm 20mm;
+      box-sizing: border-box;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .a4-sheet {
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: 100% !important;
+        padding: 16mm 14mm !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16 flex flex-col items-center">
+<!-- Floating Utility / Action Bar (Top / Non-Print) -->
+<header class="no-print w-full sticky top-0 z-50 bg-[#16212E] border-b border-[#2A3A4C] px-6 py-3.5 shadow-sm">
+<div class="max-w-5xl mx-auto flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<a class="inline-flex items-center text-sm font-medium text-[#A8B6C4] hover:text-[#E8EEF5] transition-colors px-3 py-3 min-h-[48px] -ml-1.5 rounded-md hover:bg-[#1A2735]" href="#" onclick="window.history.back(); return false;">
+<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+          Back to Ledger
+        </a>
+<span class="text-[#2A3A4C]">|</span>
+<div class="flex items-center space-x-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1A2735] text-[#A8B6C4]">A4 Standard</span>
+<span class="text-xs text-[#7A8A99]">Monthly Payout Statement • December 2026</span>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<!-- Scale / Orientation Indicator -->
+<span class="text-xs text-[#A8B6C4] hidden sm:inline">100% Scale • Midnight Dark</span>
+<!-- Print Action Button -->
+<button class="inline-flex items-center justify-center px-4 py-3 min-h-[48px] bg-[#2456e6] hover:bg-[#1C46C2] text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#2456e6] focus:ring-offset-2" onclick="window.print()">
+<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+          Print / Save PDF
+        </button>
+<button class="inline-flex items-center justify-center px-3.5 py-3 min-h-[48px] border border-[#2A3A4C] hover:bg-[#1A2735] text-[#E8EEF5] text-sm font-medium rounded-lg transition-colors" onclick="alert('Exporting CSV ledger statement...')">
+<svg class="w-4 h-4 mr-1.5 text-[#A8B6C4]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+          CSV
+        </button>
+</div>
+</div>
+</header>
+<!-- Document Canvas / Centered A4 Page -->
+<main class="w-full flex justify-center px-4 sm:px-6">
+<article class="a4-sheet border border-[#2A3A4C] print:border-0 text-[#E8EEF5] flex flex-col justify-between">
+<div>
+<!-- 1. Document Header -->
+<header class="border-b-2 border-[#2A3A4C] pb-6 mb-7">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center space-x-2">
+<span class="inline-block w-3.5 h-3.5 bg-[#2456e6] rounded-sm"></span>
+<h1 class="text-xl font-bold tracking-tight text-[#E8EEF5]">DK BOND TRACKER</h1>
+</div>
+<p class="text-xs uppercase tracking-wider text-[#A8B6C4] font-medium mt-1">Fixed Income Investment Ledger &amp; Depository CAS Reconciliation</p>
+<div class="mt-3 text-xs text-[#A8B6C4] space-y-0.5">
+<p><span class="text-[#7A8A99]">Account Holder:</span> DK Yield Account (Primary Demat)</p>
+<p><span class="text-[#7A8A99]">DP ID / Client Ref:</span> IN300126-118290 • NSDL / CDSL Synced</p>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-block border border-[#2A3A4C] px-3 py-1.5 rounded bg-[#1A2735] text-right mb-2">
+<span class="block text-[10px] font-semibold tracking-wider uppercase text-[#A8B6C4]">Statement Cycle</span>
+<span class="text-sm font-bold text-[#E8EEF5]">DECEMBER 2026</span>
+</div>
+<p class="text-xs text-[#A8B6C4]"><span class="text-[#7A8A99]">Generated:</span> 15 Dec 2026, 09:30 IST</p>
+<p class="text-xs text-[#A8B6C4]"><span class="text-[#7A8A99]">Document Ref:</span> STMT-202612-DKB</p>
+</div>
+</div>
+</header>
+<!-- 2. Statement Executive Summary Line -->
+<section class="mb-7">
+<div class="text-[11px] font-semibold uppercase tracking-wider text-[#A8B6C4] mb-2.5">
+            Monthly Coupon Cashflow Summary
+          </div>
+<div class="grid grid-cols-4 border border-[#2A3A4C] rounded-md divide-x divide-[#2A3A4C] bg-[#16212E]">
+<!-- Col 1: Expected Gross -->
+<div class="p-3.5">
+<span class="block text-[11px] font-medium text-[#7A8A99] uppercase">Total Expected</span>
+<span class="text-lg font-bold text-[#E8EEF5] num mt-0.5 block">₹ 98,562<span class="text-xs text-[#A8B6C4] font-normal">.00</span></span>
+<span class="text-[11px] text-[#A8B6C4] mt-1 block">5 scheduled coupons</span>
+</div>
+<!-- Col 2: Total Received -->
+<div class="p-3.5">
+<span class="block text-[11px] font-medium text-[#7A8A99] uppercase">Total Received</span>
+<span class="text-lg font-bold text-[#6FD898] num mt-0.5 block">₹ 41,175<span class="text-xs text-[#6FD898] font-normal">.00</span></span>
+<span class="text-[11px] text-[#A8B6C4] mt-1 block">1 settled ECS credit</span>
+</div>
+<!-- Col 3: Statutory TDS -->
+<div class="p-3.5">
+<span class="block text-[11px] font-medium text-[#7A8A99] uppercase">TDS Withheld (10%)</span>
+<span class="text-lg font-bold text-[#FFC46B] num mt-0.5 block">₹ 4,575<span class="text-xs text-[#FFC46B] font-normal">.00</span></span>
+<span class="text-[11px] text-[#A8B6C4] mt-1 block">Sec 193 deduction</span>
+</div>
+<!-- Col 4: Pending / Overdue -->
+<div class="p-3.5">
+<span class="block text-[11px] font-medium text-[#7A8A99] uppercase">Pending / Action</span>
+<span class="text-lg font-bold text-[#FF8A80] num mt-0.5 block">₹ 52,812<span class="text-xs text-[#FF8A80] font-normal">.00</span></span>
+<span class="text-[11px] text-[#A8B6C4] mt-1 block">1 due, 1 overdue, 2 sched</span>
+</div>
+</div>
+</section>
+<!-- 3. Per-Bond Detailed Coupon Table -->
+<section class="mb-8">
+<div class="flex items-center justify-between mb-2.5">
+<h2 class="text-[11px] font-semibold uppercase tracking-wider text-[#A8B6C4]">
+              Coupon Disbursement Schedule &amp; Audit Log
+            </h2>
+<span class="text-xs text-[#A8B6C4]">Currency: INR (₹)</span>
+</div>
+<div class="border border-[#2A3A4C] rounded-md overflow-hidden">
+<table class="w-full text-left border-collapse text-xs">
+<thead>
+<tr class="bg-[#1A2735] border-b border-[#2A3A4C] text-[#E8EEF5] font-semibold uppercase text-[10px] tracking-wider">
+<th class="py-2.5 px-3">Company &amp; Security Specs</th>
+<th class="py-2.5 px-3">ISIN Identifier</th>
+<th class="py-2.5 px-3 text-center">Due Date</th>
+<th class="py-2.5 px-3 text-right">Expected (₹)</th>
+<th class="py-2.5 px-3 text-right">Received (₹)</th>
+<th class="py-2.5 px-3 text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#2A3A4C] bg-[#16212E]">
+<!-- Row 1: Tata Capital (Settled) -->
+<tr>
+<td class="py-3 px-3">
+<div class="font-semibold text-[#E8EEF5]">Tata Capital Financial Services Ltd</div>
+<div class="text-[11px] text-[#A8B6C4]">9.15% Annual Unsecured NCD • AAA CRISIL</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-mono text-[11px] text-[#E8EEF5]">INE306N07MH1</span>
+<div class="text-[10px] text-[#7A8A99]">UTR: CMS891204821</div>
+</td>
+<td class="py-3 px-3 text-center num text-[#A8B6C4]">05 Dec 2026</td>
+<td class="py-3 px-3 text-right num text-[#A8B6C4]">45,750.00</td>
+<td class="py-3 px-3 text-right font-medium num text-[#6FD898]">41,175.00</td>
+<td class="py-3 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#12301E] text-[#6FD898] border border-[#6FD898]/30">
+                      Paid
+                    </span>
+</td>
+</tr>
+<!-- Row 2: HDFC Credila (Due Today) -->
+<tr>
+<td class="py-3 px-3">
+<div class="font-semibold text-[#E8EEF5]">HDFC Credila Financial Services</div>
+<div class="text-[11px] text-[#A8B6C4]">9.45% Annual Senior NCD • AAA CRISIL</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-mono text-[11px] text-[#E8EEF5]">INE539K07106</span>
+<div class="text-[10px] text-[#7A8A99]">HDFC •••• 8821 Mandate</div>
+</td>
+<td class="py-3 px-3 text-center num text-[#FFC46B] font-medium">15 Dec 2026</td>
+<td class="py-3 px-3 text-right num font-medium text-[#E8EEF5]">32,800.00</td>
+<td class="py-3 px-3 text-right num text-[#7A8A99]">—</td>
+<td class="py-3 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#3A2A0E] text-[#FFC46B] border border-[#FFC46B]/30">
+                      Due Today
+                    </span>
+</td>
+</tr>
+<!-- Row 3: Piramal Capital (Overdue / Review) -->
+<tr>
+<td class="py-3 px-3">
+<div class="font-semibold text-[#E8EEF5]">Piramal Capital &amp; Housing Finance</div>
+<div class="text-[11px] text-[#FF8A80]">10.20% Monthly NCD • AA- Rating Watch</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-mono text-[11px] text-[#E8EEF5]">INE641A07137</span>
+<div class="text-[10px] text-[#FF8A80]">ECS Query Pending</div>
+</td>
+<td class="py-3 px-3 text-center num text-[#FF8A80] font-medium">01 Dec 2026</td>
+<td class="py-3 px-3 text-right num font-medium text-[#E8EEF5]">12,750.00</td>
+<td class="py-3 px-3 text-right num text-[#FF8A80]">—</td>
+<td class="py-3 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#3A1310] text-[#FF8A80] border border-[#FF8A80]/30">
+                      Overdue
+                    </span>
+</td>
+</tr>
+<!-- Row 4: Muthoot Finance (Upcoming) -->
+<tr>
+<td class="py-3 px-3">
+<div class="font-semibold text-[#E8EEF5]">Muthoot Finance NCD</div>
+<div class="text-[11px] text-[#A8B6C4]">9.75% Monthly Regular • AA+ Stable</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-mono text-[11px] text-[#E8EEF5]">INE414G07GF3</span>
+<div class="text-[10px] text-[#7A8A99]">Direct ECS Link</div>
+</td>
+<td class="py-3 px-3 text-center num text-[#A8B6C4]">22 Dec 2026</td>
+<td class="py-3 px-3 text-right num text-[#A8B6C4]">4,062.00</td>
+<td class="py-3 px-3 text-right num text-[#7A8A99]">—</td>
+<td class="py-3 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#1A2735] text-[#A8B6C4]">
+                      Scheduled
+                    </span>
+</td>
+</tr>
+<!-- Row 5: Shriram Finance (Upcoming) -->
+<tr>
+<td class="py-3 px-3">
+<div class="font-semibold text-[#E8EEF5]">Shriram Finance Ltd</div>
+<div class="text-[11px] text-[#A8B6C4]">9.60% Monthly Subordinated • AA+ CRISIL</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-mono text-[11px] text-[#E8EEF5]">INE721A07QE2</span>
+<div class="text-[10px] text-[#7A8A99]">HDFC •••• 8821 Mandate</div>
+</td>
+<td class="py-3 px-3 text-center num text-[#A8B6C4]">28 Dec 2026</td>
+<td class="py-3 px-3 text-right num text-[#A8B6C4]">3,200.00</td>
+<td class="py-3 px-3 text-right num text-[#7A8A99]">—</td>
+<td class="py-3 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#1A2735] text-[#A8B6C4]">
+                      Scheduled
+                    </span>
+</td>
+</tr>
+</tbody>
+<!-- 4. Totals Row -->
+<tfoot>
+<tr class="bg-[#1A2735] border-t-2 border-[#2A3A4C] font-bold text-xs">
+<td class="py-3 px-3 text-[#E8EEF5] uppercase tracking-wide" colspan="3">
+                    Monthly Totals (5 Active Entitlements)
+                  </td>
+<td class="py-3 px-3 text-right num text-[#E8EEF5] text-sm">
+                    ₹ 98,562.00
+                  </td>
+<td class="py-3 px-3 text-right num text-[#6FD898] text-sm">
+                    ₹ 41,175.00
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="text-[11px] font-semibold text-[#A8B6C4] num">41.8% Settled</span>
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</section>
+<!-- Statutory Notes & Tax Compliance Sub-Block -->
+<section class="border border-[#2A3A4C] bg-[#16212E] p-3.5 rounded-md mb-6 text-xs text-[#A8B6C4]">
+<div class="flex items-center justify-between mb-1.5 font-semibold text-[#E8EEF5]">
+<span>Income Tax &amp; TDS Withholding (Section 193):</span>
+<span class="num text-[#E8EEF5]">Form 26AS Matched</span>
+</div>
+<p class="leading-relaxed">
+            Statutory 10% TDS of ₹ 4,575.00 was withheld by Tata Capital Financial Services Ltd for Coupon Cycle #PAY-8921. 
+            Quarterly Form 16A certificates are automatically archived into your tax folder upon depository registrar synchronization.
+            Nil deduction is applicable only if an exemption certificate (Form 15G / 15H) is on active depository record prior to record date.
+          </p>
+</section>
+</div>
+<!-- 5. Footer Disclaimer Text & Certification -->
+<footer class="border-t border-[#2A3A4C] pt-4 mt-auto">
+<div class="flex items-start justify-between text-[10px] text-[#7A8A99] leading-relaxed">
+<div class="max-w-[70%] space-y-1">
+<p class="font-medium text-[#A8B6C4]">Important Regulatory &amp; Audit Disclaimer</p>
+<p>
+              This document is an automated monthly record generated from verified depository cashflow schedules (NSDL / CDSL) and registered banking ECS mandate confirmations. 
+              Coupon amounts reflect net calculations after statutory deductions under Section 193 of the Indian Income Tax Act, 1961. 
+              This statement is intended for internal portfolio accounting, auditor reconciliation, and tax assessment preparation.
+            </p>
+<p class="pt-0.5">
+              DK Bond Tracker v2.4.1 • Certified System Hash: <span class="font-mono">SHA-256: 8a4f91e0bc39...</span>
+</p>
+</div>
+<div class="text-right space-y-1">
+<div class="border border-[#2A3A4C] px-2.5 py-1 rounded inline-block bg-[#16212E]">
+<span class="text-[#6FD898] font-semibold block">✓ AUDIT VERIFIED</span>
+<span class="text-[9px] text-[#A8B6C4]">NSDL 26AS Compatible</span>
+</div>
+<p class="text-[9px] text-[#7A8A99]">Page 1 of 1</p>
+</div>
+</div>
+</footer>
+</article>
+</main>
+<!-- Print-specific script for keyboard shortcut and trigger -->
+<script>
+    // Hotkey support for Ctrl+P / Cmd+P is native, but ensures clean focus
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        // native handler will trigger window.print()
+      }
+    });
+  </script>
+</body></html>

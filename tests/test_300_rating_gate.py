@@ -1,3 +1,4 @@
+import pytest
 import re
 
 from conftest import add_ongoing_seed
@@ -111,6 +112,7 @@ def test_a_manual_only_no_fetch_adds(db_path):
     assert stored_row(db_path)["rating"] == "A"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_b_fetched_without_rating_manual_choice_is_stored(db_path):
     client = make_client(db_path, service_with(db_path, unrated_result()))
     assert client.get(f"/watch?isin={ISIN}").status_code == 200
@@ -119,6 +121,7 @@ def test_b_fetched_without_rating_manual_choice_is_stored(db_path):
     assert stored_row(db_path)["rating"] == "A"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_c_fetched_rating_without_manual_choice_is_stored(db_path):
     client = make_client(db_path, service_with(db_path, rated_result("BBB-")))
     page = client.get(f"/watch?isin={ISIN}").get_data(as_text=True)
@@ -128,6 +131,7 @@ def test_c_fetched_rating_without_manual_choice_is_stored(db_path):
     assert stored_row(db_path)["rating"] == "BBB-"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_d_neither_source_has_rating_is_refused(db_path):
     client = make_client(db_path, service_with(db_path, unrated_result()))
     assert client.get(f"/watch?isin={ISIN}").status_code == 200
@@ -137,6 +141,7 @@ def test_d_neither_source_has_rating_is_refused(db_path):
     assert stored_row(db_path) is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_state_empty_db_add_creates_one_row(db_path):
     client = make_client(db_path, service_with(db_path, unrated_result()))
     assert client.get(f"/watch?isin={ISIN}").status_code == 200
@@ -145,6 +150,7 @@ def test_state_empty_db_add_creates_one_row(db_path):
         assert conn.execute("SELECT COUNT(*) AS n FROM bonds").fetchone()["n"] == 1
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_state_persisted_isin_readd_still_duplicate(db_path):
     with get_conn(db_path) as conn:
         add_ongoing_seed(conn, COMPANY, ISIN)
@@ -155,6 +161,7 @@ def test_state_persisted_isin_readd_still_duplicate(db_path):
     assert "already exists as holding" in response.get_data(as_text=True)
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_state_charter3_step2_real_isin_add(db_path):
     client = make_client(db_path)
     page = client.get(f"/watch?isin={REAL_ISIN}")

@@ -53,6 +53,7 @@ def goals_columns(db_path):
         return {row[1] for row in conn.execute("PRAGMA table_info(financial_goals)")}
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_target_auto_calculated_and_locked_after_create(client, db_path):
     response = create_goal(client)
     assert response.status_code == 302
@@ -73,6 +74,7 @@ def test_ui05_target_auto_calculated_and_locked_after_create(client, db_path):
     assert 'action="/goals/1/delete"' not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_monthly_plan_requires_both_dates(client, db_path):
     response = client.post(
         "/goals",
@@ -84,6 +86,7 @@ def test_ui05_monthly_plan_requires_both_dates(client, db_path):
     assert b"start date and end date are required" in response.data
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_checkin_records_intent_log(client, db_path):
     create_goal(client)
     response = client.post(
@@ -104,6 +107,7 @@ def test_ui05_checkin_toggles_off(client, db_path):
     assert json.loads(goal_row(db_path)["checkins"]) == []
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_checkin_rejects_bad_month(client, db_path):
     create_goal(client)
     response = client.post(
@@ -113,6 +117,7 @@ def test_ui05_checkin_rejects_bad_month(client, db_path):
     assert b"ERR-goals-op" in response.data
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_consolidated_header_sums_across_goals(client, db_path):
     create_goal(client, name="House", monthly="10000", saved="5000")
     create_goal(client, name="Gold", monthly="20000", saved="0")
@@ -124,6 +129,7 @@ def test_ui05_consolidated_header_sums_across_goals(client, db_path):
     assert 'id="consolidated-returns" data-amount="2000.00"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_derived_invested_and_returns_from_linked_bonds(client, db_path):
     create_goal(client)
     link_bond(db_path, 1, amount=75000.0, paid_amount=4000.0)
@@ -156,6 +162,7 @@ def test_ui05_progress_uses_derived_authority_not_checkins(client, db_path):
     assert goal["progress_pct"] == 0.0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_portfolio_goal_tab_is_read_only(client, db_path):
     create_goal(client, name="House down-payment")
     bond_id = link_bond(db_path, 1, amount=50000.0, paid_amount=0.0)
@@ -174,6 +181,7 @@ def test_ui05_portfolio_goal_tab_is_read_only(client, db_path):
     assert 'id="goal-remove' not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_goals_page_has_no_unlink_or_edit_controls(client, db_path):
     create_goal(client)
     link_bond(db_path, 1, amount=50000.0, paid_amount=0.0)
@@ -187,6 +195,7 @@ def test_ui05_goals_page_has_no_unlink_or_edit_controls(client, db_path):
     assert "permanent" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_portfolio_detail_page_goal_tab_read_only_when_unlinked(client, db_path):
     with get_conn(db_path) as conn:
         bond_id = add_bond(
@@ -236,6 +245,7 @@ def moved_row(db_path, candidate):
         ).fetchone()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_move_form_goal_picker_visible_without_goals(client, db_path):
     make_candidate(client, db_path)
     html = client.get("/watch").get_data(as_text=True)
@@ -244,6 +254,7 @@ def test_ui05_move_form_goal_picker_visible_without_goals(client, db_path):
     assert "&#8212; none &#8212;" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_move_form_goal_picker_present_with_goals(client, db_path):
     create_goal(client, name="House down-payment")
     make_candidate(client, db_path)
@@ -254,6 +265,7 @@ def test_ui05_move_form_goal_picker_present_with_goals(client, db_path):
     assert "the link is permanent" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_move_writes_goal_link(client, db_path):
     create_goal(client, name="House down-payment")
     candidate = make_candidate(client, db_path)
@@ -293,6 +305,7 @@ def test_ui05_move_with_absent_goal_field_leaves_link_null(client, db_path):
     assert moved_row(db_path, candidate)["goal_id"] is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_move_with_unknown_goal_is_named_error_not_500(client, db_path):
     create_goal(client, name="House down-payment")
     candidate = make_candidate(client, db_path)
@@ -309,6 +322,7 @@ def test_ui05_move_with_unknown_goal_is_named_error_not_500(client, db_path):
     assert row["goal_id"] is None
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_checkin_negative_state_renders_red_cross(client, db_path):
     create_goal(client)
     html = client.get("/goals").get_data(as_text=True)
@@ -319,6 +333,7 @@ def test_ui05_checkin_negative_state_renders_red_cross(client, db_path):
     assert "var(--danger-fg)" in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_ui05_checkin_invested_state_renders_green_tick(client, db_path):
     create_goal(client)
     client.post("/goals/1/checkin", data={"month": "2026-01", "invested": "on"})

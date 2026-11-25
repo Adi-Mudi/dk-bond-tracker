@@ -16,6 +16,7 @@ def client(db_path):
     return app.test_client()
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc39_no_bonds_active_this_month_message(client, db_path):
     today = date.today()
     past_start = add_months(today.replace(day=1), -24)
@@ -30,6 +31,7 @@ def test_tc39_no_bonds_active_this_month_message(client, db_path):
     assert 'data-amount="10000.00"' in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc39_current_month_outside_tenure_windows_not_blank(client, db_path):
     today = date.today()
     past_start = add_months(today.replace(day=1), -36)
@@ -42,6 +44,7 @@ def test_tc39_current_month_outside_tenure_windows_not_blank(client, db_path):
     assert "this-month-total" not in html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc39_genuine_zero_when_active_bond_has_no_payment(client, db_path):
     today = date.today()
     base = today.replace(day=1)
@@ -78,6 +81,7 @@ def test_tc39_unresolvable_month_history_named_error(db_path, monkeypatch):
     assert excinfo.value.code == "ERR-query-history"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_tc39_bond_with_no_ledger_rows_still_listed(client, db_path):
     today = date.today()
     base = today.replace(day=1)

@@ -98,6 +98,7 @@ def expected_seed_months(start):
         ("amount", "abc", "amount must be a number"),
     ],
 )
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_ac1_each_required_field_rejected_with_zero_writes(
     client, db_path, field, bad_value, named
 ):
@@ -117,6 +118,7 @@ def test_fr77_ac1_each_required_field_rejected_with_zero_writes(
     assert ledger_count(db_path) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_ac2_happy_path_stores_all_fields_and_seeds_ledger(client, db_path):
     candidate_id = make_candidate(client, db_path, company="Alpha Ltd", isin="INE9000A0201")
     base = date.today().replace(day=1)
@@ -155,6 +157,7 @@ def test_fr77_ac2_happy_path_stores_all_fields_and_seeds_ledger(client, db_path)
     assert "Alpha Ltd" in portfolio_html
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_ac3_active_position_lock_rejects_move_with_zero_writes(client, db_path):
     candidate_id = make_candidate(
         client, db_path, company="Beta Finance Ltd", isin="INE9000A0202"
@@ -182,6 +185,7 @@ def test_fr77_ac3_active_position_lock_rejects_move_with_zero_writes(client, db_
     "start,end",
     [("2026-11-01", "2026-11-01"), ("2026-11-01", "2026-10-15")],
 )
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_ac4_end_not_after_start_rejected_with_zero_writes(
     client, db_path, start, end
 ):
@@ -196,6 +200,7 @@ def test_fr77_ac4_end_not_after_start_rejected_with_zero_writes(
     assert ledger_count(db_path) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_ac4_same_month_zero_tenure_rejected_with_zero_writes(client, db_path):
     candidate_id = make_candidate(client, db_path)
     response = client.post(
@@ -208,6 +213,7 @@ def test_fr77_ac4_same_month_zero_tenure_rejected_with_zero_writes(client, db_pa
     assert ledger_count(db_path) == 0
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_repeat_move_on_holding_rejected_without_new_ledger_rows(client, db_path):
     candidate_id = make_candidate(client, db_path)
     base = date.today().replace(day=1)
@@ -225,6 +231,7 @@ def test_fr77_repeat_move_on_holding_rejected_without_new_ledger_rows(client, db
     assert row_state(db_path, candidate_id) == "holding"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr77_panel_requires_and_prefills_purchase_fields(client, db_path):
     candidate_id = make_candidate(client, db_path, broker="Kotak Securities")
     with get_conn(db_path) as conn:

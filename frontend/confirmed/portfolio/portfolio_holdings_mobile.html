@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=412, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>portfolio_mobile_two_sections</title>
+<!-- Google Fonts: Inter & Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#0D1520',
+            surface: '#16212E',
+            'surface-alt': '#1D2A3B',
+            hairline: '#2A3A4C',
+            accent: '#2456E6',
+            'accent-hover': '#1C46C2',
+            ink: '#E8EEF5',
+            slate: '#A8B6C4',
+            muted: '#7A8A99',
+            'danger-red': '#FF8A80',
+            'danger-bg': 'rgba(255, 138, 128, 0.12)',
+            'success-green': '#6FD898',
+            'success-bg': 'rgba(111, 216, 152, 0.12)',
+            'warning-amber': '#FFC46B',
+            'warning-bg': 'rgba(255, 196, 107, 0.12)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill-1 {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Hide scrollbar for clean chip row */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-ink min-h-screen flex flex-col items-center justify-start pb-28 select-none">
+<!-- Mobile Viewport Container (412px target width) -->
+<div class="w-full max-w-[412px] min-h-screen flex flex-col bg-canvas relative shadow-2xl">
+<!-- TOP APP BAR (56px) -->
+<header class="h-14 px-4 bg-surface border-b border-hairline flex items-center justify-between sticky top-0 z-40"><div class="flex items-center"><h1 class="text-[17px] font-semibold text-ink leading-tight tracking-tight">DK Bond Tracker</h1></div><div class="flex items-center gap-1"><button aria-label="Sync" class="w-9 h-9 rounded-lg flex items-center justify-center text-muted hover:text-ink transition-colors"><span class="material-symbols-outlined text-[20px]">sync</span></button><button aria-label="Notifications" class="w-9 h-9 rounded-lg flex items-center justify-center text-muted hover:text-ink relative transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-danger-red ring-2 ring-surface"></span></button><div class="w-8 h-8 rounded-full bg-surface-alt border border-hairline flex items-center justify-center text-xs font-semibold text-slate shrink-0 ml-1">DK</div></div></header>
+<!-- MAIN SCROLLABLE CONTENT -->
+<main class="flex-1 px-4 pt-4 space-y-4 pb-28">
+<!-- PAGE TITLE & LIVE FEED ROW -->
+<!-- TWO SECTION TABS (Segmented Control Full Width) -->
+<div class="w-full px-0 pt-1 pb-2 sticky top-14 z-30 bg-canvas"><div class="w-full h-11 p-1 bg-surface rounded-lg border border-hairline grid grid-cols-2 gap-1" role="tablist"><button class="h-9 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-accent text-white shadow-sm" id="tab-holdings" onclick="switchSection('holdings')"><span>HOLDINGS</span><span class="px-1.5 py-0.2 rounded bg-white/20 text-[10px] font-bold">14</span></button><button class="h-9 rounded-md text-xs font-medium flex items-center justify-center gap-1.5 transition-all text-muted hover:text-ink" id="tab-payouts" onclick="switchSection('payouts')"><span>PAYOUT DETAILS</span></button></div></div>
+<!-- ================= SECTION 1: HOLDINGS (Active by Default) ================= -->
+<div class="space-y-4" id="section-holdings">
+<!-- HORIZONTAL SCROLLING FILTER CHIPS -->
+<div class="space-y-1.5"><div class="h-10 flex items-center gap-2 px-4 overflow-x-auto no-scrollbar bg-canvas -mx-4"><button class="h-8 px-3 rounded-full bg-accent text-white text-xs font-medium whitespace-nowrap flex items-center gap-1.5 shadow-sm shrink-0"><span>All Holdings</span><span class="px-1.5 py-0.2 rounded-full bg-white/25 text-[10px] font-bold">14</span></button><button class="h-8 px-3 rounded-full bg-surface border border-hairline text-slate hover:text-ink text-xs font-medium whitespace-nowrap flex items-center gap-1.5 shrink-0"><span>Active Accruing</span><span class="text-[11px] text-muted font-medium">12</span></button><button class="h-8 px-3 rounded-full bg-surface border border-hairline text-slate hover:text-ink text-xs font-medium whitespace-nowrap flex items-center gap-1.5 shrink-0"><span>Maturing / Redeemed</span><span class="text-[11px] text-muted font-medium">2</span></button></div><div class="h-10 flex items-center justify-between border-b border-hairline/60 pb-1.5"><div class="flex items-center gap-2"><button aria-label="Filter" class="w-8 h-8 rounded-lg bg-surface/50 border border-hairline/60 text-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors"><span class="material-symbols-outlined text-[17px]">tune</span></button><button aria-label="Search" class="w-8 h-8 rounded-lg bg-surface/50 border border-hairline/60 text-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors"><span class="material-symbols-outlined text-[17px]">search</span></button><button aria-label="Sort" class="w-8 h-8 rounded-lg bg-surface/50 border border-hairline/60 text-muted hover:text-ink flex items-center justify-center shrink-0 transition-colors"><span class="material-symbols-outlined text-[17px]">swap_vert</span></button></div><span class="text-[11px] font-medium text-muted tracking-tight tabular-nums">Showing 8 of 14</span></div></div>
+<!-- COMPACT FILTER ICONS ROW (44px touch targets) -->
+<!-- VERTICAL LIST OF HOLDING CARDS (Ordered: Danger -> On-Going -> Maturing) -->
+<div class="space-y-3"><!-- 1. TIER 1 - DANGER: Edelweiss Financial Services -->
+<div class="bg-surface rounded-xl p-3.5 border-y border-r border-hairline border-l-4 border-l-danger-red shadow-sm space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-danger-red text-[16px]">warning</span>
+<h3 class="text-sm font-semibold text-ink leading-tight">Edelweiss Financial Services</h3>
+</div>
+<p class="text-[11px] text-muted font-mono tracking-wide pl-5">INE532F07BY2 • Tranche II</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-danger-bg text-danger-red border border-danger-red/30 shrink-0">
+      CRIL A-
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 2,50,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-1.5 py-0.5 rounded-full bg-danger-bg text-danger-red text-[10px] font-bold">Delayed</span><span class="text-xs font-semibold text-danger-red tabular-nums">10 Oct 2024</span></div>
+</div>
+</div>
+</div>
+<!-- 2. TIER 2 - MATURING: HDFC Bank Limited (Position 2) -->
+<div class="bg-surface rounded-xl p-3.5 border border-warning-amber/40 shadow-sm space-y-2.5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-warning-amber/5 rounded-bl-full pointer-events-none"></div>
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-warning-amber text-[16px]">hourglass_bottom</span>
+<h3 class="text-sm font-semibold text-ink leading-tight">HDFC Bank Limited</h3>
+</div>
+<p class="text-[11px] text-muted font-mono tracking-wide pl-5">INE040A08419 • Subordinated</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-warning-bg text-warning-amber border border-warning-amber/30 shrink-0">
+      CRIL AAA
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 10,00,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-warning-bg text-warning-amber text-[10px] font-bold">Maturing</span><span class="text-xs font-semibold text-warning-amber tabular-nums">24 Oct 2024</span></div>
+</div>
+</div>
+</div>
+<!-- 3. TIER 3 - ON-GOING 1: Power Finance Corporation -->
+<div class="bg-surface rounded-xl p-3.5 border border-hairline shadow-sm space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<h3 class="text-sm font-semibold text-ink leading-tight">Power Finance Corporation</h3>
+<p class="text-[11px] text-muted font-mono tracking-wide">INE134E07531 • Series 2023</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-surface-alt text-slate border border-hairline shrink-0">
+      CARE AAA
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 7,50,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-success-bg text-success-green text-[10px] font-semibold border border-success-green/20">On-going</span><span class="text-xs font-semibold text-slate tabular-nums">15 Nov 2024</span></div>
+</div>
+</div>
+</div>
+<!-- 4. TIER 3 - ON-GOING 2: REC Limited -->
+<div class="bg-surface rounded-xl p-3.5 border border-hairline shadow-sm space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<h3 class="text-sm font-semibold text-ink leading-tight">REC Limited</h3>
+<p class="text-[11px] text-muted font-mono tracking-wide">INE020B08DF6 • 54EC Bond</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-surface-alt text-slate border border-hairline shrink-0">
+      CRIL AAA
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 5,00,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-success-bg text-success-green text-[10px] font-semibold border border-success-green/20">On-going</span><span class="text-xs font-semibold text-slate tabular-nums">30 Dec 2024</span></div>
+</div>
+</div>
+</div>
+<!-- 5. TIER 3 - ON-GOING 3: Tata Capital Financial Services -->
+<div class="bg-surface rounded-xl p-3.5 border border-hairline shadow-sm space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<h3 class="text-sm font-semibold text-ink leading-tight">Tata Capital Financial Services</h3>
+<p class="text-[11px] text-muted font-mono tracking-wide">INE306N07LG1 • Secured</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-surface-alt text-slate border border-hairline shrink-0">
+      ICRA AAA
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 5,00,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-success-bg text-success-green text-[10px] font-semibold border border-success-green/20">On-going</span><span class="text-xs font-semibold text-slate tabular-nums">05 Nov 2024</span></div>
+</div>
+</div>
+</div>
+<!-- 6. TIER 3 - ON-GOING 4: Nuclear Power Corporation -->
+<div class="bg-surface rounded-xl p-3.5 border border-hairline shadow-sm space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<h3 class="text-sm font-semibold text-ink leading-tight">Nuclear Power Corporation</h3>
+<p class="text-[11px] text-muted font-mono tracking-wide">INE752E08536 • Series XXVIII</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-surface-alt text-slate border border-hairline shrink-0">
+      CRIL AAA
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 4,00,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-success-bg text-success-green text-[10px] font-semibold border border-success-green/20">On-going</span><span class="text-xs font-semibold text-slate tabular-nums">22 Feb 2025</span></div>
+</div>
+</div>
+</div>
+<!-- 7. TIER 3 - ON-GOING 5: State Bank of India -->
+<div class="bg-surface rounded-xl p-3.5 border border-hairline shadow-sm space-y-2.5">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<h3 class="text-sm font-semibold text-ink leading-tight">State Bank of India</h3>
+<p class="text-[11px] text-muted font-mono tracking-wide">INE062A08066 • Tier 2 Infra</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-surface-alt text-slate border border-hairline shrink-0">
+      CRIL AA+
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-ink tabular-nums">₹ 3,00,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-success-bg text-success-green text-[10px] font-semibold border border-success-green/20">On-going</span><span class="text-xs font-semibold text-slate tabular-nums">12 Mar 2025</span></div>
+</div>
+</div>
+</div>
+<!-- 8. TIER 4 - MATURED LAST: Shree Cement NCD (Dimmed/Settled) -->
+<div class="bg-surface/50 rounded-xl p-3.5 border border-hairline/60 shadow-sm space-y-2.5 opacity-80">
+<div class="flex items-start justify-between gap-2">
+<div class="space-y-0.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-muted text-[16px]">check_circle</span>
+<h3 class="text-sm font-semibold text-slate leading-tight">Shree Cement NCD</h3>
+</div>
+<p class="text-[11px] text-muted font-mono tracking-wide pl-5">INE070A07078 • Series I</p>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-surface-alt text-muted border border-hairline/60 shrink-0">
+      CRISIL AAA
+    </span>
+</div>
+<div class="pt-2 border-t border-hairline/60 flex items-center justify-between text-xs">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Invested</p>
+<p class="text-sm font-bold text-slate tabular-nums">₹ 2,00,000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase tracking-wider text-muted font-medium">Next Payout</p>
+<div class="flex items-center gap-1.5 justify-end"><span class="px-2 py-0.5 rounded-full bg-surface-alt text-muted text-[10px] font-semibold border border-hairline">Settled</span><span class="text-xs font-semibold text-muted tabular-nums">15 Aug 2024</span></div>
+</div>
+</div>
+</div></div>
+</div>
+<!-- ================= SECTION 2: PAYOUT DETAILS (State-ready toggle / viewable) ================= -->
+</main>
+<!-- FLOATING ACTION BUTTON (56px circular blue with white + icon at right 16px bottom 104px) -->
+<button aria-label="Add Bond" class="fixed z-40 w-14 h-14 rounded-full bg-accent text-white flex items-center justify-center shadow-lg hover:bg-accent-hover transition-all active:scale-95 focus:outline-none" style="right: 16px; bottom: 104px; box-shadow: 0 4px 18px rgba(36, 86, 230, 0.45);">
+<span class="material-symbols-outlined text-[28px] font-bold">add</span>
+</button>
+<!-- BOTTOM NAVIGATION BAR (Fixed with 5 items: Dashboard, Portfolio (active blue), Watchlist, Goals, More) -->
+<nav class="fixed bottom-0 left-0 right-0 max-w-[412px] mx-auto h-16 bg-surface border-t border-hairline z-50 flex items-stretch px-1">
+<!-- 1. Dashboard -->
+<a class="flex-1 flex flex-col items-center justify-center gap-1 text-muted hover:text-slate transition-colors py-1" href="#">
+<span class="material-symbols-outlined text-[22px]">grid_view</span>
+<span class="text-[10px] font-medium tracking-tight">Dashboard</span>
+</a>
+<!-- 2. Portfolio (ACTIVE BLUE) -->
+<a class="flex-1 flex flex-col items-center justify-center gap-1 text-accent transition-colors py-1 relative" href="#">
+<div class="absolute top-0 w-8 h-0.5 bg-accent rounded-full"></div>
+<span class="material-symbols-outlined text-[22px] fill-1">account_balance_wallet</span>
+<span class="text-[10px] font-semibold tracking-tight">Portfolio</span>
+</a>
+<!-- 3. Watchlist -->
+<a class="flex-1 flex flex-col items-center justify-center gap-1 text-muted hover:text-slate transition-colors py-1" href="#">
+<span class="material-symbols-outlined text-[22px]">visibility</span>
+<span class="text-[10px] font-medium tracking-tight">Watchlist</span>
+</a>
+<!-- 4. Goals -->
+<a class="flex-1 flex flex-col items-center justify-center gap-1 text-muted hover:text-slate transition-colors py-1" href="#">
+<span class="material-symbols-outlined text-[22px]">flag</span>
+<span class="text-[10px] font-medium tracking-tight">Goals</span>
+</a>
+<!-- 5. More -->
+<a class="flex-1 flex flex-col items-center justify-center gap-1 text-muted hover:text-slate transition-colors py-1" href="#">
+<span class="material-symbols-outlined text-[22px]">more_horiz</span>
+<span class="text-[10px] font-medium tracking-tight">More</span>
+</a>
+</nav>
+</div>
+<script>
+    function switchSection(section) {
+      const tabHoldings = document.getElementById('tab-holdings');
+      const tabPayouts = document.getElementById('tab-payouts');
+      const secHoldings = document.getElementById('section-holdings');
+      const secPayouts = document.getElementById('section-payouts');
+
+      if (section === 'holdings') {
+        tabHoldings.className = 'h-11 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-accent text-white shadow-sm';
+        tabPayouts.className = 'h-11 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all text-muted hover:text-ink hover:bg-surface-alt/60';
+        secHoldings.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        tabPayouts.className = 'h-11 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-accent text-white shadow-sm';
+        tabHoldings.className = 'h-11 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all text-muted hover:text-ink hover:bg-surface-alt/60';
+        secPayouts.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function toggleGroup(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.toggle('hidden');
+      }
+    }
+  </script>
+</body>
+</html>

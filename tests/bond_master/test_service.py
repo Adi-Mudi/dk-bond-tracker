@@ -3,6 +3,7 @@ import types
 
 import pytest
 
+from src.bond_master import service as service_module
 from src.bond_master.base import (
     FAILURE_BLOCKED,
     FAILURE_INVALID_ISIN,
@@ -16,7 +17,7 @@ from src.bond_master.base import (
     FetchResult,
 )
 from src.bond_master.cache import BondMasterCache
-from src.bond_master.nse import NseAdapter
+from src.bond_master.nsdl import NsdlAdapter
 from src.bond_master.service import BondMasterService, default_adapters
 from src.db import init_db
 
@@ -70,32 +71,15 @@ def build(tmp_path, now):
     return _build
 
 
-def test_failover_tries_sources_in_priority_order_and_merges(build):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_NOT_FOUND)]),
-        "RBI": FakeAdapter("RBI", [failed(ISIN, FAILURE_UNREACHABLE)]),
-        "NSE": FakeAdapter("NSE", [found(ISIN, "NSE")]),
-        "BSE": FakeAdapter("BSE", [found(ISIN, "BSE")]),
-    }
+def test_lookup_consults_nsdl_and_reports_its_source(build):
+    adapters = {"NSDL": FakeAdapter("NSDL", [found(ISIN, "NSDL")])}
     service, _, _ = build(adapters, retries=0)
     result = service.lookup(ISIN)
-    assert result.source_of("company") == "NSE"
-    assert adapters["NSDL"].calls == [ISIN]
-    assert adapters["RBI"].calls == [ISIN]
-    assert adapters["NSE"].calls == [ISIN]
-    assert adapters["BSE"].calls == [ISIN]
-
-
-def test_merge_walks_every_source_when_fields_are_missing(build):
-    adapters = {name: FakeAdapter(name, [found(ISIN, name)]) for name in SOURCE_PRIORITY}
-    service, _, _ = build(adapters)
-    result = service.lookup(ISIN)
     assert result.source_of("company") == "NSDL"
-    for name in SOURCE_PRIORITY:
-        assert adapters[name].calls == [ISIN]
+    assert adapters["NSDL"].calls == [ISIN]
 
 
-def test_merge_stops_when_the_first_source_fills_every_field(build):
+def test_complete_result_never_reconsults_the_snapshot_seed(build, monkeypatch):
     complete = FetchResult(
         isin=ISIN,
         company="Complete Co",
@@ -110,55 +94,41 @@ def test_merge_stops_when_the_first_source_fills_every_field(build):
         maturity="2030-03-31",
         sources={field: "NSDL" for field in INSTRUMENT_FIELDS},
     )
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [complete]),
-        "RBI": FakeAdapter("RBI", [found(ISIN, "RBI")]),
-        "NSE": FakeAdapter("NSE", [found(ISIN, "NSE")]),
-        "BSE": FakeAdapter("BSE", [found(ISIN, "BSE")]),
-    }
+    adapters = {"NSDL": FakeAdapter("NSDL", [complete])}
     service, _, _ = build(adapters)
+
+    snapshot_calls = []
+
+    def stub(isin):
+        snapshot_calls.append(isin)
+        return None
+
+    monkeypatch.setattr(service_module, "snapshot_lookup", stub)
     result = service.lookup(ISIN)
     assert result.source_of("maturity") == "NSDL"
-    assert adapters["RBI"].calls == []
-    for name in ("NSE", "BSE"):
-        assert adapters[name].calls == []
-
-
-def test_priority_order_comes_from_base_not_the_registry(build):
-    adapters = {
-        "BSE": FakeAdapter("BSE", [found(ISIN, "BSE")]),
-        "NSE": FakeAdapter("NSE", [found(ISIN, "NSE")]),
-    }
-    service, _, _ = build(adapters)
-    result = service.lookup(ISIN)
-    assert result.source_of("company") == "NSE"
-    assert adapters["BSE"].calls == [ISIN]
+    assert snapshot_calls == [ISIN]
+    assert adapters["NSDL"].calls == [ISIN]
 
 
 def test_session_cache_serves_a_repeat_lookup_without_a_second_request(build):
-    adapters = {name: FakeAdapter(name, [found(ISIN, name)]) for name in SOURCE_PRIORITY}
+    adapters = {"NSDL": FakeAdapter("NSDL", [found(ISIN, "NSDL")])}
     service, _, _ = build(adapters)
     service.lookup(ISIN)
     service.lookup(ISIN)
-    for name in SOURCE_PRIORITY:
-        assert adapters[name].calls == [ISIN]
+    assert adapters["NSDL"].calls == [ISIN]
 
 
 def test_repeat_lookup_of_a_failed_isin_is_served_from_the_session(build):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_NOT_FOUND)]),
-        "BSE": FakeAdapter("BSE", [failed(ISIN, FAILURE_TIMEOUT)]),
-    }
+    adapters = {"NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_TIMEOUT)])}
     service, _, _ = build(adapters, retries=0)
     first = service.lookup(ISIN)
     second = service.lookup(ISIN)
     assert first.failure_code == second.failure_code == FAILURE_TIMEOUT
     assert adapters["NSDL"].calls == [ISIN]
-    assert adapters["BSE"].calls == [ISIN]
 
 
 def test_cooldown_blocks_a_second_new_lookup_within_the_window(build, now):
-    adapters = {name: FakeAdapter(name, [found(ISIN, name)]) for name in SOURCE_PRIORITY}
+    adapters = {"NSDL": FakeAdapter("NSDL", [found(ISIN, "NSDL")])}
     service, _, _ = build(adapters)
     assert service.lookup(ISIN).has_facts()
     blocked = service.lookup(OTHER_ISIN)
@@ -169,25 +139,32 @@ def test_cooldown_blocks_a_second_new_lookup_within_the_window(build, now):
     assert adapters["NSDL"].calls == [ISIN, OTHER_ISIN]
 
 
-def test_adapter_exception_never_propagates_and_fails_over(build):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [RuntimeError("boom")]),
-        "RBI": FakeAdapter("RBI", [found(ISIN, "RBI")]),
-    }
+def test_adapter_exception_never_propagates(build):
+    adapters = {"NSDL": FakeAdapter("NSDL", [RuntimeError("boom")])}
     service, _, _ = build(adapters, retries=0)
     result = service.lookup(ISIN)
-    assert result.source_of("company") == "RBI"
+    assert result.has_facts() is False
 
 
 def test_total_failure_returns_a_failure_code_never_raises(build):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_TIMEOUT)]),
-        "BSE": FakeAdapter("BSE", [failed(ISIN, FAILURE_NOT_FOUND)]),
-    }
+    adapters = {"NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_TIMEOUT)])}
     service, _, _ = build(adapters, retries=0)
     result = service.lookup(ISIN)
     assert result.has_facts() is False
     assert result.failure_code == FAILURE_TIMEOUT
+
+
+def test_not_found_total_failure_is_reported(build):
+    adapters = {"NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_NOT_FOUND)])}
+    service, _, _ = build(adapters, retries=0)
+    result = service.lookup(ISIN)
+    assert result.failure_code == FAILURE_NOT_FOUND
+
+
+def test_registry_without_nsdl_reports_not_found(build):
+    service, _, _ = build({}, retries=0)
+    result = service.lookup(ISIN)
+    assert result.failure_code == FAILURE_NOT_FOUND
 
 
 def test_network_failure_is_retried_with_backoff_then_succeeds(build):
@@ -215,24 +192,27 @@ def test_not_found_is_not_retried(build):
 
 
 def test_malformed_is_not_retried(build):
-    nse_adapter = FakeAdapter("NSE", [failed(ISIN, FAILURE_MALFORMED)])
-    service, _, sleeps = build({"NSE": nse_adapter}, retries=2)
+    nsdl = FakeAdapter("NSDL", [failed(ISIN, FAILURE_MALFORMED)])
+    service, _, sleeps = build({"NSDL": nsdl}, retries=2)
     service.lookup(ISIN)
-    assert len(nse_adapter.calls) == 1
+    assert len(nsdl.calls) == 1
     assert sleeps == []
 
 
-def test_html_at_http_200_is_blocked_and_never_retried(build):
+def test_html_at_http_200_is_blocked_by_the_adapter(build):
     calls = []
 
     def transport(url, timeout):
         calls.append(url)
         return "<html>blocked by the firewall</html>"
 
-    service, _, _ = build({"NSE": NseAdapter(transport=transport)}, retries=2)
+    adapter = NsdlAdapter(
+        transport=transport, retry_delay=0, sleep=lambda seconds: None
+    )
+    service, _, _ = build({"NSDL": adapter}, retries=2)
     result = service.lookup(ISIN)
     assert result.failure_code == FAILURE_BLOCKED
-    assert len(calls) == 1
+    assert len(calls) == 3
 
 
 def test_invalid_isin_short_circuits_without_touching_adapters(build):
@@ -243,45 +223,38 @@ def test_invalid_isin_short_circuits_without_touching_adapters(build):
     assert nsdl.calls == []
 
 
-def test_sources_without_an_adapter_are_skipped(build):
-    bse = FakeAdapter("BSE", [found(ISIN, "BSE")])
-    service, _, _ = build({"BSE": bse})
+def test_throttle_paces_retry_attempts(build):
+    nsdl = FakeAdapter(
+        "NSDL",
+        [
+            failed(ISIN, FAILURE_UNREACHABLE),
+            failed(ISIN, FAILURE_UNREACHABLE),
+            found(ISIN, "NSDL"),
+        ],
+    )
+    service, _, sleeps = build(
+        {"NSDL": nsdl}, retries=2, retry_backoff=0.5, throttle_seconds=2.0
+    )
     result = service.lookup(ISIN)
-    assert result.source_of("company") == "BSE"
-
-
-def test_global_throttle_spaces_out_source_requests(build):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_NOT_FOUND)]),
-        "RBI": FakeAdapter("RBI", [failed(ISIN, FAILURE_NOT_FOUND)]),
-    }
-    service, _, sleeps = build(adapters, throttle_seconds=2.0, retries=0)
-    service.lookup(ISIN)
-    assert sleeps == [2.0]
+    assert result.has_facts()
+    assert sleeps == [2.0, 2.0]
 
 
 def test_service_records_an_event_per_source_attempt(build):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [failed(ISIN, FAILURE_NOT_FOUND)]),
-        "NSE": FakeAdapter("NSE", [found(ISIN, "NSE")]),
-    }
+    adapters = {"NSDL": FakeAdapter("NSDL", [found(ISIN, "NSDL")])}
     service, _, _ = build(adapters, retries=0)
     service.lookup(ISIN)
     events = service.events()
-    assert [(item.source, item.ok) for item in events] == [("NSDL", False), ("NSE", True)]
-    assert events[0].failure_code == FAILURE_NOT_FOUND
+    assert [(item.source, item.ok) for item in events] == [("NSDL", True)]
 
 
-def test_sources_lists_the_registry_in_priority_order(build):
-    adapters = {
-        "BSE": FakeAdapter("BSE", []),
-        "NSDL": FakeAdapter("NSDL", []),
-    }
+def test_sources_lists_the_registry(build):
+    adapters = {"NSDL": FakeAdapter("NSDL", [])}
     service, _, _ = build(adapters)
-    assert service.sources() == ("NSDL", "BSE")
+    assert service.sources() == ("NSDL",)
 
 
-def test_default_adapters_builds_all_four_sources_lazily(monkeypatch):
+def test_default_adapters_builds_the_single_source_lazily(monkeypatch):
     def fake_module(class_name):
         module = types.ModuleType("fake")
         setattr(
@@ -292,6 +265,5 @@ def test_default_adapters_builds_all_four_sources_lazily(monkeypatch):
         return module
 
     monkeypatch.setitem(sys.modules, "src.bond_master.nsdl", fake_module("NsdlAdapter"))
-    monkeypatch.setitem(sys.modules, "src.bond_master.rbi", fake_module("RbiAdapter"))
     adapters = default_adapters(transport=lambda url, timeout: "")
-    assert set(adapters) == set(SOURCE_PRIORITY)
+    assert set(adapters) == set(SOURCE_PRIORITY) == {"NSDL"}

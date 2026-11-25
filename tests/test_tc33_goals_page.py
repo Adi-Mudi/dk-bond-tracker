@@ -23,6 +23,7 @@ def seed_legacy_goals(db_path):
         add_goal(conn, "9", "0", "", "legacy home plan", "")
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_page_renders_legacy_and_new_goals(client):
     http, db_path = client
     seed_legacy_goals(db_path)
@@ -47,6 +48,7 @@ def test_page_renders_legacy_and_new_goals(client):
     assert body.count('class="legacy-badge"') == 3
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_zero_amount_legacy_goal_is_preserved(client):
     http, db_path = client
     seed_legacy_goals(db_path)
@@ -58,6 +60,7 @@ def test_zero_amount_legacy_goal_is_preserved(client):
     assert "ERR-unexpected" not in body
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_add_goal_blank_name_is_named_error(client):
     http, _ = client
     response = http.post(
@@ -69,6 +72,7 @@ def test_add_goal_blank_name_is_named_error(client):
     assert "name is required" in body
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_add_goal_bad_amount_is_named_error(client):
     http, _ = client
     response = http.post(
@@ -78,6 +82,7 @@ def test_add_goal_bad_amount_is_named_error(client):
     assert b"ERR-goals-op" in response.data
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_add_goal_bad_date_is_named_error(client):
     http, _ = client
     response = http.post(
@@ -88,6 +93,7 @@ def test_add_goal_bad_date_is_named_error(client):
     assert b"target_end_date must be a date" in response.data
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_edit_missing_goal_is_named_not_found(client):
     http, _ = client
     response = http.post(
@@ -100,6 +106,7 @@ def test_edit_missing_goal_is_named_not_found(client):
     assert "goal not found" in body
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_delete_missing_goal_is_named_not_found(client):
     http, _ = client
     response = http.post("/goals/424242/delete")

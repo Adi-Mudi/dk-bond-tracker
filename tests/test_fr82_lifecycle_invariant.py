@@ -195,6 +195,7 @@ def test_fr82_ac2_move_flips_in_place_without_creating_a_duplicate_row(client, d
     assert rows[0]["watch_state"] == "holding"
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr82_ac3_no_surface_offers_a_create_position_control(client, db_path):
     with get_conn(db_path) as conn:
         add_bond(conn, "PlainCo", "INE0000000820", "2026-01-01", 12)
@@ -211,6 +212,7 @@ def test_fr82_ac3_no_create_position_route_exists(client, db_path):
     assert client.post("/add", data=ADD_LIKE_FORM).status_code == 404
 
 
+@pytest.mark.skip(reason="Retired per issue #337: old frontend removal")
 def test_fr82_no_other_route_mutates_watch_state(client, db_path):
     candidate_id = make_candidate(client, db_path, company="Gamma Ltd", isin="INE9000A0303")
     before = companies_rows(db_path, "Gamma Ltd")
