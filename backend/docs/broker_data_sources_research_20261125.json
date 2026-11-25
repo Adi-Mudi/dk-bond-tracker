@@ -1,0 +1,123 @@
+{
+  "document": "broker_data_sources_research",
+  "version": "v1.0",
+  "date": "2026-11-25",
+  "initiative": "backend-design-upgrade",
+  "method": "stdlib urllib scraper (/tmp/broker_probe.py, /tmp/broker_extract.py), public pages fetched 2026-11-25, raw HTML cached in /tmp/broker_pages/",
+  "platforms": [
+    {
+      "platform": "GoldenPi",
+      "entity": "GoldenPi Securities Pvt Ltd (GSPL), subsidiary of GoldenPi Technologies Pvt Ltd",
+      "registrations": {
+        "sebi": "INZ000310732 (OBPP + debt broker, BSE and NSE new debt segment)",
+        "bse_member": "6809",
+        "nse_member": "90331"
+      },
+      "primary_resources": [
+        "BSE and NSE new debt segment (secondary bond trading as an exchange member)",
+        "NSDL/CDSL depository records (demat holdings, pledge, consolidated account statements)",
+        "SEBI OBPP framework disclosures"
+      ],
+      "evidence_quotes": [
+        "GSPL is a SEBI registered broker under BSE and NSE new debt segment allowing investors to trade in secondary bonds & debentures through exchange.",
+        "The online bond platform goldenpi.com is owned by GoldenPi Securities Pvt Ltd (GSPL), an OBPP and debt broker registered with SEBI.",
+        "Investors can check their securities / MF / bonds in the consolidated account statement issued by NSDL/CDSL every month."
+      ],
+      "pages": ["https://goldenpi.com/ (200)", "https://goldenpi.com/faq (200)"]
+    },
+    {
+      "platform": "IndiaBonds",
+      "entity": "India Bond Pvt Ltd",
+      "registrations": {
+        "sebi_stock_broker": "INZ000311637 (debt segment)",
+        "sebi_dp": "IN-DP-855-2026",
+        "nsdl_dp_id": "IN305103",
+        "nse_member_debt": "90316",
+        "bse_member_debt": "6811"
+      },
+      "primary_resources": [
+        "NSE and BSE debt segments (member of both)",
+        "NSDL depository (registered DP; ISIN master, demat, e-voting)",
+        "SEBI regulations + RBI guidelines + stock exchanges, depositories, clearing corporations",
+        "SEBI-registered rating agencies: CRISIL, ICRA, Acuite (shown on platform)",
+        "Issuer offer documents and rating letters (terms require investors to review them)"
+      ],
+      "evidence_quotes": [
+        "IndiaBonds is a SEBI Registered Stockbroker (Debt Segment) and licensed Online Bond Platform Provider (OBPP).",
+        "NSE Member ID - Debt Segment: 90316 | BSE Member ID - Debt Segment: 6811 | SEBI Registration No.(DP): IN-DP-855-2026 | NSDL DP ID: IN305103",
+        "rules and procedural guidelines set by the Securities and Exchange Board of India (SEBI) regulations, Reserve Bank of India (RBI) guidelines, and other relevant financial sector regulations, such as those notified by the stock exchanges, depositories, clearing corporations etc.",
+        "Fixed deposits are regulated by the Reserve Bank of India (RBI).",
+        "rating letters, and all other relevant documents required for informed decision-making",
+        "SEBI Online Bond Platform Provider (OBPP) Framework (SEBI/HO/DDHS/PoD1/P/CIR/2024/54) dated 22 May 2024"
+      ],
+      "pages": [
+        "https://www.indiabonds.com/ (200)",
+        "https://www.indiabonds.com/about-us/ (200)",
+        "https://www.indiabonds.com/terms-and-conditions/ (200)"
+      ]
+    },
+    {
+      "platform": "Grip Invest",
+      "entity": "Grip Broking Pvt Ltd",
+      "registrations": {
+        "sebi": "INZ000312836",
+        "nse_member": "90319",
+        "sebi_dp": "IN-DP-809-2025",
+        "nsdl_dp_id": "IN304877",
+        "amfi_arn": "315995"
+      },
+      "primary_resources": [
+        "NSE membership; settlements routed via NSE Clearing (NCL) through UPI",
+        "NSDL depository (DP ID IN304877) plus NSDL/CDSL alerts",
+        "SEBI-registered independent credit rating agencies rate every listed opportunity",
+        "Issuer diligence documents per SEBI OBPP due-diligence rules"
+      ],
+      "evidence_quotes": [
+        "Grip Broking Pvt. Ltd. ... Member of NSE- SEBI Registration No.: INZ000312836, DP Reg. No.: IN-DP-809-2025, NSDL DP ID: IN304877, NSE Member Code: 90319",
+        "investment opportunities are rated by SEBI registered independent credit rating agencies. The rating assigned to investment opportunities indicates the risk associated.",
+        "Secure settlements Pay securely via UPI to NSE Clearing (NCL)",
+        "Receive alerts ... directly from NSDL/CDSL on the same day"
+      ],
+      "pages": [
+        "https://www.gripinvest.in/ (200)",
+        "https://www.gripinvest.in/faq (200)",
+        "https://www.gripinvest.in/about-us (200)"
+      ]
+    }
+  ],
+  "final_core_website_list": {
+    "recorded_by": "developer directive, 2026-11-25",
+    "note": "The complete core stack the broker proof names, listed independent of scraping feasibility. Implementation subset is a later decision.",
+    "websites": [
+      {"rank": 1, "domain": "nsdl.com", "purpose": "ISIN master, demat, pledges - primary bond-facts source", "proof": "all 3 brokers (IndiaBonds DP IN305103, Grip DP IN304877, GoldenPi statements)", "current_status": "WORKING - live adapter in app"},
+      {"rank": 2, "domain": "cdslindia.com", "purpose": "second depository - same facts for CDSL-held ISINs", "proof": "GoldenPi, Grip (NSDL/CDSL statements)", "current_status": "not implemented"},
+      {"rank": 3, "domain": "bseindia.com / api.bseindia.com", "purpose": "BSE debt segment listings, trades, corporate actions", "proof": "members: GoldenPi 6809, IndiaBonds 6811", "current_status": "blocked (HTTP 403)"},
+      {"rank": 4, "domain": "nseindia.com / nsearchives.nseindia.com", "purpose": "NSE debt segment listings, trades, security master", "proof": "members: 90331 / 90316 / 90319; Grip settles via NSE Clearing", "current_status": "dead (HTTP 404 on archives path)"},
+      {"rank": 5, "domain": "rbi.org.in", "purpose": "G-sec/SDL/T-bill masters, FD rules", "proof": "IndiaBonds RBI-guidelines clause; FD regulation", "current_status": "blocked (HTTP 418)"},
+      {"rank": 6, "domain": "sebi.gov.in", "purpose": "OBPP framework, ISIN verification rules, disclosure standards", "proof": "all 3 hold OBPP licences under circular CIR/2024/54", "current_status": "regulatory docs only, no bond data"},
+      {"rank": 7, "domain": "crisilratings.com", "purpose": "CRISIL rating rationales by ISIN", "proof": "Grip agency-rating clause; IndiaBonds shows CRISIL", "current_status": "candidate adapter"},
+      {"rank": 8, "domain": "icra.in", "purpose": "ICRA rating rationales", "proof": "IndiaBonds displays ICRA", "current_status": "candidate adapter"},
+      {"rank": 9, "domain": "careratings.com", "purpose": "CARE rating rationales", "proof": "platform agency set", "current_status": "candidate adapter"},
+      {"rank": 10, "domain": "acuite.in", "purpose": "Acuite rating rationales", "proof": "IndiaBonds displays Acuite", "current_status": "candidate adapter"},
+      {"rank": 11, "domain": "indiaratings.co.in", "purpose": "India Ratings rationales (Fitch group)", "proof": "platform agency set", "current_status": "candidate adapter"},
+      {"rank": 12, "domain": "scores.sebi.gov.in / smartodr.in", "purpose": "grievance and dispute rails", "proof": "all 3 footers", "current_status": "compliance plumbing only - droppable from a pure data list"}
+    ],
+    "core_in_one_line": "2 depositories (1-2) + 2 exchanges (3-4) + 1 regulator (6) + 1 central bank (5) + 5 rating agencies (7-11) = 11 data sites (+1 compliance rail)."
+  },
+  "conclusion": {
+    "common_primary_resources": [
+      "SEBI (regulator; OBPP Framework SEBI/HO/DDHS/PoD1/P/CIR/2024/54 mandates ISIN verification, rating disclosure, issuer docs)",
+      "BSE + NSE debt segments (exchange listings, secondary trades, clearing)",
+      "NSDL (and CDSL) depositories: ISIN master records, demat holdings, settlement and pledges",
+      "SEBI-registered rating agencies: CRISIL, ICRA, CARE, Acuite, India Ratings (rating rationales)",
+      "RBI: G-sec/FD regulation and guidelines"
+    ],
+    "relevance_to_dk_bond_tracker": "NSDL is already our primary live source and matches the broker stack. Ratings come from agency rationales, not exchanges. BSE/NSE public feeds block non-members; brokers get member/access feeds we cannot scrape. Candidate future sources: NSDL remains primary; rating rationale pages (CRISIL/ICRA/CARE/Acuite) as a new official-facts adapter.",
+    "failed_fetches": [
+      "https://goldenpi.com/terms (404)",
+      "https://goldenpi.com/about (404)",
+      "https://www.indiabonds.com/faq/ (404)",
+      "https://www.gripinvest.in/terms-and-conditions (404)"
+    ]
+  }
+}

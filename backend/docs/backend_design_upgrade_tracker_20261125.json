@@ -69,6 +69,13 @@
   "decisions": [],
   "findings": [
     {
+      "id": "F2",
+      "date": "2026-11-25",
+      "topic": "T3 contract inputs — primary data resources behind GoldenPi, IndiaBonds, Grip Invest",
+      "summary": "All three user brokers share the same primary stack: SEBI OBPP framework (CIR 2024/54), BSE+NSE debt segments (membership: GP 6809/90331, IB 6811/90316, Grip 90319), NSDL depository (IB DP IN305103, Grip DP IN304877), SEBI-registered rating agencies (CRISIL/ICRA/CARE/Acuite/India Ratings), RBI for G-sec/FD. Detail: backend/docs/broker_data_sources_research_20261125.json.",
+      "relevance": "Our NSDL adapter already mirrors the brokers' primary resource; rating rationales are the next candidate official-facts source. Exchange public feeds block non-members — not viable adapters."
+    },
+    {
       "id": "F1",
       "date": "2026-11-25",
       "topic": "T1 adapter inventory and live health",
@@ -100,6 +107,15 @@
       "issue": "https://github.com/Adi-Mudi/dk-bond-tracker/issues/340",
       "status": "CLOSED",
       "resolution": "Removal executed on backend-design-upgrade @ 54d0a6b0; local tier 717 passed / 0 failed; src+tests sweep shows zero dead-source references outside design docs."
+    },
+    {
+      "id": "D2",
+      "date": "2026-11-25",
+      "decision": "The final core website list (12 sites) is fixed as the reference stack for backend source planning: NSDL, CDSL, BSE, NSE, RBI, SEBI, CRISIL, ICRA, CARE, Acuite, India Ratings, SEBI-SMARTODR. Scraping feasibility is tracked separately per site; the list itself is the canonical core, not filtered by reachability.",
+      "approved_by": "developer, 2026-11-25",
+      "issue": "recorded in backend/docs/broker_data_sources_research_20261125.json (final_core_website_list)",
+      "status": "CONFIRMED",
+      "resolution": ""
     }
   ],
   "change_log": [
@@ -114,7 +130,15 @@
     {
       "date": "2026-11-25",
       "change": "v1.2: D1 recorded and CLOSED — RBI/NSE/BSE adapters removed per issue #340; tests rewritten single-source; local tier green 717/0"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.3: F2 added — broker primary-resource research (GoldenPi/IndiaBonds/Grip) collected via urllib scraper; evidence in backend/docs/broker_data_sources_research_20261125.json"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.4: D2 CONFIRMED — final core website list (12 sites) fixed in broker_data_sources_research_20261125.json"
     }
   ],
-  "version": "v1.2"
+  "version": "v1.4"
 }
