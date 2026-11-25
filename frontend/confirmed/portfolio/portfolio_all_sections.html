@@ -740,8 +740,7 @@ Sched 10 Jan
 <span class="text-[10px] font-mono text-[#7A8A99] uppercase tracking-wider">Bond Facts &amp; Ledger</span>
 </div>
 <!-- Phone 3 Scrollable Content -->
-<div class="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 pb-24 scrollbar-none">
-<!-- Issuer Header Card -->
+<div class="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 pb-24 scrollbar-none"><!-- Issuer Header Card -->
 <div class="bg-[#16212E] border border-[#2A3A4C] rounded-xl p-3 flex flex-col gap-1.5 shadow-sm">
 <div class="flex items-start justify-between gap-2">
 <div>
@@ -778,7 +777,18 @@ On-going
 <span>Remaining: ₹ 3,58,000</span>
 </div>
 </div>
-<!-- Facts Grid -->
+<!-- ALERT CARD MOVED TO TOP: Rating Mismatch (directly under returns overview, above instrument facts) -->
+<div class="p-2.5 rounded-lg bg-[#16212E] border border-[#2A3A4C] flex items-start gap-2 text-xs shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-[#4ADE80] flex-shrink-0 mt-0.5">verified</span>
+<div class="flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-semibold text-[#E8EEF5] text-[11px]">Rating Mismatch: None</span>
+<span class="text-[9px] px-1.5 py-0.2 rounded bg-[#166534]/30 text-[#4ADE80] font-mono">Audit Pass</span>
+</div>
+<span class="text-[10px] text-[#7A8A99] mt-0.5">CRISIL AAA match confirmed across NSDL &amp; CDSL.</span>
+</div>
+</div>
+<!-- Instrument Facts Grid -->
 <div class="bg-[#16212E] border border-[#2A3A4C] rounded-xl p-3 flex flex-col gap-2 shadow-sm">
 <span class="text-[10px] font-mono text-[#7A8A99] uppercase font-bold tracking-wider">Instrument Facts</span>
 <div class="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs">
@@ -804,10 +814,28 @@ On-going
 </div>
 </div>
 </div>
-<!-- Payments Mini-Ledger -->
+<!-- Refresh Depository Feeds Action Button -->
+<button class="w-full py-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:bg-[#1E2C3B] text-xs font-semibold text-[#E8EEF5] flex items-center justify-center gap-1.5 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[15px] text-[#2456E6]">refresh</span>
+<span>Refresh Depository Feeds</span>
+</button>
+<!-- Payments Mini-Ledger (CURRENT FIRST, OLD LAST) -->
 <div class="bg-[#16212E] border border-[#2A3A4C] rounded-xl p-3 flex flex-col gap-2 shadow-sm">
+<div class="flex items-baseline justify-between">
 <span class="text-[10px] font-mono text-[#7A8A99] uppercase font-bold tracking-wider">Payments Mini-Ledger</span>
+<span class="text-[9px] font-mono text-[#93B4FF] bg-[#2456E6]/10 px-1.5 py-0.5 rounded border border-[#2456E6]/20">current first, old last</span>
+</div>
 <div class="flex flex-col gap-1.5">
+<!-- 1. Current Month (Top): 15 Nov 2026 -->
+<div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2456E6]/40 relative overflow-hidden">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[#4ADE80] text-[15px]">check_circle</span>
+<span class="font-mono text-[#E8EEF5] text-[11px] font-semibold">15 Nov 2026</span>
+<span class="px-1 rounded bg-[#2456E6]/20 text-[#93B4FF] text-[9px] font-mono uppercase">Current</span>
+</div>
+<span class="font-mono font-bold text-[#4ADE80] text-[11px]">Paid ₹ 23,125</span>
+</div>
+<!-- 2. Subsequent Month: 15 Dec 2026 -->
 <div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2A3A4C]/50">
 <div class="flex items-center gap-1.5">
 <span class="material-symbols-outlined text-[#4ADE80] text-[15px]">check_circle</span>
@@ -815,13 +843,7 @@ On-going
 </div>
 <span class="font-mono font-bold text-[#4ADE80] text-[11px]">Paid ₹ 23,125</span>
 </div>
-<div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2A3A4C]/50">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[#4ADE80] text-[15px]">check_circle</span>
-<span class="font-mono text-[#E8EEF5] text-[11px]">15 Nov 2026</span>
-</div>
-<span class="font-mono font-bold text-[#4ADE80] text-[11px]">Paid ₹ 23,125</span>
-</div>
+<!-- 3. Future Month (Bottom): 15 Jan 2027 -->
 <div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2A3A4C]/50">
 <div class="flex items-center gap-1.5">
 <span class="material-symbols-outlined text-[#93B4FF] text-[15px]">schedule</span>
@@ -831,28 +853,70 @@ On-going
 </div>
 </div>
 </div>
-<!-- Actions Section -->
-<div class="flex flex-col gap-2">
-<button class="w-full py-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:bg-[#1E2C3B] text-xs font-semibold text-[#E8EEF5] flex items-center justify-center gap-1.5 transition-colors">
-<span class="material-symbols-outlined text-[15px] text-[#2456E6]">refresh</span>
-<span>Refresh Depository Feeds</span>
+<!-- RECORD PREMATURE EXIT PANEL (Replaces Remove Position) -->
+<div class="p-3 rounded-xl bg-[#16212E] border border-[#2A3A4C] flex flex-col gap-2.5 text-xs shadow-sm">
+<div class="flex items-center justify-between border-b border-[#2A3A4C]/60 pb-2">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-[#7A8A99]">output</span>
+<span class="text-[11px] font-bold text-[#E8EEF5] uppercase tracking-wider font-mono">Record Premature Exit</span>
+</div>
+<span class="text-[9px] font-mono text-[#93B4FF] px-1.5 py-0.5 rounded bg-[#2456E6]/10 border border-[#2456E6]/20">Audit Guarded</span>
+</div>
+<p class="text-[10px] text-[#7A8A99] leading-tight">
+Portfolio history is never deleted. Early exit is recorded with a status + reason.
+</p>
+<!-- Exit Date & Proceeds Inputs (Empty placeholders) -->
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#7A8A99]">Exit Date *</label>
+<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2 py-1.5 text-[11px] font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="DD/MM/YYYY" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#7A8A99]">Proceeds Received *</label>
+<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2 py-1.5 text-[11px] font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="₹ Amount received" type="text"/>
+</div>
+</div>
+<!-- Remark Label Chips (Required) -->
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#7A8A99]">Remark Label (Required) *</label>
+<div class="flex flex-wrap gap-1 text-[10px]">
+<button class="px-2 py-0.5 rounded-full bg-[#2456E6] text-white font-medium border border-[#2456E6]" type="button">User liquidity need</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Sold early at profit</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Issuer exit</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Holiday/bank delay</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Other</button>
+</div>
+</div>
+<!-- Optional Notes Input -->
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#7A8A99]">Notes (optional)</label>
+<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2 py-1.5 text-[11px] font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Notes (optional)" type="text"/>
+</div>
+<!-- Status Preview Row -->
+<div class="p-2 rounded bg-[#0E1724] border border-[#2A3A4C]/60 flex items-center justify-between text-[10px]">
+<div class="flex items-center gap-1.5">
+<span class="text-[#7A8A99]">Preview:</span>
+<span class="px-1.5 py-0.5 rounded bg-[#2A3A4C] text-[#7A8A99] font-mono font-medium flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-[#7A8A99]"></span>
+Exited Early · User liquidity need
+</span>
+</div>
+<span class="text-[9px] text-[#7A8A99] font-mono italic">marked dim at bottom</span>
+</div>
+<!-- Buttons -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 py-1.5 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center" type="button">
+Record Early Exit
 </button>
-<div class="p-2.5 rounded-lg bg-[#16212E] border border-[#2A3A4C] flex items-start gap-2 text-xs">
-<span class="material-symbols-outlined text-[16px] text-[#4ADE80] flex-shrink-0 mt-0.5">verified</span>
-<div class="flex flex-col">
-<span class="font-semibold text-[#E8EEF5] text-[11px]">Rating Mismatch: None</span>
-<span class="text-[10px] text-[#7A8A99]">CRISIL AAA match confirmed across NSDL &amp; CDSL.</span>
+<button class="px-3 py-1.5 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">
+Cancel
+</button>
 </div>
-</div>
-<div class="p-2.5 rounded-lg bg-[#1C1820]/40 border border-[#FF8A80]/30 flex flex-col gap-1.5 text-xs">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-semibold text-[#FF8A80]">Remove Position</span>
-<span class="text-[9px] font-mono text-[#7A8A99]">Guarded Action</span>
-</div>
-<span class="text-[10px] text-[#7A8A99]">Type ISIN to confirm liquidation or manual exit.</span>
-</div>
-</div>
-</div>
+<!-- Governance Note -->
+<p class="text-[9px] text-[#7A8A99] font-mono leading-tight border-t border-[#2A3A4C]/40 pt-1.5">
+Premature exit is never Danger — it is a closed position with a reason.
+</p>
+</div></div>
 <!-- Fixed Bottom Navigation Bar -->
 <div class="h-16 bg-[#16212E] border-t border-[#2A3A4C] px-2 flex items-center justify-between flex-shrink-0 z-20">
 <button class="flex-1 flex flex-col items-center justify-center gap-1 py-1 text-[#7A8A99]">
@@ -934,8 +998,7 @@ On-going
 </div>
 <!-- Bottom Sheet Modal Overlay -->
 <div class="absolute inset-0 bg-[#0D1520]/60 z-30 flex flex-col justify-end">
-<div class="bg-[#16212E] border-t-2 border-[#2456E6] rounded-t-[24px] p-4 flex flex-col gap-3 shadow-2xl relative">
-<!-- Drag Handle -->
+<div class="bg-[#16212E] border-t-2 border-[#2456E6] rounded-t-[24px] p-4 flex flex-col gap-3 shadow-2xl relative"><!-- Drag Handle -->
 <div class="w-10 h-1 bg-[#2A3A4C] rounded-full mx-auto mb-1"></div>
 <!-- Sheet Header -->
 <div class="flex items-start justify-between gap-2">
@@ -953,19 +1016,59 @@ On-going
 <div class="flex flex-col gap-1">
 <div class="flex justify-between items-center text-[11px]">
 <label class="font-medium text-[#E8EEF5]">Actual Received Amount (₹) *</label>
-<button class="text-[10px] text-[#2456E6] hover:underline font-mono">Auto-fill Net (₹ 41,175)</button>
+<button class="text-[10px] text-[#2456E6] hover:underline font-mono" type="button">Auto-fill Net (₹ 41,175)</button>
 </div>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-2 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6] placeholder-[#55606e]" placeholder="e.g. 41175" type="text"/>
+<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-2 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6] placeholder-[#55606e]" placeholder="₹ e.g. 41,175" type="text"/>
+<p class="text-[10px] text-[#7A8A99]">Enter the amount that hit your bank.</p>
 </div>
-<!-- Mark as settled checkbox -->
-<label class="flex items-center gap-2 cursor-pointer pt-0.5">
-<input class="w-4 h-4 rounded bg-[#0E1724] border-[#2A3A4C] text-[#2456E6] focus:ring-0" type="checkbox"/>
-<span class="text-xs text-[#E8EEF5]">Mark as settled in ledger</span>
-</label>
-<!-- Credit Date Input -->
+<!-- Toggle / Switch: Received AFTER TDS (net) -->
+<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2">
+<div class="flex items-center justify-between cursor-pointer">
+<div class="flex flex-col">
+<span class="text-xs font-medium text-[#E8EEF5]">Received AFTER TDS (net)</span>
+<span class="text-[10px] text-[#7A8A99]">Matches bank credit voucher after 10% tax deduction</span>
+</div>
+<!-- Styled toggle switch (checked state) -->
+<div class="w-10 h-6 bg-[#2456E6] rounded-full p-0.5 flex items-center justify-end shadow-inner flex-shrink-0">
+<div class="w-5 h-5 bg-white rounded-full shadow-md"></div>
+</div>
+</div>
+<!-- Computed Read-only Breakdown Rows -->
+<div class="pt-2 border-t border-[#2A3A4C]/60 flex flex-col gap-1 text-[11px] font-mono">
+<div class="flex justify-between text-[#7A8A99]">
+<span>TDS (10% Sec 193):</span>
+<span class="text-[#E8EEF5] font-semibold">₹ 4,575</span>
+</div>
+<div class="flex justify-between text-[#93B4FF] font-semibold bg-[#2456E6]/10 px-1.5 py-0.5 rounded">
+<span>Gross = net + TDS:</span>
+<span>₹ 45,750</span>
+</div>
+</div>
+</div>
+<!-- Credit Date Input (Empty placeholder) -->
 <div class="flex flex-col gap-1">
-<label class="text-[11px] font-medium text-[#E8EEF5]">Credit Date</label>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-2 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6]" type="text" value="18 Dec 2026"/>
+<label class="text-[11px] font-medium text-[#E8EEF5]">Credit Date *</label>
+<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-2 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="DD/MM/YYYY" type="text"/>
+</div>
+<!-- REMARKS Section with Required Label Chips -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="text-[11px] font-medium text-[#E8EEF5]">Remarks *</label>
+<span class="text-[10px] text-[#7A8A99] font-mono">Select classification</span>
+</div>
+<div class="flex flex-wrap gap-1 text-[10px]">
+<button class="px-2 py-0.5 rounded-full bg-[#166534]/30 text-[#4ADE80] border border-[#166534]/50 font-medium" type="button">On time</button>
+<button class="px-2 py-0.5 rounded-full bg-[#2456E6] text-white font-medium border border-[#2456E6]" type="button">Late — bank holiday</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Late — other</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">TDS adjusted</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Other (write below)</button>
+</div>
+<!-- Optional Notes Input -->
+<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-1.5 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6] mt-0.5" placeholder="Notes (optional)" type="text"/>
+<!-- Helper note -->
+<p class="text-[10px] text-[#7A8A99] font-mono">
+Holiday delays are labeled, never marked Danger.
+</p>
 </div>
 <!-- TDS Scheme Dropdown -->
 <div class="flex flex-col gap-1">
@@ -977,7 +1080,7 @@ On-going
 </select>
 </div>
 <!-- Action Buttons -->
-<div class="flex items-center gap-2 pt-2">
+<div class="flex items-center gap-2 pt-1">
 <button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center">
 Save Payment
 </button>
@@ -990,8 +1093,7 @@ Cancel
 <span class="material-symbols-outlined text-[13px] text-[#93B4FF]">info</span>
 <span>Save updates the cell in place — no navigation.</span>
 </div>
-</div>
-</div>
+</div></div>
 </div>
 </div>
 <!-- Column Footer Note -->
