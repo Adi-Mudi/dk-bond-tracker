@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v1.8",
+  "version": "v1.9",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -161,6 +161,13 @@
       "topic": "T2 — download endpoints cross-verified by PM stream",
       "summary": "Independent re-verification (identified UA, polite GETs): NSDL bulk discovery 200 (JSON file listing), CRISIL rating_sme_listing_service.json 200 (live docs: companyCode/ratingDate/heading), RBI pressreleases_rss.xml 200 XML, SEBI sebirss.xml 200 XML. Matches agy findings; download-first is viable for ISIN master + ratings metadata + regulator feeds without any scraping.",
       "relevance": "Exists D2 existential coverage without scraping except NSE/BSE instrument masters, which remain HELD per D4."
+    },
+    {
+      "id": "F7",
+      "date": "2026-11-25",
+      "topic": "T2 — deep data-quality proof beyond HTTP 200 (PM stream)",
+      "summary": "NSDL official bulk CSV PROVEN: discovery field 'f' -> /nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv, 200, 264,221 rows (186,123 corporate INE), columns ISIN/NAME_OF_ISSUER/SECURITY_DESCRIPTION/CURRENCY/INTEREST_RATE/MATURITY_DATE/FISN/CFI — 5.6x our bundled snapshot, replaces it as master. BSE debt master PROVEN: ListofScripData segment=Debentures and Bonds WITH Referer+Origin headers (complete param set) -> 200, 5,475 active debt scrips with ISIN_NUMBER/FACE_VALUE/Issuer_Name/SCRIP_CD — no scraping needed, full browser headers only (D1's 403 was incomplete params/headers). CRISIL proven at depth: 200 docs/page incl. large corporates (Tata International, Nov 24 2026), fields companyCode/companyName/industryName/ratingDate/heading/ratingFileName.",
+      "limitations": "NSDL CSV lacks rating/payout_cycle/face_value/listing_status (covered by CRISIL+BSE instead). BSE returns Active only. CRISIL covers CRISIL-rated bonds only; rationale body needs per-doc HTML fetch. NSE remains the only site without a download-first path (held per D4)."
     }
   ],
   "change_log": [
@@ -199,6 +206,10 @@
     {
       "date": "2026-11-25",
       "change": "v1.8: D4 CONFIRMED download-first policy + standing agy worker; F6 PM cross-verification of 4 download endpoints"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.9: F7 — deep proofs: NSDL bulk CSV 264k rows, BSE debt master 5,475 scrips via header'd GET, CRISIL depth-verified; limitations recorded"
     }
   ]
 }
