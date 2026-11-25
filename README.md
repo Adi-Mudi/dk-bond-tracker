@@ -37,9 +37,6 @@ This replaced a macro-enabled Excel workbook. Its VBA rebuilt the dashboard on e
 
 The rebuild keeps what worked — a month grid, a dashboard, a status view — and fixes the rest.
 
-## Screenshots
-
-
 ## Quick start
 
 Requires **Python 3.10 or newer** and a browser. That is the whole requirement list.
