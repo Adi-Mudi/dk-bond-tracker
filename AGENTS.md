@@ -2,6 +2,10 @@
 
 This file is the project rules loader. It supplements (does not replace) the global rules.
 
+## Mobile Layout Standard (developer ruling 2026-11-25)
+
+EVERY page ships as a proper mobile design at the 412dp reference viewport with the SAME layout language — no page may look like a different kind of UI. The standard = `design/confirmed/app_frame/` chrome (56px bar: brand left, sync/bell/avatar right; sticky section tabs; content one-column; FAB 56px right:16/bottom:104; 5-item bottom nav; 16px padding; Midnight Ledger tokens). One row, one column per screen — consistent mobile density, cards/lists only (no desktop tables or wide grids on mobile). This is the acceptance bar for every design review.
+
 ## Platform Scope (developer rulings 2026-11-24/25)
 
 ANDROID / MOBILE ONLY. The web application is dropped — no web designs, no web builds, no web docs. The frontend is being rebuilt in Flutter for Android from the confirmed designs in `design/confirmed/` (app_frame static layout + locked pages). ALL design work happens in the Stitch MCP only (D17, zero direct file edits); HTML-only exports; same-filename in-place updates; imports to the base branch remove the old file first. The backend engine (Python/Flask JSON API) is unchanged and serves the Android app.

@@ -26,6 +26,7 @@
 - **Live dashboard and status.** Status recomputes the moment a payment changes; no open/save step.
 - **Danger means any unpaid past month**, not just the previous one.
 - **Android only.** The web app has been dropped (2026-11-24); the frontend is being rebuilt in Flutter for Android from the confirmed designs in `design/confirmed/`. One core of logic behind a JSON API.
+- **One mobile layout standard.** Every page is designed at 412dp with the same locked app frame (`design/confirmed/app_frame/`) — one row, one column, consistent chrome, sticky section tabs — so no page ever looks like a different app.
 - **Exports and sharing.** CSV export, a share page, and a monthly print view.
 - **Privacy toggle** in the header masks money amounts on screen, in the browser only.
 
