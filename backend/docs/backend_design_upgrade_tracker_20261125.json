@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v3.9",
+  "version": "v4.0",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -111,6 +111,15 @@
       "issue": "",
       "status": "CONFIRMED",
       "resolution": "Canvas: latest CLEAN node bb197d2dfa184cc7be46d50ee86e2e59 (stitch edit multi-run corruption at 0cf1b750 discarded). FILE is ahead of Canvas: user-flow band + API mapping band inserted + SLA chip removed, pending Canvas sync (logged). File: backend/docs/backend_dataflow_design.html"
+    },
+    {
+      "id": "D6",
+      "date": "2026-11-26",
+      "decision": "Backend framework: KEEP Flask 3.1.3, evolved in-place into JSON-first Blueprints (stdlib dataclasses/validators as the contract layer; optionally Waitress 3.0.2 pure-Python or the existing Werkzeug make_server as the on-device server). FastAPI and Litestar are RULED OUT by verified fact: pydantic-core 2.50.5 ships 0 Android wheels (0/140 on PyPI, verified live; chaquo.com 404; chaquopy#1017 open), msgspec 0/81 - their native cores cannot install on-device. Uvicorn crashes in secondary Android threads on signal handling. The revamp = HTML-to-JSON route conversion in src/views/*.py (bounded, route-by-route, guarded by the 717-test suite). Serving mode (localhost HTTP vs platform-channel bridge) to be decided WITH the frontend agent before the JSON API wave; the locked JSON contract is identical in both modes.",
+      "approved_by": "developer, 2026-11-26 (both research streams converged: PM report pm_framework_research_20261126.json + agy report agy_framework_research_20261126.json; pydantic-core Android-wheel absence independently verified live on PyPI)",
+      "issue": "",
+      "status": "CONFIRMED",
+      "resolution": ""
     }
   ],
   "findings": [
@@ -213,6 +222,13 @@
       "topic": "ISM — outside-in restructure applied + stitch multi-run failure root-caused",
       "summary": "Board restructured outside-in per upgraded skill: USER FLOWS band (UF1 install/seed, UF2 add-position lookup [session cache -> DB cache -> snapshot seed -> NSDL -> merge -> rating gate], UF3 daily local reads, UF4 manual refresh, UF5 auto-fetch consent+12h, UF6 background master refresh [per-source cadences], UF9 degradation [failure code -> last-good -> never blocks]) + API REQUEST FLOWS mapping table (GET /watch/lookup, POST /portfolio/<id>/refresh, consent+sync, local reads, background). Recovered from stitch multi-run corruption: re-downloaded clean bb197d2d, surgical python insertion, duplication check passed (1 band, all kept sections intact).",
       "relevance": "Skill hardened (board-process.md Failure counter); D5 notes file-ahead-of-Canvas pending sync."
+    },
+    {
+      "id": "F13",
+      "date": "2026-11-26",
+      "topic": "Framework research merged (PM + agy streams)",
+      "summary": "Both research streams converged on Flask-in-place. Decisive fact, triple-verified: pydantic-core 2.50.5 has 0 Android wheels (PyPI live check 0/140; chaquo.com 404; chaquopy#1017 open, PR #1413 unmerged) - FastAPI cannot install on-device. msgspec (Litestar) 0/81 Android wheels. Uvicorn crashes in secondary Android threads (signal handlers). MarkupSafe (Flask dep) ships 6 Android wheels incl cp313. Reports: research/pm_framework_research_20261126.json + research/agy_framework_research_20261126.json.",
+      "relevance": "Closes checklist item: framework selection. The revamp scope is bounded to HTML-to-JSON route conversion; all service/db/query layers survive unchanged."
     }
   ],
   "change_log": [
@@ -339,6 +355,10 @@
     {
       "date": "2026-11-26",
       "change": "v3.9: VERIFICATION LOOP CLOSED — agy round-5 ALL 6 CHECKS PASS (order, structure, API table, JSON count 9, zero survivors, 1 stale example). Backend dataflow design DONE: matched to the locked frontend, starting point Watchlist FAB + -> Add Bond form, outside-in order, MCP-only edits. Design-ready cycle satisfied: artifact live in Open Design, local file = fresh import. Remaining (queued, developer go required): API contract shapes, schema session, NFR values, Flutter packaging decision."
+    },
+    {
+      "date": "2026-11-26",
+      "change": "v4.0: D6 CONFIRMED framework decision (Flask in-place, FastAPI/Litestar ruled out by wheel fact); F13 merged research (PM + agy streams); both research reports committed"
     }
   ]
 }
