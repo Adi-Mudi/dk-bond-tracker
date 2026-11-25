@@ -1,0 +1,17 @@
+VERIFICATION TASK — backend dataflow + business logic design review.
+
+Verify the design board at backend/docs/backend_dataflow_design.html (Stitch export, open it as HTML text) against the project truth:
+- backend/docs/backend_design_upgrade_tracker_20261125.json (v2.1: findings F1-F9, decisions D1-D4)
+- backend/docs/research/*.json (pm_scraping_research, agy_download_channels, agy_scraping_research, nse_recipe_extraction, broker_data_sources_research)
+
+Check for FACTUAL errors and MISSING business-logic elements:
+1. Source numbers: NSDL bulk CSV 264,221 rows (186,123 corporate INE); BSE debt JSON 5,475 active scrips; NSE WDM CSV 10,624 rows (3,695 corporate); NSDL 10 XLSX datasets (28.8 MB); Acuite sitemap 39,267 URLs. Any wrong numbers?
+2. Channel classifications: DOWNLOAD vs LIGHT vs SCRAPE-ONLY per the inventory; BSE needs Referer/Origin headers (LIGHT); NSE works via /api/daily-reports?key=WDM + nsearchives.nseindia.in (no impersonation needed).
+3. Business logic flow: snapshot/cache-first lookup order; last-good kept on refresh failure; per-source isolation (one source break never blocks others); failure codes OK/NOT_FOUND/UNREACHABLE/BLOCKED/TIMEOUT etc.; polite fetcher 1 req/s + backoff; identified UA; provenance + as-of on every fact.
+4. Policy framing: download-first (D4), no scraping, respect robots/ToS; SCORES/SmartODR out of scope.
+5. Anything important MISSING from the board that the tracker/research says matters (e.g., provenance tracking, deleted-ISIN marking, community mirror fallback, cadence per source).
+
+CONSTRAINTS (hard):
+- READ-ONLY. Do NOT edit, create, or delete ANY file. Your output is ONLY a chat report.
+- When done: report with: hc send t1w4 <findings: numbered list, each OK or WRONG with the correction + evidence file>. Keep it under 300 words.
+You are a standing worker: stay alive after reporting.
