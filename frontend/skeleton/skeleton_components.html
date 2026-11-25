@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Component Inventory - DK Bond Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#0D1520',
+            surface: '#16212E',
+            'surface-alt': '#1C293A',
+            hairline: '#2A3A4C',
+            accent: '#2456E6',
+            'accent-hover': '#1C46C2',
+            ink: '#E8EEF5',
+            muted: '#7A8A99',
+            danger: '#FF8A80',
+            'danger-bg': 'rgba(255, 138, 128, 0.12)',
+            success: '#6FD898',
+            'success-bg': 'rgba(111, 216, 152, 0.12)',
+            warning: '#FFC46B',
+            'warning-bg': 'rgba(255, 196, 107, 0.12)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .specimen-box {
+      background-color: #16212E;
+      border: 1px solid #2A3A4C;
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-canvas text-ink antialiased p-6 sm:p-10 lg:p-14">
+  <div class="max-w-7xl mx-auto space-y-10">
+
+    <!-- Header Block -->
+    <header class="border-b border-hairline pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5 mb-2">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-accent text-white font-bold text-sm tracking-wider">
+            DK
+          </span>
+          <span class="text-xs font-semibold tracking-widest text-accent uppercase">Design System Specification</span>
+          <span class="text-hairline">•</span>
+          <span class="text-xs font-medium text-muted">Midnight Ledger Standard</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-ink">Component Inventory - DK Bond Tracker</h1>
+        <p class="text-muted text-sm sm:text-base mt-1.5 max-w-2xl">
+          Canonical UI primitives for high-fidelity bond portfolio tracking and fixed-income analytics ledger.
+        </p>
+      </div>
+
+      <!-- Quick Token Metadata Ribbon -->
+      <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+        <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">Canvas: <span class="text-ink">#0D1520</span></span>
+        <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">Surface: <span class="text-ink">#16212E</span></span>
+        <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">Hairline: <span class="text-ink">#2A3A4C</span></span>
+        <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">Accent: <span class="text-accent">#2456E6</span></span>
+      </div>
+    </header>
+
+    <!-- Component Grid (10 Canonical UI Primitives) -->
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- 1: CARD -->
+      <div class="specimen-box">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <div class="w-full bg-[#16212E] border border-hairline rounded-[12px] p-5 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-ink">Standard Surface Card</span>
+              <span class="material-symbols-outlined text-muted text-base">layers</span>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">
+              Base paper surface container with 1px hairline border (<span class="font-mono text-ink">#2A3A4C</span>) and uniform 12px border radius.
+            </p>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">1 • CARD</span>
+          <span class="text-[10px] font-mono text-muted/70">surface / 12px r</span>
+        </div>
+      </div>
+
+      <!-- 2: KPI STAT CARD -->
+      <div class="specimen-box">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <div class="w-full bg-surface border border-hairline rounded-[12px] p-5 space-y-2">
+            <div class="flex items-center justify-between text-xs font-semibold tracking-wider text-muted uppercase">
+              <span>Total Invested</span>
+              <span class="material-symbols-outlined text-muted text-base">account_balance</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold tracking-tight text-ink tabular">
+              ₹ 24,50,000
+            </div>
+            <div class="flex items-center gap-2 pt-1 text-xs text-muted">
+              <span class="inline-flex items-center text-success font-medium">
+                <span class="material-symbols-outlined text-sm mr-0.5">trending_up</span> +11.24% XIRR
+              </span>
+              <span>•</span>
+              <span>14 active bonds</span>
+            </div>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">2 • KPI STAT CARD</span>
+          <span class="text-[10px] font-mono text-muted/70">metric / tabular</span>
+        </div>
+      </div>
+
+      <!-- 3: FILTER CHIPS -->
+      <div class="specimen-box">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <div class="flex flex-wrap items-center gap-2 w-full">
+            <!-- Active Chip -->
+            <button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-medium shadow-sm transition hover:bg-accent-hover">
+              <span>All</span>
+              <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-semibold tabular">14</span>
+            </button>
+            <!-- Inactive Chip 1 -->
+            <button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-alt border border-hairline text-muted hover:text-ink text-xs font-medium transition">
+              <span>On-going</span>
+              <span class="px-1.5 py-0.2 rounded-full bg-hairline/60 text-[10px] font-semibold tabular">10</span>
+            </button>
+            <!-- Inactive Chip 2 -->
+            <button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-alt border border-hairline text-muted hover:text-ink text-xs font-medium transition">
+              <span>Due Soon</span>
+              <span class="px-1.5 py-0.2 rounded-full bg-hairline/60 text-[10px] font-semibold tabular">2</span>
+            </button>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">3 • FILTER CHIPS</span>
+          <span class="text-[10px] font-mono text-muted/70">active: #2456E6</span>
+        </div>
+      </div>
+
+      <!-- 4: BUTTONS -->
+      <div class="specimen-box">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <div class="flex flex-wrap items-center gap-2.5 w-full">
+            <!-- Primary filled #2456E6 -->
+            <button class="px-4 py-2.5 rounded-[10px] bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+              <span class="material-symbols-outlined text-base">add</span>
+              <span>Primary</span>
+            </button>
+            <!-- Secondary elevated with hairline border -->
+            <button class="px-4 py-2.5 rounded-[10px] bg-surface-alt border border-hairline hover:border-muted text-ink text-xs font-medium transition">
+              Secondary
+            </button>
+            <!-- Danger #FF8A80 -->
+            <button class="px-4 py-2.5 rounded-[10px] border border-danger/40 bg-danger-bg text-danger hover:bg-danger/20 text-xs font-semibold transition">
+              Danger Action
+            </button>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">4 • BUTTONS</span>
+          <span class="text-[10px] font-mono text-muted/70">primary / secondary / danger</span>
+        </div>
+      </div>
+
+      <!-- 5: SEGMENTED TABS -->
+      <div class="specimen-box">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <!-- 48px height segmented control -->
+          <div class="w-full h-12 bg-surface-alt border border-hairline p-1 rounded-xl flex items-center gap-1">
+            <button class="flex-1 h-full rounded-lg bg-accent text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm">
+              <span class="material-symbols-outlined text-base">dashboard</span>
+              <span>Dashboard</span>
+            </button>
+            <button class="flex-1 h-full rounded-lg text-muted hover:text-ink font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition">
+              <span class="material-symbols-outlined text-base">history</span>
+              <span>Returns History</span>
+            </button>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">5 • SEGMENTED TABS</span>
+          <span class="text-[10px] font-mono text-muted/70">48px height / filled pair</span>
+        </div>
+      </div>
+
+      <!-- 6: DATA TABLE -->
+      <div class="specimen-box md:col-span-2 lg:col-span-1">
+        <div class="flex-1 flex items-center justify-center p-1 w-full overflow-hidden">
+          <div class="w-full border border-hairline rounded-lg overflow-hidden bg-surface">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-surface-alt border-b border-hairline text-[10px] font-semibold tracking-wider text-muted uppercase">
+                  <th class="py-2.5 px-3">Issuer</th>
+                  <th class="py-2.5 px-3 text-right">Coupon</th>
+                  <th class="py-2.5 px-3 text-right">Net Value</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-hairline">
+                <tr class="hover:bg-surface-alt/40 transition">
+                  <td class="py-2.5 px-3 font-medium text-ink truncate max-w-[110px]">Tata Capital</td>
+                  <td class="py-2.5 px-3 text-right text-muted tabular">9.15%</td>
+                  <td class="py-2.5 px-3 text-right font-medium text-ink tabular">₹ 41,175</td>
+                </tr>
+                <tr class="hover:bg-surface-alt/40 transition">
+                  <td class="py-2.5 px-3 font-medium text-ink truncate max-w-[110px]">HDFC Credila</td>
+                  <td class="py-2.5 px-3 text-right text-muted tabular">9.45%</td>
+                  <td class="py-2.5 px-3 text-right font-medium text-ink tabular">₹ 32,800</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">6 • DATA TABLE</span>
+          <span class="text-[10px] font-mono text-muted/70">sticky-style / hairline rows</span>
+        </div>
+      </div>
+
+      <!-- 7: FAB -->
+      <div class="specimen-box">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <div class="relative flex items-center justify-center">
+            <!-- 56px circular #2456E6 button with white add icon -->
+            <button class="w-14 h-14 rounded-full bg-accent hover:bg-accent-hover text-white flex items-center justify-center shadow-[0_6px_20px_rgba(36,86,230,0.45)] transition transform hover:scale-105 active:scale-95" aria-label="Add Bond">
+              <span class="material-symbols-outlined text-2xl font-bold">add</span>
+            </button>
+            <span class="absolute -bottom-6 text-[10px] font-mono text-muted">56px circular</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">7 • FAB</span>
+          <span class="text-[10px] font-mono text-muted/70">56px circle / #2456E6</span>
+        </div>
+      </div>
+
+      <!-- 8: ALERT CARD -->
+      <div class="specimen-box md:col-span-2 lg:col-span-2">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <!-- Danger card with red top glow bar, red title, action buttons -->
+          <div class="w-full bg-surface border border-hairline rounded-[12px] overflow-hidden shadow-sm">
+            <!-- Red top glow bar -->
+            <div class="h-1 bg-gradient-to-r from-danger via-[#FF5252] to-danger shadow-[0_0_12px_rgba(255,138,128,0.7)]"></div>
+            <div class="p-4 sm:p-5 space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-danger text-lg">warning</span>
+                  <h4 class="text-sm font-semibold text-danger">Action Required: Rating Watch</h4>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-danger-bg text-danger border border-danger/30">
+                  Critical
+                </span>
+              </div>
+              <p class="text-xs text-muted leading-relaxed">
+                Piramal Capital placed under CRISIL credit watch with negative implications. Review portfolio exposure and redemption horizon.
+              </p>
+              <div class="flex items-center gap-3 pt-1">
+                <button class="px-3.5 py-1.5 rounded-lg bg-danger/20 border border-danger/40 text-danger hover:bg-danger/30 text-xs font-semibold transition">
+                  Read Advisory
+                </button>
+                <button class="px-3 py-1.5 rounded-lg text-muted hover:text-ink text-xs font-medium transition">
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">8 • ALERT CARD</span>
+          <span class="text-[10px] font-mono text-muted/70">top glow bar / danger actions</span>
+        </div>
+      </div>
+
+      <!-- 9: PROGRESS BAR -->
+      <div class="specimen-box">
+        <div class="flex-1 flex flex-col justify-center p-2 space-y-3 w-full">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-muted">Settlement Progress</span>
+            <span class="font-semibold text-ink tabular">40%</span>
+          </div>
+          <!-- Thin rounded track with filled portion -->
+          <div class="w-full h-2 rounded-full bg-surface-alt border border-hairline/60 overflow-hidden">
+            <div class="h-full bg-accent rounded-full w-[40%] transition-all duration-500 shadow-[0_0_8px_rgba(36,86,230,0.5)]"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-muted font-mono">
+            <span>24 Mos Done</span>
+            <span>36 Mos Left</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">9 • PROGRESS BAR</span>
+          <span class="text-[10px] font-mono text-muted/70">rounded track / filled portion</span>
+        </div>
+      </div>
+
+      <!-- 10: STATUS BADGES -->
+      <div class="specimen-box md:col-span-2 lg:col-span-2">
+        <div class="flex-1 flex items-center justify-center p-2">
+          <!-- Danger, On-going, Upcoming, Matured chips -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Danger -->
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-danger-bg text-danger border border-danger/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-danger animate-pulse"></span>
+              <span>Danger</span>
+            </span>
+
+            <!-- On-going -->
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-success-bg text-success border border-success/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+              <span>On-going</span>
+            </span>
+
+            <!-- Upcoming -->
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-warning-bg text-warning border border-warning/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-warning"></span>
+              <span>Upcoming</span>
+            </span>
+
+            <!-- Matured -->
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-surface-alt text-muted border border-hairline">
+              <span class="w-1.5 h-1.5 rounded-full bg-muted"></span>
+              <span>Matured</span>
+            </span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-hairline/60 flex items-center justify-between">
+          <span class="text-[11px] font-bold tracking-wider text-muted uppercase">10 • STATUS BADGES</span>
+          <span class="text-[10px] font-mono text-muted/70">danger / on-going / upcoming / matured</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer Specification Caption -->
+    <footer class="pt-8 border-t border-hairline text-center">
+      <div class="inline-block px-4 py-2 rounded-lg bg-surface border border-hairline">
+        <p class="text-xs sm:text-sm font-semibold tracking-wider text-ink uppercase">
+          ONE CANONICAL STYLE PER COMPONENT - NO DUPLICATE VARIANTS
+        </p>
+      </div>
+      <p class="text-xs text-muted mt-2 font-mono">
+        DK Bond Tracker • System UI Primitives v2.4.1 • Strict Design Tokens
+      </p>
+    </footer>
+
+  </div>
+</body>
+</html>

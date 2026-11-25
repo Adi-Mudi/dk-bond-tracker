@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-secondary-fixed-variant": "#43474b",
+          "surface-container-lowest": "#ffffff",
+          "on-surface-variant": "#434655",
+          "inverse-primary": "#b7c4ff",
+          "surface-container-low": "#f3f2ff",
+          "info-blue-bg": "#e8effc",
+          "on-tertiary": "#ffffff",
+          "secondary-fixed": "#e0e3e7",
+          "slate": "#55606e",
+          "on-primary-fixed": "#001551",
+          "inverse-on-surface": "#f0f0fc",
+          "error-container": "#ffdad6",
+          "inverse-surface": "#2e3039",
+          "on-primary-fixed-variant": "#0039b5",
+          "on-secondary-fixed": "#181c1f",
+          "upcoming-amber-bg": "#fdf3e0",
+          "secondary-fixed-dim": "#c3c7cb",
+          "on-primary-container": "#dbe0ff",
+          "surface-container-highest": "#e2e1ed",
+          "error": "#ba1a1a",
+          "on-background": "#191b24",
+          "on-tertiary-fixed": "#380d00",
+          "outline-variant": "#c4c5d8",
+          "hairline": "#e3e8ee",
+          "background": "#faf8ff",
+          "secondary-container": "#dde0e4",
+          "secondary": "#5b5f62",
+          "ink": "#16212e",
+          "on-secondary": "#ffffff",
+          "primary-fixed-dim": "#b7c4ff",
+          "mist": "#8592a1",
+          "on-surface": "#191b24",
+          "primary": "#003dc1",
+          "primary-container": "#2456e6",
+          "info-blue-fg": "#1d4ed8",
+          "ledger-canvas": "#f6f7f9",
+          "tertiary-container": "#b23d00",
+          "due-red-bg": "#fdeceb",
+          "on-secondary-container": "#5f6367",
+          "paper-surface": "#ffffff",
+          "paid-green-fg": "#166534",
+          "surface-container-high": "#e7e7f3",
+          "on-error": "#ffffff",
+          "primary-fixed": "#dce1ff",
+          "on-tertiary-container": "#ffdace",
+          "surface-container": "#ededf9",
+          "tertiary-fixed-dim": "#ffb59a",
+          "paid-green-bg": "#e8f6ee",
+          "on-primary": "#ffffff",
+          "surface-dim": "#d9d9e5",
+          "tertiary-fixed": "#ffdbcf",
+          "tertiary": "#8a2d00",
+          "on-tertiary-fixed-variant": "#802a00",
+          "upcoming-amber-fg": "#92400e",
+          "surface-bright": "#faf8ff",
+          "surface-tint": "#194fe0",
+          "due-red-fg": "#b42318",
+          "surface": "#faf8ff",
+          "outline": "#747687",
+          "on-error-container": "#93000a",
+          "surface-variant": "#e2e1ed"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "space-md": "1rem",
+          "space-lg": "1.5rem",
+          "space-sm": "0.5rem",
+          "space-xs": "0.25rem",
+          "gutter": "1rem",
+          "margin": "1.5rem",
+          "space-xl": "2rem"
+        },
+        "fontFamily": {
+          "headline-h1": [
+            "\"Inter, system-ui, sans-serif\""
+          ],
+          "label": [
+            "\"Inter, system-ui, sans-serif\""
+          ],
+          "display": [
+            "\"Inter, system-ui, sans-serif\""
+          ],
+          "headline-h2": [
+            "\"Inter, system-ui, sans-serif\""
+          ],
+          "small": [
+            "\"Inter, system-ui, sans-serif\""
+          ],
+          "body": [
+            "\"Inter, system-ui, sans-serif\""
+          ]
+        },
+        "fontSize": {
+          "headline-h1": [
+            "22px",
+            {
+              "lineHeight": "30px",
+              "fontWeight": "600"
+            }
+          ],
+          "label": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.03em",
+              "fontWeight": "500"
+            }
+          ],
+          "display": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-h2": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "600"
+            }
+          ],
+          "small": [
+            "13px",
+            {
+              "lineHeight": "18px",
+              "fontWeight": "400"
+            }
+          ],
+          "body": [
+            "15px",
+            {
+              "lineHeight": "22px",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-ledger-canvas font-body text-body text-ink min-h-screen"><aside class="fixed left-0 top-0 h-full w-[240px] bg-paper-surface z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(22,33,46,0.06)]"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary"><span class="material-symbols-outlined text-[20px]">account_balance</span></div><div class="flex flex-col"><span class="font-headline-h2 text-headline-h2 text-ink tracking-tight">DK Bond Tracker</span><span class="font-label text-label text-mist uppercase">Fixed Income</span></div></div><div class="px-space-md pt-space-md pb-space-xs"><span class="font-label text-label text-mist uppercase">Main Menu</span></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-body text-body">Dashboard</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="portfolio" href="#"><span class="material-symbols-outlined text-[20px]">pie_chart</span><span class="font-body text-body">Portfolio</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-colors bg-primary-container text-on-primary font-semibold" data-path="watchlist" href="#"><span class="material-symbols-outlined text-[20px]">visibility</span><span class="font-body text-body">Watchlist</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="goals" href="#"><span class="material-symbols-outlined text-[20px]">flag</span><span class="font-body text-body">Goals</span></a></nav></div><div class="flex flex-col pb-space-lg"><div class="px-space-md pt-space-md pb-space-xs"><span class="font-label text-label text-mist uppercase">System</span></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-primary-container text-on-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications_active</span><span class="font-body text-body">Alerts</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body text-body">Settings</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="about" href="#"><span class="material-symbols-outlined text-[20px]">info</span><span class="font-body text-body">About</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="feedback" href="#"><span class="material-symbols-outlined text-[20px]">rate_review</span><span class="font-body text-body">Feedback</span></a></nav></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-paper-surface/90 backdrop-blur-xl z-40 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(22,33,46,0.04)]"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-on-surface-variant font-small text-small"><span class="text-mist">DK Bond Tracker</span><span class="material-symbols-outlined text-[16px] text-mist">chevron_right</span><span class="text-ink font-semibold">Fixed Income Operations</span></div><div class="relative w-72"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-mist">search</span><input class="w-full bg-ledger-canvas text-ink placeholder-mist text-small pl-9 pr-space-md py-space-xs rounded-lg outline-none focus:ring-1 focus:ring-primary" placeholder="Search ISIN, CUSIP, issuer..." type="text"/></div></div><div class="flex items-center gap-space-md"><button class="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary text-on-primary font-label text-[10px] leading-none flex items-center justify-center">2</span></button><button class="w-9 h-9 rounded-lg flex items-center justify-center text-slate hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><div class="h-6 w-px bg-hairline"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right"><span class="font-small text-small font-semibold text-ink">DK Yield Account</span><span class="font-label text-label text-slate">Fixed Income Desk</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-ledger-canvas min-h-screen"><div class="flex flex-col w-full">
+<div class="px-margin py-space-lg flex flex-col gap-space-lg max-w-[1520px] mx-auto w-full">
+<!-- Top Header Row -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs text-mist font-label text-label uppercase tracking-wider mb-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span>Fixed Income Ledger</span>
+<span>•</span>
+<span>Monitored Issuers &amp; Opportunities</span>
+</div>
+<h1 class="font-display text-display text-ink font-semibold tracking-tight">Bond Watchlist</h1>
+<p class="font-small text-small text-slate mt-0.5">Track potential fixed income issues, secondary yields, and credit watches before allocating capital.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<button class="h-12 w-12 rounded-[10px] bg-paper-surface hover:bg-ledger-canvas text-slate flex items-center justify-center transition-colors shadow-sm focus:outline-none" id="refreshBtn" style="box-shadow: 0 1px 2px rgba(22,33,46,0.06); outline: 1px solid #e3e8ee;" title="Refresh Yield Curves" type="button">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+<button class="h-12 px-space-lg rounded-[10px] bg-primary-container hover:bg-primary text-on-primary font-small text-small font-medium flex items-center gap-space-xs transition-colors shadow-sm" id="openAddModalBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>+ Add Bond</span>
+</button>
+</div>
+</div>
+<!-- Quick Stats Metric Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Card 1 -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] flex flex-col justify-between shadow-sm relative overflow-hidden" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="flex items-center justify-between text-mist font-label text-label uppercase tracking-wider">
+<span>Watching Count</span>
+<span class="material-symbols-outlined text-slate text-[18px]">visibility</span>
+</div>
+<div class="mt-space-md">
+<div class="font-display text-display text-ink font-semibold tracking-tight">4 <span class="font-headline-h2 text-headline-h2 font-normal text-slate">Active</span></div>
+<div class="font-small text-small text-slate mt-1 flex items-center gap-1">
+<span class="text-paid-green-fg font-medium">3 AAA</span> • <span>1 AA Rated</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] flex flex-col justify-between shadow-sm relative overflow-hidden" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="flex items-center justify-between text-mist font-label text-label uppercase tracking-wider">
+<span>Avg Potential Yield</span>
+<span class="material-symbols-outlined text-slate text-[18px]">trending_up</span>
+</div>
+<div class="mt-space-md">
+<div class="font-display text-display text-ink font-semibold tracking-tight font-mono">9.85<span class="text-slate font-headline-h2 text-headline-h2">% p.a.</span></div>
+<div class="font-small text-small text-slate mt-1 flex items-center gap-1">
+<span class="text-paid-green-fg font-medium">+2.15%</span> vs 10Y Benchmark G-Sec
+          </div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] flex flex-col justify-between shadow-sm relative overflow-hidden" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="flex items-center justify-between text-mist font-label text-label uppercase tracking-wider">
+<span>Credit Watch / Action</span>
+<span class="material-symbols-outlined text-upcoming-amber-fg text-[18px]">warning</span>
+</div>
+<div class="mt-space-md">
+<div class="font-display text-display text-upcoming-amber-fg font-semibold tracking-tight flex items-center gap-1">
+<span>1 Warning</span>
+</div>
+<div class="font-small text-small text-slate mt-1 truncate" title="Piramal Capital under CRISIL Watch">
+            Piramal Capital under CRISIL Watch
+          </div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] flex flex-col justify-between shadow-sm relative overflow-hidden" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="flex items-center justify-between text-mist font-label text-label uppercase tracking-wider">
+<span>Pipeline Target</span>
+<span class="material-symbols-outlined text-slate text-[18px]">account_balance_wallet</span>
+</div>
+<div class="mt-space-md">
+<div class="font-display text-display text-ink font-semibold tracking-tight font-mono">₹ 8,50,000</div>
+<div class="font-small text-small text-slate mt-1 flex items-center gap-1">
+<span>Planned deployment for Q2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main 2-Column Content Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Main Column: Monitored Securities (65% -> 8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-md w-full">
+<div class="bg-paper-surface rounded-[12px] shadow-sm overflow-hidden" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<!-- Card Header & Filter Bar -->
+<div class="p-[20px] pb-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Monitored Securities <span class="text-mist font-normal font-mono text-small">(4 Active)</span></h2>
+<p class="font-small text-small text-slate mt-0.5">Indicative yields calibrated against NSE wholesale debt market.</p>
+</div>
+<!-- Filters -->
+<div class="flex items-center gap-1.5 bg-ledger-canvas p-1 rounded-lg self-start md:self-auto overflow-x-auto max-w-full">
+<button class="filter-tab px-3 py-1.5 rounded-md font-label text-label font-medium bg-paper-surface text-ink shadow-sm transition-all" data-filter="all" type="button">All</button>
+<button class="filter-tab px-3 py-1.5 rounded-md font-label text-label font-medium text-slate hover:text-ink transition-all" data-filter="high-yield" type="button">High Yield</button>
+<button class="filter-tab px-3 py-1.5 rounded-md font-label text-label font-medium text-slate hover:text-ink transition-all" data-filter="aaa" type="button">AAA Rated</button>
+<button class="filter-tab px-3 py-1.5 rounded-md font-label text-label font-medium text-slate hover:text-ink transition-all flex items-center gap-1" data-filter="alert" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-upcoming-amber-fg"></span>
+<span>Watchlist Alert</span>
+</button>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left text-small font-body border-collapse min-w-[700px]">
+<thead>
+<tr class="bg-ledger-canvas text-mist uppercase font-label text-label" style="border-top: 1px solid #e3e8ee; border-bottom: 1px solid #e3e8ee;">
+<th class="py-3 px-space-md font-medium tracking-wider" scope="col">Security &amp; ISIN</th>
+<th class="py-3 px-space-md font-medium tracking-wider" scope="col">Rating</th>
+<th class="py-3 px-space-md font-medium tracking-wider text-right" scope="col">Expected Yield</th>
+<th class="py-3 px-space-md font-medium tracking-wider" scope="col">Payout &amp; Tenure</th>
+<th class="py-3 px-space-md font-medium tracking-wider text-right" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline" id="watchlistTableBody">
+<!-- Bond 1 -->
+<tr class="bond-row hover:bg-ledger-canvas/60 transition-colors group" data-category="aaa">
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-medium text-ink">HDFC Credila Financial Services</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-[11px] leading-tight font-medium">
+<span class="material-symbols-outlined text-[12px]">visibility</span> Watching
+                        </span>
+</div>
+<span class="text-mist font-mono text-[12px] mt-0.5">INE539K07106</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[14px]">verified</span> AAA CRISIL
+                    </div>
+</td>
+<td class="py-space-md px-space-md text-right font-mono font-semibold text-ink text-body">
+                    9.40% <span class="text-slate font-normal font-small text-small">p.a.</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="text-ink font-medium">Quarterly</span>
+<span class="text-mist text-label">Mat: 15 Dec 2026</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 rounded-md text-slate hover:text-ink hover:bg-surface-container-high transition-colors font-small text-small font-medium" type="button">Details</button>
+<button class="px-3 py-1.5 rounded-md bg-info-blue-bg text-primary font-small text-small font-medium hover:bg-primary-container hover:text-on-primary transition-colors" type="button">Move to Portfolio</button>
+</div>
+</td>
+</tr>
+<!-- Bond 2 -->
+<tr class="bond-row hover:bg-ledger-canvas/60 transition-colors group" data-category="high-yield alert">
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-medium text-ink">Piramal Capital &amp; Housing Fin</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-[11px] leading-tight font-medium">
+<span class="material-symbols-outlined text-[12px]">notification_important</span> Rating Watch
+                        </span>
+</div>
+<span class="text-mist font-mono text-[12px] mt-0.5">INE641A07137</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[14px]">warning</span> AA- CARE (Watch)
+                    </div>
+</td>
+<td class="py-space-md px-space-md text-right font-mono font-semibold text-primary font-headline-h2 text-headline-h2">
+                    10.75% <span class="text-slate font-normal font-small text-small">p.a.</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="text-ink font-medium">Monthly</span>
+<span class="text-mist text-label">Mat: 20 Nov 2027</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 rounded-md text-slate hover:text-ink hover:bg-surface-container-high transition-colors font-small text-small font-medium" type="button">Details</button>
+<button class="px-3 py-1.5 rounded-md bg-info-blue-bg text-primary font-small text-small font-medium hover:bg-primary-container hover:text-on-primary transition-colors" type="button">Move to Portfolio</button>
+</div>
+</td>
+</tr>
+<!-- Bond 3 -->
+<tr class="bond-row hover:bg-ledger-canvas/60 transition-colors group" data-category="aaa">
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-medium text-ink">Mahindra &amp; Mahindra Financial</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-[11px] leading-tight font-medium">
+<span class="material-symbols-outlined text-[12px]">visibility</span> Watching
+                        </span>
+</div>
+<span class="text-mist font-mono text-[12px] mt-0.5">INE774D07TU2</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-paid-green-bg text-paid-green-fg font-label text-label font-medium">
+<span class="material-symbols-outlined text-[14px]">verified</span> AAA IND
+                    </div>
+</td>
+<td class="py-space-md px-space-md text-right font-mono font-semibold text-ink text-body">
+                    8.85% <span class="text-slate font-normal font-small text-small">p.a.</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="text-ink font-medium">Semi-Annual</span>
+<span class="text-mist text-label">Mat: 14 Mar 2028</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 rounded-md text-slate hover:text-ink hover:bg-surface-container-high transition-colors font-small text-small font-medium" type="button">Details</button>
+<button class="px-3 py-1.5 rounded-md bg-info-blue-bg text-primary font-small text-small font-medium hover:bg-primary-container hover:text-on-primary transition-colors" type="button">Move to Portfolio</button>
+</div>
+</td>
+</tr>
+<!-- Bond 4 -->
+<tr class="bond-row hover:bg-ledger-canvas/60 transition-colors group" data-category="high-yield">
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-medium text-ink">Shriram Finance Ltd</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-[11px] leading-tight font-medium">
+<span class="material-symbols-outlined text-[12px]">visibility</span> Watching
+                        </span>
+</div>
+<span class="text-mist font-mono text-[12px] mt-0.5">INE721A07PZ8</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-label text-label font-medium">
+<span class="material-symbols-outlined text-[14px]">shield</span> AA+ CRISIL
+                    </div>
+</td>
+<td class="py-space-md px-space-md text-right font-mono font-semibold text-ink text-body">
+                    9.60% <span class="text-slate font-normal font-small text-small">p.a.</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="text-ink font-medium">Annual</span>
+<span class="text-mist text-label">Mat: 12 Aug 2027</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1.5 rounded-md text-slate hover:text-ink hover:bg-surface-container-high transition-colors font-small text-small font-medium" type="button">Details</button>
+<button class="px-3 py-1.5 rounded-md bg-info-blue-bg text-primary font-small text-small font-medium hover:bg-primary-container hover:text-on-primary transition-colors" type="button">Move to Portfolio</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Bottom Ledger Footnote in Table -->
+<div class="px-space-md py-3 bg-ledger-canvas flex items-center justify-between font-label text-label text-mist" style="border-top: 1px solid #e3e8ee;">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-slate">sync_alt</span>
+<span>Yields indicative &amp; derived from recent secondary trade settled ticks.</span>
+</div>
+<div class="font-mono text-slate">Updated 14 mins ago</div>
+</div>
+</div>
+<!-- Filter-Specific Clean Empty State (Toggled dynamically or for demonstration) -->
+<div class="hidden bg-paper-surface rounded-[12px] p-[32px] flex-col items-center justify-center text-center shadow-sm" id="filterEmptyState" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="w-14 h-14 rounded-full bg-ledger-canvas flex items-center justify-center text-mist mb-space-sm">
+<span class="material-symbols-outlined text-[28px]">search_off</span>
+</div>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">No watched bonds found in this filter.</h3>
+<p class="font-small text-small text-slate mt-1 max-w-md">Add bonds to track upcoming primary issuances and secondary yields before purchasing.</p>
+<button class="mt-space-md h-12 px-space-lg rounded-[10px] bg-primary-container hover:bg-primary text-on-primary font-small text-small font-medium transition-colors shadow-sm inline-flex items-center gap-space-xs" onclick="document.getElementById('openAddModalBtn').click()" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>+ Add Bond to Watchlist</span>
+</button>
+</div>
+<!-- Secondary Informational Component: Yield Curve Benchmark Insight -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-info-blue-bg text-info-blue-fg flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">insights</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-h2 text-headline-h2 text-ink">Spread Differential Opportunity</span>
+<p class="font-small text-small text-slate">Corporate NBFC AAA paper currently trading 180-210 bps above Sovereign 10-Yr (7.18%).</p>
+</div>
+</div>
+<button class="whitespace-nowrap px-space-md py-2.5 rounded-[10px] bg-ledger-canvas hover:bg-surface-container-high text-ink font-small text-small font-medium transition-colors border-0" type="button">
+            View Curve Matrix
+          </button>
+</div>
+</div>
+<!-- Right Column: Form Card + Held Summary (35% -> 4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg w-full">
+<!-- Add Bond Form Card -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] shadow-sm" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="border-b border-hairline pb-space-sm mb-space-md">
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Add Bond to Watchlist</h2>
+<p class="font-small text-small text-slate mt-0.5">Look up bond via 12-character ISIN or company name to fetch prospectus specs.</p>
+</div>
+<form class="flex flex-col gap-space-md" id="addBondForm" onsubmit="event.preventDefault();">
+<!-- Company Name -->
+<div class="flex flex-col gap-1">
+<label class="font-label text-label text-slate uppercase" for="companyNameInput">Company Name</label>
+<input class="h-[52px] px-space-md rounded-[10px] bg-paper-surface text-ink text-[16px] placeholder-mist focus:outline-none focus:ring-1 focus:ring-primary" id="companyNameInput" placeholder="e.g. Bajaj Finance Ltd" style="outline: 1px solid #e3e8ee;" type="text"/>
+</div>
+<!-- ISIN with Lookup -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<label class="font-label text-label text-slate uppercase" for="isinInput">ISIN Code</label>
+<span class="font-label text-label text-primary hover:underline cursor-pointer">Verify ISIN</span>
+</div>
+<div class="relative">
+<input class="w-full h-[52px] pl-space-md pr-12 rounded-[10px] bg-paper-surface text-ink text-[16px] font-mono uppercase placeholder-mist focus:outline-none focus:ring-1 focus:ring-primary" id="isinInput" maxlength="12" placeholder="e.g. INE296A07RO8" style="outline: 1px solid #e3e8ee;" type="text"/>
+<button class="absolute right-1 top-1 w-11 h-11 rounded-lg flex items-center justify-center text-slate hover:text-primary transition-colors" title="Lookup ISIN in depository" type="button">
+<span class="material-symbols-outlined text-[20px]">manage_search</span>
+</button>
+</div>
+</div>
+<!-- Grid 2-col: Day & Target Amount -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label text-label text-slate uppercase" for="creditDayInput">Payout Day</label>
+<input class="h-[52px] px-space-md rounded-[10px] bg-paper-surface text-ink text-[16px] placeholder-mist focus:outline-none focus:ring-1 focus:ring-primary" id="creditDayInput" placeholder="e.g. 15th" style="outline: 1px solid #e3e8ee;" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label text-label text-slate uppercase" for="targetAmountInput">Target Amount</label>
+<input class="h-[52px] px-space-md rounded-[10px] bg-paper-surface text-ink text-[16px] font-mono placeholder-mist focus:outline-none focus:ring-1 focus:ring-primary" id="targetAmountInput" placeholder="₹ 2,00,000" style="outline: 1px solid #e3e8ee;" type="text"/>
+</div>
+</div>
+<!-- Payout Frequency -->
+<div class="flex flex-col gap-1">
+<label class="font-label text-label text-slate uppercase" for="frequencySelect">Payout Frequency</label>
+<div class="relative">
+<select class="w-full h-[52px] px-space-md rounded-[10px] bg-paper-surface text-ink text-[16px] appearance-none focus:outline-none focus:ring-1 focus:ring-primary" id="frequencySelect" style="outline: 1px solid #e3e8ee;">
+<option value="monthly">Monthly</option>
+<option value="quarterly">Quarterly</option>
+<option value="semi-annual">Semi-Annual</option>
+<option selected="" value="annual">Annual</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate text-[20px]">expand_more</span>
+</div>
+</div>
+<!-- Action Button -->
+<button class="mt-space-xs h-12 w-full rounded-[10px] bg-primary-container hover:bg-primary text-on-primary font-small text-small font-medium transition-colors shadow-sm flex items-center justify-center gap-space-xs" type="submit">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Fetch Details &amp; Add</span>
+</button>
+<!-- Helper Note -->
+<div class="flex items-start gap-1.5 text-mist font-label text-[11px] leading-tight">
+<span class="material-symbols-outlined text-[14px] text-slate mt-0.5">verified_user</span>
+<span>Direct integration with NSDL &amp; BSE/NSE depository database for real-time coupon specs.</span>
+</div>
+</form>
+</div>
+<!-- Currently Held Positions Summary Card -->
+<div class="bg-paper-surface rounded-[12px] p-[20px] shadow-sm" style="outline: 1px solid #e3e8ee; box-shadow: 0 1px 2px rgba(22,33,46,0.06);">
+<div class="flex items-center justify-between pb-space-sm border-b border-hairline mb-space-sm">
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink">Currently Held Positions</h2>
+<span class="font-label text-label text-mist">Active portfolio reference</span>
+</div>
+<a class="font-small text-small text-primary hover:underline font-medium inline-flex items-center gap-0.5" href="#">
+<span>Go to Portfolio</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="flex flex-col divide-y divide-hairline">
+<!-- Position 1 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-medium text-ink font-small text-small">Tata Capital Fin</span>
+<span class="font-label text-label text-mist">Coupon: 9.15% • Quarterly</span>
+</div>
+<div class="text-right">
+<span class="font-mono font-medium text-ink font-small text-small">₹ 5,00,000</span>
+<div class="text-[11px] font-mono text-paid-green-fg">Yield: 9.15%</div>
+</div>
+</div>
+<!-- Position 2 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-medium text-ink font-small text-small">L&amp;T Finance Holdings</span>
+<span class="font-label text-label text-mist">Coupon: 8.85% • Annual</span>
+</div>
+<div class="text-right">
+<span class="font-mono font-medium text-ink font-small text-small">₹ 4,00,000</span>
+<div class="text-[11px] font-mono text-paid-green-fg">Yield: 8.85%</div>
+</div>
+</div>
+<!-- Position 3 -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-medium text-ink font-small text-small">Muthoot Finance Ltd</span>
+<span class="font-label text-label text-mist">Coupon: 9.50% • Monthly</span>
+</div>
+<div class="text-right">
+<span class="font-mono font-medium text-ink font-small text-small">₹ 4,00,000</span>
+<div class="text-[11px] font-mono text-paid-green-fg">Yield: 9.50%</div>
+</div>
+</div>
+<!-- Position 4 -->
+<div class="py-2.5 flex items-center justify-between opacity-70">
+<div class="flex flex-col">
+<span class="font-medium text-ink font-small text-small">Shree Cement NCD</span>
+<span class="font-label text-label text-due-red-fg">Redeemed / Matured</span>
+</div>
+<div class="text-right">
+<span class="font-mono text-slate font-small text-small">₹ 3,00,000</span>
+<div class="text-[11px] font-mono text-mist">Settled</div>
+</div>
+</div>
+</div>
+<!-- Total Invested Footnote -->
+<div class="mt-space-sm pt-space-sm border-t border-hairline flex items-center justify-between font-small text-small">
+<span class="text-slate">Total Invested</span>
+<span class="font-mono font-semibold text-ink">₹ 24,50,000 <span class="font-normal text-mist font-label text-label">across 14 bonds</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive filter tabs logic
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Toggle active appearance
+      document.querySelectorAll('.filter-tab').forEach(t => {
+        t.classList.remove('bg-paper-surface', 'text-ink', 'shadow-sm');
+        t.classList.add('text-slate');
+      });
+      this.classList.add('bg-paper-surface', 'text-ink', 'shadow-sm');
+      this.classList.remove('text-slate');
+
+      const filter = this.getAttribute('data-filter');
+      const rows = document.querySelectorAll('.bond-row');
+      const emptyState = document.getElementById('filterEmptyState');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const cat = row.getAttribute('data-category') || '';
+        if (filter === 'all' || cat.includes(filter)) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+      } else {
+        emptyState.classList.add('hidden');
+        emptyState.classList.remove('flex');
+      }
+    });
+  });
+
+  // Simple refresh button micro-spin animation
+  const refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function() {
+      const icon = this.querySelector('.material-symbols-outlined');
+      icon.classList.add('animate-spin');
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+      }, 700);
+    });
+  }
+</script></main></div></body></html>

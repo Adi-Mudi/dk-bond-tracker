@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "ink": "#16212e", "on-secondary-container": "#5f6367", "on-primary-fixed": "#001551", "on-primary": "#ffffff", "info-blue-fg": "#1d4ed8", "background": "#faf8ff", "error": "#ba1a1a", "error-container": "#ffdad6", "on-primary-fixed-variant": "#0039b5", "paid-green-fg": "#166534", "surface-container-highest": "#e2e1ed", "secondary-container": "#dde0e4", "primary-fixed-dim": "#b7c4ff", "surface-tint": "#194fe0", "surface-container-high": "#e7e7f3", "on-surface-variant": "#434655", "surface-container": "#ededf9", "surface-container-lowest": "#ffffff", "outline": "#747687", "hairline": "#e3e8ee", "inverse-surface": "#2e3039", "on-tertiary-container": "#ffdace", "on-error-container": "#93000a", "on-error": "#ffffff", "surface": "#faf8ff", "paper-surface": "#ffffff", "due-red-bg": "#fdeceb", "on-secondary": "#ffffff", "on-secondary-fixed": "#181c1f", "tertiary-container": "#b23d00", "tertiary-fixed-dim": "#ffb59a", "tertiary-fixed": "#ffdbcf", "upcoming-amber-bg": "#fdf3e0", "on-tertiary-fixed-variant": "#802a00", "due-red-fg": "#b42318", "surface-bright": "#faf8ff", "on-primary-container": "#dbe0ff", "secondary-fixed": "#e0e3e7", "mist": "#8592a1", "ledger-canvas": "#f6f7f9", "on-surface": "#191b24", "on-background": "#191b24", "tertiary": "#8a2d00", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#c3c7cb", "paid-green-bg": "#e8f6ee", "on-tertiary-fixed": "#380d00", "surface-dim": "#d9d9e5", "on-secondary-fixed-variant": "#43474b", "surface-container-low": "#f3f2ff", "upcoming-amber-fg": "#92400e", "primary": "#003dc1", "slate": "#55606e", "primary-container": "#2456e6", "primary-fixed": "#dce1ff", "outline-variant": "#c4c5d8", "secondary": "#5b5f62", "inverse-primary": "#b7c4ff", "inverse-on-surface": "#f0f0fc", "surface-variant": "#e2e1ed", "info-blue-bg": "#e8effc" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-lg": "1.5rem", "margin": "1.5rem", "space-sm": "0.5rem", "gutter": "1rem", "space-xl": "2rem", "space-md": "1rem", "space-xs": "0.25rem" }, fontFamily: { "headline-h1": ["Inter, system-ui, sans-serif"], "display": ["Inter, system-ui, sans-serif"], "small": ["Inter, system-ui, sans-serif"], "label": ["Inter, system-ui, sans-serif"], "headline-h2": ["Inter, system-ui, sans-serif"], "body": ["Inter, system-ui, sans-serif"] }, fontSize: { "headline-h1": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "display": ["28px", { "lineHeight": "36px", "fontWeight": "600" }], "small": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "label": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }], "headline-h2": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "body": ["15px", { "lineHeight": "22px", "fontWeight": "400" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-ledger-canvas font-body text-body text-ink min-h-full flex flex-col antialiased"><header class="fixed top-0 inset-x-0 z-50 bg-paper-surface/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-4 flex items-center justify-between"><div class="flex items-center gap-space-xs"><h1 class="text-headline-h2 font-headline-h2 text-ink tracking-tight">Portfolio</h1></div><div class="flex items-center gap-1"><button aria-label="Search bonds" class="w-12 h-12 flex items-center justify-center text-slate hover:text-ink transition-colors rounded-xl" type="button"><span class="material-symbols-outlined text-[22px]">search</span></button><button aria-label="Notifications" class="relative w-12 h-12 flex items-center justify-center text-slate hover:text-ink transition-colors rounded-xl" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-primary-container ring-2 ring-paper-surface"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-1"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-ledger-canvas px-4"><div class="flex flex-col w-full pb-8 space-y-4">
+<!-- Interactive Context Action Bar -->
+<div class="flex items-center justify-between -mx-1 px-1">
+<button aria-label="Go back to portfolio" class="w-12 h-12 flex items-center justify-center text-slate hover:text-ink active:scale-95 transition-transform rounded-xl" type="button">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<div class="flex-1 px-2 min-w-0">
+<span class="font-label text-label text-mist uppercase tracking-wider block">Security Ledger</span>
+<h2 class="font-headline-h2 text-headline-h2 text-ink truncate leading-tight">Tata Capital Financial</h2>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Search within bond" class="w-12 h-12 flex items-center justify-center text-slate hover:text-ink transition-colors rounded-xl" type="button">
+<span class="material-symbols-outlined text-[22px]">search</span>
+</button>
+<button aria-label="Bookmark bond" class="w-12 h-12 flex items-center justify-center text-slate hover:text-primary transition-colors rounded-xl" id="bookmarkBtn" type="button">
+<span class="material-symbols-outlined text-[22px]" id="bookmarkIcon">bookmark</span>
+</button>
+<button aria-label="Share statement" class="w-12 h-12 flex items-center justify-center text-slate hover:text-ink transition-colors rounded-xl" type="button">
+<span class="material-symbols-outlined text-[22px]">share</span>
+</button>
+</div>
+</div>
+<!-- Section 1: Primary Bond Header Card -->
+<section class="bg-paper-surface rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] relative overflow-hidden">
+<!-- Top badge ribbon -->
+<div class="flex flex-wrap items-center gap-2 mb-3">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-ink font-label text-label tracking-wide">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+        AAA CRISIL (Stable)
+      </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label">
+<span class="w-1.5 h-1.5 rounded-full bg-paid-green-fg animate-pulse"></span>
+        On-going
+      </span>
+<span class="ml-auto font-label text-label text-mist uppercase tracking-wider">Series V</span>
+</div>
+<!-- Title and Subtitle -->
+<h1 class="font-headline-h1 text-headline-h1 text-ink tracking-tight mb-1">
+      Tata Capital Financial Services Ltd
+    </h1>
+<p class="font-small text-small text-slate mb-4">
+      Senior Secured Taxable NCD • BSE Scrip: <span class="[font-variant-numeric:tabular-nums] font-medium text-ink">938210</span>
+</p>
+<!-- ISIN Pill Bar -->
+<div class="flex items-center justify-between bg-ledger-canvas rounded-xl p-2.5 pl-3 mb-5">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-slate text-[18px]">fingerprint</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label text-[10px] uppercase text-mist tracking-wider leading-none">ISIN Identifier</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums] tracking-wider truncate">INE306N07MH1</span>
+</div>
+</div>
+<button class="h-12 px-3 flex items-center gap-1.5 text-primary hover:bg-paper-surface rounded-xl font-label text-label transition-colors" id="copyIsinBtn" type="button">
+<span class="material-symbols-outlined text-[18px]" id="copyIsinIcon">content_copy</span>
+<span class="font-medium" id="copyIsinLabel">Copy</span>
+</button>
+</div>
+<!-- Quick Financial Highlights 2x2 Ledger Box -->
+<div class="grid grid-cols-2 gap-3 pt-3">
+<div class="bg-surface-container-low p-3 rounded-xl flex flex-col justify-between">
+<span class="font-label text-label uppercase text-mist tracking-wider">Total Invested</span>
+<div class="mt-1">
+<div class="font-display text-display text-ink [font-variant-numeric:tabular-nums] leading-tight">₹ 5,00,000</div>
+<div class="font-small text-small text-slate mt-0.5">500 units @ ₹ 1,000</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl flex flex-col justify-between">
+<span class="font-label text-label uppercase text-mist tracking-wider">Coupon Yield</span>
+<div class="mt-1">
+<div class="font-display text-display text-primary [font-variant-numeric:tabular-nums] leading-tight">9.15%</div>
+<div class="font-small text-small text-slate mt-0.5">Annual Payout</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl flex flex-col justify-between">
+<span class="font-label text-label uppercase text-mist tracking-wider">Total Received</span>
+<div class="mt-1">
+<div class="font-headline-h2 text-headline-h2 text-paid-green-fg [font-variant-numeric:tabular-nums] leading-tight">₹ 1,42,500</div>
+<div class="font-small text-small text-slate mt-0.5">3 cycles cleared</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl flex flex-col justify-between">
+<span class="font-label text-label uppercase text-mist tracking-wider">Next Payout</span>
+<div class="mt-1">
+<div class="font-headline-h2 text-headline-h2 text-ink [font-variant-numeric:tabular-nums] leading-tight">₹ 45,750</div>
+<div class="font-small text-small text-upcoming-amber-fg font-medium mt-0.5">18 Jan 2027</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Tenure Progress Card -->
+<section class="bg-paper-surface rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">timelapse</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Tenure Progress</h3>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-info-blue-bg text-info-blue-fg font-label text-label font-semibold [font-variant-numeric:tabular-nums]">
+        40% elapsed
+      </span>
+</div>
+<!-- Visual Progress Meter -->
+<div class="space-y-2">
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all duration-700 ease-out" style="width: 40%"></div>
+</div>
+<div class="flex justify-between items-center font-small text-small text-slate [font-variant-numeric:tabular-nums]">
+<span class="font-medium text-ink flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+          24 Months Completed
+        </span>
+<span class="text-mist">36 Months Remaining</span>
+</div>
+</div>
+<!-- Timeline Endpoints -->
+<div class="flex items-center justify-between pt-1">
+<div class="text-left">
+<span class="font-label text-label text-mist uppercase tracking-wide block">Allotment</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums]">18 Jan 2024</span>
+</div>
+<div class="flex items-center px-3 text-mist">
+<span class="material-symbols-outlined text-[18px]">trending_flat</span>
+</div>
+<div class="text-right">
+<span class="font-label text-label text-mist uppercase tracking-wide block">Maturity (5.0Y)</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums]">18 Jan 2029</span>
+</div>
+</div>
+<!-- Lifetime Yield Breakdown Block -->
+<div class="bg-surface-container-low rounded-xl p-3.5 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-small text-small text-slate">Expected Total Inflows</span>
+<span class="font-body text-body font-bold text-ink [font-variant-numeric:tabular-nums]">₹ 7,28,750</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="bg-ink h-full" style="width: 68.6%"></div>
+<div class="bg-primary h-full" style="width: 31.4%"></div>
+</div>
+<div class="flex items-center justify-between font-label text-label text-mist [font-variant-numeric:tabular-nums]">
+<span>Principal: <strong class="text-ink font-semibold">₹ 5,00,000</strong></span>
+<span>Coupon Total: <strong class="text-primary font-semibold">₹ 2,28,750</strong></span>
+</div>
+</div>
+<!-- Security & Trustee Assurance Badge -->
+<div class="flex items-start gap-3 p-3 bg-paid-green-bg/60 rounded-xl">
+<span class="material-symbols-outlined text-paid-green-fg text-[20px] mt-0.5">shield</span>
+<div class="min-w-0">
+<span class="font-body text-body font-semibold text-paid-green-fg block leading-tight">1.10x Asset Cover Guarantee</span>
+<span class="font-small text-small text-slate mt-0.5 block">
+          Confirmed by Debenture Trustee: Catalyst Trusteeship Ltd. First charge on current receivables.
+        </span>
+</div>
+</div>
+</section>
+<!-- Section 2: Bond Master Facts (10 Point Precise Specification) -->
+<section class="bg-paper-surface rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] space-y-3">
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate text-[20px]">fact_check</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Bond Master Facts</h3>
+</div>
+<span class="font-label text-label px-2 py-0.5 bg-surface-container rounded text-slate">10 Items</span>
+</div>
+<div class="divide-y-0 space-y-2.5">
+<!-- Row 1 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Face Value (Par)</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums] text-right">₹ 1,000 / unit</span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 2 -->
+<div class="flex items-start justify-between py-1 min-h-[40px] gap-2">
+<span class="font-body text-body text-slate flex-shrink-0">Issue Type &amp; Lien</span>
+<span class="font-body text-body font-semibold text-ink text-right">Senior Secured NCD <span class="font-normal text-slate text-small block">(1st Pari-Passu Charge)</span></span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 3 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Coupon Rate</span>
+<span class="font-body text-body font-semibold text-primary [font-variant-numeric:tabular-nums] text-right">9.15% per annum</span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 4 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Payout Frequency</span>
+<span class="font-body text-body font-semibold text-ink text-right">Annual <span class="font-normal text-slate [font-variant-numeric:tabular-nums]">(18th Jan)</span></span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 5 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Total Invested</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums] text-right">₹ 5,00,000 (500 Units)</span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 6 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Allotment Date</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums] text-right">18 Jan 2024</span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 7 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Maturity Date</span>
+<span class="font-body text-body font-semibold text-ink [font-variant-numeric:tabular-nums] text-right">18 Jan 2029 (5.0 Yrs)</span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 8 -->
+<div class="flex items-start justify-between py-1 min-h-[40px] gap-2">
+<span class="font-body text-body text-slate flex-shrink-0">Credit Day / Offset</span>
+<span class="font-body text-body font-semibold text-ink text-right">18th of January <span class="font-normal text-slate text-small block">(Record Date: 15 Days Prior)</span></span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 9 -->
+<div class="flex items-center justify-between py-1 min-h-[40px]">
+<span class="font-body text-body text-slate">Listing &amp; Depository</span>
+<span class="font-body text-body font-semibold text-ink text-right">NSE / BSE • NSDL Demat</span>
+</div>
+<div class="h-px bg-surface-container-high w-full"></div>
+<!-- Row 10 -->
+<div class="flex items-start justify-between py-1 min-h-[40px] gap-2">
+<span class="font-body text-body text-slate flex-shrink-0">Settlement Mandate</span>
+<span class="font-body text-body font-semibold text-ink text-right [font-variant-numeric:tabular-nums]">HDFC Bank •••• 8821 <span class="font-normal text-paid-green-fg text-small block flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span>Direct NACH Active</span></span>
+</div>
+</div>
+</section>
+<!-- Section 4: Payment History & Upcoming Cycles -->
+<section class="space-y-3 pt-2">
+<!-- Header with 48px Action -->
+<div class="flex items-center justify-between px-1">
+<div>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Payment Cycles</h3>
+<p class="font-small text-small text-slate">Verified direct ECS credit receipts</p>
+</div>
+<button class="h-12 px-3.5 bg-primary hover:bg-primary-container text-on-primary font-body font-medium rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Record Coupon</span>
+</button>
+</div>
+<!-- Cycle 1: Upcoming Card (Jan 2027) -->
+<div class="bg-paper-surface rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] space-y-3">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-body text-body font-bold text-ink [font-variant-numeric:tabular-nums]">18 Jan 2027</span>
+<span class="font-label text-label text-slate">• Cycle #4</span>
+</div>
+<span class="font-small text-small text-slate">Annual Coupon Scheduled</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-label font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+          Upcoming • Due in ~330d
+        </span>
+</div>
+<!-- Financial Breakdown strip -->
+<div class="bg-surface-container-low rounded-xl p-3 grid grid-cols-3 gap-2 [font-variant-numeric:tabular-nums]">
+<div>
+<span class="font-label text-label text-mist uppercase block">Gross Coupon</span>
+<span class="font-body text-body font-semibold text-ink">₹ 45,750</span>
+</div>
+<div>
+<span class="font-label text-label text-mist uppercase block">TDS (10%)</span>
+<span class="font-body text-body font-semibold text-due-red-fg">-₹ 4,575</span>
+</div>
+<div class="text-right">
+<span class="font-label text-label text-mist uppercase block">Net Payout</span>
+<span class="font-body text-body font-bold text-primary">₹ 41,175</span>
+</div>
+</div>
+<!-- 48px Action Button -->
+<div class="pt-1">
+<button class="w-full h-12 rounded-xl bg-surface-container-high hover:bg-surface-container text-ink font-body font-semibold flex items-center justify-center gap-2 transition-colors" type="button">
+<span class="material-symbols-outlined text-primary text-[20px]">edit_calendar</span>
+<span>Update / Record Early Credit</span>
+</button>
+</div>
+</div>
+<!-- Cycle 2: Paid Card (Jan 2026) -->
+<div class="bg-paper-surface rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] space-y-3">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-body text-body font-bold text-ink [font-variant-numeric:tabular-nums]">18 Jan 2026</span>
+<span class="font-label text-label text-slate">• Cycle #3</span>
+</div>
+<span class="font-small text-small text-slate [font-variant-numeric:tabular-nums]">Ref: UTR CMS891204821</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+          Paid • 18 Jan 2026
+        </span>
+</div>
+<!-- Financial Breakdown strip -->
+<div class="bg-surface-container-low rounded-xl p-3 grid grid-cols-3 gap-2 [font-variant-numeric:tabular-nums]">
+<div>
+<span class="font-label text-label text-mist uppercase block">Gross</span>
+<span class="font-body text-body font-medium text-slate">₹ 45,750</span>
+</div>
+<div>
+<span class="font-label text-label text-mist uppercase block">TDS (10%)</span>
+<span class="font-body text-body font-medium text-slate">-₹ 4,575</span>
+</div>
+<div class="text-right">
+<span class="font-label text-label text-mist uppercase block">Net Credited</span>
+<span class="font-body text-body font-bold text-paid-green-fg">₹ 41,175</span>
+</div>
+</div>
+<!-- Action bar with 48px touch targets -->
+<div class="flex items-center justify-between pt-1">
+<span class="font-small text-small text-slate flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-paid-green-fg">account_balance</span>
+          HDFC •••• 8821
+        </span>
+<button class="h-12 px-3 text-slate hover:text-ink font-body font-medium flex items-center gap-1.5 rounded-xl hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span>Edit / Receipt</span>
+</button>
+</div>
+</div>
+<!-- Cycle 3: Paid Card (Jan 2025) -->
+<div class="bg-paper-surface rounded-xl p-4 sm:p-5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] space-y-3">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-body text-body font-bold text-ink [font-variant-numeric:tabular-nums]">18 Jan 2025</span>
+<span class="font-label text-label text-slate">• Cycle #2</span>
+</div>
+<span class="font-small text-small text-slate [font-variant-numeric:tabular-nums]">Ref: UTR CMS302199201</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label font-medium whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+          Paid • 18 Jan 2025
+        </span>
+</div>
+<!-- Financial Breakdown strip -->
+<div class="bg-surface-container-low rounded-xl p-3 grid grid-cols-3 gap-2 [font-variant-numeric:tabular-nums]">
+<div>
+<span class="font-label text-label text-mist uppercase block">Gross</span>
+<span class="font-body text-body font-medium text-slate">₹ 45,750</span>
+</div>
+<div>
+<span class="font-label text-label text-mist uppercase block">TDS (10%)</span>
+<span class="font-body text-body font-medium text-slate">-₹ 4,575</span>
+</div>
+<div class="text-right">
+<span class="font-label text-label text-mist uppercase block">Net Credited</span>
+<span class="font-body text-body font-bold text-paid-green-fg">₹ 41,175</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-small text-small text-slate flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-paid-green-fg">account_balance</span>
+          HDFC •••• 8821
+        </span>
+<button class="h-12 px-3 text-slate hover:text-ink font-body font-medium flex items-center gap-1.5 rounded-xl hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span>Edit / Receipt</span>
+</button>
+</div>
+</div>
+<!-- Cycle 4: Initial Allotment Card (Jan 2024) -->
+<div class="bg-surface-container rounded-xl p-4 sm:p-5 space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">assignment_turned_in</span>
+<div>
+<h4 class="font-body text-body font-bold text-ink">Primary Allotment Settled</h4>
+<span class="font-small text-small text-slate [font-variant-numeric:tabular-nums]">18 Jan 2024 • Issue Allotment</span>
+</div>
+</div>
+<span class="font-headline-h2 text-headline-h2 font-semibold text-ink [font-variant-numeric:tabular-nums]">₹ 5,00,000</span>
+</div>
+<p class="font-small text-small text-slate pl-7">
+        NSDL Demat Direct Credit • Allotted 500 NCD units @ ₹ 1,000 par face value.
+      </p>
+</div>
+</section>
+<!-- Interactive Client-side Script -->
+<script>
+    (function () {
+      const copyBtn = document.getElementById('copyIsinBtn');
+      const copyLabel = document.getElementById('copyIsinLabel');
+      const copyIcon = document.getElementById('copyIsinIcon');
+      const isinText = 'INE306N07MH1';
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(isinText).then(indicateSuccess).catch(indicateSuccess);
+          } else {
+            indicateSuccess();
+          }
+        });
+      }
+
+      function indicateSuccess() {
+        if (!copyLabel || !copyIcon) return;
+        copyLabel.textContent = 'Copied!';
+        copyIcon.textContent = 'check';
+        copyBtn.classList.add('text-paid-green-fg');
+        setTimeout(function () {
+          copyLabel.textContent = 'Copy';
+          copyIcon.textContent = 'content_copy';
+          copyBtn.classList.remove('text-paid-green-fg');
+        }, 2000);
+      }
+
+      const bookmarkBtn = document.getElementById('bookmarkBtn');
+      const bookmarkIcon = document.getElementById('bookmarkIcon');
+      let bookmarked = false;
+
+      if (bookmarkBtn && bookmarkIcon) {
+        bookmarkBtn.addEventListener('click', function () {
+          bookmarked = !bookmarked;
+          if (bookmarked) {
+            bookmarkIcon.style.fontVariationSettings = "'FILL' 1";
+            bookmarkBtn.classList.add('text-primary');
+          } else {
+            bookmarkIcon.style.fontVariationSettings = "'FILL' 0";
+            bookmarkBtn.classList.remove('text-primary');
+          }
+        });
+      }
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-paper-surface/95 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary-container font-semibold"><div class="h-16 px-2 flex items-center justify-around"><a class="flex-1 h-12 flex flex-col items-center justify-center gap-0.5 text-slate hover:text-ink transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label text-label">Dashboard</span></a><a class="flex-1 h-12 flex flex-col items-center justify-center gap-0.5 text-slate hover:text-ink transition-colors" data-path="portfolio" href="#"><span class="material-symbols-outlined text-[22px]">account_balance_wallet</span><span class="font-label text-label">Portfolio</span></a><a class="flex-1 h-12 flex flex-col items-center justify-center gap-0.5 text-slate hover:text-ink transition-colors" data-path="watchlist" href="#"><span class="material-symbols-outlined text-[22px]">visibility</span><span class="font-label text-label">Watchlist</span></a><a class="flex-1 h-12 flex flex-col items-center justify-center gap-0.5 text-slate hover:text-ink transition-colors" data-path="goals" href="#"><span class="material-symbols-outlined text-[22px]">flag</span><span class="font-label text-label">Goals</span></a><a class="flex-1 h-12 flex flex-col items-center justify-center gap-0.5 text-slate hover:text-ink transition-colors" data-path="more" href="#"><span class="material-symbols-outlined text-[22px]">more_horiz</span><span class="font-label text-label">More</span></a></div></nav></body></html>

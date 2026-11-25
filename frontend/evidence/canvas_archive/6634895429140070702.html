@@ -1,0 +1,85 @@
+# Design System: DK Bond Tracker (Frontend Redesign, Track A)
+
+Status: redesign specification (v1.0, 2026-11-23). Extracted from the current UI (`src/static/theme.css`, `base.html`, evidence/current captures) and re-authored as one coherent system for web + Android. This document governs all redesigned screen generation. Functionality is unchanged; only the design system, components, and navigation are redesigned.
+
+## 1. Visual Theme & Atmosphere
+
+Calm personal finance ledger: a quiet paper-like canvas, crisp white cards with hairline borders, one confident blue accent for money-in actions. Information density is kept but never cramped: an 8px spatial grid, generous card padding, tabular numerals for every rupee amount. Exactly ONE theme ships — a single tuned light palette used by every screen on both platforms; no dark variant exists. No decorative gradients, no glassmorphism, no floating pills — a trustworthy ledger.
+
+## 2. Color Palette & Roles
+
+### Primary foundation
+- **Ledger Canvas (`#f6f7f9`)**: app background; never used for content.
+- **Paper Surface (`#ffffff`)**: all cards, sheets, tables, nav bars.
+- **Surface Alt (`#eef1f5`)**: hover tints, insets, table header band, secondary buttons.
+- **Hairline (`#e3e8ee`)**: 1px card/table/divider borders with structural purpose.
+
+### Accent & interactive
+- **Bond Blue (`#2456e6`)**: primary buttons, active nav item, focus ring, links, selected filters. Hover `#1c46c2`. On-accent text `#ffffff`.
+- **Focus Ring (`#2456e6`, 2px, 2px offset)**: visible keyboard/touch focus on every interactive element.
+
+### Typography & text hierarchy
+- **Ink (`#16212e`)**: primary text.
+- **Slate (`#55606e`)**: secondary text, table metadata.
+- **Mist (`#8592a1`)**: captions, timestamps, hints (still >=4.5:1 on Paper Surface).
+
+### Functional status (fg/bg pairs, never color-only — always paired with a text label)
+- **Paid Green (`#166534` on `#e8f6ee`)**: payment received, goal on track.
+- **Due Red (`#b42318` on `#fdeceb`)**: missed/overdue payment, invalid ISIN, destructive.
+- **Upcoming Amber (`#92400e` on `#fdf3e0`)**: due this month, warnings, cached data.
+- **Info Blue (`#1d4ed8` on `#e8effc`)**: reminders, watching state.
+- **Matured Neutral (Slate on Surface Alt)**: completed/matured, disabled.
+
+## 3. Typography Rules
+
+- **Inter** (system-ui fallback stack): every text. Tabular numerals (`font-variant-numeric: tabular-nums`) on all money and ISIN strings.
+- Scale:
+  - **Display 28/36 semibold**: dashboard headline figures (total invested).
+  - **H1 22/30 semibold**: page titles.
+  - **H2 16/24 semibold**: section/card titles.
+  - **Body 15/22 regular**: primary content, table cells.
+  - **Small 13/18 regular**: captions, helper text.
+  - **Label 12/16 medium, +0.03em, uppercase**: card labels, table column headers, chips.
+- Weights: 400 / 500 / 600 only. Line height >=1.45 for body.
+
+## 4. Component Stylings
+
+- **Buttons** (one family only): min-height 48px, radius 10px, padding 12px 20px, label 15 medium.
+  - Primary: Bond Blue fill, white label. Secondary: Surface Alt fill, Ink label. Outline: 1px Hairline + Ink label. Destructive: Due Red outline; filled variant for confirm steps. Text: Bond Blue label, no border.
+- **Cards**: Paper Surface, 1px Hairline, radius 12px, padding 20px, shadow `0 1px 2px rgba(22,33,46,0.06)`.
+- **Stat cards**: Label 12 uppercase Mist, value 28/36 semibold tabular, sub-line 13 Slate.
+- **Data table**: sticky header row on Surface Alt, 48px rows, hairline row separators, first column = human-readable company name + ISIN subline, numeric columns right-aligned tabular, row actions as 48px icon buttons right-aligned, zebra-free with hover tint `#f0f4f8`. Below 640px the table becomes a stacked card list — no horizontal scrolling at any breakpoint.
+- **Status chips**: pill radius 999, fg/bg pairs from section 2, icon + text label, visual height 24px, interactive chips stretched to 48px tap target.
+- **Inputs & selects**: 52px height, 1px Hairline border, radius 10px, 16px text (no mobile zoom), label above field, error text 13 Due Red below field with icon; focus switches border to Bond Blue + focus ring.
+- **Dialogs & sheets**: centered card radius 16px, `rgba(10,15,22,0.45)` scrim, 24px padding, primary action right. Bottom sheet variant on mobile. Destructive dialogs restate the consequence in plain language.
+- **Empty states**: centered icon, one-line plain-language message, one primary action.
+- **Tooltips/guide**: 13/18 on Ink surface `#16212e`, white text, radius 8px.
+
+## 5. Layout Principles
+
+- **Grid**: 4px base / 8px rhythm. Page padding 16px (mobile) / 24px (>=768). Card gap 16px. Section spacing 24px.
+- **Breakpoints**: fluid 360 / 768 / 1280 / 1920. Content max-width 1200px centered at 1920. Stat grid: 1 column at 360, 2 at 768, 3 at 1280. Detail pages: two-column (facts + actions) at >=1024, stacked below.
+- **Touch/accessibility**: all targets >=48x48px, gaps >=8px, visible focus on all interactives, status never color-only, body text >=4.5:1 contrast, no horizontal scroll at 360.
+- **Density**: ledger-dense tables stay on desktop; mobile gets summary-first cards with progressive disclosure (details on tap).
+
+## 6. Navigation Model (RD-10)
+
+One coherent model on both platforms:
+- **Five primary destinations**: Dashboard (`/`), Portfolio (`/portfolio`), Watchlist (`/watch`), Goals (`/goals`), More.
+- **Compact (<768px)**: fixed bottom tab bar with the 5 destinations (48px targets, active = Bond Blue icon + label). "More" opens a bottom sheet listing secondary destinations: Alerts, Settings, About, Feedback.
+- **Regular (>=768px)**: persistent left sidebar rail (240px) with the same 5 primary + a Secondary group (Alerts, Settings, About, Feedback). Collapsible to icons. No horizontally scrolling link strip on mobile — the sidebar drawer is removed from <768 entirely.
+- **Topbar**: page title left; right actions: search (opens overlay + full `/search` page), alerts bell with dropdown, help. Privacy toggle ("Hide amounts") stays in the topbar overflow sheet as a shortcut and in Settings > Privacy; there is no theme switcher (single theme).
+- Global overlays (guide, why-bonds, confirm, update popup, consent popup) keep one shared dialog pattern.
+
+## 7. Platform Notes (web + Android)
+
+- The Android app is a WebView shell over this same responsive UI: one design serves both; no separate Android-only components.
+- Respect `env(safe-area-inset-*)` for bottom tabs under gesture bars; keep 48px targets; visible pressed states (5% Ink tint) for touch.
+- Android back button closes top overlay first (existing behavior preserved).
+- The A4 monthly print statement keeps its dedicated print token set (ink-on-white, no shadows) — redesigned to the same status palette but print-optimized.
+
+## 8. Stitch Generation Notes
+
+- **Atmosphere keywords**: calm ledger, paper surfaces, hairline borders, single blue accent, tabular numerals, 8px grid, one tuned light theme only (no dark variant, no theme switcher).
+- **Component prompts**: 48px Bond Blue primary buttons with 10px radius; white cards radius 12 with 1px `#e3e8ee` hairline and 20px padding; sticky-header tables with 48px rows and right-aligned tabular numerals; pill status chips pairing icon + text (`Paid` green `#166534/#e8f6ee`, `Due` red `#b42318/#fdeceb`, `Watching` blue `#1d4ed8/#e8effc`); 52px inputs with floating-free labels above; bottom tab bar with 5 labeled destinations on mobile.
+- **Per-screen content**: see `evidence/screen_inventory.md` for the screen list; every redesigned screen keeps the same fields and actions as the existing screen (zero functionality change).

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>portfolio_layout_detail_web</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#0D1520',
+            panel: '#16212E',
+            panelAlt: '#1B2636',
+            hairline: '#2A3A4C',
+            accent: '#2456E6',
+            accentGlow: 'rgba(36, 86, 230, 0.15)',
+            textMain: '#E8EEF5',
+            muted: '#7A8A99',
+            dangerRed: '#FF8A80',
+            dangerBg: 'rgba(255, 138, 128, 0.10)',
+            successGreen: '#6FCF97',
+            successBg: 'rgba(111, 207, 151, 0.10)',
+            warningAmber: '#F2C94C',
+            warningBg: 'rgba(242, 201, 76, 0.10)',
+            blueprintCyan: '#38BDF8',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .tabular { font-variant-numeric: tabular-nums; }
+    .grid-spec-bg {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(42, 58, 76, 0.35) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(42, 58, 76, 0.35) 1px, transparent 1px);
+    }
+    .dim-line-h {
+      position: relative;
+    }
+    .dim-line-h::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #7A8A99;
+      opacity: 0.6;
+    }
+    .dim-line-v {
+      position: relative;
+    }
+    .dim-line-v::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #7A8A99;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-textMain font-sans antialiased min-h-screen p-6 lg:p-8 grid-spec-bg selection:bg-accent selection:text-white">
+
+  <!-- MASTER SPEC HEADER -->
+  <header class="max-w-[1560px] mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between pb-5 border-b border-hairline gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-lg bg-panel border border-hairline flex items-center justify-center text-accent shadow-inner">
+        <span class="material-symbols-outlined text-2xl">architecture</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded bg-accent/15 text-blueprintCyan font-semibold border border-blueprintCyan/30">Layout Blueprint • v2.6 Spec</span>
+          <span class="text-xs text-muted font-mono">RD-PORTFOLIO-DESKTOP</span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-textMain mt-1 flex items-center gap-3">
+          Portfolio Page Layout Spec (WEB)
+          <span class="text-xs font-mono font-normal text-muted bg-panel border border-hairline px-2.5 py-1 rounded">1280px+ Viewport Master</span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- SPEC METADATA TAGS -->
+    <div class="flex flex-wrap items-center gap-3 font-mono text-xs">
+      <div class="px-3 py-1.5 rounded-md bg-panel border border-hairline flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-successGreen"></span>
+        <span class="text-muted">CANVAS:</span>
+        <span class="text-textMain font-semibold">#0D1520</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-md bg-panel border border-hairline flex items-center gap-2">
+        <span class="text-muted">PANEL:</span>
+        <span class="text-textMain font-semibold">#16212E</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-md bg-panel border border-hairline flex items-center gap-2">
+        <span class="text-muted">BORDER:</span>
+        <span class="text-textMain font-semibold">#2A3A4C (1px)</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-md bg-accent/20 border border-accent/40 flex items-center gap-2 text-blueprintCyan">
+        <span class="material-symbols-outlined text-sm">straighten</span>
+        <span>8 Zones Annotated</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN BLUEPRINT CANVAS WRAPPER -->
+  <main class="max-w-[1560px] mx-auto space-y-6">
+
+    <!-- OVERVIEW ANNOTATION BANNER -->
+    <div class="bg-panel/70 border border-hairline rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between text-xs text-muted gap-4">
+      <div class="flex items-center gap-3">
+        <span class="w-6 h-6 rounded-full bg-blueprintCyan/20 text-blueprintCyan font-mono font-bold flex items-center justify-center text-[11px] border border-blueprintCyan/40">i</span>
+        <p><strong class="text-textMain">High-Fidelity Wireframe Inspection:</strong> The interface below is drawn at precise wireframe proportions with layout bounding boxes, dimension callout brackets, and numbered zone badges.</p>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-mono shrink-0">
+        <span class="flex items-center gap-1.5 text-textMain"><span class="w-2.5 h-2.5 rounded bg-accent"></span> Interactive Target</span>
+        <span class="flex items-center gap-1.5 text-textMain"><span class="w-2.5 h-2.5 rounded bg-dangerRed/40 border border-dangerRed"></span> Danger Status</span>
+        <span class="flex items-center gap-1.5 text-textMain"><span class="w-2.5 h-2.5 rounded bg-warningAmber/40 border border-warningAmber"></span> Matured Tier</span>
+      </div>
+    </div>
+
+    <!-- THE WIREFRAME SIMULATION CONTAINER -->
+    <div class="relative bg-canvas border-2 border-hairline rounded-2xl shadow-2xl overflow-hidden p-6 pt-10">
+
+      <!-- Viewport Label Bar -->
+      <div class="absolute top-2 left-6 right-6 flex items-center justify-between text-[11px] font-mono text-muted border-b border-hairline/60 pb-1.5">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-dangerRed/80 inline-block"></span>
+          <span class="w-2 h-2 rounded-full bg-warningAmber/80 inline-block"></span>
+          <span class="w-2 h-2 rounded-full bg-successGreen/80 inline-block"></span>
+          <span class="ml-2 text-textMain font-medium">Desktop Web Frame Wireframe (1440 × 920px Canvas)</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span>Scale: 100% Normalized</span>
+          <span class="text-blueprintCyan">GRID: 8px Rhythm</span>
+        </div>
+      </div>
+
+      <!-- MAIN LAYOUT ASSEMBLE -->
+      <div class="flex gap-5 mt-2">
+
+        <!-- ============================================== -->
+        <!-- ZONE 1: LEFT SIDEBAR 240px                      -->
+        <!-- ============================================== -->
+        <div class="relative w-[240px] shrink-0 flex flex-col bg-panel border-2 border-blueprintCyan/50 rounded-xl p-3 shadow-lg group">
+          
+          <!-- Badge 1 -->
+          <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+            <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">1</span>
+          </div>
+
+          <!-- Dimension Callout Top -->
+          <div class="mb-3 px-2 py-1 bg-canvas border border-blueprintCyan/40 rounded flex items-center justify-between text-[11px] font-mono text-blueprintCyan">
+            <span>WIDTH</span>
+            <span class="font-bold">240px (FIXED)</span>
+          </div>
+
+          <!-- App Brand -->
+          <div class="flex items-center gap-2.5 px-2 py-2.5 mb-4 border-b border-hairline">
+            <div class="w-7 h-7 rounded-md bg-accent flex items-center justify-center text-white font-bold text-xs font-mono">DK</div>
+            <div>
+              <div class="text-xs font-semibold text-textMain leading-tight">DK Bond Tracker</div>
+              <div class="text-[10px] text-muted font-mono">INSTITUTIONAL DESK</div>
+            </div>
+          </div>
+
+          <!-- Nav Items Group: Main Ledger -->
+          <div class="text-[10px] font-mono font-semibold text-muted uppercase tracking-wider px-2 mb-1.5">Main Ledger</div>
+          <div class="space-y-1 mb-5">
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted hover:text-textMain border border-transparent">
+              <span class="material-symbols-outlined text-base">dashboard</span>
+              <span>Dashboard</span>
+            </div>
+            <!-- Active Item: Portfolio -->
+            <div class="flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold bg-accent text-white shadow-sm ring-1 ring-accent">
+              <div class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-base">account_balance_wallet</span>
+                <span>Portfolio</span>
+              </div>
+              <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            </div>
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted hover:text-textMain border border-transparent">
+              <span class="material-symbols-outlined text-base">visibility</span>
+              <span>Watchlist</span>
+            </div>
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted hover:text-textMain border border-transparent">
+              <span class="material-symbols-outlined text-base">flag</span>
+              <span>Goals</span>
+            </div>
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted hover:text-textMain border border-transparent">
+              <span class="material-symbols-outlined text-base">calendar_month</span>
+              <span>Cashflow Calendar</span>
+            </div>
+          </div>
+
+          <!-- Nav Items Group: System & Desk -->
+          <div class="text-[10px] font-mono font-semibold text-muted uppercase tracking-wider px-2 mb-1.5">System & Desk</div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between px-2.5 py-2 rounded-lg text-xs text-muted">
+              <div class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-base">notifications</span>
+                <span>Alerts</span>
+              </div>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-dangerRed/20 text-dangerRed font-bold border border-dangerRed/30">2</span>
+            </div>
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted">
+              <span class="material-symbols-outlined text-base">settings</span>
+              <span>Settings</span>
+            </div>
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted">
+              <span class="material-symbols-outlined text-base">info</span>
+              <span>About</span>
+            </div>
+            <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs text-muted">
+              <span class="material-symbols-outlined text-base">chat_bubble</span>
+              <span>Feedback</span>
+            </div>
+          </div>
+
+          <!-- Sidebar Footer User Tile -->
+          <div class="mt-auto pt-3 border-t border-hairline">
+            <div class="flex items-center gap-2.5 p-2 rounded-lg bg-canvas/80 border border-hairline">
+              <div class="w-7 h-7 rounded-full bg-panelAlt border border-hairline flex items-center justify-center font-mono text-[10px] text-accent font-bold">DK</div>
+              <div class="overflow-hidden">
+                <div class="text-[11px] font-medium text-textMain truncate">DK Yield Account</div>
+                <div class="text-[9px] text-muted font-mono truncate">Fixed Income Desk</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotation Tag -->
+          <div class="mt-2 text-center text-[10px] font-mono text-blueprintCyan/80 bg-blueprintCyan/10 py-1 rounded border border-blueprintCyan/20">
+            NAV RAIL (PERSISTENT 240px)
+          </div>
+        </div>
+
+        <!-- RIGHT AREA: TOP BAR + MAIN CONTENT -->
+        <div class="flex-1 flex flex-col min-w-0 space-y-4">
+
+          <!-- ============================================== -->
+          <!-- ZONE 2: TOP BAR 64px                            -->
+          <!-- ============================================== -->
+          <div class="relative bg-panel border-2 border-blueprintCyan/50 rounded-xl px-4 py-2 flex items-center justify-between min-h-[64px] shadow-md">
+            
+            <!-- Badge 2 -->
+            <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">2</span>
+            </div>
+
+            <!-- Height annotation tag -->
+            <div class="absolute -right-3 -top-3 px-2 py-0.5 rounded bg-canvas border border-blueprintCyan/50 text-[10px] font-mono text-blueprintCyan">
+              H: 64px
+            </div>
+
+            <!-- DYNAMIC ZONE: Left ~60% -->
+            <div class="flex items-center gap-3 w-[60%] border-r border-dashed border-blueprintCyan/40 pr-4 relative">
+              <span class="absolute -bottom-2.5 left-2 px-1.5 py-0.2 bg-canvas text-[9px] font-mono text-blueprintCyan border border-blueprintCyan/30 rounded">
+                DYNAMIC ZONE (60%)
+              </span>
+              <!-- Security Badge Pill -->
+              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-panelAlt border border-hairline text-successGreen text-xs font-mono font-medium">
+                <span class="material-symbols-outlined text-sm">lock</span>
+                <span class="text-[11px] font-bold">VERIFIED BOND YIELDS</span>
+              </div>
+              <span class="text-hairline font-mono">•</span>
+              <!-- Route Title -->
+              <div class="flex items-center gap-2">
+                <span class="text-base font-bold tracking-tight text-textMain">Portfolio</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-canvas border border-hairline text-muted">ROUTE: /portfolio</span>
+              </div>
+            </div>
+
+            <!-- STATIC ZONE: Right ~40% -->
+            <div class="flex items-center justify-end gap-2.5 w-[40%] pl-4 relative">
+              <span class="absolute -bottom-2.5 right-2 px-1.5 py-0.2 bg-canvas text-[9px] font-mono text-blueprintCyan border border-blueprintCyan/30 rounded">
+                STATIC ZONE (40%)
+              </span>
+              <!-- Blue + Add Button (40px) -->
+              <button class="w-10 h-10 rounded-lg bg-accent text-white flex items-center justify-center shadow hover:bg-accent/90 transition-colors" title="Add Bond (40px)">
+                <span class="material-symbols-outlined text-xl">add</span>
+              </button>
+              <!-- Search Icon Button (40px) -->
+              <button class="w-10 h-10 rounded-lg bg-panelAlt border border-hairline text-muted hover:text-textMain flex items-center justify-center" title="Search (40px)">
+                <span class="material-symbols-outlined text-lg">search</span>
+              </button>
+              <!-- Bell Icon Button (40px) with badge -->
+              <button class="relative w-10 h-10 rounded-lg bg-panelAlt border border-hairline text-muted hover:text-textMain flex items-center justify-center" title="Alerts (40px)">
+                <span class="material-symbols-outlined text-lg">notifications</span>
+                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-dangerRed"></span>
+              </button>
+              <!-- Help Icon Button (40px) -->
+              <button class="w-10 h-10 rounded-lg bg-panelAlt border border-hairline text-muted hover:text-textMain flex items-center justify-center" title="Help (40px)">
+                <span class="material-symbols-outlined text-lg">help</span>
+              </button>
+              <!-- User Avatar (40px) -->
+              <div class="w-10 h-10 rounded-full bg-accent/20 border-2 border-accent text-accent font-bold font-mono text-xs flex items-center justify-center" title="Avatar (40px)">
+                DK
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- ZONE 3: CONTENT BREADCRUMB + FEED ROW (32px)   -->
+          <!-- ============================================== -->
+          <div class="relative bg-panel/60 border-2 border-blueprintCyan/50 rounded-xl px-4 py-2 flex items-center justify-between min-h-[32px] text-xs">
+            
+            <!-- Badge 3 -->
+            <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">3</span>
+            </div>
+
+            <!-- Breadcrumbs -->
+            <div class="flex items-center gap-2 text-muted font-mono text-[11px]">
+              <span class="hover:text-textMain cursor-pointer">DK Sovereign</span>
+              <span class="text-hairline">/</span>
+              <span class="hover:text-textMain cursor-pointer">Portfolio</span>
+              <span class="text-hairline">/</span>
+              <span class="text-textMain font-semibold">Holdings and Payouts</span>
+            </div>
+
+            <!-- Feed badge right -->
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono text-muted">FEED INTEGRATION:</span>
+              <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-successBg border border-successGreen/30 text-successGreen text-[11px] font-mono font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span>
+                <span>LIVE SYNC (CDSL/NSDL)</span>
+              </div>
+              <span class="text-[10px] font-mono text-blueprintCyan ml-2 px-1.5 py-0.2 bg-canvas rounded border border-blueprintCyan/30">H: 32px</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- ZONE 4: SECTION TABS ROW 48px                   -->
+          <!-- ============================================== -->
+          <div class="relative bg-panel border-2 border-blueprintCyan/50 rounded-xl p-2 flex items-center justify-between min-h-[48px] shadow-sm">
+            
+            <!-- Badge 4 -->
+            <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">4</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- Active Tab: HOLDINGS 14 -->
+              <button class="px-4 py-2 rounded-lg bg-accent text-white font-semibold text-xs flex items-center gap-2 shadow ring-1 ring-accent">
+                <span>HOLDINGS</span>
+                <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[11px] font-mono tabular font-bold">14</span>
+              </button>
+              <!-- Inactive Tab: PAYOUT DETAILS -->
+              <button class="px-4 py-2 rounded-lg bg-panelAlt text-muted hover:text-textMain border border-hairline font-semibold text-xs flex items-center gap-2">
+                <span>PAYOUT DETAILS</span>
+                <span class="text-[10px] font-mono text-muted/70 uppercase">SCHEDULE</span>
+              </button>
+            </div>
+
+            <!-- Spec Label Right -->
+            <div class="text-[10px] font-mono text-blueprintCyan bg-canvas px-2.5 py-1 rounded border border-blueprintCyan/40 flex items-center gap-2">
+              <span class="material-symbols-outlined text-xs">tab</span>
+              <span>SECTION TABS ROW (H: 48px)</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- ZONE 5: SINGLE CONTROL ROW 56px HIGHLIGHTED    -->
+          <!-- ============================================== -->
+          <div class="relative bg-panel border-2 border-accent rounded-xl p-2.5 min-h-[56px] shadow-lg ring-4 ring-accent/15">
+            
+            <!-- Badge 5 (Highlighted) -->
+            <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-full bg-accent text-white font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-canvas">5</span>
+            </div>
+
+            <!-- Dimension & Priority Header Callout -->
+            <div class="absolute -top-3.5 right-6 px-3 py-0.5 rounded-full bg-accent text-white font-mono font-semibold text-[10px] shadow flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs">star</span>
+              <span>SINGLE CONTROL ROW (56px) • ALL-IN-ONE COMPACT BAR</span>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+
+              <!-- Left Control Group: Filters + Chips -->
+              <div class="flex items-center gap-2">
+                <!-- Icon filter button with count badge -->
+                <div class="relative flex items-center">
+                  <button class="px-2.5 py-1.5 rounded-lg bg-accent text-white text-xs font-medium flex items-center gap-1.5 shadow" title="Filter Drawer & Count">
+                    <span class="material-symbols-outlined text-sm">filter_alt</span>
+                    <span class="text-xs font-bold font-mono">All (14)</span>
+                  </button>
+                  <span class="absolute -top-2 -right-1 text-[8px] font-mono px-1 py-0.2 bg-blueprintCyan text-canvas font-bold rounded-full">LEADER 1</span>
+                </div>
+
+                <!-- Rating Chips -->
+                <div class="flex items-center gap-1.5 pl-1 border-l border-hairline">
+                  <span class="px-2 py-1 rounded-md bg-panelAlt border border-successGreen/40 text-successGreen text-[11px] font-mono font-medium flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-successGreen"></span> AAA (8)
+                  </span>
+                  <span class="px-2 py-1 rounded-md bg-panelAlt border border-hairline text-textMain text-[11px] font-mono font-medium">
+                    AA+ (4)
+                  </span>
+                  <span class="px-2 py-1 rounded-md bg-panelAlt border border-hairline text-muted text-[11px] font-mono font-medium">
+                    AA (2)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Center/Right Controls: Search 240px + Calendar + Sort + Accrued Checkbox -->
+              <div class="flex items-center gap-3">
+                
+                <!-- Search input 240px -->
+                <div class="relative w-[240px]">
+                  <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-muted">
+                    <span class="material-symbols-outlined text-sm">search</span>
+                  </span>
+                  <input type="text" placeholder="Search ISIN, Issuer... (240px)" readonly 
+                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-canvas border border-hairline rounded-lg text-textMain font-mono placeholder:text-muted/60 focus:outline-none focus:border-accent">
+                  <span class="absolute -top-2 right-2 text-[8px] font-mono px-1 py-0.2 bg-blueprintCyan text-canvas font-bold rounded-full">240px</span>
+                </div>
+
+                <!-- Calendar Icon Button (Payout Frequency) -->
+                <div class="relative">
+                  <button class="w-8 h-8 rounded-lg bg-panelAlt border border-hairline text-muted hover:text-textMain flex items-center justify-center" title="Payout Frequency Filter">
+                    <span class="material-symbols-outlined text-sm">calendar_month</span>
+                  </button>
+                  <span class="absolute -top-2 -right-1 text-[8px] font-mono px-1 py-0.2 bg-blueprintCyan text-canvas font-bold rounded-full">FREQ</span>
+                </div>
+
+                <!-- Sort Icon Button -->
+                <div class="relative">
+                  <button class="w-8 h-8 rounded-lg bg-panelAlt border border-hairline text-muted hover:text-textMain flex items-center justify-center" title="Sort Column & Direction">
+                    <span class="material-symbols-outlined text-sm">swap_vert</span>
+                  </button>
+                  <span class="absolute -top-2 -right-1 text-[8px] font-mono px-1 py-0.2 bg-blueprintCyan text-canvas font-bold rounded-full">SORT</span>
+                </div>
+
+                <!-- Include Accrued Checkbox -->
+                <label class="flex items-center gap-2 pl-2 border-l border-hairline cursor-pointer select-none">
+                  <input type="checkbox" checked disabled class="w-3.5 h-3.5 rounded bg-canvas border-hairline text-accent accent-accent">
+                  <span class="text-xs font-mono text-muted">Inc. Accrued</span>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- Annotation Leader Line Strip -->
+            <div class="mt-2.5 pt-2 border-t border-hairline/80 flex items-center justify-between text-[10px] font-mono text-blueprintCyan">
+              <span class="flex items-center gap-1">↳ [1] FILTER CLUSTER + RATINGS</span>
+              <span class="flex items-center gap-1">↳ [2] SEARCH (240px)</span>
+              <span class="flex items-center gap-1">↳ [3] FREQUENCY CAL</span>
+              <span class="flex items-center gap-1">↳ [4] SORT BTN</span>
+              <span class="flex items-center gap-1">↳ [5] ACCRUED CHECKBOX</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- ZONE 6: 11-COLUMN DATA TABLE WITH STATUS TIER  -->
+          <!-- ============================================== -->
+          <div class="relative bg-panel border-2 border-blueprintCyan/50 rounded-xl overflow-hidden shadow-lg">
+            
+            <!-- Badge 6 -->
+            <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">6</span>
+            </div>
+
+            <!-- Dimension callout top right -->
+            <div class="absolute top-2 right-4 text-[10px] font-mono text-blueprintCyan">
+              HEADER ROW: 40px • 11 COLUMNS RIGID GRID
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                
+                <!-- 11 Column Headers (40px) -->
+                <thead>
+                  <tr class="h-10 bg-panelAlt border-b border-hairline font-mono text-[10.5px] text-muted tracking-wider uppercase select-none">
+                    <th class="py-2 px-3 font-semibold text-textMain">1. Company & ISIN</th>
+                    <th class="py-2 px-2.5 font-semibold">2. Rating</th>
+                    <th class="py-2 px-2 font-semibold text-right">3. Units</th>
+                    <th class="py-2 px-2.5 font-semibold text-right">4. Coupon</th>
+                    <th class="py-2 px-2.5 font-semibold text-right">5. YTM</th>
+                    <th class="py-2 px-2.5 font-semibold">6. Frequency</th>
+                    <th class="py-2 px-3 font-semibold text-right">7. Invested (₹)</th>
+                    <th class="py-2 px-3 font-semibold text-right">8. Received (₹)</th>
+                    <th class="py-2 px-3 font-semibold">9. Next Payout</th>
+                    <th class="py-2 px-2.5 font-semibold text-center">10. Status</th>
+                    <th class="py-2 px-2 font-semibold text-center">11. Act</th>
+                  </tr>
+                </thead>
+
+                <!-- Table Body with Status Ordering Annotation -->
+                <tbody class="divide-y divide-hairline font-sans text-xs">
+
+                  <!-- ROW 1: DANGER FIRST (TOP PRIORITY) -->
+                  <tr class="bg-dangerBg border-l-4 border-l-dangerRed hover:bg-dangerBg/80 transition-colors">
+                    <td class="py-2.5 px-3">
+                      <div class="font-semibold text-dangerRed flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">warning</span>
+                        <span>Piramal Capital 10.25%</span>
+                      </div>
+                      <div class="text-[10px] font-mono text-muted">INE641A07137 • AA- Neg</div>
+                    </td>
+                    <td class="py-2.5 px-2.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-dangerRed/20 text-dangerRed border border-dangerRed/30">
+                        CRIL AA-
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-right font-mono tabular">350</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular font-bold text-dangerRed">10.25%</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular">11.80%</td>
+                    <td class="py-2.5 px-2.5 text-muted">Monthly</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular font-semibold">₹ 3,50,000</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular">₹ 89,750</td>
+                    <td class="py-2.5 px-3">
+                      <div class="text-dangerRed font-mono font-semibold">01 Nov 2026</div>
+                      <div class="text-[10px] text-dangerRed/80">OVERDUE 14d</div>
+                    </td>
+                    <td class="py-2.5 px-2.5 text-center">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-dangerRed text-canvas">
+                        DANGER (1)
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-center text-muted">
+                      <button class="w-6 h-6 rounded hover:bg-panelAlt flex items-center justify-center"><span class="material-symbols-outlined text-sm">more_vert</span></button>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 2: ON-GOING (MIDDLE TIER) -->
+                  <tr class="hover:bg-panelAlt/50 transition-colors">
+                    <td class="py-2.5 px-3">
+                      <div class="font-semibold text-textMain">Tata Capital Financial</div>
+                      <div class="text-[10px] font-mono text-muted">INE306N07MH1 • Secured</div>
+                    </td>
+                    <td class="py-2.5 px-2.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-panelAlt text-successGreen border border-successGreen/30">
+                        ICRA AAA
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-right font-mono tabular">500</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular font-bold text-textMain">9.15%</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular">9.15%</td>
+                    <td class="py-2.5 px-2.5 text-muted">Annual</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular font-semibold">₹ 5,00,000</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular">₹ 1,42,500</td>
+                    <td class="py-2.5 px-3">
+                      <div class="font-mono">18 Jan 2027</div>
+                      <div class="text-[10px] text-muted">In 34 days</div>
+                    </td>
+                    <td class="py-2.5 px-2.5 text-center">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-successBg text-successGreen border border-successGreen/30">
+                        ON-GOING
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-center text-muted">
+                      <button class="w-6 h-6 rounded hover:bg-panelAlt flex items-center justify-center"><span class="material-symbols-outlined text-sm">more_vert</span></button>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 3: ON-GOING (MIDDLE TIER) -->
+                  <tr class="hover:bg-panelAlt/50 transition-colors">
+                    <td class="py-2.5 px-3">
+                      <div class="font-semibold text-textMain">L&T Finance Holdings</div>
+                      <div class="text-[10px] font-mono text-muted">INE498L07185 • Tranche IV</div>
+                    </td>
+                    <td class="py-2.5 px-2.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-panelAlt text-successGreen border border-successGreen/30">
+                        CARE AAA
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-right font-mono tabular">400</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular font-bold text-textMain">8.85%</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular">8.95%</td>
+                    <td class="py-2.5 px-2.5 text-muted">Semi-Ann</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular font-semibold">₹ 4,00,000</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular">₹ 1,24,000</td>
+                    <td class="py-2.5 px-3">
+                      <div class="font-mono">10 Jan 2027</div>
+                      <div class="text-[10px] text-muted">Scheduled</div>
+                    </td>
+                    <td class="py-2.5 px-2.5 text-center">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-successBg text-successGreen border border-successGreen/30">
+                        ON-GOING
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-center text-muted">
+                      <button class="w-6 h-6 rounded hover:bg-panelAlt flex items-center justify-center"><span class="material-symbols-outlined text-sm">more_vert</span></button>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 4: MATURING / REDEEMED (BOTTOM PRIORITY) -->
+                  <tr class="bg-panelAlt/30 border-l-4 border-l-warningAmber/70 opacity-75 hover:opacity-100 transition-opacity">
+                    <td class="py-2.5 px-3">
+                      <div class="font-medium text-muted line-through">Shree Cement NCD (Series I)</div>
+                      <div class="text-[10px] font-mono text-muted">INE070A07060 • Redeemed</div>
+                    </td>
+                    <td class="py-2.5 px-2.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-mono text-muted bg-canvas border border-hairline">
+                        CRISIL AAA
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-right font-mono tabular text-muted">300</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular text-muted">8.10%</td>
+                    <td class="py-2.5 px-2.5 text-right font-mono tabular text-muted">8.10%</td>
+                    <td class="py-2.5 px-2.5 text-muted">Annual</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular font-semibold text-muted">₹ 3,00,000</td>
+                    <td class="py-2.5 px-3 text-right font-mono tabular text-muted">₹ 3,00,000</td>
+                    <td class="py-2.5 px-3">
+                      <div class="font-mono text-muted">30 Oct 2026</div>
+                      <div class="text-[10px] text-muted">Settled Principal</div>
+                    </td>
+                    <td class="py-2.5 px-2.5 text-center">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-warningBg text-warningAmber border border-warningAmber/30">
+                        MATURED
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-2 text-center text-muted">
+                      <button class="w-6 h-6 rounded hover:bg-panelAlt flex items-center justify-center"><span class="material-symbols-outlined text-sm">visibility</span></button>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <!-- In-Table Priority Flow Callout Strip -->
+            <div class="p-2.5 bg-canvas border-t border-hairline flex flex-wrap items-center justify-between text-[11px] font-mono text-muted">
+              <div class="flex items-center gap-3">
+                <span class="text-blueprintCyan font-bold">STATUS PRIORITY CANON:</span>
+                <span class="flex items-center gap-1 text-dangerRed font-semibold">① Danger (Top)</span>
+                <span class="text-hairline">→</span>
+                <span class="flex items-center gap-1 text-successGreen font-semibold">② On-going Active</span>
+                <span class="text-hairline">→</span>
+                <span class="flex items-center gap-1 text-warningAmber font-semibold">③ Matured / Settled (Bottom)</span>
+              </div>
+              <div class="text-[10px] text-muted">
+                11 Columns: (1)Co+ISIN, (2)Rating, (3)Units, (4)Coupon, (5)YTM, (6)Freq, (7)Invested, (8)Received, (9)Next Payout, (10)Status, (11)Act
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- ZONE 7: FOOTER STRIP 40px                       -->
+          <!-- ============================================== -->
+          <div class="relative bg-panel border-2 border-blueprintCyan/50 rounded-xl px-4 py-2 flex items-center justify-between min-h-[40px] shadow-sm text-xs font-mono">
+            
+            <!-- Badge 7 -->
+            <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+              <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">7</span>
+            </div>
+
+            <!-- Left Count & NSDL Ledger status -->
+            <div class="flex items-center gap-3">
+              <span class="text-textMain font-medium">Showing <strong class="text-blueprintCyan">4 of 14</strong> active bond positions</span>
+              <span class="text-hairline">•</span>
+              <span class="text-successGreen flex items-center gap-1.5 text-[11px]">
+                <span class="w-1.5 h-1.5 rounded-full bg-successGreen"></span> All corporate yields verified against NSDL demat ledger
+              </span>
+            </div>
+
+            <!-- Right Book Aggregates -->
+            <div class="flex items-center gap-4 text-muted">
+              <span>Total Book: <strong class="text-textMain tabular font-bold">₹ 37,00,000</strong></span>
+              <span class="text-hairline">•</span>
+              <span>Avg YTM: <strong class="text-successGreen tabular font-bold">9.11%</strong></span>
+              <span class="text-[10px] font-mono text-blueprintCyan ml-2 px-1.5 py-0.2 bg-canvas rounded border border-blueprintCyan/30">H: 40px</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- ZONE 8: MASTER SPECIFICATION LEGEND BOARD       -->
+    <!-- ============================================== -->
+    <div class="relative bg-panel border-2 border-blueprintCyan rounded-2xl p-6 shadow-xl">
+      
+      <!-- Badge 8 -->
+      <div class="absolute -top-3.5 -left-3 z-20 flex items-center gap-1.5">
+        <span class="w-7 h-7 rounded-full bg-blueprintCyan text-canvas font-mono font-bold text-xs flex items-center justify-center shadow-md ring-2 ring-panel">8</span>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-hairline mb-5 gap-3">
+        <div>
+          <h2 class="text-base font-bold text-textMain flex items-center gap-2">
+            <span>Zone Architecture Mapping & Dimension Breakdown</span>
+            <span class="text-xs font-mono font-normal text-blueprintCyan bg-canvas px-2.5 py-0.5 rounded border border-blueprintCyan/30">ZONES 1 THROUGH 8 REFERENCE</span>
+          </h2>
+          <p class="text-xs text-muted mt-0.5 font-mono">Formal verification ledger for desktop web portfolio implementations.</p>
+        </div>
+        <div class="text-xs font-mono text-muted flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-accent"></span>
+          <span>RD-10 Canonical Specification Standards</span>
+        </div>
+      </div>
+
+      <!-- 8-Card Zone Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+        
+        <!-- Zone 1 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-hairline hover:border-blueprintCyan/50 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">1</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">240px WIDTH</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Left Persistent Sidebar</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            Persistent left navigation rail containing App brand, Main Ledger group (Dashboard, Portfolio, Watchlist, Goals, Calendar), and System group (Alerts, Settings, About, Feedback).
+          </p>
+        </div>
+
+        <!-- Zone 2 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-hairline hover:border-blueprintCyan/50 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">2</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">64px HEIGHT</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Two-Zone Master Topbar</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            Split into Dynamic Zone (left 60%: lock badge, Verified Yields, Portfolio title) and Static Utility Zone (right 40%: 40px + Add, search, alerts bell, help, 40px avatar).
+          </p>
+        </div>
+
+        <!-- Zone 3 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-hairline hover:border-blueprintCyan/50 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">3</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">32px HEIGHT</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Breadcrumb & Feed Strip</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            Hierarchical path (<span class="text-textMain">DK Sovereign / Portfolio / Holdings</span>) paired with real-time depository sync badge (<span class="text-successGreen">Live Sync CDSL/NSDL</span>).
+          </p>
+        </div>
+
+        <!-- Zone 4 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-hairline hover:border-blueprintCyan/50 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">4</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">48px HEIGHT</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Section Tabs Segment</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            High-level mode switch between <strong class="text-accent">HOLDINGS (14)</strong> active ledger and <strong class="text-muted">PAYOUT DETAILS</strong> multi-cycle projection matrix.
+          </p>
+        </div>
+
+        <!-- Zone 5 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border-2 border-accent/60 hover:border-accent transition-colors shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-accent text-white font-bold flex items-center justify-center text-[10px]">5</span>
+            <span class="text-[10px] text-accent font-semibold">56px HEIGHT</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Single Control Row (Core)</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            Highlighted all-in-one toolbar: filter cluster with count badge, rating chips, 240px search field, calendar frequency icon, sort toggle, and include-accrued toggle.
+          </p>
+        </div>
+
+        <!-- Zone 6 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-hairline hover:border-blueprintCyan/50 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">6</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">11 COLUMNS</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Status-Prioritized Table</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            11-column data grid strictly ordered by risk tier: <span class="text-dangerRed">Danger (top)</span>, <span class="text-successGreen">On-going (middle)</span>, and <span class="text-warningAmber">Matured/Redeemed (bottom)</span>.
+          </p>
+        </div>
+
+        <!-- Zone 7 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-hairline hover:border-blueprintCyan/50 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">7</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">40px HEIGHT</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Summary Footer Strip</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            Compact terminal row displaying position counters, NSDL demat reconciliation check, book aggregates (₹ 37,00,000), and weighted YTM percentage (9.11%).
+          </p>
+        </div>
+
+        <!-- Zone 8 Spec -->
+        <div class="p-3.5 rounded-xl bg-canvas border border-blueprintCyan/40 hover:border-blueprintCyan transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <span class="w-5 h-5 rounded-full bg-blueprintCyan text-canvas font-bold flex items-center justify-center text-[10px]">8</span>
+            <span class="text-[10px] text-blueprintCyan font-semibold">SYSTEM LEGEND</span>
+          </div>
+          <div class="font-bold text-textMain mb-1">Blueprint Spec Legend</div>
+          <p class="text-[11px] text-muted font-sans leading-relaxed">
+            This bottom master ledger board mapping zones 1–8 with callout arrows, dimension lines, color tokens, and exact UI pixel contracts.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Architectural Guarantee Footer -->
+      <div class="mt-5 pt-4 border-t border-hairline flex flex-wrap items-center justify-between text-[11px] font-mono text-muted">
+        <div>
+          Design Standard: <strong class="text-textMain">Midnight Ledger Web</strong> • Strict Zero Light-Theme Leaks • 8px Spatial Grid
+        </div>
+        <div class="text-blueprintCyan">
+          Ref: portfolio_layout_detail_web • DK Bond Tracker Architecture
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

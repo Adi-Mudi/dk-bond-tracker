@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=412, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>DK Bond Tracker Dashboard (Mobile)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            'ledger-canvas': '#0D1520',
+            'paper-surface': '#16212E',
+            'elevated': '#1E2C3B',
+            'hover-tint': '#1A2735',
+            'hairline': '#2A3A4C',
+            'ink': '#E8EEF5',
+            'slate': '#A8B6C4',
+            'mist': '#7A8A99',
+            'accent': '#2456E6',
+            'accent-hover': '#1C46C2',
+            'accent-link': '#8FB4FF',
+            'paid-green': '#6FD898',
+            'paid-green-bg': '#12301E',
+            'due-red': '#FF8A80',
+            'due-red-bg': '#3A1310',
+            'upcoming-amber': '#FFC46B',
+            'upcoming-amber-bg': '#3A2A0E',
+            'info-blue': '#8FB4FF',
+            'info-blue-bg': '#14263D',
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      width: 412px;
+      margin: 0 auto;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.92); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-ledger-canvas flex flex-col relative pb-20 select-none">
+<!-- Fixed Top Header (64px) -->
+<header class="fixed top-0 left-1/2 -translate-x-1/2 w-[412px] h-16 bg-paper-surface border-b border-hairline z-50 px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h1 class="text-[20px] font-semibold text-ink tracking-tight">Dashboard</h1>
+</div>
+<div class="flex items-center gap-1">
+<!-- Search Button (48x48) -->
+<button aria-label="Search bonds" class="w-12 h-12 flex items-center justify-center rounded-xl text-slate hover:text-ink hover:bg-hover-tint transition-colors active:scale-95" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Notifications Button (48x48 with unread dot) -->
+<button aria-label="Notifications" class="w-12 h-12 flex items-center justify-center rounded-xl text-slate hover:text-ink hover:bg-hover-tint transition-colors relative active:scale-95" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-accent ring-2 ring-paper-surface"></span>
+</button>
+<!-- Round Accent Avatar (32px inside 48px tap container) -->
+<div class="w-12 h-12 flex items-center justify-center">
+<div class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-xs font-semibold shadow-sm">
+          DK
+        </div>
+</div>
+</div>
+</header>
+<!-- Main Scrollable Content Area -->
+<main class="mt-16 px-4 pt-4 flex flex-col gap-4">
+<!-- Segmented Tab Bar (ONLY ONE ON PAGE) -->
+<div class="w-full bg-[#1A2735] p-3 rounded-xl border border-hairline flex items-center gap-2">
+<button class="flex-1 h-12 rounded-lg bg-paper-surface border border-hairline text-ink font-semibold text-[14px] flex items-center justify-center transition-all shadow-sm" type="button">
+        Dashboard
+      </button>
+<button class="flex-1 h-12 rounded-lg text-mist hover:text-ink font-medium text-[14px] flex items-center justify-center transition-all" type="button">
+        Returns History
+      </button>
+<button class="flex-1 h-12 rounded-lg text-mist hover:text-ink font-medium text-[14px] flex items-center justify-center transition-all" type="button">
+        Cashflow
+      </button></div>
+<!-- KPI Strip: 3 Equal Compact Stat Cards in 1 Grid Row -->
+<section aria-label="Key Performance Indicators" class="grid grid-cols-3 gap-2 w-full"><!-- Card 1: Invested -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col justify-between min-w-0 h-[84px]">
+<div class="text-[10px] uppercase font-medium text-mist tracking-wider truncate min-w-0">INVESTED</div>
+<div class="text-[13px] font-semibold text-ink tabular truncate leading-tight min-w-0">₹ 24.50L</div>
+<div class="text-[10px] text-info-blue font-medium truncate min-w-0">11.24% XIRR</div>
+</div>
+<!-- Card 2: Principal -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col justify-between min-w-0 h-[84px]">
+<div class="text-[10px] uppercase font-medium text-mist tracking-wider truncate min-w-0">PRINCIPAL</div>
+<div class="text-[13px] font-semibold text-ink tabular truncate leading-tight min-w-0">₹ 19.68L</div>
+<div class="text-[10px] text-mist font-medium truncate min-w-0">80.3% active</div>
+</div>
+<!-- Card 3: Next Due -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col justify-between min-w-0 h-[84px]">
+<div class="text-[10px] uppercase font-medium text-mist tracking-wider truncate min-w-0">NEXT DUE</div>
+<div class="text-[13px] font-semibold text-upcoming-amber tabular truncate leading-tight min-w-0">₹ 32.8k</div>
+<div class="text-[10px] text-upcoming-amber font-medium truncate min-w-0">5d • 15 Dec</div>
+</div></section>
+<!-- Horizontal Filter Chip Row of 48px Pills -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-4 px-4">
+<!-- All (14) Active -->
+<button class="h-12 px-4 rounded-full bg-accent/20 border border-accent text-ink font-medium text-xs flex items-center gap-2 shrink-0 active:scale-95 transition-transform" type="button">
+<span class="w-2 h-2 rounded-full bg-accent"></span>
+<span>All (14)</span>
+</button>
+<!-- Danger (1) -->
+<button class="h-12 px-4 rounded-full bg-due-red-bg border border-due-red/40 text-due-red font-medium text-xs flex items-center gap-2 shrink-0 active:scale-95 transition-transform" type="button">
+<span class="w-2 h-2 rounded-full bg-due-red"></span>
+<span>Danger (1)</span>
+</button>
+<!-- Upcoming Due (2) -->
+<button class="h-12 px-4 rounded-full bg-upcoming-amber-bg border border-upcoming-amber/40 text-upcoming-amber font-medium text-xs flex items-center gap-2 shrink-0 active:scale-95 transition-transform" type="button">
+<span class="w-2 h-2 rounded-full bg-upcoming-amber"></span>
+<span>Upcoming Due (2)</span>
+</button>
+<!-- On-going (10) -->
+<button class="h-12 px-4 rounded-full bg-paid-green-bg border border-paid-green/40 text-paid-green font-medium text-xs flex items-center gap-2 shrink-0 active:scale-95 transition-transform" type="button">
+<span class="w-2 h-2 rounded-full bg-paid-green"></span>
+<span>On-going (10)</span>
+</button>
+<!-- Matured (3) -->
+<button class="h-12 px-4 rounded-full bg-hover-tint border border-hairline text-slate font-medium text-xs flex items-center gap-2 shrink-0 active:scale-95 transition-transform" type="button">
+<span class="w-2 h-2 rounded-full bg-mist"></span>
+<span>Matured (3)</span>
+</button>
+</div>
+<!-- Amber Alert Card: Action Required: Rating Watch -->
+<div class="w-full bg-upcoming-amber-bg/70 border border-upcoming-amber/40 rounded-xl p-3.5 flex flex-col gap-2">
+<div class="flex items-start gap-2.5">
+<div class="w-7 h-7 rounded-lg bg-upcoming-amber/20 flex items-center justify-center shrink-0 text-upcoming-amber mt-0.5">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex-1 min-w-0">
+<div class="text-[13px] font-semibold text-upcoming-amber leading-snug">Action Required: Rating Watch</div>
+<p class="text-[12px] text-slate mt-0.5 leading-relaxed">
+            Piramal Capital placed under CRISIL credit watch. Review exposure and redemption strategy.
+          </p>
+</div>
+</div>
+<div class="flex justify-end pt-1">
+<a class="h-8 px-2 flex items-center gap-1.5 text-[12px] font-semibold text-upcoming-amber hover:underline" href="#advisory">
+<span>Read Advisory</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</div>
+<!-- Section Header: Invested vs Received -->
+<div class="flex items-center justify-between pt-1">
+<h2 class="text-[15px] font-semibold text-ink">Invested vs Received</h2>
+<span class="text-[12px] font-medium text-mist bg-elevated px-2 py-0.5 rounded border border-hairline">5 Holdings</span>
+</div>
+<!-- Holdings List (5 Cards) -->
+<div class="flex flex-col gap-2.5">
+<!-- Holding 1: Piramal Capital (Danger) -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col gap-2 hover:border-due-red/50 transition-colors">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2 h-2 rounded-full bg-due-red animate-pulse-subtle shrink-0"></span>
+<span class="text-[13px] font-semibold text-ink truncate">Piramal Capital &amp; Housing Fin</span>
+</div>
+<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-due-red-bg text-due-red border border-due-red/30 shrink-0">Rating Watch</span>
+</div>
+<!-- Progress Bar (65%) -->
+<div class="w-full h-1.5 bg-[#1E2C3B] rounded-full overflow-hidden">
+<div class="h-full bg-due-red rounded-full" style="width: 65%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] tabular">
+<span class="text-mist">Invested <strong class="text-ink font-semibold">₹ 5,00,000</strong></span>
+<span class="text-due-red font-medium">Recd ₹ 1,22,500 (24.5%)</span>
+</div>
+</div>
+<!-- Holding 2: Tata Capital -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col gap-2 hover:border-hairline transition-colors">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2 h-2 rounded-full bg-paid-green shrink-0"></span>
+<span class="text-[13px] font-semibold text-ink truncate">Tata Capital Financial Services</span>
+</div>
+<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green border border-paid-green/30 shrink-0">On-going</span>
+</div>
+<!-- Progress Bar (48%) -->
+<div class="w-full h-1.5 bg-[#1E2C3B] rounded-full overflow-hidden">
+<div class="h-full bg-paid-green rounded-full" style="width: 48%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] tabular">
+<span class="text-mist">Invested <strong class="text-ink font-semibold">₹ 7,50,000</strong></span>
+<span class="text-slate font-medium">Recd ₹ 1,84,200 (24.5%)</span>
+</div>
+</div>
+<!-- Holding 3: L&T Finance Holdings Ltd -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col gap-2 hover:border-hairline transition-colors">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2 h-2 rounded-full bg-info-blue shrink-0"></span>
+<span class="text-[13px] font-semibold text-ink truncate">L&amp;T Finance Holdings Ltd</span>
+</div>
+<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green border border-paid-green/30 shrink-0">On-going</span>
+</div>
+<!-- Progress Bar (32%) -->
+<div class="w-full h-1.5 bg-[#1E2C3B] rounded-full overflow-hidden">
+<div class="h-full bg-info-blue rounded-full" style="width: 32%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] tabular">
+<span class="text-mist">Invested <strong class="text-ink font-semibold">₹ 4,00,000</strong></span>
+<span class="text-slate font-medium">Recd ₹ 88,000 (22.0%)</span>
+</div>
+</div>
+<!-- Holding 4: Muthoot Finance Ltd -->
+<div class="bg-paper-surface rounded-xl border border-hairline p-3 flex flex-col gap-2 hover:border-hairline transition-colors">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2 h-2 rounded-full bg-paid-green shrink-0"></span>
+<span class="text-[13px] font-semibold text-ink truncate">Muthoot Finance Ltd</span>
+</div>
+<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green border border-paid-green/30 shrink-0">On-going</span>
+</div>
+<!-- Progress Bar (25%) -->
+<div class="w-full h-1.5 bg-[#1E2C3B] rounded-full overflow-hidden">
+<div class="h-full bg-paid-green rounded-full" style="width: 25%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] tabular">
+<span class="text-mist">Invested <strong class="text-ink font-semibold">₹ 5,00,000</strong></span>
+<span class="text-slate font-medium">Recd ₹ 87,750 (17.5%)</span>
+</div>
+</div>
+<!-- Holding 5: Shree Cement NCD (Matured, 75% opacity) -->
+<div class="bg-paper-surface/75 opacity-75 rounded-xl border border-hairline p-3 flex flex-col gap-2">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2 h-2 rounded-full bg-mist shrink-0"></span>
+<span class="text-[13px] font-semibold text-slate truncate">Shree Cement NCD (Series I)</span>
+</div>
+<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#1E2C3B] text-mist border border-hairline shrink-0">Matured</span>
+</div>
+<!-- Progress Bar (100% Slate) -->
+<div class="w-full h-1.5 bg-[#1E2C3B] rounded-full overflow-hidden">
+<div class="h-full bg-slate rounded-full" style="width: 100%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] tabular">
+<span class="text-mist">Invested ₹ 3,00,000</span>
+<span class="text-slate font-medium">Recd ₹ 3,00,000 (100% Matured)</span>
+</div>
+</div>
+</div>
+<!-- Cashflow Rhythm Card -->
+<section aria-label="Cashflow Rhythm" class="flex flex-col gap-2.5 mt-2 pt-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-info-blue/15 text-info-blue flex items-center justify-center">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M6.75 3v2.25M17.25 3v2.253 3.75h16.5M4.5 7.5h15M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<h2 class="text-[15px] font-semibold text-ink">Cashflow Rhythm</h2>
+</div>
+<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green border border-paid-green/30">Net Active</span>
+</div>
+<div class="bg-paper-surface rounded-xl border border-hairline p-3.5 flex flex-col gap-3">
+<div class="flex items-center justify-between pb-2 border-b border-hairline/60 text-[12px] tabular">
+<span class="text-slate">Monthly Run-Rate: <strong class="text-ink font-semibold">₹ 32,850</strong></span>
+<span class="text-due-red font-medium">Tax TDS 10%: -₹ 3,285</span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs py-0.5">
+<div class="flex flex-col min-w-0">
+<span class="font-medium text-ink truncate">HDFC Credila Fin</span>
+<span class="text-[10px] text-upcoming-amber">Due 15 Dec 2026 • Pending</span>
+</div>
+<span class="text-upcoming-amber font-semibold tabular shrink-0">₹ 32,800</span>
+</div>
+<div class="flex items-center justify-between text-xs py-0.5">
+<div class="flex flex-col min-w-0">
+<span class="font-medium text-ink truncate">Tata Cap Financial</span>
+<span class="text-[10px] text-mist">Due 28 Dec 2026 • Scheduled</span>
+</div>
+<span class="text-ink font-semibold tabular shrink-0">₹ 11,437</span>
+</div>
+<div class="flex items-center justify-between text-xs py-0.5">
+<div class="flex flex-col min-w-0">
+<span class="font-medium text-ink truncate">L&amp;T Finance Ltd</span>
+<span class="text-[10px] text-mist">Due 10 Jan 2027 • Scheduled</span>
+</div>
+<span class="text-ink font-semibold tabular shrink-0">₹ 17,700</span>
+</div>
+</div>
+<a class="h-12 w-full mt-1 bg-elevated hover:bg-hover-tint border border-hairline rounded-lg text-accent-link font-medium text-[12px] flex items-center justify-center gap-1.5 transition-colors" href="#schedule">
+<span>View Complete Cashflow Schedule</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</section>
+</main>
+<!-- Fixed Bottom Navigation Bar (5 Items, 48px Touch Targets) -->
+<nav aria-label="Bottom navigation" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-[412px] h-16 bg-paper-surface border-t border-hairline z-50 px-2 flex items-center justify-around">
+<!-- Tab 1: Dashboard (Active Accent) -->
+<a aria-current="page" class="flex flex-col items-center justify-center min-w-[48px] h-12 px-2 text-accent" href="#dashboard">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold mt-0.5">Dashboard</span>
+</a>
+<!-- Tab 2: Portfolio -->
+<a class="flex flex-col items-center justify-center min-w-[48px] h-12 px-2 text-mist hover:text-ink transition-colors" href="#portfolio">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12l1.5 4.5H1.5L3 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5">Portfolio</span>
+</a>
+<!-- Tab 3: Watchlist -->
+<a class="flex flex-col items-center justify-center min-w-[48px] h-12 px-2 text-mist hover:text-ink transition-colors" href="#watchlist">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5">Watchlist</span>
+</a>
+<!-- Tab 4: Goals -->
+<a class="flex flex-col items-center justify-center min-w-[48px] h-12 px-2 text-mist hover:text-ink transition-colors" href="#goals">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5">Goals</span>
+</a>
+<!-- Tab 5: More -->
+<a class="flex flex-col items-center justify-center min-w-[48px] h-12 px-2 text-mist hover:text-ink transition-colors" href="#more">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5">More</span>
+</a>
+</nav>
+</body>
+</html>
