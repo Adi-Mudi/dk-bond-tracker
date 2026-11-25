@@ -77,7 +77,7 @@ Contrast floor: every fg/bg pair and text role clears 4.5:1 in ALL themes (verif
 
 ## 5. Layout Principles
 
-> **Static layout LOCKED (2026-11-24): `design/confirmed/app_frame/` is the single chrome source of truth** — top bar 56px (brand left; sync → bell → avatar right), search in content only, 5-item bottom nav (Dashboard/Portfolio/Watchlist/Goals/More), FAB 56px `#2456E6` right:16/bottom:104, no page titles in the bar, Android-only. Every page inherits this frame unchanged (contract: `app_frame_manifest.csv`); page designs fill ONLY the dynamic zone. Per-page chrome aligns to the frame one page at a time.
+> **Static layout LOCKED (2026-11-24): `frontend/confirmed/app_frame/` is the single chrome source of truth** — top bar 56px (brand left; sync → bell → avatar right), search in content only, 5-item bottom nav (Dashboard/Portfolio/Watchlist/Goals/More), FAB 56px `#2456E6` right:16/bottom:104, no page titles in the bar, Android-only. Every page inherits this frame unchanged (contract: `app_frame_manifest.csv`); page designs fill ONLY the dynamic zone. Per-page chrome aligns to the frame one page at a time.
 
 - **Grid**: 4px base / 8px rhythm. Page padding 16px (mobile) / 24px (>=768). Card gap 16px. Section spacing 24px.
 - **Breakpoints**: fluid 360 / 768 / 1280 / 1920. Content max-width 1200px centered at 1920. Stat grid: 1 column at 360, 2 at 768, 3 at 1280. Detail pages: two-column (facts + actions) at >=1024, stacked below.

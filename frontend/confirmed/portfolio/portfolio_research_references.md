@@ -12,7 +12,7 @@
 - `src/queries/detail.py` — `_month_state`: paid+amount>0 → paid; due passed → unpaid (no amount); else soon.
 - `src/engine.py` — `sort_rows` urgency ordering (Danger → On-going → Matured).
 - `src/print.py` — status marks Danger/On-going/Completed/Invalid.
-- `design/confirmed/dashboard/DESIGN.md` — status chip colors: Paid `#6FD898/#12301E`, Due `#FF8A80/#3A1310`, Watching `#8FB4FF/#14263D`; emphasis rule (terminal states dim); status priority order.
+- `frontend/confirmed/dashboard/DESIGN.md` — status chip colors: Paid `#6FD898/#12301E`, Due `#FF8A80/#3A1310`, Watching `#8FB4FF/#14263D`; emphasis rule (terminal states dim); status priority order.
 
 ## Stitch sources (locked screens)
 - Holdings: screen `1e13609e9940410b88951aa03ebc1dbc` (project `17110477162175329772`)
