@@ -951,42 +951,47 @@ On-going
 </div>
 <!-- Form Fields -->
 <div class="flex flex-col gap-2.5 pt-1"><!-- Actual Received Amount -->
-<div class="flex flex-col gap-1">
+<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2">
+<div class="flex flex-col gap-1.5">
+<label class="text-[11px] font-medium text-[#7A8A99]">Receipt Mode</label>
+<div class="grid grid-cols-2 gap-1.5 p-0.5 bg-[#16212E] border border-[#2A3A4C] rounded-lg text-[10px] font-medium">
+<button class="py-1 px-1.5 rounded-md bg-[#2456E6] text-white font-semibold text-center transition-colors shadow-sm" type="button">Received AFTER TDS (net)</button>
+<button class="py-1 px-1.5 rounded-md text-[#7A8A99] hover:text-[#E8EEF5] text-center transition-colors" type="button">Received gross (total)</button>
+</div>
+</div>
+<div class="flex flex-col gap-1 pt-1">
 <div class="flex justify-between items-center text-[11px]">
-<label class="font-medium text-[#E8EEF5]">Actual Received Amount (₹) *</label>
+<label class="font-medium text-[#E8EEF5]">Amount received *</label>
 <button class="text-[10px] text-[#2456E6] hover:underline font-mono" type="button">Auto-fill Net (₹ 41,175)</button>
 </div>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-2 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6] placeholder-[#55606e]" placeholder="₹ e.g. 41,175" type="text"/>
-<p class="text-[10px] text-[#7A8A99]">Enter the amount that hit your bank.</p>
+<input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded-lg px-3 py-1.5 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6] placeholder-[#55606e]" placeholder="e.g. 41175" type="text"/>
 </div>
-<!-- Toggle / Switch: Received AFTER TDS (net) -->
-<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2">
-<div class="flex items-center justify-between cursor-pointer">
-<div class="flex flex-col">
-<span class="text-xs font-medium text-[#E8EEF5]">Received AFTER TDS (net)</span>
-<span class="text-[10px] text-[#7A8A99]">Matches bank credit voucher after 10% tax deduction</span>
-</div>
-<!-- Styled toggle switch (checked state) -->
-<div class="w-10 h-6 bg-[#2456E6] rounded-full p-0.5 flex items-center justify-end shadow-inner flex-shrink-0">
-<div class="w-5 h-5 bg-white rounded-full shadow-md"></div>
-</div>
-</div>
-<!-- Computed Read-only Breakdown Rows -->
-<div class="pt-2 border-t border-[#2A3A4C]/60 flex flex-col gap-1 text-[11px] font-mono">
+<div class="pt-1.5 border-t border-[#2A3A4C]/60 flex flex-col gap-1 text-[11px] font-mono">
 <div class="flex justify-between text-[#7A8A99]">
-<span>TDS (10% Sec 193):</span>
-<span class="text-[#E8EEF5] font-semibold">₹ 4,575</span>
+<span>TDS (Sec 193 · 10%):</span>
+<span class="text-[#E8EEF5] font-semibold">₹ auto</span>
 </div>
 <div class="flex justify-between text-[#93B4FF] font-semibold bg-[#2456E6]/10 px-1.5 py-0.5 rounded">
 <span>Gross = net + TDS:</span>
-<span>₹ 45,750</span>
+<span>₹ auto</span>
+</div>
+<p class="text-[10px] text-[#7A8A99] font-mono leading-tight pt-0.5">Values derive automatically from entered amount and mode.</p>
 </div>
 </div>
-</div>
+<!-- Toggle / Switch: Received AFTER TDS (net) -->
 <!-- Credit Date Input (Empty placeholder) -->
-<div class="flex flex-col gap-1">
-<label class="text-[11px] font-medium text-[#E8EEF5]">Credit Date *</label>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-2 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="DD/MM/YYYY" type="text"/>
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="text-[11px] font-medium text-[#E8EEF5]">Credit Date</label>
+<button class="text-[10px] text-[#2456E6] hover:underline font-mono" type="button">use custom date</button>
+</div>
+<div class="flex items-center justify-between px-3 py-1.5 bg-[#0E1724] border border-[#2A3A4C] rounded-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-[#93B4FF]">calendar_today</span>
+<span class="text-xs font-mono font-semibold text-[#E8EEF5]">18 Dec 2026</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">scheduled</span>
+</div>
 </div>
 <!-- REMARKS Section with Required Label Chips -->
 <div class="flex flex-col gap-1.5">
@@ -1009,13 +1014,9 @@ Holiday delays are labeled, never marked Danger.
 </p>
 </div>
 <!-- TDS Scheme Dropdown -->
-<div class="flex flex-col gap-1">
-<label class="text-[11px] font-medium text-[#E8EEF5]">TDS / Deduction Scheme</label>
-<select class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-2.5 py-2 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6]">
-<option>Standard 10% TDS (Section 193)</option>
-<option>Zero TDS (Form 15G / 15H submitted)</option>
-<option>Higher 20% TDS (No PAN verified)</option>
-</select>
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#0E1724] border border-[#2A3A4C]/50 text-[11px] font-mono text-[#7A8A99]">
+<span>Scheme: <strong class="text-[#E8EEF5] font-medium">Standard 10% TDS (Sec 193)</strong></span>
+<span class="material-symbols-outlined text-[14px] text-[#7A8A99]">lock</span>
 </div>
 <!-- NEW: EARLY EXIT TOGGLE & SETTLEMENT SECTION -->
 <div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2456E6]/40 flex flex-col gap-2.5 mt-0.5">
