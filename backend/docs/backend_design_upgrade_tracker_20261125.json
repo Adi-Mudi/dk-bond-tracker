@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v2.5",
+  "version": "v2.6",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -199,6 +199,13 @@
       "topic": "Backend design verification round 2 (agy) — code-accuracy findings",
       "summary": "agy verified expanded board against src/views + src/db.py + tests: (1) KEY STRATEGIC FACT: current backend is HTML-first — only 7 JSON endpoints exist; the Flutter JSON API layer is a real design/build item for the new backend. (2) API fixes: /watch/lookup is GET; missing routes GET /portfolio/<id>, POST /portfolio/invalid/<id>/remove, POST /watch/lookup/applied, POST /update/dismiss now added. (3) Data model nuances: notifications/clear = alerts_cleared_through watermark (rows kept); bond_master table = single source + fetched_at (per-field provenance in merge results only). (4) Business rules corrected: lifecycle = company-OR-ISIN lock unlocking on Completed; ERR-entry guard watch-only rule; reinvestment = principal free-up report; privacy mode = client-side CSS/JS + share/print flag (server JSON masking NOT implemented). (5) Feature chips de-embellished: mailer no retry/audit, share HTML/CSV only, updater semver check only. (6) Lookup order corrected: session cache -> DB cache -> snapshot seed -> live NSDL -> merge. All applied in-place (D5).",
       "relevance": "The HTML-first finding shapes the Flutter backend wave: a proper JSON API layer must be designed, not assumed."
+    },
+    {
+      "id": "F11",
+      "date": "2026-11-25",
+      "topic": "Backend design mandatory checklist — final, grounded in official documentation",
+      "summary": "Sources: arc42 12-section template (arc42.org), C4 model (c4model.com), 12-Factor App (12factor.net), Azure Well-Architected pillars (learn.microsoft.com/en-us/azure/well-architected/pillars). Final 16-item mandatory list for the backend design: 1 system context/scope, 2 building-block view, 3 runtime/data-flow view, 4 API contract per endpoint (request/response shapes, codes), 5 data model + schema detail + migrations, 6 deployment view/packaging, 7 cross-cutting concepts (security+secrets, observability/logging, validation, error handling), 8 background jobs + scheduling design, 9 NFR targets as measurable quality scenarios, 10 reliability + recovery (backup/restore, degradation), 11 retention + data governance decisions, 12 versioning + compatibility, 13 testing strategy, 14 dependencies + ADRs, 15 risks + technical debt, 16 glossary. DQ decision: database design is a SECTION of the backend design (arc42 building-block/cross-cutting + C4 container), not a separate document - single SQLite, single product, single developer; split only if the data layer becomes an independent service.",
+      "relevance": "This checklist becomes the backend-design review standard (candidate project skill content) and the fill-list for the remaining board gaps (items 4,5,6,7,8,9,12,14,15 absent today)."
     }
   ],
   "change_log": [
@@ -265,6 +272,10 @@
     {
       "date": "2026-11-25",
       "change": "v2.5: F10 round-2 verification fixes applied in-place; board chain 28fd218f -> 69b39777 -> 98f2c832 -> a6d2b657"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v2.6: F11 final mandatory backend-design checklist (16 items) grounded in arc42/C4/12-Factor/Azure-WA; DQ: database design included in backend design"
     }
   ]
 }
