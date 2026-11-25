@@ -1,0 +1,18 @@
+VERIFY + CONSULT TASK — final matched dataflow design (read-only, MCP-only design access).
+
+The backend dataflow board was rebuilt to MATCH the locked frontend, starting from the Watchlist Add button. Your job: check it and consult.
+
+ACCESS RULES (strict):
+- The design lives in the Open Design MCP at http://127.0.0.1:8006/mcp (streamable HTTP). Access it ONLY via MCP JSON-RPC calls (curl POST tools/call get_file, project="dk-bond-tracker-backend-dataflow-c451", path="backend_dataflow_design.html").
+- READ-ONLY: you may READ via MCP; do NOT write_file, create_*, delete_* anything. Do NOT edit any repo file directly.
+- Repo truth files (read freely): frontend/confirmed/STITCH_LOCK_REGISTRY.json (12 locked screens), frontend/confirmed/watchlist/watchlist_navigation_flow.md (LOCKED flow: FAB semantics, empty-state-first, buried delete, Move-to-Portfolio + Link-to-Goal, back behavior), backend/docs/backend_design_upgrade_tracker_20261125.json (v3.6), src/views/*.py (41 real routes), src/db.py (tables), src/bond_master/service.py (lookup order).
+
+CHECK LIST:
+1. STARTING POINT: the board's first design section must be the LOCKED FRONTEND MAP + Watchlist FAB + -> Add Bond form as the starting point, matching the registry's 12 locked screens.
+2. USER FLOWS: every flow card must match the locked navigation flow behaviors — empty-state-first (LEDGER tab + zeroed notifications on first open), Add Bond form hidden until FAB, lookup order (session cache -> DB cache -> snapshot seed -> live NSDL -> merge -> rating gate), Move-to-Portfolio inline confirm + Link-to-Goal returns-with-entries, buried delete (type ISIN + hold 2s, held never deleted), back preserves entries.
+3. API REQUEST FLOWS: every listed route must exist in src/views with the correct method; every real route for the locked screens should be listed. Flag wrong methods, missing routes, invented routes.
+4. BUSINESS RULES: rating gate AAA-BBB-, danger = any unpaid past month, lifecycle company-OR-ISIN unlock-on-Completed, ERR-entry guard, privacy client-side, provenance per field.
+5. FACT-SOURCING: no invented features/claims (the board history has had 10+ invented claims — hunt for any survivors).
+6. CONSULT: anything you would ADD or CHANGE in the backend dataflow to better serve the locked frontend? (gaps, missing flows, ordering issues) — advisory, clearly marked CONSULT.
+
+REPORT: hc send t1w4 <numbered findings; each OK / WRONG(+correction+evidence file:line) / CONSULT(advisory). Under 300 words.> READ-ONLY. Stay alive after reporting.
