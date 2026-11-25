@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v1.6",
+  "version": "v1.7",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -138,6 +138,13 @@
       "topic": "T2 — community handling recipe extracted from nsepython 2.101 source",
       "summary": "Full working recipe for Akamai-protected sites: curl_cffi impersonate=chrome124 -> warm-up GET / then /option-chain (harvests nsit/_abck/ak_bmsc/bm_sv cookies) -> API calls with Accept+Referer headers -> re-warm+retry on 401/403/404/429/503 -> endpoint fallback rewriting -> Playwright cookie harvest as last resort -> descriptive errors never silent empties. Detail: backend/docs/research/nse_recipe_extraction_20261125.json.",
       "relevance": "Transfers directly: NSE all steps; BSE via www.bseindia.com priming (our unwired COOKIE_PRIME_URL); RBI via fingerprint impersonation; agencies plain."
+    },
+    {
+      "id": "F5",
+      "date": "2026-11-25",
+      "topic": "T2 — merged scraping research (PM stream F3/F4 + agy stream)",
+      "summary": "Both streams agree; agy adds live-verified official endpoints: NSDL bulk ISIN CSV (securities_isin_code id-listing -> ISIN_DETAILS_18-Nov-2026.csv, HTTP 200 — fresher than our 11-Nov snapshot), RBI 3 RSS feeds (200 XML, no scraping needed), SEBI RSS (200), CRISIL AEM JSON servlet rating_sme_listing_service.json (200, metadata: companyCode/ratingDate/ratingFileName) + direct RatingDocs rationale HTML (200, 93KB), CDSL popup-isin.aspx, Acuite connect.acuite.in/liveratings, ICRA ShowRationaleReport. NSE/BSE confirmed impersonation-required. SCORES/SmartODR: DO_NOT_SCRAPE (authenticated PII) — matches D3 boundary. CRISIL robots.txt disallows specific bot UAs (Scrapy/GPTBot etc.) - keep identified custom UA + polite rates.",
+      "relevance": "Recommended stack (merged): stdlib/httpx for NSDL+RSS+bulk CSV; curl_cffi chrome-impersonation for RBI/BSE/NSE; lxml/bs4 for rationale HTML; Playwright only for offline SPA discovery (India Ratings); nsepython 7-step recipe (F4) as the handling blueprint. Files: research/pm_scraping_research_20261125.json + research/agy_scraping_research_20261125.json + research/nse_recipe_extraction_20261125.json."
     }
   ],
   "change_log": [
@@ -168,6 +175,10 @@
     {
       "date": "2026-11-25",
       "change": "v1.6: F4 community recipe extracted (nsepython source); D3 CONFIRMED — existential sources, penetration authorized for public-data collection within stated boundary"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.7: F5 merged research — agy stream DONE (12 sites, live-verified endpoints); both streams cross-checked, no conflicts; agy worker t1w6 closed per Q6"
     }
   ]
 }
