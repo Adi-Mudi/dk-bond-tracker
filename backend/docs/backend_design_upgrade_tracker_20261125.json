@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v3.1",
+  "version": "v3.2",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -110,7 +110,7 @@
       "approved_by": "developer, 2026-11-25",
       "issue": "",
       "status": "CONFIRMED",
-      "resolution": "Latest screen version: b07d462ceea7497388753919cc243847 (chain: ... -> bb197d2d -> b07d462c — outside-in restructure: USER FLOWS + API REQUEST FLOWS sections added at top, source columns retagged per flow); file unchanged: backend/docs/backend_dataflow_design.html"
+      "resolution": "Canvas: latest CLEAN node bb197d2dfa184cc7be46d50ee86e2e59 (stitch edit multi-run corruption at 0cf1b750 discarded). FILE is ahead of Canvas: user-flow band + API mapping band inserted + SLA chip removed, pending Canvas sync (logged). File: backend/docs/backend_dataflow_design.html"
     }
   ],
   "findings": [
@@ -206,6 +206,13 @@
       "topic": "Backend design mandatory checklist — final, grounded in official documentation",
       "summary": "Sources: arc42 12-section template (arc42.org), C4 model (c4model.com), 12-Factor App (12factor.net), Azure Well-Architected pillars (learn.microsoft.com/en-us/azure/well-architected/pillars). Final 16-item mandatory list for the backend design: 1 system context/scope, 2 building-block view, 3 runtime/data-flow view, 4 API contract per endpoint (request/response shapes, codes), 5 data model + schema detail + migrations, 6 deployment view/packaging, 7 cross-cutting concepts (security+secrets, observability/logging, validation, error handling), 8 background jobs + scheduling design, 9 NFR targets as measurable quality scenarios, 10 reliability + recovery (backup/restore, degradation), 11 retention + data governance decisions, 12 versioning + compatibility, 13 testing strategy, 14 dependencies + ADRs, 15 risks + technical debt, 16 glossary. DQ decision: database design is a SECTION of the backend design (arc42 building-block/cross-cutting + C4 container), not a separate document - single SQLite, single product, single developer; split only if the data layer becomes an independent service.",
       "relevance": "This checklist becomes the backend-design review standard (candidate project skill content) and the fill-list for the remaining board gaps (items 4,5,6,7,8,9,12,14,15 absent today)."
+    },
+    {
+      "id": "F12",
+      "date": "2026-11-25",
+      "topic": "ISM — outside-in restructure applied + stitch multi-run failure root-caused",
+      "summary": "Board restructured outside-in per upgraded skill: USER FLOWS band (UF1 install/seed, UF2 add-position lookup [session cache -> DB cache -> snapshot seed -> NSDL -> merge -> rating gate], UF3 daily local reads, UF4 manual refresh, UF5 auto-fetch consent+12h, UF6 background master refresh [per-source cadences], UF9 degradation [failure code -> last-good -> never blocks]) + API REQUEST FLOWS mapping table (GET /watch/lookup, POST /portfolio/<id>/refresh, consent+sync, local reads, background). Recovered from stitch multi-run corruption: re-downloaded clean bb197d2d, surgical python insertion, duplication check passed (1 band, all kept sections intact).",
+      "relevance": "Skill hardened (board-process.md Failure counter); D5 notes file-ahead-of-Canvas pending sync."
     }
   ],
   "change_log": [
@@ -300,6 +307,10 @@
     {
       "date": "2026-11-25",
       "change": "v3.1: web-scraping design restructured from user flow per new skill order — UF1/UF2/UF3/UF4/UF5/UF6/UF9 defined, API request flows mapped, source columns retagged per flow"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v3.2: F12 — outside-in restructure recovered deterministically from stitch multi-run corruption; skill Failure counter added; Canvas/file divergence logged in D5"
     }
   ]
 }
