@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v1.7",
+  "version": "v1.8",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -93,6 +93,15 @@
       "issue": "",
       "status": "CONFIRMED",
       "resolution": ""
+    },
+    {
+      "id": "D4",
+      "date": "2026-11-25",
+      "decision": "DOWNLOAD-FIRST policy: prefer official download paths (bulk files, public JSON APIs, RSS feeds) over scraping for all 12 core sites; respect each site's policy (robots.txt, terms). WAF-circumvention scraping is HELD — not implemented; scrape-only sites stay listed separately pending explicit developer authorization per site. agy worker is a STANDING research lane (never auto-closed, developer order 2026-11-25; overrides Q6 auto-close for this worker); PM runs the second parallel lane; both collect independently and report to t1w4.",
+      "approved_by": "developer, 2026-11-25",
+      "issue": "",
+      "status": "CONFIRMED",
+      "resolution": ""
     }
   ],
   "findings": [
@@ -145,6 +154,13 @@
       "topic": "T2 — merged scraping research (PM stream F3/F4 + agy stream)",
       "summary": "Both streams agree; agy adds live-verified official endpoints: NSDL bulk ISIN CSV (securities_isin_code id-listing -> ISIN_DETAILS_18-Nov-2026.csv, HTTP 200 — fresher than our 11-Nov snapshot), RBI 3 RSS feeds (200 XML, no scraping needed), SEBI RSS (200), CRISIL AEM JSON servlet rating_sme_listing_service.json (200, metadata: companyCode/ratingDate/ratingFileName) + direct RatingDocs rationale HTML (200, 93KB), CDSL popup-isin.aspx, Acuite connect.acuite.in/liveratings, ICRA ShowRationaleReport. NSE/BSE confirmed impersonation-required. SCORES/SmartODR: DO_NOT_SCRAPE (authenticated PII) — matches D3 boundary. CRISIL robots.txt disallows specific bot UAs (Scrapy/GPTBot etc.) - keep identified custom UA + polite rates.",
       "relevance": "Recommended stack (merged): stdlib/httpx for NSDL+RSS+bulk CSV; curl_cffi chrome-impersonation for RBI/BSE/NSE; lxml/bs4 for rationale HTML; Playwright only for offline SPA discovery (India Ratings); nsepython 7-step recipe (F4) as the handling blueprint. Files: research/pm_scraping_research_20261125.json + research/agy_scraping_research_20261125.json + research/nse_recipe_extraction_20261125.json."
+    },
+    {
+      "id": "F6",
+      "date": "2026-11-25",
+      "topic": "T2 — download endpoints cross-verified by PM stream",
+      "summary": "Independent re-verification (identified UA, polite GETs): NSDL bulk discovery 200 (JSON file listing), CRISIL rating_sme_listing_service.json 200 (live docs: companyCode/ratingDate/heading), RBI pressreleases_rss.xml 200 XML, SEBI sebirss.xml 200 XML. Matches agy findings; download-first is viable for ISIN master + ratings metadata + regulator feeds without any scraping.",
+      "relevance": "Exists D2 existential coverage without scraping except NSE/BSE instrument masters, which remain HELD per D4."
     }
   ],
   "change_log": [
@@ -179,6 +195,10 @@
     {
       "date": "2026-11-25",
       "change": "v1.7: F5 merged research — agy stream DONE (12 sites, live-verified endpoints); both streams cross-checked, no conflicts; agy worker t1w6 closed per Q6"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.8: D4 CONFIRMED download-first policy + standing agy worker; F6 PM cross-verification of 4 download endpoints"
     }
   ]
 }
