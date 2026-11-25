@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v1.9",
+  "version": "v2.0",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -168,6 +168,13 @@
       "topic": "T2 — deep data-quality proof beyond HTTP 200 (PM stream)",
       "summary": "NSDL official bulk CSV PROVEN: discovery field 'f' -> /nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv, 200, 264,221 rows (186,123 corporate INE), columns ISIN/NAME_OF_ISSUER/SECURITY_DESCRIPTION/CURRENCY/INTEREST_RATE/MATURITY_DATE/FISN/CFI — 5.6x our bundled snapshot, replaces it as master. BSE debt master PROVEN: ListofScripData segment=Debentures and Bonds WITH Referer+Origin headers (complete param set) -> 200, 5,475 active debt scrips with ISIN_NUMBER/FACE_VALUE/Issuer_Name/SCRIP_CD — no scraping needed, full browser headers only (D1's 403 was incomplete params/headers). CRISIL proven at depth: 200 docs/page incl. large corporates (Tata International, Nov 24 2026), fields companyCode/companyName/industryName/ratingDate/heading/ratingFileName.",
       "limitations": "NSDL CSV lacks rating/payout_cycle/face_value/listing_status (covered by CRISIL+BSE instead). BSE returns Active only. CRISIL covers CRISIL-rated bonds only; rationale body needs per-doc HTML fetch. NSE remains the only site without a download-first path (held per D4)."
+    },
+    {
+      "id": "F8",
+      "date": "2026-11-25",
+      "topic": "ISM (ISIN master) collection — NSE cracked via official API; trifecta complete",
+      "summary": "NSE IS SOLVED without bypass: /api/daily-reports answers 200 on plain stdlib (param key={CM|SLBS|CD|CBM|FO|NBF|INDEX|WDM}) and returns official file URLs on the correct archives domain nsearchives.nseindia.IN (the earlier 404 was the wrong .com host). key=WDM lists WDM-SEC-AVAILABLE-FOR-TRADE -> wdmlist_23112026.csv (HTTP 200, 1.24 MB, 10,624 securities, 3,695 corporate INE) with SECTYPE/SECURITY/ISSUE_NAME(coupon)/ISSUE_DESC/ISSUE_DATE/MAT_DATE/Last IP Dt/Next IP Dt/Cpn Freq(payout cycle)/Last Traded/ISIN NO./STATUS. ISIN-master trifecta: NSDL bulk CSV 264,221 rows + BSE debt 5,475 + NSE WDM 10,624 - all plain polite GETs.",
+      "relevance": "All three ISM sources download-first verified; NSE leaves the HELD list; WDM file adds Cpn Freq + Next IPDt which NSDL CSV lacks - direct feed for the payment ledger."
     }
   ],
   "change_log": [
@@ -210,6 +217,10 @@
     {
       "date": "2026-11-25",
       "change": "v1.9: F7 — deep proofs: NSDL bulk CSV 264k rows, BSE debt master 5,475 scrips via header'd GET, CRISIL depth-verified; limitations recorded"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v2.0: F8 — NSE solved via daily-reports API + nsearchives.nseindia.in; ISM trifecta proven (NSDL+BSE+NSE), all download-first"
     }
   ]
 }
