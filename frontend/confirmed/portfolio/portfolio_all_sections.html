@@ -823,10 +823,19 @@ On-going
 <div class="bg-[#16212E] border border-[#2A3A4C] rounded-xl p-3 flex flex-col gap-2 shadow-sm">
 <div class="flex items-baseline justify-between">
 <span class="text-[10px] font-mono text-[#7A8A99] uppercase font-bold tracking-wider">Payments Mini-Ledger</span>
-<span class="text-[9px] font-mono text-[#93B4FF] bg-[#2456E6]/10 px-1.5 py-0.5 rounded border border-[#2456E6]/20">current first, old last</span>
+<span class="text-[9px] font-mono text-[#93B4FF] bg-[#2456E6]/10 px-1.5 py-0.5 rounded border border-[#2456E6]/20">scheduled first, current next, old last</span>
 </div>
 <div class="flex flex-col gap-1.5">
-<!-- 1. Current Month (Top): 15 Nov 2026 -->
+<!-- 1. Scheduled / Future (Top): 15 Jan 2027 -->
+<div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2456E6]/30">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[#93B4FF] text-[15px]">schedule</span>
+<span class="font-mono text-[#E8EEF5] text-[11px] font-semibold">15 Jan 2027</span>
+<span class="px-1 rounded bg-[#2456E6]/20 text-[#93B4FF] text-[9px] font-mono uppercase">Scheduled</span>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">Sched ₹ 23,125</span>
+</div>
+<!-- 2. Current Month (Middle): 15 Nov 2026 -->
 <div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2456E6]/40 relative overflow-hidden">
 <div class="flex items-center gap-1.5">
 <span class="material-symbols-outlined text-[#4ADE80] text-[15px]">check_circle</span>
@@ -835,88 +844,18 @@ On-going
 </div>
 <span class="font-mono font-bold text-[#4ADE80] text-[11px]">Paid ₹ 23,125</span>
 </div>
-<!-- 2. Subsequent Month: 15 Dec 2026 -->
-<div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2A3A4C]/50">
+<!-- 3. Old / Past Month (Bottom): 15 Oct 2026 -->
+<div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2A3A4C]/50 opacity-70">
 <div class="flex items-center gap-1.5">
 <span class="material-symbols-outlined text-[#4ADE80] text-[15px]">check_circle</span>
-<span class="font-mono text-[#E8EEF5] text-[11px]">15 Dec 2026</span>
+<span class="font-mono text-[#7A8A99] text-[11px]">15 Oct 2026</span>
 </div>
-<span class="font-mono font-bold text-[#4ADE80] text-[11px]">Paid ₹ 23,125</span>
-</div>
-<!-- 3. Future Month (Bottom): 15 Jan 2027 -->
-<div class="flex items-center justify-between p-2 rounded bg-[#1E2C3B]/60 text-xs border border-[#2A3A4C]/50">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[#93B4FF] text-[15px]">schedule</span>
-<span class="font-mono text-[#E8EEF5] text-[11px]">15 Jan 2027</span>
-</div>
-<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">Sched 15 Jan</span>
+<span class="font-mono font-medium text-[#7A8A99] text-[11px]">Paid ₹ 23,125</span>
 </div>
 </div>
 </div>
 <!-- RECORD PREMATURE EXIT PANEL (Replaces Remove Position) -->
-<div class="p-3 rounded-xl bg-[#16212E] border border-[#2A3A4C] flex flex-col gap-2.5 text-xs shadow-sm">
-<div class="flex items-center justify-between border-b border-[#2A3A4C]/60 pb-2">
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[15px] text-[#7A8A99]">output</span>
-<span class="text-[11px] font-bold text-[#E8EEF5] uppercase tracking-wider font-mono">Record Premature Exit</span>
 </div>
-<span class="text-[9px] font-mono text-[#93B4FF] px-1.5 py-0.5 rounded bg-[#2456E6]/10 border border-[#2456E6]/20">Audit Guarded</span>
-</div>
-<p class="text-[10px] text-[#7A8A99] leading-tight">
-Portfolio history is never deleted. Early exit is recorded with a status + reason.
-</p>
-<!-- Exit Date & Proceeds Inputs (Empty placeholders) -->
-<div class="grid grid-cols-2 gap-2">
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#7A8A99]">Exit Date *</label>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2 py-1.5 text-[11px] font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="DD/MM/YYYY" type="text"/>
-</div>
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#7A8A99]">Proceeds Received *</label>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2 py-1.5 text-[11px] font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="₹ Amount received" type="text"/>
-</div>
-</div>
-<!-- Remark Label Chips (Required) -->
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#7A8A99]">Remark Label (Required) *</label>
-<div class="flex flex-wrap gap-1 text-[10px]">
-<button class="px-2 py-0.5 rounded-full bg-[#2456E6] text-white font-medium border border-[#2456E6]" type="button">User liquidity need</button>
-<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Sold early at profit</button>
-<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Issuer exit</button>
-<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Holiday/bank delay</button>
-<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Other</button>
-</div>
-</div>
-<!-- Optional Notes Input -->
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#7A8A99]">Notes (optional)</label>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2 py-1.5 text-[11px] font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Notes (optional)" type="text"/>
-</div>
-<!-- Status Preview Row -->
-<div class="p-2 rounded bg-[#0E1724] border border-[#2A3A4C]/60 flex items-center justify-between text-[10px]">
-<div class="flex items-center gap-1.5">
-<span class="text-[#7A8A99]">Preview:</span>
-<span class="px-1.5 py-0.5 rounded bg-[#2A3A4C] text-[#7A8A99] font-mono font-medium flex items-center gap-1">
-<span class="w-1 h-1 rounded-full bg-[#7A8A99]"></span>
-Exited Early · User liquidity need
-</span>
-</div>
-<span class="text-[9px] text-[#7A8A99] font-mono italic">marked dim at bottom</span>
-</div>
-<!-- Buttons -->
-<div class="flex items-center gap-2 pt-1">
-<button class="flex-1 py-1.5 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center" type="button">
-Record Early Exit
-</button>
-<button class="px-3 py-1.5 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">
-Cancel
-</button>
-</div>
-<!-- Governance Note -->
-<p class="text-[9px] text-[#7A8A99] font-mono leading-tight border-t border-[#2A3A4C]/40 pt-1.5">
-Premature exit is never Danger — it is a closed position with a reason.
-</p>
-</div></div>
 <!-- Fixed Bottom Navigation Bar -->
 <div class="h-16 bg-[#16212E] border-t border-[#2A3A4C] px-2 flex items-center justify-between flex-shrink-0 z-20">
 <button class="flex-1 flex flex-col items-center justify-center gap-1 py-1 text-[#7A8A99]">
@@ -1011,8 +950,7 @@ Premature exit is never Danger — it is a closed position with a reason.
 </button>
 </div>
 <!-- Form Fields -->
-<div class="flex flex-col gap-2.5 pt-1">
-<!-- Actual Received Amount -->
+<div class="flex flex-col gap-2.5 pt-1"><!-- Actual Received Amount -->
 <div class="flex flex-col gap-1">
 <div class="flex justify-between items-center text-[11px]">
 <label class="font-medium text-[#E8EEF5]">Actual Received Amount (₹) *</label>
@@ -1079,6 +1017,46 @@ Holiday delays are labeled, never marked Danger.
 <option>Higher 20% TDS (No PAN verified)</option>
 </select>
 </div>
+<!-- NEW: EARLY EXIT TOGGLE & SETTLEMENT SECTION -->
+<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2456E6]/40 flex flex-col gap-2.5 mt-0.5">
+<div class="flex items-center justify-between cursor-pointer">
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-[#E8EEF5] flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-[#93B4FF]">output</span>
+Position exited early — final settlement
+</span>
+<span class="text-[10px] text-[#7A8A99]">Enables early liquidation and records closure reason</span>
+</div>
+<!-- Toggle switch in preview ON / active state -->
+<div class="w-10 h-6 bg-[#2456E6] rounded-full p-0.5 flex items-center justify-end shadow-inner flex-shrink-0">
+<div class="w-5 h-5 bg-white rounded-full shadow-md"></div>
+</div>
+</div>
+<!-- Revealed Exit Section Details -->
+<div class="pt-2 border-t border-[#2A3A4C]/60 flex flex-col gap-2">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#E8EEF5]">Overall / final amount received *</label>
+<input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded px-2.5 py-1.5 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="e.g. 524000" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#E8EEF5]">Remark Label (Required, pick one) *</label>
+<div class="flex flex-wrap gap-1 text-[10px]">
+<button class="px-2 py-0.5 rounded-full bg-[#2456E6] text-white font-medium border border-[#2456E6]" type="button">User liquidity need</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Sold early at profit</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Issuer exit</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Holiday/bank delay</button>
+<button class="px-2 py-0.5 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C]" type="button">Other</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-medium text-[#7A8A99]">Notes</label>
+<input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded px-2.5 py-1.5 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Exit notes (optional)" type="text"/>
+</div>
+<p class="text-[10px] text-[#7A8A99] font-mono leading-tight pt-0.5">
+Records the final payment, saves the exit reason, and closes the position — full history stays, never deleted, never Danger.
+</p>
+</div>
+</div>
 <!-- Action Buttons -->
 <div class="flex items-center gap-2 pt-1">
 <button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center">
@@ -1091,9 +1069,8 @@ Cancel
 <!-- Helper Callout -->
 <div class="p-2 rounded bg-[#2456E6]/10 border border-[#2456E6]/30 flex items-center gap-1.5 text-[10px] text-[#93B4FF] font-mono">
 <span class="material-symbols-outlined text-[13px] text-[#93B4FF]">info</span>
-<span>Save updates the cell in place — no navigation.</span>
-</div>
-</div></div>
+<span>On save: cell settles → totals update → position status becomes Exited Early (dim).</span>
+</div></div></div>
 </div>
 </div>
 <!-- Column Footer Note -->
