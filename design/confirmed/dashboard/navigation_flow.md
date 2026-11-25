@@ -54,3 +54,6 @@ Every L3 screen shows, top to bottom:
 - Screens: `evidence/redesigned_html/` (34 views) — chrome components are visible in the inner-screen set (`bond_detail_*`, `payment_edit_*`, `search_*`, `share_*`, `settings_*`, `about_*`, `grid_*`, `error_*`, `print_*`).
 - Gallery entry: `evidence/gallery/index.html` (includes the compact flow map).
 - Confirmed dashboard copies: `design/confirmed/dashboard/` (D15 in-place).
+
+## Cashflow tab placement (developer 2026-11-25)
+The locked Dashboard third tab **Cashflow** hosts the **Cashflow Calendar** view (calendar board: `design-skeleton/evidence/cashflow_calendar/cashflow_calendar_all_sections.html` — current month first, then next; paid-only amounts; per-bond schedule). No standalone nav destination; also reachable via More if needed later.
