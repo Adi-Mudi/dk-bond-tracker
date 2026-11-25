@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v1.0",
+  "version": "v1.5",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -66,8 +66,34 @@
       "notes": "starts only after T2, T3, T4 are designed and locked"
     }
   ],
-  "decisions": [],
+  "decisions": [
+    {
+      "id": "D1",
+      "date": "2026-11-25",
+      "decision": "Remove the dead web adapters RBI, NSE, BSE entirely. Lookup = NSDL (live) + india-isin-data snapshot (offline seed).",
+      "approved_by": "developer, 2026-11-25",
+      "issue": "https://github.com/Adi-Mudi/dk-bond-tracker/issues/340",
+      "status": "CLOSED",
+      "resolution": "Removal executed on backend-design-upgrade @ 54d0a6b0; local tier 717 passed / 0 failed; src+tests sweep shows zero dead-source references outside design docs."
+    },
+    {
+      "id": "D2",
+      "date": "2026-11-25",
+      "decision": "The final core website list (12 sites) is fixed as the reference stack for backend source planning: NSDL, CDSL, BSE, NSE, RBI, SEBI, CRISIL, ICRA, CARE, Acuite, India Ratings, SEBI-SMARTODR. Scraping feasibility is tracked separately per site; the list itself is the canonical core, not filtered by reachability.",
+      "approved_by": "developer, 2026-11-25",
+      "issue": "recorded in backend/docs/broker_data_sources_research_20261125.json (final_core_website_list)",
+      "status": "CONFIRMED",
+      "resolution": ""
+    }
+  ],
   "findings": [
+    {
+      "id": "F3",
+      "date": "2026-11-25",
+      "topic": "T2 inputs — scraping stack research for all 12 core sites",
+      "summary": "Two parallel research streams. PM stream: backend/docs/research/pm_scraping_research_20261125.json — per-site feasibility + technique, library comparison (curl_cffi for WAF sites RBI/BSE/NSE, plain httpx for NSDL/agencies, playwright last resort), prior art (jugaad-data, nsepython, nsetools, cloudscraper), framework = existing Adapter protocol + pluggable transports + cookie-priming SessionManager. agy stream: separate agent writing backend/docs/research/agy_scraping_research_20261125.json (report contract: hc send t1w4).",
+      "key_call": "RBI 418 and BSE 403 are TLS-fingerprint/WAF rejections; curl_cffi impersonation is the known fix; BSE needs the cookie-priming wiring our code already half-has (COOKIE_PRIME_URL)."
+    },
     {
       "id": "F2",
       "date": "2026-11-25",
@@ -94,28 +120,8 @@
         "src/bond_master/bse.py",
         "src/bond_master/service.py",
         "src/bond_master/transport.py"
-    ],
+      ],
       "evidence": "probe script /tmp/adapter_probe.py, raw HTTP status check 2026-11-25"
-    }
-  ],
-  "decisions": [
-    {
-      "id": "D1",
-      "date": "2026-11-25",
-      "decision": "Remove the dead web adapters RBI, NSE, BSE entirely. Lookup = NSDL (live) + india-isin-data snapshot (offline seed).",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "https://github.com/Adi-Mudi/dk-bond-tracker/issues/340",
-      "status": "CLOSED",
-      "resolution": "Removal executed on backend-design-upgrade @ 54d0a6b0; local tier 717 passed / 0 failed; src+tests sweep shows zero dead-source references outside design docs."
-    },
-    {
-      "id": "D2",
-      "date": "2026-11-25",
-      "decision": "The final core website list (12 sites) is fixed as the reference stack for backend source planning: NSDL, CDSL, BSE, NSE, RBI, SEBI, CRISIL, ICRA, CARE, Acuite, India Ratings, SEBI-SMARTODR. Scraping feasibility is tracked separately per site; the list itself is the canonical core, not filtered by reachability.",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "recorded in backend/docs/broker_data_sources_research_20261125.json (final_core_website_list)",
-      "status": "CONFIRMED",
-      "resolution": ""
     }
   ],
   "change_log": [
@@ -138,7 +144,10 @@
     {
       "date": "2026-11-25",
       "change": "v1.4: D2 CONFIRMED — final core website list (12 sites) fixed in broker_data_sources_research_20261125.json"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v1.5: F3 added — scraping-stack research (PM stream done; agy stream running, report to t1w4)"
     }
-  ],
-  "version": "v1.4"
+  ]
 }
