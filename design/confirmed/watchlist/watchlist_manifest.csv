@@ -1,0 +1,20 @@
+item,value,source
+page,Watchlist (mobile, LOCKED 2026-11-25),design/confirmed/watchlist/
+canonical_file,watchlist_all_sections.html — the 5-column all-sections board IS the page design (developer: single-file, token discipline),developer order 2026-11-25
+columns,"01 Add Bond sheet (opened via FAB +) | 02 Integrated ledger | 03 Move to Portfolio | 04 Remove flow (hidden) | 05 First open empty state",watchlist_all_sections.html
+shell,"56px bar brand + sync/bell/avatar; sticky ADD FORM|LEDGER tabs; 5-nav Watchlist active; FAB 56px right:16 bottom:104",app_frame contract
+fab_semantics,"Dashboard/Portfolio/Watchlist + -> Add Bond form; Goals + -> Goal form (in design); form hidden until + tapped",developer rulings Q1-Q4 2026-11-25
+first_open,"LEDGER active, zeroed notifications (0 nothing yet / 0 all clear), empty-ledger placeholder, form NOT visible",col05
+notifications_on_top,"WATCHING + ALERTS stats + CRISIL Rating Watch card sit ABOVE the form (AVG EXP YIELD removed)",developer Q6
+form_flow,"ISIN lookup with FETCH states -> duplicate error (ERR-watch-dup) -> grouped A-D fields",src/views/watch.py
+auto_vs_user,"AUTO (fetch-filled, auto chip): Company, ISIN locked chip, Rating, Agency, Coupon, Face Value, Payout Cycle, Issuer, Listing, Maturity, Interest Credit Day, Secured. USER (empty): Expected Yield, Target Invested, Planned Quantity, Broker, Source Note",ONLINE_FACT_FIELDS + developer
+default_history,"Default History (auto) disabled + COMING SOON chip — background automation later; single defaulted ISIN = HIGHER RISK",developer Q1
+broker_typeahead,"predefined list: GoldenPi, Grip Invest, IndiaBonds, Zerodha + free-entry fallback",developer Q3
+per_unit_math,"Value per unit (auto) = Target Invested / Quantity; em-dash until both entered",developer Q5
+multi_broker,"same ISIN allowed once per broker; compare-brokers card (yields + Best Yield + Select)",developer Q4/Q7
+integrated_ledger,"company-first cards: header (name, 4-tier status pill, invested, N bonds/X completed/Y ongoing) + nested [HELD] and [WATCH] rows per different ISIN",developer Q4/Q6
+move_form,"Purchased Quantity, Invested Amount, Execution/Ref Date, Demat/Broker Ref (all empty) + LINK TO GOAL (select existing + Update goals -> return) + Confirm Move",approved Q5
+delete_mechanism,"NO front-facing delete: Details -> overflow -> Remove (red) -> type ISIN + hold 2s; held never deleted here",developer Q4
+interest_credit_day,"input: day of month interest is credited (backend credit_day)",backend
+status_ordering,4-tier Danger > Maturing > On-going > Matured (D43-extended),DESIGN.md 2026-11-25
+stitch_screen,82d410aa4aeb43a3b05fd4faf82174df (project 17110477162175329772),export HTML only
