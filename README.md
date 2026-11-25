@@ -39,11 +39,6 @@ The rebuild keeps what worked — a month grid, a dashboard, a status view — a
 
 ## Screenshots
 
-On a phone:
-
-| Dashboard | Holdings | Watch list |
-| --- | --- | --- |
-| ![Dashboard](android/evidence/after/dashboard.png) | ![Holdings](android/evidence/after/holdings.png) | ![Watch list](android/evidence/after/watchlist.png) |
 
 ## Quick start
 
