@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280, initial-scale=1.0">
+  
+  <title>Watchlist — DK Bond Tracker</title>
+  
+  <link rel="icon" type="image/svg+xml" href="/static/img/logo/favicon.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/logo/favicon-32.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/img/logo/apple-touch-icon-180.png?v=2">
+<link rel="manifest" href="/static/site.webmanifest?v=2">
+  
+  
+  
+
+
+<style data-stitch-frozen="true">@layer base,components,templates,overrides;@layer templates{.privacy-on .money{font-size:0px}.privacy-on .money::after{content:"••••";font-size:14px;letter-spacing:0.14em}.privacy-on .money-input{color:transparent}.brand-mark{width:24px;height:24px;vertical-align:middle;margin-right:0.375rem}th{border-bottom:2px solid var(--border)}td{border-bottom:1px solid var(--border)}}@layer base,components,templates,overrides;@layer components{:root,html[data-theme="light"]{color-scheme:light;--bg:#f8f9fa;--card:#ffffff;--text:#111827;--muted:#5b6472;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--text-xs:12px;--text-sm:14px;--text-md:16px;--text-lg:20px;--text-xl:22px;--weight-normal:400;--weight-semibold:600;--tap-min:48px;--icon:24px;--input-h:48px;--input-text:16px;--border:#e5e7eb;--input-border:#868e96;--focus-ring:2px solid #2563eb;--accent:#2563eb;--bar-muted:#d1d5db;--on-accent:#ffffff;--accent-hover:#1d4ed8;--danger-fg:#b91c1c;--danger-bg:#fef2f2;--teal-fg:#0f766e;--teal-bg:#f0fdfa;--ongoing-fg:#16a34a;--ongoing-bg:#f0fdf4;--matured-fg:#5b6472;--matured-bg:#f3f4f6;--watching-fg:#2563eb;--watching-bg:#eff6ff;--warn-fg:#b45309;--warn-bg:#fffbeb;--info-fg:#1f4f9a;--info-bg:#e8f0fb;--ok-fg:#1d6b3a;--ok-bg:#e6f6ec;--blue-light:#d0ebff;--paid:#d3f9d8;--due:#ffc9c9;--ongoing:#ff922b;--completed:#69db7c;--current-month:#fff3bf;--header-row:#e9ecef;--shadow-color:rgba(30,30,30,0.08);--shadow-color-strong:rgba(0,0,0,0.12)}html[data-theme="dark"]{color-scheme:dark;--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#8b949e;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--text-xs:12px;--text-sm:14px;--text-md:16px;--text-lg:20px;--text-xl:22px;--weight-normal:400;--weight-semibold:600;--tap-min:48px;--icon:24px;--input-h:48px;--input-text:16px;--border:#30363d;--input-border:#8b949e;--focus-ring:2px solid #58a6ff;--accent:#58a6ff;--bar-muted:#30363d;--on-accent:#0d1117;--accent-hover:#79c0ff;--danger-fg:#ff7b72;--danger-bg:#2b1519;--teal-fg:#5eead4;--teal-bg:#042f2e;--ongoing-fg:#56d364;--ongoing-bg:#10251a;--matured-fg:#8b949e;--matured-bg:#21262d;--watching-fg:#79c0ff;--watching-bg:#12233d;--warn-fg:#e3b341;--warn-bg:#201a08;--info-fg:#79c0ff;--info-bg:#12233d;--ok-fg:#56d364;--ok-bg:#10251a;--blue-light:#12233d;--paid:#10251a;--due:#2b1519;--ongoing:#f0883e;--completed:#56d364;--current-month:#201a08;--header-row:#21262d;--shadow-color:rgba(0,0,0,0.5);--shadow-color-strong:rgba(0,0,0,0.6)}@media (prefers-color-scheme:dark){html[data-theme="system"]{color-scheme:dark;--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#8b949e;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--text-xs:12px;--text-sm:14px;--text-md:16px;--text-lg:20px;--text-xl:22px;--weight-normal:400;--weight-semibold:600;--tap-min:48px;--icon:24px;--input-h:48px;--input-text:16px;--border:#30363d;--input-border:#8b949e;--focus-ring:2px solid #58a6ff;--accent:#58a6ff;--bar-muted:#30363d;--on-accent:#0d1117;--accent-hover:#79c0ff;--danger-fg:#ff7b72;--danger-bg:#2b1519;--teal-fg:#5eead4;--teal-bg:#042f2e;--ongoing-fg:#56d364;--ongoing-bg:#10251a;--matured-fg:#8b949e;--matured-bg:#21262d;--watching-fg:#79c0ff;--watching-bg:#12233d;--warn-fg:#e3b341;--warn-bg:#201a08;--info-fg:#79c0ff;--info-bg:#12233d;--ok-fg:#56d364;--ok-bg:#10251a;--blue-light:#12233d;--paid:#10251a;--due:#2b1519;--ongoing:#f0883e;--completed:#56d364;--current-month:#201a08;--header-row:#21262d;--shadow-color:rgba(0,0,0,0.5);--shadow-color-strong:rgba(0,0,0,0.6)}}body.print-statement{--border:#1e1e1e;--text:#1e1e1e;--muted:#495057;--header-row:#e9ecef;--due:#ffc9c9;--ongoing-light:#ffe8cc;--completed-light:#d3f9d8;--blue-light:#d0ebff;--white:#ffffff;--card-bg:#f1f3f5;--screen-bg:#6c757d;--badge-bg:#fff3bf;--sheet-border:#adb5bd;--shadow-overlay:rgba(0,0,0,0.35);--shadow-soft:rgba(30,30,30,0.25)}*{box-sizing:border-box;margin:0px;padding:0px}body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}html{scroll-padding-top:4.5rem}a{color:var(--accent)}a:hover{color:var(--accent-hover)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[role="tab"]:focus-visible,.tab:focus-visible,.dt-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.money{font-variant-numeric:tabular-nums}.caption{font-size:12px;color:var(--muted)}.brand{font-size:16px;font-weight:600;padding:0px 8px;margin-bottom:24px}.content{max-width:68.75rem}.view{display:none}.view.active{display:block}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}h1{font-size:22px;font-weight:650}h2{font-size:16px;font-weight:600;margin-bottom:16px}.header-actions{display:flex;gap:8px}.btn{font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:14px;border-radius:6px;padding:8px 16px;min-height:3rem;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text)}.btn:hover{background:var(--bg);color:var(--text)}.btn.active,.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}.btn-primary:hover,.btn.active:hover{background:var(--accent-hover);border-color:var(--accent-hover)}.btn-sm{padding:6px 12px;font-size:12px;min-height:3rem}.btn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:3rem;border:1.5px solid var(--border);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;background:var(--blue-light);color:var(--text);text-decoration:none}.btn-secondary:hover{background:var(--bg)}.ui-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 16px;border-radius:8px;border:1.5px solid transparent;font-style:inherit;font-variant:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;background:transparent;color:var(--accent)}.ui-btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}.ui-btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}.ui-btn-secondary{border-color:var(--accent);background:transparent;color:var(--accent)}.ui-btn-secondary:hover{background:var(--watching-bg)}.ui-btn-destructive{border-color:var(--danger-fg);background:transparent;color:var(--danger-fg)}.ui-btn-destructive:hover{background:var(--danger-bg)}.ui-btn-destructive-fill{background:var(--danger-fg);border-color:var(--danger-fg);color:var(--on-accent)}.ui-btn-text{min-height:3rem;padding:12px 8px;border-color:transparent;background:transparent;color:var(--accent)}.ui-btn-text:hover{text-decoration:underline}.ui-btn-compact{min-height:3rem;padding:8px 12px;font-size:14px}.payment-edit-card{max-width:30rem;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px var(--shadow-color)}.payment-edit-card h4{font-size:14px;margin-bottom:4px}.payment-edit-card .ctx{font-size:12px;color:var(--muted);margin-bottom:12px}.field-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:14px}.theme-switch{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}.theme-switch .theme-seg{border-top-width:medium;border-bottom-width:medium;border-left-width:medium;border-top-style:none;border-bottom-style:none;border-left-style:none;border-top-color:currentcolor;border-bottom-color:currentcolor;border-left-color:currentcolor;border-image:none;border-radius:0px;border-right:1px solid var(--border);background:var(--card);color:var(--muted);padding:6px 10px;min-height:3rem;font-size:12px}.theme-switch .theme-seg:last-child{border-right-width:medium;border-right-style:none;border-right-color:currentcolor}.theme-switch .theme-seg:hover{background:var(--bg);color:var(--text)}.theme-switch .theme-seg.active{background:var(--accent);color:var(--on-accent);font-weight:600}.card{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 1px 2px var(--shadow-color);padding:clamp(1rem,0.65rem + 1.5vw,1.5rem);margin-bottom:24px;container:card/inline-size}.stat-card{flex:1 1 0%;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 1px 2px var(--shadow-color);padding:clamp(1rem,0.65rem + 1.5vw,1.5rem)}.stat-card.primary{flex:2 1 0%}.stat-label{font-size:12px;color:var(--muted);margin-bottom:8px}.stat-value{font-size:22px;font-weight:650}.stat-card.primary .stat-value{font-size:28px}.stat-sub{font-size:14px;font-weight:400;color:var(--muted)}.outstanding-line{margin-bottom:24px}.chart-row{display:flex;align-items:center;gap:16px;margin-bottom:8px}.chart-label{width:min(10rem,45%);flex:0 0 auto;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-space{flex:1 1 0%}.bar{height:16px;border-radius:4px;background:var(--bar-muted);overflow:hidden}.bar span{display:block;height:100%;background:var(--accent);min-width:0.5rem}.chart-legend{display:flex;gap:16px;margin-top:16px;font-size:12px;color:var(--muted)}.swatch{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:0.25rem}.tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin-bottom:24px}.tab{font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:14px;background:none;border-width:medium medium 2px;border-style:none none solid;border-color:currentcolor currentcolor transparent;border-image:none;padding:8px 16px;min-height:3rem;display:inline-flex;align-items:center;color:var(--muted);cursor:pointer}.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}.panel{display:none}.panel.active{display:block}.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 1px 2px var(--shadow-color);overflow-x:auto;margin-bottom:16px;container:table-shell/inline-size}table{width:100%;border-collapse:collapse}th{text-align:left;font-size:12px;font-weight:600;color:var(--muted);padding:12px;border-bottom:1px solid var(--border);white-space:nowrap}td{height:48px;padding:0px 12px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}tr:last-child td{border-bottom-width:medium;border-bottom-style:none;border-bottom-color:currentcolor}.num{text-align:right;font-variant-numeric:tabular-nums}th.num{text-align:right}.co-name{display:block}.co-isin{display:block;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.co-stale{display:inline-block;margin-left:var(--space-2);font-size:12px;color:var(--muted);font-style:italic}.btn-refresh-isin{margin-top:4px;font-size:12px}.co-purchased{display:block;font-size:12px;color:var(--muted)}.chip{display:inline-block;font-size:12px;font-weight:600;padding:4px 8px;border-radius:999px;white-space:nowrap}.chip-danger{color:var(--danger-fg);background:var(--danger-bg)}.chip-neutral{color:var(--muted);background:var(--card)}.chip-pending{color:var(--warn-fg);background:var(--warn-bg)}.chip-ongoing{color:var(--ongoing-fg);background:var(--ongoing-bg)}.chip-matured{color:var(--matured-fg);background:var(--matured-bg)}.chip-watching{color:var(--watching-fg);background:var(--watching-bg)}.chip-invalid{color:var(--danger-fg);background:var(--danger-bg)}.chip-missed{color:var(--danger-fg);background:var(--danger-bg)}.chip-rating{min-width:6em;text-align:center}.chip-rating-aaa{color:var(--ongoing-fg);background:var(--ongoing-bg)}.chip-rating-a{color:var(--watching-fg);background:var(--watching-bg)}.chip-rating-amber{color:var(--warn-fg);background:var(--warn-bg)}.chip-rating-none{color:var(--matured-fg);background:var(--matured-bg)}.fetch-source-cached{background:var(--warn-bg);color:var(--warn-fg)}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:16px;align-items:start;container:form-shell/inline-size}.field label{display:block;font-size:14px;font-weight:normal;color:var(--text);margin-bottom:6px}.field input,.field select{font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:var(--input-text);width:100%;height:var(--input-h);padding:12px;border:1px solid var(--input-border);border-radius:8px;background:var(--card);color:var(--text)}::placeholder{color:var(--muted);opacity:1}.field input[readonly]{background:var(--bg);color:var(--muted);border-color:transparent}.field .field-error{margin:4px 0px 0px;font-size:12px;color:var(--danger-fg)}.field-input-suffix{position:relative}.field-input-suffix>span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}.field-input-suffix input{padding-left:28px}.field-input-suffix.pct input{padding-left:12px;padding-right:28px}.field-input-suffix.pct>span{left:auto;right:12px}.field-input-suffix>.rupee{left:12px}.field input[aria-invalid="true"]{border:1px solid var(--danger-fg)}.field .caption{margin-top:4px}.check-row{display:flex;align-items:center;gap:8px;padding:8px 0px;min-height:3rem}.check-row input[type="checkbox"],.checkbox-line input[type="checkbox"],.check-inline input[type="checkbox"],.share-checks input[type="checkbox"],.share-format input[type="radio"],.field input[type="checkbox"]{appearance:none;position:relative;box-sizing:border-box;display:inline-grid;place-items:center;width:3rem;height:3rem;min-width:3rem;min-height:3rem;margin:0px;padding:0px;border:0px;background:transparent;accent-color:var(--accent);cursor:pointer;vertical-align:middle}.check-row input[type="checkbox"]::before,.checkbox-line input[type="checkbox"]::before,.check-inline input[type="checkbox"]::before,.share-checks input[type="checkbox"]::before,.share-format input[type="radio"]::before,.field input[type="checkbox"]::before{content:"";box-sizing:border-box;width:1.25rem;height:1.25rem;border:2px solid var(--input-border);border-radius:3px;background:var(--card)}.share-format input[type="radio"]::before{border-radius:50%}.check-row input[type="checkbox"]:checked::before,.checkbox-line input[type="checkbox"]:checked::before,.check-inline input[type="checkbox"]:checked::before,.share-checks input[type="checkbox"]:checked::before,.share-format input[type="radio"]:checked::before,.field input[type="checkbox"]:checked::before{background:var(--accent);border-color:var(--accent)}.check-row input[type="checkbox"]:checked::after,.checkbox-line input[type="checkbox"]:checked::after,.check-inline input[type="checkbox"]:checked::after,.share-checks input[type="checkbox"]:checked::after,.field input[type="checkbox"]:checked::after{content:"✓";position:absolute;inset:0px;display:grid;place-items:center;color:var(--on-accent);font-size:1rem;font-weight:700;line-height:1}.share-format input[type="radio"]:checked::after{content:"";position:absolute;top:50%;left:50%;width:0.5rem;height:0.5rem;transform:translate(-50%,-50%);border-radius:50%;background:var(--on-accent)}.progress{height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin:8px 0px}.progress span{display:block;height:100%;width:0px;background:var(--accent)}.goal-rows{display:flex;gap:48px;margin-bottom:8px}.note-line{margin-top:16px}.section-gap{margin-top:24px}.sidebar nav a{display:block;width:100%;text-align:left;font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:14px;color:var(--muted);background:none;border-width:medium;border-style:none;border-color:currentcolor;border-image:none;border-radius:6px;padding:8px;margin-bottom:4px;cursor:pointer;text-decoration:none}.sidebar nav a:hover{background:var(--bg);color:var(--text)}body[data-page="/"] nav a[href="/"],body[data-page="/portfolio"] nav a[href="/portfolio"],body[data-page="/watch"] nav a[href="/watch"],body[data-page="/goals"] nav a[href="/goals"],body[data-page="/notifications"] nav a[href="/notifications"],body[data-page="/settings"] nav a[href="/settings"]{background:var(--watching-bg);color:var(--accent);font-weight:600}.view-header .header-actions{margin-left:auto}.banner{border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:12px 0px;font-size:13px}.banner-error{background:var(--danger-bg)}.banner-title{font-weight:600;margin-bottom:4px}.banner-info{background:var(--watching-bg)}.flash-banner{background:var(--ongoing-bg)}.flash-banner .banner-title{font-weight:600;margin-bottom:4px}.empty-note{font-size:13px;color:var(--muted);padding:10px 4px}.table-note{font-size:12px;color:var(--muted);margin-top:8px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}.chip-completed{color:var(--matured-fg);background:var(--matured-bg)}.bell-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:3rem;min-height:3rem;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;user-select:none}.bell-badge-v3{position:absolute;top:2px;right:2px;display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0px 4px;border-radius:999px;background:var(--danger-fg);color:var(--on-accent);font-size:12px;font-weight:600}.bell-badge-v3:empty,.bell-badge-v3[data-count="0"]{display:none}.alert-dropdown-v3{display:none;position:absolute;right:0px;top:100%;margin-top:6px;z-index:60;width:min(23.75rem,80vw);max-width:80vw;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 6px var(--shadow-color-strong);overflow:hidden}.bell-wrap.open .alert-dropdown-v3{display:block}.alert-dropdown-v3 .dd-head{font-size:14px;font-weight:600;background:var(--bar-muted);border-bottom:1px solid var(--border);color:var(--text);padding:8px 10px}.alert-item-v3{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:8px 10px;border-bottom:1px solid var(--border);font-size:12.5px}.alert-item-v3{flex-direction:column;gap:2px;font-size:14px;border-left:4px solid transparent}.alert-item-v3 .ts{font-size:12px;color:var(--muted);white-space:nowrap}.alert-item-v3.sev-danger{border-left:4px solid var(--danger-fg)}.alert-item-v3.sev-due_today{border-left-color:var(--warn-fg)}.alert-item-v3.sev-warn{border-left:4px solid var(--warn-fg)}.alert-item-v3.sev-reminder{border-left:4px solid var(--accent)}.alert-item-v3.sev-info{border-left:4px solid var(--ongoing-fg)}.alert-item-v3.sev-maturity_soon{border-left:4px solid var(--teal-fg)}.dd-actions{padding:8px 10px}.rupee::after{content:"₹"}.filter-chips{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}.filter-chip{min-width:3rem;min-height:3rem}.filter-chip.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}tr[hidden]{display:none}.current-month-row td{background:var(--watching-bg)}.setup-guide{margin-top:16px;border:1px solid var(--border);border-radius:6px;padding:12px}.setup-guide summary{min-height:3rem;display:flex;align-items:center;cursor:pointer;font-weight:600}.guide-list,.trouble-list{margin:8px 0px 0px 20px;font-size:13px;color:var(--muted)}.guide-list li,.trouble-list li{margin-bottom:4px}.test-banner{margin-top:12px;padding:12px;border-radius:6px;font-size:13px}.banner-success{color:var(--ongoing-fg);background:var(--ongoing-bg);border:1px solid var(--ongoing-fg)}.banner-failure{color:var(--danger-fg);background:var(--danger-bg);border:1px solid var(--danger-fg)}.alert-feed .alert-card{display:flex;gap:10px;align-items:baseline;padding:8px 10px;margin-top:8px;border-top-color:;border-top-style:;border-top-width:;border-right-color:;border-right-style:;border-right-width:;border-bottom-color:;border-bottom-style:;border-bottom-width:;border-left-color:;border-left-style:;border-image-source:;border-image-slice:;border-image-width:;border-image-outset:;border-image-repeat:;border-left-width:4px;border-radius:6px;background:var(--card)}.alert-card .alert-severity{font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.03em;min-width:5.75rem}.alert-card .alert-message{flex:1 1 0%}.alert-card .alert-time{color:var(--muted);font-size:12px;white-space:nowrap}.alert-card.alert-danger{border-left-color:var(--danger-fg)}.alert-card.alert-danger .alert-severity{color:var(--danger-fg)}.alert-card.alert-reminder{border-left-color:var(--accent)}.alert-card.alert-reminder .alert-severity{color:var(--accent)}.alert-card.alert-warn{border-left-color:var(--warn-fg)}.alert-card.alert-warn .alert-severity{color:var(--warn-fg)}.alert-card.alert-info{border-left-color:var(--muted)}.alert-card.alert-info .alert-severity{color:var(--muted)}@media (max-width:768px){.sidebar{position:static;width:100%;padding:12px;border-right-width:medium;border-right-style:none;border-right-color:currentcolor;border-bottom:1px solid var(--border)}.brand{padding:0px 4px;margin-bottom:8px}.sidebar nav{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto}.sidebar nav a{display:inline-flex;align-items:center;flex:0 0 auto;width:auto;min-height:3rem;padding:10px 12px;margin-bottom:0px;white-space:nowrap}.card{padding:16px}.stat-row{flex-wrap:wrap}.stat-card,.stat-card.primary{flex:1 1 100%;padding:16px}.view-header{flex-wrap:wrap;gap:12px;margin-bottom:16px}.header-actions{flex-wrap:wrap}.form-grid{grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}#returns-table,#watch-list,#holdings-table,#payouts-table{min-width:40rem}.btn{min-height:3rem}.tab{display:inline-flex;align-items:center;min-height:3rem}.check-row{min-height:3rem}.alert-card{flex-wrap:wrap}.alert-card .alert-severity{min-width:0px}.alert-card .alert-message{flex:1 1 100%}.alert-card .alert-time{margin-left:auto}.chart-row{flex-wrap:wrap}.chart-label{width:100%;white-space:normal}.details-row .facts-grid{grid-template-columns:repeat(auto-fit,minmax(8rem,1fr))}}@media (min-width:640px) and (max-width:768px){.form-grid{grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))}.details-row .facts-grid{grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}}:root{--c-green:#16a34a;--c-amber:#d97706;--c-red:#dc2626;--c-blue:#2563eb;--sidebar-w:15rem;--sidebar-w-collapsed:3.75rem;--touch-min:48px;--gap-sm:0.5rem;--radius:0.5rem}html[data-theme="dark"]{--c-green:#56d364;--c-amber:#e3b341;--c-red:#ff7b72;--c-blue:#58a6ff}@media (prefers-color-scheme:dark){html[data-theme="system"]{--c-green:#56d364;--c-amber:#e3b341;--c-red:#ff7b72;--c-blue:#58a6ff}}body{text-size-adjust:100%}h1{font-size:clamp(1.25rem,1rem + 2vw,1.75rem)}h2{font-size:clamp(1rem,0.9rem + 0.6vw,1.25rem)}img,svg,video,canvas{max-width:100%}.app-shell{display:flex;align-items:stretch;min-height:100vh}.app-body{display:flex;flex-direction:column;flex:1 1 auto;min-width:0px}.sidebar{position:fixed;top:0px;left:0px;bottom:0px;z-index:70;width:min(16rem,82vw);max-width:100%;display:flex;flex-direction:column;gap:0.25rem;background:var(--card);border-right:1px solid var(--border);padding:1rem 0.75rem;transform:translateX(-100%);transition:transform 0.2s}body.drawer-open .sidebar{transform:translateX(0px)}.sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:1rem}.brand{font-size:1rem;font-weight:600;padding:0px 0.5rem;margin:0px}.collapse-btn{display:none;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:var(--radius);font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:0.75rem;padding:0.25rem 0.5rem;min-height:3rem;cursor:pointer;white-space:nowrap}.sidebar nav{display:flex;flex-flow:column;gap:0.5rem;flex:1 1 auto;min-width:0px;overflow:visible}.sidebar nav a{display:flex;align-items:center;gap:0.75rem;width:100%;min-height:var(--touch-min);padding:0.5rem 0.75rem;border-radius:var(--radius);color:var(--muted);text-decoration:none;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebar nav a::before{font-size:1.05rem;line-height:1;flex:0 0 auto;width:1.25rem;text-align:center;opacity:0.85}.sidebar nav a[href="/"]::before{content:"▦"}.sidebar nav a[href="/portfolio"]::before{content:"▤"}.sidebar nav a[href="/watch"]::before{content:"◎"}.sidebar nav a[href="/goals"]::before{content:"◆"}.sidebar nav a[href="/notifications"]::before{content:"◔"}.sidebar nav a[href="/settings"]::before{content:"⚙"}.sidebar nav a:hover{background:var(--bg);color:var(--text)}.topbar{display:flex;align-items:center;gap:var(--gap-sm);padding:calc(0.5rem + env(safe-area-inset-top)) 0.75rem 0.5rem;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0px;z-index:40;min-width:0px}.page-title{flex:1 1 auto;min-width:0px;font-weight:600;font-size:clamp(0.95rem,0.9rem + 0.4vw,1.15rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.topbar-actions{display:flex;align-items:center;gap:0.5rem;flex:0 0 auto}.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:3rem;height:3rem;min-width:3rem;min-height:3rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--text);cursor:pointer;position:relative}.icon-btn:hover{background:var(--bg)}.guide-btn{color:var(--c-amber);border-color:var(--c-amber)}.overflow{position:relative}.overflow-panel{display:none;position:absolute;right:0px;top:calc(100% + 0.375rem);z-index:80;width:min(20rem,90vw);max-width:90vw;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 0.5rem 1.5rem var(--shadow-color-strong);padding:0.5rem}.overflow.open .overflow-panel{display:block}.overflow-panel .theme-switch{display:flex;width:100%;margin-bottom:0.5rem}.overflow-panel .theme-switch .theme-seg{flex:1 1 auto;min-height:3rem}.overflow-panel .privacy-toggle{width:100%;min-height:3rem;margin-bottom:0.5rem}.overflow-panel .bell-wrap{width:100%;min-height:3rem;padding:0.5rem;border-radius:var(--radius)}.overflow-panel .alert-dropdown-v3{position:static;width:100%;max-width:100%;margin-top:0.5rem}.main{margin-left:0px;padding:clamp(1rem,0.5rem + 2.2vw,2.5rem) clamp(1rem,0.5rem + 2.2vw,2.5rem) 4.5rem;flex:1 1 auto;min-width:0px}.app-footer{margin-top:1.5rem;padding-top:0.75rem;border-top:1px solid var(--border)}.bottom-tabs{position:fixed;left:0px;right:0px;bottom:0px;display:flex;background:var(--card);border-top:1px solid var(--border);z-index:50;padding-bottom:env(safe-area-inset-bottom)}.bottom-tab{flex:1 1 0px;min-width:0px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.125rem;min-height:var(--touch-min);padding:0.375rem 0.25rem;font-size:0.75rem;color:var(--muted);text-decoration:none;background:none;border-width:medium;border-style:none;border-color:currentcolor;border-image:none;cursor:pointer}.bottom-tab .tab-ico{font-size:1.05rem}.bottom-tab:hover{color:var(--text)}.zone{background:var(--card);border:1px dashed var(--border);border-radius:var(--radius);padding:0.75rem;margin-bottom:1rem}.zone-title{font-size:0.75rem;font-weight:600;letter-spacing:0.04em;color:var(--muted);margin-bottom:0.5rem}.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:0.75rem;margin-bottom:1rem}@media (min-width:320px){.zone{padding:0.75rem}}@media (min-width:360px){.topbar{padding:0.5rem 0.875rem}}@media (min-width:375px){.icon-btn{width:3rem;height:3rem}}@media (min-width:414px){.zone{padding:0.875rem}}@media (min-width:480px){.stat-row{grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}}body[data-page="/watch"] .drawer-btn{display:none}@media (max-width:767px){.drawer-btn{display:none}}@media (min-width:768px){.drawer-btn{display:none}.collapse-btn{display:inline-block}.sidebar{position:sticky;top:0px;transform:none;height:100vh;width:var(--sidebar-w);padding:1.5rem 1rem}.sidebar-head{margin-bottom:1.5rem}.main{padding:clamp(1rem,0.5rem + 2.2vw,2.5rem)}.bottom-tabs{display:none}body.sidebar-collapsed .sidebar{width:var(--sidebar-w-collapsed)}body.sidebar-collapsed .sidebar .brand,body.sidebar-collapsed .sidebar .collapse-label{display:none}body.sidebar-collapsed .sidebar nav a{justify-content:center;gap:0px;padding-left:0px;padding-right:0px;font-size:0px}body.sidebar-collapsed .sidebar nav a::before{font-size:1.05rem}}@media (min-width:1024px){.sidebar{padding:1.5rem 1.25rem}}@media (min-width:1440px){}@container card (max-width:34rem){.chart-row{flex-wrap:wrap}.chart-legend{flex-wrap:wrap}}@container form-shell (max-width:30rem){.field label{font-size:14px}.field input,.field select{font-size:var(--input-text)}}@container table-shell (max-width:40rem){th,td{padding-left:0.5rem;padding-right:0.5rem}}a.chip{display:inline-flex;align-items:center;justify-content:center;min-height:3rem}.btn-refresh-isin{display:inline-flex;align-items:center;min-height:3rem}.dd-actions{display:flex;flex-direction:column;gap:0.5rem}.alert-feed .alert-card{min-height:3rem}.about-link,.fetch-link{position:relative}.about-link::after,.fetch-link::after{content:"";position:absolute;inset:-1.125rem -0.25rem}.caption-tap-link{position:relative}.caption-tap-link::after{content:"";position:absolute;inset:-1.125rem -0.25rem}.caption-tap-corridor{display:block;margin-top:1.75rem;margin-bottom:1.75rem}.more-details>summary{min-height:3rem;display:flex;align-items:center}}@layer overrides{th{border-bottom:1px solid var(--border)}tr:last-child td{border-bottom-width:medium;border-bottom-style:none;border-bottom-color:currentcolor}}@layer components{:root{--tip-red-bg:#fee2e2;--tip-red-text:#7f1d1d;--tip-red-line:#dc2626;--tip-green-bg:#dcfce7;--tip-green-text:#14532d;--tip-green-line:#16a34a;--tip-blue-bg:#eff6ff;--tip-blue-text:#1e3a8a;--tip-blue-line:#2563eb;--tip-amber-bg:#fef3c7;--tip-amber-text:#78350f;--tip-amber-line:#d97706}html[data-theme="dark"]{--tip-red-bg:#2b1519;--tip-red-text:#fecaca;--tip-green-bg:#10251a;--tip-green-text:#bbf7d0;--tip-blue-bg:#12233d;--tip-blue-text:#bfdbfe;--tip-amber-bg:#201a08;--tip-amber-text:#fde68a}@media (prefers-color-scheme:dark){html[data-theme="system"]{--tip-red-bg:#2b1519;--tip-red-text:#fecaca;--tip-green-bg:#10251a;--tip-green-text:#bbf7d0;--tip-blue-bg:#12233d;--tip-blue-text:#bfdbfe;--tip-amber-bg:#201a08;--tip-amber-text:#fde68a}}.tip-wrap{position:relative;display:inline-flex;align-items:center;gap:0.25rem}.tip-trigger{position:relative;display:inline-flex;align-items:center;justify-content:center;width:1.35rem;height:1.35rem;padding:0px;font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:0.75rem;line-height:1;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);cursor:pointer}.tip-trigger::after{content:"";position:absolute;inset:-0.95rem}.tip-bubble{display:none;position:absolute;z-index:95;top:calc(100% + 0.375rem);left:0px;width:max-content;max-width:16rem;border-top-color:;border-top-style:;border-top-width:;border-right-color:;border-right-style:;border-right-width:;border-bottom-color:;border-bottom-style:;border-bottom-width:;border-left-color:;border-left-style:;border-image-source:;border-image-slice:;border-image-width:;border-image-outset:;border-image-repeat:;border-left-width:4px;border-radius:6px;padding:0.375rem 0.5rem;font-size:0.75rem;line-height:1.45;text-align:left;background:var(--card);color:var(--text);box-shadow:0 0.375rem 1.125rem var(--shadow-color-strong)}.tip-wrap:hover .tip-bubble,.tip-trigger:focus+.tip-bubble,.tip-wrap.tip-open .tip-bubble{display:block}.tip-bubble .tip-head{display:block;font-weight:600}.tip-bubble .tip-text{display:block}.tip-bubble.tip-blocking{background:var(--tip-red-bg);border-top-color:;border-right-color:;border-bottom-color:;border-left-color:var(--tip-red-line);color:var(--tip-red-text)}.tip-bubble.tip-status{background:var(--tip-green-bg);border-top-color:;border-right-color:;border-bottom-color:;border-left-color:var(--tip-green-line);color:var(--tip-green-text)}.tip-bubble.tip-howto{background:var(--tip-blue-bg);border-top-color:;border-right-color:;border-bottom-color:;border-left-color:var(--tip-blue-line);color:var(--tip-blue-text)}.tip-bubble.tip-warning{background:var(--tip-amber-bg);border-top-color:;border-right-color:;border-bottom-color:;border-left-color:var(--tip-amber-line);color:var(--tip-amber-text)}.guide-popover[hidden],.why-popover[hidden]{display:none}.guide-popover,.why-popover{position:fixed;inset:0px;z-index:96;display:flex;align-items:flex-start;justify-content:center;padding:0.75rem;overflow-y:auto;background:rgba(0,0,0,0.35)}.guide-inner,.why-inner{width:min(34rem,94vw);max-width:100%;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:0 0.5rem 1.875rem var(--shadow-color-strong)}.guide-title,.why-title{font-size:1rem;font-weight:600;margin-bottom:0.25rem}.guide-sub{font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem}.guide-rule{display:flex;gap:0.5rem;align-items:flex-start;border-left:4px solid var(--border);border-radius:0px 6px 6px 0px;padding:0.375rem 0.5rem;margin-bottom:0.375rem;font-size:0.8rem}.guide-rule .guide-word{font-weight:600}.guide-rule.guide-blocking{background:var(--tip-red-bg);border-left-color:var(--tip-red-line);color:var(--tip-red-text)}.guide-rule.guide-status{background:var(--tip-green-bg);border-left-color:var(--tip-green-line);color:var(--tip-green-text)}.guide-rule.guide-howto{background:var(--tip-blue-bg);border-left-color:var(--tip-blue-line);color:var(--tip-blue-text)}.guide-rule.guide-warning{background:var(--tip-amber-bg);border-left-color:var(--tip-amber-line);color:var(--tip-amber-text)}.guide-foot{display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.75rem}.guide-tips{list-style:none;margin:0px;padding:0px;display:flex;flex-direction:column;gap:0.375rem}.guide-tips li{display:flex;align-items:flex-start;gap:0.375rem;font-size:0.8rem}.guide-sub.legend{margin-top:0.75rem}.disclaimer-box{background:var(--tip-red-bg);color:var(--tip-red-text);border:1px solid var(--tip-red-line);border-radius:8px;padding:0.625rem 0.75rem;font-size:0.8rem;line-height:1.5}.why-body{font-size:0.85rem;line-height:1.6}.why-point{background:var(--tip-amber-bg);color:var(--tip-amber-text);border:1px solid var(--tip-amber-line);border-radius:6px;padding:0.5rem 0.625rem;margin:0.5rem 0px}.why-flip{background:var(--tip-blue-bg);color:var(--tip-blue-text);border:1px solid var(--tip-blue-line);border-radius:6px;padding:0.5rem 0.625rem;margin:0.5rem 0px}.why-links{font-size:0.8rem;color:var(--muted);margin-top:0.5rem}.search-wrap{position:relative}.search-panel{position:absolute;right:0px;top:calc(100% + 0.375rem);z-index:85;width:min(26rem,92vw);max-width:92vw;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 0.5rem 1.5rem var(--shadow-color-strong);padding:0.5rem}@media (max-width:768px){.search-panel{position:fixed;left:0.5rem;right:0.5rem;top:3.75rem;width:auto;max-width:26rem}}.search-input{width:100%;max-width:100%;font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:0.85rem;height:3rem;padding:0px 0.5rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text)}.search-results{list-style:none;margin:0.375rem 0px 0px;padding:0px;max-height:16rem;overflow-y:auto}.search-option{display:flex;align-items:center;gap:0.5rem;min-height:3rem;padding:0.375rem 0.5rem;font-size:0.8rem;border-radius:6px;cursor:pointer;text-decoration:none;color:var(--text)}.search-option.active,.search-option:hover{background:var(--watching-bg);color:var(--accent)}.search-option .so-name{flex:1 1 auto;min-width:0px}.search-empty{font-size:0.8rem;color:var(--muted);padding:0.5rem}.search-group-title{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin:0.75rem 0px 0.375rem}.search-hit{display:flex;align-items:center;gap:0.5rem;min-height:3rem;padding:0.5rem 0.625rem;border:1px solid var(--border);border-radius:6px;margin-bottom:0.5rem;text-decoration:none;color:var(--text)}.search-hit:hover{background:var(--bg)}.search-hit .sh-body{flex:1 1 auto;min-width:0px}.search-hit .sh-name{display:block;font-weight:600}.search-hit .sh-isin{display:block;font-size:0.75rem;color:var(--muted)}.search-page-form{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem}.search-page-form input[type="search"]{flex:1 1 14rem;min-width:0px;font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:0.9rem;height:3rem;padding:0px 0.625rem;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text)}.search-no-results{text-align:center;padding:1.75rem 0.75rem;border:1px dashed var(--border);border-radius:var(--radius)}.search-no-results strong{display:block;margin:0px 0px 0.25rem}.search-no-results .status-line{justify-content:center}.search-page-label{flex:0 0 100%;font-size:14px;font-weight:600}.search-page-input{flex:1 1 14rem;min-width:0px;height:48px;padding:0px 12px;font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:16px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)}.search-page .status-line{display:flex;align-items:center;gap:6px;height:20px;font-size:13px;color:var(--muted);margin:6px 0px}.search-page .status-dot{width:0.5em;height:0.5em;border-radius:50%;background:var(--ongoing-fg);flex:0 0 auto}.search-hit .sh-yield{font-size:20px;font-weight:700;white-space:nowrap}.search-hit .sh-yield small{font-size:12px;font-weight:600;color:var(--muted)}.search-hit .chip-rating{min-width:5.5rem;justify-content:center}}@layer templates{.move-form{display:flex;gap:12px}.move-form-stack{flex-direction:column;align-items:stretch}.move-group{min-width:0px;margin:0px;padding:12px;border:1px solid var(--border);border-radius:8px}.move-group legend{padding:0px 6px;font-weight:600}.move-field{display:flex;flex-direction:column;gap:2px;min-width:0px}.move-field label{font-size:14px;color:var(--text);line-height:1.25}.move-form input[type="date"],.move-form input[type="text"],.move-form input[type="number"],.move-form select{font-style:inherit;font-variant:inherit;font-weight:inherit;font-stretch:inherit;line-height:inherit;font-family:inherit;font-optical-sizing:inherit;font-size-adjust:inherit;font-kerning:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-language-override:inherit;font-size:16px;height:48px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text)}.move-form input[readonly]{background:var(--bg);color:var(--muted)}.move-actions{display:flex;gap:8px;align-items:center}.details-row td{height:auto;padding:12px;background:var(--header-row)}.facts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:12px 16px}.fact-label{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}.fact-value{font-size:14px}.inline-form{display:inline}.span-all{grid-column:1/-1}.add-bar{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:12px;border:1px dashed var(--border);border-radius:var(--radius);background:var(--bg)}.add-bar-title{flex:1 1 auto;min-width:0px;font-weight:700}.field-company{position:relative}.combobox-list{position:absolute;z-index:60;top:100%;left:0px;right:0px;width:100%;max-width:100%;margin:0px;padding:0px;list-style:none;background:var(--card);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 18px var(--shadow-color-strong);max-height:12rem;overflow-y:auto}.combobox-option{min-height:3rem;display:flex;align-items:center;padding:8px 10px;font-size:13px;cursor:pointer}.combobox-option.active{background:var(--watching-bg);color:var(--accent);font-weight:600}.field-error{margin-top:4px;font-size:12px;font-weight:700;color:var(--danger-fg)}.field-error-icon{font-weight:700}.error-popup{border-width:2px}.error-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.history-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}.details-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;border-top:1px dashed var(--border);padding-top:8px}.move-panel{display:none}.move-panel.active{display:block}.confirm-dialog[hidden]{display:none}.confirm-dialog{position:fixed;inset:0px;z-index:90;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.45)}.confirm-inner{width:min(28rem,92vw);max-width:100%;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 8px 30px var(--shadow-color-strong)}.confirm-inner h2{margin-bottom:8px}.confirm-inner p{font-size:13px;margin-bottom:12px}.confirm-actions{display:flex;gap:8px;justify-content:flex-end}.fetch-popup .confirm-inner{width:min(34rem,92vw)}.fetch-popup .facts-grid{margin-bottom:12px}.watch-scroll{overflow-x:auto}#watch-list{min-width:24rem}#watch-list tr.candidate-row>td:first-child,#watch-list tr.candidate-row>td:last-child{position:sticky;background:var(--card)}#watch-list tr.candidate-row>td:first-child{left:0px;z-index:2;border-right:1px solid var(--border)}#watch-list tr.candidate-row>td:last-child{right:0px;z-index:2;border-left:1px solid var(--border)}#watch-list thead th:first-child,#watch-list thead th:last-child{position:sticky;background:var(--card);z-index:3}#watch-list thead th:first-child{left:0px;z-index:4}#watch-list thead th:last-child{right:0px;z-index:5}.row-meta{display:block;margin-top:2px}.row-yield{display:block;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}.row-yield-label{display:block;font-size:12px;color:var(--muted)}.row-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.fetch-states{display:block}.fetch-state[hidden]{display:none}.fetch-state .fetch-spinner{display:inline-block;vertical-align:middle}.fetch-line{margin:6px 0px 0px;font-size:12px;line-height:20px;min-height:20px;color:var(--muted)}.fetch-line-ok{color:var(--ongoing-fg)}.fetch-line-warn{color:var(--warn-fg)}.fetch-icon{display:inline-block;width:1em;text-align:center}.fetch-link{color:var(--accent);font-weight:600;margin-left:0.4em}.fetch-source{display:inline-block;margin:0.1rem 0.2rem 0.1rem 0.4rem;padding:1px 6px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.02em;background:var(--ongoing-bg);color:var(--ongoing-fg)}.fetch-unavailable{color:var(--muted);font-style:italic}.fetch-spinner{display:inline-block;width:0.85rem;height:0.85rem;border-radius:50%;border-top-style:;border-top-width:;border-right-color:;border-right-style:;border-right-width:;border-bottom-color:;border-bottom-style:;border-bottom-width:;border-left-color:;border-left-style:;border-left-width:;border-image-source:;border-image-slice:;border-image-width:;border-image-outset:;border-image-repeat:;border-top-color:var(--accent);animation:0.8s linear 0s infinite normal none running fetch-spin}@keyframes fetch-spin{100%{transform:rotate(360deg)}}.isin-countdown{display:inline-flex;align-items:baseline;gap:4px;margin:6px 0px 0px;padding:3px 8px;border-radius:999px;font-size:12px;line-height:1.4;background:var(--warn-bg);color:var(--warn-fg)}.isin-countdown[hidden]{display:none}.isin-countdown-seconds{font-variant-numeric:tabular-nums;font-weight:700}.isin-hint[data-state="valid"]{color:var(--ongoing-fg);font-weight:600}.isin-hint[data-state="invalid"]{color:var(--danger-fg);font-weight:600}.isin-live-error{margin-top:4px;font-size:12px;font-weight:700;color:var(--danger-fg)}.isin-live-error[hidden]{display:none}.isin-fetch-reason{display:block;margin-top:6px;font-size:12px;line-height:20px;color:var(--warn-fg)}.isin-fetch-reason[hidden]{display:none}#c-isin-fetch:disabled{opacity:0.65;cursor:not-allowed}}@layer templates{.update-popup-backdrop{position:fixed;inset:0px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}.update-popup{background:var(--bg);color:var(--fg,inherit);border:1.5px solid var(--border);border-radius:10px;padding:16px;max-width:22.5rem;width:100%}.update-popup-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}.update-popup-backdrop[hidden]{display:none}}</style><style id="stitch-desktop-normalization">html, body { min-width: 1280px !important; width: 1280px !important; min-height: 800px !important; margin: 0 auto !important; overflow-x: hidden !important; }</style></head>
+<body data-page="/watch">
+
+
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="brand"><img class="brand-mark" src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIgMTEyIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iREsgQm9uZCBUcmFja2VyIG1hcmsiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJzaGllbGRZaWVsZE1hcmsiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMUU0MEFGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzNCODJGNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHBhdGggZD0iTTU2IDYgTDk4IDIyIFY1NCBDOTggODAgODAgOTggNTYgMTA2IEMzMiA5OCAxNCA4MCAxNCA1NCBWMjIgWiIgZmlsbD0idXJsKCNzaGllbGRZaWVsZE1hcmspIi8+CiAgPGNpcmNsZSBjeD0iNTYiIGN5PSI0NiIgcj0iMTgiIGZpbGw9IiNGQkJGMjQiLz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiM3QzJEMTIiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgIDxwYXRoIGQ9Ik00OSA0MC41IEg2MyIvPgogICAgPHBhdGggZD0iTTQ5IDQ1LjUgSDYzIi8+CiAgICA8cGF0aCBkPSJNNTIuNSA0MC41IFY1MCIvPgogICAgPHBhdGggZD0iTTUyLjUgNDAuNSBINTcgQTIuNSAyLjUgMCAwIDEgNTcgNDUuNSBINTIuNSIvPgogICAgPHBhdGggZD0iTTUzIDQ3IEw2MS41IDU0Ii8+CiAgPC9nPgo8L3N2Zz4K" alt="" width="24" height="24">DK Bond Tracker</span>
+    <button type="button" class="collapse-btn" id="sidebarToggle" aria-controls="sidebar" aria-expanded="true" title="Hide menu">◀<span class="collapse-label"> hide</span></button>
+  </div>
+  <nav aria-label="Main">
+    <a href="/">Dashboard</a>
+    <a href="/portfolio">Portfolio</a>
+    <a href="/watch">Watchlist</a>
+    <a href="/goals">Financial Goals</a>
+    <a href="/notifications">Alerts</a>
+    <a href="/settings">Settings</a>
+    <a href="/about">About</a>
+    <a href="/feedback">Feedback</a>
+  </nav>
+</aside>
+
+<div class="app-body">
+<header class="topbar">
+  <button type="button" class="icon-btn drawer-btn" id="drawerToggle" aria-controls="sidebar" aria-expanded="false" title="Menu" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg></button>
+  <div class="page-title" id="pageTitle">Watchlist</div>
+  <div class="topbar-actions">
+    <div class="bell-wrap" id="notificationsBell" title="Notifications" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="notificationDropdown" aria-label="Notifications">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></svg>
+      <span class="bell-badge-v3" id="unreadCount" data-count="0">0</span>
+      <div class="alert-dropdown-v3" id="notificationDropdown">
+        <div class="dd-head">Alerts</div>
+        
+        <div class="alert-item-v3"><span class="msg">No alerts yet.</span><span class="ts"></span></div>
+        
+        <div class="dd-actions">
+          <a class="ui-btn ui-btn-text ui-btn-compact" id="open-all-alerts" href="/notifications">See all alerts</a>
+          <form method="post" action="/notifications/read_all">
+            <button class="ui-btn ui-btn-text ui-btn-compact" type="submit">Mark all as read</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="search-wrap" id="searchWrap">
+      <button type="button" class="icon-btn" id="searchBtn" title="Search bonds (company / ISIN)" aria-label="Search bonds" aria-haspopup="true" aria-expanded="false" aria-controls="searchPanel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+      </button>
+      <div class="search-panel" id="searchPanel" hidden>
+        <form method="get" action="/search" id="searchForm" role="search">
+          <input type="search" id="searchInput" name="q" class="search-input" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list" placeholder="Search company or ISIN" autocomplete="off" aria-label="Search holdings and watchlist" value="">
+        </form>
+        <ul id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></ul>
+        <p class="caption" id="searchHint">Type to search both lists together — press / to open search from anywhere.</p>
+      </div>
+    </div>
+    <button type="button" class="icon-btn guide-btn" id="guideBtn" title="Help" aria-label="Help" aria-haspopup="dialog" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></svg>
+    </button>
+    <div class="overflow" id="overflow">
+      <button type="button" class="icon-btn" id="overflowToggle" aria-haspopup="true" aria-expanded="false" aria-controls="overflowPanel" title="More options" aria-label="More options"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /></svg></button>
+      <div class="overflow-panel" id="overflowPanel">
+        <div class="theme-switch" role="group" aria-label="Theme">
+          
+          <button type="button" class="btn btn-sm theme-seg active" data-theme-value="system">System</button>
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="light">Light</button>
+          
+          <button type="button" class="btn btn-sm theme-seg" data-theme-value="dark">Dark</button>
+          
+        </div>
+        <button type="button" id="privacyToggle" class="btn privacy-toggle" aria-pressed="false" title="Privacy Mode">Hide amounts</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="main">
+  
+
+
+
+
+
+
+
+
+<div class="add-bar" id="add-bar">
+  <span class="add-bar-title">Watchlist (0)</span>
+  <button type="button" class="icon-btn" id="watch-refresh" title="Refresh the bond master" aria-label="Refresh the bond master">↻</button>
+  <button type="button" class="btn btn-primary btn-sm" id="add-candidate-toggle" aria-expanded="false" aria-controls="add-candidate-form">Add bond</button>
+</div>
+<div class="caption" id="watch-refresh-status" role="status" aria-live="polite"></div>
+
+<div class="card" id="add-candidate-panel" hidden>
+  <h2>Add bond</h2>
+  <form method="post" action="/watch" id="add-candidate-form" data-fetched-isin="">
+    <input type="hidden" name="dirty" id="c-dirty" value="">
+    <div class="fetch-states" id="c-fetch-states" data-fetch-states="idle checking found notfound offline downgrade" data-fetch-isin="">
+      <p class="fetch-line fetch-state" data-fetch-state="idle"><span class="fetch-icon" aria-hidden="true">ⓘ</span> Type the ISIN and leave the field to look up bond details.</p>
+      <p class="fetch-line fetch-state" data-fetch-state="checking" hidden><span class="fetch-spinner" aria-hidden="true"></span> Looking up bond details…</p>
+      <p class="fetch-line fetch-line-ok fetch-state" data-fetch-state="found" hidden><span class="fetch-icon" aria-hidden="true">✓</span> Details filled in. Add your amount and quantity.</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="notfound" hidden><span class="fetch-icon" aria-hidden="true">ⓘ</span> No details found. Enter them yourself. No record for this ISIN in the sources we checked. Every field stays editable.</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="offline" hidden><span class="fetch-icon" aria-hidden="true">⚠</span>  Nothing is blocked — you can add the bond manually.</p>
+      <p class="fetch-line fetch-line-warn fetch-state" data-fetch-state="downgrade" hidden><span class="fetch-icon" aria-hidden="true">⚠</span> Filled from a lesser-confidence source.  Each value keeps its source label. <a href="#fetch-sources" class="fetch-link">See sources</a></p>
+    </div>
+    
+    <div class="form-grid" id="c-step-one">
+      <div class="field">
+        <label for="c-isin">ISIN <span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-c-isin" data-tip="tip-c-isin">ⓘ</button><span class="tip-bubble tip-howto" id="tip-c-isin" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">ⓘ</span> How to</span><span class="tip-text">A 12-character code, shown in capitals. Each ISIN can be on your list only once.</span></span></span></label>
+        <input type="text" id="c-isin" name="isin" value="" aria-describedby="c-isin-help" autocomplete="off" spellcheck="false" oninput="this.value = this.value.toUpperCase()" data-isin-input="">
+        <span class="caption isin-hint" id="c-isin-help" data-isin-hint="" role="status" aria-live="polite" data-state="idle">12 characters, forced uppercase, unique across the register</span>
+        <p class="field-error isin-live-error" id="c-isin-live-error" role="alert" data-isin-live-error="" hidden></p>
+        <button type="button" class="btn btn-sm" id="c-isin-fetch" data-label-idle="Fetch bond details" data-label-busy="Looking up..." data-label-wait="Try again in 60s" disabled>Fetch bond details</button>
+        <span class="isin-fetch-reason" id="c-isin-fetch-reason" data-isin-fetch-reason="" role="status" aria-live="polite">Fetch needs 12 more characters.</span>
+        <span class="isin-countdown" id="c-isin-countdown" data-countdown-seconds="60" role="status" aria-live="polite" hidden>Waiting <span class="isin-countdown-seconds" id="c-isin-countdown-seconds">60</span>s for the next live lookup — the free, unofficial source paces lookups to stay within its terms. Everything else stays editable.</span>
+        
+      </div>
+    </div>
+    <div class="form-grid" id="c-details" hidden>
+      <div class="field field-company">
+        <label for="c-company">Company</label>
+        <input type="text" id="c-company" name="company" value="" role="combobox" aria-expanded="false" aria-controls="c-company-list" aria-autocomplete="list" autocomplete="off">
+        <ul id="c-company-list" class="combobox-list" role="listbox" aria-label="Company suggestions from the register" hidden>
+          
+        </ul>
+        
+      </div>
+      <div class="field">
+        <label for="c-rating">Rating</label>
+        <select id="c-rating" name="rating">
+          <option value="" selected>—</option>
+          
+          <option value="AAA">AAA</option>
+          
+          <option value="AA+">AA+</option>
+          
+          <option value="AA">AA</option>
+          
+          <option value="AA-">AA-</option>
+          
+          <option value="A+">A+</option>
+          
+          <option value="A">A</option>
+          
+          <option value="A-">A-</option>
+          
+          <option value="BBB+">BBB+</option>
+          
+          <option value="BBB">BBB</option>
+          
+          <option value="BBB-">BBB-</option>
+          
+        </select>
+        
+      </div>
+      <div class="field">
+        <label for="c-coupon">Coupon (%) <span class="caption">(required)</span></label>
+        <div class="field-input-suffix pct"><input type="number" id="c-coupon" name="coupon_pct" min="0" step="0.01" required value=""><span aria-hidden="true">%</span></div>
+        
+      </div>
+      <div class="field">
+        <label for="c-yield">Expected yield (%) <span class="caption">(optional)</span></label>
+        <div class="field-input-suffix pct"><input type="number" id="c-yield" name="expected_yield_pct" min="0" step="0.01" placeholder="e.g. 9.2" value=""><span aria-hidden="true">%</span></div>
+        
+      </div>
+      <div class="field">
+        <label for="c-issuer">Issuer type</label>
+        <select id="c-issuer" name="issuer_type">
+          <option value="" selected>—</option>
+          <option value="corporate_bond">Corporate bond</option>
+          <option value="ncd">NCD</option>
+          <option value="sdi">SDI</option>
+          <option value="government">Government</option>
+          <option value="fd">FD</option>
+        </select>
+        
+      </div>
+      <div class="field">
+        <label for="c-secured">Secured</label>
+        <select id="c-secured" name="secured">
+          <option value="" selected>—</option>
+          <option value="1">Secured</option>
+          <option value="0">Not secured</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="c-face">Face value</label>
+        <input type="number" id="c-face" name="face_value" step="any" min="0" placeholder="1000.00" value="">
+        
+      </div>
+      <div class="field">
+        <label for="c-maturity">Maturity date</label>
+        <input type="date" id="c-maturity" name="maturity_date" value="">
+        
+      </div>
+      <div class="field">
+        <label for="c-listing">Listing status</label>
+        <select id="c-listing" name="listing_status">
+          <option value="unknown" selected>Unknown</option>
+          <option value="listed">Listed</option>
+          <option value="unlisted">Unlisted</option>
+        </select>
+        
+      </div>
+      <div class="field">
+        <label for="c-cycle">Payout cycle</label>
+        <select id="c-cycle" name="payout_cycle">
+          <option value="" selected>—</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="annual">Annual</option>
+        </select>
+        <span class="months-readout" id="c-months" data-months-for="add" aria-live="polite"></span>
+        
+      </div>
+      <details class="field span-all more-details" id="c-more">
+        <summary>More details</summary>
+        <div class="form-grid">
+          <div class="field">
+            <label for="c-rating-agency">Rating agency</label>
+            <input type="text" id="c-rating-agency" name="rating_agency" list="c-agency-options" placeholder="CRISIL" value="" autocomplete="off">
+            <datalist id="c-agency-options">
+              
+              <option value="CRISIL"></option>
+              
+              <option value="ICRA"></option>
+              
+              <option value="CARE"></option>
+              
+              <option value="India Ratings"></option>
+              
+              <option value="Brickwork"></option>
+              
+              <option value="Infomerics"></option>
+              
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="c-source">Where you found it</label>
+            <input type="text" id="c-source" name="source_note" value="">
+          </div>
+          <div class="field">
+            <label for="c-broker">Broker</label>
+            <input type="text" id="c-broker" name="broker" list="c-broker-options" value="" autocomplete="off">
+            <datalist id="c-broker-options">
+              
+              <option value="ICICI Direct"></option>
+              
+              <option value="HDFC Sec"></option>
+              
+              <option value="Zerodha"></option>
+              
+              <option value="Groww"></option>
+              
+              <option value="5paisa"></option>
+              
+              <option value="Upstox"></option>
+              
+              <option value="Angel One"></option>
+              
+              <option value="Kotak"></option>
+              
+              <option value="Axis Direct"></option>
+              
+              <option value="SBI Sec"></option>
+              
+            </datalist>
+          </div>
+        </div>
+      </details>
+      <div class="field span-all" id="company-history" hidden>
+        <span class="caption">History of this company (old ISINs)</span>
+        <div class="history-chips">
+          
+        </div>
+      </div>
+    </div>
+    <div class="section-gap">
+      <button class="btn btn-primary" type="submit" id="add-candidate-submit">Add bond</button>
+    </div>
+  </form>
+</div>
+
+
+
+
+
+<div class="confirm-dialog fetch-popup" id="fetch-details-tpl" role="dialog" aria-modal="true" aria-labelledby="fetch-details-title" aria-describedby="fetch-details-asof" data-fetch-isin="" hidden>
+  <div class="confirm-inner">
+    <h2 id="fetch-details-title">Fetched details</h2>
+    <p class="caption" id="fetch-details-asof">As of </p>
+    <div class="facts-grid" id="fetch-sources">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </div>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-sm" id="fetch-details-dismiss">Enter manually</button>
+      <button type="button" class="btn btn-sm btn-primary" id="fetch-details-apply">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap watch-scroll" id="watch-scroll" tabindex="0" role="region" aria-label="Watchlist candidates — scroll horizontally for more columns">
+  <table id="watch-list">
+    <thead>
+      <tr>
+        <th>Company / ISIN</th>
+        <th class="num">Expected yield</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td colspan="3" class="empty-note" id="watch-empty"><strong>No bonds on your watch list yet.</strong><br>Add the first bond above.</td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+<div class="card section-gap" id="held-positions-snapshot">
+  <h2>Held positions</h2>
+  
+  <div class="empty-note" id="snapshot-empty">no held positions yet — add one from Portfolio</div>
+  
+</div>
+
+<div class="confirm-dialog" id="delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-body" hidden>
+  <div class="confirm-inner">
+    <h2 id="delete-confirm-title">Remove this bond?</h2>
+    <p id="delete-confirm-body"></p>
+    <div class="confirm-actions">
+      <button type="button" class="ui-btn ui-btn-secondary ui-btn-compact" id="delete-confirm-cancel">Cancel</button>
+      <button type="button" class="ui-btn ui-btn-destructive-fill ui-btn-compact" id="delete-confirm-accept">Remove bond</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+  <footer class="app-footer">
+  </footer>
+</main>
+</div>
+</div>
+
+<div class="guide-popover" id="pageGuide" role="dialog" aria-label="How this page works" hidden>
+  <div class="guide-inner">
+    
+
+<div class="guide-title">How this page works</div>
+<div class="guide-sub">Bonds you may buy later.</div>
+
+<div class="guide-rule guide-blocking"><span class="guide-icon" aria-hidden="true">🔒</span><span><span class="guide-word">One ISIN, one entry</span> — The same ISIN can never be registered twice, anywhere in the register.</span></div>
+
+
+<div class="guide-rule guide-blocking"><span class="guide-icon" aria-hidden="true">🔒</span><span><span class="guide-word">Investment grade only</span> — Credit ratings below BBB- cannot be selected.</span></div>
+
+
+<div class="guide-rule guide-blocking"><span class="guide-icon" aria-hidden="true">🔒</span><span><span class="guide-word">Company already watched</span> — Blocked while that same bond is still active in the watchlist.</span></div>
+
+
+<div class="guide-rule guide-howto"><span class="guide-icon" aria-hidden="true">ⓘ</span><span><span class="guide-word">Move to portfolio</span> — Fill in the purchase details to turn a candidate into a holding.</span></div>
+
+
+<div class="guide-rule guide-status"><span class="guide-icon" aria-hidden="true">●</span><span><span class="guide-word">Status chips</span> — Watching = candidate only; On-going = payments healthy; Danger = a credit day was missed; Matured = finished, no longer pays.</span></div>
+
+
+
+    <div class="guide-sub legend">Colour-coded field tooltips — hover, tap or focus the marker:</div>
+    <ul class="guide-tips" id="guide-tips">
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-isin-lock" data-tip="tip-isin-lock">ⓘ</button><span class="tip-bubble tip-blocking" id="tip-isin-lock" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">🔒</span> Blocking rule</span><span class="tip-text">Same ISIN cannot be entered twice.</span></span></span><span>Blocked entries always explain the reason.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-status-green" data-tip="tip-status-green">ⓘ</button><span class="tip-bubble tip-status" id="tip-status-green" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">●</span> Status rule</span><span class="tip-text">Green cell = payment received.</span></span></span><span>Green, amber and red mean the same thing everywhere.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-goal-link" data-tip="tip-goal-link">ⓘ</button><span class="tip-bubble tip-howto" id="tip-goal-link" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">ⓘ</span> How to</span><span class="tip-text">Pick a goal while moving a bond out of the Watchlist; the link is permanent.</span></span></span><span>Actions the app can help you with.</span></li>
+      <li><span class="tip-wrap"><button type="button" class="tip-trigger" aria-describedby="tip-rating-ceiling" data-tip="tip-rating-ceiling">ⓘ</button><span class="tip-bubble tip-warning" id="tip-rating-ceiling" role="tooltip"><span class="tip-head"><span class="tip-icon" aria-hidden="true">⚠</span> Warning</span><span class="tip-text">Rating below BBB- is not allowed.</span></span></span><span>Something to double-check before you continue.</span></li>
+    </ul>
+    <div class="guide-foot">
+      <button type="button" class="btn btn-sm" id="whyBondsBtn" aria-haspopup="dialog" aria-expanded="false">Why bonds?</button>
+      <button type="button" class="btn btn-sm" id="guideClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="why-popover" id="whyBonds" role="dialog" aria-label="Why bonds?" hidden>
+  <div class="why-inner">
+    <div class="why-title">Why bonds?</div>
+    <div class="why-body">
+      <p><strong>Fixed, predictable returns.</strong> That is what bonds are for — you know the coupon and the schedule up front. The share market can move a lot in either direction; bonds do not promise equity-level gains and are not built for them.</p>
+      <div class="why-point"><strong>Expectation check:</strong> if you are looking for more than roughly <strong>10–12% returns</strong>, that is the share market's territory — not bonds. Choose bonds for fixed returns; choose equity only if you accept its risk for higher expectations.</div>
+      <div class="why-flip"><strong>Flip side:</strong> if you have been putting daily effort into shares and still are not beating 10–12% — or you are losing — bonds deserve a serious look. Fixed returns, and you only need to analyse a few things <strong>once</strong>, not watch the market every day.</div>
+    </div>
+    <div class="disclaimer-box" id="why-disclaimer">
+      <strong>We do not recommend any bonds.</strong> This app is a personal tracking tool, information-only and not investment advice; it creates no advisory relationship. Investments carry the risk of loss, including loss of principal. Every investment decision is your own.
+    </div>
+    <div class="guide-foot">
+      <a class="btn btn-sm" id="why-about-link" href="/about">About and disclaimer</a>
+      <button type="button" class="btn btn-sm" id="whyClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-tabs" aria-label="Primary">
+  <a class="bottom-tab" href="/"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg></span>Dashboard</a>
+  <a class="bottom-tab" href="/portfolio"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg></span>Portfolio</a>
+  <a class="bottom-tab" href="/watch"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></svg></span>Watchlist</a>
+  <a class="bottom-tab" href="/goals"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg></span>Goals</a>
+  <button type="button" class="bottom-tab" id="moreTab"><span class="tab-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg></span>More</button>
+</nav>
+
+
+
+
+
+
+<div class="update-popup-backdrop" id="auto-fetch-consent" role="dialog" aria-modal="true" aria-labelledby="auto-fetch-consent-title">
+  <div class="update-popup">
+    <div class="zone-title" id="auto-fetch-consent-title">Auto-fetch bond facts?</div>
+    <p>Refresh your watched bonds in the background about every 12 hours. You can change this later in Settings.</p>
+    <div class="update-popup-actions">
+      <button class="btn btn-secondary" type="button" data-auto-fetch-choice="later">Not now</button>
+      <button class="btn btn-primary" type="button" data-auto-fetch-choice="auto">Auto-fetch</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+</body></html>
