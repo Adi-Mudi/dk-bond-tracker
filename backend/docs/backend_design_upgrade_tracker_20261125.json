@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v2.4",
+  "version": "v2.5",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -110,7 +110,7 @@
       "approved_by": "developer, 2026-11-25",
       "issue": "",
       "status": "CONFIRMED",
-      "resolution": "Latest screen version: 98f2c8321b6f4d3f810fe91688e38c8c (chain: 28fd218f -> 69b39777 -> 98f2c832 after agy fixes + features/API/rules/data-model/retention expansion); file unchanged: backend/docs/backend_dataflow_design.html"
+      "resolution": "Latest screen version: a6d2b657480149c49df0a8ffa1c73b97 (chain: 28fd218f -> 69b39777 -> 98f2c832 -> a6d2b657; round-2 code-accuracy fixes applied); file unchanged: backend/docs/backend_dataflow_design.html"
     }
   ],
   "findings": [
@@ -192,6 +192,13 @@
       "summary": "agy inventory: 59 channels (43 DOWNLOAD / 10 LIGHT / 6 SCRAPE-ONLY). New gold: NSDL 10 bulk XLS/XLSX debt datasets (28.8MB: Debt Instruments, Redeemed, CP, CD, Preference, Securitised, Defaulted) at nsdl.com/resources/data/detailed-list-debt-instruments; India Ratings UNAUTHENTICATED JSON APIs (home/GetSearch, home/GetIssuerPressReleases, pressReleases/GetPressreleaseData with ISIN annexures — SPA problem solved); CARE unauthenticated JSON (getSearchprintrating, getSearchrrddata) + direct PDFs without OTP; CRISIL Solr cmd=DR searchable BY ISIN; ICRA direct rationale PDFs (GetRationalReportFilePdf); Acuite 39,267-URL sitemap; CDSL PreferenceShares_data.xlsx + securitised_debt_instruments.xlsx + CorpBondDatabase.aspx; RBI 7 RSS; BSE notices/announcements RSS + OBP_MEMBER_LIST.zip.",
       "reconciliation": "Two agy classifications corrected by PM live proofs: NSE is NOT scrape-only (F8: daily-reports API 200 + wdmlist CSV 10,624 rows verified); BSE ListofScripData is NOT held (F7: 200 with Referer/Origin + complete params, 5,475 debt scrips verified twice). True SCRAPE-ONLY remainder for bond data: NONE. DBIE SPA superseded by RBI RSS; NSDL BondInfo SPA superseded by nsdl.com bulk; SCORES/SmartODR out of scope per D3/D4.",
       "relevance": "FINAL: all 12 sites served download-first; zero scraping required for the full existential stack (ISIN master + ratings + regulator feeds)."
+    },
+    {
+      "id": "F10",
+      "date": "2026-11-25",
+      "topic": "Backend design verification round 2 (agy) — code-accuracy findings",
+      "summary": "agy verified expanded board against src/views + src/db.py + tests: (1) KEY STRATEGIC FACT: current backend is HTML-first — only 7 JSON endpoints exist; the Flutter JSON API layer is a real design/build item for the new backend. (2) API fixes: /watch/lookup is GET; missing routes GET /portfolio/<id>, POST /portfolio/invalid/<id>/remove, POST /watch/lookup/applied, POST /update/dismiss now added. (3) Data model nuances: notifications/clear = alerts_cleared_through watermark (rows kept); bond_master table = single source + fetched_at (per-field provenance in merge results only). (4) Business rules corrected: lifecycle = company-OR-ISIN lock unlocking on Completed; ERR-entry guard watch-only rule; reinvestment = principal free-up report; privacy mode = client-side CSS/JS + share/print flag (server JSON masking NOT implemented). (5) Feature chips de-embellished: mailer no retry/audit, share HTML/CSV only, updater semver check only. (6) Lookup order corrected: session cache -> DB cache -> snapshot seed -> live NSDL -> merge. All applied in-place (D5).",
+      "relevance": "The HTML-first finding shapes the Flutter backend wave: a proper JSON API layer must be designed, not assumed."
     }
   ],
   "change_log": [
@@ -254,6 +261,10 @@
     {
       "date": "2026-11-25",
       "change": "v2.4: board expanded in place - features, API surface (40 routes), screen-calls mapping, business rules, data model + retention, data flow strip, failure overlay; agy verification dispatched"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v2.5: F10 round-2 verification fixes applied in-place; board chain 28fd218f -> 69b39777 -> 98f2c832 -> a6d2b657"
     }
   ]
 }
