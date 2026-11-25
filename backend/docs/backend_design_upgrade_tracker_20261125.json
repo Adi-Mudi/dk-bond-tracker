@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v4.0",
+  "version": "v4.1",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -120,6 +120,15 @@
       "issue": "",
       "status": "CONFIRMED",
       "resolution": ""
+    },
+    {
+      "id": "D7",
+      "date": "2026-11-26",
+      "decision": "CLEAN-SLATE BACKEND STACK (old backend deleted, fresh rewrite): Flask 3.1.3 + flask-smorest 0.47.0 (Marshmallow 4.4 + apispec OpenAPI 3.0 = the Flutter contract layer, declarative request/response validation) + Waitress 3.0.2 or Werkzeug make_server (Mode A: localhost HTTP in-app). Pure-Python download tooling: httpx, feedparser, openpyxl, stdlib csv/json/zip. Runner-up Mode B: Chaquopy MethodChannel bridge + stdlib dataclasses/sqlite3 (no HTTP server). FastAPI flips to primary ONLY when pydantic-core ships official cp313/cp314 Android arm64_v8a+x86_64 wheels on PyPI. RULED OUT on-device: APIFlask (pulls pydantic>=2.0), Litestar (msgspec 0/81), Django-Ninja (pydantic>=2.0), Uvicorn-unpatched. Both research streams (PM + agy) converged independently.",
+      "approved_by": "developer, 2026-11-26 (both streams converged: pm_framework_v2_research_20261126.json + agy_framework_v2_research_20261126.json)",
+      "issue": "",
+      "status": "CONFIRMED",
+      "resolution": ""
     }
   ],
   "findings": [
@@ -229,6 +238,13 @@
       "topic": "Framework research merged (PM + agy streams)",
       "summary": "Both research streams converged on Flask-in-place. Decisive fact, triple-verified: pydantic-core 2.50.5 has 0 Android wheels (PyPI live check 0/140; chaquo.com 404; chaquopy#1017 open, PR #1413 unmerged) - FastAPI cannot install on-device. msgspec (Litestar) 0/81 Android wheels. Uvicorn crashes in secondary Android threads (signal handlers). MarkupSafe (Flask dep) ships 6 Android wheels incl cp313. Reports: research/pm_framework_research_20261126.json + research/agy_framework_research_20261126.json.",
       "relevance": "Closes checklist item: framework selection. The revamp scope is bounded to HTML-to-JSON route conversion; all service/db/query layers survive unchanged."
+    },
+    {
+      "id": "F14",
+      "date": "2026-11-26",
+      "topic": "Framework research merged (clean-slate framing) — both streams converged",
+      "summary": "PM stream (pm_framework_v2_research_20261126.json) + agy stream (agy_framework_v2_research_20261126.json: 6 frameworks, 9 tooling entries, 55 references) converged independently on Flask 3.1.3 + flask-smorest as the clean-slate stack. CORRECTION caught by agy: Apiflask is ALSO blocked (pulls pydantic>=2.0 -> pydantic-core 0 Android wheels) - contract layer must be flask-smorest, not Apiflask. Django-Ninja + Litestar similarly blocked. Runner-ups: Mode B MethodChannel bridge; Starlette+patched-uvicorn. FastAPI flip condition: official pydantic-core cp313/cp314 Android wheels on PyPI.",
+      "relevance": "Closes the framework-selection item; the JSON contract layer (flask-smorest schemas) doubles as the Flutter contract deliverable (checklist item 4)."
     }
   ],
   "change_log": [
@@ -359,6 +375,10 @@
     {
       "date": "2026-11-26",
       "change": "v4.0: D6 CONFIRMED framework decision (Flask in-place, FastAPI/Litestar ruled out by wheel fact); F13 merged research (PM + agy streams); both research reports committed"
+    },
+    {
+      "date": "2026-11-26",
+      "change": "v4.1: D7 CONFIRMED clean-slate stack (Flask 3.1.3 + flask-smorest, Mode A); F14 merged framework research; Apiflask correction caught by agy stream"
     }
   ]
 }
