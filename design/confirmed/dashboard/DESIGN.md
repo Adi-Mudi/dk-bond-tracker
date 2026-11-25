@@ -46,7 +46,7 @@ Contrast floor: every fg/bg pair and text role clears 4.5:1 in ALL themes (verif
 
 **Emphasis rule (developer feedback, 2026-11-23)**: bright semantic colors are reserved for ACTIVE states (On-going, Danger, Upcoming Due); terminal states (Matured, settled, fully received) render LOW emphasis — muted gray progress bars, slate amounts, muted chips. Emphasis = needs attention.
 
-**Status priority order (developer feedback item 4)**: status-bearing attention lists sort visually by urgency — Danger/overdue rows FIRST, On-going/active rows in the MIDDLE, Matured/completed rows LAST (combined with the dim treatment). Applies to holdings lists, payout queues, and alert feeds; the returns ledger stays chronological (its sort key is the accounting month) with status chips + dimmed settled rows carrying the same emphasis semantics.
+**Status priority order (developer update 2026-11-25 — FOUR tiers)**: status-bearing attention lists sort visually by urgency — **Danger/overdue rows FIRST, MATURING rows (bond approaching redemption) SECOND, On-going/active rows THIRD, Matured/completed rows LAST** (combined with the dim treatment). This 4-tier order applies to EVERY status-sorted list on every page (holdings lists, payout matrices, queues). Date-keyed views stay chronological: the returns ledger sorts by accounting month (current first), the cashflow payout queue sorts by date (current first). Applies to holdings lists, payout queues, and alert feeds; the returns ledger stays chronological (its sort key is the accounting month) with status chips + dimmed settled rows carrying the same emphasis semantics.
 
 ## 3. Typography Rules
 
