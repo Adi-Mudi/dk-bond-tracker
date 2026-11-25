@@ -1,0 +1,802 @@
+{
+  "document": "agy_download_channels_research",
+  "version": "v1.0",
+  "date": "2026-11-25",
+  "policy": "download-first",
+  "initiative": "backend-design-upgrade",
+  "methodology": "Polite HTTP GET probes (<=1 req/s per host, identified User-Agent DKBondTracker-Research/1.0, zero WAF bypass or login circumvention) executed live on 2026-11-25 across all 12 core sites from backend/docs/broker_data_sources_research_20261125.json.",
+  "sites": [
+    {
+      "site": "NSDL (National Securities Depository Limited)",
+      "domain": "nsdl.com / indiabondinfo.nsdl.com",
+      "channels": [
+        {
+          "url": "https://nsdl.com/web/api//view/annual-reports/id-listing/securities_isin_code",
+          "format": "JSON (discovery pointer to CSV)",
+          "status_verified": "HTTP 200 application/json (verified live 2026-11-25; returns f='/nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv')",
+          "cadence": "weekly / periodic (dated 2026-11-18)",
+          "fields": "title, id, file_id, extension, date, f (relative path to ISIN_DETAILS CSV), file_title",
+          "isin_coverage": "bond-relevant (discovers full depository ISIN master CSV)",
+          "policy_status": "robots.txt HTTP 200 Allow: / (disallows /*?_rsc, /*?sfvrsn=, /*?searchTag=); no auth required",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: CMS path /web/api//view/annual-reports/id-listing/ may change in Next.js/CMS upgrades; sibling slugs (debt_instruments, corporate_bonds, commercial_paper) currently return []."
+        },
+        {
+          "url": "https://nsdl.com/nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv",
+          "format": "CSV",
+          "status_verified": "HTTP 200 text/csv (verified live 2026-11-25; resolved dynamically via securities_isin_code JSON)",
+          "cadence": "weekly / periodic (date-stamped filename)",
+          "fields": "ISIN, NAME_OF_ISSUER, SECURITY_DESCRIPTION, CURRENCY, INTEREST_RATE, MATURITY_DATE, FISN, CFI (CFI DB* identifies debt/bonds)",
+          "isin_coverage": "bond-relevant (full NSDL ISIN master across equities, bonds, NCDs, preference shares)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; public static download",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: resolve latest dated URL via securities_isin_code discovery JSON rather than hardcoding date path."
+        },
+        {
+          "url": "https://nsdl.com/resources/data/detailed-list-debt-instruments",
+          "format": "HTML index -> XLS / XLSX bulk files (10 files)",
+          "status_verified": "HTTP 200 HTML (redirected from https://nsdl.com/downloadables/list-debt.php); all 10 linked XLS/XLSX files verified HTTP 200 live 2026-11-25",
+          "cadence": "weekly / periodic (debt/CP/pref/securitised/default dated 18.11.2026; CD dated 13.11.2026; DN non-compliance Sep 2026)",
+          "fields": "1) Download_the_entire_list_of_Debt_Instruments_(including_Redeemed)_as_on_18.11.2026.xls (28.8 MB), 2) Debt_Redeemed_as_on_18.11.2026.xls (6.58 MB), 3) Download_the_entire_list_of_Commercial_Papers_including_Redeemed_18-11-2026.xls (1.64 MB), 4) CP_Redeemed_as_on_18-11-2026.xls (205 KB), 5) Cd (Including Redeemed) - 13.11.2026.xlsx (59.7 KB), 6) Cd (Redeemed) - 13.11.2026.xlsx (22.1 KB), 7) List_of_Preference_Shares_18.11.26.xlsx (3.33 MB), 8) List_of_Securitised_Instruments_18.11.26.xlsx (702 KB), 9) List_of_ISINs-Issuer_defaulted_in_redemption_Payment_as_on_18112026_0.xlsx (29.6 KB; ISIN + description), 10) List_of_companies_that_have_not_complied_with_the_DN_database_Sep_2026.xls (36.8 KB). CD XLSX verified columns: Company Name, ISIN, Description, Features, R&T Agent, Credit Rating Details, Date of Redemption.",
+          "isin_coverage": "bond-relevant (authoritative full debt, CP, CD, securitised, and defaulted-redemption ISIN datasets)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; official public NSDL downloads",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: filenames embed release dates in Next.js RSC payload on /resources/data/detailed-list-debt-instruments, so parse links dynamically from that page; legacy .xls files require xlrd/openpyxl/calamine parsing."
+        },
+        {
+          "url": "https://nsdl.com/web/api/v1/participant/search?search_type=DetailedSearch&name=&isin=<ISIN>&page=1&per_page=100",
+          "format": "JSON API",
+          "status_verified": "HTTP 200 application/json (verified live 2026-11-25 on INE020B08831)",
+          "cadence": "on-issue / near real-time",
+          "fields": "id, field_isin, name, security_description, isin_status, coupon_rate, interest_frequency, face_value, credit_rating, rating_agency, secured, listing_status, maturity_date, isin_description__value",
+          "isin_coverage": "bond-relevant (primary per-ISIN live adapter)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; NetScaler WAF intermittently returns HTTP 200 HTML block page under burst load (respect <=1 req/s)",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: JSON schema or query parameters could shift on portal refresh; bulk CSV + XLS files cover batch needs."
+        },
+        {
+          "url": "https://www.indiabondinfo.nsdl.com/CBDServices/",
+          "format": "Angular SPA (portal-metadata & bdsinfo endpoints gated/unavailable)",
+          "status_verified": "HTTP 200 SPA shell; /nsdl-mdm-service/v1/public/portal-metadata returns HTTP 400 ('Encrypted UUID must not be null or empty') on POST and 405 on GET; /CBDServices/assets/config/config.json returns WAF Request Rejected; /bds-web/public/bdsinfo/instruments returns HTTP 503; robots.txt HTTP 404; sitemap.xml HTTP 200 WAF Request Rejected",
+          "cadence": "on-issue (SPA)",
+          "fields": "UI bundles reference /public/bdsinfo/{instruments,coupondetail,redemptions,credit-ratings,listings,defaultdetail,listofsecurities} — unverified/inaccessible via plain HTTP",
+          "isin_coverage": "bond-relevant (portal UI only; API inaccessible without encrypted portal handshake)",
+          "policy_status": "indiabondinfo.nsdl.com/robots.txt 404; WAF Request Rejected on config/sitemap",
+          "classification": "SCRAPE-ONLY",
+          "stability_risk": "HIGH: encrypted UUID metadata handshake + WAF; superseded by nsdl.com bulk XLS/CSV and participant/search."
+        }
+      ]
+    },
+    {
+      "site": "CDSL (Central Depository Services India Limited)",
+      "domain": "cdslindia.com",
+      "channels": [
+        {
+          "url": "https://www.cdslindia.com/downloads/CorporateBond/PreferenceShares_data.xlsx",
+          "format": "XLSX",
+          "status_verified": "HTTP 200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet (401,949 bytes; verified live 2026-11-25)",
+          "cadence": "periodic / on-issue",
+          "fields": "Issuer Name, ISIN, ISIN Description, Issue Amount (ISSUED CAPITAL * par value), Face Value, Date of Issue, Redemption / Date of Maturity, RTA Agent, Company Address, Listed/Unlisted (3,970 rows)",
+          "isin_coverage": "bond-relevant (preference share ISINs)",
+          "policy_status": "robots.txt HTTP 200 Allow: / with Cloudflare Content-Signal: search=yes,ai-train=yes,use=reference (disallows named AI crawlers)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: static download path; note sibling filenames like CorporateBonds_data.xlsx / Debt_data.xlsx return 404."
+        },
+        {
+          "url": "https://www.cdslindia.com/downloads/CorporateBond/securitised_debt_instruments.xlsx",
+          "format": "XLSX",
+          "status_verified": "HTTP 200 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet (35,500 bytes; verified live 2026-11-25)",
+          "cadence": "periodic / on-issue",
+          "fields": "SECURITY_TYPE, Issuer Name, ISIN, Name of Instrument, ISIN Description long, Face Value, Date of Issue, Redemption / Date of Maturity, RTA Name, Company Address, Contact Person, Remarks, Remarks on Redemption Date",
+          "isin_coverage": "bond-relevant (securitised debt / PTC ISINs)",
+          "policy_status": "robots.txt HTTP 200 Allow: / (Cloudflare Content-Signal use=reference)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: static download path."
+        },
+        {
+          "url": "https://www.cdslindia.com/Publications/DepositoryStatistics.html",
+          "format": "HTML index -> CSV files (e.g. DP-Statistics-October-2026.csv, BO-Aggregate-*.csv)",
+          "status_verified": "HTTP 200 HTML linking to live CSVs (verified 2026-11-25)",
+          "cadence": "monthly / annual",
+          "fields": "Aggregate depository participant & beneficial owner statistics (no individual bond ISINs)",
+          "isin_coverage": "not bond-ISIN-level (macro depository statistics)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: monthly dated filenames linked on static HTML page."
+        },
+        {
+          "url": "https://www.cdslindia.com/Publications/periodicstats.aspx",
+          "format": "HTML index -> monthly PDF reports",
+          "status_verified": "HTTP 200 HTML linking to monthly PDFs through August -2026.pdf (verified 2026-11-25)",
+          "cadence": "monthly",
+          "fields": "Periodic depository statistics PDFs",
+          "isin_coverage": "not bond-ISIN-level (macro statistics)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: filename spacing varies across months (e.g. 'August -2026.pdf')."
+        },
+        {
+          "url": "https://www.cdslindia.com/DP/Harmonization.html",
+          "format": "HTML index -> UDiFF CSV/XLSX specification samples",
+          "status_verified": "HTTP 200 HTML (verified 2026-11-25; links to UDiFF Catalogue_V2.0.0.1.xlsx and sample ISIN_MSTR/ISIN_RATE CSVs)",
+          "cadence": "on-spec-revision",
+          "fields": "UDiFF schema samples only (not live daily ISIN master; live DP UDiFF files require participant credentials)",
+          "isin_coverage": "schema reference only (not live bond data)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: reference documentation."
+        },
+        {
+          "url": "https://www.cdslindia.com/investors/popup-isin.aspx?isin_code=<ISIN>",
+          "format": "HTML (ASP.NET SSR lookup)",
+          "status_verified": "HTTP 200 text/html (9,490 bytes; verified live 2026-11-25 on INE020B08831)",
+          "cadence": "on-issue / near real-time",
+          "fields": "ISIN code, ISIN description, issuer name, RTA/security metadata",
+          "isin_coverage": "bond-relevant (secondary depository lookup for CDSL-held ISINs)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; behind Cloudflare (__cf_bm)",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: ASP.NET markup changes or Cloudflare rate-limiting on high volume."
+        },
+        {
+          "url": "https://www.cdslindia.com/CorporateBond/CorpBondDatabase.aspx?ISIN=<ISIN>",
+          "format": "HTML (ASP.NET SSR) + AJAX WebMethods (GetCashflowSchedule, GetHistorydtls)",
+          "status_verified": "HTTP 200 text/html (115,742 bytes; verified live 2026-11-25 on INE020B08831)",
+          "cadence": "on-issue / near real-time",
+          "fields": "Issuer Name, Address, CIN, LEI, Type of Issuer, Coupon, Redemption, Credit Rating (CRA_Name, Credit_Rating, Credit_Rating_Date), Cashflow Schedule",
+          "isin_coverage": "bond-relevant (rich per-ISIN bond database page)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; note sibling /CorporateBond/CorporateBonds.aspx returns ASP.NET error page",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: ASP.NET WebForms + Cloudflare; /CorporateBond/CorporateBondReports.aspx (HTTP 200) exposes daily Secondary/Primary/OTC CSV export UI only after interactive selection/postback."
+        }
+      ]
+    },
+    {
+      "site": "BSE India (Bombay Stock Exchange)",
+      "domain": "bseindia.com / api.bseindia.com",
+      "channels": [
+        {
+          "url": "https://www.bseindia.com/data/xml/notices.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (12,255 bytes; verified live 2026-11-25 with Nov 23, 2026 Daily Bulletin PDF links)",
+          "cadence": "daily / intraday",
+          "fields": "title, link (direct PDF under /downloads/UploadDocs/Notices/...), author, pubDate, description",
+          "isin_coverage": "indirect (exchange notices, listing/delisting circulars, daily bulletins)",
+          "policy_status": "bseindia.com/robots.txt returns Angular HTML shell (no text rules); public RSS feed",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: standard RSS 2.0 XML; sibling feed URLs like /data/xml/debt.xml return HTTP 406."
+        },
+        {
+          "url": "https://www.bseindia.com/data/xml/announcements.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 application/rss+xml (795 bytes; verified live 2026-11-25, lastBuildDate Wed, 25 Nov 2026 06:13:08 GMT)",
+          "cadence": "intraday",
+          "fields": "RSS channel metadata and latest corporate announcement items when populated",
+          "isin_coverage": "indirect (issuer corporate announcements)",
+          "policy_status": "Public RSS feed; /rss-feed directory page returns HTTP 200 with Accept: text/html (HTTP 406 on */*)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: feed occasionally serves empty item list between batches."
+        },
+        {
+          "url": "https://www.bseindia.com/downloads1/OBP_MEMBER_LIST.zip",
+          "format": "ZIP containing XLSX (OBPP_MEMBER_LIST.xlsx)",
+          "status_verified": "HTTP 200 application/x-zip-compressed (23,142 bytes; verified live 2026-11-25, linked from sebi.gov.in)",
+          "cadence": "periodic / on-registration",
+          "fields": "BSE-registered Online Bond Platform Providers (OBPP) member list",
+          "isin_coverage": "not bond-ISIN-level (OBPP intermediary compliance registry)",
+          "policy_status": "Public official archive linked by SEBI",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: static zip path."
+        },
+        {
+          "url": "https://www.bseindia.com/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 text/xml (46,762 bytes; 312 routes verified live 2026-11-25)",
+          "cadence": "periodic",
+          "fields": "Portal URLs including /markets/debt, /markets/marketinfo/bhavcopy, /corporates/ratingactionbycra, /corporates/list_scrips",
+          "isin_coverage": "navigation index only",
+          "policy_status": "Public XML sitemap",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: Angular SSR routes; /markets/debt returned HTTP 503 and /markets/debt/debt_search.aspx returned HTTP 406 on polite GET."
+        },
+        {
+          "url": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w?Group=&Scripcode=&industry=&segment=Equity&status=Active",
+          "format": "JSON API (Akamai-gated)",
+          "status_verified": "HTTP 403 Access Denied on polite GET without browser Referer/Origin (verified live 2026-11-25); /download/BhavCopy/Equity/EQ_ISINCODE_241126.zip returned SPA HTML shell",
+          "cadence": "daily",
+          "fields": "Scrip master JSON (equity-oriented; debt segment endpoint UNVERIFIED under download-first policy)",
+          "isin_coverage": "UNVERIFIED for debt segment via unauthenticated bulk download",
+          "policy_status": "Akamai WAF blocks plain/identified API clients without browser Origin/Referer",
+          "classification": "SCRAPE-ONLY",
+          "stability_risk": "HIGH: WAF-blocked; no verified unauthenticated bulk debt CSV/ZIP found on bseindia.com."
+        }
+      ]
+    },
+    {
+      "site": "NSE India (National Stock Exchange of India)",
+      "domain": "nseindia.com / nsearchives.nseindia.com",
+      "channels": [
+        {
+          "url": "https://www.nseindia.com/robots.txt",
+          "format": "robots.txt",
+          "status_verified": "HTTP 200 text/plain (verified live 2026-11-25: Allow: /, Disallow: /market-data-test, Sitemap: https://www.nseindia.com/sitemap.xml)",
+          "cadence": "static",
+          "fields": "Crawl directives + sitemap pointer",
+          "isin_coverage": "not data",
+          "policy_status": "Permits / except /market-data-test, but Akamai edge blocks automated clients",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_YYYYMMDD_F_0000.csv.zip",
+          "format": "ZIP containing UDiFF CSV",
+          "status_verified": "UNVERIFIED live (polite GET on 20261124 timed out under Akamai; legacy DEBT_SECURITY_MASTER.csv confirmed dead HTTP 404)",
+          "cadence": "daily (trading days)",
+          "fields": "UDiFF standardized bhavcopy columns including ISIN (Capital Market; debt UDiFF archive path UNVERIFIED without WAF bypass)",
+          "isin_coverage": "bond-relevant if debt UDiFF / corpbondDDMMYYYY.csv paths fetched via browser/member access, UNVERIFIED live via polite GET",
+          "policy_status": "nsearchives.nseindia.com/robots.txt timed out; Akamai Bot Manager blocks non-browser TLS/cookie clients",
+          "classification": "SCRAPE-ONLY",
+          "stability_risk": "HIGH: Akamai TLS/cookie gating + legacy archive URL deprecation (HELD under download-first policy)."
+        },
+        {
+          "url": "https://nsearchives.nseindia.com/web/sites/default/files/inline-files/List_of_Registered_OBPPs_NSE.xlsx",
+          "format": "XLSX",
+          "status_verified": "UNVERIFIED live (linked from sebi.gov.in/online-bond-platform-providers.html, but polite GET timed out on nsearchives.nseindia.com)",
+          "cadence": "periodic / on-registration",
+          "fields": "NSE-registered Online Bond Platform Providers list",
+          "isin_coverage": "not bond-ISIN-level (OBPP registry)",
+          "policy_status": "Hosted behind nsearchives.nseindia.com Akamai edge",
+          "classification": "SCRAPE-ONLY",
+          "stability_risk": "HIGH: Akamai edge timeout for non-browser clients (HELD under download-first policy)."
+        }
+      ]
+    },
+    {
+      "site": "RBI (Reserve Bank of India)",
+      "domain": "rbi.org.in / data.rbi.org.in",
+      "channels": [
+        {
+          "url": "https://rbi.org.in/pressreleases_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (86,883 bytes; verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "title, link, description, pubDate (G-sec/SDL/T-bill auction results, repo/policy announcements)",
+          "isin_coverage": "indirect (sovereign/SDL issuance & auction announcements, not an ISIN master)",
+          "policy_status": "Official published RSS feed (note: rbi.org.in/robots.txt returns HTTP 418 custom WAF block, but RSS feeds & Scripts/RSS.aspx return HTTP 200)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: long-lived official RBI RSS 2.0 endpoint."
+        },
+        {
+          "url": "https://rbi.org.in/notifications_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (139,222 bytes; verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "title, link, description, pubDate (RBI circulars, master directions, debt/FD rules)",
+          "isin_coverage": "not ISIN-level (regulatory notifications)",
+          "policy_status": "Official published RSS feed listed on https://www.rbi.org.in/Scripts/RSS.aspx",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://www.rbi.org.in/Publication_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (2,822 bytes; verified live 2026-11-25)",
+          "cadence": "periodic / annual",
+          "fields": "title, link, description, pubDate (Annual Report & major RBI publications)",
+          "isin_coverage": "not ISIN-level",
+          "policy_status": "Official published RSS feed",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://rbi.org.in/speeches_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (5 items; verified live 2026-11-25 via Scripts/RSS.aspx)",
+          "cadence": "on-issue",
+          "fields": "title, link, description, pubDate (RBI Governor/DG speeches)",
+          "isin_coverage": "not ISIN-level",
+          "policy_status": "Official published RSS feed",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://rbi.org.in/Bulletin_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (2 items; verified live 2026-11-25 via Scripts/RSS.aspx)",
+          "cadence": "monthly",
+          "fields": "title, link, description, pubDate (RBI Monthly Bulletin)",
+          "isin_coverage": "not ISIN-level (macroeconomic & G-sec market commentary)",
+          "policy_status": "Official published RSS feed",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://rbi.org.in/AnnualReportMain_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (10 items; verified live 2026-11-25 via Scripts/RSS.aspx)",
+          "cadence": "annual",
+          "fields": "title, link, description, pubDate",
+          "isin_coverage": "not ISIN-level",
+          "policy_status": "Official published RSS feed",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://rbi.org.in/tenders_rss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (10 items; verified live 2026-11-25 via Scripts/RSS.aspx)",
+          "cadence": "on-issue",
+          "fields": "title, link, description, pubDate",
+          "isin_coverage": "not ISIN-level",
+          "policy_status": "Official published RSS feed",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://www.rbi.org.in/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 text/xml (63,434 bytes; 497 URLs verified live 2026-11-25)",
+          "cadence": "periodic",
+          "fields": "Publications, Statistics, Data_ReserveMoney, G-Sec primer/regulations URLs",
+          "isin_coverage": "not ISIN-level",
+          "policy_status": "Official XML sitemap (note: /downloadables/gsec_sdl_tbill.json and /robots.txt return HTTP 418)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://data.rbi.org.in/",
+          "format": "Angular SPA (DBIE Data Warehouse)",
+          "status_verified": "HTTP 200 Angular SPA shell behind F5 BIG-IP ASM (robots.txt and sitemap.xml return HTTP 404; public unauthenticated bulk API UNVERIFIED)",
+          "cadence": "daily / weekly / monthly",
+          "fields": "Interactive query/export of macro & G-sec/SDL/T-bill aggregate series (UI export CSV/XLSX; no unauthenticated REST feed discovered)",
+          "isin_coverage": "not ISIN-level (macro/auction series)",
+          "policy_status": "F5 BIG-IP ASM; interactive SPA only",
+          "classification": "SCRAPE-ONLY",
+          "stability_risk": "HIGH: no public unauthenticated CSV/JSON API; interactive DBIE export requires browser session."
+        }
+      ]
+    },
+    {
+      "site": "SEBI (Securities and Exchange Board of India)",
+      "domain": "sebi.gov.in",
+      "channels": [
+        {
+          "url": "https://www.sebi.gov.in/sebirss.xml",
+          "format": "RSS 2.0 XML",
+          "status_verified": "HTTP 200 text/xml (323 bytes; verified live 2026-11-25, lastBuildDate=24 Nov 2026 22:00:07, currently 0 <item> entries)",
+          "cadence": "hourly / daily (ttl=60)",
+          "fields": "RSS channel metadata + regulatory update items when populated",
+          "isin_coverage": "not ISIN-level (regulatory news)",
+          "policy_status": "robots.txt HTTP 200 Allow: / (disallows /js, /css); linked from https://www.sebi.gov.in/rss.html",
+          "classification": "DOWNLOAD",
+          "stability_risk": "MEDIUM: feed returned 0 <item> tags on 2026-11-25 despite fresh lastBuildDate; use HomeAction.do as fallback if empty."
+        },
+        {
+          "url": "https://www.sebi.gov.in/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 text/xml (63,596 bytes; 364 URLs verified live 2026-11-25)",
+          "cadence": "periodic",
+          "fields": "Circulars, master circulars (OBPP/NCS), debt offer documents (/filings/debt-offer-document/...), statistics, intermediaries",
+          "isin_coverage": "indirect (debt prospectus filings & OBPP circulars)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://www.sebi.gov.in/online-bond-platform-providers.html",
+          "format": "HTML index -> Exchange OBPP registries (ZIP/XLSX)",
+          "status_verified": "HTTP 200 text/html (6,667 bytes; verified live 2026-11-25)",
+          "cadence": "on-registration",
+          "fields": "Links to BSE OBP_MEMBER_LIST.zip and NSE List_of_Registered_OBPPs_NSE.xlsx",
+          "isin_coverage": "not ISIN-level (OBPP registry)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://www.sebi.gov.in/statistics/corporate-bonds.html",
+          "format": "HTML index -> statistical HTML tables (15 subpages, e.g. outstandingcorpdata.html, trades-corporate-bonds.html)",
+          "status_verified": "HTTP 200 text/html (verified live 2026-11-25; tables only, no CSV/XLS downloads on subpages)",
+          "cadence": "monthly / quarterly",
+          "fields": "Aggregate corporate bond issuances, redemptions, outstanding amounts, exchange & repo trades (NSE/BSE totals)",
+          "isin_coverage": "not ISIN-level (aggregate market stats)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "LIGHT",
+          "stability_risk": "LOW-MEDIUM: HTML table layout changes."
+        },
+        {
+          "url": "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=1&ssid=7&smid=0",
+          "format": "HTML (SSR circulars listing)",
+          "status_verified": "HTTP 200 text/html (verified live 2026-11-25)",
+          "cadence": "on-issue",
+          "fields": "Circular date, title, HTML/PDF link (OBPP framework, NCS master circular, DT rules)",
+          "isin_coverage": "not ISIN-level (regulatory circulars)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "LIGHT",
+          "stability_risk": "LOW: long-lived Struts action URL."
+        }
+      ]
+    },
+    {
+      "site": "CRISIL Ratings",
+      "domain": "crisilratings.com",
+      "channels": [
+        {
+          "url": "https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=RR&start=0&limit=50",
+          "format": "JSON API (AEM servlet)",
+          "status_verified": "HTTP 200 application/json (verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "docs[]: companyCode, companyName, industryName, ratingDate, heading, ratingFileName, transDate, prId",
+          "isin_coverage": "bond-relevant (links to full RatingDocs rationale HTML which contains ISIN tables for debt issuances)",
+          "policy_status": "robots.txt HTTP 200 blocks Scrapy and AI bots (GPTBot, CCBot, etc.), permits polite identified non-Scrapy UA",
+          "classification": "DOWNLOAD",
+          "stability_risk": "MEDIUM: AEM servlet URL/parameters; sitemap.xml returns HTTP 400 so paginate via JSON servlet."
+        },
+        {
+          "url": "https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=DR&start=0&limit=50",
+          "format": "JSON API (Solr-backed Debt Ratings index)",
+          "status_verified": "HTTP 200 application/json (verified live 2026-11-25; numFound=352)",
+          "cadence": "daily / on-issue",
+          "fields": "response.docs[]: companyCode, companyName, instrument, isinNumber, dueDate, rrDate, rating (confirmed ISINs e.g. INE266T07016, INE847E08DN0; appears focused on defaulted/D-rated debt disclosures)",
+          "isin_coverage": "bond-relevant (direct ISIN field in JSON)",
+          "policy_status": "robots.txt HTTP 200 permits polite identified non-Scrapy UA",
+          "classification": "DOWNLOAD",
+          "stability_risk": "MEDIUM: Solr JSON shape; covers subset (352 records), so pair with cmd=RR + cmd=BLR + RatingDocs for full coverage."
+        },
+        {
+          "url": "https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=BLR&start=0&limit=50",
+          "format": "JSON API (Bank Loan & Press Release index)",
+          "status_verified": "HTTP 200 application/json (verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "docs[]: companyCode, companyName, instrumentDescription, pressReleaseFileName, rating, scale, pressReleaseDate",
+          "isin_coverage": "indirect (issuer ratings + pressReleaseFileName pointer to RatingDocs)",
+          "policy_status": "robots.txt HTTP 200 permits polite identified non-Scrapy UA",
+          "classification": "DOWNLOAD",
+          "stability_risk": "MEDIUM: sibling cmds verified live: cmd=ST (1,811 securitisation docs), cmd=UR (unaccepted ratings), cmd=DNC & cmd=DNN (non-cooperating factsheets); cmd=CR and cmd=NDS return sCode 500."
+        },
+        {
+          "url": "https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/<ratingFileName>",
+          "format": "HTML rationale document",
+          "status_verified": "HTTP 200 text/html (93,117 bytes; verified live 2026-11-25 on PrakashAutoPrivateLimited_November%2024_%202026_RR_410880.html)",
+          "cadence": "on-issue",
+          "fields": "Full rating rationale text, instrument summary tables, rating history, annexure (ISINs present when rated debt instruments exist)",
+          "isin_coverage": "bond-relevant (ISINs embedded in debt annexures when applicable)",
+          "policy_status": "robots.txt HTTP 200 permits polite identified non-Scrapy UA; behind Tata CDN (sess_map cookie)",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: URL depends on ratingFileName from listing JSON; HTML annexure table parsing."
+        }
+      ]
+    },
+    {
+      "site": "ICRA Limited",
+      "domain": "icra.in",
+      "channels": [
+        {
+          "url": "https://www.icra.in/Rating/GetRationalReportFilePdf?Id=<RATIONALE_ID>",
+          "format": "PDF",
+          "status_verified": "HTTP 200 application/pdf (verified live 2026-11-25 on Id=132755 and Id=147088; %PDF-1.7)",
+          "cadence": "daily / on-issue",
+          "fields": "Official ICRA Rating Rationale PDF (rating actions, key drivers, instruments, annexure)",
+          "isin_coverage": "bond-relevant for rated NCD/bond issuances (ISIN presence depends on instrument type)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; behind CloudFront + Entra App Proxy (preserve BNIS_* cookies, 15-30s timeout)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "MEDIUM: requires numeric rationale Id from AllRatingRationales; PDF text extraction needed."
+        },
+        {
+          "url": "https://www.icra.in/Rating/AllRatingRationales",
+          "format": "HTML index (supports ?Keyword=<QUERY>)",
+          "status_verified": "HTTP 200 text/html (361,737 bytes; verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "Recent rating rationales listing with CompanyId, Rationale Id, ShowRationaleReport links, GetRationalReportFilePdf links",
+          "isin_coverage": "bond-relevant (rationale discovery index; direct ISIN keyword searchability UNVERIFIED)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: HTML listing; homepage root / previously timed out at 10s while /Rating/AllRatingRationales & /Rationale/ShowRationaleReport succeeded."
+        },
+        {
+          "url": "https://www.icra.in/Rationale/ShowRationaleReport/?Id=<RATIONALE_ID>",
+          "format": "HTML (SSR rationale page)",
+          "status_verified": "HTTP 200 text/html (176,113 bytes; verified live 2026-11-25 on Id=132755)",
+          "cadence": "on-issue",
+          "fields": "Full HTML rating rationale narrative, rating tables, bank/instrument facilities",
+          "isin_coverage": "bond-relevant (ISINs appear in debt instrument rationales; sampled Id=132755 was bank facilities with 0 ISINs)",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: CloudFront/Entra latency; HTML markup changes."
+        },
+        {
+          "url": "https://www.icra.in/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 text/xml (8,356 bytes; 46 URLs verified live 2026-11-25)",
+          "cadence": "periodic",
+          "fields": "Top-level navigation routes (/Rating, /RegulatoryDisclosure/Index); does NOT enumerate individual rationale IDs",
+          "isin_coverage": "navigation index only",
+          "policy_status": "robots.txt HTTP 200 Allow: /",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        }
+      ]
+    },
+    {
+      "site": "CARE Ratings (CareEdge)",
+      "domain": "careratings.com",
+      "channels": [
+        {
+          "url": "https://www.careratings.com/header/searchlist?cinput=<QUERY>",
+          "format": "JSON API",
+          "status_verified": "HTTP 200 JSON (18,729 bytes; verified live 2026-11-25 for cinput=REC returning encrypted CompanyID 'O2xoSud9VSICtTXm9MtY8w==' & CompanyName 'REC Limited')",
+          "cadence": "on-issue / real-time",
+          "fields": "data[]: CompanyID (token for downstream endpoints), CompanyName, CommonContent",
+          "isin_coverage": "issuer-level lookup (entry point for CARE ratings & PDFs)",
+          "policy_status": "robots.txt HTTP 200 User-agent: * Disallow: (empty); no OTP required",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: Laravel JSON endpoint; note Content-Type header reports text/html; charset=UTF-8 on JSON body."
+        },
+        {
+          "url": "https://www.careratings.com/getSearchprintrating?companyName=<CompanyID>",
+          "format": "JSON API",
+          "status_verified": "HTTP 200 JSON (verified live 2026-11-25 for REC Limited returning Bonds CARE AAA; Stable, 147000.00 Cr)",
+          "cadence": "on-issue / real-time",
+          "fields": "data[]: CompanyID, Company, CompanyInstrument[]: Instrument (e.g. Bonds, CP), RatingAmount, Rating",
+          "isin_coverage": "bond-relevant (company-level bond/CP ratings; ISINs reside inside linked PR/RR PDFs)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; unauthenticated GET",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: requires encrypted CompanyID token from /header/searchlist."
+        },
+        {
+          "url": "https://www.careratings.com/getSearchprdocument?companyName=<CompanyID>&YearID=<YYYY>",
+          "format": "JSON API -> PDF pointers",
+          "status_verified": "HTTP 200 JSON (verified live 2026-11-25 for REC Limited 2026)",
+          "cadence": "on-issue",
+          "fields": "data[0].PRDocument[]: CompRRPRID, CompanyID, FileTitle, FileType ('PR'), FileURL, PublishedDate, CreatedDate (also /pryear?companyName=<CompanyID> for available years)",
+          "isin_coverage": "bond-relevant (lists Press Release PDFs containing debt/ISIN annexures)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; unauthenticated GET",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: requires CompanyID from /header/searchlist."
+        },
+        {
+          "url": "https://www.careratings.com/getSearchrrddata?companyName=<CompanyID>&YearID=<YYYY>",
+          "format": "JSON API -> PDF pointers",
+          "status_verified": "HTTP 200 JSON (verified live 2026-11-25 for REC Limited 2026)",
+          "cadence": "on-issue",
+          "fields": "data[0].RRDocument[]: CompRRPRID, CompanyID, FileTitle, FileType ('RR'), FileURL, PublishedDate (also /rryear?companyName=<CompanyID>)",
+          "isin_coverage": "bond-relevant (lists Rating Rationale PDFs)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; unauthenticated GET",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: requires CompanyID from /header/searchlist."
+        },
+        {
+          "url": "https://www.careratings.com/upload/CompanyFiles/PR/<FileURL>",
+          "format": "PDF (sibling: /upload/CompanyFiles/RR/<FileURL>)",
+          "status_verified": "HTTP 200 application/pdf (verified live 2026-11-25 on 202610151048_REC_Limited.pdf and RR/202610121023_REC_Limited.pdf; %PDF-1.7)",
+          "cadence": "on-issue",
+          "fields": "Full CARE Press Release & Rating Rationale PDFs (no OTP required)",
+          "isin_coverage": "bond-relevant (NCD/bond ISIN annexures inside PDFs)",
+          "policy_status": "robots.txt HTTP 200 Allow: /; direct public static PDF",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW: static file paths returned by JSON endpoints; note sitemap.xml/rss.xml return 404 and /rrcompany returns 500."
+        }
+      ]
+    },
+    {
+      "site": "Acuite Ratings & Research",
+      "domain": "acuite.in / connect.acuite.in",
+      "channels": [
+        {
+          "url": "https://connect.acuite.in/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 application/xml (6,696,238 bytes; 39,267 <url> entries verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "loc (https://connect.acuite.in/fcompany-details/<COMPANY_SLUG>/<DATE>), lastmod (ISO timestamp)",
+          "isin_coverage": "bond-relevant discovery index across 39k+ Acuite rating actions",
+          "policy_status": "connect.acuite.in/robots.txt HTTP 200 empty; www.acuite.in/robots.txt HTTP 404; Acuite ToS prohibits bulk commercial redistribution",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: 6.7 MB single XML file behind Cloudflare; download once and diff by lastmod."
+        },
+        {
+          "url": "https://www.acuite.in/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 application/xml (257,430 bytes; 1,726 URLs verified live 2026-11-25)",
+          "cadence": "periodic",
+          "fields": "Corporate portal URLs",
+          "isin_coverage": "not bond-ISIN-level",
+          "policy_status": "www.acuite.in/robots.txt HTTP 404",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        },
+        {
+          "url": "https://connect.acuite.in/liveratings?page=<N>",
+          "format": "HTML (paginated SSR)",
+          "status_verified": "HTTP 200 text/html (verified live 2026-11-25; 20 fcompany-details links on page=1 dated 24th_Nov_26)",
+          "cadence": "daily / on-issue",
+          "fields": "Latest rated entities, rating date, links to fcompany-details/<slug>/<date>",
+          "isin_coverage": "indirect (discovery feed complementing sitemap.xml)",
+          "policy_status": "Behind Cloudflare; /rss returns HTTP 404",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: HTML table parsing + Cloudflare rate limits."
+        },
+        {
+          "url": "https://connect.acuite.in/fcompany-details/<COMPANY_SLUG>/<DATE>",
+          "format": "HTML (SSR rationale page)",
+          "status_verified": "HTTP 200 text/html (verified live 2026-11-25 on K_M_GLOBAL_CREDIT_PRIVATE_LIMITED/8th_Sep_22 [68 KB] and TAASHEE_LINUX_SERVICES_PRIVATE_LIMITED/5th_Aug_25 [55 KB])",
+          "cadence": "on-issue",
+          "fields": "Product, Quantum (Rs. Cr), Long Term Rating, Short Term Rating, Bank Loan Ratings, Non Convertible Debentures (NCD), Total Outstanding/Withdrawn Quantum (ISIN strings absent in both sampled pages — ISIN-level coverage UNVERIFIED)",
+          "isin_coverage": "partial / UNVERIFIED (company/NCD rating level; ISIN annexure presence unconfirmed)",
+          "policy_status": "Behind Cloudflare; Acuite ToS restricts bulk commercial aggregation",
+          "classification": "LIGHT",
+          "stability_risk": "MEDIUM: HTML table layout + Cloudflare."
+        }
+      ]
+    },
+    {
+      "site": "India Ratings & Research (Fitch Group)",
+      "domain": "indiaratings.co.in",
+      "channels": [
+        {
+          "url": "https://www.indiaratings.co.in/home/GetSearch?searchKey=<QUERY>",
+          "format": "JSON API",
+          "status_verified": "HTTP 200 application/json (4,323 bytes; verified live 2026-11-25 for searchKey=REC)",
+          "cadence": "on-issue / real-time",
+          "fields": "issuerList[]: issuerID, name (e.g. issuerID '2290' -> 'REC Limited')",
+          "isin_coverage": "issuer-level entry point (no login needed)",
+          "policy_status": "robots.txt HTTP 200 Allow public routes (disallows /admin/, /wp-admin/, /private/, etc.)",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: Angular SPA backend endpoint discovered in main.0988cc70ba733c95.js."
+        },
+        {
+          "url": "https://www.indiaratings.co.in/home/GetIssuerPressReleases?issuerId=<ISSUER_ID>",
+          "format": "JSON API",
+          "status_verified": "HTTP 200 application/json (9,409 bytes; verified live 2026-11-25 on issuerId=2290 REC Limited)",
+          "cadence": "on-issue",
+          "fields": "Array of press releases for issuer: pressReleaseID, pressReleaseTitle, pressReleaseDate, reportID",
+          "isin_coverage": "bond-relevant (lists all rating action pressReleaseIDs for an issuer without login)",
+          "policy_status": "robots.txt HTTP 200 Allow",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: SPA backend route."
+        },
+        {
+          "url": "https://www.indiaratings.co.in/pressReleases/GetPressreleaseData?pressReleaseId=<PR_ID>",
+          "format": "JSON API",
+          "status_verified": "HTTP 200 application/json (verified live 2026-11-25 on pressReleaseId=85832 [467,895 bytes, REC Limited] and 87168 [57,626 bytes])",
+          "cadence": "on-issue",
+          "fields": "pressReleaseID, pressReleaseTitle, pressReleaseDate, issuerID, issuerName, currentRatings, ratingHistory, annexure (contains bond ISINs e.g. INE020B07GH7, INE020B07GV8), detailedRationaleOfRatingAction, keyRatingDrivers, ratingSensitivities, liquidity, keyFinancialsIndicators (Note: _BeforeLogin variant also returns 200 summary JSON)",
+          "isin_coverage": "bond-relevant (full structured JSON rationale + ISIN annexure without authentication)",
+          "policy_status": "robots.txt HTTP 200 Allow; no login wall encountered on public GetPressreleaseData",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM: SPA backend API route; major upgrade over prior SCRAPE-ONLY assumption."
+        },
+        {
+          "url": "https://www.indiaratings.co.in/home/GetRatingNews",
+          "format": "JSON API (sibling: /home/GetLatestHeadline)",
+          "status_verified": "HTTP 200 application/json (5,406 bytes; verified live 2026-11-25)",
+          "cadence": "daily / on-issue",
+          "fields": "Latest rating actions feed: issuerName, pressReleaseID, pressReleaseTitle, effectiveDate",
+          "isin_coverage": "bond-relevant (live feed of new pressReleaseIDs)",
+          "policy_status": "robots.txt HTTP 200 Allow",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM"
+        },
+        {
+          "url": "https://www.indiaratings.co.in/pressReleases/GetUnAcceptedIssuersList",
+          "format": "JSON API (siblings: GetPerformancePoolData, GetRACListingYear)",
+          "status_verified": "HTTP 200 application/json (100,000+ bytes; verified live 2026-11-25)",
+          "cadence": "periodic / on-issue",
+          "fields": "issuerID, issuerName, sectorName, subSectorName, instrumentTypeName",
+          "isin_coverage": "issuer/compliance metadata",
+          "policy_status": "robots.txt HTTP 200 Allow",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW-MEDIUM"
+        },
+        {
+          "url": "https://www.indiaratings.co.in/sitemap.xml",
+          "format": "XML Sitemap",
+          "status_verified": "HTTP 200 text/xml (5,643 bytes; 42 routes verified live 2026-11-25; /rss.xml returns 404, /pressrelease/rss returns SPA HTML)",
+          "cadence": "periodic",
+          "fields": "42 Angular portal route URLs",
+          "isin_coverage": "navigation index only",
+          "policy_status": "robots.txt HTTP 200 Allow",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW"
+        }
+      ]
+    },
+    {
+      "site": "SEBI SCORES / SmartODR (Grievance & Dispute Rails)",
+      "domain": "scores.sebi.gov.in / smartodr.in",
+      "channels": [
+        {
+          "url": "https://scores.sebi.gov.in/sitemap.xml",
+          "format": "XML Sitemapindex",
+          "status_verified": "HTTP 200 text/xml (13,415 bytes; 76 child sitemaps verified live 2026-11-25; child sitemap contains static portal pages like /data-mig-page)",
+          "cadence": "periodic",
+          "fields": "Liferay CMS public portal pages only",
+          "isin_coverage": "none (zero bond/ISIN data)",
+          "policy_status": "robots.txt HTTP 200 disallows /c/* and /login; authenticated PII grievance portal",
+          "classification": "DOWNLOAD",
+          "stability_risk": "LOW (out of bond-data scope)"
+        },
+        {
+          "url": "https://scores.sebi.gov.in/ and https://smartodr.in/",
+          "format": "Authenticated Portals / SPAs",
+          "status_verified": "HTTP 200 portal/SPA shells (smartodr.in/robots.txt and /sitemap.xml return SPA index.html)",
+          "cadence": "n/a",
+          "fields": "Investor grievance / ODR case workflow (authenticated PII; intermediary APIs closed to public)",
+          "isin_coverage": "none (compliance plumbing only)",
+          "policy_status": "Authenticated PII/dispute rails — do not crawl",
+          "classification": "SCRAPE-ONLY",
+          "stability_risk": "N/A — drop from bond-data scope per broker_data_sources_research_20261125.json."
+        }
+      ]
+    }
+  ],
+  "scrape_only_sites": [
+    {
+      "site": "NSE India (nseindia.com / nsearchives.nseindia.com)",
+      "reason": "Akamai Bot Manager timed out polite GETs on sitemap.xml, UDiFF BhavCopy ZIP, and List_of_Registered_OBPPs_NSE.xlsx; legacy DEBT_SECURITY_MASTER.csv is 404. No unauthenticated public download succeeded under download-first policy.",
+      "policy_status": "HELD pending developer decision or member/broker feed"
+    },
+    {
+      "site": "BSE India — Equity/Debt Scrip & BhavCopy APIs (api.bseindia.com)",
+      "reason": "Public RSS (notices.xml, announcements.xml) and OBPP zip work as DOWNLOAD, but scrip/debt master API (ListofScripData) returned HTTP 403 Access Denied and /markets/debt returned 503 without browser Origin/Referer priming. No bulk debt CSV/ZIP verified via polite GET.",
+      "policy_status": "HELD for scrip/debt master; RSS notices.xml & OBP_MEMBER_LIST.zip usable immediately"
+    },
+    {
+      "site": "RBI DBIE Data Warehouse (data.rbi.org.in)",
+      "reason": "7 official RBI RSS feeds work as DOWNLOAD, but DBIE (data.rbi.org.in) is an Angular SPA behind F5 BIG-IP ASM with no unauthenticated bulk CSV/JSON API.",
+      "policy_status": "RSS feeds usable immediately; DBIE SPA HELD"
+    },
+    {
+      "site": "NSDL India BondInfo SPA (indiabondinfo.nsdl.com)",
+      "reason": "Requires encrypted UUID portal-metadata handshake (HTTP 400) and WAF rejects config.json; however, nsdl.com itself already provides full DOWNLOAD bulk CSV + 10 debt/CP/CD/default XLS/XLSX files + LIGHT participant/search JSON API, so indiabondinfo SPA is unnecessary.",
+      "policy_status": "Superseded by nsdl.com official bulk downloads"
+    },
+    {
+      "site": "SEBI SCORES / SmartODR (scores.sebi.gov.in / smartodr.in)",
+      "reason": "Authenticated PII grievance/ODR rails with zero bond or ISIN data.",
+      "policy_status": "Out of data scope — drop from bond-data adapters"
+    }
+  ],
+  "summary": {
+    "totals": {
+      "sites_audited": 12,
+      "sites_with_live_download_or_light_channels": 10,
+      "major_upgrades_discovered_today": [
+        "NSDL: 10 official bulk XLS/XLSX datasets on nsdl.com/resources/data/detailed-list-debt-instruments (incl. entire 28.8 MB Debt Instruments list, Redeemed Debt, CP, CD, Preference Shares, Securitised Instruments, and Defaulted-in-Redemption ISINs) in addition to ISIN_DETAILS CSV.",
+        "India Ratings: Unauthenticated public JSON REST APIs on indiaratings.co.in (GetSearch, GetIssuerPressReleases, GetPressreleaseData returning 467 KB JSON with ISIN annexures and full rationale, GetRatingNews) — moves India Ratings from SCRAPE-ONLY to DOWNLOAD.",
+        "CARE Ratings: Unauthenticated JSON APIs (header/searchlist, getSearchprintrating, getSearchprdocument, getSearchrrddata) + direct HTTP 200 PDF downloads under /upload/CompanyFiles/PR/ and /RR/ without OTP.",
+        "CRISIL: Solr Debt Ratings JSON (cmd=DR with isinNumber field), BLR JSON (cmd=BLR), ST JSON (cmd=ST), UR JSON (cmd=UR) alongside cmd=RR + RatingDocs HTML.",
+        "ICRA: Direct HTTP 200 rationale PDF download (/Rating/GetRationalReportFilePdf?Id=<id>) + AllRatingRationales index.",
+        "Acuite: Full 39,267-URL sitemap.xml on connect.acuite.in.",
+        "CDSL: Bulk XLSX downloads for PreferenceShares_data.xlsx and securitised_debt_instruments.xlsx + CorpBondDatabase.aspx rich per-ISIN bond page.",
+        "RBI: 7 official HTTP 200 RSS 2.0 XML feeds listed on Scripts/RSS.aspx.",
+        "BSE: Live HTTP 200 RSS feeds (/data/xml/notices.xml, /data/xml/announcements.xml) and OBP_MEMBER_LIST.zip."
+      ]
+    },
+    "developer_decision_matrix_download_first": {
+      "isin_master_all_securities": {
+        "primary": "NSDL securities_isin_code JSON -> ISIN_DETAILS_*.csv (DOWNLOAD, HTTP 200, fields: ISIN, issuer, description, coupon, maturity, FISN, CFI)",
+        "secondary": "NSDL detailed-list-debt-instruments -> Download_the_entire_list_of_Debt_Instruments_*.xls + CP/CD/Securitised/Pref XLS/XLSX (DOWNLOAD, HTTP 200)",
+        "live_per_isin_fallback": "NSDL participant/search JSON (LIGHT) + CDSL CorpBondDatabase.aspx?ISIN= / popup-isin.aspx (LIGHT) + CDSL PreferenceShares_data.xlsx / securitised_debt_instruments.xlsx (DOWNLOAD)"
+      },
+      "default_and_redemption_status": {
+        "primary": "NSDL List_of_ISINs-Issuer_defaulted_in_redemption_Payment_*.xlsx & Debt_Redeemed_*.xls (DOWNLOAD, HTTP 200)",
+        "secondary": "CRISIL cmd=DR JSON (DOWNLOAD, includes isinNumber for D-rated debt) + India Ratings home/GetListedDefaultList"
+      },
+      "credit_ratings_and_rationales": {
+        "crisil": "DOWNLOAD: rating_sme_listing_service.json (cmd=RR, cmd=DR, cmd=BLR, cmd=ST, cmd=UR) + LIGHT: RatingDocs/<ratingFileName>",
+        "icra": "DOWNLOAD: GetRationalReportFilePdf?Id=<id> (PDF) + LIGHT: AllRatingRationales & ShowRationaleReport/?Id=<id>",
+        "care": "DOWNLOAD: header/searchlist -> getSearchprintrating + getSearchprdocument + getSearchrrddata -> /upload/CompanyFiles/{PR,RR}/<FileURL> (PDF)",
+        "india_ratings": "DOWNLOAD: home/GetRatingNews, home/GetSearch, home/GetIssuerPressReleases, pressReleases/GetPressreleaseData (full JSON + ISIN annexure)",
+        "acuite": "DOWNLOAD: connect.acuite.in/sitemap.xml (39,267 URLs) + LIGHT: liveratings & fcompany-details/<slug>/<date>"
+      },
+      "regulator_and_central_bank_news": {
+        "rbi": "DOWNLOAD: 7 RSS 2.0 XML feeds (pressreleases_rss.xml, notifications_rss.xml, Publication_rss.xml, speeches_rss.xml, tenders_rss.xml, AnnualReportMain_rss.xml, Bulletin_rss.xml)",
+        "sebi": "DOWNLOAD: sebirss.xml + sitemap.xml + online-bond-platform-providers.html; LIGHT: HomeAction.do circulars + statistics/corporate-bonds.html",
+        "bse": "DOWNLOAD: data/xml/notices.xml + data/xml/announcements.xml"
+      },
+      "listing_status_and_exchange_trades": {
+        "primary_download_first": "NSDL participant/search (listing_status field) + NSDL Debt_Instruments XLS + CDSL PreferenceShares_data.xlsx (Listed/Unlisted) + SEBI statistics/corporate-bonds.html (aggregate)",
+        "held_scrape_only": "NSE UDiFF daily reports / nsearchives & BSE api.bseindia.com ListofScripData (Akamai-gated; HELD pending developer decision or member feed)"
+      }
+    }
+  }
+}

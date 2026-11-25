@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v2.0",
+  "version": "v2.1",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -175,6 +175,14 @@
       "topic": "ISM (ISIN master) collection — NSE cracked via official API; trifecta complete",
       "summary": "NSE IS SOLVED without bypass: /api/daily-reports answers 200 on plain stdlib (param key={CM|SLBS|CD|CBM|FO|NBF|INDEX|WDM}) and returns official file URLs on the correct archives domain nsearchives.nseindia.IN (the earlier 404 was the wrong .com host). key=WDM lists WDM-SEC-AVAILABLE-FOR-TRADE -> wdmlist_23112026.csv (HTTP 200, 1.24 MB, 10,624 securities, 3,695 corporate INE) with SECTYPE/SECURITY/ISSUE_NAME(coupon)/ISSUE_DESC/ISSUE_DATE/MAT_DATE/Last IP Dt/Next IP Dt/Cpn Freq(payout cycle)/Last Traded/ISIN NO./STATUS. ISIN-master trifecta: NSDL bulk CSV 264,221 rows + BSE debt 5,475 + NSE WDM 10,624 - all plain polite GETs.",
       "relevance": "All three ISM sources download-first verified; NSE leaves the HELD list; WDM file adds Cpn Freq + Next IPDt which NSDL CSV lacks - direct feed for the payment ledger."
+    },
+    {
+      "id": "F9",
+      "date": "2026-11-25",
+      "topic": "ISM/download-first — merged final channel map (PM + agy lanes combined)",
+      "summary": "agy inventory: 59 channels (43 DOWNLOAD / 10 LIGHT / 6 SCRAPE-ONLY). New gold: NSDL 10 bulk XLS/XLSX debt datasets (28.8MB: Debt Instruments, Redeemed, CP, CD, Preference, Securitised, Defaulted) at nsdl.com/resources/data/detailed-list-debt-instruments; India Ratings UNAUTHENTICATED JSON APIs (home/GetSearch, home/GetIssuerPressReleases, pressReleases/GetPressreleaseData with ISIN annexures — SPA problem solved); CARE unauthenticated JSON (getSearchprintrating, getSearchrrddata) + direct PDFs without OTP; CRISIL Solr cmd=DR searchable BY ISIN; ICRA direct rationale PDFs (GetRationalReportFilePdf); Acuite 39,267-URL sitemap; CDSL PreferenceShares_data.xlsx + securitised_debt_instruments.xlsx + CorpBondDatabase.aspx; RBI 7 RSS; BSE notices/announcements RSS + OBP_MEMBER_LIST.zip.",
+      "reconciliation": "Two agy classifications corrected by PM live proofs: NSE is NOT scrape-only (F8: daily-reports API 200 + wdmlist CSV 10,624 rows verified); BSE ListofScripData is NOT held (F7: 200 with Referer/Origin + complete params, 5,475 debt scrips verified twice). True SCRAPE-ONLY remainder for bond data: NONE. DBIE SPA superseded by RBI RSS; NSDL BondInfo SPA superseded by nsdl.com bulk; SCORES/SmartODR out of scope per D3/D4.",
+      "relevance": "FINAL: all 12 sites served download-first; zero scraping required for the full existential stack (ISIN master + ratings + regulator feeds)."
     }
   ],
   "change_log": [
@@ -221,6 +229,10 @@
     {
       "date": "2026-11-25",
       "change": "v2.0: F8 — NSE solved via daily-reports API + nsearchives.nseindia.in; ISM trifecta proven (NSDL+BSE+NSE), all download-first"
+    },
+    {
+      "date": "2026-11-25",
+      "change": "v2.1: F9 merged final channel map — 59 channels, both lanes reconciled, zero scraping needed for bond data"
     }
   ]
 }
