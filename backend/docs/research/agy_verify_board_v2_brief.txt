@@ -1,0 +1,14 @@
+VERIFICATION TASK — expanded backend board (v2: features, API surface, business rules, data model+retention, data flow).
+
+Verify backend/docs/backend_dataflow_design.html (read as HTML text) against the ACTUAL CODE in this repo:
+1. API SURFACE section: every route listed must exist in src/views/*.py + src/app.py (grep @bp.route). Flag routes on the board that do NOT exist in code, and REAL routes missing from the board.
+2. DATA MODEL section: tables listed must match src/db.py CREATE TABLE statements (bonds, payment_ledger, financial_goals, notifications, alert_prefs, bond_master). Check purpose + retention claims against code/tests (ledger uncapped forever; notifications user-clearable; bond_master session cooldown 60s + auto-fetch window 12h; raw store retention UNDECIDED).
+3. BUSINESS RULES section: check each against tests - rating gate AAA..BBB- (tests/test_300_rating_gate.py), danger = any unpaid past month (tests/test_tc02_any_past_unpaid.py), lifecycle locks (test_tc64-68), privacy mode (test_tc74), provenance per field.
+4. FEATURES section: 12 chips must map to real modules in src/ (alerts, goals, ledger, mailer, share, print, updater, prefs...).
+5. DATA FLOW strip: order must match service.py lookup logic (snapshot seed -> DB cache -> live adapter -> official-facts merge) and the failure overlay must match views/error handling (app error handler).
+6. Previous fixes must still be present (F-agy round 1): KPI 264,221/186,123, full failure-code set, LIGHT vs DOWNLOAD legend, BSE as LIGHT, CDSL per-entity, india-isin-data OFFLINE SEED, no 2025 dates, no WAL-replica boilerplate.
+
+CONSTRAINTS (hard):
+- READ-ONLY. No file edits, no file creation. Output is ONLY a chat report.
+- Report with: hc send t1w4 <numbered findings; each OK or WRONG with correction + code evidence file:line>. Under 300 words.
+Stay alive after reporting.

@@ -1,0 +1,126 @@
+{
+  "document": "pm_scraping_research",
+  "version": "v1.0",
+  "date": "2026-11-25",
+  "initiative": "backend-design-upgrade",
+  "scope": "Scraping plan for the 12 core sites (D2): what to follow, framework, libraries, possibilities, prior art, blocking handling.",
+  "per_site": [
+    {
+      "site": "NSDL",
+      "domain": "nsdl.com",
+      "feasibility": "WORKING today",
+      "evidence": "live probe 2026-11-25: HTTP 200 with facts on 3 ISINs via plain stdlib urllib",
+      "technique": "plain GET on https://nsdl.com/web/api/v1/participant/search?isin=<ISIN>; throttle 1/s; no WAF fight",
+      "verdict": "keep as-is; primary source"
+    },
+    {
+      "site": "CDSL",
+      "domain": "cdslindia.com",
+      "feasibility": "medium - ASPX/HTML endpoints, thin public API surface",
+      "technique": "plain HTTP session with cookies; ISIN master lists published as files/pages; UNVERIFIED until probed",
+      "verdict": "probe before building"
+    },
+    {
+      "site": "BSE",
+      "domain": "bseindia.com + api.bseindia.com",
+      "feasibility": "blocked today (HTTP 403 on ListofScripData)",
+      "known_technique": "cookie priming: GET www.bseindia.com first to collect session cookies, then call api.bseindia.com/BseIndiaAPI/api/ListofScripData/w with full browser header set (Origin/Referer/Accept). Our code already defines COOKIE_PRIME_URL but never wires it - that is the missing piece. If 403 persists, escalate to curl_cffi impersonate=chrome",
+      "prior_art": "widespread pattern in BSE scrapers: warm-up request + full header set; bsetools-style repos",
+      "verdict": "revive adapter with cookie priming + curl_cffi fallback"
+    },
+    {
+      "site": "NSE",
+      "domain": "nseindia.com + nsearchives.nseindia.com",
+      "feasibility": "hard-blocked (Akamai-style); old DEBT_SECURITY_MASTER.csv path is 404",
+      "known_technique": "session warm-up: hit nseindia.com homepage with browser UA to collect cookies, then call API endpoints; aggressive caching to avoid bans (jugaad-data docs say exactly this: 'Built-in caching mechanism to play nice with NSE. Avoid making un-necessary requests to NSE website and getting blocked'); locate the new debt-master file path via NSE's own API responses; fallback curl_cffi impersonate=chrome",
+      "prior_art": [
+        {"name": "jugaad-data", "url": "https://pypi.org/project/jugaad-data/", "technique": "supports the NEW NSE website; warm cookies + built-in cache; CLI + python API; also covers RBI rates", "blocking_handling": "cache-first, minimal requests"},
+        {"name": "nsepython", "url": "https://pypi.org/project/nsepython/", "technique": "NSE endpoint wrapper with cookie warm-up (nsefetch pattern)", "blocking_handling": "session reuse; note PyPI page itself served a client challenge during this research"},
+        {"name": "nsetools", "url": "https://pypi.org/project/nsetools/", "technique": "older NSE quote/index lib; largely broke on the NSE redesign - a cautionary tale for schema drift", "blocking_handling": "UNVERIFIED maintenance state"}
+      ],
+      "verdict": "rebuild via jugaad-data-style warm session; treat NSE as highest-maintenance source"
+    },
+    {
+      "site": "RBI",
+      "domain": "rbi.org.in",
+      "feasibility": "blocked today (HTTP 418 = WAF fingerprint rejection)",
+      "known_technique": "418 to a plain client means TLS/header fingerprinting; standard fix is curl_cffi with impersonate=chrome (TLS/JA3 + HTTP/2 fingerprint match). jugaad-data successfully pulls RBI current rates, proving RBI endpoints work with a correct client fingerprint",
+      "prior_art": [{"name": "curl_cffi", "url": "https://github.com/lexiforest/curl_cffi", "technique": "impersonate browsers' TLS/JA3/HTTP2 fingerprints; 'If you are blocked by some website for no obvious reason, you can give curl_cffi a try'", "blocking_handling": "browser-identical handshakes; Chrome/Safari/Firefox profiles; proxy rotation"}],
+      "verdict": "rebuild adapter on curl_cffi"
+    },
+    {
+      "site": "SEBI",
+      "domain": "sebi.gov.in",
+      "feasibility": "public files/circulars, moderate",
+      "technique": "plain fetch; regulatory docs only - not a bond-facts source",
+      "verdict": "reference only; no adapter needed"
+    },
+    {
+      "site": "CRISIL",
+      "domain": "crisilratings.com",
+      "feasibility": "public rationale pages + search; moderate",
+      "technique": "rationale search endpoint / sitemap crawl by ISIN; session + polite throttle",
+      "verdict": "first agency adapter to build (widest corporate-bond coverage)"
+    },
+    {
+      "site": "ICRA",
+      "domain": "icra.in",
+      "feasibility": "public rationales; moderate",
+      "technique": "same as CRISIL",
+      "verdict": "second agency adapter"
+    },
+    {
+      "site": "CARE Ratings",
+      "domain": "careratings.com",
+      "feasibility": "public press releases/rationales; moderate",
+      "technique": "same pattern",
+      "verdict": "third agency adapter"
+    },
+    {
+      "site": "Acuite",
+      "domain": "acuite.in",
+      "feasibility": "public ratings list; moderate",
+      "technique": "same pattern",
+      "verdict": "fourth agency adapter"
+    },
+    {
+      "site": "India Ratings",
+      "domain": "indiaratings.co.in",
+      "feasibility": "rationales behind free registration sometimes",
+      "technique": "session with stored (user-configured) credentials; or skip if login required",
+      "verdict": "lowest priority agency"
+    },
+    {
+      "site": "SEBI SCORES / SMART ODR",
+      "domain": "scores.sebi.gov.in / smartodr.in",
+      "feasibility": "compliance rails, no bond data",
+      "verdict": "no adapter; out of data scope"
+    }
+  ],
+  "libraries": [
+    {"name": "curl_cffi (MIT)", "url": "https://github.com/lexiforest/curl_cffi", "use_for": "WAF-fingerprinted sites: RBI (418), BSE (403), NSE", "pros": "TLS/JA3/HTTP2 browser impersonation, requests-like API, fast, async, proxy rotation, Scrapy adapters exist", "cons": "compiled wheel; fingerprint profiles must track browser versions"},
+    {"name": "httpx / requests", "url": "https://www.python-httpx.org/", "use_for": "well-behaved sites: NSDL, agencies, SEBI", "pros": "simple, mature", "cons": "no fingerprint control - detected by strict WAFs"},
+    {"name": "cloudscraper", "url": "https://pypi.org/project/cloudscraper/", "use_for": "legacy Cloudflare IUAM pages", "pros": "JS challenge solving, drop-in Session", "cons": "last release 2023 - aging against modern Cloudflare"},
+    {"name": "playwright", "url": "https://playwright.dev/python/", "use_for": "last resort: JS-heavy pages, bot checks that need a real browser", "pros": "near-perfect browser fidelity", "cons": "heavy, slow, fragile at scale"},
+    {"name": "jugaad-data", "url": "https://pypi.org/project/jugaad-data/", "use_for": "reference implementation for NSE (new site) + RBI rates; possibly direct dependency", "pros": "actively maintained (0.37.4, Nov 2026), cache-first discipline", "cons": "equity/index focused - debt master coverage to verify"},
+    {"name": "brimp", "url": "https://github.com/lexiforest/curl_cffi", "use_for": "JS challenges without full browser (curl_cffi suite)", "pros": "lightweight", "cons": "new tooling, UNVERIFIED"}
+  ],
+  "framework_recommendation": {
+    "architecture": "keep the existing Adapter protocol (name + fetch(isin) -> FetchResult). Add a transport layer with pluggable transports per site class: TransportPlain (stdlib/httpx) for NSDL+agencies, TransportImpersonate (curl_cffi) for RBI/BSE/NSE, TransportBrowser (playwright) as last resort. Wire cookie priming into a shared SessionManager: warm-up URL -> cookies -> target call, per adapter.",
+    "discipline": "cache-first (snapshot -> DB cache -> network; already implemented), 1 request/s per source (throttle exists), exponential backoff on 5xx/timeout only, identified User-Agent, respect robots.txt, fixture-based parse tests against schema drift (pattern already in tests/bond_master/fixtures), per-source health events (already implemented)",
+    "failure_handling": "per-source isolation - one site's break never blocks others (SOURCE_PRIORITY loop already isolates); FAILURE codes already distinguish blocked vs unreachable after fix"
+  },
+  "possibilities_beyond_scraping": [
+    "official bulk files: NSE debt master files (find new path), BSE scrip APIs, bhavcopy-style dumps",
+    "agency rationale PDFs + search endpoints (CRISIL/ICRA/CARE/Acuite publish them publicly)",
+    "licensed data feeds from CRISIL/ICRA - the compliant long-term route if scraping breaks",
+    "our bundled india-isin-data snapshot (46,715 ISINs, CC0) already covers offline seeds and refreshes from GitHub releases"
+  ],
+  "references": [
+    "https://github.com/lexiforest/curl_cffi",
+    "https://pypi.org/project/jugaad-data/",
+    "https://pypi.org/project/cloudscraper/",
+    "https://pypi.org/project/nsepython/",
+    "https://pypi.org/project/nsetools/"
+  ]
+}

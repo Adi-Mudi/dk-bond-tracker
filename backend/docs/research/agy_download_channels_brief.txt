@@ -1,0 +1,20 @@
+STANDING RESEARCH TASK — download-channel inventory (download-first policy).
+
+Policy change from the developer (2026-11-25): the project PREFERS DOWNLOADING official data over scraping. Respect each site's policy (robots.txt, terms, published feeds/files). WAF circumvention scraping is HELD — do not research bypass techniques further; catalog official download paths instead.
+
+Your job: build the exhaustive DOWNLOAD-CHANNEL inventory for the 12 core sites (context: backend/docs/broker_data_sources_research_20261125.json final_core_website_list + research/agy_scraping_research_20261125.json + research/pm_scraping_research_20261125.json + research/nse_recipe_extraction_20261125.json).
+
+For EACH of the 12 sites (NSDL, CDSL, BSE, NSE, RBI, SEBI, CRISIL, ICRA, CARE, Acuite, India Ratings, SEBI SCORES/SmartODR):
+1. Every official download path: bulk files (CSV/ZIP/XLSX), public JSON APIs, RSS/Atom feeds, sitemaps, published reports indexes. You already verified some live (NSDL securities_isin_code CSV, RBI 3 RSS feeds, SEBI sebirss.xml, CRISIL rating_sme_listing_service.json + RatingDocs, CDSL popup-isin.aspx, Acuite connect.acuite.in/liveratings, ICRA ShowRationaleReport) — re-verify each still 200 and go WIDER: look for more paths on the same hosts (e.g. NSDL id-listing siblings, NSE UDiFF/ повседнев daily-reports ZIPs, BSE corporate-filing public files, CARE/Acuite sitemap-based rationale lists, India Ratings press-release RSS if any).
+2. For each path record: URL, format, HTTP status (verify live today), update cadence (daily/weekly/on-issue), data fields available, ISIN coverage (bond-relevant or not), robots.txt/policy status, and a stability risk note (what breaks if they redesign).
+3. Classify each: DOWNLOAD (official file/feed/API — preferred), LIGHT (single-purpose endpoint serving structured data), SCRAPE-ONLY (no download path exists — list these separately; these are the only sites where scraping would ever be needed, and they stay HELD pending developer decision).
+4. Output completeness goal: a developer can pick any bond-data need (ISIN master, ratings, rationales, regulator news, listing status) and know the download-first source for it.
+
+CONSTRAINTS (hard):
+- READ-ONLY research + exactly ONE new output file: backend/docs/research/agy_download_channels_20261125.json
+- No WAF bypass research. No login-wall circumvention. Polite GETs only, 1 req/s max, identified UA.
+- Every claim needs a URL; mark UNVERIFIED where you could not verify live.
+- JSON shape: {"document","version","date","policy":"download-first","sites":[{site,domain,channels:[{url,format,status_verified,cadence,fields,isin_coverage,policy_status,classification,stability_risk}]}],"scrape_only_sites":[...],"summary"}.
+
+WHEN DONE or STUCK: report with: hc send t1w4 <one-paragraph summary + file path>
+You are a standing worker: after this report, stay alive awaiting the next task.

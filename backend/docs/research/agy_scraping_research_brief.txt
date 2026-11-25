@@ -1,0 +1,25 @@
+DEEP RESEARCH TASK — web scraping stack for 12 Indian financial sites.
+
+Read your context files FIRST:
+- backend/docs/broker_data_sources_research_20261125.json (see final_core_website_list: the 12 sites + what each gives + current reachability)
+- backend/docs/backend_design_upgrade_tracker_20261125.json (tracker v1.4)
+
+Your job: a deep research report answering, for ALL 12 websites (NSDL nsdl.com, CDSL cdslindia.com, BSE bseindia.com + api.bseindia.com, NSE nseindia.com + nsearchives.nseindia.com, RBI rbi.org.in, SEBI sebi.gov.in, CRISIL crisilratings.com, ICRA icra.in, CARE careratings.com, Acuite acuite.in, India Ratings indiaratings.co.in):
+
+1. PER-SITE FEASIBILITY: what data access paths exist (public JSON APIs, downloadable files, HTML pages, RSS), known blocking behavior (WAF vendors, 403/418/429 patterns, Akamai/Cloudflare fingerprints), and which technique is known to work (header fingerprinting, cookie priming/session warm-up, browser automation, official endpoints).
+
+2. PRIOR ART: find real open-source projects, repos, blog posts, Stack Overflow threads that scrape THESE specific sites. For each: name, URL, technique used, how they handle blocking. Search GitHub for e.g. nsdl scraper, bseindia api, nseindia python, rbi scraper, crisil rating scrape, icra rationale, careratings, indsindia/acuite. Also look at known libraries: nsetools, nsepython, jugaad-data, bselib, bsetools, and anything for Indian bond/ISIN data.
+
+3. FRAMEWORK + LIBRARY RECOMMENDATION: the right Python stack for our backend (stdlib today; no deps installed yet). Compare requests, httpx, curl_cffi (TLS fingerprint impersonation), cloudscraper, scrapy, playwright/selenium, tls-client. When to use which per site class. Rate limiting, retry/backoff, caching, schema-drift defenses, robots.txt/ToS discipline.
+
+4. BEYOND SCRAPING: official bulk endpoints each site publishes (e.g. NSDL participant search API we already use at https://nsdl.com/web/api/v1/participant/search; NSE debt master CSV; BSE ListofScripData API; agency rationale search endpoints; RSS feeds). Flag anything usable WITHOUT scraping.
+
+CONSTRAINTS (hard):
+- READ-ONLY research. You may create exactly ONE output file:
+  backend/docs/research/agy_scraping_research_20261125.json
+- Do NOT modify, create, or delete ANY other file. Do NOT touch src/, design/, android/, tests/, docs/, scripts/.
+- Every claim needs a URL citation. If you cannot verify something, mark it UNVERIFIED.
+- JSON output shape: {"document","version","date","sites":[{site,domain,feasibility,data_paths,known_technique,prior_art:[{name,url,technique,blocking_handling}],notes}],"libraries":[{name,use_for,pros,cons,url}],"framework_recommendation","bulk_endpoints","references"}.
+
+WHEN DONE or STUCK: report with: hc send t1w4 <one-paragraph summary + file path>
+That hc send target is the coordinator terminal t1w4. Do not skip the report.

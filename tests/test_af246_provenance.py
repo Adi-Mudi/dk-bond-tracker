@@ -47,10 +47,10 @@ def test_position_detail_has_no_provenance_when_absent(db_path):
 
 def test_position_detail_json_carries_provenance_when_present(db_path):
     bond_id = _add_holding(db_path)
-    _seed_master(db_path, "RBI")
+    _seed_master(db_path, "NSDL")
     client, _ = make_client(db_path)
     payload = client.get(f"/portfolio/{bond_id}/detail").get_json()
-    assert payload["provenance"]["source"] == "RBI"
+    assert payload["provenance"]["source"] == "NSDL"
     assert payload["provenance"]["as_of"]
 
 
@@ -83,10 +83,10 @@ def test_status_overview_carries_provenance_when_present(db_path):
     from src.queries import status_overview
 
     _add_holding(db_path)
-    _seed_master(db_path, "NSE")
+    _seed_master(db_path, "india-isin-data")
     with get_conn(db_path) as conn:
         entries = status_overview(conn)
-    assert entries[0]["provenance"]["source"] == "NSE"
+    assert entries[0]["provenance"]["source"] == "india-isin-data"
     assert entries[0]["provenance"]["as_of"]
 
 

@@ -36,7 +36,7 @@ def test_a_migrated_legacy_db_gains_a_coupon_column(tmp_path):
 def test_a_fetched_coupon_round_trips_on_a_fresh_db(tmp_path):
     db_path = tmp_path / "bonds.db"
     init_db(db_path)
-    result = FetchResult(isin=ISIN, company="Acme Ltd", coupon=8.75, sources={"coupon": "NSE"})
+    result = FetchResult(isin=ISIN, company="Acme Ltd", coupon=8.75, sources={"coupon": "nsdl"})
     cache = BondMasterCache(db_path)
     cache.save(
         {
@@ -61,7 +61,7 @@ def test_a_fetched_coupon_round_trips_on_a_migrated_db(tmp_path):
             "isin": ISIN,
             "company": "Acme Ltd",
             "coupon": 8.75,
-            "source": "nse",
+            "source": "nsdl",
             "fetched_at": ASOF_AT_1700000000,
         }
     )
@@ -76,19 +76,19 @@ def test_a_user_edited_field_survives_a_refresh_write(db_path):
     cache.mark_edited(ISIN, "coupon")
     assert cache.edited_fields(ISIN) == frozenset({"coupon"})
     cache.save(
-        {"isin": ISIN, "company": "Acme Ltd", "coupon": 8.75, "rating": "AA", "source": "nse"}
+        {"isin": ISIN, "company": "Acme Ltd", "coupon": 8.75, "rating": "AA", "source": "nsdl"}
     )
     row = cache.lookup(ISIN)
     assert row["coupon"] == 9.0
     assert row["company"] == "Acme Ltd"
     assert row["rating"] == "AA"
-    assert row["source"] == "nse"
+    assert row["source"] == "nsdl"
 
 
 def test_a_non_edited_field_is_still_refreshed(db_path):
     cache = BondMasterCache(db_path)
     cache.save({"isin": ISIN, "company": "Acme", "coupon": 9.0, "source": "nsdl"})
-    cache.save({"isin": ISIN, "company": "Acme Ltd", "coupon": 8.75, "source": "nse"})
+    cache.save({"isin": ISIN, "company": "Acme Ltd", "coupon": 8.75, "source": "nsdl"})
     row = cache.lookup(ISIN)
     assert row["coupon"] == 8.75
     assert row["company"] == "Acme Ltd"
@@ -99,7 +99,7 @@ def test_edit_preserve_without_an_existing_row_keeps_the_incoming_value(tmp_path
     init_db(db_path)
     cache = BondMasterCache(db_path)
     cache.mark_edited(ISIN, "coupon")
-    cache.save({"isin": ISIN, "coupon": 8.75, "source": "nse"})
+    cache.save({"isin": ISIN, "coupon": 8.75, "source": "nsdl"})
     assert cache.lookup(ISIN)["coupon"] == 8.75
 
 
@@ -142,12 +142,12 @@ def test_a_partial_refresh_does_not_null_stored_facts(db_path):
     )
     before = cache.lookup(ISIN)
     clock[0] += 3600.0
-    cache.save({"isin": ISIN, "company": "Acme", "coupon": 8.75, "source": "RBI"})
+    cache.save({"isin": ISIN, "company": "Acme", "coupon": 8.75, "source": "nsdl"})
     after = cache.lookup(ISIN)
     assert after["rating"] == "AA+"
     assert after["rating_agency"] == "CRISIL"
     assert after["issuer_type"] == "ncd"
     assert after["listing_status"] == "listed"
     assert after["maturity"] == "2030-03-31"
-    assert after["source"] == "RBI"
+    assert after["source"] == "nsdl"
     assert after["fetched_at"] != before["fetched_at"]

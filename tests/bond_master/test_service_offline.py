@@ -77,15 +77,6 @@ def test_all_sources_unreachable_is_reported_offline(tmp_path):
     assert result.has_facts() is False
 
 
-def test_a_mixed_failure_is_not_reported_offline(tmp_path):
-    adapters = {
-        "NSDL": FakeAdapter("NSDL", [FetchResult(isin=ISIN, failure_code=FAILURE_NOT_FOUND)]),
-        "RBI": FakeAdapter("RBI", [OSError("no route")]),
-    }
-    service, _ = make_service(tmp_path, adapters, retries=0)
-    assert service.lookup(ISIN).failure_code == FAILURE_UNREACHABLE
-
-
 def test_offline_offer_returns_cached_values_with_the_as_of_date(db_path):
     now = [1_700_000_000.0]
     cache = BondMasterCache(db_path, clock=lambda: now[0])

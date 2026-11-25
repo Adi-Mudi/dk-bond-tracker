@@ -1,0 +1,10 @@
+VERIFICATION TASK — outside-in restructure (USER FLOWS + API REQUEST FLOWS added at top of backend/docs/backend_dataflow_design.html; source columns retagged UF1..UF9).
+
+Verify against code + tracker:
+1. UF mapping table: UF2 -> GET /watch/lookup (src/views/watch.py); UF4 -> POST /portfolio/<id>/refresh (portfolio.py); UF5 -> POST /settings/auto-fetch/consent + POST /settings/auto-fetch/sync (settings.py); UF3 local reads; UF6 background no-API; UF9 failure codes on refresh endpoints. Any wrong method/path?
+2. Lookup order on UF2 card must be: snapshot seed -> DB cache -> live NSDL -> official-facts merge (service.py). Failure overlay: failure code -> last-good kept -> passive stale -> app never blocks.
+3. Flow tags on source cards: NSDL 'UF1 UF2 UF4 UF6' (UF1 = community snapshot seed... CHECK: NSDL should NOT claim UF1 seed — the seed is india-isin-data CC0. If the board shows NSDL tagged UF1, flag it). BSE 'UF6', NSE WDM 'UF6', CDSL 'UF1'?? CHECK: UF1 seed = india-isin-data CC0 mirror, NOT CDSL. Flag mis-tags.
+4. Cadences: NSDL weekly, BSE/NSE daily trading days, RSS daily.
+5. Auto-fetch: consent + 12h window (service.py AUTO_WINDOW_SECONDS).
+
+CONSTRAINTS: READ-ONLY, no file edits. Report: hc send t1w4 <numbered findings, each OK or WRONG + evidence file:line>. Under 250 words. Stay alive.

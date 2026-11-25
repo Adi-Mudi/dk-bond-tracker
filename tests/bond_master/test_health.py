@@ -21,11 +21,11 @@ def test_failure_code_is_visible_per_source():
     view = HealthView(
         [
             event("NSDL", False, FAILURE_TIMEOUT, 1000.0),
-            event("RBI", True, FAILURE_OK, 1001.0),
+            event("india-isin-data (CC0)", True, FAILURE_OK, 1001.0),
         ]
     )
     assert view.status("NSDL").failure_code == FAILURE_TIMEOUT
-    assert view.status("RBI").failure_code == FAILURE_OK
+    assert view.status("india-isin-data (CC0)").failure_code == FAILURE_OK
 
 
 def test_last_success_and_last_failure_are_recorded():
@@ -45,22 +45,22 @@ def test_last_success_and_last_failure_are_recorded():
 def test_failure_code_survives_a_later_success():
     view = HealthView(
         [
-            event("BSE", False, FAILURE_NOT_FOUND, 1000.0),
-            event("BSE", True, FAILURE_OK, 1005.0),
+            event("NSDL", False, FAILURE_NOT_FOUND, 1000.0),
+            event("NSDL", True, FAILURE_OK, 1005.0),
         ]
     )
-    status = view.status("BSE")
+    status = view.status("NSDL")
     assert status.failure_code == FAILURE_NOT_FOUND
     assert status.healthy() is False
 
 
 def test_sources_are_listed_in_priority_order():
-    view = HealthView([event("BSE", False, FAILURE_TIMEOUT, 1000.0)])
+    view = HealthView([event("NSDL", False, FAILURE_TIMEOUT, 1000.0)])
     assert [status.source for status in view.sources()] == list(SOURCE_PRIORITY)
 
 
 def test_unseen_source_is_ok_with_no_timestamps():
-    status = HealthView([]).status("NSE")
+    status = HealthView([]).status("india-isin-data (CC0)")
     assert status.failure_code == FAILURE_OK
     assert status.last_success is None
     assert status.last_failure is None
@@ -86,10 +86,6 @@ class FakeAdapter:
 def test_af06_health_view_shows_the_failing_source_code(tmp_path):
     adapters = {
         "NSDL": FakeAdapter("NSDL", FetchResult(isin=ISIN, failure_code=FAILURE_TIMEOUT)),
-        "RBI": FakeAdapter(
-            "RBI",
-            FetchResult(isin=ISIN, company="Acme Ltd", sources={"company": "RBI"}),
-        ),
     }
     init_db(tmp_path / "bonds.db")
     cache = BondMasterCache(tmp_path / "bonds.db")
@@ -98,5 +94,3 @@ def test_af06_health_view_shows_the_failing_source_code(tmp_path):
     view = health_view(service)
     assert view.status("NSDL").failure_code == FAILURE_TIMEOUT
     assert view.status("NSDL").healthy() is False
-    assert view.status("RBI").failure_code == FAILURE_OK
-    assert view.status("RBI").healthy() is True
