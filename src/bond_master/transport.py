@@ -48,3 +48,8 @@ def percent_encode(value):
 def build_search_url(base, key, value):
     """Assemble a GET search URL with a percent-encoded parameter."""
     return base + urllib.parse.quote(str(value))
+
+
+def quote_param(value):
+    """Percent-encode a query parameter (default-safe: slashes stay raw, matching the live-verified CARE form)."""
+    return urllib.parse.quote(str(value))
