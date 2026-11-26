@@ -97,6 +97,49 @@
   .botnav a.top { color:var(--accent-soft); border-color:rgba(36,86,230,.4); }
   @media (max-width:600px){ .botnav { gap:2px; padding:5px 6px; } .botnav a { padding:6px 8px; font-size:10px; } }
   body { padding-bottom:80px; }
+  /* design system visuals */
+  .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
+  .sw { border-radius:10px; overflow:hidden; border:1px solid var(--hairline); }
+  .sw .color { height:52px; display:flex; align-items:flex-end; padding:6px 8px; font-size:9px; font-family:monospace; }
+  .sw .meta { background:var(--raised); padding:7px 9px; font-size:10px; }
+  .sw .meta b { display:block; color:var(--ink); font-size:11px; }
+  .sw .meta span { color:var(--muted); }
+  .type-scale { display:flex; flex-direction:column; gap:8px; }
+  .type-row { display:flex; align-items:baseline; gap:14px; background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:10px 14px; }
+  .type-row .spec { font-size:10px; color:var(--dim); width:150px; flex-shrink:0; text-transform:uppercase; letter-spacing:.06em; }
+  .type-row .demo { color:var(--ink); }
+  .t-title { font-size:24px; font-weight:700; }
+  .t-head { font-size:18px; font-weight:600; }
+  .t-body { font-size:14px; font-weight:400; }
+  .t-cap { font-size:12px; font-weight:400; color:var(--muted); }
+  .t-btn { font-size:14px; font-weight:500; color:var(--accent-soft); }
+  .spacing { display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; }
+  .sp { text-align:center; }
+  .sp .bar { background:rgba(36,86,230,.35); border:1px solid var(--accent); border-radius:4px; margin:0 auto 6px; }
+  .sp .lbl { font-size:10px; color:var(--muted); }
+  .comp-preview { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .pv-btn { background:var(--accent); color:#fff; font-size:14px; font-weight:500; border-radius:8px; padding:10px 20px; }
+  .pv-btn2 { background:var(--raised); color:var(--muted); font-size:14px; font-weight:500; border-radius:8px; padding:10px 20px; border:1px solid var(--hairline); }
+  .pv-input { background:var(--canvas); border:1px solid var(--hairline); border-radius:8px; padding:10px 14px; font-size:13px; color:var(--dim); min-width:200px; }
+  .pv-card { background:var(--raised); border:1px solid var(--hairline); border-radius:12px; padding:14px 18px; font-size:12px; color:var(--muted); }
+  .ssot { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin-top:8px; }
+  .ssot-file { background:rgba(36,86,230,.12); border:2px solid var(--accent); border-radius:10px; padding:12px; text-align:center; font-size:13px; font-weight:700; color:var(--accent-soft); max-width:280px; margin:0 auto 10px; }
+  .ssot-file small { display:block; font-weight:400; font-size:10px; color:var(--muted); margin-top:4px; }
+  .ssot-pages { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+  @media (max-width:760px){ .ssot-pages { grid-template-columns:repeat(3,1fr); } }
+  .ssot-page { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:8px 4px; text-align:center; font-size:10px; color:var(--muted); }
+  .ssot-page b { display:block; color:var(--ink); font-size:11px; }
+  .mode2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:600px){ .mode2 { grid-template-columns:1fr; } }
+  .mode { border-radius:10px; padding:14px; border:1px solid var(--hairline); }
+  .mode.dark { background:#0D1520; }
+  .mode.light { background:#F4F6F9; color:#1A2433; }
+  .mode .mt { font-size:10px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; opacity:.7; }
+  .mode .card2 { border-radius:8px; padding:10px 12px; font-size:12px; }
+  .mode.dark .card2 { background:#16212E; border:1px solid #2A3A4C; color:#E8EEF5; }
+  .mode.light .card2 { background:#FFFFFF; border:1px solid #D8DEE7; color:#1A2433; }
+  .mode .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
   /* navigation visuals */
   .pagemap { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin:12px 0; }
   .pm-tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
@@ -421,6 +464,97 @@
       <tr><td>More menu contents</td><td><span class="pill a">build</span></td><td>Settings/About/Alerts/Search/Export</td></tr>
       <tr><td>Deep-link routes</td><td><span class="pill a">build</span></td><td>notification → page wiring</td></tr>
       <tr><td>Guards (auth, when cloud arrives)</td><td><span class="pill p">slot ready</span></td><td>task-guards already designed</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ ESSENTIAL 3 DEEP DIVE ============ -->
+<section>
+  <h2 id="e3"><span class="num">3</span> Design System — visual language defined once</h2>
+  <p class="muted">One source of truth for how the app looks: colours, text styles, spacing, components — defined once, referenced everywhere. This is the structural fix for the original complaint: duplicate components, mismatched colors, broken layouts.</p>
+
+  <h3>Visual · Colour tokens (Midnight Ledger — your dark set)</h3>
+  <div class="swatches">
+    <div class="sw"><div class="color" style="background:#0D1520;color:#8592A1">canvas</div><div class="meta"><b>background</b><span>#0D1520 · app base</span></div></div>
+    <div class="sw"><div class="color" style="background:#16212E;color:#8592A1">surface</div><div class="meta"><b>surface</b><span>#16212E · cards/sheets</span></div></div>
+    <div class="sw"><div class="color" style="background:#2456E6;color:#fff">primary</div><div class="meta"><b>primary</b><span>#2456E6 · actions</span></div></div>
+    <div class="sw"><div class="color" style="background:#93B4FF;color:#0D1520">on-primary</div><div class="meta"><b>on-primary</b><span>#93B4FF · text on blue</span></div></div>
+    <div class="sw"><div class="color" style="background:#1C2C40;color:#8592A1">raised</div><div class="meta"><b>surface-raised</b><span>#1C2C40 · nested</span></div></div>
+    <div class="sw"><div class="color" style="background:#2A3A4C;color:#E8EEF5">hairline</div><div class="meta"><b>border</b><span>#2A3A4C · outlines</span></div></div>
+    <div class="sw"><div class="color" style="background:#F87171;color:#fff">error</div><div class="meta"><b>error</b><span>#F87171 · destructive</span></div></div>
+    <div class="sw"><div class="color" style="background:#4ADE80;color:#0D1520">success</div><div class="meta"><b>success</b><span>#4ADE80 · positive</span></div></div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Rule: widgets reference <b style="color:var(--ink)">tokens</b>, never raw hex. Change the token → whole app updates. (Light values defined alongside — see mode section.)</p>
+
+  <h3>Visual · Typography scale — named styles, not raw numbers</h3>
+  <div class="type-scale">
+    <div class="type-row"><span class="spec">Page title · 24sp bold</span><span class="demo t-title">Tata Capital</span></div>
+    <div class="type-row"><span class="spec">Section heading · 18sp semi</span><span class="demo t-head">Scheduled Amounts</span></div>
+    <div class="type-row"><span class="spec">Body · 14sp regular</span><span class="demo t-body">Interest received after TDS deduction.</span></div>
+    <div class="type-row"><span class="spec">Caption / label · 12sp reg</span><span class="demo t-cap">Gross ₹45,750 − TDS ₹4,575 (10%)</span></div>
+    <div class="type-row"><span class="spec">Button label · 14sp medium</span><span class="demo t-btn">Confirm &amp; Save</span></div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Code uses <b style="color:var(--ink)">AppText.body</b> — never <span style="font-family:monospace">fontSize: 14</span> floating in a widget.</p>
+
+  <h3>Visual · Spacing scale — only these five numbers</h3>
+  <div class="diagram">
+    <div class="spacing">
+      <div class="sp"><div class="bar" style="width:8px;height:8px"></div><div class="lbl">4 dp</div></div>
+      <div class="sp"><div class="bar" style="width:16px;height:16px"></div><div class="lbl">8 dp</div></div>
+      <div class="sp"><div class="bar" style="width:32px;height:32px"></div><div class="lbl">16 dp</div></div>
+      <div class="sp"><div class="bar" style="width:48px;height:48px"></div><div class="lbl">24 dp</div></div>
+      <div class="sp"><div class="bar" style="width:64px;height:64px"></div><div class="lbl">32 dp</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:12px">Gaps pick from this scale only · one radius for cards · one radius for buttons · never a one-off 13dp</div>
+  </div>
+
+  <h3>Visual · Component styles — defined once, previewed once</h3>
+  <div class="diagram">
+    <div class="comp-preview">
+      <span class="pv-btn">Primary button</span>
+      <span class="pv-btn2">Secondary</span>
+      <span class="pv-input">Text input…</span>
+      <span class="pv-card">Card · surface · radius 12</span>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Styled in the theme — pages request the component, never repaint it</div>
+  </div>
+
+  <h3>Visual · Light &amp; dark — both mandatory</h3>
+  <div class="mode2">
+    <div class="mode dark">
+      <div class="mt">Dark (design-first)</div>
+      <div class="card2"><span class="dot" style="background:#2456E6"></span>Midnight Ledger · your locked set</div>
+    </div>
+    <div class="mode light">
+      <div class="mt">Light (paired tokens)</div>
+      <div class="card2"><span class="dot" style="background:#2456E6"></span>Same tokens, light values — Flutter swaps when the phone switches mode</div>
+    </div>
+  </div>
+
+  <h3>Visual · One-source-of-truth rule</h3>
+  <div class="ssot">
+    <div class="ssot-file">app_theme.dart<small>ALL colours · text styles · spacing · component themes</small></div>
+    <div class="arrow-row" style="margin:6px 0"><div class="arrow">↓ referenced by ↓</div></div>
+    <div class="ssot-pages">
+      <div class="ssot-page"><b>Dashboard</b>no raw hex</div>
+      <div class="ssot-page"><b>Portfolio</b>no raw hex</div>
+      <div class="ssot-page"><b>Watchlist</b>no raw hex</div>
+      <div class="ssot-page"><b>Goals</b>no raw hex</div>
+      <div class="ssot-page"><b>Settings</b>no raw hex</div>
+      <div class="ssot-page"><b>+ all</b>no raw sizes</div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Pages contain zero raw colours, font sizes, or spacing numbers · change one token → the whole app updates</div>
+  </div>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Dark token set (Midnight Ledger)</td><td><span class="pill g">exists</span></td><td>locked in every design board</td></tr>
+      <tr><td>Type + spacing scales</td><td><span class="pill g">in designs</span></td><td>need naming as TextStyle/scale constants</td></tr>
+      <tr><td>Light-mode token values</td><td><span class="pill a">build</span></td><td>paired values for every token</td></tr>
+      <tr><td>app_theme.dart + component themes</td><td><span class="pill a">build</span></td><td>Flutter — the single source file</td></tr>
+      <tr><td>Design tool</td><td><span class="pill b">Stitch</span></td><td>Google Stitch (our Stitch CLI) — design exploration + export toward Flutter/Figma; authority stays app_theme.dart</td></tr>
     </tbody>
   </table>
 </section>
