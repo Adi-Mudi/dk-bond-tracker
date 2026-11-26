@@ -43,3 +43,8 @@ def http_get(url, timeout=DEFAULT_TIMEOUT):
 def percent_encode(value):
     """Percent-encode a filename/path fragment for a source URL."""
     return urllib.parse.quote(str(value))
+
+
+def build_search_url(base, key, value):
+    """Assemble a GET search URL with a percent-encoded parameter."""
+    return base + urllib.parse.quote(str(value))
