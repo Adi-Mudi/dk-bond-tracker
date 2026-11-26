@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Component Audit — 40 types × 7-question checklist</title>
+<style>
+  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --soft:#93B4FF; --green:#4ADE80; --amber:#F59E0B; --red:#F87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--canvas); color:var(--ink); font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; line-height:1.55; padding:40px 20px; }
+  .wrap { max-width:1120px; margin:0 auto; }
+  header { border-bottom:1px solid var(--hairline); padding-bottom:18px; margin-bottom:18px; }
+  .kicker { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--soft); }
+  h1 { font-size:23px; font-weight:700; margin:6px 0 8px; }
+  .lede { font-size:13px; color:var(--muted); max-width:900px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .stat { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:7px 13px; font-size:11px; color:var(--muted); }
+  .stat b { color:var(--ink); font-size:14px; display:block; }
+  section { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin-bottom:10px; display:flex; gap:8px; align-items:center; }
+  h2 .count { background:var(--accent); color:#fff; border-radius:999px; font-size:10px; padding:2px 8px; }
+  table { width:100%; border-collapse:collapse; font-size:11px; }
+  th { text-align:left; font-size:9px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); padding:6px 7px; border-bottom:1px solid var(--hairline); }
+  td { padding:6px 7px; border-bottom:1px dashed rgba(42,58,76,.5); vertical-align:top; color:var(--muted); }
+  td:first-child { color:var(--ink); font-weight:600; white-space:nowrap; }
+  td.id { color:var(--soft); font-weight:700; width:30px; }
+  .ok { color:var(--green); font-weight:700; }
+  .warn { color:var(--amber); font-weight:700; }
+  .gap { color:var(--red); font-weight:700; }
+  .gcol { font-size:10px; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:8px; }
+  .note { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--muted); margin-top:10px; }
+  .note b { color:var(--ink); }
+  .verify { background:rgba(36,86,230,.1); border:1px solid rgba(36,86,230,.5); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--soft); margin-top:12px; }
+  footer { margin-top:22px; padding-top:12px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Level 3 · Component audit</div>
+  <h1>Component Audit — 40 types × 7-question checklist</h1>
+  <p class="lede">Every component type in the watchlist inventory audited against the component checklist (Data · Actions · States · Feedback · Rules · Connection · Screens) + gesture rules + nesting rule. Method: page-level checklists exist first (seven questions); this audit is the component pass. Cells are terse on purpose — full answers live in each component's design/note when built.</p>
+  <div class="stats">
+    <div class="stat"><b>40</b>component types</div>
+    <div class="stat"><b>84</b>instances</div>
+    <div class="stat"><b>4</b>categories</div>
+    <div class="stat"><b>✓/⚠/✗</b>verdict per row</div>
+  </div>
+  <div class="legend">
+    <span><span class="ok">✓</span> checklist answered, no blocking gap</span>
+    <span><span class="warn">⚠</span> answered, known gap (ties to existing B-catalogue)</span>
+    <span><span class="gap">✗</span> missing answer</span>
+  </div>
+</header>
+
+<section>
+  <h2>Method &amp; rules applied <span class="count">checklist</span></h2>
+  <div class="note">
+    <b>7 questions per component:</b> ① Data (displayed + source: parent vs self-fetch) · ② Actions (component-owned gestures only, with direction + conflicts) · ③ States (working/loading/empty/error — even if the page designed them) · ④ Feedback (toast/undo/confirm/haptic — never wonder if it worked) · ⑤ Rules (validation/permission/business) · ⑥ Connection (self-fetch vs parent-passed) · ⑦ Screens (phone/tablet/desktop reflow).<br>
+    <b>Gesture rules:</b> declare supported AND unsupported · accidental swipes safe (no destroy on one swipe) · system gesture wins conflicts · long-press destructive → confirm first.<br>
+    <b>Nesting:</b> each level runs its own checklist · page never talks to the database — only to its components.
+  </div>
+</section>
+
+<section>
+  <h2>Inputs &amp; form fields <span class="count">9</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>Component</th><th>① Data</th><th>② Actions</th><th>③ States</th><th>④ Feedback</th><th>⑤ Rules</th><th>⑥ Connection</th><th>⑦ Screens</th><th>Gestures</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">1</td><td>text-field</td><td class="gcol">parent form</td><td class="gcol">type / focus</td><td class="gcol">empty·focus·filled·error</td><td class="gcol">inline error</td><td class="gcol">per-field format</td><td class="gcol">parent-passed</td><td class="gcol">full-width, wraps</td><td class="gcol">tap only</td><td class="warn">⚠ Forms B5-B9</td></tr>
+      <tr><td class="id">2</td><td>numeric / currency</td><td class="gcol">parent form</td><td class="gcol">type, blur-check</td><td class="gcol">empty·focus·filled·error</td><td class="gcol">inline error (rule-stating)</td><td class="gcol">positive number</td><td class="gcol">parent-passed</td><td class="gcol">full-width</td><td class="gcol">tap only</td><td class="warn">⚠ Forms B5-B9</td></tr>
+      <tr><td class="id">3</td><td>date picker</td><td class="gcol">parent form</td><td class="gcol">tap → calendar</td><td class="gcol">empty·open·picked·error</td><td class="gcol">inline</td><td class="gcol">valid date</td><td class="gcol">parent-passed</td><td class="gcol">full-width</td><td class="gcol">tap only (no pinch)</td><td class="warn">⚠ Forms B5-B9</td></tr>
+      <tr><td class="id">4</td><td>select / dropdown</td><td class="gcol">parent form</td><td class="gcol">tap → option list</td><td class="gcol">closed·open·picked</td><td class="gcol">selection commit</td><td class="gcol">fixed option set</td><td class="gcol">parent-passed</td><td class="gcol">full-width; list scrolls</td><td class="gcol">tap; inner list scroll ≠ page scroll (declared)</td><td class="warn">⚠ Forms B5-B9</td></tr>
+      <tr><td class="id">5</td><td>autocomplete (broker)</td><td class="gcol">static list + typed</td><td class="gcol">type, tap suggestion</td><td class="gcol">idle·typing·picked</td><td class="gcol">chip selected</td><td class="gcol">4 presets + free text</td><td class="gcol">static (no fetch)</td><td class="gcol">full-width</td><td class="gcol">tap only</td><td class="ok">✓ <span style="color:var(--dim)">(chips v1.1)</span></td></tr>
+      <tr><td class="id">6</td><td>multiline note</td><td class="gcol">parent form</td><td class="gcol">type, inner scroll</td><td class="gcol">empty·focus·filled</td><td class="gcol">draft kept on exit</td><td class="gcol">optional field</td><td class="gcol">parent-passed</td><td class="gcol">grows vertically</td><td class="gcol">inner scroll wins when focused (declared conflict)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">7</td><td>read-only field</td><td class="gcol">parent/fetch</td><td class="gcol">none</td><td class="gcol">value / —</td><td class="gcol">—</td><td class="gcol">immutable</td><td class="gcol">passed in</td><td class="gcol">full-width</td><td class="gcol">none supported (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">8</td><td>disabled field</td><td class="gcol">static</td><td class="gcol">none</td><td class="gcol">disabled</td><td class="gcol">—</td><td class="gcol">not editable</td><td class="gcol">static</td><td class="gcol">full-width</td><td class="gcol">none (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">9</td><td>computed read-out</td><td class="gcol">derived (parent math)</td><td class="gcol">none</td><td class="gcol">value / em-dash</td><td class="gcol">updates with inputs</td><td class="gcol">÷ rule, needs both inputs</td><td class="gcol">computed, no fetch</td><td class="gcol">full-width</td><td class="gcol">none (declared)</td><td class="ok">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Buttons <span class="count">7</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>Component</th><th>① Data</th><th>② Actions</th><th>③ States</th><th>④ Feedback</th><th>⑤ Rules</th><th>⑥ Connection</th><th>⑦ Screens</th><th>Gestures</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">10</td><td>primary button</td><td class="gcol">label/amount</td><td class="gcol">press → action</td><td class="gcol">idle·pressed·disabled+spinner</td><td class="gcol">press 0.90+dim → result per E14</td><td class="gcol">verb+result label, one-tap-once</td><td class="gcol">parent action</td><td class="gcol">full-width or inline</td><td class="gcol">tap only</td><td class="warn">⚠ E14/Motion B-gaps</td></tr>
+      <tr><td class="id">11</td><td>ghost / secondary</td><td class="gcol">label</td><td class="gcol">press</td><td class="gcol">idle·pressed</td><td class="gcol">press feedback</td><td class="gcol">never destructive alone</td><td class="gcol">cancels parent</td><td class="gcol">inline</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+      <tr><td class="id">12</td><td>text / link</td><td class="gcol">label</td><td class="gcol">press → navigate</td><td class="gcol">idle·pressed</td><td class="gcol">press feedback</td><td class="gcol">names destination</td><td class="gcol">router</td><td class="gcol">inline</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+      <tr><td class="id">13</td><td>outline button</td><td class="gcol">label</td><td class="gcol">press</td><td class="gcol">idle·pressed</td><td class="gcol">press feedback</td><td class="gcol">secondary emphasis</td><td class="gcol">parent action</td><td class="gcol">inline</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+      <tr><td class="id">14</td><td>icon-button</td><td class="gcol">icon only</td><td class="gcol">press</td><td class="gcol">idle·pressed</td><td class="gcol">Semantics announces action</td><td class="gcol">48dp hit area</td><td class="gcol">parent action</td><td class="gcol">24–32px visual</td><td class="gcol">tap only; no long-press</td><td class="warn">⚠ A11y B4</td></tr>
+      <tr><td class="id">15</td><td>FAB</td><td class="gcol">none</td><td class="gcol">press → page form</td><td class="gcol">idle·pressed</td><td class="gcol">opens sheet (300ms)</td><td class="gcol">page-specific route (locked)</td><td class="gcol">router</td><td class="gcol">56px fixed bottom-right</td><td class="gcol">tap only</td><td class="warn">⚠ A11y B4</td></tr>
+      <tr><td class="id">16</td><td>hold-2s confirm</td><td class="gcol">typed ISIN match</td><td class="gcol">hold 2s → destroy</td><td class="gcol">idle·holding·done·fail</td><td class="gcol">⚠ progress ring + haptic NOT designed (Gestures B7)</td><td class="gcol">exact ISIN + 2s, confirm-before</td><td class="gcol">parent remove action</td><td class="gcol">modal button</td><td class="gcol">LONG-PRESS ONLY here; confirm-before (declared)</td><td class="warn">⚠ B7</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Chips, badges &amp; containers <span class="count">16</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>Component</th><th>① Data</th><th>② Actions</th><th>③ States</th><th>④ Feedback</th><th>⑤ Rules</th><th>⑥ Connection</th><th>⑦ Screens</th><th>Gestures</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">17</td><td>auto/"you enter" chips</td><td class="gcol">field source flag</td><td class="gcol">none (display)</td><td class="gcol">auto / user</td><td class="gcol">—</td><td class="gcol">marks provenance</td><td class="gcol">passed in</td><td class="gcol">inline wrap</td><td class="gcol">none (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">18</td><td>status pill (4-tier)</td><td class="gcol">derived status</td><td class="gcol">none (display)</td><td class="gcol">4 tiers</td><td class="gcol">—</td><td class="gcol">color+TEXT (never color alone)</td><td class="gcol">computed</td><td class="gcol">inline wrap</td><td class="gcol">none (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">19</td><td>severity chip</td><td class="gcol">alert severity</td><td class="gcol">none</td><td class="gcol">levels</td><td class="gcol">—</td><td class="gcol">text+color</td><td class="gcol">passed in</td><td class="gcol">inline</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+      <tr><td class="id">20</td><td>locked chip</td><td class="gcol">immutable value</td><td class="gcol">none</td><td class="gcol">locked</td><td class="gcol">—</td><td class="gcol">never editable</td><td class="gcol">passed in</td><td class="gcol">inline</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+      <tr><td class="id">21</td><td>tag chip</td><td class="gcol">context label</td><td class="gcol">none</td><td class="gcol">—</td><td class="gcol">—</td><td class="gcol">terminology list</td><td class="gcol">passed in</td><td class="gcol">inline</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+      <tr><td class="id">22</td><td>COMING SOON chip</td><td class="gcol">static</td><td class="gcol">none</td><td class="gcol">disabled field companion</td><td class="gcol">—</td><td class="gcol">field not editable</td><td class="gcol">static</td><td class="gcol">inline</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+      <tr><td class="id">23</td><td>Best Yield chip</td><td class="gcol">computed max</td><td class="gcol">none</td><td class="gcol">present/absent</td><td class="gcol">—</td><td class="gcol">highest yield rule</td><td class="gcol">computed</td><td class="gcol">inline</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+      <tr><td class="id">24</td><td>notification badge</td><td class="gcol">alerts count</td><td class="gcol">tap → Alerts</td><td class="gcol">0 / count</td><td class="gcol">nav + count clears on read</td><td class="gcol">one count owner (State B3)</td><td class="gcol">alerts feed (single source)</td><td class="gcol">bar-sized dot</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+      <tr><td class="id">25</td><td>suggestion chips</td><td class="gcol">static broker list</td><td class="gcol">tap → select</td><td class="gcol">unselected / selected</td><td class="gcol">blue fill + check</td><td class="gcol">48dp hit (A11y B3 note)</td><td class="gcol">static</td><td class="gcol">inline wrap</td><td class="gcol">tap only</td><td class="warn">⚠ 48dp</td></tr>
+      <tr><td class="id">26</td><td>company / holding card</td><td class="gcol">page ledger data</td><td class="gcol">tap → details</td><td class="gcol">working·skeleton·empty·error (own four)</td><td class="gcol">press feedback</td><td class="gcol">NO swipe-delete (banned)</td><td class="gcol">page-passed</td><td class="gcol">stack phone / 2-col tablet</td><td class="gcol">TAP only; row-swipe unsupported (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">27</td><td>alert card</td><td class="gcol">page-passed from alerts feed</td><td class="gcol">Read Advisory / Dismiss</td><td class="gcol">visible / dismissed</td><td class="gcol">Dismiss → snackbar+Undo (build)</td><td class="gcol">severity text+color</td><td class="gcol">parent passes feed (no direct backend)</td><td class="gcol">full-width stack</td><td class="gcol">tap only; NO swipe-dismiss (declared)</td><td class="warn">⚠ undo + AGY#3</td></tr>
+      <tr><td class="id">28</td><td>stat card</td><td class="gcol">derived totals</td><td class="gcol">tap → section (optional)</td><td class="gcol">value·skeleton·zero·error</td><td class="gcol">number-flash rule (Motion B3)</td><td class="gcol">counts = one owner</td><td class="gcol">computed from cache</td><td class="gcol">1/2/3-col grid</td><td class="gcol">tap only</td><td class="warn">⚠ flash=decide</td></tr>
+      <tr><td class="id">29</td><td>nested row (HELD/WATCH)</td><td class="gcol">page data</td><td class="gcol">tap → detail; Move button</td><td class="gcol">working·loading·empty·error</td><td class="gcol">press feedback</td><td class="gcol">NO row-swipe (guarded design)</td><td class="gcol">page-passed</td><td class="gcol">stack; meta wraps phone</td><td class="gcol">tap only; swipe unsupported (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">30</td><td>error banner</td><td class="gcol">error object</td><td class="gcol">Retry / Dismiss</td><td class="gcol">visible until resolved</td><td class="gcol">persistent, never toast (E14)</td><td class="gcol">three-part copy</td><td class="gcol">error source passed</td><td class="gcol">full-width</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+      <tr><td class="id">31</td><td>callout note</td><td class="gcol">static copy</td><td class="gcol">none</td><td class="gcol">—</td><td class="gcol">—</td><td class="gcol">user words (no dev-notes)</td><td class="gcol">static</td><td class="gcol">full-width wraps</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+      <tr><td class="id">32</td><td>empty state</td><td class="gcol">page state = empty</td><td class="gcol">CTA → open form</td><td class="gcol">empty only</td><td class="gcol">CTA press feedback</td><td class="gcol">says what belongs + how to add</td><td class="gcol">page state</td><td class="gcol">centered stack</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Navigation, overlays &amp; indicators <span class="count">8</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>Component</th><th>① Data</th><th>② Actions</th><th>③ States</th><th>④ Feedback</th><th>⑤ Rules</th><th>⑥ Connection</th><th>⑦ Screens</th><th>Gestures</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="id">33</td><td>segmented control (tabs)</td><td class="gcol">tab defs + counts</td><td class="gcol">tap → switch tab</td><td class="gcol">active / inactive</td><td class="gcol">instant swap + press</td><td class="gcol">counts from single source</td><td class="gcol">router</td><td class="gcol">full-width sticky</td><td class="gcol">tap only; horizontal tab-swipe unsupported (declared)</td><td class="warn">⚠ Nav B1/B4 + swipe-ban</td></tr>
+      <tr><td class="id">34</td><td>bottom navigation</td><td class="gcol">route state</td><td class="gcol">tap → tab (own stack)</td><td class="gcol">active tab</td><td class="gcol">press + nav</td><td class="gcol">per-tab stacks (Nav B1)</td><td class="gcol">router</td><td class="gcol">fixed bottom</td><td class="gcol">tap; system back/edge wins</td><td class="warn">⚠ B1 stack</td></tr>
+      <tr><td class="id">35</td><td>bottom sheet</td><td class="gcol">page content</td><td class="gcol">drag handle / back to dismiss</td><td class="gcol">closed·open·closing</td><td class="gcol">slide 300ms</td><td class="gcol">dismiss KEEPS typed entries</td><td class="gcol">page-hosted</td><td class="gcol">max-h + inner scroll</td><td class="gcol">inner scroll; dismiss=UNWRITTEN (Gestures B4)</td><td class="warn">⚠ B4</td></tr>
+      <tr><td class="id">36</td><td>dialog</td><td class="gcol">flow prompt</td><td class="gcol">tap confirm/cancel</td><td class="gcol">open / closed</td><td class="gcol">fade+scale 300ms</td><td class="gcol">destructive confirm-before</td><td class="gcol">flow</td><td class="gcol">centered</td><td class="gcol">tap; back = cancel (declared)</td><td class="ok">✓</td></tr>
+      <tr><td class="id">37</td><td>overflow menu</td><td class="gcol">action list</td><td class="gcol">tap item</td><td class="gcol">closed / open</td><td class="gcol">instant (no anim)</td><td class="gcol">Remove styled destructive</td><td class="gcol">detail actions</td><td class="gcol">anchored dropdown</td><td class="gcol">tap only</td><td class="ok">✓</td></tr>
+      <tr><td class="id">38</td><td>route / detour logic</td><td class="gcol">router state</td><td class="gcol">navigate / return-with-state</td><td class="gcol">n/a (logic)</td><td class="gcol">page transitions 400ms</td><td class="gcol">Goals detour preserves form</td><td class="gcol">router</td><td class="gcol">n/a</td><td class="gcol">n/a — feeds crash nav-steps</td><td class="warn">⚠ route table B2</td></tr>
+      <tr><td class="id">39</td><td>fetch state indicator</td><td class="gcol">fetch session (Riverpod #8)</td><td class="gcol">none (display)</td><td class="gcol">Found·Checking·Offline·Not Found (+ API kinds pending)</td><td class="gcol">Checking bounded by timeout</td><td class="gcol">timeout → offline path</td><td class="gcol">session owns fetch; indicator only displays (no self-fetch)</td><td class="gcol">inline next to lookup</td><td class="gcol">none (declared)</td><td class="warn">⚠ API B2/B3 + AGY#2</td></tr>
+      <tr><td class="id">40</td><td>helper text</td><td class="gcol">static copy</td><td class="gcol">none</td><td class="gcol">—</td><td class="gcol">—</td><td class="gcol">plain English, one rule each</td><td class="gcol">static</td><td class="gcol">wraps; ≥size floor (A11y)</td><td class="gcol">none</td><td class="ok">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Findings &amp; AGY verification <span class="count">verified</span></h2>
+  <div class="note">
+    <b>Corrected verdict (post-AGY): 24 ✓ · 16 ⚠ · 0 ✗</b> — completeness <b>40/40 types PASS</b> · gesture core rules pass (swipe-delete banned, single confirm-first long-press) · 2 missing unsupported-swipe declarations (#27, #33).<br><br>
+    <b>My original "35/5/0" was wrong twice:</b> my own table actually summed to 32✓/8⚠, and the folded gaps make it 24/16/0. AGY caught both.<br><br>
+    <b>Rows downgraded ✓ → ⚠ by AGY (8):</b><br>
+    #1–#4 text/numeric/date/select → open Forms B5/B6/B7/B9 (validation timing, field-error look, placement, blur-reject)<br>
+    #10 primary → Feedback B1/B4 + Motion B2 open (toasts, submit-lock in spec, press spec not in component styles)<br>
+    #14 icon-button &amp; #15 FAB → A11y B4 open (Semantics labels not yet specified)<br>
+    #33 segmented → horizontal tab-swipe ban unstated + State B4 count-owner gap<br><br>
+    <b>AGY findings (11):</b> #1 verdict arithmetic REAL · #2 row39 self-fetch vs repository boundary + missing API error states REAL · #3 row27 card→backend wording + no swipe-dismiss ban REAL · #4 rows14/15 vs A11y B4 REAL · #5 rows10,1–4 vs open B-gaps REAL · #6 row33 REAL · #7 row16 TalkBack note MINOR · #8 row26 omits compare-card variant + empty-in-card MINOR · #9 row35 omits delete action-sheet variant MINOR · #10 bare "—" cells MINOR · #11 84-count nuance (83 explicit +1 auto-chips) MINOR.<br><br>
+    <b>Nesting spot-check:</b> sheet → cells → button, each level own checklist; page never touches DB ✓.<br>
+    <b>Gesture sweep:</b> tap-only declared where true · swipe-delete banned on cards/rows ✓ · one long-press (#16) confirm-before ✓ · system edge wins ✓ · add swipe-dismiss bans on #27/#33.
+  </div>
+  <div class="verify">
+    <b>AGY VERDICT (quoted):</b> "DISAGREE with 35 ✓ /5 ⚠ /0 ✗ — the file's own table actually sums to 32 ✓ /8 ⚠ /0 ✗, and after folding the missed B-catalogue/layering/gesture gaps, the independent audited verdict is <b>24 ✓ /16 ⚠ /0 ✗</b> (completeness 40/40: PASS; gesture rules: swipe-delete ban and single confirm-first long-press pass, with missing unsupported-swipe declarations on #27 and #33)."
+  </div>
+</section>
+
+<footer>
+  <span>DK BOND SYSTEM v3.4 · Level 3 component pass · source: watchlist_features.html inventory (84 instances / 40 types) + essentials checklists</span>
+  <span>2026-11-27</span>
+</footer>
+
+</div>
+</body>
+</html>
