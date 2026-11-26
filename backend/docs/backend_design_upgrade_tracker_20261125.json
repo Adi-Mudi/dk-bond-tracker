@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v4.2",
+  "version": "v4.3",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -254,6 +254,13 @@
       "topic": "Framework research merged (clean-slate framing) — both streams converged",
       "summary": "PM stream (pm_framework_v2_research_20261126.json) + agy stream (agy_framework_v2_research_20261126.json: 6 frameworks, 9 tooling entries, 55 references) converged independently on Flask 3.1.3 + flask-smorest as the clean-slate stack. CORRECTION caught by agy: Apiflask is ALSO blocked (pulls pydantic>=2.0 -> pydantic-core 0 Android wheels) - contract layer must be flask-smorest, not Apiflask. Django-Ninja + Litestar similarly blocked. Runner-ups: Mode B MethodChannel bridge; Starlette+patched-uvicorn. FastAPI flip condition: official pydantic-core cp313/cp314 Android wheels on PyPI.",
       "relevance": "Closes the framework-selection item; the JSON contract layer (flask-smorest schemas) doubles as the Flutter contract deliverable (checklist item 4)."
+    },
+    {
+      "id": "F15",
+      "date": "2026-11-26",
+      "topic": "Batch-8 adapter consult (agy) — record-shape + edge-case + cadence answers for the remaining 6 adapters",
+      "summary": "agy batch consult answers: (1) Record-shape gaps: CARE needs instrument/rating_amount/company_id; ICRA sitemap lacks rationale IDs (use AllRatingRationales + ShowRationaleReport?Id=); Acuite lacks ISIN (retain issuer+NCD key), needs product/quantum/rating_status; India Ratings needs instrument/press_release_id/rating_history; NSE WDM needs issue_date/last_ip_dt/next_ip_dt (payouts), sectype, numeric coupon from issue_name. (2) Edge cases: RSS XML namespaces, 0-item batches OK (sebirss/BSE observed), ZIP-containing-XLSX checks, Solr offset drift dedup by id/prId, sitemap lastmod vs real updates. (3) Cadence: NSE WDM daily 2 GETs; per-issuer details on-demand per held/watched; RSS daily ETag/If-Modified-Since; OBP zip monthly; Acuite sitemap weekly. (4) Bulk-file pattern: NSE WDM, Acuite sitemap, BSE zip. (5) ICRA discovery via AllRatingRationales p1 + ShowRationaleReport?Id=.",
+      "relevance": "The build spec for the remaining 6 adapters (CDSL, RBI RSS, SEBI RSS, CARE, ICRA, Acuite) + the 2 already-shipped (NSE WDM, India Ratings)."
     }
   ],
   "change_log": [
@@ -392,6 +399,10 @@
     {
       "date": "2026-11-26",
       "change": "v4.2 (backend lane): D8 CONFIRMED uniform adapter output - all 11 adapters emit canonical JSON records; raw downloads archived as-is. (A stray copy of this update also hit the front lane via root-cwd drift - see lane incident.)"
+    },
+    {
+      "date": "2026-11-26",
+      "change": "v4.3: F15 batch-8 consult findings recorded; wave progress 5/11 adapters shipped (NSDL, BSE, CRISIL, NSE WDM, India Ratings); 6 remain (CDSL, RBI RSS, SEBI RSS, CARE, ICRA, Acuite)"
     }
   ]
 }
