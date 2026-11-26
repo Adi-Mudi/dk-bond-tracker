@@ -1,6 +1,6 @@
 {
   "document": "backend_design_upgrade_tracker",
-  "version": "v3.9",
+  "version": "v4.2",
   "date": "2026-11-25",
   "initiative": "backend-design-upgrade",
   "branch": "backend-design-upgrade",
@@ -111,6 +111,15 @@
       "issue": "",
       "status": "CONFIRMED",
       "resolution": "Canvas: latest CLEAN node bb197d2dfa184cc7be46d50ee86e2e59 (stitch edit multi-run corruption at 0cf1b750 discarded). FILE is ahead of Canvas: user-flow band + API mapping band inserted + SLA chip removed, pending Canvas sync (logged). File: backend/docs/backend_dataflow_design.html"
+    },
+    {
+      "id": "D8",
+      "date": "2026-11-26",
+      "decision": "UNIFORM ADAPTER OUTPUT: every adapter emits the SAME canonical JSON record format (ISIN-keyed instrument facts + provenance + as-of), regardless of the source's native format (CSV/XLSX/JSON/RSS/HTML). No adapter invents its own output format. Raw source files are archived AS-IS in the raw file store (native format preserved, checksum + last-good) - the native format is an archived artifact, never the adapter output. JSON chosen over CSV: native nulls, nested provenance maps, no quoting/escaping issues, identical shapes feed both the SQLite upsert and the Flutter JSON API layer.",
+      "approved_by": "developer, 2026-11-26 (developer asked CSV-or-JSON; JSON recommended and accepted direction)",
+      "issue": "",
+      "status": "CONFIRMED",
+      "resolution": ""
     }
   ],
   "findings": [
@@ -319,6 +328,10 @@
     {
       "date": "2026-11-26",
       "change": "v3.9: VERIFICATION LOOP CLOSED — agy round-5 ALL 6 CHECKS PASS (order, structure, API table, JSON count 9, zero survivors, 1 stale example). Backend dataflow design DONE: matched to the locked frontend, starting point Watchlist FAB + -> Add Bond form, outside-in order, MCP-only edits. Design-ready cycle satisfied: artifact live in Open Design, local file = fresh import. Remaining (queued, developer go required): API contract shapes, schema session, NFR values, Flutter packaging decision."
+    },
+    {
+      "date": "2026-11-26",
+      "change": "v4.2: D8 CONFIRMED uniform adapter output - all 11 adapters emit canonical JSON records; raw downloads archived as-is"
     }
   ]
 }

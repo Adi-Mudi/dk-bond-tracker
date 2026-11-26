@@ -937,7 +937,7 @@ On-going
 </div>
 <!-- Bottom Sheet Modal Overlay -->
 <div class="absolute inset-0 bg-[#0D1520]/60 z-30 flex flex-col justify-end">
-<div class="bg-[#16212E] border-t-2 border-[#2456E6] rounded-t-[24px] p-4 flex flex-col gap-3 shadow-2xl relative"><!-- Drag Handle -->
+<div class="bg-[#16212E] border-t-2 border-[#2456E6] rounded-t-[24px] p-4 flex flex-col gap-3 shadow-2xl relative"><div class="text-[11px] font-mono text-[#93B4FF] text-center pb-0.5 tracking-tight flex items-center justify-center gap-1.5 opacity-90"><span class="w-1.5 h-1.5 rounded-full bg-[#2456E6]"></span><span>Cell selected: Tata Capital · Dec 2026 (from Payout Details)</span></div><!-- Drag Handle -->
 <div class="w-10 h-1 bg-[#2A3A4C] rounded-full mx-auto mb-1"></div>
 <!-- Sheet Header -->
 <div class="flex items-start justify-between gap-2">
@@ -949,262 +949,111 @@ On-going
 <span class="material-symbols-outlined text-[16px]">close</span>
 </button>
 </div>
-<!-- Pure-CSS Radios for Payout Type Selector -->
-<input checked="" class="sr-only pt-radio" id="pt1" name="payout_type" type="radio"/>
-<input class="sr-only pt-radio" id="pt2" name="payout_type" type="radio"/>
-<input class="sr-only pt-radio" id="pt3" name="payout_type" type="radio"/>
-<input class="sr-only pt-radio" id="pt4" name="payout_type" type="radio"/>
-<style>
-  .pt-panel { display: none; }
-  #pt1:checked ~ .pt-panel-1 { display: block; }
-  #pt2:checked ~ .pt-panel-2 { display: block; }
-  #pt3:checked ~ .pt-panel-3 { display: block; }
-  #pt4:checked ~ .pt-panel-4 { display: block; }
-
-  .pt-chips label .pt-check { display: none; }
-  #pt1:checked ~ .pt-chips label[for="pt1"], 
-  #pt2:checked ~ .pt-chips label[for="pt2"], 
-  #pt3:checked ~ .pt-chips label[for="pt3"], 
-  #pt4:checked ~ .pt-chips label[for="pt4"] {
-    background-color: #2456E6 !important;
-    color: #FFFFFF !important;
-    border-color: #2456E6 !important;
-  }
-  #pt1:checked ~ .pt-chips label[for="pt1"] .pt-check,
-  #pt2:checked ~ .pt-chips label[for="pt2"] .pt-check,
-  #pt3:checked ~ .pt-chips label[for="pt3"] .pt-check,
-  #pt4:checked ~ .pt-chips label[for="pt4"] .pt-check {
-    display: inline-flex !important;
-  }
-
-  #pt4:checked ~ .pt-shared { display: none !important; }
-</style>
-<!-- PAYOUT TYPE SELECTOR CHIPS -->
-<div class="pt-chips flex flex-col gap-1.5">
-<label class="text-[11px] font-semibold text-[#E8EEF5] uppercase tracking-wider font-mono">What did you receive? *</label>
-<div class="flex flex-wrap gap-1.5">
-<label class="cursor-pointer bg-[#1E2C3B] border border-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] rounded-lg px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1 transition-colors select-none" for="pt1">
-<span class="material-symbols-outlined text-[13px] pt-check">check</span>
-<span>Interest only</span>
-</label>
-<label class="cursor-pointer bg-[#1E2C3B] border border-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] rounded-lg px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1 transition-colors select-none" for="pt2">
-<span class="material-symbols-outlined text-[13px] pt-check">check</span>
-<span>Interest + Principal</span>
-</label>
-<label class="cursor-pointer bg-[#1E2C3B] border border-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] rounded-lg px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1 transition-colors select-none" for="pt3">
-<span class="material-symbols-outlined text-[13px] pt-check">check</span>
-<span>Maturity redemption</span>
-</label>
-<label class="cursor-pointer bg-[#1E2C3B] border border-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] rounded-lg px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1 transition-colors select-none" for="pt4">
-<span class="material-symbols-outlined text-[13px] pt-check">check</span>
-<span>Early exit</span>
-</label>
-</div>
-<p class="text-[10px] text-[#7A8A99] font-mono italic mb-0.5">One payment = one type. Selecting a type shows only its fields.</p>
-</div>
-<!-- PANEL 1: INTEREST ONLY (DEFAULT) -->
-<div class="pt-panel pt-panel-1">
-<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-semibold text-[#E8EEF5] uppercase tracking-wider font-mono">Scheduled Amounts</span>
-<span class="text-[10px] text-[#7A8A99] font-mono">Tap amount received</span>
-</div>
-<div class="grid grid-cols-3 gap-2">
-<button class="p-1.5 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/60 flex flex-col items-center justify-center text-center transition-colors group" type="button">
-<span class="text-[8px] font-mono uppercase text-[#7A8A99] group-hover:text-[#93B4FF]">TOTAL</span>
-<span class="text-[11px] font-bold font-mono text-[#E8EEF5]">₹ 45,750</span>
-<span class="text-[8px] text-[#7A8A99] mt-0.5">Gross · 100%</span>
-</button>
-<div class="p-1.5 rounded-lg bg-[#16212E]/60 border border-[#2A3A4C]/60 flex flex-col items-center justify-center text-center opacity-70">
-<span class="text-[8px] font-mono uppercase text-[#7A8A99]">TDS</span>
-<span class="text-[11px] font-bold font-mono text-[#7A8A99]">₹ 4,575</span>
-<span class="text-[8px] text-[#7A8A99] mt-0.5">TDS · 10%</span>
-</div>
-<button class="p-1.5 rounded-lg bg-[#2456E6]/10 border-2 border-[#2456E6] flex flex-col items-center justify-center text-center relative shadow-sm" type="button">
-<div class="flex items-center gap-1 text-[#2456E6]">
-<span class="text-[8px] font-mono uppercase font-bold text-[#93B4FF]">NET</span>
-<span class="material-symbols-outlined text-[11px] text-[#4ADE80]">check_circle</span>
-</div>
-<span class="text-[11px] font-bold font-mono text-white">₹ 41,175</span>
-<span class="text-[8px] text-[#93B4FF] mt-0.5 font-medium">Bank Credit · 90%</span>
-<span class="absolute -top-2 px-1.5 py-0.2 rounded-full bg-[#2456E6] text-white text-[8px] font-mono font-bold tracking-tight uppercase shadow">Selected</span>
-</button>
-</div>
-<p class="text-[10px] text-[#7A8A99] font-mono leading-tight">Tap the amount you actually received in bank.</p>
-<div class="pt-1.5 border-t border-[#2A3A4C]/60 flex flex-col gap-1.5">
-<div class="flex items-center justify-between">
-<span class="text-[9px] text-[#7A8A99] font-mono">Auto-detects Net / Total / TDS</span>
-</div>
-<div class="flex flex-col gap-1.5 p-2 rounded bg-[#16212E] border border-[#2A3A4C]/60">
-<div class="flex items-center gap-2">
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2.5 py-1 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="e.g. 41175" type="text"/>
-<div class="flex items-center gap-1 flex-shrink-0">
-<button class="px-2 py-1 rounded bg-[#2456E6] text-white text-[9px] font-mono font-semibold shadow-sm" type="button">This is Net</button>
-<button class="px-2 py-1 rounded bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] text-[9px] font-mono" type="button">This is Gross</button>
-</div>
-</div>
-<p class="text-[9px] text-[#7A8A99] font-mono leading-tight">Auto-detects: ₹41,175 → NET, ₹45,750 → TOTAL, ₹4,575 → TDS.</p>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-2 pt-2.5">
-<button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">Save Payment (₹ 41,175)</button>
-<button class="px-4 py-2 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">Cancel</button>
-</div>
-</div>
-<!-- PANEL 2: INTEREST + PRINCIPAL -->
-<div class="pt-panel pt-panel-2">
-<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-semibold text-[#E8EEF5] uppercase tracking-wider font-mono">Combined Cashflow</span>
-<span class="text-[10px] text-[#93B4FF] font-mono">Part-redemption</span>
-</div>
-<!-- Row A: Interest component -->
-<div class="p-2 rounded bg-[#16212E] border border-[#2A3A4C]/60 flex items-center justify-between">
-<div class="flex flex-col">
-<span class="text-[11px] text-[#E8EEF5] font-semibold">Interest Component</span>
-<span class="text-[9px] text-[#7A8A99] font-mono">TDS ₹4,575 auto (10% on interest only)</span>
-</div>
-<span class="text-xs font-mono font-bold text-[#E8EEF5]">₹ 41,175</span>
-</div>
-<!-- Row B: Principal component -->
-<div class="p-2 rounded bg-[#16212E] border border-[#2A3A4C]/60 flex flex-col gap-1">
-<div class="flex items-center justify-between">
-<span class="text-[11px] text-[#E8EEF5] font-semibold">Principal Component</span>
-<span class="text-[9px] text-[#4ADE80] font-mono">No TDS on principal</span>
-</div>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded px-2.5 py-1 text-xs font-mono text-[#E8EEF5] font-semibold focus:outline-none focus:border-[#2456E6]" type="text" value="₹ 5,00,000"/>
-</div>
-<!-- Bank credit total footer -->
-<div class="pt-1.5 border-t border-[#2A3A4C]/60 flex items-center justify-between">
-<span class="text-[11px] text-[#7A8A99] font-mono">Bank credit total</span>
-<span class="text-xs font-mono font-bold text-white">₹ 5,41,175</span>
-</div>
-</div>
-<div class="flex items-center gap-2 pt-2.5">
-<button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">Save Payment (₹ 5,41,175)</button>
-<button class="px-4 py-2 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">Cancel</button>
-</div>
-</div>
-<!-- PANEL 3: MATURITY REDEMPTION -->
-<div class="pt-panel pt-panel-3">
-<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-semibold text-[#E8EEF5] uppercase tracking-wider font-mono">Maturity Settlement</span>
-<span class="text-[10px] text-[#4ADE80] font-mono">Settles Position</span>
-</div>
-<div class="p-2 rounded bg-[#16212E] border border-[#2A3A4C]/60 flex items-center justify-between">
-<div class="flex flex-col">
-<span class="text-[11px] text-[#E8EEF5] font-semibold">Principal (face value)</span>
-<span class="text-[9px] text-[#7A8A99] font-mono">From bond face value</span>
-</div>
-<span class="text-xs font-mono font-bold text-[#E8EEF5]">₹ 5,00,000</span>
-</div>
-<div class="p-2 rounded bg-[#16212E] border border-[#2A3A4C]/60 flex items-center justify-between">
-<div class="flex flex-col">
-<span class="text-[11px] text-[#E8EEF5] font-semibold">Final Interest</span>
-<span class="text-[9px] text-[#7A8A99] font-mono">TDS ₹4,575 auto</span>
-</div>
-<span class="text-xs font-mono font-bold text-[#E8EEF5]">₹ 41,175</span>
-</div>
-<div class="pt-1.5 border-t border-[#2A3A4C]/60 flex items-center justify-between">
-<span class="text-[11px] text-[#7A8A99] font-mono">Maturity credit</span>
-<span class="text-xs font-mono font-bold text-[#4ADE80]">₹ 5,41,175</span>
-</div>
-<div class="p-1.5 rounded bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-start gap-1.5 text-[10px] text-[#F59E0B] font-mono">
-<span class="material-symbols-outlined text-[13px] text-[#F59E0B] flex-shrink-0 mt-0.5">info</span>
-<span>Saving marks the position as Matured — full history kept.</span>
-</div>
-</div>
-<div class="flex items-center gap-2 pt-2.5">
-<button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">Record Maturity &amp; Close</button>
-<button class="px-4 py-2 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">Cancel</button>
-</div>
-</div>
-<!-- PANEL 4: EARLY EXIT -->
-<div class="pt-panel pt-panel-4">
-<div class="p-2.5 rounded-lg bg-[#0E1724] border-2 border-[#2456E6]/60 flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-semibold text-[#E8EEF5] uppercase tracking-wider font-mono">Early Liquidation</span>
-<span class="text-[10px] text-[#F59E0B] font-mono">Secondary / Call / Put</span>
-</div>
-<div class="grid grid-cols-2 gap-2">
+<!-- Form Container with pure-CSS radio panels -->
+<div class="flex flex-col gap-2.5 pt-1 overflow-y-auto max-h-[620px] scrollbar-none">
+<!-- 2. HERO — BANK AMOUNT INPUT -->
 <div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#E8EEF5]">Exit Date *</label>
-<input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded px-2.5 py-1 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6]" type="date" value="2026-12-18"/>
+<label class="text-[11px] font-semibold text-[#E8EEF5] font-mono">Amount you see in bank *</label>
+<div class="relative flex items-center">
+<span class="absolute left-3 text-lg font-bold font-mono text-[#93B4FF]">₹</span>
+<input class="w-full bg-[#0E1724] border-2 border-[#2456E6] rounded-lg pl-8 pr-3 py-2 text-xl font-bold font-mono text-[#E8EEF5] tracking-wide focus:outline-none" type="text" value="41,175"/>
 </div>
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#E8EEF5]">Liquidation Proceeds *</label>
-<input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded px-2.5 py-1 text-xs font-mono text-[#E8EEF5] focus:outline-none focus:border-[#2456E6]" type="text" value="₹ 5,18,500"/>
+<p class="text-[10px] text-[#7A8A99] font-mono leading-tight">From your bank statement — we'll figure out what it is</p>
 </div>
+<!-- 3. AUTO-MATCH SUGGESTIONS CARD -->
+<div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-[10px] uppercase font-mono font-semibold text-[#7A8A99] flex items-center gap-1"><span class="material-symbols-outlined text-[13px] text-[#2456E6]">auto_awesome</span><span>We matched it</span></span>
+<span class="px-1.5 py-0.2 rounded bg-[#166534]/30 text-[#4ADE80] font-mono text-[9px] font-medium flex items-center gap-1 border border-[#166534]/50">
+<span class="w-1 h-1 rounded-full bg-[#4ADE80]"></span>Best match on amount + date
+      </span>
 </div>
-<p class="text-[10px] text-[#7A8A99] font-mono">Secondary sale — no TDS components here.</p>
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#E8EEF5]">Exit Remarks *</label>
-<div class="flex flex-wrap gap-1.5">
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#2456E6] text-white border border-[#2456E6] text-[11px] font-medium inline-flex items-center gap-1" type="button">
-<span class="material-symbols-outlined text-[13px]">check</span>
-<span>Secondary Market Sale</span>
-</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">Issuer Call Option</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">Put Exercised</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">Other</button>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<label class="text-[10px] font-medium text-[#7A8A99]">Notes</label>
-<input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded px-2.5 py-1 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Exit liquidation notes (optional)" type="text"/>
-</div>
-<p class="text-[10px] text-[#7A8A99] font-mono leading-tight pt-0.5">Records liquidation proceeds and archives position — full history preserved, never deleted, never Danger.</p>
-</div>
-<div class="flex items-center gap-2 pt-2.5">
-<button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">Record Early Exit &amp; Settle</button>
-<button class="px-4 py-2 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">Cancel</button>
-</div>
-</div>
-<!-- SHARED SECTION: CREDIT DATE & REMARKS (Hidden when pt4 is checked) -->
-<div class="pt-shared flex flex-col gap-2.5 pt-1 border-t border-[#2A3A4C]/60">
-<!-- Credit Date Input -->
+<!-- 5 Selectable Rows with Radio Buttons -->
 <div class="flex flex-col gap-1.5">
-<div class="flex items-center justify-between">
-<label class="text-[11px] font-medium text-[#E8EEF5]">Credit Date</label>
-</div>
-<div class="flex items-center justify-between px-3 py-1.5 bg-[#0E1724] border border-[#2A3A4C] rounded-lg">
+<!-- Row 1: Selected / Best Match -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#2456E6]/15 border-2 border-[#2456E6] cursor-pointer transition-colors">
 <div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-[15px] text-[#93B4FF]">calendar_today</span>
-<span class="text-xs font-mono font-semibold text-[#E8EEF5]">18 Dec 2026</span>
+<input checked="" class="accent-[#2456E6] h-3.5 w-3.5" name="automatch" type="radio" value="net"/>
+<div class="flex flex-col leading-tight">
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-bold text-[#E8EEF5]">Interest after TDS</span>
+<span class="material-symbols-outlined text-[12px] text-[#4ADE80]">check_circle</span>
 </div>
-<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">scheduled</span>
+<span class="text-[9px] text-[#93B4FF] font-mono">Gross ₹45,750 − TDS ₹4,575 (10%)</span>
 </div>
 </div>
-<!-- REMARKS Section with Required Label Chips -->
-<div class="flex flex-col gap-1.5">
-<div class="flex items-center justify-between">
-<label class="text-[11px] font-medium text-[#E8EEF5]">Remarks *</label>
-<span class="text-[10px] text-[#7A8A99] font-mono">Select classification</span>
+<span class="text-xs font-bold font-mono text-white">₹ 41,175</span>
+</label>
+<!-- Row 2 -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/50 cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<input class="accent-[#2456E6] h-3.5 w-3.5" name="automatch" type="radio" value="gross"/>
+<div class="flex flex-col leading-tight">
+<span class="text-xs font-semibold text-[#E8EEF5]">Gross interest</span>
+<span class="text-[9px] text-[#7A8A99] font-mono">TDS not deducted yet</span>
 </div>
-<div class="flex flex-wrap gap-1.5">
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">On time</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#2456E6] text-white border border-[#2456E6] text-[11px] font-medium inline-flex items-center gap-1" type="button">
-<span class="material-symbols-outlined text-[13px]">check</span>
-<span>Late — bank holiday</span>
-</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">Late — other</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">TDS adjusted</button>
-<button class="min-h-[30px] px-2.5 py-1 rounded-full bg-[#1E2C3B] text-[#7A8A99] hover:text-[#E8EEF5] border border-[#2A3A4C] text-[11px] font-medium inline-flex items-center" type="button">Other</button>
 </div>
-<input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-1.5 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6] mt-0.5" placeholder="Notes (optional)" type="text"/>
-<p class="text-[10px] text-[#7A8A99] font-mono">
-      Holiday delays are labeled, never marked Danger.
+<span class="text-xs font-semibold font-mono text-[#E8EEF5]">₹ 45,750</span>
+</label>
+<!-- Row 3 -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/50 cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<input class="accent-[#2456E6] h-3.5 w-3.5" name="automatch" type="radio" value="principal_interest"/>
+<div class="flex flex-col leading-tight">
+<span class="text-xs font-semibold text-[#E8EEF5]">Interest + Principal</span>
+<span class="text-[9px] text-[#7A8A99] font-mono">₹41,175 + ₹5,00,000</span>
+</div>
+</div>
+<span class="text-xs font-semibold font-mono text-[#E8EEF5]">₹ 5,41,175</span>
+</label>
+<!-- Row 4 -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/50 cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<input class="accent-[#2456E6] h-3.5 w-3.5" name="automatch" type="radio" value="principal"/>
+<div class="flex flex-col leading-tight">
+<span class="text-xs font-semibold text-[#E8EEF5]">Principal only</span>
+<span class="text-[9px] text-[#7A8A99] font-mono">Face value</span>
+</div>
+</div>
+<span class="text-xs font-semibold font-mono text-[#E8EEF5]">₹ 5,00,000</span>
+</label>
+<!-- Row 5 -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/50 cursor-pointer transition-colors">
+<div class="flex items-center gap-2">
+<input class="accent-[#2456E6] h-3.5 w-3.5" name="automatch" type="radio" value="maturity"/>
+<div class="flex flex-col leading-tight">
+<span class="text-xs font-semibold text-[#E8EEF5]">Maturity total</span>
+<span class="text-[9px] text-[#7A8A99] font-mono">Principal + final interest</span>
+</div>
+</div>
+<span class="text-xs font-semibold font-mono text-[#E8EEF5]">₹ 5,41,175</span>
+</label>
+</div>
+<p class="text-[9px] text-[#7A8A99] font-mono leading-tight pt-0.5 border-t border-[#2A3A4C]/50">
+      Tap a row if the match is wrong. Match uses amount, date window and company name.
     </p>
 </div>
+<!-- 4. MANUAL OVERRIDE (Secondary, pure CSS choice chips) -->
+<div class="flex flex-col gap-2 pt-1 relative"><style>.mt-panel { display: none; } #mt1:checked ~ .mt-panel-1 { display: block; } #mt2:checked ~ .mt-panel-2 { display: block; } #mt3:checked ~ .mt-panel-3 { display: block; } #mt4:checked ~ .mt-panel-4 { display: block; } #mt4:checked ~ .mt-shared { display: none !important; } #mt1:checked ~ .mt-chips label[for="mt1"], #mt2:checked ~ .mt-chips label[for="mt2"], #mt3:checked ~ .mt-chips label[for="mt3"], #mt4:checked ~ .mt-chips label[for="mt4"] { background-color: #2456E6 !important; color: #ffffff !important; border-color: #2456E6 !important; }</style><input checked="" class="hidden" id="mt1" name="manual_type" type="radio"/><input class="hidden" id="mt2" name="manual_type" type="radio"/><input class="hidden" id="mt3" name="manual_type" type="radio"/><input class="hidden" id="mt4" name="manual_type" type="radio"/><div class="flex items-center gap-2"><div class="flex-1 h-px bg-[#2A3A4C]"></div><span class="text-[10px] uppercase font-mono text-[#7A8A99] tracking-wider">or choose type manually</span><div class="flex-1 h-px bg-[#2A3A4C]"></div></div><div class="mt-chips flex flex-wrap gap-1 text-[11px]"><label class="px-2.5 py-1 rounded-full border border-[#2A3A4C] bg-[#16212E] text-[#7A8A99] font-medium cursor-pointer transition-colors" for="mt1">Interest only</label><label class="px-2.5 py-1 rounded-full border border-[#2A3A4C] bg-[#16212E] text-[#7A8A99] font-medium cursor-pointer transition-colors" for="mt2">Interest + Principal</label><label class="px-2.5 py-1 rounded-full border border-[#2A3A4C] bg-[#16212E] text-[#7A8A99] font-medium cursor-pointer transition-colors" for="mt3">Maturity redemption</label><label class="px-2.5 py-1 rounded-full border border-[#2A3A4C] bg-[#16212E] text-[#7A8A99] font-medium cursor-pointer transition-colors" for="mt4">Early exit</label></div><div class="mt-panel mt-panel-1 p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2"><div class="flex items-center justify-between"><span class="text-[10px] font-semibold text-[#E8EEF5] uppercase tracking-wider font-mono">Scheduled Breakdown</span><span class="text-[9px] text-[#7A8A99] font-mono">Gross · 100%</span></div><div class="grid grid-cols-3 gap-1.5 text-center font-mono"><div class="p-1.5 rounded bg-[#16212E] border border-[#2A3A4C]"><span class="text-[8px] uppercase text-[#7A8A99] block">Gross</span><span class="text-[11px] font-bold text-[#E8EEF5]">₹ 45,750</span></div><div class="p-1.5 rounded bg-[#16212E] border border-[#2A3A4C] opacity-70"><span class="text-[8px] uppercase text-[#7A8A99] block">TDS (10%)</span><span class="text-[11px] font-bold text-[#7A8A99]">₹ 4,575</span></div><div class="p-1.5 rounded bg-[#2456E6]/15 border border-[#2456E6] relative"><span class="text-[8px] uppercase text-[#93B4FF] block">Net Bank</span><span class="text-[11px] font-bold text-white">₹ 41,175</span><span class="block text-[8px] text-[#4ADE80] font-sans font-semibold">Selected</span></div></div><p class="text-[9px] text-[#7A8A99] font-mono leading-tight pt-0.5">Tap the amount you actually received in bank.</p></div><div class="mt-panel mt-panel-2 p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2"><div class="flex flex-col gap-1 pb-1.5 border-b border-[#2A3A4C]/50"><div class="flex items-center justify-between text-xs font-mono"><span class="text-[#E8EEF5] font-semibold">Interest component</span><span class="font-bold text-[#E8EEF5]">₹ 41,175</span></div><span class="text-[9px] text-[#7A8A99] font-mono">TDS ₹4,575 auto (10% on interest only)</span></div><div class="flex flex-col gap-1"><div class="flex items-center justify-between text-xs font-mono"><span class="text-[#E8EEF5] font-semibold">Principal component</span><input class="bg-[#16212E] border border-[#2A3A4C] rounded px-2 py-0.5 text-xs text-right font-mono font-bold text-white w-28 focus:outline-none focus:border-[#2456E6]" type="text" value="₹ 5,00,000"/></div><span class="text-[9px] text-[#7A8A99] font-mono">No TDS on principal</span></div><div class="pt-1.5 border-t border-[#2A3A4C] flex items-center justify-between font-mono text-xs"><span class="text-[#93B4FF] font-semibold">Bank credit total:</span><span class="font-bold text-white text-sm">₹ 5,41,175</span></div></div><div class="mt-panel mt-panel-3 p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2"><div class="flex flex-col gap-1 pb-1.5 border-b border-[#2A3A4C]/50"><div class="flex items-center justify-between text-xs font-mono"><span class="text-[#E8EEF5] font-semibold">Principal (face value)</span><span class="font-bold text-[#E8EEF5]">₹ 5,00,000</span></div><span class="text-[9px] text-[#7A8A99] font-mono">From bond face value</span></div><div class="flex flex-col gap-1 pb-1.5 border-b border-[#2A3A4C]/50"><div class="flex items-center justify-between text-xs font-mono"><span class="text-[#E8EEF5] font-semibold">Final interest</span><span class="font-bold text-[#E8EEF5]">₹ 41,175</span></div><span class="text-[9px] text-[#7A8A99] font-mono">TDS ₹4,575 auto</span></div><div class="flex items-center justify-between font-mono text-xs"><span class="text-[#93B4FF] font-semibold">Maturity credit:</span><span class="font-bold text-white text-sm">₹ 5,41,175</span></div><div class="p-1.5 rounded bg-[#F59E0B]/20 border border-[#F59E0B]/30 text-[10px] text-[#F59E0B] font-mono flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">warning</span><span>Saving marks the position as Matured.</span></div></div><div class="mt-panel mt-panel-4 p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2"><div class="flex items-center justify-between gap-2"><label class="text-[11px] font-semibold text-[#E8EEF5] font-mono">Exit Date *</label><input class="bg-[#16212E] border border-[#2A3A4C] rounded px-2 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#2456E6]" type="text" value="2026-12-20"/></div><div class="flex items-center justify-between gap-2"><label class="text-[11px] font-semibold text-[#E8EEF5] font-mono">Liquidation Proceeds *</label><input class="bg-[#16212E] border border-[#2A3A4C] rounded px-2 py-1 text-xs font-mono font-bold text-white text-right focus:outline-none focus:border-[#2456E6]" type="text" value="₹ 5,18,500"/></div><div class="flex flex-col gap-1.5"><label class="text-[10px] font-mono uppercase text-[#7A8A99]">Exit Remarks *</label><div class="flex flex-wrap gap-1 text-[10px]"><button class="px-2 py-0.5 rounded-full bg-[#2456E6] text-white border border-[#2456E6] font-medium flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[11px]">check</span><span>Secondary Market Sale</span></button><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">Issuer Call Option</button><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">Put Exercised</button><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">Other</button></div></div><input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded-lg px-2.5 py-1 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Exit notes (optional)" type="text"/></div><div class="mt-shared flex flex-col gap-2 pt-1 border-t border-[#2A3A4C]/60"><div class="flex items-center justify-between px-3 py-1.5 bg-[#0E1724] border border-[#2A3A4C] rounded-lg"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[15px] text-[#93B4FF]">calendar_today</span><span class="text-xs font-mono font-semibold text-[#E8EEF5]">18 Dec 2026</span></div><span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">scheduled</span></div><div class="flex flex-col gap-1.5"><div class="flex items-center justify-between"><label class="text-[11px] font-medium text-[#E8EEF5]">Remarks *</label><span class="text-[10px] text-[#7A8A99] font-mono">Classification</span></div><div class="flex flex-wrap gap-1 text-[10px]"><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">On time</button><button class="px-2 py-0.5 rounded-full bg-[#2456E6] text-white font-medium border border-[#2456E6] flex items-center gap-1" type="button"><span class="material-symbols-outlined text-[11px]">check</span><span>Late — bank holiday</span></button><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">Late — other</button><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">TDS adjusted</button><button class="px-2 py-0.5 rounded-full bg-[#16212E] text-[#7A8A99] border border-[#2A3A4C] font-medium" type="button">Other</button></div><input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-1.5 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6] mt-0.5" placeholder="Optional payment note..." type="text"/></div></div></div>
+<!-- 5. SHARED ROWS: Credit Date + Remarks (Unified) -->
+<!-- 6. ONE PINNED BOTTOM ACTION BAR (Single Pair) -->
+<div class="flex flex-col gap-1.5 pt-2 border-t border-[#2A3A4C]">
+<div class="flex items-center gap-2">
+<button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">
+        Confirm &amp; Save
+      </button>
+<button class="px-4 py-2 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">
+        Cancel
+      </button>
 </div>
-<!-- Bottom Helper Callout -->
-<div class="p-2 rounded bg-[#2456E6]/10 border border-[#2456E6]/30 flex items-start gap-1.5 text-[10px] text-[#93B4FF] font-mono mt-1">
-<span class="material-symbols-outlined text-[13px] text-[#93B4FF] flex-shrink-0 mt-0.5">info</span>
-<div class="flex flex-col gap-0.5">
-<span><strong>Payment Type Engine:</strong> Select receipt format to switch specific settlement calculations dynamically.</span>
+<p class="text-[9px] text-[#7A8A99] font-mono text-center">
+      Saves your selected match or manual entry.
+    </p>
 </div>
+<!-- Helper Note -->
+<p class="text-[10px] text-[#93B4FF] font-mono text-center pt-0.5">
+    On save: matrix cell updates → inflow totals re-derive
+  </p>
 </div></div>
 </div>
 </div>
