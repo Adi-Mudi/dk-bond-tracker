@@ -1,0 +1,29 @@
+CONSULT TASK — BSE debt adapter design review (before build). READ-ONLY, MCP not needed for this one (repo files + your expertise).
+
+Collected intel (live probe today, headers User-Agent + Referer + Origin):
+- Endpoint: https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w?Group=&Scripcode=&industry=&segment=Debentures%20and%20Bonds&status=Active
+- Works ONLY with Referer+Origin headers (403 without) - verified twice
+- 200 JSON array, 2.04 MB, 5,484 scrips (grew +9 in one day - live data)
+- 12 fields, ALL 100% present except: INDUSTRY (100% empty), Mktcap (100% empty)
+- ISIN_NUMBER: 5,484 unique, 0 empty, 0 duplicates - perfect primary key
+- Sample: FACE_VALUE 100000.00, GROUP F, Issuer_Name/Scrip_Name (issuer + scrip differ), Segment "Debentures and Bonds", Status "Active", SCRIP_CD 912464, scrip_id SMILCCD, NSURL scrip page link
+- NO coupon, NO maturity, NO rating in this payload (complements NSDL master which has coupon+maturity)
+- Without headers: HTTP 403 (verified). Unknown: param variations, Inactive status size, rate limits.
+
+PROPOSED ADAPTER DESIGN (D8 canonical JSON output):
+- Family: JSON-API base class (shared with future JSON adapters)
+- Fetch: GET with browser-equivalent headers (Referer/Origin/UA) -> parse JSON array
+- Emit: canonical records keyed by ISIN: {isin, company (Issuer_Name), scrip_code, scrip_name, face_value, group, status, segment, source: "BSE", as_of: fetch-time}
+- Dead fields (INDUSTRY, Mktcap): dropped, not emitted
+- Failure codes: BLOCKED (403/HTML), MALFORMED (non-JSON), OK; retries: 1 on transient
+- Edge cases I plan to cover: 403 without headers, HTML-as-JSON (BLOCKED), empty array, missing ISIN_NUMBER rows (skip + count), duplicate ISINs (keep first, count), huge payload (2 MB parse), status param variants
+- Tests: fixture from REAL payload (saved), edge fixtures (empty array, missing fields, HTML error page), schema-drift guard (field-set diff vs fixture)
+
+CONSULT QUESTIONS:
+1. Edge cases I missed? (BSE-specific quirks: scrip_id vs SCRIP_CD, NSURL patterns, GROUP codes semantics)
+2. Permanent-fix design: is the schema-drift guard (field-set diff) + fixture-from-real-payload the right pattern to never need repeated patching?
+3. Inactive bonds: fetch status=Active only, or both (Active + delisted) for complete history? Data value vs size?
+4. Rate limit: BSE unthrottled bulk fetch 2 MB - safe cadence for a daily refresh?
+5. Anything in the BSE ecosystem (other ListofScripData params, per-scrip detail APIs) we should design the adapter to grow into?
+
+CONSTRAINTS: READ-ONLY consult, no file edits, no build yet. Report: hc send t1w4 <answers 1-5, numbered, under 250 words>. Stay alive.
