@@ -1,0 +1,22 @@
+CONSULT TASK — design review for the NEXT 8 ADAPTERS (batch, before build). READ-ONLY, no file edits.
+
+Per D7 the clean-slate stack is Flask 3.1.3 + flask-smorest (contract) + httpx/feedparser/openpyxl/stdlib (downloads). Per D8 every adapter emits canonical JSON records. Existing pattern: src/bond_master/bse_bulk.py (failure codes BLOCKED/MALFORMED/OK/TIMEOUT/UNREACHABLE, permissive-ingest/loud-drift, fixture-from-real-payload + edge tests) - study it as the pattern.
+
+The 8 adapter designs to review (one per channel):
+1. CARE: header JSON searchlist/getSearchprintrating/getSearchprdocument/getSearchrrddata + direct PDFs (no OTP). Records: {isin?, company, rating, date, pdf_url}.
+2. ICRA: Rating/GetRationalReportFilePdf direct PDFs + sitemap.xml for discovery. Records: {company, rating, date, pdf_url}.
+3. Acuite: sitemap (39,267 URLs) + connect.acuite.in/liveratings paginated HTML. Records: {company, rating, date, url}.
+4. India Ratings: home/GetSearch + pressReleases/GetPressreleaseData JSON with ISIN annexures. Records: {isin, company, rating, date, pressrelease_url}.
+5. NSE WDM: /api/daily-reports?key=WDM -> wdmlist_<date>.csv on nsearchives.nseindia.IN. Records: {isin, security, issue_name(coupon), maturity, cpn_freq, last_traded_price, status} - 10,624 rows verified.
+6. RBI RSS: 7 feeds (pressreleases/notifications/Publication). Records: {feed, title, link, pubdate, guid} - news-class records (not bond facts).
+7. SEBI RSS: sebirss.xml. Records: {title, link, pubdate}.
+8. BSE notices: notices.xml/announcements.xml + OBP_MEMBER_LIST.zip. Records: {title, link, date}.
+
+CONSULT QUESTIONS:
+1. Record-shape gaps per adapter (fields missing for the ISIN-master/ratings/watch use cases)?
+2. Edge cases per channel (XML namespaces in RSS, ZIP-in-CSV, pagination walls, Solr offset drift, sitemap lastmod vs real updates)?
+3. Cadence per channel given D4 download-first + the 1 req/s discipline?
+4. Which 2 of the 8 unblock the MOST locked-frontend data flow - build order recommendation?
+5. Any channel where the official download path is better served by the NSDL-style bulk-file pattern vs the JSON-API pattern?
+
+CONSTRAINTS: READ-ONLY consult. Report: hc send t1w4 <answers 1-5, numbered, under 300 words>. Stay alive.

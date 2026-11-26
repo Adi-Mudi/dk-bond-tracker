@@ -1,0 +1,225 @@
+{
+  "document": "agy_framework_research",
+  "version": "v1.0",
+  "date": "2026-11-26",
+  "recommendation": {
+    "primary_choice": "Keep Flask 3.1.3 (evolve in-place into JSON-first Blueprints + stdlib dataclasses/validators contract, optionally fronted by Waitress 3.0.2 or existing Werkzeug make_server on 127.0.0.1)",
+    "candidate_verdict_fastapi": "DO NOT ADOPT FastAPI for Chaquopy on-device Android packaging",
+    "core_reasoning": [
+      "LIVE WHEEL BLOCKER (FastAPI): FastAPI 0.165.0 strictly requires pydantic>=2.9.0, which strictly requires pydantic-core==2.50.5 (Rust/PyO3 native binary). Live check on 2026-11-26 confirms pydantic-core 2.50.5 has 0 Android wheels on PyPI (0 of 139 wheels) and HTTP 404 on https://chaquo.com/pypi-13.1/pydantic-core/. Chaquopy issue #1017 ('pydantic v2') remains OPEN; PR #1413 was closed unmerged because maintainer mhsmith (2026-04-23) declines new native Chaquopy recipes and defers to upstream PyPI Android wheels. Community repo Eutalix/android-pydantic-core (16 stars) latest release v2.50.0 only publishes cp314 wheels, omitting cp313 pinned by this repo (android/app/build.gradle:76). Pinning legacy pure-Python pydantic 1.10.21 requires years-old FastAPI and sacrifices Pydantic v2 ergonomics entirely.",
+      "ALREADY PROVEN ON THIS DEVICE STACK (Flask 3.1.3): This repo already pins Chaquopy 17.2.0 + Python 3.13 (abiFilters arm64-v8a, x86_64) + Flask 3.1.3 in android/app/build.gradle, starting threaded WSGI cleanly on 127.0.0.1:5000 via werkzeug.serving.make_server(..., threaded=True) inside threading.Thread(daemon=True) (android/app/src/main/python/main.py) with ~36 MB release APK (android/README.md). Flask + Werkzeug + Jinja2 + Click + ItsDangerous + Blinker are all pure-Python py3-none-any wheels (~603 KB combined); its sole native dependency MarkupSafe 3.0.4 (11-28 KB/ABI) ships official Android wheels on BOTH PyPI (cp313/cp314/cp315 android_24 arm64_v8a/x86_64) and chaquo.com/pypi-13.1/markupsafe/.",
+      "ZERO RUNTIME ADVANTAGE OF ASGI FOR SINGLE-USER LOCALHOST SQLITE: Our workload is a 1-user offline-first Flutter Android client hitting SQLite (264k-row master ISIN table) via an existing custom threading scheduler (src/app.py, src/bond_master/service.py). Python's stdlib sqlite3 is synchronous; ASGI servers like Uvicorn also crash in Chaquopy background threads with ValueError: signal only works in main thread unless subclassed to strip install_signal_handlers(). Meanwhile our domain core (src/db.py, src/queries/*, src/bond_master/*, src/engine.py, src/status.py, src/goals.py) already has ZERO Flask imports — only src/app.py and 12 src/views/*.py modules couple to Flask, and 101 of 167 Python files under tests/ use Flask create_app/test_client.",
+      "PRAGMATIC API UPGRADE PATH: Converting Flask views from HTML templates (9 jsonify endpoints today) to a 41-route versioned JSON API using stdlib dataclasses + explicit JSON error handlers + generated OpenAPI JSON from route schemas delivers clean typed contracts for Flutter at zero native-toolchain risk and minimal migration cost."
+    ],
+    "fallback_if_openapi_mandatory": "If typed OpenAPI codegen in Python is treated as hard requirement without custom helpers, evaluate Starlette 1.10.0 (pure-Python, but requires Python >=3.11 and dropping Pydantic) OR build/host custom cp313 android_24_* pydantic-core Rust wheels yourself — NOT recommended given solo-developer maintenance cost."
+  },
+  "profile_constraints_observed": {
+    "python_version": ">=3.10 in pyproject.toml; Chaquopy version = '3.13' with 16 KB page support (Chaquopy 17.2.0, AGP 8.7.2) and ABIs ['arm64-v8a', 'x86_64'] in android/app/build.gradle",
+    "current_dependencies": "flask==3.1.3 only (requirements.txt, pyproject.toml)",
+    "current_android_footprint": "~36 MB release APK (android/README.md:136); local server via main.py on 127.0.0.1:5000",
+    "codebase_coupling": "8,438 LOC across 49 src/**/*.py files; only src/app.py + 12 src/views/*.py files import flask/werkzeug; 41 @bp.route routes (9 currently returning jsonify); 101 of 167 Python files in tests/ reference test_client or create_app"
+  },
+  "frameworks": [
+    {
+      "name": "Flask 3.1.3 (recommended: JSON-first Blueprint API + dataclasses/validators, optional Waitress 3.0.2 WSGI)",
+      "url": "https://flask.palletsprojects.com/en/stable/",
+      "embedded_fit": "PROVEN IN REPO: Runs in-process inside Chaquopy 17.2.0 / CPython 3.13 daemon thread via werkzeug.serving.make_server('127.0.0.1', 5000, app, threaded=True) without OS signal-handler registration crashes (android/app/src/main/python/main.py). Waitress 3.0.2 (54.9 KB pure-Python wheel, zero deps, https://pypi.org/pypi/waitress/json) can replace Werkzeug's dev server cleanly if needed. Note: app.run(debug=False, use_reloader=False) is mandatory on Chaquopy (chaquo/chaquopy#1235).",
+      "apk_impact": "NEGLIGIBLE / BASELINE: Already included in current ~36 MB APK (android/README.md:136). Wheel sizes on PyPI (2026-11-26): flask 101.0 KB + werkzeug 223.3 KB + jinja2 131.7 KB + click 123.2 KB + itsdangerous 15.9 KB + blinker 8.3 KB (all pure-Python py3-none-any.whl) + markupsafe 11.2-28.2 KB/ABI (native C, with official Android wheels on both PyPI 3.0.4 cp313/cp314/cp315 android_24_arm64_v8a/x86_64 and chaquo.com/pypi-13.1/markupsafe/ 3.0.3). Note: if HTML templates are retired post-Flutter switch, Jinja2/MarkupSafe remain light (<160 KB wheel); MarkupSafe is the only native dep. Cold startup overhead vs baseline Flask: 0 ms delta (UNVERIFIED exact millisecond boot benchmark on physical ARM64 device).",
+      "json_api_fit": "GOOD (explicit, requires lightweight discipline): Flask 3.1.3 natively parses request.get_json() and serializes jsonify()/dict returns. Lacks built-in OpenAPI generation or Pydantic V2 auto-validation out of the box (though Flask extensions or pure-Python stdlib dataclasses + src/validators.py schema checks cover contract validation + OpenAPI dict generation for 41 routes without native deps).",
+      "background_fit": "EXCELLENT: Synchronous WSGI shares SQLite connections cleanly with existing threading.Thread daemon background refresh (_start_auto_refresh in src/app.py:79) and polite 1 req/s download scheduler without asyncio event-loop contention.",
+      "migration_cost": "LOWEST: Keeps src/db.py, src/queries/*, src/bond_master/*, src/engine.py, src/status.py, src/goals.py, and all 101 Flask test_client test files intact; only converts HTML render_template responses in src/views/*.py (22 files reference render_template, 41 routes total) to JSON payloads alongside contract versioning.",
+      "verdict": "RECOMMENDED (#1) — zero native toolchain risk, smallest APK/startup footprint, preserves existing domain & test assets."
+    },
+    {
+      "name": "FastAPI 0.165.0 (+ Starlette 1.10.0 + Pydantic 2.14.4 + pydantic-core 2.50.5 + Uvicorn 0.54.0)",
+      "url": "https://fastapi.tiangolo.com/",
+      "embedded_fit": "BLOCKED OUT-OF-THE-BOX ON CHAQUOPY 17.2 + PYTHON 3.13: FastAPI 0.165.0 requires Python >=3.11 and pydantic>=2.9.0, which requires compiled Rust/PyO3 extension pydantic-core==2.50.5 (https://pypi.org/pypi/pydantic/json). Live check 2026-11-26: pydantic-core has 0 Android wheels on PyPI (0/139 wheels) and HTTP 404 on https://chaquo.com/pypi-13.1/pydantic-core/. Chaquopy issue #1017 ('pydantic v2') is OPEN; PR #1413 closed unmerged with maintainer mhsmith directing users to upstream PyPI builds. Additionally, Uvicorn fails inside secondary Android threads with ValueError: signal only works in main thread unless subclassed to override install_signal_handlers() (avoiding uvicorn[standard] native deps uvloop/httptools/watchfiles). Workaround options: (a) self-compile/host Rust Android wheels via NDK+maturin on every Python/ABI update (Eutalix/android-pydantic-core latest v2.50.0 only provides cp314, not repo's cp313), or (b) downgrade to dead Pydantic v1 (1.10.21 pure-Python) + old FastAPI, breaking modern FastAPI features.",
+      "apk_impact": "HEAVY (+custom ABI wheel risk): Pure-Python graph adds fastapi 155.7 KB + starlette 78.7 KB + pydantic 483.3 KB + uvicorn 85.4 KB + anyio 131.4 KB + idna 68.0 KB + opentelemetry-api 58.9 KB + typing-extensions 44.5 KB + h11 36.6 KB + typing-inspection 14.5 KB + annotated-types 13.1 KB + sniffio 10.0 KB + annotated-doc 5.2 KB (~1.19 MB compressed Python wheels) PLUS native pydantic-core binary (~1,461-2,466 KB per ABI x 2 ABIs = ~3-5 MB compressed, much larger unpacked .so size). Slower cold import time due to type annotation inspection and Pydantic schema construction (UNVERIFIED exact Android device ms timing).",
+      "json_api_fit": "BEST IN CLASS (if server-hosted): Pydantic V2 models, automatic JSON schema / OpenAPI generation for Flutter codegen, clean dependency injection. However, for 1-user offline localhost, this comes at unacceptable Android native-build coupling unless pydantic-core publishes official PyPI Android wheels.",
+      "background_fit": "FAIR (with friction): Async event loop conflicts unnecessarily with synchronous stdlib sqlite3 used across src/queries/* and src/bond_master/* (requires anyio.to_thread.run_sync wrappers or synchronous def endpoints running in FastAPI's threadpool).",
+      "migration_cost": "HIGH: Rewrite src/app.py + all 12 Blueprint modules (41 routes in src/views/*.py), rewrite exception handling / session usage (watch/lookup/applied), rewrite 101 test files from Flask test_client to Starlette/httpx TestClient, AND add Rust/NDK cross-compile CI or downgrade FastAPI.",
+      "verdict": "NOT RECOMMENDED for on-device Chaquopy until pydantic-core ships official cp313 Android wheels on PyPI."
+    },
+    {
+      "name": "Litestar 2.25.0 (+ msgspec 0.22.0 + httpx + polyfactory/faker + pyyaml + rich + Uvicorn)",
+      "url": "https://litestar.dev/",
+      "embedded_fit": "BLOCKED OUT-OF-THE-BOX ON CHAQUOPY: Litestar 2.25.0 hard-depends on msgspec>=0.18.2 (C extension, 0 Android wheels on PyPI out of 81, HTTP 404 on https://chaquo.com/pypi-13.1/msgspec/), plus pyyaml and multidict (native C wheels exist on pypi-13.1), plus polyfactory->faker, httpx, rich, rich-click. Same Uvicorn thread signal-handler patch required.",
+      "apk_impact": "HEAVIEST NON-DJANGO OPTION: Base litestar wheel 571.0 KB + faker 2,025.8 KB (pulled unconditionally via polyfactory>=2.6.3!) + msgspec 134-242 KB/ABI + pyyaml 137-893 KB/ABI + httpx 71.8 KB + anyio 131.4 KB + rich/click/multidict -> >3.5 MB compressed wheels even before ASGI server.",
+      "json_api_fit": "EXCELLENT on servers (supports dataclasses, msgspec, OpenAPI, DTOs), redundant vs Flask + dataclasses on localhost.",
+      "background_fit": "FAIR: Same async-over-sync SQLite mismatch as FastAPI.",
+      "migration_cost": "HIGH: Full rewrite of 41 routes, 101 test files, plus un-available msgspec Android build pipeline.",
+      "verdict": "NOT RECOMMENDED — blocked by msgspec missing Android wheels and pulls heavy polyfactory/faker dependency chain into APK."
+    },
+    {
+      "name": "Starlette 1.10.0 (+ Uvicorn 0.54.0 pure-Python)",
+      "url": "https://pypi.org/project/starlette/",
+      "embedded_fit": "COMPATIBLE WITH WORKAROUND: Pure-Python stack (starlette 78.7 KB + uvicorn 85.4 KB + anyio 131.4 KB + h11 36.6 KB + idna 68.0 KB + sniffio 10.0 KB + click 123.2 KB + typing-extensions 44.5 KB; 0 native wheels if uvicorn[standard] is omitted). Must subclass uvicorn.Server to noop install_signal_handlers() inside background daemon thread. Historical Chaquopy issue #857 confirmed pure-Python Starlette installs cleanly; requires Python >=3.11 (repo uses 3.13).",
+      "apk_impact": "LOW (~578 KB compressed pure-Python wheels, near Flask's weight). Startup timing UNVERIFIED on device.",
+      "json_api_fit": "FAIR: Without Pydantic/FastAPI, Starlette provides routing and JSONResponse only — no automatic request parsing, schema validation, or OpenAPI generation, offering no typing advantage over Flask while losing Flask Blueprint ergonomics.",
+      "background_fit": "FAIR: Sync SQLite calls still must run in threadpool or block event loop.",
+      "migration_cost": "MEDIUM-HIGH: Rewrite all 41 routes, error handlers, session handling, and 101 Flask test_client test files for negligible benefit over keeping Flask.",
+      "verdict": "NOT RECOMMENDED — inherits ASGI thread/SQLite complexity and full route rewrite cost while dropping FastAPI's Pydantic ergonomics."
+    },
+    {
+      "name": "Bottle 0.13.4 (stdlib wsgiref / Waitress)",
+      "url": "https://bottlepy.org/docs/dev/",
+      "embedded_fit": "EXCELLENT: Single-file pure-Python wheel (101.4 KB), zero external dependencies, runs cleanly on stdlib wsgiref or Waitress in Chaquopy background thread.",
+      "apk_impact": "SMALLEST (~101 KB vs Flask's ~603 KB — ~500 KB gross savings, practically negligible in a ~36 MB Chaquopy+Flutter APK). Cold startup UNVERIFIED on device.",
+      "json_api_fit": "BASIC: Dict return auto-serializes to JSON; no built-in schema validation or OpenAPI.",
+      "background_fit": "EXCELLENT: Synchronous WSGI matches SQLite + existing daemon refresh threads.",
+      "migration_cost": "MEDIUM: Requires rewriting 41 routes across 12 views modules (no Blueprint parity with current app layout) and 101 test_client files only to save ~0.5 MB.",
+      "verdict": "VIABLE BUT UNNECESSARY — saves ~0.5 MB at the cost of rewriting working Flask routes/tests."
+    },
+    {
+      "name": "Falcon 4.4.0 (+ Waitress 3.0.2 / wsgiref)",
+      "url": "https://falconframework.org/",
+      "embedded_fit": "GOOD (pure-Python fallback): PyPI ships a py3-none-any pure-Python wheel (330.5 KB) alongside 50 native Cython wheels (0 Android wheels -> Chaquopy installs pure-Python wheel cleanly).",
+      "apk_impact": "LOW (~331 KB + ~55 KB waitress). Startup UNVERIFIED on device.",
+      "json_api_fit": "GOOD (REST resource classes, built-in media JSON handler), but no native Pydantic-free OpenAPI generator.",
+      "background_fit": "EXCELLENT: Synchronous WSGI matches SQLite + background threads cleanly.",
+      "migration_cost": "HIGH: Class-based on_get/on_post rewrite for all 41 routes and 101 test files.",
+      "verdict": "NOT RECOMMENDED — high rewrite churn with zero perceptible runtime benefit for 1-user localhost calls."
+    },
+    {
+      "name": "Django 6.1.3 (+ Django REST Framework / Ninja)",
+      "url": "https://www.djangoproject.com/",
+      "embedded_fit": "POOR PRACTICAL FIT (technically installable as pure Python >=3.12): Django 6.1.3 is pure-Python (8,227.2 KB wheel) + asgiref (26.9 KB) + sqlparse (50.0 KB). Adding Django Ninja fails on pydantic-core Android wheel blocker; DRF adds more bulk.",
+      "apk_impact": "VERY HEAVY (~8.3 MB compressed wheel alone, tens of MB unpacked bytecode/templates/locales; noticeably slower mobile import & cold startup; exact device ms UNVERIFIED).",
+      "json_api_fit": "OVERKILL: Built for multi-tenant server web apps; ORM conflicts with repo's existing raw parameterized sqlite3 queries (src/db.py, src/queries/*) and WAL-omitted schema design.",
+      "background_fit": "POOR: Heavy app registry startup and ORM assumptions add friction to thin Chaquopy service thread.",
+      "migration_cost": "VERY HIGH: Full rewrite of views, DB access, and tests.",
+      "verdict": "NOT RECOMMENDED — massive APK bloat and ORM mismatch for an offline single-user SQLite backend."
+    }
+  ],
+  "chaquopy_evidence": [
+    {
+      "fact": "Repo already runs Flask 3.1.3 cleanly inside Chaquopy 17.2.0 + Python 3.13 (abiFilters arm64-v8a, x86_64) via werkzeug.serving.make_server('127.0.0.1', 5000, app, threaded=True) in a daemon thread; 16 KB page-size ready; ~36 MB release APK.",
+      "url": "file://android/app/build.gradle#L25-L81"
+    },
+    {
+      "fact": "Chaquopy 17.2 officially supports Python 3.10-3.15 (min Android API 24) and supports 16 KB page sizes natively.",
+      "url": "https://chaquo.com/chaquopy/doc/current/versions.html"
+    },
+    {
+      "fact": "Chaquopy wheel repo (chaquo.com/pypi-13.1/) has 133 compiled packages including markupsafe, pyyaml, multidict, greenlet, aiohttp, cryptography, cffi — it returns HTTP 404 for pydantic, pydantic-core, and msgspec.",
+      "url": "https://chaquo.com/pypi-13.1/"
+    },
+    {
+      "fact": "PyPI live check (2026-11-26): markupsafe 3.0.4 publishes official Android wheels (cp313/cp314/cp315 android_24 arm64_v8a/x86_64); pydantic-core 2.50.5 (0/139) and msgspec 0.22.0 (0/81) publish ZERO Android wheels.",
+      "url": "https://pypi.org/pypi/pydantic-core/json"
+    },
+    {
+      "fact": "Chaquopy issue #1017 ('pydantic v2') remains OPEN (19 comments, updated 2025-10-19); Rust/PyO3 cross-compilation hit libgcc/NDK linker and PYO3_CROSS_LIB_DIR hurdles, with maintainer suggesting Pydantic v1 workaround.",
+      "url": "https://github.com/chaquo/chaquopy/issues/1017"
+    },
+    {
+      "fact": "Chaquopy PR #1413 ('Recipe to build pydantic-core') was CLOSED unmerged; maintainer mhsmith stated (2026-04-23) that since PyPI and cibuildwheel support Android, new native package recipes should be submitted upstream to package repos, not Chaquopy.",
+      "url": "https://github.com/chaquo/chaquopy/pull/1413"
+    },
+    {
+      "fact": "Unofficial community wheel project Eutalix/android-pydantic-core (16 stars) latest release v2.50.0 only provides cp314 Android wheels, NOT cp313 pinned by this repo.",
+      "url": "https://github.com/Eutalix/android-pydantic-core"
+    },
+    {
+      "fact": "Chaquopy issue #857 confirmed pure-Python Starlette/FastAPI components work ONLY if their requirements are pure-Python (which ceased to hold for FastAPI once Pydantic v2 / pydantic-core became mandatory).",
+      "url": "https://github.com/chaquo/chaquopy/issues/857"
+    },
+    {
+      "fact": "Chaquopy issue #1235 highlights that embedded Flask on Android must disable reloader/debugger (debug=False, use_reloader=False or make_server); Uvicorn in secondary threads fails on signal registration unless install_signal_handlers() is overridden.",
+      "url": "https://github.com/chaquo/chaquopy/issues/1235"
+    },
+    {
+      "fact": "Architecture alternative noted for Android-only Flutter+Chaquopy: Chaquopy MethodChannel (direct JNI calls without localhost TCP socket) eliminates HTTP server startup altogether if cross-platform iOS/cloud portability is never needed; keeping localhost HTTP preserves desktop pytest/dev ergonomics and easy Flutter dio/http client separation.",
+      "url": "https://chaquo.com/chaquopy/doc/current/android.html"
+    }
+  ],
+  "final_ranking": [
+    {
+      "rank": 1,
+      "framework": "Flask 3.1.3 (JSON-first Blueprints + stdlib dataclasses/validators + optional Waitress 3.0.2 WSGI)",
+      "score_rationale": "Only candidate already proven in repo APK builds on Chaquopy 17.2 + Python 3.13, <0.7 MB total deps with official PyPI Android wheels for markupsafe, zero rewrite of SQLite/queries/service/101 tests, straightforward incremental conversion of remaining HTML routes to JSON."
+    },
+    {
+      "rank": 2,
+      "framework": "Bottle 0.13.4",
+      "score_rationale": "Zero-dep pure-Python fallback if Flask were ever dropped (~101 KB), but gains ~0.5 MB at the cost of rewriting Blueprints and 101 test_client suites."
+    },
+    {
+      "rank": 3,
+      "framework": "Starlette 1.10.0 + Uvicorn 0.54.0 (pure-Python, signal-handler patch)",
+      "score_rationale": "Installs pure-Python on Chaquopy, but requires Uvicorn secondary-thread patching, async-to-sync SQLite bridging, and full route/test rewrite while still lacking Pydantic validation/OpenAPI."
+    },
+    {
+      "rank": 4,
+      "framework": "Falcon 4.4.0",
+      "score_rationale": "Clean pure-Python REST semantics, but full resource-class rewrite of 41 routes + 101 tests for zero localhost latency benefit."
+    },
+    {
+      "rank": 5,
+      "framework": "FastAPI 0.165.0",
+      "score_rationale": "Developer's initial candidate; disqualified for out-of-the-box Chaquopy 17.2 + Python 3.13 builds due to pydantic-core 2.50.5 having 0 Android wheels on PyPI/Chaquopy, open chaquopy#1017, Uvicorn thread signal traps, and sync-SQLite mismatch."
+    },
+    {
+      "rank": 6,
+      "framework": "Litestar 2.25.0",
+      "score_rationale": "Blocked by msgspec lacking Android wheels and pulls heavy polyfactory+faker (>2 MB) bloat."
+    },
+    {
+      "rank": 7,
+      "framework": "Django 6.1.3",
+      "score_rationale": "8.2 MB wheel weight, ORM conflict with raw sqlite3/queries, excessive startup overhead for offline mobile."
+    }
+  ],
+  "migration_analysis": {
+    "survives_untouched": [
+      "src/db.py (205 LOC)",
+      "src/queries/*.py (820 LOC across 5 modules)",
+      "src/bond_master/*.py (1,353 LOC across 9 modules — including 12-channel downloaders & NSDL service)",
+      "src/engine.py, src/status.py, src/goals.py, src/alerts.py, src/ledger.py, src/lock.py, src/mailer.py, src/maturity.py, src/notifications.py, src/prefs.py, src/updater.py, src/validators.py, src/export_csv.py, src/import_csv.py, src/share.py, src/print.py"
+    ],
+    "changed_under_recommended_flask_json_upgrade": [
+      "src/app.py (294 LOC): return JSON payloads in @app.errorhandler(AppError) / HTTPException when JSON client requested",
+      "src/views/*.py (12 Blueprint modules, 41 routes, 9 already jsonify): replace render_template()/redirect()/flash() HTML branches with typed JSON serialization + standardized status codes per T3 contract",
+      "src/templates/* and static HTML/JS/CSS: removable once Flutter client replaces WebView",
+      "tests/ (101 files using Flask create_app/test_client): update assertions from HTML substrings to JSON keys incrementally per migrated Blueprint"
+    ],
+    "extra_cost_if_switched_to_fastapi": [
+      "Maintain custom Rust/NDK cross-compiled pydantic-core Android wheel CI for arm64-v8a + x86_64 across Python upgrades (or accept dead FastAPI/Pydantic v1 fork)",
+      "Patch Uvicorn Server.install_signal_handlers() for Chaquopy daemon thread lifecycle",
+      "Rewrite all 12 Flask Blueprints + session/request/AppError integration + all 101 test_client test files"
+    ]
+  },
+  "references": [
+    "https://flask.palletsprojects.com/en/stable/",
+    "https://fastapi.tiangolo.com/",
+    "https://litestar.dev/",
+    "https://www.djangoproject.com/",
+    "https://bottlepy.org/docs/dev/",
+    "https://falconframework.org/",
+    "https://docs.pylonsproject.org/projects/waitress/en/stable/",
+    "https://chaquo.com/chaquopy/doc/current/versions.html",
+    "https://chaquo.com/chaquopy/doc/current/android.html",
+    "https://chaquo.com/chaquopy/doc/current/faq.html",
+    "https://chaquo.com/pypi-13.1/",
+    "https://chaquo.com/pypi-13.1/markupsafe/",
+    "https://chaquo.com/pypi-13.1/pydantic-core/",
+    "https://chaquo.com/pypi-13.1/msgspec/",
+    "https://pypi.org/pypi/flask/json",
+    "https://pypi.org/pypi/fastapi/json",
+    "https://pypi.org/pypi/pydantic/json",
+    "https://pypi.org/pypi/pydantic-core/json",
+    "https://pypi.org/pypi/starlette/json",
+    "https://pypi.org/pypi/uvicorn/json",
+    "https://pypi.org/pypi/litestar/json",
+    "https://pypi.org/pypi/msgspec/json",
+    "https://pypi.org/pypi/waitress/json",
+    "https://pypi.org/pypi/bottle/json",
+    "https://pypi.org/pypi/falcon/json",
+    "https://pypi.org/pypi/django/json",
+    "https://github.com/chaquo/chaquopy/issues/1017",
+    "https://github.com/chaquo/chaquopy/pull/1413",
+    "https://github.com/chaquo/chaquopy/issues/857",
+    "https://github.com/chaquo/chaquopy/issues/1235",
+    "https://github.com/Eutalix/android-pydantic-core"
+  ]
+}

@@ -14,6 +14,7 @@ from .base import (
     FAILURE_UNREACHABLE,
     LISTING_STATUSES,
     FetchResult,
+    utc_as_of,
 )
 from .normalize import RATING_AGENCY_PREFIXES, normalize_cycle, normalize_isin
 
@@ -165,7 +166,12 @@ def _compose(isin, record):
         "maturity": _text(record.get("maturity_date")) or _maturity(description) or None,
     }
     populated = {name: value for name, value in values.items() if value is not None}
-    return FetchResult(isin=isin, sources={name: SOURCE_NAME for name in populated}, **populated)
+    return FetchResult(
+        isin=isin,
+        sources={name: SOURCE_NAME for name in populated},
+        as_of=utc_as_of(),
+        **populated,
+    )
 
 
 def _records(document):

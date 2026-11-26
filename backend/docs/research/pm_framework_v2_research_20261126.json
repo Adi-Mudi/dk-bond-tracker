@@ -1,0 +1,73 @@
+{
+  "document": "pm_framework_research_v2",
+  "version": "v1.0",
+  "date": "2026-11-26",
+  "initiative": "backend-design-upgrade",
+  "framing": "CLEAN-SLATE REWRITE: the entire old backend (Flask 3.1.3, 41 HTML routes) is DELETED. The comparison is for a BRAND-NEW on-device JSON API serving the locked Flutter frontend. Migration cost from old routes is irrelevant. Developer asks: final recommendation on the FastAPI path AND the Flask path, with advantages, disadvantages, community plugins, download/scraping tooling.",
+  "hard_constraint": "The new backend runs ON-DEVICE in the Android APK via Chaquopy (Python 3.13). Verified live facts: pydantic-core 2.50.5 (FastAPI's validation core, Rust) ships 0 Android wheels out of 140 files on PyPI, and chaquo.com returns 404 for it (chaquopy#1017 open). MarkupSafe (Flask's native dep) ships 6 Android wheels including cp313 arm64+x86_64. Pure-Python packages install freely.",
+  "fastapi_path": {
+    "advantages": [
+      "Best API-contract ergonomics: Pydantic models ARE the Flutter contract; OpenAPI/Swagger docs generate themselves (checklist item 4 solves itself)",
+      "Async-first; native background tasks; dependency injection; WebSocket if ever needed",
+      "Largest modern community; AI-tooling friendly; 100% typed + tested"
+    ],
+    "disadvantages": [
+      "BLOCKED ON-DEVICE today: pydantic-core has no Android wheel (verified live 0/140 on PyPI; chaquo.com 404; chaquopy#1017 open, PR #1413 unmerged)",
+      "Workaround = self-build + maintain Android wheels for pydantic-core (Rust cross-compile) on EVERY upstream release - an ongoing burden with no upstream support",
+      "uvicorn in secondary Android threads: signal-handler crashes without patching; pure-Python mode works but is slower",
+      "Async complexity buys nothing for a single-user offline sync app"
+    ],
+    "ecosystem": "fastapi-users, pydantic-settings, slowapi (rate limit), apscheduler integration, SQLModel - all server-oriented; on-device the plugin story thins",
+    "verdict": "Superior contract ergonomics, blocked by a hard install fact. Only viable if the team commits to maintaining custom Android wheels for pydantic-core, or if serving mode B removes the embedded constraint (it does not - pydantic-core still must install in the APK)."
+  },
+  "flask_path": {
+    "advantages": [
+      "PROVEN on-device: Flask 3.1.3 + Werkzeug + MarkupSafe 3.0.4 ship Android cp313 wheels (6 files verified live on PyPI); the current APK already runs this exact stack",
+      "From-scratch Flask is NOT the old Flask: fresh JSON-first Blueprints, no HTML routes, no legacy patterns - the rewrite deletes them anyway",
+      "Pure-Python dependency chain installs cleanly via Chaquopy (pure-Python sdists supported since 17.0)",
+      "Sync + sqlite3 = natural fit for single-user offline (no async complexity)"
+    ],
+    "disadvantages": [
+      "No automatic validation/OpenAPI - the API contract (checklist item 4) needs a layer",
+      "Werkzeug server is single-user grade (fine here); Waitress optional",
+      "Sync: background work stays with the custom scheduler (already built)"
+    ],
+    "ecosystem_close_the_gap": {
+      "point": "The contract ergonomics gap closes with pure-Python Flask extensions",
+      "options": [
+        {"name": "Apiflask", "url": "https://apiflask.com/", "gives": "OpenAPI 3.1 + schema validation + auto docs on Flask; marshmallow-based (pure Python)"},
+        {"name": "flask-smorest", "url": "https://flask-smorest.readthedocs.io/", "gives": "OpenAPI 3 + marshmallow validation + error handling; Blueprint-first (matches our Blueprint structure)"},
+        {"name": "stdlib dataclasses + fixture tests", "gives": "zero-dependency contract via dataclasses + the existing 717-test pattern"}
+      ],
+      "verdict": "Apiflask or flask-smorest delivers FastAPI-style contract + docs with PURE-PYTHON wheels that install on-device"
+    },
+    "verdict": "The pragmatic winner for an on-device rewrite: full contract ergonomics via pure-Python extensions, zero wheel risk"
+  },
+  "download_scraping_tooling": [
+    {"name": "httpx", "role": "primary HTTP client for the 12 channels (sync, HTTP/2, timeouts)", "weight": "pure Python + httpcore"},
+    {"name": "curl_cffi", "role": "ONLY if a channel ever needs browser TLS impersonation (held per D4 - not currently needed)", "weight": "native binary; heavier"},
+    {"name": "feedparser", "role": "RBI/SEBI/BSE RSS parsing (7+ feeds)", "weight": "pure Python"},
+    {"name": "openpyxl or python-calamine", "role": "NSDL 10 XLSX datasets parsing", "weight": "calamine = Rust (wheel risk on-device); openpyxl = pure Python, slower but safe"},
+    {"name": "csv/json/zip stdlib", "role": "NSDL CSV, BSE JSON, NSE WDM CSV - stdlib suffices", "weight": "none"},
+    {"name": "selectolax/BeautifulSoup", "role": "only if HTML channels appear (none in the current 12-channel plan)", "weight": "skip for now"}
+  ],
+  "final_recommendation": {
+    "on_both": [
+      "DECISION: Flask-from-scratch, JSON-first Blueprints + Apiflask (or flask-smorest) for the contract layer. FastAPI is ruled out ON-DEVICE by the pydantic-core wheel fact - regardless of clean-slate freedom.",
+      "The locked JSON contract (routes + shapes) is IDENTICAL under both paths - only the transport/validation library changes. The contract is not at risk from this choice.",
+      "Revisit FastAPI only if (a) pydantic-core ships Android wheels upstream (chaquopy#1017), or (b) serving mode B removes the embedded constraint AND the team accepts custom-wheel maintenance."
+    ],
+    "fastapi_path_summary": "World-class contract ergonomics, blocked on-device by a missing wheel; viable only with self-maintained Android wheels.",
+    "flask_path_summary": "Proven on-device, pure-Python contract layer via Apiflask/flask-smorest, bounded rewrite, smallest APK."
+  },
+  "references": [
+    "https://fastapi.tiangolo.com/features/",
+    "https://flask.palletsprojects.com/en/stable/extensions/",
+    "https://chaquo.com/chaquopy/doc/current/android.html",
+    "https://chaquo.com/chaquopy/doc/current/changelog.html",
+    "https://apiflask.com/",
+    "https://flask-smorest.readthedocs.io/",
+    "https://github.com/MoonshotAI/kimi-code/issues/5294 (context: 2.7.x MCP registry - unrelated to framework, cited for session-tooling history)"
+  ],
+  "parallel_stream": "agy-research (t1w7) dispatched with the clean-slate framing - report merges into F14 when it lands"
+}

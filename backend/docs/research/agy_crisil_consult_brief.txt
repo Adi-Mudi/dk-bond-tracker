@@ -1,0 +1,23 @@
+CONSULT TASK — CRISIL ratings adapter design review (before build). READ-ONLY, no file edits.
+
+Collected intel (live probes today):
+- RR listing servlet: https://www.crisilratings.com/bin/crisil/listing/rating_sme_listing_service.json?cmd=RR&start=0&limit=50 -> 200 JSON {docs[], numFound: 39,849}; doc fields: companyCode, companyName, industryName, heading, ratingDate, ratingFileName, prId, transDate, abstractTemp, showAbstarct. Pagination via start/limit.
+- DR by-ISIN: same servlet cmd=DR&isinNumber=<ISIN> -> Solr-shape {responseHeader, response:{numFound, start, docs[]}}; docs: companyCode, companyName, dueDate, instrument, isinNumber, rating, rrDate, id, _version_. Probe INE775A08105 -> numFound 352 (suspiciously high - possibly fuzzy/unfiltered; needs client-side exact-ISIN filter).
+- RatingDocs HTML: https://www.crisilratings.com/mnt/winshare/Ratings/RatingList/RatingDocs/<ratingFileName> -> 200, ~93 KB full rationale per doc.
+- robots.txt: disallows specific bot UAs (Scrapy/GPTBot etc.) - our identified UA fine; cadence discipline required.
+
+PROPOSED DESIGN (D8 canonical JSON):
+- CrisilAdapter.fetch_by_isin(isin) -> cmd=DR search -> client-side exact filter on isinNumber -> canonical records {isin, company (companyName), rating, rating_date (rrDate), instrument, source: "CRISIL", rationale_file (ratingFileName -> RatingDocs URL), source_url}
+- Optional bulk mode: RR listing pagination (39,849 docs at limit=500 per page -> 80 pages) - defer: on-demand by-ISIN first, bulk later
+- Failure codes: BLOCKED (HTML/403), MALFORMED, NOT_FOUND (0 docs), OK; NO retries on 403 (Akamai variance proven), 1 retry on 5xx/timeout
+- Rate: 1 req/s, off-peak
+- Edge cases planned: empty docs, malformed JSON, HTML-wrapped error, missing ratingFileName, pagination past numFound
+
+CONSULT QUESTIONS:
+1. The DR endpoint ignores/loosely-matches isinNumber (352 docs for one ISIN = suspicious). Design the client-side exact filter on response.docs[].isinNumber - sufficient? Or is there a stricter cmd?
+2. RatingDocs HTML: extract what? (rating action, instrument list, rationale text) - how deep for v1: store the HTML as-is in raw store + extract rating + date only?
+3. RR listing bulk (39,849 docs): worth a weekly bulk pass to refresh ALL CRISIL-rated ISINs, or keep on-demand by-ISIN only?
+4. robots.txt compliance: our cadence 1 req/s off-peak - adequate, or add exponential spacing for crisilratings.com specifically?
+5. Edge cases missed? (Solr quirks, _version_ fields, pagination stability during refresh, duplicate ratings per ISIN with different instruments - keep ALL or latest only?)
+
+CONSTRAINTS: READ-ONLY consult. Report: hc send t1w4 <answers 1-5, numbered, under 250 words>. Stay alive.

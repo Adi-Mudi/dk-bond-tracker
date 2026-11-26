@@ -1,0 +1,29 @@
+RESEARCH TASK — backend framework recommendation for the DK Bond Tracker revamp (read-only, report only).
+
+Context files (read first):
+- backend/docs/backend_design_upgrade_tracker_20261125.json (v3.9 — decisions D1-D5, findings F1-F12)
+- backend/docs/backend_dataflow_design.html (the final matched dataflow board)
+- backend/docs/research/*.json (channel research)
+
+THE QUESTION: the entire backend framework is being revamped. Developer's candidate: FastAPI. Your job: research independently and recommend the best framework for THIS app's exact profile:
+
+PROFILE (fixed constraints):
+- Python 3.10+; current stack Flask 3.1.3 + stdlib-only (no other deps)
+- Runs ON-DEVICE inside the Android APK via Chaquopy (Python embedded in Android) — framework must work embedded, not just on servers
+- Serves a Flutter Android app (JSON API layer to be built — ~41 routes exist today as HTML+9 JSON)
+- 12 download channels (official CSV/XLSX/JSON/RSS) parsed into SQLite (single file, ~264k-row ISIN master)
+- Background jobs: custom scheduler already exists (framework-agnostic)
+- Offline-first; no accounts; single user
+
+RESEARCH:
+1. FastAPI vs Flask vs Litestar vs Django vs others for THIS profile: embedded/Chaquopy compatibility, APK size impact, startup time on device, JSON API ergonomics (pydantic contract for Flutter), background-job fit, dependency weight
+2. Chaquopy compatibility evidence: which frameworks/ASGI-WSGI servers are proven on Chaquopy (search GitHub issues, Chaquopy docs, Stack Overflow)
+3. Community verdicts for local/offline Python APIs (not server-scale benchmarks — irrelevant here)
+4. Migration cost from Flask 3.1.3: route-by-route effort, what survives (our queries/db/service layers are framework-agnostic already)
+
+CONSTRAINTS (hard):
+- READ-ONLY + report only: write exactly ONE file backend/docs/research/agy_framework_research_20261126.json
+- Every claim needs a URL citation; mark UNVERIFIED where you cannot verify
+- JSON shape: {"document","version","date","recommendation","frameworks":[{name,url,embedded_fit,apk_impact,json_api_fit,background_fit,migration_cost,verdict}],"chaquopy_evidence":[...],"final_ranking":[...],"references":[...]}
+
+REPORT: hc send t1w4 <one-paragraph recommendation + file path>. READ-ONLY. Stay alive after reporting.

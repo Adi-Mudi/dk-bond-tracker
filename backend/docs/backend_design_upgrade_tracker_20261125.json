@@ -1,316 +1,478 @@
 {
-  "document": "backend_design_upgrade_tracker",
-  "version": "v3.2",
-  "date": "2026-11-25",
-  "initiative": "backend-design-upgrade",
-  "branch": "backend-design-upgrade",
-  "base_branch": "front-design-upgrade",
-  "base_commit": "047a3c6f",
-  "status": "OPEN",
-  "locked_context": {
-    "frontend_framework": "Flutter",
-    "frontend_locked_by": "developer, 2026-11-25",
-    "target_platform": "Android only",
-    "dropped_platforms": [
-      "web",
-      "desktop"
-    ],
-    "backend_location": "same repo, dedicated backend/ tree",
-    "backend_engine": "UNDECIDED",
-    "implementation_rule": "design then lock first; no implementation for T2-T5 until locked; T1 adapter is the only real-code item"
+ "document": "backend_design_upgrade_tracker",
+ "version": "v4.8",
+ "date": "2026-11-25",
+ "initiative": "backend-design-upgrade",
+ "branch": "backend-design-upgrade",
+ "base_branch": "front-design-upgrade",
+ "base_commit": "047a3c6f",
+ "status": "OPEN",
+ "locked_context": {
+  "frontend_framework": "Flutter",
+  "frontend_locked_by": "developer, 2026-11-25",
+  "target_platform": "Android only",
+  "dropped_platforms": [
+   "web",
+   "desktop"
+  ],
+  "backend_location": "same repo, dedicated backend/ tree",
+  "backend_engine": "UNDECIDED",
+  "implementation_rule": "design then lock first; no implementation for T2-T5 until locked; T1 adapter is the only real-code item"
+ },
+ "merge_synchronization": {
+  "direction": "backend-design-upgrade merges FROM front-design-upgrade regularly, one direction only",
+  "folder_separation": "backend work touches ONLY backend/**",
+  "frontend_owned_paths": [
+   "src/",
+   "docs/",
+   "design/",
+   "android/",
+   "tests/"
+  ],
+  "conflict_goal": "file sets stay disjoint so merges never conflict",
+  "frontend_owner": "separate agent on front-design-upgrade and design-track worktrees"
+ },
+ "topics": [
+  {
+   "id": "T1",
+   "title": "Adapter and upgrade",
+   "mode": "real code",
+   "status": "OPEN",
+   "notes": "scope per developer 2026-11-25: merge synchronization with frontend design + strict folder separation so merges stay conflict-free"
   },
-  "merge_synchronization": {
-    "direction": "backend-design-upgrade merges FROM front-design-upgrade regularly, one direction only",
-    "folder_separation": "backend work touches ONLY backend/**",
-    "frontend_owned_paths": [
-      "src/",
-      "docs/",
-      "design/",
-      "android/",
-      "tests/"
-    ],
-    "conflict_goal": "file sets stay disjoint so merges never conflict",
-    "frontend_owner": "separate agent on front-design-upgrade and design-track worktrees"
+  {
+   "id": "T2",
+   "title": "New backend framework",
+   "mode": "design",
+   "status": "OPEN"
   },
-  "topics": [
-    {
-      "id": "T1",
-      "title": "Adapter and upgrade",
-      "mode": "real code",
-      "status": "OPEN",
-      "notes": "scope per developer 2026-11-25: merge synchronization with frontend design + strict folder separation so merges stay conflict-free"
-    },
-    {
-      "id": "T2",
-      "title": "New backend framework",
-      "mode": "design",
-      "status": "OPEN"
-    },
-    {
-      "id": "T3",
-      "title": "Contract between frontend and backend",
-      "mode": "design",
-      "status": "OPEN"
-    },
-    {
-      "id": "T4",
-      "title": "Database table design",
-      "mode": "design",
-      "status": "OPEN"
-    },
-    {
-      "id": "T5",
-      "title": "Backend implementation",
-      "mode": "implementation",
-      "status": "BLOCKED",
-      "notes": "starts only after T2, T3, T4 are designed and locked"
-    }
-  ],
-  "decisions": [
-    {
-      "id": "D1",
-      "date": "2026-11-25",
-      "decision": "Remove the dead web adapters RBI, NSE, BSE entirely. Lookup = NSDL (live) + india-isin-data snapshot (offline seed).",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "https://github.com/Adi-Mudi/dk-bond-tracker/issues/340",
-      "status": "CLOSED",
-      "resolution": "Removal executed on backend-design-upgrade @ 54d0a6b0; local tier 717 passed / 0 failed; src+tests sweep shows zero dead-source references outside design docs."
-    },
-    {
-      "id": "D2",
-      "date": "2026-11-25",
-      "decision": "The final core website list (12 sites) is fixed as the reference stack for backend source planning: NSDL, CDSL, BSE, NSE, RBI, SEBI, CRISIL, ICRA, CARE, Acuite, India Ratings, SEBI-SMARTODR. Scraping feasibility is tracked separately per site; the list itself is the canonical core, not filtered by reachability.",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "recorded in backend/docs/broker_data_sources_research_20261125.json (final_core_website_list)",
-      "status": "CONFIRMED",
-      "resolution": ""
-    },
-    {
-      "id": "D3",
-      "date": "2026-11-25",
-      "decision": "NSDL, BSE, NSE and the credit rating agencies are EXISTENTIAL sources - the product is waste without them. All 12 core sites (D2) are targeted for data collection: browser-fingerprint-compatible clients, cookie warm-up, polite rates, public data only. Boundary: no auth bypass, no login-wall circumvention, no high-frequency hammering - collection, not hacking (developer framing 2026-11-25).",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "",
-      "status": "CONFIRMED",
-      "resolution": ""
-    },
-    {
-      "id": "D4",
-      "date": "2026-11-25",
-      "decision": "DOWNLOAD-FIRST policy: prefer official download paths (bulk files, public JSON APIs, RSS feeds) over scraping for all 12 core sites; respect each site's policy (robots.txt, terms). WAF-circumvention scraping is HELD — not implemented; scrape-only sites stay listed separately pending explicit developer authorization per site. agy worker is a STANDING research lane (never auto-closed, developer order 2026-11-25; overrides Q6 auto-close for this worker); PM runs the second parallel lane; both collect independently and report to t1w4.",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "",
-      "status": "CONFIRMED",
-      "resolution": ""
-    },
-    {
-      "id": "D5",
-      "date": "2026-11-25",
-      "decision": "Design updates are IN PLACE: any developer-requested change to a Stitch design is applied to the SAME screen (stitch edit screen <screen-id>) and re-downloaded to the SAME file path (backend/docs/backend_dataflow_design.html). Never create a new project or new file for a redesign. Backend dataflow board lives in project 15011707192751656421, screen 28fd218f81964d69bd7fb9036a663a12.",
-      "approved_by": "developer, 2026-11-25",
-      "issue": "",
-      "status": "CONFIRMED",
-      "resolution": "Canvas: latest CLEAN node bb197d2dfa184cc7be46d50ee86e2e59 (stitch edit multi-run corruption at 0cf1b750 discarded). FILE is ahead of Canvas: user-flow band + API mapping band inserted + SLA chip removed, pending Canvas sync (logged). File: backend/docs/backend_dataflow_design.html"
-    }
-  ],
-  "findings": [
-    {
-      "id": "F3",
-      "date": "2026-11-25",
-      "topic": "T2 inputs — scraping stack research for all 12 core sites",
-      "summary": "Two parallel research streams. PM stream: backend/docs/research/pm_scraping_research_20261125.json — per-site feasibility + technique, library comparison (curl_cffi for WAF sites RBI/BSE/NSE, plain httpx for NSDL/agencies, playwright last resort), prior art (jugaad-data, nsepython, nsetools, cloudscraper), framework = existing Adapter protocol + pluggable transports + cookie-priming SessionManager. agy stream: separate agent writing backend/docs/research/agy_scraping_research_20261125.json (report contract: hc send t1w4).",
-      "key_call": "RBI 418 and BSE 403 are TLS-fingerprint/WAF rejections; curl_cffi impersonation is the known fix; BSE needs the cookie-priming wiring our code already half-has (COOKIE_PRIME_URL)."
-    },
-    {
-      "id": "F2",
-      "date": "2026-11-25",
-      "topic": "T3 contract inputs — primary data resources behind GoldenPi, IndiaBonds, Grip Invest",
-      "summary": "All three user brokers share the same primary stack: SEBI OBPP framework (CIR 2024/54), BSE+NSE debt segments (membership: GP 6809/90331, IB 6811/90316, Grip 90319), NSDL depository (IB DP IN305103, Grip DP IN304877), SEBI-registered rating agencies (CRISIL/ICRA/CARE/Acuite/India Ratings), RBI for G-sec/FD. Detail: backend/docs/broker_data_sources_research_20261125.json.",
-      "relevance": "Our NSDL adapter already mirrors the brokers' primary resource; rating rationales are the next candidate official-facts source. Exchange public feeds block non-members — not viable adapters."
-    },
-    {
-      "id": "F1",
-      "date": "2026-11-25",
-      "topic": "T1 adapter inventory and live health",
-      "summary": "4 web adapters + 1 local snapshot source. Live test 2026-11-25: NSDL WORKING (HTTP 200, facts returned on 3 sample ISINs); RBI NOT FUNCTIONING (HTTP 418 blocked); NSE NOT FUNCTIONING (HTTP 404, DEBT_SECURITY_MASTER.csv gone); BSE NOT FUNCTIONING (HTTP 403 even with browser headers, cookie priming never wired into http_get).",
-      "endpoints": {
-        "NSDL": "https://nsdl.com/web/api/v1/participant/search",
-        "RBI": "https://rbi.org.in/downloadables/gsec_sdl_tbill.json",
-        "NSE": "https://nsearchives.nseindia.com/content/debt/DEBT_SECURITY_MASTER.csv",
-        "BSE": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w",
-        "SNAPSHOT": "local src/bond_master/data/india_isin_snapshot.json (46715 rows, india-isin-data 11-Nov-2026, CC0)"
-      },
-      "code_refs": [
-        "src/bond_master/nsdl.py",
-        "src/bond_master/rbi.py",
-        "src/bond_master/nse.py",
-        "src/bond_master/bse.py",
-        "src/bond_master/service.py",
-        "src/bond_master/transport.py"
-      ],
-      "evidence": "probe script /tmp/adapter_probe.py, raw HTTP status check 2026-11-25"
-    },
-    {
-      "id": "F4",
-      "date": "2026-11-25",
-      "topic": "T2 — community handling recipe extracted from nsepython 2.101 source",
-      "summary": "Full working recipe for Akamai-protected sites: curl_cffi impersonate=chrome124 -> warm-up GET / then /option-chain (harvests nsit/_abck/ak_bmsc/bm_sv cookies) -> API calls with Accept+Referer headers -> re-warm+retry on 401/403/404/429/503 -> endpoint fallback rewriting -> Playwright cookie harvest as last resort -> descriptive errors never silent empties. Detail: backend/docs/research/nse_recipe_extraction_20261125.json.",
-      "relevance": "Transfers directly: NSE all steps; BSE via www.bseindia.com priming (our unwired COOKIE_PRIME_URL); RBI via fingerprint impersonation; agencies plain."
-    },
-    {
-      "id": "F5",
-      "date": "2026-11-25",
-      "topic": "T2 — merged scraping research (PM stream F3/F4 + agy stream)",
-      "summary": "Both streams agree; agy adds live-verified official endpoints: NSDL bulk ISIN CSV (securities_isin_code id-listing -> ISIN_DETAILS_18-Nov-2026.csv, HTTP 200 — fresher than our 11-Nov snapshot), RBI 3 RSS feeds (200 XML, no scraping needed), SEBI RSS (200), CRISIL AEM JSON servlet rating_sme_listing_service.json (200, metadata: companyCode/ratingDate/ratingFileName) + direct RatingDocs rationale HTML (200, 93KB), CDSL popup-isin.aspx, Acuite connect.acuite.in/liveratings, ICRA ShowRationaleReport. NSE/BSE confirmed impersonation-required. SCORES/SmartODR: DO_NOT_SCRAPE (authenticated PII) — matches D3 boundary. CRISIL robots.txt disallows specific bot UAs (Scrapy/GPTBot etc.) - keep identified custom UA + polite rates.",
-      "relevance": "Recommended stack (merged): stdlib/httpx for NSDL+RSS+bulk CSV; curl_cffi chrome-impersonation for RBI/BSE/NSE; lxml/bs4 for rationale HTML; Playwright only for offline SPA discovery (India Ratings); nsepython 7-step recipe (F4) as the handling blueprint. Files: research/pm_scraping_research_20261125.json + research/agy_scraping_research_20261125.json + research/nse_recipe_extraction_20261125.json."
-    },
-    {
-      "id": "F6",
-      "date": "2026-11-25",
-      "topic": "T2 — download endpoints cross-verified by PM stream",
-      "summary": "Independent re-verification (identified UA, polite GETs): NSDL bulk discovery 200 (JSON file listing), CRISIL rating_sme_listing_service.json 200 (live docs: companyCode/ratingDate/heading), RBI pressreleases_rss.xml 200 XML, SEBI sebirss.xml 200 XML. Matches agy findings; download-first is viable for ISIN master + ratings metadata + regulator feeds without any scraping.",
-      "relevance": "Exists D2 existential coverage without scraping except NSE/BSE instrument masters, which remain HELD per D4."
-    },
-    {
-      "id": "F7",
-      "date": "2026-11-25",
-      "topic": "T2 — deep data-quality proof beyond HTTP 200 (PM stream)",
-      "summary": "NSDL official bulk CSV PROVEN: discovery field 'f' -> /nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv, 200, 264,221 rows (186,123 corporate INE), columns ISIN/NAME_OF_ISSUER/SECURITY_DESCRIPTION/CURRENCY/INTEREST_RATE/MATURITY_DATE/FISN/CFI — 5.6x our bundled snapshot, replaces it as master. BSE debt master PROVEN: ListofScripData segment=Debentures and Bonds WITH Referer+Origin headers (complete param set) -> 200, 5,475 active debt scrips with ISIN_NUMBER/FACE_VALUE/Issuer_Name/SCRIP_CD — no scraping needed, full browser headers only (D1's 403 was incomplete params/headers). CRISIL proven at depth: 200 docs/page incl. large corporates (Tata International, Nov 24 2026), fields companyCode/companyName/industryName/ratingDate/heading/ratingFileName.",
-      "limitations": "NSDL CSV lacks rating/payout_cycle/face_value/listing_status (covered by CRISIL+BSE instead). BSE returns Active only. CRISIL covers CRISIL-rated bonds only; rationale body needs per-doc HTML fetch. NSE remains the only site without a download-first path (held per D4)."
-    },
-    {
-      "id": "F8",
-      "date": "2026-11-25",
-      "topic": "ISM (ISIN master) collection — NSE cracked via official API; trifecta complete",
-      "summary": "NSE IS SOLVED without bypass: /api/daily-reports answers 200 on plain stdlib (param key={CM|SLBS|CD|CBM|FO|NBF|INDEX|WDM}) and returns official file URLs on the correct archives domain nsearchives.nseindia.IN (the earlier 404 was the wrong .com host). key=WDM lists WDM-SEC-AVAILABLE-FOR-TRADE -> wdmlist_23112026.csv (HTTP 200, 1.24 MB, 10,624 securities, 3,695 corporate INE) with SECTYPE/SECURITY/ISSUE_NAME(coupon)/ISSUE_DESC/ISSUE_DATE/MAT_DATE/Last IP Dt/Next IP Dt/Cpn Freq(payout cycle)/Last Traded/ISIN NO./STATUS. ISIN-master trifecta: NSDL bulk CSV 264,221 rows + BSE debt 5,475 + NSE WDM 10,624 - all plain polite GETs.",
-      "relevance": "All three ISM sources download-first verified; NSE leaves the HELD list; WDM file adds Cpn Freq + Next IPDt which NSDL CSV lacks - direct feed for the payment ledger."
-    },
-    {
-      "id": "F9",
-      "date": "2026-11-25",
-      "topic": "ISM/download-first — merged final channel map (PM + agy lanes combined)",
-      "summary": "agy inventory: 59 channels (43 DOWNLOAD / 10 LIGHT / 6 SCRAPE-ONLY). New gold: NSDL 10 bulk XLS/XLSX debt datasets (28.8MB: Debt Instruments, Redeemed, CP, CD, Preference, Securitised, Defaulted) at nsdl.com/resources/data/detailed-list-debt-instruments; India Ratings UNAUTHENTICATED JSON APIs (home/GetSearch, home/GetIssuerPressReleases, pressReleases/GetPressreleaseData with ISIN annexures — SPA problem solved); CARE unauthenticated JSON (getSearchprintrating, getSearchrrddata) + direct PDFs without OTP; CRISIL Solr cmd=DR searchable BY ISIN; ICRA direct rationale PDFs (GetRationalReportFilePdf); Acuite 39,267-URL sitemap; CDSL PreferenceShares_data.xlsx + securitised_debt_instruments.xlsx + CorpBondDatabase.aspx; RBI 7 RSS; BSE notices/announcements RSS + OBP_MEMBER_LIST.zip.",
-      "reconciliation": "Two agy classifications corrected by PM live proofs: NSE is NOT scrape-only (F8: daily-reports API 200 + wdmlist CSV 10,624 rows verified); BSE ListofScripData is NOT held (F7: 200 with Referer/Origin + complete params, 5,475 debt scrips verified twice). True SCRAPE-ONLY remainder for bond data: NONE. DBIE SPA superseded by RBI RSS; NSDL BondInfo SPA superseded by nsdl.com bulk; SCORES/SmartODR out of scope per D3/D4.",
-      "relevance": "FINAL: all 12 sites served download-first; zero scraping required for the full existential stack (ISIN master + ratings + regulator feeds)."
-    },
-    {
-      "id": "F10",
-      "date": "2026-11-25",
-      "topic": "Backend design verification round 2 (agy) — code-accuracy findings",
-      "summary": "agy verified expanded board against src/views + src/db.py + tests: (1) KEY STRATEGIC FACT: current backend is HTML-first — only 7 JSON endpoints exist; the Flutter JSON API layer is a real design/build item for the new backend. (2) API fixes: /watch/lookup is GET; missing routes GET /portfolio/<id>, POST /portfolio/invalid/<id>/remove, POST /watch/lookup/applied, POST /update/dismiss now added. (3) Data model nuances: notifications/clear = alerts_cleared_through watermark (rows kept); bond_master table = single source + fetched_at (per-field provenance in merge results only). (4) Business rules corrected: lifecycle = company-OR-ISIN lock unlocking on Completed; ERR-entry guard watch-only rule; reinvestment = principal free-up report; privacy mode = client-side CSS/JS + share/print flag (server JSON masking NOT implemented). (5) Feature chips de-embellished: mailer no retry/audit, share HTML/CSV only, updater semver check only. (6) Lookup order corrected: session cache -> DB cache -> snapshot seed -> live NSDL -> merge. All applied in-place (D5).",
-      "relevance": "The HTML-first finding shapes the Flutter backend wave: a proper JSON API layer must be designed, not assumed."
-    },
-    {
-      "id": "F11",
-      "date": "2026-11-25",
-      "topic": "Backend design mandatory checklist — final, grounded in official documentation",
-      "summary": "Sources: arc42 12-section template (arc42.org), C4 model (c4model.com), 12-Factor App (12factor.net), Azure Well-Architected pillars (learn.microsoft.com/en-us/azure/well-architected/pillars). Final 16-item mandatory list for the backend design: 1 system context/scope, 2 building-block view, 3 runtime/data-flow view, 4 API contract per endpoint (request/response shapes, codes), 5 data model + schema detail + migrations, 6 deployment view/packaging, 7 cross-cutting concepts (security+secrets, observability/logging, validation, error handling), 8 background jobs + scheduling design, 9 NFR targets as measurable quality scenarios, 10 reliability + recovery (backup/restore, degradation), 11 retention + data governance decisions, 12 versioning + compatibility, 13 testing strategy, 14 dependencies + ADRs, 15 risks + technical debt, 16 glossary. DQ decision: database design is a SECTION of the backend design (arc42 building-block/cross-cutting + C4 container), not a separate document - single SQLite, single product, single developer; split only if the data layer becomes an independent service.",
-      "relevance": "This checklist becomes the backend-design review standard (candidate project skill content) and the fill-list for the remaining board gaps (items 4,5,6,7,8,9,12,14,15 absent today)."
-    },
-    {
-      "id": "F12",
-      "date": "2026-11-25",
-      "topic": "ISM — outside-in restructure applied + stitch multi-run failure root-caused",
-      "summary": "Board restructured outside-in per upgraded skill: USER FLOWS band (UF1 install/seed, UF2 add-position lookup [session cache -> DB cache -> snapshot seed -> NSDL -> merge -> rating gate], UF3 daily local reads, UF4 manual refresh, UF5 auto-fetch consent+12h, UF6 background master refresh [per-source cadences], UF9 degradation [failure code -> last-good -> never blocks]) + API REQUEST FLOWS mapping table (GET /watch/lookup, POST /portfolio/<id>/refresh, consent+sync, local reads, background). Recovered from stitch multi-run corruption: re-downloaded clean bb197d2d, surgical python insertion, duplication check passed (1 band, all kept sections intact).",
-      "relevance": "Skill hardened (board-process.md Failure counter); D5 notes file-ahead-of-Canvas pending sync."
-    }
-  ],
-  "change_log": [
-    {
-      "date": "2026-11-25",
-      "change": "v1.0 created: locked context, agenda T1-T5, merge synchronization policy"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.1: F1 adapter health finding added (NSDL up; RBI 418, NSE 404, BSE 403)"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.2: D1 recorded and CLOSED — RBI/NSE/BSE adapters removed per issue #340; tests rewritten single-source; local tier green 717/0"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.3: F2 added — broker primary-resource research (GoldenPi/IndiaBonds/Grip) collected via urllib scraper; evidence in backend/docs/broker_data_sources_research_20261125.json"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.4: D2 CONFIRMED — final core website list (12 sites) fixed in broker_data_sources_research_20261125.json"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.5: F3 added — scraping-stack research (PM stream done; agy stream running, report to t1w4)"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.6: F4 community recipe extracted (nsepython source); D3 CONFIRMED — existential sources, penetration authorized for public-data collection within stated boundary"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.7: F5 merged research — agy stream DONE (12 sites, live-verified endpoints); both streams cross-checked, no conflicts; agy worker t1w6 closed per Q6"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.8: D4 CONFIRMED download-first policy + standing agy worker; F6 PM cross-verification of 4 download endpoints"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v1.9: F7 — deep proofs: NSDL bulk CSV 264k rows, BSE debt master 5,475 scrips via header'd GET, CRISIL depth-verified; limitations recorded"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.0: F8 — NSE solved via daily-reports API + nsearchives.nseindia.in; ISM trifecta proven (NSDL+BSE+NSE), all download-first"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.1: F9 merged final channel map — 59 channels, both lanes reconciled, zero scraping needed for bond data"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.2: D5 CONFIRMED in-place design updates; dataflow board exported to backend/docs/backend_dataflow_design.html; agy verification dispatched (t1w7)"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.3: agy verification found 13 defects; all corrections applied via in-place edit (D5) - same screen chain, same file; re-downloaded"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.4: board expanded in place - features, API surface (40 routes), screen-calls mapping, business rules, data model + retention, data flow strip, failure overlay; agy verification dispatched"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.5: F10 round-2 verification fixes applied in-place; board chain 28fd218f -> 69b39777 -> 98f2c832 -> a6d2b657"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.6: F11 final mandatory backend-design checklist (16 items) grounded in arc42/C4/12-Factor/Azure-WA; DQ: database design included in backend design"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.7: backend-design skill authored (.agents/skills/backend-design/SKILL.md) and application-tested - subagent found 10 invented claims + gaps 6/16; all fixed in-place; deployment/testing/ADRs/risks/glossary/NFR sections added with code-truth content"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.8: keep/remove audit applied — 6 removals (duplicate cards, SLA metric, decorative chips, dead link) + 8 in-place fixes (displaced rules restored, SLA demoted to proposed, cadence/labels corrected)"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.8.1: last SLA remnant chip surgically removed from exported file; Canvas node carries it pending next edit cycle"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v2.9: backend-design skill upgraded — outside-in design order (user flows -> API request flows -> data flows -> background work -> failure -> cross-cutting), dependency rule (absent prerequisite = scope creep), section classification STANDARD/CONDITIONAL/OPTIONAL grounded in arc42/C4/12-Factor/Azure-WA; checklist items 1/3/8 amended"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v3.0: backend-design skill split into reference files per developer decision — SKILL.md lean entry (~330 words: overview, design order, classification, process, policy anchors, file index) + checklist.md + red-flags.md + board-process.md; one skill entry, no drift"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v3.1: web-scraping design restructured from user flow per new skill order — UF1/UF2/UF3/UF4/UF5/UF6/UF9 defined, API request flows mapped, source columns retagged per flow"
-    },
-    {
-      "date": "2026-11-25",
-      "change": "v3.2: F12 — outside-in restructure recovered deterministically from stitch multi-run corruption; skill Failure counter added; Canvas/file divergence logged in D5"
-    }
-  ]
+  {
+   "id": "T3",
+   "title": "Contract between frontend and backend",
+   "mode": "design",
+   "status": "OPEN"
+  },
+  {
+   "id": "T4",
+   "title": "Database table design",
+   "mode": "design",
+   "status": "OPEN"
+  },
+  {
+   "id": "T5",
+   "title": "Backend implementation",
+   "mode": "implementation",
+   "status": "BLOCKED",
+   "notes": "starts only after T2, T3, T4 are designed and locked"
+  }
+ ],
+ "decisions": [
+  {
+   "id": "D1",
+   "date": "2026-11-25",
+   "decision": "Remove the dead web adapters RBI, NSE, BSE entirely. Lookup = NSDL (live) + india-isin-data snapshot (offline seed).",
+   "approved_by": "developer, 2026-11-25",
+   "issue": "https://github.com/Adi-Mudi/dk-bond-tracker/issues/340",
+   "status": "CLOSED",
+   "resolution": "Removal executed on backend-design-upgrade @ 54d0a6b0; local tier 717 passed / 0 failed; src+tests sweep shows zero dead-source references outside design docs."
+  },
+  {
+   "id": "D2",
+   "date": "2026-11-25",
+   "decision": "The final core website list (12 sites) is fixed as the reference stack for backend source planning: NSDL, CDSL, BSE, NSE, RBI, SEBI, CRISIL, ICRA, CARE, Acuite, India Ratings, SEBI-SMARTODR. Scraping feasibility is tracked separately per site; the list itself is the canonical core, not filtered by reachability.",
+   "approved_by": "developer, 2026-11-25",
+   "issue": "recorded in backend/docs/broker_data_sources_research_20261125.json (final_core_website_list)",
+   "status": "CONFIRMED",
+   "resolution": ""
+  },
+  {
+   "id": "D3",
+   "date": "2026-11-25",
+   "decision": "NSDL, BSE, NSE and the credit rating agencies are EXISTENTIAL sources - the product is waste without them. All 12 core sites (D2) are targeted for data collection: browser-fingerprint-compatible clients, cookie warm-up, polite rates, public data only. Boundary: no auth bypass, no login-wall circumvention, no high-frequency hammering - collection, not hacking (developer framing 2026-11-25).",
+   "approved_by": "developer, 2026-11-25",
+   "issue": "",
+   "status": "CONFIRMED",
+   "resolution": ""
+  },
+  {
+   "id": "D4",
+   "date": "2026-11-25",
+   "decision": "DOWNLOAD-FIRST policy: prefer official download paths (bulk files, public JSON APIs, RSS feeds) over scraping for all 12 core sites; respect each site's policy (robots.txt, terms). WAF-circumvention scraping is HELD — not implemented; scrape-only sites stay listed separately pending explicit developer authorization per site. agy worker is a STANDING research lane (never auto-closed, developer order 2026-11-25; overrides Q6 auto-close for this worker); PM runs the second parallel lane; both collect independently and report to t1w4.",
+   "approved_by": "developer, 2026-11-25",
+   "issue": "",
+   "status": "CONFIRMED",
+   "resolution": ""
+  },
+  {
+   "id": "D5",
+   "date": "2026-11-25",
+   "decision": "Design updates are IN PLACE: any developer-requested change to a Stitch design is applied to the SAME screen (stitch edit screen <screen-id>) and re-downloaded to the SAME file path (backend/docs/backend_dataflow_design.html). Never create a new project or new file for a redesign. Backend dataflow board lives in project 15011707192751656421, screen 28fd218f81964d69bd7fb9036a663a12.",
+   "approved_by": "developer, 2026-11-25",
+   "issue": "",
+   "status": "CONFIRMED",
+   "resolution": "Canvas: latest CLEAN node bb197d2dfa184cc7be46d50ee86e2e59 (stitch edit multi-run corruption at 0cf1b750 discarded). FILE is ahead of Canvas: user-flow band + API mapping band inserted + SLA chip removed, pending Canvas sync (logged). File: backend/docs/backend_dataflow_design.html"
+  },
+  {
+   "id": "D6",
+   "date": "2026-11-26",
+   "decision": "Backend framework: KEEP Flask 3.1.3, evolved in-place into JSON-first Blueprints (stdlib dataclasses/validators as the contract layer; optionally Waitress 3.0.2 pure-Python or the existing Werkzeug make_server as the on-device server). FastAPI and Litestar are RULED OUT by verified fact: pydantic-core 2.50.5 ships 0 Android wheels (0/140 on PyPI, verified live; chaquo.com 404; chaquopy#1017 open), msgspec 0/81 - their native cores cannot install on-device. Uvicorn crashes in secondary Android threads on signal handling. The revamp = HTML-to-JSON route conversion in src/views/*.py (bounded, route-by-route, guarded by the 717-test suite). Serving mode (localhost HTTP vs platform-channel bridge) to be decided WITH the frontend agent before the JSON API wave; the locked JSON contract is identical in both modes.",
+   "approved_by": "developer, 2026-11-26 (both research streams converged: PM report pm_framework_research_20261126.json + agy report agy_framework_research_20261126.json; pydantic-core Android-wheel absence independently verified live on PyPI)",
+   "issue": "",
+   "status": "CONFIRMED",
+   "resolution": ""
+  },
+  {
+   "id": "D7",
+   "date": "2026-11-26",
+   "decision": "CLEAN-SLATE BACKEND STACK (old backend deleted, fresh rewrite): Flask 3.1.3 + flask-smorest 0.47.0 (Marshmallow 4.4 + apispec OpenAPI 3.0 = the Flutter contract layer, declarative request/response validation) + Waitress 3.0.2 or Werkzeug make_server (Mode A: localhost HTTP in-app). Pure-Python download tooling: httpx, feedparser, openpyxl, stdlib csv/json/zip. Runner-up Mode B: Chaquopy MethodChannel bridge + stdlib dataclasses/sqlite3 (no HTTP server). FastAPI flips to primary ONLY when pydantic-core ships official cp313/cp314 Android arm64_v8a+x86_64 wheels on PyPI. RULED OUT on-device: APIFlask (pulls pydantic>=2.0), Litestar (msgspec 0/81), Django-Ninja (pydantic>=2.0), Uvicorn-unpatched. Both research streams (PM + agy) converged independently.",
+   "approved_by": "developer, 2026-11-26 (both streams converged: pm_framework_v2_research_20261126.json + agy_framework_v2_research_20261126.json)",
+   "issue": "",
+   "status": "CONFIRMED",
+   "resolution": ""
+  },
+  {
+   "id": "D8",
+   "date": "2026-11-26",
+   "decision": "UNIFORM ADAPTER OUTPUT: every adapter emits the SAME canonical JSON record format (ISIN-keyed instrument facts + provenance + as-of), regardless of the source's native format (CSV/XLSX/JSON/RSS/HTML). No adapter invents its own output format. Raw source files are archived AS-IS in the raw file store (native format preserved, checksum + last-good) - the native format is an archived artifact, never the adapter output. JSON chosen over CSV: native nulls, nested provenance maps, no quoting/escaping issues, identical shapes feed both the SQLite upsert and the Flutter JSON API layer.",
+   "approved_by": "developer, 2026-11-26 (developer asked CSV-or-JSON; JSON recommended and accepted direction)",
+   "issue": "",
+   "status": "CONFIRMED",
+   "resolution": ""
+  }
+ ],
+ "findings": [
+  {
+   "id": "F3",
+   "date": "2026-11-25",
+   "topic": "T2 inputs — scraping stack research for all 12 core sites",
+   "summary": "Two parallel research streams. PM stream: backend/docs/research/pm_scraping_research_20261125.json — per-site feasibility + technique, library comparison (curl_cffi for WAF sites RBI/BSE/NSE, plain httpx for NSDL/agencies, playwright last resort), prior art (jugaad-data, nsepython, nsetools, cloudscraper), framework = existing Adapter protocol + pluggable transports + cookie-priming SessionManager. agy stream: separate agent writing backend/docs/research/agy_scraping_research_20261125.json (report contract: hc send t1w4).",
+   "key_call": "RBI 418 and BSE 403 are TLS-fingerprint/WAF rejections; curl_cffi impersonation is the known fix; BSE needs the cookie-priming wiring our code already half-has (COOKIE_PRIME_URL)."
+  },
+  {
+   "id": "F2",
+   "date": "2026-11-25",
+   "topic": "T3 contract inputs — primary data resources behind GoldenPi, IndiaBonds, Grip Invest",
+   "summary": "All three user brokers share the same primary stack: SEBI OBPP framework (CIR 2024/54), BSE+NSE debt segments (membership: GP 6809/90331, IB 6811/90316, Grip 90319), NSDL depository (IB DP IN305103, Grip DP IN304877), SEBI-registered rating agencies (CRISIL/ICRA/CARE/Acuite/India Ratings), RBI for G-sec/FD. Detail: backend/docs/broker_data_sources_research_20261125.json.",
+   "relevance": "Our NSDL adapter already mirrors the brokers' primary resource; rating rationales are the next candidate official-facts source. Exchange public feeds block non-members — not viable adapters."
+  },
+  {
+   "id": "F1",
+   "date": "2026-11-25",
+   "topic": "T1 adapter inventory and live health",
+   "summary": "4 web adapters + 1 local snapshot source. Live test 2026-11-25: NSDL WORKING (HTTP 200, facts returned on 3 sample ISINs); RBI NOT FUNCTIONING (HTTP 418 blocked); NSE NOT FUNCTIONING (HTTP 404, DEBT_SECURITY_MASTER.csv gone); BSE NOT FUNCTIONING (HTTP 403 even with browser headers, cookie priming never wired into http_get).",
+   "endpoints": {
+    "NSDL": "https://nsdl.com/web/api/v1/participant/search",
+    "RBI": "https://rbi.org.in/downloadables/gsec_sdl_tbill.json",
+    "NSE": "https://nsearchives.nseindia.com/content/debt/DEBT_SECURITY_MASTER.csv",
+    "BSE": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w",
+    "SNAPSHOT": "local src/bond_master/data/india_isin_snapshot.json (46715 rows, india-isin-data 11-Nov-2026, CC0)"
+   },
+   "code_refs": [
+    "src/bond_master/nsdl.py",
+    "src/bond_master/rbi.py",
+    "src/bond_master/nse.py",
+    "src/bond_master/bse.py",
+    "src/bond_master/service.py",
+    "src/bond_master/transport.py"
+   ],
+   "evidence": "probe script /tmp/adapter_probe.py, raw HTTP status check 2026-11-25"
+  },
+  {
+   "id": "F4",
+   "date": "2026-11-25",
+   "topic": "T2 — community handling recipe extracted from nsepython 2.101 source",
+   "summary": "Full working recipe for Akamai-protected sites: curl_cffi impersonate=chrome124 -> warm-up GET / then /option-chain (harvests nsit/_abck/ak_bmsc/bm_sv cookies) -> API calls with Accept+Referer headers -> re-warm+retry on 401/403/404/429/503 -> endpoint fallback rewriting -> Playwright cookie harvest as last resort -> descriptive errors never silent empties. Detail: backend/docs/research/nse_recipe_extraction_20261125.json.",
+   "relevance": "Transfers directly: NSE all steps; BSE via www.bseindia.com priming (our unwired COOKIE_PRIME_URL); RBI via fingerprint impersonation; agencies plain."
+  },
+  {
+   "id": "F5",
+   "date": "2026-11-25",
+   "topic": "T2 — merged scraping research (PM stream F3/F4 + agy stream)",
+   "summary": "Both streams agree; agy adds live-verified official endpoints: NSDL bulk ISIN CSV (securities_isin_code id-listing -> ISIN_DETAILS_18-Nov-2026.csv, HTTP 200 — fresher than our 11-Nov snapshot), RBI 3 RSS feeds (200 XML, no scraping needed), SEBI RSS (200), CRISIL AEM JSON servlet rating_sme_listing_service.json (200, metadata: companyCode/ratingDate/ratingFileName) + direct RatingDocs rationale HTML (200, 93KB), CDSL popup-isin.aspx, Acuite connect.acuite.in/liveratings, ICRA ShowRationaleReport. NSE/BSE confirmed impersonation-required. SCORES/SmartODR: DO_NOT_SCRAPE (authenticated PII) — matches D3 boundary. CRISIL robots.txt disallows specific bot UAs (Scrapy/GPTBot etc.) - keep identified custom UA + polite rates.",
+   "relevance": "Recommended stack (merged): stdlib/httpx for NSDL+RSS+bulk CSV; curl_cffi chrome-impersonation for RBI/BSE/NSE; lxml/bs4 for rationale HTML; Playwright only for offline SPA discovery (India Ratings); nsepython 7-step recipe (F4) as the handling blueprint. Files: research/pm_scraping_research_20261125.json + research/agy_scraping_research_20261125.json + research/nse_recipe_extraction_20261125.json."
+  },
+  {
+   "id": "F6",
+   "date": "2026-11-25",
+   "topic": "T2 — download endpoints cross-verified by PM stream",
+   "summary": "Independent re-verification (identified UA, polite GETs): NSDL bulk discovery 200 (JSON file listing), CRISIL rating_sme_listing_service.json 200 (live docs: companyCode/ratingDate/heading), RBI pressreleases_rss.xml 200 XML, SEBI sebirss.xml 200 XML. Matches agy findings; download-first is viable for ISIN master + ratings metadata + regulator feeds without any scraping.",
+   "relevance": "Exists D2 existential coverage without scraping except NSE/BSE instrument masters, which remain HELD per D4."
+  },
+  {
+   "id": "F7",
+   "date": "2026-11-25",
+   "topic": "T2 — deep data-quality proof beyond HTTP 200 (PM stream)",
+   "summary": "NSDL official bulk CSV PROVEN: discovery field 'f' -> /nsdl/2026-11/ISIN_DETAILS_18-Nov-2026.csv, 200, 264,221 rows (186,123 corporate INE), columns ISIN/NAME_OF_ISSUER/SECURITY_DESCRIPTION/CURRENCY/INTEREST_RATE/MATURITY_DATE/FISN/CFI — 5.6x our bundled snapshot, replaces it as master. BSE debt master PROVEN: ListofScripData segment=Debentures and Bonds WITH Referer+Origin headers (complete param set) -> 200, 5,475 active debt scrips with ISIN_NUMBER/FACE_VALUE/Issuer_Name/SCRIP_CD — no scraping needed, full browser headers only (D1's 403 was incomplete params/headers). CRISIL proven at depth: 200 docs/page incl. large corporates (Tata International, Nov 24 2026), fields companyCode/companyName/industryName/ratingDate/heading/ratingFileName.",
+   "limitations": "NSDL CSV lacks rating/payout_cycle/face_value/listing_status (covered by CRISIL+BSE instead). BSE returns Active only. CRISIL covers CRISIL-rated bonds only; rationale body needs per-doc HTML fetch. NSE remains the only site without a download-first path (held per D4)."
+  },
+  {
+   "id": "F8",
+   "date": "2026-11-25",
+   "topic": "ISM (ISIN master) collection — NSE cracked via official API; trifecta complete",
+   "summary": "NSE IS SOLVED without bypass: /api/daily-reports answers 200 on plain stdlib (param key={CM|SLBS|CD|CBM|FO|NBF|INDEX|WDM}) and returns official file URLs on the correct archives domain nsearchives.nseindia.IN (the earlier 404 was the wrong .com host). key=WDM lists WDM-SEC-AVAILABLE-FOR-TRADE -> wdmlist_23112026.csv (HTTP 200, 1.24 MB, 10,624 securities, 3,695 corporate INE) with SECTYPE/SECURITY/ISSUE_NAME(coupon)/ISSUE_DESC/ISSUE_DATE/MAT_DATE/Last IP Dt/Next IP Dt/Cpn Freq(payout cycle)/Last Traded/ISIN NO./STATUS. ISIN-master trifecta: NSDL bulk CSV 264,221 rows + BSE debt 5,475 + NSE WDM 10,624 - all plain polite GETs.",
+   "relevance": "All three ISM sources download-first verified; NSE leaves the HELD list; WDM file adds Cpn Freq + Next IPDt which NSDL CSV lacks - direct feed for the payment ledger."
+  },
+  {
+   "id": "F9",
+   "date": "2026-11-25",
+   "topic": "ISM/download-first — merged final channel map (PM + agy lanes combined)",
+   "summary": "agy inventory: 59 channels (43 DOWNLOAD / 10 LIGHT / 6 SCRAPE-ONLY). New gold: NSDL 10 bulk XLS/XLSX debt datasets (28.8MB: Debt Instruments, Redeemed, CP, CD, Preference, Securitised, Defaulted) at nsdl.com/resources/data/detailed-list-debt-instruments; India Ratings UNAUTHENTICATED JSON APIs (home/GetSearch, home/GetIssuerPressReleases, pressReleases/GetPressreleaseData with ISIN annexures — SPA problem solved); CARE unauthenticated JSON (getSearchprintrating, getSearchrrddata) + direct PDFs without OTP; CRISIL Solr cmd=DR searchable BY ISIN; ICRA direct rationale PDFs (GetRationalReportFilePdf); Acuite 39,267-URL sitemap; CDSL PreferenceShares_data.xlsx + securitised_debt_instruments.xlsx + CorpBondDatabase.aspx; RBI 7 RSS; BSE notices/announcements RSS + OBP_MEMBER_LIST.zip.",
+   "reconciliation": "Two agy classifications corrected by PM live proofs: NSE is NOT scrape-only (F8: daily-reports API 200 + wdmlist CSV 10,624 rows verified); BSE ListofScripData is NOT held (F7: 200 with Referer/Origin + complete params, 5,475 debt scrips verified twice). True SCRAPE-ONLY remainder for bond data: NONE. DBIE SPA superseded by RBI RSS; NSDL BondInfo SPA superseded by nsdl.com bulk; SCORES/SmartODR out of scope per D3/D4.",
+   "relevance": "FINAL: all 12 sites served download-first; zero scraping required for the full existential stack (ISIN master + ratings + regulator feeds)."
+  },
+  {
+   "id": "F10",
+   "date": "2026-11-25",
+   "topic": "Backend design verification round 2 (agy) — code-accuracy findings",
+   "summary": "agy verified expanded board against src/views + src/db.py + tests: (1) KEY STRATEGIC FACT: current backend is HTML-first — only 7 JSON endpoints exist; the Flutter JSON API layer is a real design/build item for the new backend. (2) API fixes: /watch/lookup is GET; missing routes GET /portfolio/<id>, POST /portfolio/invalid/<id>/remove, POST /watch/lookup/applied, POST /update/dismiss now added. (3) Data model nuances: notifications/clear = alerts_cleared_through watermark (rows kept); bond_master table = single source + fetched_at (per-field provenance in merge results only). (4) Business rules corrected: lifecycle = company-OR-ISIN lock unlocking on Completed; ERR-entry guard watch-only rule; reinvestment = principal free-up report; privacy mode = client-side CSS/JS + share/print flag (server JSON masking NOT implemented). (5) Feature chips de-embellished: mailer no retry/audit, share HTML/CSV only, updater semver check only. (6) Lookup order corrected: session cache -> DB cache -> snapshot seed -> live NSDL -> merge. All applied in-place (D5).",
+   "relevance": "The HTML-first finding shapes the Flutter backend wave: a proper JSON API layer must be designed, not assumed."
+  },
+  {
+   "id": "F11",
+   "date": "2026-11-25",
+   "topic": "Backend design mandatory checklist — final, grounded in official documentation",
+   "summary": "Sources: arc42 12-section template (arc42.org), C4 model (c4model.com), 12-Factor App (12factor.net), Azure Well-Architected pillars (learn.microsoft.com/en-us/azure/well-architected/pillars). Final 16-item mandatory list for the backend design: 1 system context/scope, 2 building-block view, 3 runtime/data-flow view, 4 API contract per endpoint (request/response shapes, codes), 5 data model + schema detail + migrations, 6 deployment view/packaging, 7 cross-cutting concepts (security+secrets, observability/logging, validation, error handling), 8 background jobs + scheduling design, 9 NFR targets as measurable quality scenarios, 10 reliability + recovery (backup/restore, degradation), 11 retention + data governance decisions, 12 versioning + compatibility, 13 testing strategy, 14 dependencies + ADRs, 15 risks + technical debt, 16 glossary. DQ decision: database design is a SECTION of the backend design (arc42 building-block/cross-cutting + C4 container), not a separate document - single SQLite, single product, single developer; split only if the data layer becomes an independent service.",
+   "relevance": "This checklist becomes the backend-design review standard (candidate project skill content) and the fill-list for the remaining board gaps (items 4,5,6,7,8,9,12,14,15 absent today)."
+  },
+  {
+   "id": "F12",
+   "date": "2026-11-25",
+   "topic": "ISM — outside-in restructure applied + stitch multi-run failure root-caused",
+   "summary": "Board restructured outside-in per upgraded skill: USER FLOWS band (UF1 install/seed, UF2 add-position lookup [session cache -> DB cache -> snapshot seed -> NSDL -> merge -> rating gate], UF3 daily local reads, UF4 manual refresh, UF5 auto-fetch consent+12h, UF6 background master refresh [per-source cadences], UF9 degradation [failure code -> last-good -> never blocks]) + API REQUEST FLOWS mapping table (GET /watch/lookup, POST /portfolio/<id>/refresh, consent+sync, local reads, background). Recovered from stitch multi-run corruption: re-downloaded clean bb197d2d, surgical python insertion, duplication check passed (1 band, all kept sections intact).",
+   "relevance": "Skill hardened (board-process.md Failure counter); D5 notes file-ahead-of-Canvas pending sync."
+  },
+  {
+   "id": "F13",
+   "date": "2026-11-26",
+   "topic": "Framework research merged (PM + agy streams)",
+   "summary": "Both research streams converged on Flask-in-place. Decisive fact, triple-verified: pydantic-core 2.50.5 has 0 Android wheels (PyPI live check 0/140; chaquo.com 404; chaquopy#1017 open, PR #1413 unmerged) - FastAPI cannot install on-device. msgspec (Litestar) 0/81 Android wheels. Uvicorn crashes in secondary Android threads (signal handlers). MarkupSafe (Flask dep) ships 6 Android wheels incl cp313. Reports: research/pm_framework_research_20261126.json + research/agy_framework_research_20261126.json.",
+   "relevance": "Closes checklist item: framework selection. The revamp scope is bounded to HTML-to-JSON route conversion; all service/db/query layers survive unchanged."
+  },
+  {
+   "id": "F14",
+   "date": "2026-11-26",
+   "topic": "Framework research merged (clean-slate framing) — both streams converged",
+   "summary": "PM stream (pm_framework_v2_research_20261126.json) + agy stream (agy_framework_v2_research_20261126.json: 6 frameworks, 9 tooling entries, 55 references) converged independently on Flask 3.1.3 + flask-smorest as the clean-slate stack. CORRECTION caught by agy: Apiflask is ALSO blocked (pulls pydantic>=2.0 -> pydantic-core 0 Android wheels) - contract layer must be flask-smorest, not Apiflask. Django-Ninja + Litestar similarly blocked. Runner-ups: Mode B MethodChannel bridge; Starlette+patched-uvicorn. FastAPI flip condition: official pydantic-core cp313/cp314 Android wheels on PyPI.",
+   "relevance": "Closes the framework-selection item; the JSON contract layer (flask-smorest schemas) doubles as the Flutter contract deliverable (checklist item 4)."
+  },
+  {
+   "id": "F15",
+   "date": "2026-11-26",
+   "topic": "Batch-8 adapter consult (agy) — record-shape + edge-case + cadence answers for the remaining 6 adapters",
+   "summary": "agy batch consult answers: (1) Record-shape gaps: CARE needs instrument/rating_amount/company_id; ICRA sitemap lacks rationale IDs (use AllRatingRationales + ShowRationaleReport?Id=); Acuite lacks ISIN (retain issuer+NCD key), needs product/quantum/rating_status; India Ratings needs instrument/press_release_id/rating_history; NSE WDM needs issue_date/last_ip_dt/next_ip_dt (payouts), sectype, numeric coupon from issue_name. (2) Edge cases: RSS XML namespaces, 0-item batches OK (sebirss/BSE observed), ZIP-containing-XLSX checks, Solr offset drift dedup by id/prId, sitemap lastmod vs real updates. (3) Cadence: NSE WDM daily 2 GETs; per-issuer details on-demand per held/watched; RSS daily ETag/If-Modified-Since; OBP zip monthly; Acuite sitemap weekly. (4) Bulk-file pattern: NSE WDM, Acuite sitemap, BSE zip. (5) ICRA discovery via AllRatingRationales p1 + ShowRationaleReport?Id=.",
+   "relevance": "The build spec for the remaining 6 adapters (CDSL, RBI RSS, SEBI RSS, CARE, ICRA, Acuite) + the 2 already-shipped (NSE WDM, India Ratings)."
+  },
+  {
+   "id": "F16",
+   "date": "2026-11-26",
+   "topic": "D8 as_of backfill + adapter hardening batch (agy verify round)",
+   "summary": "a1ff12e1: utc_as_of() in base.py; as_of on all 5 record builders (bse_bulk/crisil/nse_wdm/india_ratings/care); NSE WDM coupon parsed from ISSUE_NAME (regex X.XX%); CARE documents()/rrd_data() exception handling; India Ratings duplicate except removed + SourceError in issuer_press_releases + press_release_data SourceError returns data:None. 5e44214d: CARE _find_documents stub replaced by _document_records (PRDocument/RRDocument only, Reports/MyCompany bloat filtered — live fixture 23.58MB response); India Ratings annexure_isins() emits 1 record/ISIN from annexure HTML. agy round: CARE '3 pass/5 fail' verdict was STALE (pre-fec4198f); 8/8 then 288/288 bond_master; suite 802 passed / 432 skipped.",
+   "relevance": "Shipped adapters now D8-complete (source+as_of); CARE docs/rrd + India Ratings annexure usable for master refresh."
+  },
+  {
+   "id": "F17",
+   "date": "2026-11-26",
+   "topic": "Design-decision specs from agy (API contract / schema prep / NFR / packaging) — PROPOSED pending T2",
+   "summary": "API: flask-smorest Marshmallow ErrorEnvelope {code,message,field_errors?} (400/403/404/409/429/500); route groups for Dashboard/Watchlist/Portfolio/Goals/Settings+Sys with JSON shapes (GET /watch, /watch/lookup, POST /watch/<id>/move|delete, GET+POST /payment/<id>/<month>, etc.). Schema gaps beyond 6 tables: raw_downloads(id,source,url,sha256,bytes,fetched_at,status), bond_master_provenance(isin,field,source,as_of PK(isin,field)), ratings_history(id,key,agency,rating,instrument,action_date,url,fetched_at), source_health_events(id,source,isin,ok,failure_code,duration_ms,at), news_items(id,source,guid_or_link UNIQUE,title,pub_date,summary,fetched_at), indexes bonds(watch_state) + payment_ledger(bond_id). NFRs PROPOSED: local read p95<=50ms; cold boot<=3.0s; lookup timeout<=10s; 12-channel refresh<=180s@1req/s; storage<=120MB/yr. Packaging: Chaquopy 17.2 + py3.13; pure-Python wheels flask-smorest/marshmallow/webargs/apispec/waitress/httpx/bs4/feedparser/openpyxl (~2MB -> ~38MB APK); waitress.serve(127.0.0.1:5000, threads=4) daemon thread before Flutter binds.",
+   "relevance": "Input for the JSON-API wave planning (contract -> schema -> NFR -> packaging design sessions)."
+  },
+  {
+   "id": "F18",
+   "date": "2026-11-26",
+   "topic": "CDSL pre-build intel (live probes 2026-11-26) — adapter #7 ready for consult/build",
+   "summary": "Bulk: PreferenceShares_data.xlsx (401,949 B, A1:J3973, 3,972 rows, header row 1) + securitised_debt_instruments.xlsx (221 rows); cell types 39,708/39,708 shared-string (dates are TEXT) and 2,630 shared + 2 numeric => stdlib XLSX reader (zipfile+xml.etree, header-name mapping) with ZERO new deps (openpyxl/bs4 absent from requirements). LIGHT: popup-isin.aspx?isin_code= (200, 9,565 B, label:value pairs) + CorpBondDatabase.aspx?ISIN= (200, 117,317 B, stable span ids txtIssuerName/lblFaceValue/lblCouponRate/lblRedmDate/lblRatingStatus/grdRatingDtls). Cadence: bulk weekly, detail on-demand; robots.txt Allow + Cloudflare Content-Signal use=reference.",
+   "relevance": "Build spec for src/bond_master/cdsl.py (next adapter after agy pre-build review)."
+  },
+  {
+   "id": "F19",
+   "date": "2026-11-26",
+   "topic": "Adapters #7 CDSL + #8 RSS shipped — 8/11 complete",
+   "summary": "13493dd7 CDSL: stdlib XLSX bulk (preference shares 3,972 rows + securitised debt, header-name mapping, sparse-row column letters, PK magic) + per-ISIN popup-isin/CorpBondDatabase detail (span-id parse, grdRatingDtls rating table with rating/outlook split, Cloudflare markers gated behind missing content); 15 tests, real fixtures. e1a3f365 RSS: shared RssAdapter for rbi_pressreleases + rbi_notifications + sebi + bse_notices (macro RBI feeds dropped per agy: tenders/AnnualReportMain/Bulletin/Publication; speeches+announcements deferred); namespace-agnostic, 4 pubDate formats, 0-item=OK, per-feed isolation, body sha256 (ETag conditional GET deferred to transport/raw_downloads); 11 tests. agy verified CDSL (15/15) + probed RSS (10/10 HTTP 200). Suite 828 passed / 432 skipped.",
+   "relevance": "Remaining: #9 ICRA -> #10 Acuite (then all 11 shipped; BSE announcements.xml + RBI speeches optional add-ons)."
+  },
+  {
+   "id": "F20",
+   "date": "2026-11-26",
+   "topic": "Adapter #9 ICRA shipped — 9/11 complete",
+   "summary": "25940e88: src/bond_master/icra.py — AllRatingRationales p1 daily poll (regex tr/td walk, dedup by rationale_id, date/category/title/company_id/rationale_url/pdf_url) + on-demand RatingDetails?CompanyId= parse of '[ICRA]BBB+ (Positive)' into agency/rating/outlook; ShowRationaleReport PDF iframe never fetched (agy live finding: HTML page only wraps iframe -> application/pdf; HTML-only extraction via the two other endpoints); fixtures icra_rationales_p1.html + icra_rating_details.html + icra_rationale_report.html; 11 tests; .email-guard-allow += 2 public icraindia.com fixture contacts (precedent: kfintech). Suite 839 passed / 432 skipped.",
+   "relevance": "Remaining: #10 Acuite (final). Optional leftovers: BSE announcements.xml, RBI speeches feed, Acuite sitemap lastmod-diff engine."
+  },
+  {
+   "id": "F21",
+   "date": "2026-11-26",
+   "topic": "Adapter #10 Acuite shipped — WAVE COMPLETE: 11/11 sources covered",
+   "summary": "18906cf2: src/bond_master/acuite.py — liveratings daily p1 (accordion tr id=master_id dedup key, ordinal date '26th Nov 26' -> ISO, entity anchor + fcompany-details slug/URL) + on-demand company-details ratings table (>=6 cells with numeric quantum -> Product/Quantum SEBI/Quantum Other/Long/Short/RegulatedBy; 'ACUITE B- | Reaffirmed | flag' split into rating/action/flag; ISIN lender rows -> isin_records when present). Sitemap polling DROPPED (live probe: Last-Modified 2025-08, broken non-XML head - stale). Fixtures: acuite_liveratings.html + acuite_company_details.html + acuite_sitemap_sample.xml. 12 tests. Suite 851 passed / 432 skipped. FINAL INVENTORY (10 modules, 11 sources): nsdl, bse_bulk, crisil, india_ratings, nse_wdm, care, cdsl, rss (RBI+SEBI+BSE notices), icra, acuite.",
+   "relevance": "Adapter wave DONE. Optional leftovers: BSE announcements.xml (2.73MB), RBI speeches feed, service.py integration of new adapters + T2-T4 design sessions (API contract/schema/NFR/packaging per F17)."
+  }
+ ],
+ "change_log": [
+  {
+   "date": "2026-11-25",
+   "change": "v1.0 created: locked context, agenda T1-T5, merge synchronization policy"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.1: F1 adapter health finding added (NSDL up; RBI 418, NSE 404, BSE 403)"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.2: D1 recorded and CLOSED — RBI/NSE/BSE adapters removed per issue #340; tests rewritten single-source; local tier green 717/0"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.3: F2 added — broker primary-resource research (GoldenPi/IndiaBonds/Grip) collected via urllib scraper; evidence in backend/docs/broker_data_sources_research_20261125.json"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.4: D2 CONFIRMED — final core website list (12 sites) fixed in broker_data_sources_research_20261125.json"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.5: F3 added — scraping-stack research (PM stream done; agy stream running, report to t1w4)"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.6: F4 community recipe extracted (nsepython source); D3 CONFIRMED — existential sources, penetration authorized for public-data collection within stated boundary"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.7: F5 merged research — agy stream DONE (12 sites, live-verified endpoints); both streams cross-checked, no conflicts; agy worker t1w6 closed per Q6"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.8: D4 CONFIRMED download-first policy + standing agy worker; F6 PM cross-verification of 4 download endpoints"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v1.9: F7 — deep proofs: NSDL bulk CSV 264k rows, BSE debt master 5,475 scrips via header'd GET, CRISIL depth-verified; limitations recorded"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.0: F8 — NSE solved via daily-reports API + nsearchives.nseindia.in; ISM trifecta proven (NSDL+BSE+NSE), all download-first"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.1: F9 merged final channel map — 59 channels, both lanes reconciled, zero scraping needed for bond data"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.2: D5 CONFIRMED in-place design updates; dataflow board exported to backend/docs/backend_dataflow_design.html; agy verification dispatched (t1w7)"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.3: agy verification found 13 defects; all corrections applied via in-place edit (D5) - same screen chain, same file; re-downloaded"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.4: board expanded in place - features, API surface (40 routes), screen-calls mapping, business rules, data model + retention, data flow strip, failure overlay; agy verification dispatched"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.5: F10 round-2 verification fixes applied in-place; board chain 28fd218f -> 69b39777 -> 98f2c832 -> a6d2b657"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.6: F11 final mandatory backend-design checklist (16 items) grounded in arc42/C4/12-Factor/Azure-WA; DQ: database design included in backend design"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.7: backend-design skill authored (.agents/skills/backend-design/SKILL.md) and application-tested - subagent found 10 invented claims + gaps 6/16; all fixed in-place; deployment/testing/ADRs/risks/glossary/NFR sections added with code-truth content"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.8: keep/remove audit applied — 6 removals (duplicate cards, SLA metric, decorative chips, dead link) + 8 in-place fixes (displaced rules restored, SLA demoted to proposed, cadence/labels corrected)"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.8.1: last SLA remnant chip surgically removed from exported file; Canvas node carries it pending next edit cycle"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v2.9: backend-design skill upgraded — outside-in design order (user flows -> API request flows -> data flows -> background work -> failure -> cross-cutting), dependency rule (absent prerequisite = scope creep), section classification STANDARD/CONDITIONAL/OPTIONAL grounded in arc42/C4/12-Factor/Azure-WA; checklist items 1/3/8 amended"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.0: backend-design skill split into reference files per developer decision — SKILL.md lean entry (~330 words: overview, design order, classification, process, policy anchors, file index) + checklist.md + red-flags.md + board-process.md; one skill entry, no drift"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.1: web-scraping design restructured from user flow per new skill order — UF1/UF2/UF3/UF4/UF5/UF6/UF9 defined, API request flows mapped, source columns retagged per flow"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.2: F12 — outside-in restructure recovered deterministically from stitch multi-run corruption; skill Failure counter added; Canvas/file divergence logged in D5"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.3: FF to front tip 66f3eab0 (user merged our line via PR #341; all backend commits preserved). AGENTS.md Stitch-cycle rule applied to BOTH lanes (front: 4d2d88f4; backend: 638eab54). DISCLOSED: root-cwd drift leaked stray backend/docs copies into the front lane (untracked) - removal pending developer confirmation. Board Section C repair deferred to stitch-edit-only route per new strict rules."
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.4: design tool migration to Open Design MCP complete — persistent HTTP bridge deployed (systemd user service open-design-bridge: supergateway stdio->streamable-HTTP on 127.0.0.1:8006/mcp, health endpoint, autostart enabled; all 22 tools verified over HTTP). mcp.json switched to url transport (backup mcp.json.bak-20261125-214923). Both agents can connect; server survives agent switches. Stitch remains with the frontend agent. Pending: /reload or /new to bind; then board re-baseline (Section C repair + UF bands) on the Open Design artifact."
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.5: backend dataflow board MIGRATED to Open Design MCP — project 'DK Bond Tracker Backend Dataflow' (id dk-bond-tracker-backend-dataflow-c451), artifact backend_dataflow_design.html (102,045 bytes) created with the corrected consolidated content (outside-in order: UF band + API mapping at top, Section C repaired, all v2.8-v3.2 content); roundtrip verified via get_file (identical). Future edits: Open Design artifact is the live surface; repo file syncs via get_file + commit. Stitch retired for backend."
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.6: FINAL dataflow design matched to the locked frontend — starting point Watchlist FAB + -> Add Bond form; LOCKED FRONTEND MAP (12 screens), matched USER FLOWS (W0-W5, D, P, G, S, BG), per-screen API REQUEST FLOWS (41 routes), BUSINESS RULES from the locked design (empty-state-first, FAB semantics, buried delete, move confirmation, privacy client-side). Open Design artifact updated in place (same artifact, same file); repo synced. INCIDENT logged: root-cwd drift committed stray backend/docs copies to the front lane (80f04d75) — reversion pending developer decision."
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v3.7: agy round-3 fixes applied in-place — matched sections moved to board TOP (outside-in order), API table completed (POST /watch save, GET /portfolio/<id>, GET /search, GET+POST payment, 9 JSON endpoints), UF-W4 holding + goal_id-on-bond corrections, orphan UF5/UF9 refs dropped, duplicate rule cards removed, stale examples 6->1, sub-5ms demoted to proposed-target, Col03 schema corrected to db.py truth. agy round-3 verified: all fixes present, placement top confirmed, single body close."
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.8: agy round-4 fixes (7→9 JSON endpoints in Sections B/I, BTREE + holiday-TBD leftovers cleared)"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v3.9: VERIFICATION LOOP CLOSED — agy round-5 ALL 6 CHECKS PASS (order, structure, API table, JSON count 9, zero survivors, 1 stale example). Backend dataflow design DONE: matched to the locked frontend, starting point Watchlist FAB + -> Add Bond form, outside-in order, MCP-only edits. Design-ready cycle satisfied: artifact live in Open Design, local file = fresh import. Remaining (queued, developer go required): API contract shapes, schema session, NFR values, Flutter packaging decision."
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.0: D6 CONFIRMED framework decision (Flask in-place, FastAPI/Litestar ruled out by wheel fact); F13 merged research (PM + agy streams); both research reports committed"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.1: D7 CONFIRMED clean-slate stack (Flask 3.1.3 + flask-smorest, Mode A); F14 merged framework research; Apiflask correction caught by agy stream"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.2 (backend lane): D8 CONFIRMED uniform adapter output - all 11 adapters emit canonical JSON records; raw downloads archived as-is. (A stray copy of this update also hit the front lane via root-cwd drift - see lane incident.)"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.3: F15 batch-8 consult findings recorded; wave progress 5/11 adapters shipped (NSDL, BSE, CRISIL, NSE WDM, India Ratings); 6 remain (CDSL, RBI RSS, SEBI RSS, CARE, ICRA, Acuite)"
+  },
+  {
+   "date": "2026-11-25",
+   "change": "v3.6: FINAL dataflow design matched to the locked frontend — starting point Watchlist FAB + -> Add Bond form; LOCKED FRONTEND MAP (12 screens), matched USER FLOWS (W0-W5, D, P, G, S, BG), per-screen API REQUEST FLOWS (41 routes), BUSINESS RULES from the locked design (empty-state-first, FAB semantics, buried delete, move confirmation, privacy client-side). Open Design artifact updated in place (same artifact, same file); repo synced."
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.2: D8 CONFIRMED uniform adapter output - all 11 adapters emit canonical JSON records; raw downloads archived as-is"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.4: tracker reconciled — root-stray copy (D6/D7 drift + root-cwd writes) merged into the backend-lane tracker; worktree = superset"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.5: F16 hardening batch (a1ff12e1+5e44214d, suite 802), F17 agy design specs, F18 CDSL pre-build intel"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.6: F19 — CDSL (13493dd7) + RSS (e1a3f365) shipped, 8/11 adapters, suite 828"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.7: F20 — ICRA (25940e88) shipped, 9/11 adapters, suite 839"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.8: F21 — Acuite (18906cf2) shipped, WAVE COMPLETE 11/11, suite 851"
+  }
+ ]
 }
