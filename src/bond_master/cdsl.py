@@ -342,7 +342,10 @@ def _parse_rating_table(html_text):
                 "agency": cells[0],
                 "rating": rating,
                 "outlook": outlook,
+                "action": cells[3] if len(cells) > 3 else None,
+                "watch": cells[4] if len(cells) > 4 else None,
                 "rating_date": _iso_date(cells[5]) if len(cells) > 5 else None,
+                "status": cells[6] if len(cells) > 6 else None,
             })
     return ratings
 

@@ -233,6 +233,10 @@ def test_corpdb_fields_parsed_from_spans_and_rating_table():
     assert record["rating_agency"] == "CARE Ratings Limited"
     assert record["rating_date"] == "2023-05-16"
     assert record["outlook"] == "Stable"
+    latest = next(r for r in record["ratings"] if r["agency"] == "CARE Ratings Limited")
+    assert latest["action"] is None
+    assert latest["watch"] is None
+    assert latest["status"] == "Verified by Agency"
     assert record["source"] == "CDSL"
     assert record["as_of"]
 
