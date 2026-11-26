@@ -1782,6 +1782,135 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 15 LOADING ============ -->
+<section>
+  <h2 id="e15"><span class="num">15</span> Loading Patterns — waiting, designed</h2>
+  <p class="muted">Every page that waits picks ONE pattern. <b style="color:var(--ink)">Rule: never show a spinner where a skeleton would work — a skeleton feels faster even when it is not.</b></p>
+
+  <h3>The three patterns</h3>
+  <div class="grid3">
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">① Skeleton</h4>
+      <ul>
+        <li>Grey placeholder shapes in the <b>exact layout</b> of real content</li>
+        <li>Use for: <b>lists and grids</b> — user sees the page shape before data</li>
+        <li><b>Your pages:</b> ledger rows, dashboard cards, watchlist rows</li>
+      </ul>
+      <div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:10px;margin-top:8px">
+        <div style="height:12px;width:60%;background:var(--raised);border-radius:4px;margin-bottom:6px"></div>
+        <div style="height:12px;width:85%;background:var(--raised);border-radius:4px;margin-bottom:6px"></div>
+        <div style="height:12px;width:45%;background:var(--raised);border-radius:4px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">② Spinner</h4>
+      <ul>
+        <li>Single circular indicator, <b>centered</b></li>
+        <li>Use for: <b>one-off fetches with no known layout</b> — form submit, detail load</li>
+        <li><b>Your pages:</b> ISIN Fetch ("Checking…"), save submit</li>
+      </ul>
+      <div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:22px;margin-top:8px;text-align:center">
+        <span style="display:inline-block;width:22px;height:22px;border:3px solid var(--raised);border-top-color:var(--accent-soft);border-radius:50%"></span>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">Checking…</div>
+      </div>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">③ Progressive</h4>
+      <ul>
+        <li>Show what arrived; <b>load the rest as it comes</b></li>
+        <li>Use for: <b>long lists where the top matters first</b> — feeds, search</li>
+        <li><b>Your pages:</b> future search results, long ledgers</li>
+      </ul>
+      <div style="background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:10px;margin-top:8px">
+        <div style="height:12px;width:70%;background:var(--raised);border-radius:4px;margin-bottom:6px"></div>
+        <div style="height:12px;width:70%;background:var(--raised);border-radius:4px;margin-bottom:6px"></div>
+        <div style="height:12px;width:55%;background:var(--raised);border-radius:4px;opacity:.5"></div>
+        <div style="text-align:center;font-size:9px;color:var(--muted);margin-top:5px">↓ loading more…</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Per-page mapping (your app)</h3>
+  <table>
+    <thead><tr><th>Page / moment</th><th>Pattern</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Ledger first load (watchlist/portfolio)</td><td><span class="pill b">Skeleton</span></td><td>rows have known layout</td></tr>
+      <tr><td>Dashboard stat cards</td><td><span class="pill b">Skeleton</span></td><td>card grid known</td></tr>
+      <tr><td>ISIN Fetch (Checking…)</td><td><span class="pill a">Spinner</span></td><td>one-off, no layout to preview</td></tr>
+      <tr><td>Save / Move submit</td><td><span class="pill a">Spinner (in button)</span></td><td>button lock + inline activity</td></tr>
+      <tr><td>Search results (future)</td><td><span class="pill g">Progressive</span></td><td>top results useful immediately</td></tr>
+      <tr><td>Background sync</td><td><span class="pill g">Silent</span></td><td>no screen wait — status via sync icon</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:11px;margin-top:8px">Pairs: timeouts (API essential) always bound the wait → Checking must reach Offline/Not Found;0.1s feedback rule (Feedback essential) covers the tap moment.</p>
+</section>
+
+<!-- ============ ESSENTIAL 16 SCROLL ============ -->
+<section>
+  <h2 id="e16"><span class="num">16</span> Scroll &amp; Lists — growing content, one behaviour</h2>
+  <p class="muted">Every list page answers three questions: <b style="color:var(--ink)">how it loads more · what sticks · how to get back up.</b></p>
+
+  <h3>① Load more — pick one per page</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">Pagination (Load More button)</h4>
+      <ul>
+        <li><b>Predictable</b> — user controls when to fetch</li>
+        <li>Footer stays reachable</li>
+        <li>More taps for power users</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">Infinite scroll</h4>
+      <ul>
+        <li><b>Smoother</b> — loads as you approach the bottom</li>
+        <li>Harder to reach the footer</li>
+        <li>Needs scroll-position care with per-tab stacks</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-top:10px;border-color:rgba(36,86,230,.5)">
+    <h4 style="color:var(--accent-soft);font-size:11px">Recommendation (pending your decision at scale)</h4>
+    <p style="font-size:12px;margin:0">MVP sizes (14–50 bonds): <b>show all + scroll-to-top</b> — no pagination needed. At &gt;100 rows: switch to <b>Load More</b> (predictable) unless feed-style browsing emerges. Record the choice per page when crossed.</p>
+  </div>
+
+  <h3>② Sticky headers — what sticks</h3>
+  <table>
+    <thead><tr><th>Element</th><th>Sticks?</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Top app bar (56px)</td><td><span class="pill g">YES</span></td><td>always — every page</td></tr>
+      <tr><td>Section tabs (ADD FORM | LEDGER)</td><td><span class="pill g">YES</span></td><td>under the bar, watchlist/portfolio ✓ designed</td></tr>
+      <tr><td>Stat strip</td><td><span class="pill a">scrolls away</span></td><td>content, not chrome</td></tr>
+      <tr><td>Company card headers</td><td><span class="pill a">NO</span></td><td>scrolls with rows (MVP)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>③ Scroll-to-top — required beyond one screen</h3>
+  <div class="diagram">
+    <div class="flow3">
+      <div class="flowbox">scroll &lt; 1 screen</div>
+      <div class="arrow">→</div>
+      <div class="flowbox hl">no button</div>
+      <div class="arrow">·</div>
+      <div class="flowbox">scroll &gt; 1 screen</div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">TOP button appears<br><span style="color:var(--muted);font-size:10px">tap → smooth scroll to top</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Boards already use TOP/BOTTOM — same rule in-app for ledger &amp; long forms (payment sheet uses inner scroll + this button)</div>
+  </div>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Sticky bar + tabs</td><td><span class="pill g">designed</span></td><td>app_frame contract</td></tr>
+      <tr><td>Scroll containers on sheets</td><td><span class="pill g">fixed</span></td><td>overflow-y-auto (payment sheet history)</td></tr>
+      <tr><td>Load-more policy</td><td><span class="pill a">rule written above</span></td><td>per-page choice when &gt;100 rows</td></tr>
+      <tr><td>In-app scroll-to-top</td><td><span class="pill a">build</span></td><td>ledger + long forms</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -1885,6 +2014,8 @@
   <a href="#e12">12 · Blackbox</a>
   <a href="#e13">13 · Gestures</a>
   <a href="#e14">14 · Feedback</a>
+  <a href="#e15">15 · Loading</a>
+  <a href="#e16">16 · Scroll</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
