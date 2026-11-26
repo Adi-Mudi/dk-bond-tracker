@@ -218,6 +218,41 @@
   @media (max-width:600px){ .perf { grid-template-columns:1fr; } }
   .perf .card h4.ok { color:var(--green); }
   .perf .card h4.no { color:var(--red); }
+  /* microcopy visuals */
+  .voice-spectrum { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:600px){ .voice-spectrum { grid-template-columns:1fr; } }
+  .vtone { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px; }
+  .vtone h5 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+  .vtone.v1 h5 { color:var(--green); }
+  .vtone.v2 h5 { color:var(--accent-soft); }
+  .vtone.v3 h5 { color:var(--red); }
+  .vtone p { font-size:11px; color:var(--muted); margin:0; }
+  .vtone .ex { font-size:12px; color:var(--ink); margin-top:6px; background:var(--canvas); border:1px solid var(--hairline); border-radius:6px; padding:7px 9px; }
+  .ladder { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+  .lrung { display:flex; align-items:center; gap:12px; background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:9px 12px; font-size:12px; }
+  .lrung .rank { font-size:10px; color:var(--dim); width:56px; flex-shrink:0; text-transform:uppercase; }
+  .lrung.best { border-color:rgba(74,222,128,.5); }
+  .lrung.best .rank { color:var(--green); }
+  .lrung.worst { border-color:rgba(248,113,113,.4); opacity:.75; }
+  .lrung.worst .rank { color:var(--red); }
+  .lrung .why { color:var(--muted); font-size:10px; margin-left:auto; text-align:right; }
+  .err3 { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:8px; align-items:stretch; }
+  @media (max-width:700px){ .err3 { grid-template-columns:1fr; } .err3 .sep { display:none; } }
+  .ebox { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px; text-align:center; }
+  .ebox b { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent-soft); margin-bottom:6px; }
+  .ebox span { font-size:11px; color:var(--muted); }
+  .ebox .real { display:block; font-size:11px; color:var(--ink); margin-top:6px; background:var(--canvas); border:1px solid var(--hairline); border-radius:6px; padding:6px 8px; text-align:left; }
+  .sep { display:flex; align-items:center; color:var(--dim); font-size:16px; }
+  .do-dont { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:600px){ .do-dont { grid-template-columns:1fr; } }
+  .dd { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px 14px; }
+  .dd h5 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .dd.good h5 { color:var(--green); }
+  .dd.bad h5 { color:var(--red); }
+  .dd ul { list-style:none; }
+  .dd li { font-size:12px; padding:5px 0; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
+  .dd li:last-child { border-bottom:none; }
+  .dd li span { display:block; font-size:10px; color:var(--muted); }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -1140,6 +1175,126 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 9 DEEP DIVE ============ -->
+<section>
+  <h2 id="e9"><span class="num">9</span> Microcopy — the words inside the app</h2>
+  <p class="muted">Every short text the user reads: labels, errors, empty states, helpers, placeholders. One writing standard, applied everywhere — <b style="color:var(--ink)">inconsistent words confuse users more than inconsistent colours.</b></p>
+
+  <h3>Visual · Voice fixed, tone adapts</h3>
+  <div class="voice-spectrum">
+    <div class="vtone v1">
+      <h5>Onboarding · encouraging</h5>
+      <p>Guide without pressure</p>
+      <div class="ex">"Add your first bond — we'll fetch the details for you."</div>
+    </div>
+    <div class="vtone v2">
+      <h5>Normal use · calm</h5>
+      <p>Plain second person, short</p>
+      <div class="ex">"From your bank statement — we'll figure out what it is."</div>
+    </div>
+    <div class="vtone v3">
+      <h5>Errors · serious &amp; direct</h5>
+      <p>Never cute when something broke</p>
+      <div class="ex">"You are offline. Your data is safe."</div>
+    </div>
+  </div>
+
+  <h3>Visual · Terminology — one name per concept</h3>
+  <div class="do-dont">
+    <div class="dd good">
+      <h5>✓ One word, always</h5>
+      <ul>
+        <li>"Move to Portfolio" — every screen <span>never: Transfer / Convert / Move over</span></li>
+        <li>"TDS" — users know this word <span>kept; "Sec 193" was jargon → removed</span></li>
+      </ul>
+    </div>
+    <div class="dd bad">
+      <h5>✗ Same thing, different words</h5>
+      <ul>
+        <li>Save / Store / Keep <span>three words, one action = confusion</span></li>
+        <li>Redeem / Exit / Sell <span>pick one and lock the list</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Visual · Buttons — verb + result, 1–4 words (the ladder)</h3>
+  <div class="ladder">
+    <div class="lrung best"><span class="rank">best</span><b>"Save Payment (₹ 41,175)"</b><span class="why">verb + result + exact outcome — your current label ✓</span></div>
+    <div class="lrung"><span class="rank">ok</span><b>"Save changes"</b><span class="why">verb + what it affects</span></div>
+    <div class="lrung"><span class="rank">weak</span><b>"Save"</b><span class="why">verb, but result unspecified</span></div>
+    <div class="lrung worst"><span class="rank">never</span><b>"OK" · "Confirm" · "Yes / No" alone</b><span class="why">"Confirm" → say "Delete account" instead; Yes/No must name the action</span></div>
+  </div>
+
+  <h3>Visual · Error message anatomy — three parts, always</h3>
+  <div class="err3">
+    <div class="ebox"><b>1 · What happened</b><span>state the fact</span>
+      <span class="real">"INE601U07238 already in watchlist"</span>
+    </div>
+    <div class="sep">→</div>
+    <div class="ebox"><b>2 · Why</b><span>the reason, no blame, no codes</span>
+      <span class="real">"same company and active ISIN cannot be added again"</span>
+    </div>
+    <div class="sep">→</div>
+    <div class="ebox"><b>3 · What to do next</b><span>the exit</span>
+      <span class="real">"Add a different ISIN — or move the existing entry to portfolio."</span>
+    </div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Your dup-ISIN banner is the gold standard — clone its structure for every error. Never show a code, internal name, or blame. Empty states: what belongs here + how to add it (never bare "No data") — your watchlist empty state already complies ✓. Confirmations specific: "Payment saved" beats "Done".</p>
+
+  <h3>Visual · Forms — labels, placeholders, required</h3>
+  <div class="do-dont">
+    <div class="dd good">
+      <h5>✓ Correct</h5>
+      <ul>
+        <li>Label states the requirement <span>"Amount you see in bank"</span></li>
+        <li>Placeholder = realistic example <span>"e.g. 41175" — not the label again</span></li>
+        <li>Optional marked "(optional)" <span>"Notes (optional)" ✓ already used</span></li>
+        <li>Label survives typing <span>never placeholder-only</span></li>
+      </ul>
+    </div>
+    <div class="dd bad">
+      <h5>✗ To fix in your sheets</h5>
+      <ul>
+        <li>Asterisk-on-required <span>"Remarks *" — users don't all know * = required; label it plainly</span></li>
+        <li>Placeholder as only label <span>disappears while typing</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Visual · Formatting standard — decide once, document, apply everywhere</h3>
+  <table>
+    <thead><tr><th>Kind</th><th>Your standard (de-facto → formalize)</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Dates</td><td>Day · Month · Year, English month</td><td>18 Dec 2026</td></tr>
+      <tr><td>Currency</td><td>₹ · Indian lakh grouping · space after ₹</td><td>₹ 5,41,175</td></tr>
+      <tr><td>Percentages</td><td>2 decimals + p.a. for rates</td><td>9.75% p.a. · 10%</td></tr>
+      <tr><td>Clock</td><td>decide: 12h vs 24h <span class="pill a">decide</span></td><td>—</td></tr>
+      <tr><td>Respect region</td><td>follow user language/number settings</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Visual · Style, inclusion, translation</h3>
+  <div class="jobs" style="margin-top:8px">
+    <div class="job"><b>Sentence case</b>"Save payment" not "SAVE PAYMENT" — your designs already ≈ sentence case</div>
+    <div class="job"><b>Second person</b>"Your data is safe" — not "My account" / "the user's account"</div>
+    <div class="job"><b>Translate-ready</b>no idioms · short sentences · button width fits longer languages</div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Inclusive language: no gender assumptions, no culture-specific references. Contractions allowed (don't / we'll) — friendly, still professional.</p>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Simple-English voice</td><td><span class="pill g">standing rule</span></td><td>offline copy + empty states comply</td></tr>
+      <tr><td>3-part error pattern</td><td><span class="pill g">gold example exists</span></td><td>dup-ISIN banner — clone for all errors</td></tr>
+      <tr><td>Button verb+result labels</td><td><span class="pill g">mostly comply</span></td><td>"Confirm &amp; Save" → rename to "Save payment"</td></tr>
+      <tr><td>Terminology list (one word per concept)</td><td><span class="pill a">write it</span></td><td>shared list, one page</td></tr>
+      <tr><td>Required-field marks (drop *)</td><td><span class="pill a">fix in design</span></td><td>label the requirement instead</td></tr>
+      <tr><td>Formatting standard doc</td><td><span class="pill a">write it</span></td><td>dates / ₹ / % / clock — table above</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -1238,6 +1393,7 @@
   <a href="#e6">6 · Forms</a>
   <a href="#e7">7 · A11y</a>
   <a href="#e8">8 · Motion</a>
+  <a href="#e9">9 · Words</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
