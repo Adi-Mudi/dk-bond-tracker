@@ -1,3 +1,4 @@
+import bz2
 import json
 from pathlib import Path
 
@@ -12,11 +13,11 @@ from src.bond_master.base import (
 )
 from src.bond_master.bse_bulk import BseBulkAdapter, SOURCE_NAME, parse_payload
 
-FIXTURE = Path(__file__).parent / "fixtures" / "bse_list_of_scrip_debt.json"
+FIXTURE = Path(__file__).parent / "fixtures" / "bse_list_of_scrip_debt.json.bz2"
 
 
 def load_fixture():
-    return json.loads(FIXTURE.read_text(encoding="utf-8"))
+    return json.loads(bz2.open(FIXTURE, "rt", encoding="utf-8").read())
 
 
 def make_adapter(payload):

@@ -1,3 +1,4 @@
+import bz2
 import json
 from pathlib import Path
 
@@ -15,7 +16,7 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def load_wdm_fixture():
-    return (FIXTURES / "nse_wdm_wdmlist.csv").read_text(encoding="utf-8-sig")
+    return bz2.open(FIXTURES / "nse_wdm_wdmlist.csv.bz2", "rt", encoding="utf-8-sig").read()
 
 
 def listing_response(entries):

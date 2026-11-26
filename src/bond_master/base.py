@@ -75,6 +75,7 @@ class FetchResult:
     maturity: str | None = None
     sources: Mapping[str, str] = field(default_factory=dict)
     failure_code: str = FAILURE_OK
+    as_of: str | None = None
 
     def facts(self) -> dict[str, object]:
         return {name: getattr(self, name) for name in INSTRUMENT_FIELDS}

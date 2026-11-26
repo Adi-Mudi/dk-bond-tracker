@@ -130,17 +130,18 @@ class IndiaRatingsAdapter:
 
     def press_release_data(self, press_release_id):
         url = PR_DATA + str(press_release_id)
+        as_of = utc_as_of()
         try:
             data = _get_json(self._transport, url, self.timeout)
         except TimeoutError:
-            return {"failure_code": FAILURE_TIMEOUT, "data": None}
+            return {"failure_code": FAILURE_TIMEOUT, "data": None, "source": SOURCE_NAME, "as_of": as_of}
         except SourceError as exc:
-            return {"failure_code": exc.failure_code, "data": None}
+            return {"failure_code": exc.failure_code, "data": None, "source": SOURCE_NAME, "as_of": as_of}
         except ConnectionError:
-            return {"failure_code": FAILURE_UNREACHABLE, "data": None}
+            return {"failure_code": FAILURE_UNREACHABLE, "data": None, "source": SOURCE_NAME, "as_of": as_of}
         except Exception:
-            return {"failure_code": FAILURE_UNREACHABLE, "data": None}
-        return {"failure_code": FAILURE_OK, "data": data}
+            return {"failure_code": FAILURE_UNREACHABLE, "data": None, "source": SOURCE_NAME, "as_of": as_of}
+        return {"failure_code": FAILURE_OK, "data": data, "source": SOURCE_NAME, "as_of": as_of}
 
 
 def annexure_isins(data):

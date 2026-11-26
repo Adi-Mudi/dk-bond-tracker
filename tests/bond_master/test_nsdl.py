@@ -111,6 +111,18 @@ def test_fixture_maps_every_fact_with_source():
         assert dict(result.sources) == want["sources"]
 
 
+def test_success_result_carries_as_of():
+    result = make(name=MASTER).fetch("INE777A07ZZ3")
+    assert result.failure_code == FAILURE_OK
+    assert result.as_of
+
+
+def test_failure_result_has_no_as_of():
+    result = make(name=MASTER).fetch("INE123456789")
+    assert result.failure_code != FAILURE_OK
+    assert result.as_of is None
+
+
 def test_sources_name_nsdl_for_every_populated_field():
     result = make(name=MASTER).fetch("INE777A07ZZ3")
     assert result.sources

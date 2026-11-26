@@ -113,6 +113,8 @@ def test_press_release_data_source_error_returns_data_none():
     result = adapter.press_release_data(9)
     assert result["failure_code"] == FAILURE_MALFORMED
     assert result["data"] is None
+    assert result["source"] == SOURCE_NAME
+    assert result["as_of"]
 
 
 def test_annexure_isins_extracts_one_record_per_isin():
