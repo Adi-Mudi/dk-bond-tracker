@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Watchlist — Feature Inventory (40)</title>
+<title>Watchlist — Feature & Component Page</title>
 <style>
-  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --accent-soft:#93B4FF; --green:#4ADE80; --amber:#F59E0B; }
+  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --accent-soft:#93B4FF; --green:#4ADE80; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--canvas); color:var(--ink); font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; line-height:1.55; padding:40px 20px; }
   .wrap { max-width:920px; margin:0 auto; }
@@ -15,25 +15,21 @@
   .stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
   .stat { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:8px 14px; font-size:12px; color:var(--muted); }
   .stat b { color:var(--ink); font-size:15px; display:block; }
-  .stat.lock b { color:var(--green); }
   section { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
   h2 { font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:var(--accent-soft); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
   h2 .count { background:var(--accent); color:#fff; border-radius:999px; font-size:10px; padding:2px 8px; letter-spacing:0; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); padding:8px 10px; border-bottom:1px solid var(--hairline); }
+  td { padding:7px 10px; border-bottom:1px dashed rgba(42,58,76,.5); vertical-align:top; color:var(--ink); }
+  td:first-child { color:var(--accent-soft); font-weight:700; white-space:nowrap; width:52px; }
+  tr.grprow td { background:var(--raised); color:var(--accent-soft); font-size:10px; text-transform:uppercase; letter-spacing:.1em; font-weight:700; padding:8px 10px; border-bottom:1px solid var(--hairline); }
   ol { list-style:none; counter-reset:feat; }
   li { counter-increment:feat; position:relative; padding:7px 0 7px 44px; font-size:13px; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
   li:last-child { border-bottom:none; }
   li::before { content:counter(feat,decimal-leading-zero); position:absolute; left:0; top:7px; font-size:11px; color:var(--dim); background:var(--raised); border:1px solid var(--hairline); border-radius:6px; padding:1px 7px; }
   li .auto { color:var(--green); font-size:10px; text-transform:uppercase; letter-spacing:.08em; margin-left:6px; }
-  li .user { color:var(--amber); font-size:10px; text-transform:uppercase; letter-spacing:.08em; margin-left:6px; }
+  li .user { color:#F59E0B; font-size:10px; text-transform:uppercase; letter-spacing:.08em; margin-left:6px; }
   li .new { color:var(--accent-soft); font-size:10px; margin-left:6px; }
-  li small { display:block; color:var(--muted); font-size:11px; margin-top:2px; }
-  .note { background:rgba(36,86,230,.08); border:1px solid rgba(36,86,230,.35); border-radius:10px; padding:12px 16px; font-size:12px; color:var(--accent-soft); margin-top:20px; }
-  footer { margin-top:28px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-  .grp { counter-reset:feat; }
-  .badge { display:inline-block; font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-radius:4px; padding:1px 6px; margin-left:8px; vertical-align:middle; }
-  .badge.mvp { background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.5); }
-  .badge.later { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.45); }
-  .badge.mix { background:rgba(147,180,255,.12); color:var(--accent-soft); border:1px solid rgba(147,180,255,.4); }
   li .comps { display:block; color:var(--muted); font-size:11px; margin-top:3px; font-weight:400; }
   li .comps::before { content:"▸ components: "; color:var(--dim); font-size:9px; text-transform:uppercase; letter-spacing:.06em; }
   .inv { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -45,111 +41,85 @@
   .inv li::before { display:none; }
   .inv li b { color:var(--accent-soft); font-weight:700; }
   .inv li span { color:var(--muted); }
-  .cmap { overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; font-size:12px; }
-  th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); padding:8px 10px; border-bottom:1px solid var(--hairline); }
-  td { padding:7px 10px; border-bottom:1px dashed rgba(42,58,76,.5); vertical-align:top; color:var(--ink); }
-  td:first-child { color:var(--accent-soft); font-weight:700; white-space:nowrap; width:44px; }
-  td:nth-child(2) { color:var(--muted); width:30%; }
-  td:last-child { color:var(--ink); }
-  tr.grprow td { background:var(--raised); color:var(--accent-soft); font-size:10px; text-transform:uppercase; letter-spacing:.1em; font-weight:700; padding:8px 10px; border-bottom:1px solid var(--hairline); }
-  tr.grprow td:first-child { color:var(--accent-soft); }
-  .split { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  @media (max-width:720px){ .split { grid-template-columns:1fr; } }
-  .split .box { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:14px 16px; }
-  .split .box.mvp { border-color:rgba(74,222,128,.4); }
-  .split .box.later { border-color:rgba(245,158,11,.4); }
-  .split h3 { font-size:12px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
-  .split .mvp h3 { color:var(--green); }
-  .split .later h3 { color:var(--amber); }
-  .split ul { list-style:none; }
-  .split li { font-size:12px; padding:5px 0; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
-  .split li:last-child { border-bottom:none; }
-  .split li span { color:var(--muted); font-size:11px; display:block; }
-  .split .full { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
+  footer { margin-top:28px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <div class="kicker">DK Bond Tracker · Watchlist · Feature Inventory</div>
-  <h1>Watchlist — Full Feature List</h1>
-  <div style="font-size:13px;color:var(--muted)">Full-depth analysis of the locked 5-column review board. Every feature the page implements, grouped by screen area.</div>
+  <div class="kicker">DK Bond Tracker · Watchlist</div>
+  <h1>Watchlist — Features &amp; Components</h1>
+  <div style="font-size:13px;color:var(--muted)">The watchlist page in one place: overall feature list, overall component inventory, then every feature with its components inline. Requirements/RTM live in a separate document (on hold).</div>
   <div class="stats">
     <div class="stat"><b>40</b>features</div>
-    <div class="stat"><b>32</b>MVP (2 partial)</div>
-    <div class="stat"><b>8</b>post-MVP rows</div>
     <div class="stat"><b>5</b>columns / frames</div>
     <div class="stat"><b>18</b>feedback fixes applied</div>
-    <div class="stat"><b>1</b>open item closed (buy-step)</div>
-    <div class="stat lock"><b>LOCKED</b>2026-11-25 · ref 09f4af7d</div>
+    <div class="stat"><b>LOCKED</b>board 2026-11-25</div>
   </div>
 </header>
 
 <section>
-  <h2>RTM — Requirements Traceability Matrix <span class="count">40</span></h2>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">One row per feature, grouped by area (A–G). <b style="color:var(--ink)">Phase</b> = which release to build (MVP · v1.1 · split). <b style="color:var(--ink)">Requirement</b> = what the app shall do. <b style="color:var(--ink)">Acceptance</b> = the check that proves it. Read top-to-bottom: every row is traceable feature → requirement → acceptance → test.</div>
+  <h2>1 · Overall feature list <span class="count">40</span></h2>
   <div class="cmap">
   <table>
-    <thead><tr><th>ID</th><th>Feature</th><th>Phase</th><th>Requirement (shall)</th><th>Acceptance check</th></tr></thead>
+    <thead><tr><th>ID</th><th>Feature</th><th>Area</th></tr></thead>
     <tbody>
-      <tr class="grprow"><td colspan="5">A · App shell</td></tr>
-      <tr><td>A1</td><td>Top app bar</td><td><span class="badge mvp">MVP</span></td><td>Every screen SHALL show brand, sync, bell+badge, avatar</td><td>Open any screen → all 4 controls visible</td></tr>
-      <tr><td>A2</td><td>Sticky tabs</td><td><span class="badge mvp">MVP</span></td><td>Watchlist SHALL show sticky ADD FORM | LEDGER tabs with live counts</td><td>Scroll content → tabs stay pinned; counts match data</td></tr>
-      <tr><td>A3</td><td>Stat strip</td><td><span class="badge mvp">MVP</span></td><td>Strip SHALL show WATCHING + ALERTS counts above content</td><td>Stats equal ledger/alert totals</td></tr>
-      <tr><td>A4</td><td>Bottom navigation</td><td><span class="badge mvp">MVP</span></td><td>5-tab nav SHALL mark Watchlist active and navigate on tap</td><td>Each tab navigates; Watchlist highlighted</td></tr>
-      <tr><td>A5</td><td>FAB +</td><td><span class="badge mvp">MVP</span></td><td>FAB SHALL open Add Bond on Watchlist (page-specific route)</td><td>Tap + → form opens; on Goals → Goal form</td></tr>
-      <tr class="grprow"><td colspan="5">B · Notifications</td></tr>
-      <tr><td>B1</td><td>Rating Watch card</td><td><span class="badge later">v1.1</span></td><td>App SHALL surface critical rating-watch alerts as a card</td><td>Alert exists → card with severity + advisory text shown</td></tr>
-      <tr><td>B2</td><td>Alert actions</td><td><span class="badge later">v1.1</span></td><td>Card SHALL offer Read Advisory + Dismiss</td><td>Tap each → advisory opens / card dismissed</td></tr>
-      <tr class="grprow"><td colspan="5">C · Column 01 — Add Bond form</td></tr>
-      <tr><td>C1</td><td>Hidden-on-open form</td><td><span class="badge mvp">MVP</span></td><td>Form SHALL stay hidden until FAB or ADD FORM tab tap</td><td>First open → no form; tap + → form appears</td></tr>
-      <tr><td>C2</td><td>ISIN lookup + Fetch</td><td><span class="badge mvp">MVP</span></td><td>Lookup SHALL accept a 12-char ISIN and run Fetch</td><td>Valid ISIN → fetch starts; result shown</td></tr>
-      <tr><td>C3</td><td>Fetch states ×4</td><td><span class="badge mvp">MVP</span></td><td>Lookup SHALL indicate Found / Checking / Offline / Not Found</td><td>Trigger each state → correct indicator renders</td></tr>
-      <tr><td>C4</td><td>Duplicate-ISIN banner</td><td><span class="badge mvp">MVP</span></td><td>Duplicate active ISIN SHALL be blocked with guidance + existing broker</td><td>Add existing ISIN → red banner, broker named, no save</td></tr>
-      <tr><td>C5</td><td>Identity fields</td><td><span class="badge mvp">MVP</span></td><td>Identity SHALL auto-fill from fetch; ISIN locked immutable</td><td>Fetch success → fields filled; ISIN chip shows lock</td></tr>
-      <tr><td>C6</td><td>Economics fields</td><td><span class="badge mvp">MVP</span></td><td>Economics SHALL mark auto vs user-entered fields</td><td>Render → chips correct; Yield empty for user</td></tr>
-      <tr><td>C7</td><td>Terms fields</td><td><span class="badge mvp">MVP</span></td><td>Issuer, listing, maturity SHALL auto-fill from fetch</td><td>Fetch → three fields populated + auto chips</td></tr>
-      <tr><td>C8</td><td>Interest Credit Day</td><td><span class="badge mvp">MVP</span></td><td>Form SHALL capture credit day of month (1–31)</td><td>Enter day → saved with the position</td></tr>
-      <tr><td>C9</td><td>Default History</td><td><span class="badge later">v1.1</span></td><td>Field SHALL be disabled with COMING SOON until automation</td><td>Render → disabled + chip; no edit possible</td></tr>
-      <tr><td>C10</td><td>Secured NCD</td><td><span class="badge mvp">MVP</span></td><td>Secured flag SHALL display with helper text</td><td>Render → value + "senior claim" helper visible</td></tr>
-      <tr><td>C11</td><td>Target fields</td><td><span class="badge mvp">MVP</span></td><td>Targets SHALL accept user amounts, empty by default</td><td>Open → empty; typing → accepted</td></tr>
-      <tr><td>C12</td><td>Value per unit math</td><td><span class="badge mvp">MVP</span></td><td>Value/unit SHALL compute Target ÷ Quantity</td><td>Both entered → value; one missing → em-dash</td></tr>
-      <tr><td>C13</td><td>Broker typeahead</td><td><span class="badge mix">split</span></td><td>Broker SHALL accept free text (MVP); suggestion chips later</td><td>Type any broker → accepted; chips = v1.1</td></tr>
-      <tr><td>C14</td><td>Source Note + Save</td><td><span class="badge mix">split</span></td><td>Save SHALL persist the watch entry; Source Note optional (v1.1)</td><td>Save → appears in ledger; note field optional</td></tr>
-      <tr class="grprow"><td colspan="5">D · Column 02 — Integrated ledger</td></tr>
-      <tr><td>D1</td><td>Company-first card</td><td><span class="badge mvp">MVP</span></td><td>Ledger SHALL group held + watch by company (no separate tabs)</td><td>Render → one card per company with nested rows</td></tr>
-      <tr><td>D2</td><td>4-tier status pill</td><td><span class="badge mvp">MVP</span></td><td>Card SHALL show status: Danger &gt; Maturing &gt; On-going &gt; Matured</td><td>Each status → correct tier color pill</td></tr>
-      <tr><td>D3</td><td>Header counts</td><td><span class="badge mvp">MVP</span></td><td>Header SHALL show total invested + bond/completed/ongoing counts</td><td>Data change → counts update to match</td></tr>
-      <tr><td>D4</td><td>[HELD] rows</td><td><span class="badge mvp">MVP</span></td><td>Held ISINs SHALL show units, settled amount, countdown</td><td>Held data → row renders all four fields</td></tr>
-      <tr><td>D5</td><td>[WATCH] rows</td><td><span class="badge mvp">MVP</span></td><td>Watch rows SHALL show broker, meta, yield, Move + Details</td><td>Row renders; Move opens form; Details opens detail</td></tr>
-      <tr><td>D6</td><td>Multi-broker compare card</td><td><span class="badge later">v1.1</span></td><td>Same ISIN at multiple brokers SHALL show a compare card</td><td>3 brokers → card lists yields + Best Yield + Select</td></tr>
-      <tr><td>D7</td><td>Buy-step line</td><td><span class="badge later">v1.1</span></td><td>Compare card SHALL instruct: buy at broker first, then return</td><td>Card visible → buy-step line under Select</td></tr>
-      <tr><td>D8</td><td>Browse NSDL list</td><td><span class="badge later">v1.1</span></td><td>Page SHALL offer browsing the NSDL depository list</td><td>Tap button → list opens</td></tr>
-      <tr class="grprow"><td colspan="5">E · Column 03 — Move to Portfolio</td></tr>
-      <tr><td>E1</td><td>Conversion form</td><td><span class="badge mvp">MVP</span></td><td>Move SHALL capture quantity, amount, date, broker ref</td><td>Open move → 4 inputs empty and editable</td></tr>
-      <tr><td>E2</td><td>Link to Goal</td><td><span class="badge later">v1.1</span></td><td>Move SHALL optionally attach an existing goal</td><td>Pick goal → attached to the new position</td></tr>
-      <tr><td>E3</td><td>Update-goals detour</td><td><span class="badge later">v1.1</span></td><td>Goal detour SHALL return with form entries intact</td><td>Leave + return → all entered values preserved</td></tr>
-      <tr><td>E4</td><td>Confirm Move</td><td><span class="badge mvp">MVP</span></td><td>Confirm SHALL create held position + broker record note</td><td>Confirm → row becomes HELD/On-going with note</td></tr>
-      <tr class="grprow"><td colspan="5">F · Column 04 — Remove flow</td></tr>
-      <tr><td>F1</td><td>4-step buried delete</td><td><span class="badge mvp">MVP</span></td><td>Delete SHALL be buried: Details → ⋮ → sheet → dialog (never on-card)</td><td>No on-card delete; full chain reachable</td></tr>
-      <tr><td>F2</td><td>Bottom sheet actions</td><td><span class="badge mvp">MVP</span></td><td>Sheet SHALL list 4 actions with Remove styled destructive</td><td>Open ⋮ → history/edit/share/remove shown</td></tr>
-      <tr><td>F3</td><td>Type-ISIN guard</td><td><span class="badge mvp">MVP</span></td><td>Remove SHALL require typed full ISIN + 2s hold; held never deleted</td><td>Wrong ISIN → blocked; correct + hold → entry removed</td></tr>
-      <tr><td>F4</td><td>Guarded note</td><td><span class="badge mvp">MVP</span></td><td>Dialog SHALL state held positions are never deleted here</td><td>Dialog shows the note line</td></tr>
-      <tr class="grprow"><td colspan="5">G · Column 05 — First open</td></tr>
-      <tr><td>G1</td><td>First-open behavior</td><td><span class="badge mvp">MVP</span></td><td>First open SHALL default to LEDGER, form hidden, zeroed stats</td><td>Fresh state → LEDGER active, 0 / 0 shown</td></tr>
-      <tr><td>G2</td><td>Empty state</td><td><span class="badge mvp">MVP</span></td><td>Empty ledger SHALL show placeholder + Add-first-bond CTA</td><td>No data → icon + CTA; tap → form opens</td></tr>
-      <tr><td>G3</td><td>FAB page semantics</td><td><span class="badge mvp">MVP</span></td><td>FAB route SHALL differ per page (Add Bond vs Goal form)</td><td>Each page's + opens the correct form</td></tr>
+      <tr class="grprow"><td colspan="3">A · App shell</td></tr>
+      <tr><td>A1</td><td>Top app bar</td><td>shell</td></tr>
+      <tr><td>A2</td><td>Sticky tabs (ADD FORM | LEDGER)</td><td>shell</td></tr>
+      <tr><td>A3</td><td>Stat strip (WATCHING + ALERTS)</td><td>shell</td></tr>
+      <tr><td>A4</td><td>Bottom navigation (5 tabs)</td><td>shell</td></tr>
+      <tr><td>A5</td><td>FAB + (page-specific)</td><td>shell</td></tr>
+      <tr class="grprow"><td colspan="3">B · Notifications</td></tr>
+      <tr><td>B1</td><td>Rating Watch alert card</td><td>notification</td></tr>
+      <tr><td>B2</td><td>Alert actions (Read / Dismiss)</td><td>notification</td></tr>
+      <tr class="grprow"><td colspan="3">C · Column 01 — Add Bond form</td></tr>
+      <tr><td>C1</td><td>Hidden-on-open form</td><td>form</td></tr>
+      <tr><td>C2</td><td>ISIN lookup + Fetch</td><td>form</td></tr>
+      <tr><td>C3</td><td>Fetch states ×4</td><td>form</td></tr>
+      <tr><td>C4</td><td>Duplicate-ISIN error banner</td><td>form</td></tr>
+      <tr><td>C5</td><td>Identity fields (auto + locked ISIN)</td><td>form</td></tr>
+      <tr><td>C6</td><td>Economics fields (auto / you enter)</td><td>form</td></tr>
+      <tr><td>C7</td><td>Terms fields (auto)</td><td>form</td></tr>
+      <tr><td>C8</td><td>Interest Credit Day</td><td>form</td></tr>
+      <tr><td>C9</td><td>Default History (COMING SOON)</td><td>form</td></tr>
+      <tr><td>C10</td><td>Secured NCD + helper</td><td>form</td></tr>
+      <tr><td>C11</td><td>Target fields (user)</td><td>form</td></tr>
+      <tr><td>C12</td><td>Value per unit math</td><td>form</td></tr>
+      <tr><td>C13</td><td>Broker typeahead</td><td>form</td></tr>
+      <tr><td>C14</td><td>Source Note + Save + chips</td><td>form</td></tr>
+      <tr class="grprow"><td colspan="3">D · Column 02 — Integrated ledger</td></tr>
+      <tr><td>D1</td><td>Company-first merged card</td><td>ledger</td></tr>
+      <tr><td>D2</td><td>4-tier status pill</td><td>ledger</td></tr>
+      <tr><td>D3</td><td>Header invested + counts</td><td>ledger</td></tr>
+      <tr><td>D4</td><td>[HELD] rows</td><td>ledger</td></tr>
+      <tr><td>D5</td><td>[WATCH] rows (Move + Details)</td><td>ledger</td></tr>
+      <tr><td>D6</td><td>Multi-broker compare card</td><td>ledger</td></tr>
+      <tr><td>D7</td><td>Buy-step line</td><td>ledger</td></tr>
+      <tr><td>D8</td><td>Browse NSDL Depository List</td><td>ledger</td></tr>
+      <tr class="grprow"><td colspan="3">E · Column 03 — Move to Portfolio</td></tr>
+      <tr><td>E1</td><td>Conversion form (4 inputs)</td><td>conversion</td></tr>
+      <tr><td>E2</td><td>Link to Goal</td><td>conversion</td></tr>
+      <tr><td>E3</td><td>Update-goals detour</td><td>conversion</td></tr>
+      <tr><td>E4</td><td>Confirm Move + broker note</td><td>conversion</td></tr>
+      <tr class="grprow"><td colspan="3">F · Column 04 — Remove flow</td></tr>
+      <tr><td>F1</td><td>4-step buried delete</td><td>removal</td></tr>
+      <tr><td>F2</td><td>Overflow bottom-sheet actions</td><td>removal</td></tr>
+      <tr><td>F3</td><td>Type-ISIN + hold-2s guard</td><td>removal</td></tr>
+      <tr><td>F4</td><td>Guarded note (held never deleted)</td><td>removal</td></tr>
+      <tr class="grprow"><td colspan="3">G · Column 05 — First open</td></tr>
+      <tr><td>G1</td><td>First-open defaults (LEDGER, zeros)</td><td>first_run</td></tr>
+      <tr><td>G2</td><td>Empty state + Add first bond CTA</td><td>first_run</td></tr>
+      <tr><td>G3</td><td>FAB page semantics</td><td>first_run</td></tr>
     </tbody>
   </table>
   </div>
-  <div style="font-size:11px;color:var(--dim);margin-top:10px">Source of truth: <b>docs/requirements/watchlist_psrs_20261126.json</b> (40 requirements · 40 acceptance criteria · 40 test cases · 40 bindings — the psrs/SQLite format). This table is its readable view; the A–G sections below carry component detail only (phase lives here, once). Conditional: if alerts defer entirely, A3 ships WATCHING-only and B1–B2 stay v1.1.</div>
 </section>
 
 <section>
-  <h2>Overall component inventory — deduplicated build list <span class="count">4 categories</span></h2>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every unique UI component across all 40 features with total usage counts — what Flutter must build, once each, no duplicates.</div>
+  <h2>2 · Overall component inventory <span class="count">4 categories</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every unique UI component across all 40 features, counted once — the deduplicated build list.</div>
   <div class="inv">
     <div class="box">
       <h3>Inputs &amp; form fields</h3>
@@ -205,11 +175,13 @@
       </ul>
     </div>
   </div>
-  <div style="font-size:11px;color:var(--dim);margin-top:10px">Counts = distinct widget instances to implement (a component used in 3 features counts once per feature). Flutter mapping: row → Row/Container · chip → Chip · input → TextField/DropdownButtonFormField · sheet → showModalBottomSheet · dialog → AlertDialog · FAB → FloatingActionButton.</div>
 </section>
 
 <section>
-  <h2>A · App shell (every frame) <span class="count">5</span></h2>
+  <h2>3 · Per-feature components (inline) <span class="count">40</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Each feature with the components it is built from, right under it.</div>
+
+  <h2 style="margin-top:14px">A · App shell (every frame) <span class="count">5</span></h2>
   <ol class="grp">
     <li>Top app bar — brand + sync + notifications (badge) + avatar <span class="comps">app-bar row · brand label · sync icon-button · notification icon-button + badge dot (Stack) · avatar circle</span></li>
     <li>Sticky segmented tabs — ADD FORM | LEDGER with live counts <span class="comps">segmented control (2 segments) · count labels · sticky wrapper</span></li>
@@ -217,18 +189,14 @@
     <li>Bottom navigation — Dashboard · Portfolio · <b>Watchlist (active)</b> · Goals · More <span class="comps">nav bar · 5 items (icon + label) · active highlight state</span></li>
     <li>FAB + (56px) — page-specific action semantics <span class="comps">FAB (56px) · plus icon · page-specific route action</span></li>
   </ol>
-</section>
 
-<section>
-  <h2>B · Notifications (above the form) <span class="count">2</span></h2>
+  <h2 style="margin-top:14px">B · Notifications <span class="count">2</span></h2>
   <ol class="grp">
     <li>CRISIL Rating Watch alert card — Critical severity + advisory text <span class="comps">alert card · severity chip (Critical, red) · warning icon · title · body text</span></li>
     <li>Alert actions — Read Advisory + Dismiss <span class="comps">text-button (Read Advisory) · ghost-button (Dismiss)</span></li>
   </ol>
-</section>
 
-<section>
-  <h2>C · Column 01 — Add Bond form <span class="count">14</span></h2>
+  <h2 style="margin-top:14px">C · Column 01 — Add Bond form <span class="count">14</span></h2>
   <ol class="grp">
     <li>Form hidden on open — appears only after tapping FAB + <span class="comps">visibility controller · FAB trigger · sheet presentation (no new widget)</span></li>
     <li>Quick ISIN Lookup with Fetch button <span class="comps">text-field (ISIN) · primary button (Fetch) · lookup icon</span></li>
@@ -245,10 +213,8 @@
     <li>Broker typeahead — GoldenPi · Grip Invest · IndiaBonds · Zerodha + free-text entry <span class="comps">autocomplete input · suggestion chips ×4 · free text</span></li>
     <li>Source Note (optional) — where the lead came from · Save to Watchlist button · auto/"you enter" chips on every field <span class="comps">multiline note input · primary button (Save) · auto/"you enter" field chips</span></li>
   </ol>
-</section>
 
-<section>
-  <h2>D · Column 02 — Integrated ledger <span class="count">8</span></h2>
+  <h2 style="margin-top:14px">D · Column 02 — Integrated ledger <span class="count">8</span></h2>
   <ol class="grp">
     <li>Company-first merged view — Held + Watch in one list, no separate tabs <span class="comps">card container · company header block</span></li>
     <li>4-tier status pill — Danger &gt; Maturing &gt; On-going &gt; Matured <span class="comps">status chip · tier color mapping (4 colors)</span></li>
@@ -259,30 +225,24 @@
     <li>Buy-step line <span class="new">new 2026-11-26</span> — "Buy at your broker first, then return here — Move to Portfolio records that broker." <span class="comps">hint line (10px muted) · arrow/cart icon</span></li>
     <li>Browse NSDL Depository List button <span class="comps">outline button · inventory icon · label</span></li>
   </ol>
-</section>
 
-<section>
-  <h2>E · Column 03 — Move to Portfolio <span class="count">4</span></h2>
+  <h2 style="margin-top:14px">E · Column 03 — Move to Portfolio <span class="count">4</span></h2>
   <ol class="grp">
     <li>Conversion form — Purchased Quantity · Invested Amount · Execution/Ref Date · Demat/Broker Ref (all empty) <span class="comps">section header (verified icon + title + meta) · inputs ×4: quantity, amount, date picker, broker ref</span></li>
     <li>Link to Goal (optional) — pick existing goal: Emergency Corpus / Kids Education 2030 / Debt-Free Plan <span class="comps">field label · goal select (3 options) · link-button (Update goals →)</span></li>
     <li>Update goals → detour — leaves, returns with entries intact <span class="comps">navigation route out + return-with-state (no new widget)</span></li>
     <li>Confirm Move + Broker Record Note — verified against depository sync → becomes On-going <span class="comps">primary button (Confirm) · ghost-button (Cancel) · info note line</span></li>
   </ol>
-</section>
 
-<section>
-  <h2>F · Column 04 — Remove flow (guarded delete) <span class="count">4</span></h2>
+  <h2 style="margin-top:14px">F · Column 04 — Remove flow <span class="count">4</span></h2>
   <ol class="grp">
     <li>4-step buried delete — Details → ⋮ overflow → bottom sheet → guarded modal <span class="comps">navigation chain: watch row → detail screen → overflow menu (3 surfaces)</span></li>
     <li>Bottom-sheet actions — View history · Edit target · Share prospectus · Remove (red, buried; never on-card) <span class="comps">modal bottom sheet · action rows ×4 (icon + label) · destructive red style</span></li>
     <li>Type-ISIN-to-confirm + hold 2s guard — "held positions never deleted here" note <span class="comps">dialog · ISIN text-input · hold-2s confirm button (long-press) · warning text · confirm/cancel</span></li>
     <li>Guarded-architecture note — delete always buried, watchlist-only <span class="comps">callout note line</span></li>
   </ol>
-</section>
 
-<section>
-  <h2>G · Column 05 — First open empty state <span class="count">3</span></h2>
+  <h2 style="margin-top:14px">G · Column 05 — First open <span class="count">3</span></h2>
   <ol class="grp">
     <li>First-open behavior — LEDGER tab active, form hidden, zeroed notifications ("0 nothing yet / 0 all clear") <span class="comps">tab control (LEDGER default) · zeroed stat cards ×2</span></li>
     <li>Empty placeholder + "Add first bond" CTA <span class="comps">empty icon (bookmarks) · headline · body text · primary button (Add first bond)</span></li>
@@ -290,13 +250,9 @@
   </ol>
 </section>
 
-<div class="note">
-  Not counted as features: the device status bar (time/signal/wifi/battery) is Android system chrome shown for mockup realism — the app does not build it; and the phone bezel/rounded frame is mockup chrome. Cross-cutting: documented back-behavior (system back closes the form with entries preserved; goals detour returns to Move-to-Portfolio intact) · 412dp viewport · Midnight Ledger tokens · design locked in STITCH_LOCK_REGISTRY (screen 5bdaa0cf, commit 9ddaf0a9 for the buy-step line).
-</div>
-
 <footer>
   <span>DK BOND SYSTEM v3.4 · STRICT MIDNIGHT LEDGER TOKENS</span>
-  <span>Generated 2026-11-26 · source: watchlist_all_sections.html + design notes + manifest</span>
+  <span>Source: watchlist_all_sections.html (LOCKED) · Requirements/RTM: watchlist_rtm.html (ON HOLD) + docs/requirements/watchlist_psrs_20261126.json</span>
 </footer>
 
 </div>
