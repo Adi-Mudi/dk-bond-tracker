@@ -301,6 +301,25 @@
   .scrub .line .ok { color:var(--green); }
   .triage { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
   @media (max-width:700px){ .triage { grid-template-columns:1fr; } }
+  /* gestures visuals */
+  .gmap { width:100%; border-collapse:collapse; font-size:12px; }
+  .gmap td { padding:7px 10px; border-bottom:1px dashed rgba(42,58,76,.5); }
+  .gmap .verdict { width:90px; font-weight:700; font-size:11px; }
+  .verdict.ok { color:var(--green); }
+  .verdict.no { color:var(--red); }
+  .verdict.pending { color:var(--amber); }
+  .twin { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; }
+  @media (max-width:600px){ .twin { grid-template-columns:1fr; } }
+  .lockchain { display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; margin-top:8px; }
+  .lockstep { background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:7px 10px; font-size:11px; color:var(--ink); }
+  .lockstep.hot { border-color:rgba(248,113,113,.55); color:var(--red); }
+  .lockarrow { color:var(--dim); }
+  .feedback4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  @media (max-width:700px){ .feedback4 { grid-template-columns:1fr 1fr; } }
+  .fb { background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:10px; text-align:center; font-size:11px; color:var(--muted); }
+  .fb b { display:block; color:var(--ink); font-size:12px; margin-bottom:4px; }
+  .fb.gap { border-color:rgba(245,158,11,.5); }
+  .fb.gap b { color:var(--amber); }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -1505,6 +1524,104 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 13 DEEP DIVE ============ -->
+<section>
+  <h2 id="e13"><span class="num">13</span> Gestures — the app-wide gesture map and rules</h2>
+  <p class="muted">A gesture = a physical move (tap · long-press · swipe · pull · drag). Decided once at app level — every screen follows. Never redefine a standard gesture; if it fights the system, <b style="color:var(--ink)">the system wins</b>. Per-component choices live inside this frame.</p>
+
+  <h3>Part 1 · The gesture map</h3>
+  <table class="gmap">
+    <tr><td><b>Tap</b> — the universal action</td><td class="verdict ok">✅ ALLOWED</td><td>all core flows work by tap alone</td></tr>
+    <tr><td><b>Vertical scroll</b></td><td class="verdict ok">✅ ALLOWED</td><td>the second gesture users know</td></tr>
+    <tr><td><b>Hold 2s + typed ISIN</b> — remove only</td><td class="verdict ok">✅ ALLOWED</td><td>destructive, hence the lock</td></tr>
+    <tr><td><b>Swipe-to-delete on rows</b></td><td class="verdict no">❌ BANNED</td><td>conflicts with guarded delete — visible delete lives in Details → ⋮</td></tr>
+    <tr><td><b>Pull-to-refresh</b></td><td class="verdict pending">⚠ DECIDE</td><td>sync button exists; add pull too, or button only?</td></tr>
+    <tr><td><b>Sheet swipe-down dismiss</b></td><td class="verdict pending">⚠ TO WRITE</td><td>handle exists; dismissal must keep typed entries</td></tr>
+    <tr><td><b>Edge swipe (system back)</b></td><td class="verdict ok">🖥 SYSTEM</td><td>OS owns edges — never override</td></tr>
+    <tr><td><b>Double-tap / pinch / drag-reorder</b></td><td class="verdict no">❌ NOT USED</td><td>add to this map first if ever needed</td></tr>
+  </table>
+
+  <h3>Part 2 · Visible twin for every gesture</h3>
+  <div class="diagram">
+    <div class="twin">
+      <div class="card" style="padding:12px">
+        <h4 style="color:var(--green);font-size:11px">Users reliably know</h4>
+        <p style="font-size:12px;margin:0"><b>Tap</b> + <b>vertical scroll</b> — everything else is a hidden shortcut.</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="card" style="padding:12px">
+        <h4 style="color:var(--accent-soft);font-size:11px">Rule</h4>
+        <p style="font-size:12px;margin:0">Every gesture needs a <b>visible, tappable twin</b>. Apple · Material · WCAG all require it. <b>No action reachable only by gesture.</b></p>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">✓ Your guarded delete already complies — the entire chain is taps (and a hold)</div>
+  </div>
+
+  <h3>Part 3 · System owns the edges</h3>
+  <div class="diagram">
+    <div class="flow3">
+      <div class="flowbox" style="border-color:var(--red);color:var(--red)">Left edge<br><span style="font-size:10px">system swipe-back</span></div>
+      <div class="flowbox hl">App content area<br><span style="color:var(--muted);font-size:10px">your gestures live ONLY here</span></div>
+      <div class="flowbox" style="border-color:var(--red);color:var(--red)">Bottom edge<br><span style="font-size:10px">system home gesture</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">No custom swipe in edge zones · test on gesture-nav phones (no hardware back button) where swipe-from-left = back</div>
+  </div>
+
+  <h3>Part 4 · Safety for destructive gestures — your delete lock ✓</h3>
+  <div class="diagram">
+    <div class="diag-title">destructive never fires from one accidental movement</div>
+    <div class="lockchain">
+      <span class="lockstep">1 · Tap Details</span><span class="lockarrow">→</span>
+      <span class="lockstep">2 · Tap ⋮ overflow</span><span class="lockarrow">→</span>
+      <span class="lockstep">3 · Bottom sheet</span><span class="lockarrow">→</span>
+      <span class="lockstep">4 · Remove (red)</span><span class="lockarrow">→</span>
+      <span class="lockstep hot">5 · Type full ISIN</span><span class="lockarrow">→</span>
+      <span class="lockstep hot">6 · Hold 2s</span><span class="lockarrow">→</span>
+      <span class="lockstep hot">✓ Removed</span>
+    </div>
+    <div style="font-size:11px;color:var(--green);text-align:center;margin-top:10px">✓ Your delete lock: buried + typed confirmation + timed hold = accidental swipe can never destroy data · confirmation satisfies Part 4 (undo = alternative)</div>
+  </div>
+
+  <h3>Part 5 · Immediate feedback — every gesture proves it registered</h3>
+  <div class="feedback4">
+    <div class="fb"><b>Press</b>highlight + scale (locked: 0.90 + dim 62%)</div>
+    <div class="fb"><b>Drag</b>item follows the finger</div>
+    <div class="fb"><b>Pull</b>loading indicator appears</div>
+    <div class="fb gap"><b>Long-press</b>⚠ progress ring / ripple — NOT yet designed (hold-2s gap)</div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">No feedback = user doesn't know it worked → repeats the gesture → double actions.</p>
+
+  <h3>Part 6 · Discoverability — reveal the hidden ones</h3>
+  <div class="jobs" style="margin-top:8px">
+    <div class="job"><b>First-time hint</b>one-time nudge when a gesture matters</div>
+    <div class="job"><b>Visible handle</b>✓ sheet drag-handle already designed</div>
+    <div class="job"><b>Subtle row label</b>if swipeable rows ever exist (they're banned for delete)</div>
+  </div>
+
+  <h3>Part 7 · Accessibility — no gesture-only paths</h3>
+  <div class="card" style="margin-top:8px;border-color:rgba(192,132,252,.4)">
+    <ul>
+      <li>Precision / speed / multi-finger gestures need a <b>simple alternative</b> (limited-movement users)</li>
+      <li>Screen readers must trigger <b>every</b> gesture-driven action (TalkBack input model)</li>
+      <li><b>No gesture-only path may exclude a user who cannot perform that gesture</b> — formal "Rule zero: every gesture needs a tap equivalent"</li>
+    </ul>
+  </div>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Tap-only core + guarded delete lock</td><td><span class="pill g">compliant</span></td><td>Parts 1/2/4 already satisfied</td></tr>
+      <tr><td>Sheet drag handle (discoverability)</td><td><span class="pill g">designed</span></td><td>Part 6 ✓</td></tr>
+      <tr><td>Hold-2s progress ring/ripple</td><td><span class="pill a">build</span></td><td>Part 5 gap — Stitch component</td></tr>
+      <tr><td>Pull-to-refresh decision</td><td><span class="pill a">DECIDE</span></td><td>button-only vs +pull (pending your call)</td></tr>
+      <tr><td>Sheet swipe-dismiss rule</td><td><span class="pill a">write</span></td><td>mirror of back rule: keeps entries</td></tr>
+      <tr><td>Gesture-nav device test</td><td><span class="pill a">build</span></td><td>Part 3 — no hardware-back phones</td></tr>
+      <tr><td>Tap-equivalent checklist in reviews</td><td><span class="pill a">build</span></td><td>Part 7 enforcement</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -1606,6 +1723,7 @@
   <a href="#e9">9 · Words</a>
   <a href="#e11">11 · Secure</a>
   <a href="#e12">12 · Blackbox</a>
+  <a href="#e13">13 · Gestures</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
