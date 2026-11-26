@@ -1592,7 +1592,7 @@
     <tr><td><b>Hold 2s + typed ISIN</b> — remove only</td><td class="verdict ok">✅ ALLOWED</td><td>destructive, hence the lock</td></tr>
     <tr><td><b>Swipe-to-delete on rows</b></td><td class="verdict no">❌ BANNED</td><td>conflicts with guarded delete — visible delete lives in Details → ⋮</td></tr>
     <tr><td><b>Pull-to-refresh</b></td><td class="verdict ok">✅ BUTTON-ONLY</td><td>DECIDED: sync icon only for MVP — no pull gesture (locked #6)</td></tr>
-    <tr><td><b>Sheet swipe-down dismiss</b></td><td class="verdict pending">⚠ TO WRITE</td><td>handle exists; dismissal must keep typed entries</td></tr>
+    <tr><td><b>Sheet swipe-down dismiss</b></td><td class="verdict ok">✅ ALLOWED</td><td>DECIDED: drag-down dismisses and KEEPS typed entries (mirrors back rule)</td></tr>
     <tr><td><b>Edge swipe (system back)</b></td><td class="verdict ok">🖥 SYSTEM</td><td>OS owns edges — never override</td></tr>
     <tr><td><b>Double-tap / pinch / drag-reorder</b></td><td class="verdict no">❌ NOT USED</td><td>add to this map first if ever needed</td></tr>
   </table>
@@ -1922,6 +1922,9 @@
       <tr><td>4</td><td>Chips vs48dp</td><td><b style="color:#4ADE80">Visual stays compact · invisible48dp hit area via InkWell</b></td><td>keeps design + satisfies the standing48dp rule</td></tr>
       <tr><td>5</td><td>bonds.db identifiers / encryption</td><td><b style="color:#4ADE80">No personal identifiers in bonds.db, EVER · encryption decision deferred to auth/fetch phase</b></td><td>vault rule now enforced; SQLCipher revisit when tokens ship</td></tr>
       <tr><td>6</td><td>Pull-to-refresh</td><td><b style="color:#4ADE80">Sync button only for MVP</b> (no pull gesture)</td><td>one refresh affordance; gesture map stays tap-first</td></tr>
+      <tr><td>7</td><td>Per-tab navigation stacks + back-on-root</td><td><b style="color:#4ADE80">One navigator per tab (Android standard) · back pops only current tab · back on tab root → Dashboard · back on Dashboard root → exit</b></td><td>closes Nav B1; position survives tab switches</td></tr>
+      <tr><td>8</td><td>Network timeouts</td><td><b style="color:#4ADE80">connect5s · receive15s</b></td><td>closes API B2 numbers; Checking always reaches a terminal state</td></tr>
+      <tr><td>9</td><td>Sheet swipe-dismiss</td><td><b style="color:#4ADE80">Drag-down dismisses, KEEPS typed entries</b></td><td>mirrors back rule; closes Gestures B4</td></tr>
     </tbody>
   </table>
   <p class="muted" style="font-size:11px;margin-top:8px">All six are now binding — update any doc that still shows these as DECIDE/pending.</p>
