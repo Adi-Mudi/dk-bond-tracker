@@ -30,6 +30,10 @@
   .note { background:rgba(36,86,230,.08); border:1px solid rgba(36,86,230,.35); border-radius:10px; padding:12px 16px; font-size:12px; color:var(--accent-soft); margin-top:20px; }
   footer { margin-top:28px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
   .grp { counter-reset:feat; }
+  .badge { display:inline-block; font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-radius:4px; padding:1px 6px; margin-left:8px; vertical-align:middle; }
+  .badge.mvp { background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.5); }
+  .badge.later { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.45); }
+  .badge.mix { background:rgba(147,180,255,.12); color:var(--accent-soft); border:1px solid rgba(147,180,255,.4); }
   .split { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:720px){ .split { grid-template-columns:1fr; } }
   .split .box { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:14px 16px; }
@@ -92,88 +96,88 @@
       </ul>
     </div>
   </div>
-  <div style="font-size:11px;color:var(--dim);margin-top:10px">0 dropped · conditional: if alerts are deferred entirely, the stat strip ships WATCHING-only and B1–B2 stay post-MVP.</div>
+  <div style="font-size:11px;color:var(--dim);margin-top:10px">0 dropped · conditional: if alerts are deferred entirely, the stat strip ships WATCHING-only and B1–B2 stay post-MVP. · Badge legend below each section: <span class="badge mvp">MVP</span> ship first · <span class="badge later">v1.1</span> post-MVP · <span class="badge mix">split</span> partly later.</div>
 </section>
 
 <section>
   <h2>A · App shell (every frame) <span class="count">5</span></h2>
   <ol class="grp">
-    <li>Top app bar — brand + sync + notifications (badge) + avatar</li>
-    <li>Sticky segmented tabs — ADD FORM | LEDGER with live counts</li>
-    <li>Stat strip — WATCHING (active count) + ALERTS (sub-line, e.g. "1 Rating Watch")</li>
-    <li>Bottom navigation — Dashboard · Portfolio · <b>Watchlist (active)</b> · Goals · More</li>
-    <li>FAB + (56px) — page-specific action semantics</li>
+    <li>Top app bar — brand + sync + notifications (badge) + avatar <span class="badge mvp">MVP</span></li>
+    <li>Sticky segmented tabs — ADD FORM | LEDGER with live counts <span class="badge mvp">MVP</span></li>
+    <li>Stat strip — WATCHING (active count) + ALERTS (sub-line, e.g. "1 Rating Watch") <span class="badge mvp">MVP</span></li>
+    <li>Bottom navigation — Dashboard · Portfolio · <b>Watchlist (active)</b> · Goals · More <span class="badge mvp">MVP</span></li>
+    <li>FAB + (56px) — page-specific action semantics <span class="badge mvp">MVP</span></li>
   </ol>
 </section>
 
 <section>
   <h2>B · Notifications (above the form) <span class="count">2</span></h2>
   <ol class="grp">
-    <li>CRISIL Rating Watch alert card — Critical severity + advisory text</li>
-    <li>Alert actions — Read Advisory + Dismiss</li>
+    <li>CRISIL Rating Watch alert card — Critical severity + advisory text <span class="badge later">v1.1</span></li>
+    <li>Alert actions — Read Advisory + Dismiss <span class="badge later">v1.1</span></li>
   </ol>
 </section>
 
 <section>
   <h2>C · Column 01 — Add Bond form <span class="count">14</span></h2>
   <ol class="grp">
-    <li>Form hidden on open — appears only after tapping FAB +</li>
-    <li>Quick ISIN Lookup with Fetch button</li>
-    <li>Fetch states ×4 — Found (NSDL/BSE) · Checking · Offline · Not Found</li>
-    <li>Duplicate-ISIN error banner — blocks same company + active ISIN, shows existing broker, suggests alternatives</li>
-    <li>Section A Identity — Company, ISIN locked chip (immutable), Rating, Rating Agency <span class="auto">auto</span></li>
-    <li>Section B Economics — Coupon <span class="auto">auto</span>, Expected Yield <span class="user">you enter</span>, Face Value <span class="auto">auto</span>, Payout Cycle <span class="auto">auto</span></li>
-    <li>Section C Terms — Issuer Type, Listing Status, Maturity Date <span class="auto">auto</span></li>
-    <li>Interest Credit Day input — day of month interest is credited + helper text</li>
-    <li>Default History — disabled <span class="auto">auto</span> field + COMING SOON chip (background automation planned)</li>
-    <li>Secured NCD field + helper — "asset-backed senior claim"</li>
-    <li>Section D Targets — Target Invested, Planned Quantity <span class="user">you enter</span> (empty by design)</li>
-    <li>Value per unit (auto math) — Target Invested ÷ Quantity, em-dash until both filled</li>
-    <li>Broker typeahead — GoldenPi · Grip Invest · IndiaBonds · Zerodha + free-text entry</li>
-    <li>Source Note (optional) — where the lead came from · Save to Watchlist button · auto/"you enter" chips on every field</li>
+    <li>Form hidden on open — appears only after tapping FAB + <span class="badge mvp">MVP</span></li>
+    <li>Quick ISIN Lookup with Fetch button <span class="badge mvp">MVP</span></li>
+    <li>Fetch states ×4 — Found (NSDL/BSE) · Checking · Offline · Not Found <span class="badge mvp">MVP</span></li>
+    <li>Duplicate-ISIN error banner — blocks same company + active ISIN, shows existing broker, suggests alternatives <span class="badge mvp">MVP</span></li>
+    <li>Section A Identity — Company, ISIN locked chip (immutable), Rating, Rating Agency <span class="auto">auto</span> <span class="badge mvp">MVP</span></li>
+    <li>Section B Economics — Coupon <span class="auto">auto</span>, Expected Yield <span class="user">you enter</span>, Face Value <span class="auto">auto</span>, Payout Cycle <span class="auto">auto</span> <span class="badge mvp">MVP</span></li>
+    <li>Section C Terms — Issuer Type, Listing Status, Maturity Date <span class="auto">auto</span> <span class="badge mvp">MVP</span></li>
+    <li>Interest Credit Day input — day of month interest is credited + helper text <span class="badge mvp">MVP</span></li>
+    <li>Default History — disabled <span class="auto">auto</span> field + COMING SOON chip (background automation planned) <span class="badge later">v1.1</span></li>
+    <li>Secured NCD field + helper — "asset-backed senior claim" <span class="badge mvp">MVP</span></li>
+    <li>Section D Targets — Target Invested, Planned Quantity <span class="user">you enter</span> (empty by design) <span class="badge mvp">MVP</span></li>
+    <li>Value per unit (auto math) — Target Invested ÷ Quantity, em-dash until both filled <span class="badge mvp">MVP</span></li>
+    <li>Broker typeahead — GoldenPi · Grip Invest · IndiaBonds · Zerodha + free-text entry <span class="badge mix">MVP · chips v1.1</span></li>
+    <li>Source Note (optional) — where the lead came from · Save to Watchlist button · auto/"you enter" chips on every field <span class="badge mix">MVP · note v1.1</span></li>
   </ol>
 </section>
 
 <section>
   <h2>D · Column 02 — Integrated ledger <span class="count">8</span></h2>
   <ol class="grp">
-    <li>Company-first merged view — Held + Watch in one list, no separate tabs</li>
-    <li>4-tier status pill — Danger &gt; Maturing &gt; On-going &gt; Matured</li>
-    <li>Company header — total invested + "N bonds / X completed / Y ongoing" counts</li>
-    <li>[HELD] rows — ISIN, units, settled amount, or "Maturing in 4 days" countdown</li>
-    <li>[WATCH] rows — broker, cycle • date • structure, yield %, Move to Portfolio + Details</li>
-    <li>Multi-broker compare card — same ISIN at 3 brokers, yields, Best Yield tag, Select button</li>
-    <li>Buy-step line <span class="new">new 2026-11-26</span> — "Buy at your broker first, then return here — Move to Portfolio records that broker."</li>
-    <li>Browse NSDL Depository List button</li>
+    <li>Company-first merged view — Held + Watch in one list, no separate tabs <span class="badge mvp">MVP</span></li>
+    <li>4-tier status pill — Danger &gt; Maturing &gt; On-going &gt; Matured <span class="badge mvp">MVP</span></li>
+    <li>Company header — total invested + "N bonds / X completed / Y ongoing" counts <span class="badge mvp">MVP</span></li>
+    <li>[HELD] rows — ISIN, units, settled amount, or "Maturing in 4 days" countdown <span class="badge mvp">MVP</span></li>
+    <li>[WATCH] rows — broker, cycle • date • structure, yield %, Move to Portfolio + Details <span class="badge mvp">MVP</span></li>
+    <li>Multi-broker compare card — same ISIN at 3 brokers, yields, Best Yield tag, Select button <span class="badge later">v1.1</span></li>
+    <li>Buy-step line <span class="new">new 2026-11-26</span> — "Buy at your broker first, then return here — Move to Portfolio records that broker." <span class="badge later">v1.1</span></li>
+    <li>Browse NSDL Depository List button <span class="badge later">v1.1</span></li>
   </ol>
 </section>
 
 <section>
   <h2>E · Column 03 — Move to Portfolio <span class="count">4</span></h2>
   <ol class="grp">
-    <li>Conversion form — Purchased Quantity · Invested Amount · Execution/Ref Date · Demat/Broker Ref (all empty)</li>
-    <li>Link to Goal (optional) — pick existing goal: Emergency Corpus / Kids Education 2030 / Debt-Free Plan</li>
-    <li>Update goals → detour — leaves, returns with entries intact</li>
-    <li>Confirm Move + Broker Record Note — verified against depository sync → becomes On-going</li>
+    <li>Conversion form — Purchased Quantity · Invested Amount · Execution/Ref Date · Demat/Broker Ref (all empty) <span class="badge mvp">MVP</span></li>
+    <li>Link to Goal (optional) — pick existing goal: Emergency Corpus / Kids Education 2030 / Debt-Free Plan <span class="badge later">v1.1</span></li>
+    <li>Update goals → detour — leaves, returns with entries intact <span class="badge later">v1.1</span></li>
+    <li>Confirm Move + Broker Record Note — verified against depository sync → becomes On-going <span class="badge mvp">MVP</span></li>
   </ol>
 </section>
 
 <section>
   <h2>F · Column 04 — Remove flow (guarded delete) <span class="count">4</span></h2>
   <ol class="grp">
-    <li>4-step buried delete — Details → ⋮ overflow → bottom sheet → guarded modal</li>
-    <li>Bottom-sheet actions — View history · Edit target · Share prospectus · Remove (red, buried; never on-card)</li>
-    <li>Type-ISIN-to-confirm + hold 2s guard — "held positions never deleted here" note</li>
-    <li>Guarded-architecture note — delete always buried, watchlist-only</li>
+    <li>4-step buried delete — Details → ⋮ overflow → bottom sheet → guarded modal <span class="badge mvp">MVP</span></li>
+    <li>Bottom-sheet actions — View history · Edit target · Share prospectus · Remove (red, buried; never on-card) <span class="badge mvp">MVP</span></li>
+    <li>Type-ISIN-to-confirm + hold 2s guard — "held positions never deleted here" note <span class="badge mvp">MVP</span></li>
+    <li>Guarded-architecture note — delete always buried, watchlist-only <span class="badge mvp">MVP</span></li>
   </ol>
 </section>
 
 <section>
   <h2>G · Column 05 — First open empty state <span class="count">3</span></h2>
   <ol class="grp">
-    <li>First-open behavior — LEDGER tab active, form hidden, zeroed notifications ("0 nothing yet / 0 all clear")</li>
-    <li>Empty placeholder + "Add first bond" CTA</li>
-    <li>FAB page semantics — Dashboard/Portfolio/Watchlist + → Add Bond form; Goals + → Goal form (in design)</li>
+    <li>First-open behavior — LEDGER tab active, form hidden, zeroed notifications ("0 nothing yet / 0 all clear") <span class="badge mvp">MVP</span></li>
+    <li>Empty placeholder + "Add first bond" CTA <span class="badge mvp">MVP</span></li>
+    <li>FAB page semantics — Dashboard/Portfolio/Watchlist + → Add Bond form; Goals + → Goal form (in design) <span class="badge mvp">MVP</span></li>
   </ol>
 </section>
 
