@@ -88,35 +88,63 @@
 </header>
 
 <section>
-  <h2>MVP split — 32 ship first (2 partial) · 8 full v1.1 <span class="count">40</span></h2>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">MVP = the core loop only: <b style="color:var(--ink)">add a bond → see it in the ledger → convert to portfolio (or remove)</b>, backed by what the existing backend already supports (watch form, credit_day, alerts). Post-MVP = convenience, edge cases and cross-feature integrations.</div>
-  <div class="split">
-    <div class="box mvp">
-      <h3>MVP — 32 rows (30 full + 2 partial)</h3>
-      <ul>
-        <li>A1–A5 · App shell <span class="full">all 5: top bar, tabs, stat strip, bottom nav, FAB</span></li>
-        <li>C1–C8, C10–C12 · Add form <span class="full">hidden-on-open, ISIN lookup+fetch, 3 fetch states, dup error, Identity/Economics/Terms auto fields, Interest Credit Day, Secured NCD, Targets, value-per-unit math</span></li>
-        <li>C13a + C14b · Free-text broker entry · Save + auto/"you enter" chips</li>
-        <li>D1–D5 · Integrated ledger <span class="full">company-first view, 4-tier status pill, header counts, [HELD] rows, [WATCH] rows with Move + Details</span></li>
-        <li>E1, E4 · Move to Portfolio <span class="full">conversion form (qty/amount/date/broker ref) + Confirm with broker record note</span></li>
-        <li>F1–F4 · Guarded delete <span class="full">full approved 4-step flow — delete must exist even at low frequency</span></li>
-        <li>G1–G3 · First-open <span class="full">LEDGER-first behavior, empty placeholder + CTA, FAB page semantics</span></li>
-      </ul>
-    </div>
-    <div class="box later">
-      <h3>Post-MVP — 8 full rows + 2 sub-parts (v1.1)</h3>
-      <ul>
-        <li>B1–B2 · Rating Watch alert card + Read/Dismiss <span>backend alerts.py exists — pull into MVP only if alerts ship in the same release</span></li>
-        <li>C9 · Default History (COMING SOON) <span>disabled by design — background automation later</span></li>
-        <li>C13b · Broker suggestion chips <span>free text covers MVP; chips are convenience</span></li>
-        <li>C14a · Source Note <span>optional metadata</span></li>
-        <li>D6–D7 · Multi-broker compare card + buy-step line <span>edge case: same ISIN at 3 brokers</span></li>
-        <li>D8 · Browse NSDL Depository List <span>bulk-add convenience</span></li>
-        <li>E2–E3 · Link to Goal + Update-goals detour <span>Goals integration — works without it</span></li>
-      </ul>
-    </div>
+  <h2>RTM — Requirements Traceability Matrix <span class="count">40</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">One row per feature, grouped by area (A–G). <b style="color:var(--ink)">Phase</b> = which release to build (MVP · v1.1 · split). <b style="color:var(--ink)">Requirement</b> = what the app shall do. <b style="color:var(--ink)">Acceptance</b> = the check that proves it. Read top-to-bottom: every row is traceable feature → requirement → acceptance → test.</div>
+  <div class="cmap">
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Phase</th><th>Requirement (shall)</th><th>Acceptance check</th></tr></thead>
+    <tbody>
+      <tr class="grprow"><td colspan="5">A · App shell</td></tr>
+      <tr><td>A1</td><td>Top app bar</td><td><span class="badge mvp">MVP</span></td><td>Every screen SHALL show brand, sync, bell+badge, avatar</td><td>Open any screen → all 4 controls visible</td></tr>
+      <tr><td>A2</td><td>Sticky tabs</td><td><span class="badge mvp">MVP</span></td><td>Watchlist SHALL show sticky ADD FORM | LEDGER tabs with live counts</td><td>Scroll content → tabs stay pinned; counts match data</td></tr>
+      <tr><td>A3</td><td>Stat strip</td><td><span class="badge mvp">MVP</span></td><td>Strip SHALL show WATCHING + ALERTS counts above content</td><td>Stats equal ledger/alert totals</td></tr>
+      <tr><td>A4</td><td>Bottom navigation</td><td><span class="badge mvp">MVP</span></td><td>5-tab nav SHALL mark Watchlist active and navigate on tap</td><td>Each tab navigates; Watchlist highlighted</td></tr>
+      <tr><td>A5</td><td>FAB +</td><td><span class="badge mvp">MVP</span></td><td>FAB SHALL open Add Bond on Watchlist (page-specific route)</td><td>Tap + → form opens; on Goals → Goal form</td></tr>
+      <tr class="grprow"><td colspan="5">B · Notifications</td></tr>
+      <tr><td>B1</td><td>Rating Watch card</td><td><span class="badge later">v1.1</span></td><td>App SHALL surface critical rating-watch alerts as a card</td><td>Alert exists → card with severity + advisory text shown</td></tr>
+      <tr><td>B2</td><td>Alert actions</td><td><span class="badge later">v1.1</span></td><td>Card SHALL offer Read Advisory + Dismiss</td><td>Tap each → advisory opens / card dismissed</td></tr>
+      <tr class="grprow"><td colspan="5">C · Column 01 — Add Bond form</td></tr>
+      <tr><td>C1</td><td>Hidden-on-open form</td><td><span class="badge mvp">MVP</span></td><td>Form SHALL stay hidden until FAB or ADD FORM tab tap</td><td>First open → no form; tap + → form appears</td></tr>
+      <tr><td>C2</td><td>ISIN lookup + Fetch</td><td><span class="badge mvp">MVP</span></td><td>Lookup SHALL accept a 12-char ISIN and run Fetch</td><td>Valid ISIN → fetch starts; result shown</td></tr>
+      <tr><td>C3</td><td>Fetch states ×4</td><td><span class="badge mvp">MVP</span></td><td>Lookup SHALL indicate Found / Checking / Offline / Not Found</td><td>Trigger each state → correct indicator renders</td></tr>
+      <tr><td>C4</td><td>Duplicate-ISIN banner</td><td><span class="badge mvp">MVP</span></td><td>Duplicate active ISIN SHALL be blocked with guidance + existing broker</td><td>Add existing ISIN → red banner, broker named, no save</td></tr>
+      <tr><td>C5</td><td>Identity fields</td><td><span class="badge mvp">MVP</span></td><td>Identity SHALL auto-fill from fetch; ISIN locked immutable</td><td>Fetch success → fields filled; ISIN chip shows lock</td></tr>
+      <tr><td>C6</td><td>Economics fields</td><td><span class="badge mvp">MVP</span></td><td>Economics SHALL mark auto vs user-entered fields</td><td>Render → chips correct; Yield empty for user</td></tr>
+      <tr><td>C7</td><td>Terms fields</td><td><span class="badge mvp">MVP</span></td><td>Issuer, listing, maturity SHALL auto-fill from fetch</td><td>Fetch → three fields populated + auto chips</td></tr>
+      <tr><td>C8</td><td>Interest Credit Day</td><td><span class="badge mvp">MVP</span></td><td>Form SHALL capture credit day of month (1–31)</td><td>Enter day → saved with the position</td></tr>
+      <tr><td>C9</td><td>Default History</td><td><span class="badge later">v1.1</span></td><td>Field SHALL be disabled with COMING SOON until automation</td><td>Render → disabled + chip; no edit possible</td></tr>
+      <tr><td>C10</td><td>Secured NCD</td><td><span class="badge mvp">MVP</span></td><td>Secured flag SHALL display with helper text</td><td>Render → value + "senior claim" helper visible</td></tr>
+      <tr><td>C11</td><td>Target fields</td><td><span class="badge mvp">MVP</span></td><td>Targets SHALL accept user amounts, empty by default</td><td>Open → empty; typing → accepted</td></tr>
+      <tr><td>C12</td><td>Value per unit math</td><td><span class="badge mvp">MVP</span></td><td>Value/unit SHALL compute Target ÷ Quantity</td><td>Both entered → value; one missing → em-dash</td></tr>
+      <tr><td>C13</td><td>Broker typeahead</td><td><span class="badge mix">split</span></td><td>Broker SHALL accept free text (MVP); suggestion chips later</td><td>Type any broker → accepted; chips = v1.1</td></tr>
+      <tr><td>C14</td><td>Source Note + Save</td><td><span class="badge mix">split</span></td><td>Save SHALL persist the watch entry; Source Note optional (v1.1)</td><td>Save → appears in ledger; note field optional</td></tr>
+      <tr class="grprow"><td colspan="5">D · Column 02 — Integrated ledger</td></tr>
+      <tr><td>D1</td><td>Company-first card</td><td><span class="badge mvp">MVP</span></td><td>Ledger SHALL group held + watch by company (no separate tabs)</td><td>Render → one card per company with nested rows</td></tr>
+      <tr><td>D2</td><td>4-tier status pill</td><td><span class="badge mvp">MVP</span></td><td>Card SHALL show status: Danger &gt; Maturing &gt; On-going &gt; Matured</td><td>Each status → correct tier color pill</td></tr>
+      <tr><td>D3</td><td>Header counts</td><td><span class="badge mvp">MVP</span></td><td>Header SHALL show total invested + bond/completed/ongoing counts</td><td>Data change → counts update to match</td></tr>
+      <tr><td>D4</td><td>[HELD] rows</td><td><span class="badge mvp">MVP</span></td><td>Held ISINs SHALL show units, settled amount, countdown</td><td>Held data → row renders all four fields</td></tr>
+      <tr><td>D5</td><td>[WATCH] rows</td><td><span class="badge mvp">MVP</span></td><td>Watch rows SHALL show broker, meta, yield, Move + Details</td><td>Row renders; Move opens form; Details opens detail</td></tr>
+      <tr><td>D6</td><td>Multi-broker compare card</td><td><span class="badge later">v1.1</span></td><td>Same ISIN at multiple brokers SHALL show a compare card</td><td>3 brokers → card lists yields + Best Yield + Select</td></tr>
+      <tr><td>D7</td><td>Buy-step line</td><td><span class="badge later">v1.1</span></td><td>Compare card SHALL instruct: buy at broker first, then return</td><td>Card visible → buy-step line under Select</td></tr>
+      <tr><td>D8</td><td>Browse NSDL list</td><td><span class="badge later">v1.1</span></td><td>Page SHALL offer browsing the NSDL depository list</td><td>Tap button → list opens</td></tr>
+      <tr class="grprow"><td colspan="5">E · Column 03 — Move to Portfolio</td></tr>
+      <tr><td>E1</td><td>Conversion form</td><td><span class="badge mvp">MVP</span></td><td>Move SHALL capture quantity, amount, date, broker ref</td><td>Open move → 4 inputs empty and editable</td></tr>
+      <tr><td>E2</td><td>Link to Goal</td><td><span class="badge later">v1.1</span></td><td>Move SHALL optionally attach an existing goal</td><td>Pick goal → attached to the new position</td></tr>
+      <tr><td>E3</td><td>Update-goals detour</td><td><span class="badge later">v1.1</span></td><td>Goal detour SHALL return with form entries intact</td><td>Leave + return → all entered values preserved</td></tr>
+      <tr><td>E4</td><td>Confirm Move</td><td><span class="badge mvp">MVP</span></td><td>Confirm SHALL create held position + broker record note</td><td>Confirm → row becomes HELD/On-going with note</td></tr>
+      <tr class="grprow"><td colspan="5">F · Column 04 — Remove flow</td></tr>
+      <tr><td>F1</td><td>4-step buried delete</td><td><span class="badge mvp">MVP</span></td><td>Delete SHALL be buried: Details → ⋮ → sheet → dialog (never on-card)</td><td>No on-card delete; full chain reachable</td></tr>
+      <tr><td>F2</td><td>Bottom sheet actions</td><td><span class="badge mvp">MVP</span></td><td>Sheet SHALL list 4 actions with Remove styled destructive</td><td>Open ⋮ → history/edit/share/remove shown</td></tr>
+      <tr><td>F3</td><td>Type-ISIN guard</td><td><span class="badge mvp">MVP</span></td><td>Remove SHALL require typed full ISIN + 2s hold; held never deleted</td><td>Wrong ISIN → blocked; correct + hold → entry removed</td></tr>
+      <tr><td>F4</td><td>Guarded note</td><td><span class="badge mvp">MVP</span></td><td>Dialog SHALL state held positions are never deleted here</td><td>Dialog shows the note line</td></tr>
+      <tr class="grprow"><td colspan="5">G · Column 05 — First open</td></tr>
+      <tr><td>G1</td><td>First-open behavior</td><td><span class="badge mvp">MVP</span></td><td>First open SHALL default to LEDGER, form hidden, zeroed stats</td><td>Fresh state → LEDGER active, 0 / 0 shown</td></tr>
+      <tr><td>G2</td><td>Empty state</td><td><span class="badge mvp">MVP</span></td><td>Empty ledger SHALL show placeholder + Add-first-bond CTA</td><td>No data → icon + CTA; tap → form opens</td></tr>
+      <tr><td>G3</td><td>FAB page semantics</td><td><span class="badge mvp">MVP</span></td><td>FAB route SHALL differ per page (Add Bond vs Goal form)</td><td>Each page's + opens the correct form</td></tr>
+    </tbody>
+  </table>
   </div>
-  <div style="font-size:11px;color:var(--dim);margin-top:10px">0 dropped · row-level split: 30 full MVP + 2 partial (C13, C14 ship with sub-parts later) + 8 full v1.1 = 40. Deferred items total 10 when sub-parts (C13b, C14a) are counted. Conditional: if alerts are deferred entirely, the stat strip ships WATCHING-only and B1–B2 stay post-MVP. · Badge legend below each section: <span class="badge mvp">MVP</span> ship first · <span class="badge later">v1.1</span> post-MVP · <span class="badge mix">split</span> partly later.</div>
+  <div style="font-size:11px;color:var(--dim);margin-top:10px">Totals: 32 MVP (30 full + 2 split) · 8 full v1.1 · 0 dropped. Conditional: if alerts defer entirely, A3 ships WATCHING-only and B1–B2 stay v1.1. Badge legend: <span class="badge mvp">MVP</span> · <span class="badge later">v1.1</span> · <span class="badge mix">split</span>.</div>
 </section>
 
 <section>
