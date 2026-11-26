@@ -114,3 +114,33 @@ def test_press_release_data_source_error_returns_data_none():
     assert result["failure_code"] == FAILURE_MALFORMED
     assert result["data"] is None
 
+
+def test_annexure_isins_extracts_one_record_per_isin():
+    from src.bond_master.india_ratings import annexure_isins
+    html = (
+        "<table><tr><td>ISIN</td><td>Instrument</td></tr>"
+        "<tr><td>INE020B08831</td><td>NCD 2023</td></tr>"
+        "<tr><td>INE001A07SW3</td><td>NCD 2024</td></tr>"
+        "<tr><td>INE020B08831</td><td>dup row</td></tr></table>"
+    )
+    records = annexure_isins([{"pressReleaseID": 777, "annexure": html}])
+    assert [r["isin"] for r in records] == ["INE020B08831", "INE001A07SW3"]
+    for record in records:
+        assert record["press_release_id"] == 777
+        assert record["source"] == SOURCE_NAME
+        assert record["as_of"]
+
+
+def test_annexure_isins_empty_on_real_fixture():
+    from src.bond_master.india_ratings import annexure_isins
+    fixture = json.loads(
+        (Path(__file__).parent / "fixtures" / "indiaratings_pr_data.json").read_text(encoding="utf-8")
+    )
+    assert annexure_isins(fixture) == []
+
+
+def test_annexure_isins_non_list_is_empty():
+    from src.bond_master.india_ratings import annexure_isins
+    assert annexure_isins(None) == []
+    assert annexure_isins({"annexure": "INE020B08831"}) == []
+

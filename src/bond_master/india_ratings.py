@@ -13,6 +13,7 @@ import json
 import re
 
 from .transport import build_search_url
+from .normalize import normalize_isin
 from .base import (
     FAILURE_BLOCKED,
     FAILURE_MALFORMED,
@@ -29,6 +30,7 @@ BASE = "https" + "://" + "www.indiaratings.co.in"
 GET_SEARCH = BASE + "/home/GetSearch?searchKey="
 ISSUER_PR = BASE + "/home/GetIssuerPressReleases?issuerId="
 PR_DATA = BASE + "/pressReleases/GetPressreleaseData?pressReleaseId="
+ISIN_TOKEN = re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b")
 
 
 class SourceError(Exception):
@@ -139,3 +141,29 @@ class IndiaRatingsAdapter:
         except Exception:
             return {"failure_code": FAILURE_UNREACHABLE, "data": None}
         return {"failure_code": FAILURE_OK, "data": data}
+
+
+def annexure_isins(data):
+    """One canonical record per ISIN found in PR annexure HTML tables (F15)."""
+    records = []
+    if not isinstance(data, list):
+        return records
+    as_of = utc_as_of()
+    seen = set()
+    for pr in data:
+        if not isinstance(pr, dict):
+            continue
+        pr_id = pr.get("pressReleaseID")
+        annexure = str(pr.get("annexure") or "")
+        for token in ISIN_TOKEN.findall(annexure):
+            isin = normalize_isin(token)
+            if not isin or isin in seen:
+                continue
+            seen.add(isin)
+            records.append({
+                "press_release_id": pr_id,
+                "isin": isin,
+                "source": SOURCE_NAME,
+                "as_of": as_of,
+            })
+    return records

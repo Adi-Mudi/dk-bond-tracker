@@ -117,3 +117,32 @@ def test_rrd_data_connection_error_is_unreachable():
     result = adapter.rrd_data("MYPjaBsE6/+MP8Mnsz03TA==", "2026")
     assert result["failure_code"] == FAILURE_UNREACHABLE
     assert result["data"] is None
+
+
+def test_documents_parses_pr_document_fixture():
+    fixture = json.loads((FIXTURES / "care_pr_document.json").read_text(encoding="utf-8"))
+    url = f"https://www.careratings.com/getSearchprdocument?companyName={CID_ENC_Q}&YearID=2026"
+    adapter, _ = make_adapter({url: fixture})
+    result = adapter.documents(CID_ENC, "2026")
+    assert result["failure_code"] == FAILURE_OK
+    docs = result["documents"]
+    assert len(docs) == len(fixture["data"][0]["PRDocument"])
+    for doc in docs:
+        assert doc["FileURL"]
+        assert doc["source"] == SOURCE_NAME
+        assert doc["as_of"]
+
+
+def test_rrd_data_collects_rrdocument_and_ignores_reports_bloat():
+    fixture = json.loads((FIXTURES / "care_rrd_data.json").read_text(encoding="utf-8"))
+    url = f"https://www.careratings.com/getSearchrrddata?companyName={CID_ENC_Q}&YearID=2026"
+    adapter, _ = make_adapter({url: fixture})
+    result = adapter.rrd_data(CID_ENC, "2026")
+    assert result["failure_code"] == FAILURE_OK
+    rr_docs = fixture["data"][0]["RRDocument"]
+    reports = fixture["data"][0].get("Reports", [])
+    assert len(rr_docs) == 1
+    assert len(reports) >= 1
+    assert len(result["records"]) == len(rr_docs)
+    assert all(r["FileType"] == "RR" for r in result["records"])
+    assert all(r["source"] == SOURCE_NAME and r["as_of"] for r in result["records"])

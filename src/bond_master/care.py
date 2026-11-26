@@ -160,8 +160,7 @@ class CareAdapter:
             return {"failure_code": FAILURE_UNREACHABLE, "records": [], "documents": []}
         except Exception:
             return {"failure_code": FAILURE_UNREACHABLE, "records": [], "documents": []}
-        docs = []
-        _find_documents(data, docs)
+        docs = _document_records(data)
         code = FAILURE_OK if docs else FAILURE_NOT_FOUND
         return {"failure_code": code, "records": docs, "documents": docs}
 
@@ -178,7 +177,9 @@ class CareAdapter:
             return {"failure_code": FAILURE_UNREACHABLE, "data": None}
         except Exception:
             return {"failure_code": FAILURE_UNREACHABLE, "data": None}
-        return {"failure_code": FAILURE_OK, "data": data}
+        docs = _document_records(data)
+        code = FAILURE_OK if docs else FAILURE_NOT_FOUND
+        return {"failure_code": code, "data": data, "records": docs}
 
 
 def _find_instruments(obj, records, company_id, company=None, as_of=None):
@@ -207,10 +208,20 @@ def _find_instruments(obj, records, company_id, company=None, as_of=None):
             _find_instruments(item, records, company_id, company, as_of=as_of)
 
 
-def _find_documents(obj, docs):
-    if isinstance(obj, dict):
-        for value in obj.values():
-            _find_documents(value, docs)
-    elif isinstance(obj, list):
-        for item in obj:
-            _find_documents(item, docs)
+DOCUMENT_LIST_KEYS = ("PRDocument", "RRDocument")
+
+
+def _document_records(data):
+    chunks = data.get("data") if isinstance(data, dict) else data
+    if not isinstance(chunks, list):
+        return []
+    as_of = utc_as_of()
+    docs = []
+    for chunk in chunks:
+        if not isinstance(chunk, dict):
+            continue
+        for key in DOCUMENT_LIST_KEYS:
+            for item in chunk.get(key) or []:
+                if isinstance(item, dict):
+                    docs.append({**item, "source": SOURCE_NAME, "as_of": as_of})
+    return docs
