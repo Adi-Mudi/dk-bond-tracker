@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Proposals — 5 Static Comfort Themes (pick 3)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; background:#0D1520; color:#E8EEF5; line-height:1.6; padding:40px 20px; }
+  .wrap { max-width:1060px; margin:0 auto; }
+  header { border-bottom:1px solid #2A3A4C; padding-bottom:20px; margin-bottom:20px; }
+  .kicker { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#93B4FF; }
+  h1 { font-size:24px; font-weight:700; margin:6px 0 10px; }
+  .lede { font-size:13px; color:#8592A1; max-width:880px; }
+  .badges { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .badge { font-size:10px; border-radius:999px; padding:3px 10px; border:1px solid #2A3A4C; color:#8592A1; }
+  .badge.b { border-color:rgba(36,86,230,.5); color:#93B4FF; }
+  section { background:#16212E; border:1px solid #2A3A4C; border-radius:12px; padding:18px 20px; margin-bottom:18px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:#93B4FF; margin-bottom:12px; }
+  .research { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:720px){ .research { grid-template-columns:1fr; } }
+  .rcard { background:#1C2C40; border:1px solid #2A3A4C; border-radius:10px; padding:12px 14px; font-size:12px; }
+  .rcard h4 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#93B4FF; margin-bottom:6px; }
+  .rcard li { color:#8592A1; padding:3px 0; list-style:none; }
+  .rcard li b { color:#E8EEF5; }
+  /* theme proposal blocks */
+  .theme { border-radius:14px; overflow:hidden; border:1px solid #2A3A4C; margin-bottom:22px; }
+  .thead { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:#1C2C40; flex-wrap:wrap; gap:8px; }
+  .thead .tname { font-size:16px; font-weight:700; }
+  .thead .tmode { font-size:10px; text-transform:uppercase; letter-spacing:.1em; padding:3px 10px; border-radius:999px; border:1px solid #2A3A4C; color:#8592A1; }
+  .thead .tag { font-size:10px; color:#4ADE80; }
+  .tbody { display:grid; grid-template-columns:1.15fr 1fr; gap:0; }
+  @media (max-width:820px){ .tbody { grid-template-columns:1fr; } }
+  /* live preview phone-ish card */
+  .preview { padding:20px; }
+  .pv-card { border-radius:14px; padding:16px; max-width:360px; margin:0 auto; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+  .pv-bar { display:flex; justify-content:space-between; align-items:center; font-size:11px; margin-bottom:12px; }
+  .pv-title { font-size:13px; font-weight:700; }
+  .pv-balance { border-radius:10px; padding:14px; margin-bottom:10px; }
+  .pv-balance .lab { font-size:10px; opacity:.75; }
+  .pv-balance .amt { font-size:22px; font-weight:700; margin-top:2px; }
+  .pv-row { display:flex; justify-content:space-between; align-items:center; border-radius:8px; padding:9px 11px; font-size:11px; margin-bottom:7px; }
+  .pv-row .sub { font-size:9px; opacity:.7; display:block; }
+  .pv-chips { display:flex; gap:6px; margin:10px 0; flex-wrap:wrap; }
+  .pv-chip { font-size:9px; padding:3px 8px; border-radius:999px; }
+  .pv-btns { display:flex; gap:8px; margin-top:10px; }
+  .pv-btn { flex:1; text-align:center; font-size:11px; font-weight:700; padding:9px 0; border-radius:8px; }
+  .pv-note { font-size:9px; text-align:center; margin-top:8px; opacity:.7; }
+  /* token table + rationale */
+  .tinfo { padding:18px; border-left:1px solid #2A3A4C; }
+  @media (max-width:820px){ .tinfo { border-left:none; border-top:1px solid #2A3A4C; } }
+  table.tok { width:100%; border-collapse:collapse; font-size:11px; }
+  table.tok td { padding:4px 6px; border-bottom:1px dashed rgba(42,58,76,.6); }
+  table.tok td:first-child { color:#8592A1; }
+  table.tok .sw { display:inline-block; width:14px; height:14px; border-radius:4px; vertical-align:-3px; margin-right:6px; border:1px solid rgba(255,255,255,.15); }
+  table.tok td.hex { font-family:monospace; color:#E8EEF5; }
+  .why { font-size:12px; color:#8592A1; margin-top:10px; }
+  .why b { color:#E8EEF5; }
+  .risk { font-size:11px; color:#F59E0B; margin-top:8px; }
+  .risk b { letter-spacing:.05em; }
+  .final { background:#1C2C40; border:1px solid rgba(36,86,230,.5); border-radius:12px; padding:16px 18px; }
+  .final h3 { color:#93B4FF; font-size:13px; margin-bottom:8px; }
+  .final li { list-style:none; font-size:12px; color:#8592A1; padding:4px 0; }
+  .final li b { color:#E8EEF5; }
+  footer { margin-top:24px; padding-top:14px; border-top:1px solid #2A3A4C; font-size:11px; color:#55606E; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Theme Selection</div>
+  <h1>5 Static Comfort Themes — pick 3</h1>
+  <p class="lede">Combined research: my web research (calm-palette science) + AGY CLI consultation (Gemini, WCAG-verified token math). Constraints honored: <b style="color:#E8EEF5">static only · no dynamic engines · no flashy fintech/neon</b> · low saturation · no pure #000/#FFF · comfortable for long sessions.</p>
+  <div class="badges">
+    <span class="badge b">5 candidates below</span>
+    <span class="badge">live preview per theme</span>
+    <span class="badge">full token sets</span>
+    <span class="badge">all ≥ WCAG AA 4.5:1 (AGY math check)</span>
+    <span class="badge">choose 3</span>
+  </div>
+</header>
+
+<section>
+  <h2>Research basis (both reports combined)</h2>
+  <div class="research">
+    <div class="rcard">
+      <h4>My web research — comfort science</h4>
+      <ul>
+        <li><b>Low-saturation backgrounds reduce anger/arousal</b> (2025 behavioral study, multiple hue families)</li>
+        <li><b>Soft off-whites (#f5f5f0) beat pure white</b>; near-blacks beat #000 — less harsh max-contrast</li>
+        <li><b>Pure black = OLED halation</b> (smearing on scroll); pure white = glare — both banned</li>
+        <li><b>Restrained palettes cut cognitive load</b> (NN/g) — when everything shouts, users freeze</li>
+        <li><b>Warm neutrals (#F5F0EB)</b> = the 2025–26 reaction to cold corporate white (Notion-adjacent)</li>
+        <li><b>Finance trust = desaturated blues/greys</b>, never high-chroma "ticker" colors</li>
+      </ul>
+    </div>
+    <div class="rcard">
+      <h4>AGY consultation — verification layer</h4>
+      <ul>
+        <li>Every token in all 5 themes <b>math-checked: ink/muted/primary/semantic ≥ 4.5:1</b> on each surface layer</li>
+        <li>on-primary checked against primary too</li>
+        <li>Zero pure #000000 / #FFFFFF surfaces in any theme</li>
+        <li>Each theme carries <b>one honest risk</b> (not just praise)</li>
+        <li>AGY shortlist pick: <b>Evening Umber</b> (warm-dark, lowest blue-light/eye strain)</li>
+        <li>Spread enforced: 2 light · 2 dark · 1 warm-dark</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 1 WARM LEDGER ============ -->
+<div class="theme">
+  <div class="thead">
+    <span class="tname">1 · Warm Ledger</span>
+    <span class="tmode">light · warm ivory</span>
+    <span class="tag">paper-ledger calm</span>
+  </div>
+  <div class="tbody">
+    <div class="preview" style="background:#F4F0E8">
+      <div class="pv-card" style="background:#FBF9F4;border:1px solid #D8D0C2">
+        <div class="pv-bar" style="color:#1F2421"><span class="pv-title">DK Bond Tracker</span><span style="opacity:.6">09:41</span></div>
+        <div class="pv-balance" style="background:#EBE5D9">
+          <div class="lab" style="color:#595E59">Portfolio value</div>
+          <div class="amt" style="color:#1F2421">₹ 12,40,500</div>
+        </div>
+        <div class="pv-row" style="background:#EBE5D9;color:#1F2421"><span>Tata Capital<span class="sub" style="color:#595E59">Dec 2026 · 9.60% p.a.</span></span><span style="color:#2B6144">₹41,175</span></div>
+        <div class="pv-row" style="background:#EBE5D9;color:#1F2421"><span>HDFC Bank<span class="sub" style="color:#595E59">Maturing in 4 days</span></span><span style="color:#8A5300">₹1,00,000</span></div>
+        <div class="pv-chips">
+          <span class="pv-chip" style="background:#2B6144;color:#F9FBFD">On time</span>
+          <span class="pv-chip" style="background:#EBE5D9;color:#595E59;border:1px solid #D8D0C2">Late</span>
+          <span class="pv-chip" style="background:#9E3B33;color:#F9FBFD">Critical</span>
+        </div>
+        <div class="pv-btns">
+          <span class="pv-btn" style="background:#264362;color:#F9FBFD">Save Payment</span>
+          <span class="pv-btn" style="background:#EBE5D9;color:#595E59;border:1px solid #D8D0C2">Cancel</span>
+        </div>
+        <div class="pv-note" style="color:#595E59">Warm ivory canvas · trust navy actions</div>
+      </div>
+    </div>
+    <div class="tinfo">
+      <table class="tok">
+        <tr><td><span class="sw" style="background:#F4F0E8"></span>background</td><td class="hex">#F4F0E8</td><td style="color:#55606E">warm ivory</td></tr>
+        <tr><td><span class="sw" style="background:#FBF9F4"></span>surface</td><td class="hex">#FBF9F4</td><td style="color:#55606E">cream card</td></tr>
+        <tr><td><span class="sw" style="background:#EBE5D9"></span>surface-raised</td><td class="hex">#EBE5D9</td><td style="color:#55606E">nested</td></tr>
+        <tr><td><span class="sw" style="background:#D8D0C2"></span>border</td><td class="hex">#D8D0C2</td><td style="color:#55606E">stone</td></tr>
+        <tr><td><span class="sw" style="background:#264362"></span>primary</td><td class="hex">#264362</td><td style="color:#55606E">trust navy</td></tr>
+        <tr><td><span class="sw" style="background:#F9FBFD"></span>on-primary</td><td class="hex">#F9FBFD</td><td style="color:#55606E">soft white</td></tr>
+        <tr><td><span class="sw" style="background:#1F2421"></span>ink</td><td class="hex">#1F2421</td><td style="color:#55606E">charcoal-olive</td></tr>
+        <tr><td><span class="sw" style="background:#595E59"></span>muted</td><td class="hex">#595E59</td><td style="color:#55606E">warm slate</td></tr>
+        <tr><td><span class="sw" style="background:#2B6144"></span>success</td><td class="hex">#2B6144</td><td style="color:#55606E">forest</td></tr>
+        <tr><td><span class="sw" style="background:#8A5300"></span>warning</td><td class="hex">#8A5300</td><td style="color:#55606E">ochre</td></tr>
+        <tr><td><span class="sw" style="background:#9E3B33"></span>error</td><td class="hex">#9E3B33</td><td style="color:#55606E">brick</td></tr>
+      </table>
+      <p class="why"><b>Why comfortable:</b> ledger-paper ivory lowers luminance vs clinical white; ink contrast 12.5–15:1; navy/forest follow calm wealth-mgmt conventions — daytime, sunlit, paper-reader reviews. <b>(My research: warm off-white = the anti-corporate-white trend.)</b></p>
+      <p class="risk"><b>RISK:</b> bright rooms only — at night even toned white glows; can feel "traditional/conservative."</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 2 NORDIC MIST ============ -->
+<div class="theme">
+  <div class="thead">
+    <span class="tname">2 · Nordic Mist</span>
+    <span class="tmode">light · cool stone</span>
+    <span class="tag">modern clarity</span>
+  </div>
+  <div class="tbody">
+    <div class="preview" style="background:#EFF2F5">
+      <div class="pv-card" style="background:#F8FAFC;border:1px solid #CFD7E2">
+        <div class="pv-bar" style="color:#18212C"><span class="pv-title">DK Bond Tracker</span><span style="opacity:.6">09:41</span></div>
+        <div class="pv-balance" style="background:#E4E9EF">
+          <div class="lab" style="color:#525F70">Portfolio value</div>
+          <div class="amt" style="color:#18212C">₹ 12,40,500</div>
+        </div>
+        <div class="pv-row" style="background:#E4E9EF;color:#18212C"><span>Tata Capital<span class="sub" style="color:#525F70">Dec 2026 · 9.60% p.a.</span></span><span style="color:#28614E">₹41,175</span></div>
+        <div class="pv-row" style="background:#E4E9EF;color:#18212C"><span>HDFC Bank<span class="sub" style="color:#525F70">Maturing in 4 days</span></span><span style="color:#8C5409">₹1,00,000</span></div>
+        <div class="pv-chips">
+          <span class="pv-chip" style="background:#28614E;color:#F5FAFA">On time</span>
+          <span class="pv-chip" style="background:#E4E9EF;color:#525F70;border:1px solid #CFD7E2">Late</span>
+          <span class="pv-chip" style="background:#9C3B44;color:#F5FAFA">Critical</span>
+        </div>
+        <div class="pv-btns">
+          <span class="pv-btn" style="background:#28595B;color:#F5FAFA">Save Payment</span>
+          <span class="pv-btn" style="background:#E4E9EF;color:#525F70;border:1px solid #CFD7E2">Cancel</span>
+        </div>
+        <div class="pv-note" style="color:#525F70">Cool mineral stone · fjord teal actions</div>
+      </div>
+    </div>
+    <div class="tinfo">
+      <table class="tok">
+        <tr><td><span class="sw" style="background:#EFF2F5"></span>background</td><td class="hex">#EFF2F5</td><td style="color:#55606E">mineral stone</td></tr>
+        <tr><td><span class="sw" style="background:#F8FAFC"></span>surface</td><td class="hex">#F8FAFC</td><td style="color:#55606E">alabaster</td></tr>
+        <tr><td><span class="sw" style="background:#E4E9EF"></span>surface-raised</td><td class="hex">#E4E9EF</td><td style="color:#55606E">mist</td></tr>
+        <tr><td><span class="sw" style="background:#CFD7E2"></span>border</td><td class="hex">#CFD7E2</td><td style="color:#55606E">slate</td></tr>
+        <tr><td><span class="sw" style="background:#28595B"></span>primary</td><td class="hex">#28595B</td><td style="color:#55606E">fjord teal</td></tr>
+        <tr><td><span class="sw" style="background:#F5FAFA"></span>on-primary</td><td class="hex">#F5FAFA</td><td style="color:#55606E">ice</td></tr>
+        <tr><td><span class="sw" style="background:#18212C"></span>ink</td><td class="hex">#18212C</td><td style="color:#55606E">slate-navy</td></tr>
+        <tr><td><span class="sw" style="background:#525F70"></span>muted</td><td class="hex">#525F70</td><td style="color:#55606E">grey-slate</td></tr>
+        <tr><td><span class="sw" style="background:#28614E"></span>success</td><td class="hex">#28614E</td><td style="color:#55606E">pine</td></tr>
+        <tr><td><span class="sw" style="background:#8C5409"></span>warning</td><td class="hex">#8C5409</td><td style="color:#55606E">amber</td></tr>
+        <tr><td><span class="sw" style="background:#9C3B44"></span>error</td><td class="hex">#9C3B44</td><td style="color:#55606E">crimson</td></tr>
+      </table>
+      <p class="why"><b>Why comfortable:</b> cool matte stone cuts blue-white glare; slate ink 13–15:1; Scandinavian and unhurried, great for dense numeric tables. <b>(My research: desaturated cool neutral = dashboard base that lets data colors lead.)</b></p>
+      <p class="risk"><b>RISK:</b> background vs surface step is only 1.07:1 — cards lean on the border to stay distinct on weak displays.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 3 QUIET SLATE ============ -->
+<div class="theme">
+  <div class="thead">
+    <span class="tname">3 · Quiet Slate</span>
+    <span class="tmode">dark · cool charcoal</span>
+    <span class="tag">Midnight Ledger's calm cousin</span>
+  </div>
+  <div class="tbody">
+    <div class="preview" style="background:#141920">
+      <div class="pv-card" style="background:#1C232D;border:1px solid #323E4E">
+        <div class="pv-bar" style="color:#DCE3EC"><span class="pv-title">DK Bond Tracker</span><span style="opacity:.6">09:41</span></div>
+        <div class="pv-balance" style="background:#242D39">
+          <div class="lab" style="color:#92A0B2">Portfolio value</div>
+          <div class="amt" style="color:#DCE3EC">₹ 12,40,500</div>
+        </div>
+        <div class="pv-row" style="background:#242D39;color:#DCE3EC"><span>Tata Capital<span class="sub" style="color:#92A0B2">Dec 2026 · 9.60% p.a.</span></span><span style="color:#73B896">₹41,175</span></div>
+        <div class="pv-row" style="background:#242D39;color:#DCE3EC"><span>HDFC Bank<span class="sub" style="color:#92A0B2">Maturing in 4 days</span></span><span style="color:#D4A359">₹1,00,000</span></div>
+        <div class="pv-chips">
+          <span class="pv-chip" style="background:#73B896;color:#101822">On time</span>
+          <span class="pv-chip" style="background:#242D39;color:#92A0B2;border:1px solid #323E4E">Late</span>
+          <span class="pv-chip" style="background:#D98282;color:#101822">Critical</span>
+        </div>
+        <div class="pv-btns">
+          <span class="pv-btn" style="background:#7BA3CC;color:#101822">Save Payment</span>
+          <span class="pv-btn" style="background:#242D39;color:#92A0B2;border:1px solid #323E4E">Cancel</span>
+        </div>
+        <div class="pv-note" style="color:#92A0B2">No pure black · soft steel-blue actions</div>
+      </div>
+    </div>
+    <div class="tinfo">
+      <table class="tok">
+        <tr><td><span class="sw" style="background:#141920"></span>background</td><td class="hex">#141920</td><td style="color:#55606E">charcoal-slate</td></tr>
+        <tr><td><span class="sw" style="background:#1C232D"></span>surface</td><td class="hex">#1C232D</td><td style="color:#55606E">slate card</td></tr>
+        <tr><td><span class="sw" style="background:#242D39"></span>surface-raised</td><td class="hex">#242D39</td><td style="color:#55606E">elevated</td></tr>
+        <tr><td><span class="sw" style="background:#323E4E"></span>border</td><td class="hex">#323E4E</td><td style="color:#55606E">steel</td></tr>
+        <tr><td><span class="sw" style="background:#7BA3CC"></span>primary</td><td class="hex">#7BA3CC</td><td style="color:#55606E">steel-blue</td></tr>
+        <tr><td><span class="sw" style="background:#101822"></span>on-primary</td><td class="hex">#101822</td><td style="color:#55606E">midnight</td></tr>
+        <tr><td><span class="sw" style="background:#DCE3EC"></span>ink</td><td class="hex">#DCE3EC</td><td style="color:#55606E">cool off-white</td></tr>
+        <tr><td><span class="sw" style="background:#92A0B2"></span>muted</td><td class="hex">#92A0B2</td><td style="color:#55606E">slate (≥5.2:1)</td></tr>
+        <tr><td><span class="sw" style="background:#73B896"></span>success</td><td class="hex">#73B896</td><td style="color:#55606E">seafoam</td></tr>
+        <tr><td><span class="sw" style="background:#D4A359"></span>warning</td><td class="hex">#D4A359</td><td style="color:#55606E">gold</td></tr>
+        <tr><td><span class="sw" style="background:#D98282"></span>error</td><td class="hex">#D98282</td><td style="color:#55606E">rose</td></tr>
+      </table>
+      <p class="why"><b>Why comfortable:</b> lifts pure black to #141920 and softens text to curb OLED halation; desaturated steel-blue kills the "electric blue" vibration of your current accent. Long-session cool dark without harshness. <b>(My research: no #000, restrained saturation = less fatigue.)</b></p>
+      <p class="risk"><b>RISK:</b> cool blue-grey still carries more blue light than warm darks — can feel chilly/clinical at night.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 4 EVENING UMBER ============ -->
+<div class="theme">
+  <div class="thead">
+    <span class="tname">4 · Evening Umber</span>
+    <span class="tmode">warm-dark · espresso</span>
+    <span class="tag">★ AGY shortlist pick</span>
+  </div>
+  <div class="tbody">
+    <div class="preview" style="background:#181512">
+      <div class="pv-card" style="background:#221E1A;border:1px solid #3B342D">
+        <div class="pv-bar" style="color:#E9E2D8"><span class="pv-title">DK Bond Tracker</span><span style="opacity:.6">09:41</span></div>
+        <div class="pv-balance" style="background:#2B2621">
+          <div class="lab" style="color:#A3988C">Portfolio value</div>
+          <div class="amt" style="color:#E9E2D8">₹ 12,40,500</div>
+        </div>
+        <div class="pv-row" style="background:#2B2621;color:#E9E2D8"><span>Tata Capital<span class="sub" style="color:#A3988C">Dec 2026 · 9.60% p.a.</span></span><span style="color:#8AB58D">₹41,175</span></div>
+        <div class="pv-row" style="background:#2B2621;color:#E9E2D8"><span>HDFC Bank<span class="sub" style="color:#A3988C">Maturing in 4 days</span></span><span style="color:#D6A35C">₹1,00,000</span></div>
+        <div class="pv-chips">
+          <span class="pv-chip" style="background:#8AB58D;color:#121A19">On time</span>
+          <span class="pv-chip" style="background:#2B2621;color:#A3988C;border:1px solid #3B342D">Late</span>
+          <span class="pv-chip" style="background:#D68276;color:#121A19">Critical</span>
+        </div>
+        <div class="pv-btns">
+          <span class="pv-btn" style="background:#7AA6A0;color:#121A19">Save Payment</span>
+          <span class="pv-btn" style="background:#2B2621;color:#A3988C;border:1px solid #3B342D">Cancel</span>
+        </div>
+        <div class="pv-note" style="color:#A3988C">Espresso dark · mineral teal · zero blue glare</div>
+      </div>
+    </div>
+    <div class="tinfo">
+      <table class="tok">
+        <tr><td><span class="sw" style="background:#181512"></span>background</td><td class="hex">#181512</td><td style="color:#55606E">espresso</td></tr>
+        <tr><td><span class="sw" style="background:#221E1A"></span>surface</td><td class="hex">#221E1A</td><td style="color:#55606E">umber card</td></tr>
+        <tr><td><span class="sw" style="background:#2B2621"></span>surface-raised</td><td class="hex">#2B2621</td><td style="color:#55606E">taupe</td></tr>
+        <tr><td><span class="sw" style="background:#3B342D"></span>border</td><td class="hex">#3B342D</td><td style="color:#55606E">bronze</td></tr>
+        <tr><td><span class="sw" style="background:#7AA6A0"></span>primary</td><td class="hex">#7AA6A0</td><td style="color:#55606E">mineral teal</td></tr>
+        <tr><td><span class="sw" style="background:#121A19"></span>on-primary</td><td class="hex">#121A19</td><td style="color:#55606E">slate-pine</td></tr>
+        <tr><td><span class="sw" style="background:#E9E2D8"></span>ink</td><td class="hex">#E9E2D8</td><td style="color:#55606E">parchment</td></tr>
+        <tr><td><span class="sw" style="background:#A3988C"></span>muted</td><td class="hex">#A3988C</td><td style="color:#55606E">warm taupe</td></tr>
+        <tr><td><span class="sw" style="background:#8AB58D"></span>success</td><td class="hex">#8AB58D</td><td style="color:#55606E">sage</td></tr>
+        <tr><td><span class="sw" style="background:#D6A35C"></span>warning</td><td class="hex">#D6A35C</td><td style="color:#55606E">ochre</td></tr>
+        <tr><td><span class="sw" style="background:#D68276"></span>error</td><td class="hex">#D68276</td><td style="color:#55606E">terracotta</td></tr>
+      </table>
+      <p class="why"><b>Why comfortable:</b> warm charcoal-brown minimizes blue light, matches indoor evening lighting — least retinal fatigue of the five; parchment ink 11.6–14.1:1; teal actions stay clear of amber warnings. <b>(My research: warm darks = the anti-clinical answer; AGY math-verified + shortlisted.)</b></p>
+      <p class="risk"><b>RISK:</b> outdoors in sunlight, low-sat warm darks can look muddy/washed vs cooler themes.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 5 PINE CHARCOAL ============ -->
+<div class="theme">
+  <div class="thead">
+    <span class="tname">5 · Pine Charcoal</span>
+    <span class="tmode">dark · botanical</span>
+    <span class="tag">grounded organic dark</span>
+  </div>
+  <div class="tbody">
+    <div class="preview" style="background:#131715">
+      <div class="pv-card" style="background:#1B211E;border:1px solid #333E38">
+        <div class="pv-bar" style="color:#DDE4DF"><span class="pv-title">DK Bond Tracker</span><span style="opacity:.6">09:41</span></div>
+        <div class="pv-balance" style="background:#242C28">
+          <div class="lab" style="color:#92A097">Portfolio value</div>
+          <div class="amt" style="color:#DDE4DF">₹ 12,40,500</div>
+        </div>
+        <div class="pv-row" style="background:#242C28;color:#DDE4DF"><span>Tata Capital<span class="sub" style="color:#92A097">Dec 2026 · 9.60% p.a.</span></span><span style="color:#7BB891">₹41,175</span></div>
+        <div class="pv-row" style="background:#242C28;color:#DDE4DF"><span>HDFC Bank<span class="sub" style="color:#92A097">Maturing in 4 days</span></span><span style="color:#CFA25B">₹1,00,000</span></div>
+        <div class="pv-chips">
+          <span class="pv-chip" style="background:#7BB891;color:#0F1914">On time</span>
+          <span class="pv-chip" style="background:#242C28;color:#92A097;border:1px solid #333E38">Late</span>
+          <span class="pv-chip" style="background:#D6837D;color:#0F1914">Critical</span>
+        </div>
+        <div class="pv-btns">
+          <span class="pv-btn" style="background:#79AD94;color:#0F1914">Save Payment</span>
+          <span class="pv-btn" style="background:#242C28;color:#92A097;border:1px solid #333E38">Cancel</span>
+        </div>
+        <div class="pv-note" style="color:#92A097">Pine charcoal · botanical sage actions</div>
+      </div>
+    </div>
+    <div class="tinfo">
+      <table class="tok">
+        <tr><td><span class="sw" style="background:#131715"></span>background</td><td class="hex">#131715</td><td style="color:#55606E">pine-charcoal</td></tr>
+        <tr><td><span class="sw" style="background:#1B211E"></span>surface</td><td class="hex">#1B211E</td><td style="color:#55606E">forest-slate</td></tr>
+        <tr><td><span class="sw" style="background:#242C28"></span>surface-raised</td><td class="hex">#242C28</td><td style="color:#55606E">moss-graphite</td></tr>
+        <tr><td><span class="sw" style="background:#333E38"></span>border</td><td class="hex">#333E38</td><td style="color:#55606E">sage-charcoal</td></tr>
+        <tr><td><span class="sw" style="background:#79AD94"></span>primary</td><td class="hex">#79AD94</td><td style="color:#55606E">botanical sage</td></tr>
+        <tr><td><span class="sw" style="background:#0F1914"></span>on-primary</td><td class="hex">#0F1914</td><td style="color:#55606E">pine ink</td></tr>
+        <tr><td><span class="sw" style="background:#DDE4DF"></span>ink</td><td class="hex">#DDE4DF</td><td style="color:#55606E">neutral off-white</td></tr>
+        <tr><td><span class="sw" style="background:#92A097"></span>muted</td><td class="hex">#92A097</td><td style="color:#55606E">lichen grey</td></tr>
+        <tr><td><span class="sw" style="background:#7BB891"></span>success</td><td class="hex">#7BB891</td><td style="color:#55606E">mint-sage</td></tr>
+        <tr><td><span class="sw" style="background:#CFA25B"></span>warning</td><td class="hex">#CFA25B</td><td style="color:#55606E">amber</td></tr>
+        <tr><td><span class="sw" style="background:#D6837D"></span>error</td><td class="hex">#D6837D</td><td style="color:#55606E">clay-coral</td></tr>
+      </table>
+      <p class="why"><b>Why comfortable:</b> sits between cool slate and warm brown — organic, grounding, calmer than corporate navy; ink 11–14:1; fixed-income green undertones make statuses feel calm, not urgent. <b>(My research: low-saturation = lower arousal; finance greens = steady growth signal.)</b></p>
+      <p class="risk"><b>RISK:</b> primary (#79AD94) and success (#7BB891) are close green-sage hues — buttons and "paid" badges can blend without outlines.</p>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="final">
+    <h3>How to choose — side-by-side</h3>
+    <ul>
+      <li><b>1 Warm Ledger</b> — best daylight/paper feel; light + traditional</li>
+      <li><b>2 Nordic Mist</b> — best modern light; cool, airy, table-friendly</li>
+      <li><b>3 Quiet Slate</b> — calmest evolution of your current dark; familiar shift</li>
+      <li><b>4 Evening Umber</b> — least eye strain overall (AGY pick); distinctive, warm, night-friendly</li>
+      <li><b>5 Pine Charcoal</b> — unique organic dark; green-tinted, grounding</li>
+    </ul>
+    <p style="font-size:12px;color:#8592A1;margin-top:10px">Suggested spread if you want variety: <b style="color:#E8EEF5">1 light + 2 darks + 1 warm-dark</b> (e.g. 2 + 3 + 4), or all-dark (3 + 4 + 5) if you never leave Midnight-style. Static tokens only — whichever 3 you pick, they slot into <b style="color:#E8EEF5">app_theme.dart</b> as alternate palettes, same component styles.</p>
+  </div>
+</section>
+
+<footer>
+  <span>Sources: web comfort-palette research (2025–26) + AGY CLI consultation (Gemini · WCAG math-checked) · 2026-11-26</span>
+  <span>Static themes only · no dynamic engines · pick 3 of 5</span>
+</footer>
+
+</div>
+</body>
+</html>
