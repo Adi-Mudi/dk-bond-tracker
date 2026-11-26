@@ -320,6 +320,26 @@
   .fb b { display:block; color:var(--ink); font-size:12px; margin-bottom:4px; }
   .fb.gap { border-color:rgba(245,158,11,.5); }
   .fb.gap b { color:var(--amber); }
+  /* action feedback visuals */
+  .ladder3 { display:flex; flex-direction:column; gap:10px; }
+  .lrung2 { display:flex; align-items:center; gap:14px; background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px 14px; }
+  .lrung2 .w { min-width:150px; font-size:12px; font-weight:700; }
+  .lrung2 .what { font-size:11px; color:var(--muted); flex:1; }
+  .lrung2 .exx { font-size:11px; background:var(--canvas); border:1px solid var(--hairline); border-radius:6px; padding:5px 9px; color:var(--ink); }
+  .lrung2.r1 { border-color:rgba(74,222,128,.45); } .lrung2.r1 .w { color:var(--green); }
+  .lrung2.r2 { border-color:rgba(36,86,230,.5); } .lrung2.r2 .w { color:var(--accent-soft); }
+  .lrung2.r3 { border-color:rgba(248,113,113,.5); } .lrung2.r3 .w { color:var(--red); }
+  .toast-vs-error { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:600px){ .toast-vs-error { grid-template-columns:1fr; } }
+  .demo-toast { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:14px; }
+  .demo-toast h5 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .demo-toast.good h5 { color:var(--green); }
+  .demo-toast.bad h5 { color:var(--red); }
+  .snack { background:#1C2C40; border:1px solid #2A3A4C; border-radius:8px; padding:10px 12px; font-size:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:6px; }
+  .snack .act { color:#93B4FF; font-size:11px; font-weight:700; }
+  .snack.err { border-color:rgba(248,113,113,.55); }
+  .snack.err .txt { color:#F87171; }
+  .speed { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -1622,6 +1642,109 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 14 DEEP DIVE ============ -->
+<section>
+  <h2 id="e14"><span class="num">14</span> Action Feedback — telling the user what just happened</h2>
+  <p class="muted">After every action the app answers: what happened. Silent success → double-taps and confusion. Message style, weight and timing decided once, same on every screen. Pairs with Motion (the press) and Forms (the lock).</p>
+
+  <h3>Part 1 · The weight ladder — lightest that does the job</h3>
+  <div class="ladder3">
+    <div class="lrung2 r1">
+      <span class="w">Toast / Snackbar</span>
+      <span class="what">small, reversible completions · auto-dismiss 3–5s · no user action</span>
+      <span class="exx">"Payment saved"</span>
+    </div>
+    <div class="lrung2 r2">
+      <span class="w">Snackbar + Undo</span>
+      <span class="what">has a consequence or an undo option</span>
+      <span class="exx">"Entry removed — Undo"</span>
+    </div>
+    <div class="lrung2 r3">
+      <span class="w">Dialog</span>
+      <span class="what">irreversible / high-risk — before or after · never for small reversible things</span>
+      <span class="exx">type-ISIN + hold confirm ✓</span>
+    </div>
+  </div>
+
+  <h3>Part 2 · Snackbar rules — one line, specific, never an error</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:var(--green)">✓ Right</h4>
+      <ul>
+        <li>One line, about the operation just done</li>
+        <li>Specific: <b>"Entry removed"</b> — not "Done"</li>
+        <li>Never the ONLY path to a core feature or important undo (2 actions → use dialog)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--red)">✗ Wrong</h4>
+      <ul>
+        <li>"Done" / "Success" / "OK" — vague</li>
+        <li>Error text in a vanishing toast</li>
+        <li>Toast hiding the only undo of something important</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Part 3 · Undo vs confirm — your mapping</h3>
+  <table>
+    <thead><tr><th>Action</th><th>Kind</th><th>Feedback</th></tr></thead>
+    <tbody>
+      <tr><td>Save payment / edit note</td><td>reversible</td><td>toast "Payment saved" — <b>no dialog, never confirm</b></td></tr>
+      <tr><td>Remove from watchlist</td><td>irreversible + high-risk</td><td><b>confirm BEFORE</b> — typed ISIN + hold 2s ✓ (undo alone not enough)</td></tr>
+      <tr><td>Dismiss alert</td><td>small reversible</td><td>toast + Undo ("Alert dismissed — Undo")</td></tr>
+      <tr><td>Move to Portfolio</td><td>reversible-ish</td><td>snackbar "Moved to Portfolio"</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:11px;margin-top:8px">Undo beats confirmation for reversible actions (faster, less disruptive). Never confirm a non-destructive action.</p>
+
+  <h3>Part 4 · Errors are separate — never a vanishing toast</h3>
+  <div class="toast-vs-error">
+    <div class="demo-toast good">
+      <h5>✓ Success = toast (auto-hides)</h5>
+      <div class="snack"><span class="txt">Payment saved</span><span class="act">✓</span></div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0">Gone in 3–5s — fine, nothing left to do</p>
+    </div>
+    <div class="demo-toast bad">
+      <h5>✗ Error = STAYS until dismissed</h5>
+      <div class="snack err"><span class="txt">Could not save: no connection</span><span class="act">Retry</span></div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0">Persistent · specific failure · icon+text+colour (never colour alone) · "Something went wrong" ✗</p>
+    </div>
+  </div>
+
+  <h3>Part 5 · Speed — the 0.1-second rule</h3>
+  <div class="diagram">
+    <div class="speed">
+      <div class="flowbox hl">User taps</div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">Visible feedback ≤ 0.1s<br><span style="color:var(--muted);font-size:10px">always — even if result is slow</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox">Slow work? button LOCKS + loading starts<br><span style="color:var(--muted);font-size:10px">Forms submit-lock + Loading patterns</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">User must never wonder "did my tap register?" — that wonder causes double-taps</div>
+  </div>
+
+  <h3>Part 6 · Significant completions — bigger than a toast</h3>
+  <div class="jobs" style="margin-top:8px">
+    <div class="job"><b>Form submitted / upload done / critical setting</b>confirmation screen · prominent banner · haptic + visual pair</div>
+    <div class="job"><b>Haptics = bonus only</b>never the sole signal — not all devices/users have them</div>
+    <div class="job"><b>Your example</b>CSV export finished → prominent "Export ready" moment, not a 3s toast</div>
+  </div>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Press feedback (before the tap)</td><td><span class="pill g">designed</span></td><td>Motion essential — scale+dim locked</td></tr>
+      <tr><td>Success toasts / snackbars</td><td><span class="pill a">NOWHERE YET</span></td><td>Save/Move/Remove are silent — the core gap</td></tr>
+      <tr><td>Undo affordances</td><td><span class="pill a">build</span></td><td>reversible actions get Undo, not dialogs</td></tr>
+      <tr><td>Persistent error surface</td><td><span class="pill a">build</span></td><td>shared with API/Crash error kinds</td></tr>
+      <tr><td>0.1s feedback + submit lock</td><td><span class="pill a">build</span></td><td>ties Forms B3 + Loading patterns</td></tr>
+      <tr><td>Significant completion moments</td><td><span class="pill a">design</span></td><td>export/submit flows — Stitch when componentized</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -1724,6 +1847,7 @@
   <a href="#e11">11 · Secure</a>
   <a href="#e12">12 · Blackbox</a>
   <a href="#e13">13 · Gestures</a>
+  <a href="#e14">14 · Feedback</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
