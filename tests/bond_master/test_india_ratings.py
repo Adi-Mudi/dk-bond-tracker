@@ -45,11 +45,10 @@ def test_search_parses_issuer_list():
     assert result["failure_code"] == FAILURE_OK
     records = result["records"]
     assert len(records) == 2
-    assert records[0] == {
-        "issuer_id": "7333",
-        "company": "Tata Capital Financial Services Limited",
-        "source": SOURCE_NAME,
-    }
+    assert records[0]["issuer_id"] == "7333"
+    assert records[0]["company"] == "Tata Capital Financial Services Limited"
+    assert records[0]["source"] == SOURCE_NAME
+    assert records[0]["as_of"]
     assert calls == [SEARCH_URL]
 
 
@@ -101,4 +100,17 @@ def test_issuer_prs_non_list_is_malformed():
     adapter, _ = make_adapter({"https://www.indiaratings.co.in/home/GetIssuerPressReleases?issuerId=7333": {"x": 1}})
     result = adapter.issuer_press_releases(7333)
     assert result["failure_code"] == FAILURE_MALFORMED
+
+
+def test_issuer_prs_html_is_blocked():
+    adapter, _ = make_adapter({"https://www.indiaratings.co.in/home/GetIssuerPressReleases?issuerId=7333": "<html>denied</html>"})
+    result = adapter.issuer_press_releases(7333)
+    assert result["failure_code"] == FAILURE_BLOCKED
+
+
+def test_press_release_data_source_error_returns_data_none():
+    adapter, _ = make_adapter({"https://www.indiaratings.co.in/pressReleases/GetPressreleaseData?pressReleaseId=9": "not-json{"})
+    result = adapter.press_release_data(9)
+    assert result["failure_code"] == FAILURE_MALFORMED
+    assert result["data"] is None
 

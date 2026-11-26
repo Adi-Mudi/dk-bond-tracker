@@ -94,9 +94,26 @@ def test_instrument_ratings_parse_real_fixture():
         assert record["company_id"] == pr["data"][0]["CompanyID"]
         assert record["rating"]
         assert record["instrument"]
+        assert record["as_of"]
 
 
 def test_instrument_ratings_empty_is_not_found():
     adapter, _ = make_adapter({PR_URL: {"data": []}})
     result = adapter.instrument_ratings("missing")
     assert result["failure_code"] == FAILURE_NOT_FOUND
+
+
+def test_documents_timeout_is_timeout():
+    url = "https://www.careratings.com/getSearchprdocument?companyName=MYPjaBsE6/%2BMP8Mnsz03TA%3D%3D&YearID=2026"
+    adapter, _ = make_adapter({url: TimeoutError("t")})
+    result = adapter.documents("MYPjaBsE6/+MP8Mnsz03TA==", "2026")
+    assert result["failure_code"] == FAILURE_TIMEOUT
+    assert result["documents"] == []
+
+
+def test_rrd_data_connection_error_is_unreachable():
+    url = "https://www.careratings.com/getSearchrrddata?companyName=MYPjaBsE6/%2BMP8Mnsz03TA%3D%3D&YearID=2026"
+    adapter, _ = make_adapter({url: ConnectionError("x")})
+    result = adapter.rrd_data("MYPjaBsE6/+MP8Mnsz03TA==", "2026")
+    assert result["failure_code"] == FAILURE_UNREACHABLE
+    assert result["data"] is None

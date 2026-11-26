@@ -20,6 +20,7 @@ from .base import (
     FAILURE_OK,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
+    utc_as_of,
 )
 
 SOURCE_NAME = "India Ratings"
@@ -78,19 +79,19 @@ class IndiaRatingsAdapter:
             return {"failure_code": FAILURE_TIMEOUT, "records": []}
         except SourceError as exc:
             return {"failure_code": exc.failure_code, "records": []}
-        except SourceError as exc:
-            return {"failure_code": exc.failure_code, "records": []}
         except ConnectionError:
             return {"failure_code": FAILURE_UNREACHABLE, "records": []}
         except Exception:
             return {"failure_code": FAILURE_UNREACHABLE, "records": []}
         records = []
+        as_of = utc_as_of()
         for issuer in data.get("issuerList", []) or []:
             if isinstance(issuer, dict):
                 records.append({
                     "issuer_id": issuer.get("issuerID"),
                     "company": issuer.get("name"),
                     "source": SOURCE_NAME,
+                    "as_of": as_of,
                 })
         code = FAILURE_OK if records else FAILURE_NOT_FOUND
         return {"failure_code": code, "records": records}
@@ -101,6 +102,8 @@ class IndiaRatingsAdapter:
             data = _get_json(self._transport, url, self.timeout)
         except TimeoutError:
             return {"failure_code": FAILURE_TIMEOUT, "records": []}
+        except SourceError as exc:
+            return {"failure_code": exc.failure_code, "records": []}
         except ConnectionError:
             return {"failure_code": FAILURE_UNREACHABLE, "records": []}
         except Exception:
@@ -108,6 +111,7 @@ class IndiaRatingsAdapter:
         if not isinstance(data, list):
             return {"failure_code": FAILURE_MALFORMED, "records": []}
         records = []
+        as_of = utc_as_of()
         docs = data
         for pr in docs:
             if not isinstance(pr, dict):
@@ -117,6 +121,7 @@ class IndiaRatingsAdapter:
                 "title": pr.get("pressReleaseTitle"),
                 "pr_type": pr.get("prTypeName"),
                 "source": SOURCE_NAME,
+                "as_of": as_of,
             })
         code = FAILURE_OK if records else FAILURE_NOT_FOUND
         return {"failure_code": code, "records": records}
@@ -128,7 +133,7 @@ class IndiaRatingsAdapter:
         except TimeoutError:
             return {"failure_code": FAILURE_TIMEOUT, "data": None}
         except SourceError as exc:
-            return {"failure_code": exc.failure_code, "records": []}
+            return {"failure_code": exc.failure_code, "data": None}
         except ConnectionError:
             return {"failure_code": FAILURE_UNREACHABLE, "data": None}
         except Exception:

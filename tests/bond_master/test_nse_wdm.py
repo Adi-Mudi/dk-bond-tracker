@@ -80,9 +80,11 @@ def test_records_carry_payout_fields():
     })
     result = adapter.fetch_latest_catalog()
     record = result["records"][0]
-    for field in ("isin", "security", "issue_name", "maturity", "coupon_frequency", "next_ip_date", "status", "source"):
+    for field in ("isin", "security", "issue_name", "maturity", "coupon", "coupon_frequency", "next_ip_date", "status", "source", "as_of"):
         assert field in record
     assert record["source"] == "NSE WDM"
+    assert record["coupon"] == 8.33
+    assert record["as_of"]
 
 
 def test_listing_without_target_file_is_not_found():

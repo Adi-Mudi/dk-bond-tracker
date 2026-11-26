@@ -25,6 +25,7 @@ from .base import (
     FAILURE_OK,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
+    utc_as_of,
 )
 
 SOURCE_NAME = "CARE"
@@ -117,11 +118,13 @@ class CareAdapter:
         companies = []
         _find_companies(data, companies)
         records = []
+        as_of = utc_as_of()
         for co in companies:
             records.append({
                 "company_id": co.get("CompanyID"),
                 "company": co.get("CompanyName"),
                 "source": SOURCE_NAME,
+                "as_of": as_of,
             })
         code = FAILURE_OK if records else FAILURE_NOT_FOUND
         return {"failure_code": code, "records": records}
@@ -133,15 +136,30 @@ class CareAdapter:
         except SourceError as exc:
             code = FAILURE_NOT_FOUND if exc.failure_code == FAILURE_MALFORMED else exc.failure_code
             return {"failure_code": code, "records": []}
+        except TimeoutError:
+            return {"failure_code": FAILURE_TIMEOUT, "records": []}
+        except ConnectionError:
+            return {"failure_code": FAILURE_UNREACHABLE, "records": []}
+        except Exception:
+            return {"failure_code": FAILURE_UNREACHABLE, "records": []}
         records = []
-        _find_instruments(data, records, company_id)
+        _find_instruments(data, records, company_id, as_of=utc_as_of())
         code = FAILURE_OK if records else FAILURE_NOT_FOUND
         return {"failure_code": code, "records": records}
 
     def documents(self, company_id, year_id):
         url = (PRINT_DOCUMENT + quote_param(company_id)
                + "&YearID=" + quote_param(year_id))
-        data = self._get(url)
+        try:
+            data = self._get(url)
+        except SourceError as exc:
+            return {"failure_code": exc.failure_code, "records": [], "documents": []}
+        except TimeoutError:
+            return {"failure_code": FAILURE_TIMEOUT, "records": [], "documents": []}
+        except ConnectionError:
+            return {"failure_code": FAILURE_UNREACHABLE, "records": [], "documents": []}
+        except Exception:
+            return {"failure_code": FAILURE_UNREACHABLE, "records": [], "documents": []}
         docs = []
         _find_documents(data, docs)
         code = FAILURE_OK if docs else FAILURE_NOT_FOUND
@@ -150,11 +168,20 @@ class CareAdapter:
     def rrd_data(self, company_id, year_id):
         url = (RRD_DATA + quote_param(company_id)
                + "&YearID=" + quote_param(year_id))
-        data = self._get(url)
+        try:
+            data = self._get(url)
+        except SourceError as exc:
+            return {"failure_code": exc.failure_code, "data": None}
+        except TimeoutError:
+            return {"failure_code": FAILURE_TIMEOUT, "data": None}
+        except ConnectionError:
+            return {"failure_code": FAILURE_UNREACHABLE, "data": None}
+        except Exception:
+            return {"failure_code": FAILURE_UNREACHABLE, "data": None}
         return {"failure_code": FAILURE_OK, "data": data}
 
 
-def _find_instruments(obj, records, company_id, company=None):
+def _find_instruments(obj, records, company_id, company=None, as_of=None):
     if isinstance(obj, dict):
         company = company or obj.get("Company")
         instruments = obj.get("CompanyInstrument")
@@ -170,13 +197,14 @@ def _find_instruments(obj, records, company_id, company=None):
                     "rating_amount": inst.get("RatingAmount"),
                     "rating": inst.get("Rating"),
                     "source": SOURCE_NAME,
+                    "as_of": as_of or utc_as_of(),
                 })
         for value in obj.values():
             if isinstance(value, (dict, list)):
-                _find_instruments(value, records, company_id, company)
+                _find_instruments(value, records, company_id, company, as_of=as_of)
     elif isinstance(obj, list):
         for item in obj:
-            _find_instruments(item, records, company_id, company)
+            _find_instruments(item, records, company_id, company, as_of=as_of)
 
 
 def _find_documents(obj, docs):

@@ -29,6 +29,7 @@ from .base import (
     FAILURE_OK,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
+    utc_as_of,
 )
 
 SOURCE_NAME = "CRISIL"
@@ -67,7 +68,7 @@ def _parse_date(value):
     return None
 
 
-def rr_record(doc, drift):
+def rr_record(doc, drift, as_of=None):
     for key in doc:
         if key not in KNOWN_RR_KEYS and key not in drift:
             drift.append(key)
@@ -83,6 +84,7 @@ def rr_record(doc, drift):
         "trans_date": _parse_date(doc.get("transDate")),
         "pr_id": doc.get("prId"),
         "source": SOURCE_NAME,
+        "as_of": as_of or utc_as_of(),
     }
 
 
@@ -119,6 +121,7 @@ class CrisilAdapter:
         records = []
         drift = []
         seen_pr = set()
+        as_of = utc_as_of()
         start = 0
         while True:
             url = f"{LISTING_SERVLET}?cmd=RR&start={start}&limit={limit}"
@@ -137,7 +140,7 @@ class CrisilAdapter:
                 return {"failure_code": FAILURE_MALFORMED, "records": records, "drift": drift}
             reached_watermark = False
             for doc in docs:
-                record = rr_record(doc, drift)
+                record = rr_record(doc, drift, as_of=as_of)
                 pr = record["pr_id"]
                 if pr in seen_pr:
                     continue
@@ -169,6 +172,7 @@ class CrisilAdapter:
         if not isinstance(docs, list):
             return {"failure_code": FAILURE_MALFORMED, "records": [], "drift": []}
         records = []
+        as_of = utc_as_of()
         for doc in docs:
             if not isinstance(doc, dict):
                 continue
@@ -181,6 +185,7 @@ class CrisilAdapter:
                 "rating": str(doc.get("rating", "")).strip() or None,
                 "rr_date": _parse_date(doc.get("rrDate")),
                 "source": SOURCE_NAME,
+                "as_of": as_of,
             })
         return {"failure_code": FAILURE_OK, "records": records, "drift": []}
 
@@ -227,12 +232,13 @@ class CrisilAdapter:
             return {"failure_code": FAILURE_UNREACHABLE, "records": [], "drift": []}
         docs = data.get("docs", [])
         records = []
+        as_of = utc_as_of()
         for doc in docs:
             if not isinstance(doc, dict):
                 continue
             name = str(doc.get("companyName", "")).casefold()
             if needle[:24] and needle[:24] in name or name[:24] and name[:24] in needle:
-                records.append(rr_record(doc, []))
+                records.append(rr_record(doc, [], as_of=as_of))
         code = FAILURE_OK if records else FAILURE_NOT_FOUND
         return {"failure_code": code, "records": records, "drift": []}
 

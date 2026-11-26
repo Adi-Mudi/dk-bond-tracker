@@ -15,6 +15,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 
 from .base import (
     FAILURE_BLOCKED,
@@ -23,6 +24,7 @@ from .base import (
     FAILURE_OK,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
+    utc_as_of,
 )
 
 SOURCE_NAME = "NSE WDM"
@@ -66,6 +68,16 @@ def _clean(value):
     return str(value or "").strip() or None
 
 
+def _parse_coupon(issue_name):
+    match = re.search(r"(\d+(?:\.\d+)?)\s*%", str(issue_name or ""))
+    if not match:
+        return None
+    try:
+        return float(match.group(1))
+    except ValueError:
+        return None
+
+
 def parse_wdm_csv(payload):
     """Parse the wdmlist CSV body into canonical records.
 
@@ -84,19 +96,22 @@ def parse_wdm_csv(payload):
         raise SourceError(FAILURE_MALFORMED)
     records = []
     seen = set()
+    as_of = utc_as_of()
     for row in reader:
         isin = (row.get("ISIN NO.") or "").strip()
         if not isin or isin in seen:
             continue
         seen.add(isin)
+        issue_name = _clean(row.get("ISSUE_NAME"))
         records.append({
             "isin": isin,
             "security": _clean(row.get("SECURITY")),
             "security_type": _clean(row.get("SECTYPE")),
-            "issue_name": _clean(row.get("ISSUE_NAME")),
+            "issue_name": issue_name,
             "issue_desc": _clean(row.get("ISSUE_DESC")),
             "issue_date": _clean(row.get("ISSUE_DATE")),
             "maturity": _clean(row.get("MAT_DATE")),
+            "coupon": _parse_coupon(issue_name),
             "last_ip_date": _clean(row.get("Last IP Dt")),
             "next_ip_date": _clean(row.get("Next IP Dt")),
             "coupon_frequency": _clean(row.get("Cpn Freq")),
@@ -104,6 +119,7 @@ def parse_wdm_csv(payload):
             "last_traded_date": _clean(row.get("Last Traded Date")),
             "status": _clean(row.get("STATUS")),
             "source": SOURCE_NAME,
+            "as_of": as_of,
         })
     return records
 

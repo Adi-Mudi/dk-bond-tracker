@@ -62,8 +62,10 @@ def test_rr_newest_parses_real_fixture():
     assert set(first) == {
         "company_code", "company", "industry", "heading", "rating_date",
         "rating_file", "rationale_url", "trans_date", "pr_id", "source",
+        "as_of",
     }
     assert first["source"] == SOURCE_NAME
+    assert first["as_of"]
 
 
 def test_rr_record_parses_both_date_formats():

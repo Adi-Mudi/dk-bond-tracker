@@ -47,9 +47,11 @@ def test_every_record_is_canonical_d8_shape():
         assert set(record) == {
             "isin", "company", "scrip_name", "scrip_code", "scrip_id",
             "face_value", "group", "status", "segment", "source_url", "source",
+            "as_of",
         }
         assert record["source"] == SOURCE_NAME
         assert record["isin"]
+        assert record["as_of"]
 
 
 def test_isin_unique_and_valid_format():

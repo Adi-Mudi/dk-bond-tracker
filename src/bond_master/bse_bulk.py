@@ -17,6 +17,7 @@ from .base import (
     FAILURE_OK,
     FAILURE_TIMEOUT,
     FAILURE_UNREACHABLE,
+    utc_as_of,
 )
 
 SOURCE_NAME = "BSE"
@@ -71,7 +72,7 @@ def safe_float(value):
         return None
 
 
-def to_record(row, drift):
+def to_record(row, drift, as_of=None):
     isin = str(row.get("ISIN_NUMBER", "")).strip()
     record = {
         "isin": isin,
@@ -85,6 +86,7 @@ def to_record(row, drift):
         "segment": str(row.get("Segment", "")).strip() or None,
         "source_url": str(row.get("NSURL", "")).strip() or None,
         "source": SOURCE_NAME,
+        "as_of": as_of or utc_as_of(),
     }
     for key in row:
         if key not in KNOWN_KEYS and key not in drift:
@@ -99,6 +101,7 @@ def parse_payload(payload, drift=None):
     on a non-list root or rows missing required keys.
     """
     drift = [] if drift is None else drift
+    as_of = utc_as_of()
     if isinstance(payload, (bytes, bytearray)):
         payload = payload.decode("utf-8-sig", "replace")
     if isinstance(payload, str):
@@ -127,7 +130,7 @@ def parse_payload(payload, drift=None):
         if isin in seen:
             continue
         seen.add(isin)
-        records.append(to_record(row, drift))
+        records.append(to_record(row, drift, as_of=as_of))
     if skipped:
         drift.append(f"skipped_rows:{skipped}")
     return records

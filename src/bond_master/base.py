@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Mapping, Protocol
+
+
+def utc_as_of() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 INSTRUMENT_FIELDS = (
     "company",
