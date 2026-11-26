@@ -131,6 +131,27 @@
   .tcell { background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:10px; font-size:11px; text-align:center; color:var(--muted); }
   .tcell b { display:block; color:var(--ink); font-size:12px; margin-bottom:4px; }
   .tcell .ok { color:var(--green); font-size:10px; }
+  /* api + forms visuals */
+  .stack-flow { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; }
+  .layer { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:9px 14px; font-size:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .layer b { color:var(--ink); }
+  .layer span { color:var(--muted); font-size:10px; }
+  .layer.key { border-color:var(--accent); background:rgba(36,86,230,.1); }
+  .layer.key b { color:var(--accent-soft); }
+  .gate { background:rgba(245,158,11,.1); border:2px dashed rgba(245,158,11,.55); border-radius:10px; padding:10px 14px; font-size:12px; color:var(--amber); text-align:center; margin:10px 0; }
+  .gate small { display:block; color:var(--muted); font-size:10px; margin-top:3px; }
+  .guards { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:stretch; }
+  @media (max-width:600px){ .guards { grid-template-columns:1fr; } }
+  .guard { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:14px; }
+  .guard h5 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+  .guard.g1 h5 { color:var(--green); }
+  .guard.g2 h5 { color:var(--purple); }
+  .guard p { font-size:11px; color:var(--muted); margin:0; }
+  .vs { display:flex; align-items:center; color:var(--dim); font-size:11px; }
+  .msg-good, .msg-bad { border-radius:8px; padding:9px 12px; font-size:12px; margin-top:8px; }
+  .msg-good { background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.4); color:var(--green); }
+  .msg-bad { background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.4); color:var(--red); }
+  .submit-flow { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -688,6 +709,152 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 5 DEEP DIVE ============ -->
+<section>
+  <h2 id="e5"><span class="num">5</span> API Calls — how the app talks to the back end</h2>
+  <p class="muted">One client, one URL, one checkpoint for tokens/logging/retry, timeouts everywhere, one offline policy — and raw network code only ever lives in repository classes. Tool: <b style="color:var(--ink)">Dio</b>.</p>
+
+  <h3>Visual · Where network code lives — the only legal path</h3>
+  <div class="stack-flow">
+    <div class="layer"><b>Widget / Page</b><span>never sees a URL or Dio</span></div>
+    <div class="layer"><b>ViewModel / State</b><span>asks repository, holds result</span></div>
+    <div class="layer key"><b>Repository (per domain: bonds, users, payments)</b><span>raw JSON → typed objects or meaningful errors</span></div>
+    <div class="gate">⇄ INTERCEPTOR GATE ⇄<small>stamps auth token · logging · retry — automatically on every request</small></div>
+    <div class="layer key"><b>Dio instance #1 — base address written ONCE</b><span>https://api…/v1 · connect + receive timeouts set here</span></div>
+    <div class="layer"><b>Server</b><span>validates again — the last guard</span></div>
+  </div>
+
+  <h3>Visual · Interceptor = checkpoint, not copy-paste</h3>
+  <div class="diagram">
+    <div class="arrow-row" style="margin-top:0">
+      <div class="flowbox">Request from repo</div>
+      <div class="arrow">→</div>
+      <div class="flowbox hl">Interceptor<br><span style="color:var(--muted);font-size:10px">token stamped · logged · retried</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox">Base URL + timeout</div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">Server</div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:6px">50 call sites never hand-write headers — the gate stamps every request once</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:var(--amber)">Timeouts — fail fast</h4>
+      <ul>
+        <li>Connect timeout + receive timeout <span>set once on the Dio instance</span></li>
+        <li>"A spinner that never resolves is a bug, not a loading state" <span>dead network → quick fail → offline UI takes over</span></li>
+        <li>Links to your 4 fetch states <span>Checking must always reach Offline / Not Found</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">Error &amp; offline policy — decided once</h4>
+      <ul>
+        <li>Clear offline message · retry button · <b>never a blank screen</b></li>
+        <li>One shared handler, not per-endpoint code <span>your designed offline copy is the spec</span></li>
+        <li>Expired token → interceptor refreshes silently, pending requests retried <span>future slot — local-first today</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Offline/error copy + 4 fetch states</td><td><span class="pill g">designed</span></td><td>watchlist col01 + error board</td></tr>
+      <tr><td>Dio instance + base addresses + timeouts</td><td><span class="pill a">build</span></td><td>one-time setup</td></tr>
+      <tr><td>Interceptor (token/log/retry)</td><td><span class="pill a">build</span></td><td>auth = future slot</td></tr>
+      <tr><td>Repository classes (bonds, users, payments)</td><td><span class="pill a">build</span></td><td>mirrors back-end repository layer</td></tr>
+      <tr><td>Silent token refresh</td><td><span class="pill p">slot ready</span></td><td>when cloud/auth arrives</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ ESSENTIAL 6 DEEP DIVE ============ -->
+<section>
+  <h2 id="e6"><span class="num">6</span> Forms — how the app collects user input</h2>
+  <p class="muted">Two guards, never one: the <b style="color:var(--green)">form validates for comfort</b>, the <b style="color:var(--purple)">back end validates for trust</b>. Forms = first guard, back end = last guard.</p>
+
+  <h3>Visual · The two-guards rule</h3>
+  <div class="guards">
+    <div class="guard g1">
+      <h5>Guard 1 · the form</h5>
+      <p>Catches mistakes instantly for the user — types, lengths, formats, friendly messages. <b style="color:var(--ink)">Comfort.</b></p>
+    </div>
+    <div class="vs">first →<br>last →</div>
+    <div class="guard g2">
+      <h5>Guard 2 · the back end</h5>
+      <p>Re-checks everything that arrives — can never trust the front end (requests can bypass the app). <b style="color:var(--ink)">Trust.</b></p>
+    </div>
+  </div>
+
+  <h3>Validation rules &amp; timing — per field (your real fields)</h3>
+  <table>
+    <thead><tr><th>Field</th><th>Rule</th><th>When checked</th></tr></thead>
+    <tbody>
+      <tr><td>ISIN</td><td>12 chars, format-valid</td><td>while typing (mask) + on Fetch</td></tr>
+      <tr><td>Expected Yield / Targets / Amount</td><td>positive number</td><td>on leaving the field</td></tr>
+      <tr><td>Interest Credit Day</td><td>1–31</td><td>on leaving the field</td></tr>
+      <tr><td>Value per unit</td><td>needs BOTH target + qty</td><td>on submit (cross-field)</td></tr>
+      <tr><td>Remove: typed ISIN</td><td>exact match + hold 2s</td><td>on confirm</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Error messages — state the rule, not the category</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:var(--red)">Never</h4>
+      <div class="msg-bad">⚠ "Invalid input"</div>
+      <div class="msg-bad">red border only — colour is not a signal colourblind users receive</div>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--green)">Always</h4>
+      <div class="msg-good">✓ "Use at least 8 characters" — names the actual rule</div>
+      <div class="msg-good">red border + icon + text — three signals, not one</div>
+    </div>
+  </div>
+
+  <h3>Visual · Submit &amp; failure behaviour</h3>
+  <div class="diagram">
+    <div class="submit-flow">
+      <div class="flowbox hl">Tap Submit</div>
+      <div class="arrow">→</div>
+      <div class="flowbox">Button DISABLED + spinner<br><span style="color:var(--muted);font-size:10px">one tap = one action</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">Success</div>
+      <span style="color:var(--dim);font-size:12px">or</span>
+      <div class="flowbox" style="border-color:var(--red);color:var(--red)">Specific back-end error</div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div class="card" style="padding:10px 12px">
+        <h4 style="color:var(--accent-soft);font-size:10px">On failure</h4>
+        <p style="font-size:11px;margin:0">Never clear typed fields — preserve everything</p>
+      </div>
+      <div class="card" style="padding:10px 12px">
+        <h4 style="color:var(--accent-soft);font-size:10px">Long forms</h4>
+        <p style="font-size:11px;margin:0">Auto-scroll to the first error field</p>
+      </div>
+      <div class="card" style="padding:10px 12px">
+        <h4 style="color:var(--accent-soft);font-size:10px">Leaving midway</h4>
+        <p style="font-size:11px;margin:0">Save draft — return restores every value</p>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Double-submit is worst on payments — Save Payment, Confirm Move, Record Early Exit must be one-tap-once</div>
+  </div>
+
+  <h3>Status</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Field rules (ISIN, day, amounts)</td><td><span class="pill g">designed + back-end validation exists</span></td><td>named validation errors already in API</td></tr>
+      <tr><td>Error message style (rule + icon + text)</td><td><span class="pill g">pattern set</span></td><td>dup-ISIN banner is the reference</td></tr>
+      <tr><td>Submit lock + loading on payment/move/save</td><td><span class="pill a">build</span></td><td>Flutter — shared SubmitButton widget</td></tr>
+      <tr><td>Preserve-on-fail + scroll-to-error</td><td><span class="pill a">build</span></td><td>form framework defaults</td></tr>
+      <tr><td>Draft autosave on exit</td><td><span class="pill a">build</span></td><td>generalizes your Goals-detour rule</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -782,6 +949,8 @@
   <a href="#e2">2 · Nav</a>
   <a href="#e3">3 · Design</a>
   <a href="#e4">4 · Sizes</a>
+  <a href="#e5">5 · API</a>
+  <a href="#e6">6 · Forms</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
