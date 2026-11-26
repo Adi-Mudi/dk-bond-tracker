@@ -127,10 +127,12 @@ def parse_rationales(payload, as_of=None):
         seen.add(rationale_id)
         cells = [_clean(td) for td in TD_RE.findall(row)]
         cells = [c for c in cells if c]
+        company = title.split(":", 1)[0].strip() if ":" in title else None
         records.append({
             "source": SOURCE_NAME,
             "rationale_id": rationale_id,
             "title": title,
+            "company": company or None,
             "date": _iso_date(cells[0]) if cells else None,
             "category": cells[1] if len(cells) > 1 else None,
             "company_id": company_id,
@@ -142,7 +144,11 @@ def parse_rationales(payload, as_of=None):
 
 
 def parse_rating_details(payload, company_id=None, as_of=None):
-    """RatingDetails page -> per-instrument rating records (0 ISINs - join by company)."""
+    """RatingDetails page -> per-instrument rating records (0 ISINs - join by company).
+
+    The issuer name is Knockout-rendered (data-bind) - absent from static
+    HTML, so company stays None and the join is by company_id.
+    """
     text = _html(payload)
     as_of = as_of or utc_as_of()
     records = []
@@ -157,6 +163,7 @@ def parse_rating_details(payload, company_id=None, as_of=None):
         records.append({
             "source": SOURCE_NAME,
             "company_id": company_id,
+            "company": None,
             "instrument": cells[0],
             "agency": agency.strip(),
             "rating": rating,

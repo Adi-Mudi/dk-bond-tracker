@@ -57,6 +57,7 @@ def test_rationales_parses_real_fixture():
     assert first["rationale_url"].endswith("Id=" + first["rationale_id"])
     assert first["pdf_url"].endswith("Id=" + first["rationale_id"])
     assert first["title"]
+    assert first["company"] == "AMNS GANDHIDHAM LIMITED (Formerly known as Indian Steel Corporation Limited)"
     assert first["date"] == "2026-11-26"
     assert first["category"] == "Corporate Debt Rating"
     assert first["company_id"]
@@ -83,6 +84,7 @@ def test_rating_details_parses_real_fixture():
     ncd = next(r for r in records if "Non-Convertible" in r["instrument"])
     assert ncd["source"] == "ICRA"
     assert ncd["company_id"] == COMPANY_ID
+    assert ncd["company"] is None
     assert ncd["agency"] == "ICRA"
     assert ncd["rating"] == "BBB+"
     assert ncd["outlook"] == "Positive"
