@@ -763,7 +763,7 @@
       </ul>
     </div>
   </div>
-  <p class="muted" style="font-size:11px;margin-top:8px">Icon specimen lives in the showcase board; full iconography spec (usage table) = pending essential — rules above are the locked core.</p>
+  <p class="muted" style="font-size:11px;margin-top:8px">Icon specimen lives in the showcase board. <b>Usage table:</b> sync→top bar · bell→top bar · palette/theme→top bar3rd · eye→privacy mask (top bar or settings) · chevron→disclosure (dropdown/accordion) · calendar→date fields · check→selected chips/rows · add/FAB→create flows · inventory→NSDL browse · close→sheets · history/edit/share/delete→overflow sheet · compare→ledger · bookmarks→empty state · warning→alerts/severity. Every icon-button carries a Semantics label (A11y B4 — build).</p>
 
   <h3>Visual · Typography scale — named styles, not raw numbers</h3>
   <div class="type-scale">
@@ -925,7 +925,7 @@
     <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td>Compact (phone) designs</td><td><span class="pill g">done</span></td><td>all boards locked at 412dp</td></tr>
-      <tr><td>Support declaration (phone-only vs +tablet)</td><td><span class="pill a">DECIDE</span></td><td>cheapest path: Compact-only for MVP, table says "Medium/Expanded deferred"</td></tr>
+      <tr><td>Support declaration (phone-only vs +tablet)</td><td><span class="pill g">DECIDED</span></td><td>Compact-only for MVP (locked decisions table) — Medium/Expanded deferred</td></tr>
       <tr><td>Breakpoint layout table (Step 2)</td><td><span class="pill a">build</span></td><td>write once support is declared</td></tr>
       <tr><td>LayoutBuilder auto-switching</td><td><span class="pill a">build</span></td><td>Flutter — one-time instruction to the agent</td></tr>
       <tr><td>Size test matrix</td><td><span class="pill a">build</span></td><td>browser + emulators + one real phone</td></tr>
@@ -1291,7 +1291,7 @@
     <tbody>
       <tr><td>Transition/sheet/dialog standards</td><td><span class="pill a">define once</span></td><td>write into theme/routes — designs are static today</td></tr>
       <tr><td>Press feedback on buttons/chips</td><td><span class="pill a">build</span></td><td>150ms scale</td></tr>
-      <tr><td>Number-change flash rule</td><td><span class="pill a">decide</span></td><td>instant vs flash — one choice app-wide (arrow always)</td></tr>
+      <tr><td>Number-change flash rule</td><td><span class="pill g">DECIDED — flash + arrow</span></td><td>brief green↑/red↓ paired with arrow (locked #2)</td></tr>
       <tr><td>Reduced-motion handling</td><td><span class="pill a">build</span></td><td>automatic via MediaQuery</td></tr>
       <tr><td>Performance discipline</td><td><span class="pill a">build</span></td><td>transform+opacity only · dispose · release-mode tests</td></tr>
     </tbody>
@@ -1391,7 +1391,7 @@
       <tr><td>Dates</td><td>Day · Month · Year, English month</td><td>18 Dec 2026</td></tr>
       <tr><td>Currency</td><td>₹ · Indian lakh grouping · space after ₹</td><td>₹ 5,41,175</td></tr>
       <tr><td>Percentages</td><td>2 decimals + p.a. for rates</td><td>9.75% p.a. · 10%</td></tr>
-      <tr><td>Clock</td><td>decide: 12h vs 24h <span class="pill a">decide</span></td><td>—</td></tr>
+      <tr><td>Clock</td><td>follow device locale —12h default in India <span class="pill g">DECIDED</span></td><td>locked #3</td></tr>
       <tr><td>Respect region</td><td>follow user language/number settings</td><td>—</td></tr>
     </tbody>
   </table>
@@ -1591,7 +1591,7 @@
     <tr><td><b>Vertical scroll</b></td><td class="verdict ok">✅ ALLOWED</td><td>the second gesture users know</td></tr>
     <tr><td><b>Hold 2s + typed ISIN</b> — remove only</td><td class="verdict ok">✅ ALLOWED</td><td>destructive, hence the lock</td></tr>
     <tr><td><b>Swipe-to-delete on rows</b></td><td class="verdict no">❌ BANNED</td><td>conflicts with guarded delete — visible delete lives in Details → ⋮</td></tr>
-    <tr><td><b>Pull-to-refresh</b></td><td class="verdict pending">⚠ DECIDE</td><td>sync button exists; add pull too, or button only?</td></tr>
+    <tr><td><b>Pull-to-refresh</b></td><td class="verdict ok">✅ BUTTON-ONLY</td><td>DECIDED: sync icon only for MVP — no pull gesture (locked #6)</td></tr>
     <tr><td><b>Sheet swipe-down dismiss</b></td><td class="verdict pending">⚠ TO WRITE</td><td>handle exists; dismissal must keep typed entries</td></tr>
     <tr><td><b>Edge swipe (system back)</b></td><td class="verdict ok">🖥 SYSTEM</td><td>OS owns edges — never override</td></tr>
     <tr><td><b>Double-tap / pinch / drag-reorder</b></td><td class="verdict no">❌ NOT USED</td><td>add to this map first if ever needed</td></tr>
@@ -1910,88 +1910,69 @@
   </table>
 </section>
 
+<!-- ============ LOCKED DECISIONS ============ -->
+<section>
+  <h2 id="decisions"><span class="num">✓</span> Locked decisions —6 pending items resolved (2026-11-27)</h2>
+  <table>
+    <thead><tr><th>#</th><th>Decision</th><th>Resolution</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Screen-size support</td><td><b style="color:#4ADE80">Compact-only (phone,412dp) for MVP</b></td><td>cheapest path; Medium/Expanded deferred until requested — table in E4 says "deferred"</td></tr>
+      <tr><td>2</td><td>Number-change feedback</td><td><b style="color:#4ADE80">Brief flash + arrow</b> (green↑ / red↓, paired)</td><td>colour never alone; totals re-deriving after save must be visible</td></tr>
+      <tr><td>3</td><td>Clock format</td><td><b style="color:#4ADE80">Follow device locale (12h default in India)</b></td><td>microcopy rule: respect user region; no fixed override</td></tr>
+      <tr><td>4</td><td>Chips vs48dp</td><td><b style="color:#4ADE80">Visual stays compact · invisible48dp hit area via InkWell</b></td><td>keeps design + satisfies the standing48dp rule</td></tr>
+      <tr><td>5</td><td>bonds.db identifiers / encryption</td><td><b style="color:#4ADE80">No personal identifiers in bonds.db, EVER · encryption decision deferred to auth/fetch phase</b></td><td>vault rule now enforced; SQLCipher revisit when tokens ship</td></tr>
+      <tr><td>6</td><td>Pull-to-refresh</td><td><b style="color:#4ADE80">Sync button only for MVP</b> (no pull gesture)</td><td>one refresh affordance; gesture map stays tap-first</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:11px;margin-top:8px">All six are now binding — update any doc that still shows these as DECIDE/pending.</p>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
-  <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
-  <p class="muted">9 groups. Status: <span class="pill g">covered</span> = already designed or backend exists · <span class="pill a">build</span> = Flutter work needed.</p>
+  <h2 id="all"><span class="num">IDX</span> Essentials index —15 deep dives + decision log</h2>
+  <p class="muted">The universal foundation (front-end scope). Each entry links to its deep-dive section. Open work = component audit (16 ⚠) + locked-decisions table.</p>
   <div class="groups">
     <div class="gcard">
-      <h4>A · Shell &amp; navigation (5)</h4>
+      <h4>Foundation (4)</h4>
       <ol>
-        <li><b>App frame</b> — bar, tabs, nav, FAB <span class="tag has">designed</span></li>
-        <li><b>Routing + deep links + back rules</b> <span class="tag build">build</span></li>
-        <li><b>Page states</b> — first-open/empty/loading/error/offline <span class="tag has">designed</span></li>
-        <li><b>Overlays</b> — sheets, dialogs, guarded confirms <span class="tag has">designed</span></li>
-        <li><b>Scroll aids</b> — TOP/BOTTOM, sticky headers <span class="tag has">designed</span></li>
+        <li><b><a href="#e1" style="color:var(--accent-soft)">1 State Management</a></b> — local vs app-wide · Riverpod locked ·8-piece inventory</li>
+        <li><b><a href="#e2" style="color:var(--accent-soft)">2 Navigation</a></b> — page map · tabs/More · back rules · deep links</li>
+        <li><b><a href="#e3" style="color:var(--accent-soft)">3 Design System</a></b> — tokens · type/spacing · <b>4 locked themes</b> · icon rules</li>
+        <li><b><a href="#e4" style="color:var(--accent-soft)">4 Responsiveness</a></b> — size classes · <b>Compact-only MVP decided</b> · scroll-fix history</li>
       </ol>
     </div>
     <div class="gcard">
-      <h4>B · Design foundation (4)</h4>
-      <ol start="6">
-        <li><b>Theme tokens</b> — Midnight Ledger → ThemeData <span class="tag build">map</span></li>
-        <li><b>Component kit</b> — buttons, chips, inputs, cards <span class="tag has">inventoried</span></li>
-        <li><b>Icon/asset conventions</b> <span class="tag build">build</span></li>
-        <li><b>Money formatting</b> — ₹ grouping, TDS display <span class="tag has">payment sheet</span></li>
+      <h4>Interaction (7)</h4>
+      <ol>
+        <li><b><a href="#e5" style="color:var(--accent-soft)">5 API Calls</a></b> — one Dio · interceptor · timeouts · error kinds</li>
+        <li><b><a href="#e6" style="color:var(--accent-soft)">6 Forms</a></b> — two guards · timing · submit-lock · preserve</li>
+        <li><b><a href="#e7" style="color:var(--accent-soft)">7 Accessibility</a></b> —4.5:1 ·48dp (chips: invisible hit area ✓) · TalkBack</li>
+        <li><b><a href="#e8" style="color:var(--accent-soft)">8 Motion</a></b> —150/300/400 easeInOut · press0.90+dim · <b>flash+arrow decided</b></li>
+        <li><b><a href="#e9" style="color:var(--accent-soft)">9 Microcopy</a></b> — voice · ladder · three-part errors · <b>clock=locale decided</b></li>
+        <li><b><a href="#e13" style="color:var(--accent-soft)">13 Gestures</a></b> — map · visible twin · delete lock · <b>button-only refresh decided</b></li>
+        <li><b><a href="#e14" style="color:var(--accent-soft)">14 Action Feedback</a></b> — weight ladder · errors persistent ·0.1s</li>
       </ol>
     </div>
     <div class="gcard">
-      <h4>C · State &amp; architecture (4)</h4>
-      <ol start="10">
-        <li><b>State management</b> — Riverpod <span class="tag build">decide + build</span></li>
-        <li><b>Feature-first structure</b> <span class="tag build">build</span></li>
-        <li><b>DI container</b> — get_it/injectable <span class="tag build">build</span></li>
-        <li><b>View-model pattern</b> <span class="tag build">build</span></li>
+      <h4>Waiting, data &amp; resilience (4)</h4>
+      <ol>
+        <li><b><a href="#e15" style="color:var(--accent-soft)">15 Loading Patterns</a></b> — skeleton/spinner/progressive · per-page map</li>
+        <li><b><a href="#e16" style="color:var(--accent-soft)">16 Scroll &amp; Lists</a></b> — load-more · sticky · scroll-to-top</li>
+        <li><b><a href="#e11" style="color:var(--accent-soft)">11 Secure Storage</a></b> — vault · <b>no identifiers in bonds.db decided</b></li>
+        <li><b><a href="#e12" style="color:var(--accent-soft)">12 Crash &amp; Error Reporting</a></b> — black-box · redaction · release-only</li>
       </ol>
     </div>
     <div class="gcard">
-      <h4>D · Data &amp; offline (4)</h4>
-      <ol start="14">
-        <li><b>SQLite SSOT</b> — bonds.db <span class="tag has">exists</span></li>
-        <li><b>Repository layer</b> <span class="tag build">build</span></li>
-        <li><b>Offline-first UI</b> <span class="tag has">designed</span></li>
-        <li><b>CSV + ISIN fetch</b> <span class="tag has">backend</span></li>
-      </ol>
-    </div>
-    <div class="gcard">
-      <h4>E · States &amp; feedback (3)</h4>
-      <ol start="18">
-        <li><b>Friendly error copy</b> — never raw exceptions <span class="tag build">build</span></li>
-        <li><b>Notifications</b> — maturity + rating alerts <span class="tag has">backend</span></li>
-        <li><b>Sync feedback</b> — last synced, degraded net <span class="tag build">build</span></li>
-      </ol>
-    </div>
-    <div class="gcard">
-      <h4>F · Accessibility &amp; input (4)</h4>
-      <ol start="21">
-        <li><b>Tap targets ≥48dp</b> <span class="tag has">standing rule</span></li>
-        <li><b>Contrast AA + non-color cues</b> <span class="tag build">verify</span></li>
-        <li><b>Text scaling + a11y labels</b> <span class="tag build">build</span></li>
-        <li><b>Permissions in-context</b> <span class="tag build">build</span></li>
-      </ol>
-    </div>
-    <div class="gcard">
-      <h4>G · Security &amp; privacy (2)</h4>
-      <ol start="25">
-        <li><b>Privacy mask default-on</b> <span class="tag has">standing rule</span></li>
-        <li><b>No secrets in code</b> <span class="tag has">rule active</span></li>
-      </ol>
-    </div>
-    <div class="gcard">
-      <h4>H · Performance &amp; quality (3)</h4>
-      <ol start="27">
-        <li><b>Fast start + lazy lists</b> <span class="tag build">build</span></li>
-        <li><b>Logging + error boundary</b> <span class="tag build">build</span></li>
-        <li><b>Test pyramid</b> — math units first <span class="tag has">backend 732 ✓</span></li>
-      </ol>
-    </div>
-    <div class="gcard">
-      <h4>I · Platform &amp; release (2)</h4>
-      <ol start="30">
-        <li><b>Lifecycle handling</b> — background/state loss <span class="tag build">build</span></li>
-        <li><b>Release checklist</b> — devices, permissions, store <span class="tag build">build</span></li>
+      <h4>Companion documents</h4>
+      <ol>
+        <li><b>Locked decisions</b> —6/6 resolved <a href="#decisions" style="color:var(--green)">✓ table</a></li>
+        <li><b>Component audit</b> —40 types AGY-verified · <span style="color:var(--amber)">16 ⚠ = build fix list</span> → component_audit.html</li>
+        <li><b>Themes</b> —4 locked (01/03/04/07) → theme_proposals.html · theme_showcase.html</li>
+        <li><b>Watchlist</b> — features · psrs (DB projection ON HOLD) · seven-questions</li>
       </ol>
     </div>
   </div>
+  <p class="muted" style="font-size:11px;margin-top:10px">Nav hole at "10" kept deliberately (Gestures filed as13 per developer numbering). Iconography usage table lives in Essential3.</p>
 </section>
 
 <footer>
@@ -2015,7 +1996,7 @@
   <a href="#e14">14 · Feedback</a>
   <a href="#e15">15 · Loading</a>
   <a href="#e16">16 · Scroll</a>
-  <a href="#all">All 30</a>
+  <a href="#all">Index</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
 
