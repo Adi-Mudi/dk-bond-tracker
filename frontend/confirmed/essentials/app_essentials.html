@@ -253,6 +253,33 @@
   .dd li { font-size:12px; padding:5px 0; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
   .dd li:last-child { border-bottom:none; }
   .dd li span { display:block; font-size:10px; color:var(--muted); }
+  /* secure storage visuals */
+  .classify { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:600px){ .classify { grid-template-columns:1fr; } }
+  .cbox { border-radius:10px; padding:14px; border:1px solid var(--hairline); }
+  .cbox.sens { background:rgba(248,113,113,.06); border-color:rgba(248,113,113,.45); }
+  .cbox.harm { background:rgba(74,222,128,.06); border-color:rgba(74,222,128,.4); }
+  .cbox h5 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .cbox.sens h5 { color:var(--red); }
+  .cbox.harm h5 { color:var(--green); }
+  .cbox ul { list-style:none; }
+  .cbox li { font-size:12px; padding:4px 0; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
+  .cbox li:last-child { border-bottom:none; }
+  .cbox li span { color:var(--muted); font-size:10px; display:block; }
+  .vault { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin-top:10px; }
+  .vault-row { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; }
+  @media (max-width:600px){ .vault-row { grid-template-columns:1fr; } }
+  .vslot { background:var(--surface); border:1px solid var(--hairline); border-radius:10px; padding:12px; font-size:11px; text-align:center; color:var(--muted); }
+  .vslot b { display:block; font-size:12px; color:var(--ink); margin-bottom:4px; }
+  .vslot.vault-slot { border-color:var(--red); background:rgba(248,113,113,.07); }
+  .vslot.vault-slot b { color:var(--red); }
+  .vslot.plain { border-color:var(--green); background:rgba(74,222,128,.05); }
+  .vslot.plain b { color:var(--green); }
+  .never { background:rgba(248,113,113,.08); border:1px dashed rgba(248,113,113,.5); border-radius:10px; padding:12px 14px; margin-top:10px; font-size:12px; color:var(--red); }
+  .never b { display:block; margin-bottom:4px; }
+  .wipe { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:8px; }
+  .prot { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:700px){ .prot { grid-template-columns:1fr; } }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -1295,6 +1322,91 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 11 DEEP DIVE ============ -->
+<section>
+  <h2 id="e11"><span class="num">11</span> Secure Storage — keeping sensitive data locked away</h2>
+  <p class="muted">Decided once, app-wide: what is sensitive, where it lives, what never gets stored, when it's wiped. The classification is a written rule — not a per-screen judgement call.</p>
+
+  <h3>Visual · Part 1 — classify every stored item</h3>
+  <div class="classify">
+    <div class="cbox sens">
+      <h5>🔐 Sensitive → secure vault only</h5>
+      <ul>
+        <li>Auth tokens <span>when cloud/auth arrives</span></li>
+        <li>API keys / session IDs <span>never in code or plain files</span></li>
+        <li>Personal details <span>PAN · BO ID · DOB — if CDSL-OTP fetch ships</span></li>
+      </ul>
+    </div>
+    <div class="cbox harm">
+      <h5>⚙ Harmless → ordinary storage</h5>
+      <ul>
+        <li>Theme choice <span>Midnight Ledger</span></li>
+        <li>Last opened tab</li>
+        <li>Display settings <span>hide-amounts toggle, TDS default, credit-day pref</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Visual · Part 2 — where each kind goes</h3>
+  <div class="vault">
+    <div class="vault-row">
+      <div class="vslot plain"><b>Harmless</b>ordinary shared preferences<br>plain storage OK</div>
+      <div class="sep" style="justify-content:center">vs</div>
+      <div class="vslot vault-slot"><b>Sensitive → VAULT</b>Keychain (iOS)<br>EncryptedSharedPreferences (Android)</div>
+    </div>
+    <div class="never"><b>✗ Never</b>plain files · unencrypted shared preferences · unencrypted DB columns for sensitive fields</div>
+  </div>
+
+  <h3>Visual · Part 3 — what never gets stored at all</h3>
+  <div class="never" style="border-style:solid">
+    <b>✗ Raw passwords — never stored</b>
+    Only the authenticated session token that replaces them. If a value isn't needed later, don't save it — fewer sensitive items = smaller risk.
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Your case: if CDSL fetch needs PAN/DOB once → <b style="color:var(--ink)">use and don't persist</b>, rather than keeping them for convenience.</div>
+  </div>
+
+  <h3>Visual · Part 4 — lifetime &amp; cleanup</h3>
+  <div class="diagram">
+    <div class="wipe">
+      <div class="flowbox">Sensitive item stored</div>
+      <div class="arrow">→</div>
+      <div class="flowbox hl">has defined expiry</div>
+      <div class="arrow">→</div>
+      <div class="flowbox" style="border-color:var(--red);color:var(--red)">Logout / session revoked<br><span style="font-size:10px">vault wiped immediately</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">no orphaned data accumulates</div>
+    </div>
+  </div>
+
+  <h3>Visual · Part 5 — screen &amp; copy protection</h3>
+  <div class="prot">
+    <div class="card" style="padding:12px">
+      <h4 style="color:var(--accent-soft);font-size:11px">App-switcher hide</h4>
+      <p style="font-size:11px;margin:0">Screens with sensitive info flagged to blur/blank in the task-switcher preview (both platforms) — pairs with your hide-amounts privacy mask</p>
+    </div>
+    <div class="card" style="padding:12px">
+      <h4 style="color:var(--accent-soft);font-size:11px">Field protection</h4>
+      <p style="font-size:11px;margin:0">Sensitive inputs disable copy / cut / autocomplete where appropriate — a PAN field never offers "copy"</p>
+    </div>
+    <div class="card" style="padding:12px">
+      <h4 style="color:var(--accent-soft);font-size:11px">Out of logs</h4>
+      <p style="font-size:11px;margin:0">Sensitive values never in logs, crash reports, or analytics — logs are for debugging, not storing secrets (ties to logging essential)</p>
+    </div>
+  </div>
+
+  <h3>Status — your project today</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>No secrets in code</td><td><span class="pill g">rule active</span></td><td>AGENTS.md security gate</td></tr>
+      <tr><td>Harmless prefs inventory</td><td><span class="pill g">known</span></td><td>theme, tabs, hide-amounts, TDS default</td></tr>
+      <tr><td>Classification doc (which items are sensitive)</td><td><span class="pill a">write when auth/fetch ships</span></td><td>two-box rule above becomes the doc</td></tr>
+      <tr><td>Secure vault wiring (Keychain / EncryptedPrefs)</td><td><span class="pill p">slot ready</span></td><td>needed with first auth token or persisted identifier</td></tr>
+      <tr><td>App-switcher hide for sensitive screens</td><td><span class="pill a">build</span></td><td>extends the privacy-mask concept</td></tr>
+      <tr><td>Log scrubbing (no values in logs)</td><td><span class="pill a">build</span></td><td>when logging lands</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -1394,6 +1506,7 @@
   <a href="#e7">7 · A11y</a>
   <a href="#e8">8 · Motion</a>
   <a href="#e9">9 · Words</a>
+  <a href="#e11">11 · Secure</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
