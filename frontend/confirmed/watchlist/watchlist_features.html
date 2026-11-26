@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchlist — Feature Inventory (42)</title>
+<style>
+  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --accent-soft:#93B4FF; --green:#4ADE80; --amber:#F59E0B; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--canvas); color:var(--ink); font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; line-height:1.55; padding:40px 20px; }
+  .wrap { max-width:920px; margin:0 auto; }
+  header { border-bottom:1px solid var(--hairline); padding-bottom:20px; margin-bottom:24px; }
+  .kicker { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-soft); }
+  h1 { font-size:24px; font-weight:700; margin:6px 0 10px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .stat { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:8px 14px; font-size:12px; color:var(--muted); }
+  .stat b { color:var(--ink); font-size:15px; display:block; }
+  .stat.lock b { color:var(--green); }
+  section { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:var(--accent-soft); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  h2 .count { background:var(--accent); color:#fff; border-radius:999px; font-size:10px; padding:2px 8px; letter-spacing:0; }
+  ol { list-style:none; counter-reset:feat; }
+  li { counter-increment:feat; position:relative; padding:7px 0 7px 44px; font-size:13px; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
+  li:last-child { border-bottom:none; }
+  li::before { content:counter(feat,decimal-leading-zero); position:absolute; left:0; top:7px; font-size:11px; color:var(--dim); background:var(--raised); border:1px solid var(--hairline); border-radius:6px; padding:1px 7px; }
+  li .auto { color:var(--green); font-size:10px; text-transform:uppercase; letter-spacing:.08em; margin-left:6px; }
+  li .user { color:var(--amber); font-size:10px; text-transform:uppercase; letter-spacing:.08em; margin-left:6px; }
+  li .new { color:var(--accent-soft); font-size:10px; margin-left:6px; }
+  li small { display:block; color:var(--muted); font-size:11px; margin-top:2px; }
+  .note { background:rgba(36,86,230,.08); border:1px solid rgba(36,86,230,.35); border-radius:10px; padding:12px 16px; font-size:12px; color:var(--accent-soft); margin-top:20px; }
+  footer { margin-top:28px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .grp { counter-reset:feat; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Watchlist · Feature Inventory</div>
+  <h1>Watchlist — Full Feature List</h1>
+  <div style="font-size:13px;color:var(--muted)">Full-depth analysis of the locked 5-column review board. Every feature the page implements, grouped by screen area.</div>
+  <div class="stats">
+    <div class="stat"><b>42</b>features</div>
+    <div class="stat"><b>5</b>columns / frames</div>
+    <div class="stat"><b>18</b>feedback fixes applied</div>
+    <div class="stat"><b>1</b>open item closed (buy-step)</div>
+    <div class="stat lock"><b>LOCKED</b>2026-11-25 · ref 09f4af7d</div>
+  </div>
+</header>
+
+<section>
+  <h2>A · App shell (every frame) <span class="count">6</span></h2>
+  <ol class="grp">
+    <li>Status bar — time, signal, wifi, battery</li>
+    <li>Top app bar — brand + sync + notifications (badge) + avatar</li>
+    <li>Sticky segmented tabs — ADD FORM | LEDGER with live counts</li>
+    <li>Stat strip — WATCHING (active count) + ALERTS (sub-line, e.g. "1 Rating Watch")</li>
+    <li>Bottom navigation — Dashboard · Portfolio · <b>Watchlist (active)</b> · Goals · More</li>
+    <li>FAB + (56px) — page-specific action semantics</li>
+  </ol>
+</section>
+
+<section>
+  <h2>B · Notifications (above the form) <span class="count">2</span></h2>
+  <ol class="grp">
+    <li>CRISIL Rating Watch alert card — Critical severity + advisory text</li>
+    <li>Alert actions — Read Advisory + Dismiss</li>
+  </ol>
+</section>
+
+<section>
+  <h2>C · Column 01 — Add Bond form <span class="count">14</span></h2>
+  <ol class="grp">
+    <li>Form hidden on open — appears only after tapping FAB +</li>
+    <li>Quick ISIN Lookup with Fetch button</li>
+    <li>Fetch states ×4 — Found (NSDL/BSE) · Checking · Offline · Not Found</li>
+    <li>Duplicate-ISIN error banner — blocks same company + active ISIN, shows existing broker, suggests alternatives</li>
+    <li>Section A Identity — Company, ISIN locked chip (immutable), Rating, Rating Agency <span class="auto">auto</span></li>
+    <li>Section B Economics — Coupon <span class="auto">auto</span>, Expected Yield <span class="user">you enter</span>, Face Value <span class="auto">auto</span>, Payout Cycle <span class="auto">auto</span></li>
+    <li>Section C Terms — Issuer Type, Listing Status, Maturity Date <span class="auto">auto</span></li>
+    <li>Interest Credit Day input — day of month interest is credited + helper text</li>
+    <li>Default History — disabled <span class="auto">auto</span> field + COMING SOON chip (background automation planned)</li>
+    <li>Secured NCD field + helper — "asset-backed senior claim"</li>
+    <li>Section D Targets — Target Invested, Planned Quantity <span class="user">you enter</span> (empty by design)</li>
+    <li>Value per unit (auto math) — Target Invested ÷ Quantity, em-dash until both filled</li>
+    <li>Broker typeahead — GoldenPi · Grip Invest · IndiaBonds · Zerodha + free-text entry</li>
+    <li>Source Note (optional) — where the lead came from · Save to Watchlist button · auto/"you enter" chips on every field</li>
+  </ol>
+</section>
+
+<section>
+  <h2>D · Column 02 — Integrated ledger <span class="count">8</span></h2>
+  <ol class="grp">
+    <li>Company-first merged view — Held + Watch in one list, no separate tabs</li>
+    <li>4-tier status pill — Danger &gt; Maturing &gt; On-going &gt; Matured</li>
+    <li>Company header — total invested + "N bonds / X completed / Y ongoing" counts</li>
+    <li>[HELD] rows — ISIN, units, settled amount, or "Maturing in 4 days" countdown</li>
+    <li>[WATCH] rows — broker, cycle • date • structure, yield %, Move to Portfolio + Details</li>
+    <li>Multi-broker compare card — same ISIN at 3 brokers, yields, Best Yield tag, Select button</li>
+    <li>Buy-step line <span class="new">new 2026-11-26</span> — "Buy at your broker first, then return here — Move to Portfolio records that broker."</li>
+    <li>Browse NSDL Depository List button</li>
+  </ol>
+</section>
+
+<section>
+  <h2>E · Column 03 — Move to Portfolio <span class="count">4</span></h2>
+  <ol class="grp">
+    <li>Conversion form — Purchased Quantity · Invested Amount · Execution/Ref Date · Demat/Broker Ref (all empty)</li>
+    <li>Link to Goal (optional) — pick existing goal: Emergency Corpus / Kids Education 2030 / Debt-Free Plan</li>
+    <li>Update goals → detour — leaves, returns with entries intact</li>
+    <li>Confirm Move + Broker Record Note — verified against depository sync → becomes On-going</li>
+  </ol>
+</section>
+
+<section>
+  <h2>F · Column 04 — Remove flow (guarded delete) <span class="count">4</span></h2>
+  <ol class="grp">
+    <li>4-step buried delete — Details → ⋮ overflow → bottom sheet → guarded modal</li>
+    <li>Bottom-sheet actions — View history · Edit target · Share prospectus · Remove (red, buried; never on-card)</li>
+    <li>Type-ISIN-to-confirm + hold 2s guard — "held positions never deleted here" note</li>
+    <li>Guarded-architecture note — delete always buried, watchlist-only</li>
+  </ol>
+</section>
+
+<section>
+  <h2>G · Column 05 — First open empty state <span class="count">3</span></h2>
+  <ol class="grp">
+    <li>First-open behavior — LEDGER tab active, form hidden, zeroed notifications ("0 nothing yet / 0 all clear")</li>
+    <li>Empty placeholder + "Add first bond" CTA</li>
+    <li>FAB page semantics — Dashboard/Portfolio/Watchlist + → Add Bond form; Goals + → Goal form (in design)</li>
+  </ol>
+</section>
+
+<div class="note">
+  Cross-cutting: documented back-behavior (system back closes the form with entries preserved; goals detour returns to Move-to-Portfolio intact) · 412dp viewport · Midnight Ledger tokens · design locked in STITCH_LOCK_REGISTRY (screen 5bdaa0cf, commit 9ddaf0a9 for the buy-step line).
+</div>
+
+<footer>
+  <span>DK BOND SYSTEM v3.4 · STRICT MIDNIGHT LEDGER TOKENS</span>
+  <span>Generated 2026-11-26 · source: watchlist_all_sections.html + design notes + manifest</span>
+</footer>
+
+</div>
+</body>
+</html>
