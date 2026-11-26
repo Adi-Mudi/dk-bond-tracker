@@ -89,6 +89,27 @@
   .gcard ol { list-style:none; counter-reset:g; }
   .gcard li { font-size:11px; color:var(--muted); padding:2px 0; }
   .gcard li b { color:var(--ink); font-weight:600; }
+  /* navigation visuals */
+  .pagemap { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin:12px 0; }
+  .pm-tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+  @media (max-width:760px){ .pm-tabs { grid-template-columns:1fr 1fr; } }
+  .pm-tab { background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:10px; text-align:center; }
+  .pm-tab .t { font-size:11px; font-weight:700; color:var(--accent-soft); text-transform:uppercase; letter-spacing:.06em; }
+  .pm-tab .kids { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+  .pm-kid { background:var(--raised); border:1px solid var(--hairline); border-radius:6px; padding:5px 6px; font-size:10px; color:var(--muted); text-align:center; }
+  .pm-kid.sheet { border-color:rgba(192,132,252,.5); color:var(--purple); }
+  .pm-kid.dialog { border-color:rgba(248,113,113,.5); color:var(--red); }
+  .pm-kid.page { border-color:rgba(74,222,128,.4); color:var(--green); }
+  .pm-arrow { text-align:center; color:var(--dim); font-size:10px; margin-top:4px; }
+  .stacks { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media (max-width:760px){ .stacks { grid-template-columns:1fr; } }
+  .stack { background:var(--canvas); border:1px solid var(--hairline); border-radius:10px; padding:10px; }
+  .stack .st { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent-soft); margin-bottom:8px; }
+  .frame { background:var(--surface); border:1px solid var(--hairline); border-radius:6px; padding:6px 8px; font-size:11px; margin-bottom:6px; color:var(--muted); }
+  .frame.top { border-color:var(--accent); color:var(--ink); font-weight:700; }
+  .frame .x { color:var(--dim); font-size:9px; display:block; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:10px; color:var(--muted); margin-top:10px; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:middle; border:1px solid; }
   footer { margin-top:28px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
 </style>
 </head>
@@ -235,6 +256,163 @@
       <tr><td>7</td><td>User settings (credit day, TDS default, export prefs)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag build">to build</span></td></tr>
       <tr><td>8</td><td>ISIN fetch session result</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">4 states designed</span></td></tr>
       <tr><td>—</td><td>Dropdown open · field text · chip tap · accordion · switch · scroll</td><td><span class="pill g">local</span></td><td>setState()</td><td><span class="tag has">excluded from plan</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ ESSENTIAL 2 DEEP DIVE ============ -->
+<section>
+  <h2><span class="num">2</span> Navigation — how users move between pages</h2>
+  <p class="muted">Four parts: the <b style="color:var(--ink)">page map</b> (what connects to what), the <b style="color:var(--ink)">menu pattern</b> (tabs vs drawer), the <b style="color:var(--ink)">behaviour</b> (how pages open + what Back does), and <b style="color:var(--ink)">guards &amp; deep links</b> (special entry rules).</p>
+
+  <h3>Visual · The page map — every page and its connections</h3>
+  <div class="pagemap">
+    <div class="diag-title">five tabs · green = full page · purple = bottom sheet · red = dialog</div>
+    <div class="pm-tabs">
+      <div class="pm-tab">
+        <div class="t">Dashboard</div>
+        <div class="kids">
+          <div class="pm-kid sheet">FAB + → Add Bond sheet</div>
+          <div class="pm-kid page">stat cards → sections</div>
+        </div>
+      </div>
+      <div class="pm-tab">
+        <div class="t">Portfolio</div>
+        <div class="kids">
+          <div class="pm-kid page">Holdings list → Bond detail</div>
+          <div class="pm-kid sheet">matrix cell → Payment sheet</div>
+          <div class="pm-kid page">Payout details</div>
+        </div>
+      </div>
+      <div class="pm-tab">
+        <div class="t">Watchlist</div>
+        <div class="kids">
+          <div class="pm-kid sheet">FAB + → Add Bond sheet</div>
+          <div class="pm-kid page">Details → detail screen</div>
+          <div class="pm-kid sheet">⋮ → action sheet</div>
+          <div class="pm-kid dialog">Remove → guarded dialog</div>
+          <div class="pm-kid sheet">Move → conversion sheet</div>
+        </div>
+      </div>
+      <div class="pm-tab">
+        <div class="t">Goals</div>
+        <div class="kids">
+          <div class="pm-kid sheet">FAB + → Goal form</div>
+          <div class="pm-kid page">goal cards → detail</div>
+        </div>
+      </div>
+      <div class="pm-tab">
+        <div class="t">More</div>
+        <div class="kids">
+          <div class="pm-kid page">Settings</div>
+          <div class="pm-kid page">About · Alerts · Search</div>
+          <div class="pm-kid page">CSV export</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:rgba(74,222,128,.2);border-color:rgba(74,222,128,.5)"></i>full-screen page</span>
+      <span><i style="background:rgba(192,132,252,.2);border-color:rgba(192,132,252,.5)"></i>bottom sheet (task on top of context)</span>
+      <span><i style="background:rgba(248,113,113,.2);border-color:rgba(248,113,113,.5)"></i>dialog (confirm / destroy)</span>
+      <span>Every arrow = one named connection — this becomes the Flutter route table</span>
+    </div>
+  </div>
+
+  <h3>Menu pattern — tabs for frequent, More for rare</h3>
+  <div class="grid2">
+    <div class="card" style="border-color:rgba(36,86,230,.5)">
+      <h4 style="color:var(--accent-soft)">Tab bar — daily drivers</h4>
+      <ul>
+        <li>Dashboard · Portfolio · Watchlist · Goals · More <span>5 bottom tabs, Watchlist active in its page</span></li>
+        <li>Core flows NEVER hide in a menu <span>if used daily → it earns a tab</span></li>
+        <li>FAB rides above the tabs, page-specific <span>Add Bond vs Goal form</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--muted)">More (drawer/menu) — monthly stuff</h4>
+      <ul>
+        <li>Settings · About · Alerts · Search · CSV export <span>reachable, not prominent</span></li>
+        <li>Rule: frequent → tab · rare → More <span>never the reverse</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Visual · Back behaviour — each tab keeps its own stack</h3>
+  <div class="diagram">
+    <div class="diag-title">switching tabs does NOT wipe the other tab's history</div>
+    <div class="stacks">
+      <div class="stack">
+        <div class="st">Stack · Watchlist</div>
+        <div class="frame top">Ledger (root) <span class="x">you are here after returning</span></div>
+        <div class="frame">Bond detail <span class="x">still remembered</span></div>
+        <div class="frame">Overflow sheet <span class="x">still remembered</span></div>
+      </div>
+      <div class="stack">
+        <div class="st">Stack · Portfolio</div>
+        <div class="frame top">Payout matrix <span class="x">visited while away</span></div>
+        <div class="frame">Bond detail <span class="x">remembered</span></div>
+      </div>
+      <div class="stack">
+        <div class="st">Stack · Dashboard</div>
+        <div class="frame top">Dashboard (root) <span class="x">untouched</span></div>
+      </div>
+    </div>
+    <div class="arrow-row" style="margin-top:12px">
+      <div class="flowbox">Back pressed in Watchlist</div>
+      <div class="arrow">→</div>
+      <div class="flowbox hl">pops ONLY Watchlist's stack</div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">Portfolio &amp; Dashboard stacks untouched</div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">Full-screen</h4>
+      <ul><li>Real pages: Bond detail, Settings, Search <span>Back = return to previous page</span></li></ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--purple)">Bottom sheet</h4>
+      <ul><li>Quick tasks: Payment Edit, Add Bond, action sheet <span>Back = close sheet, KEEP typed entries</span></li></ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--red)">Dialog</h4>
+      <ul><li>Confirm/destroy: type-ISIN guard <span>Back = cancel, nothing changes</span></li></ul>
+    </div>
+  </div>
+
+  <h3>Guards &amp; deep links — the special entry rules</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4 style="color:var(--amber)">Guard — the bouncer</h4>
+      <ul>
+        <li>Classic: not logged in → redirect to Login <span>future slot — app is local-first today</span></li>
+        <li>Guards you already have in spirit <span>Move needs a selected row · Remove needs typed ISIN + hold</span></li>
+        <li>When cloud/accounts arrive → login guard drops into this slot <span>no redesign needed</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--accent-soft)">Deep link — open one page from outside</h4>
+      <ul>
+        <li>Maturity reminder notification → that bond's detail</li>
+        <li>Rating alert notification → Watchlist alerts</li>
+        <li>External ISIN link <span style="font-family:monospace">dkbond://bond/INE306N07LG1</span> → bond page</li>
+        <li>Why part 1 matters: deep links can only point at pages that exist in the map</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Status — designed vs to build</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Page map</td><td><span class="pill g">designed</span></td><td>5-column boards + per-page navigation_flow.md</td></tr>
+      <tr><td>Tab pattern (5 tabs + More)</td><td><span class="pill g">designed</span></td><td>bottom nav in every frame</td></tr>
+      <tr><td>Back rules per surface</td><td><span class="pill g">documented</span></td><td>sheet keeps entries · Goals detour returns intact</td></tr>
+      <tr><td>go_router with per-tab stacks</td><td><span class="pill a">build</span></td><td>Flutter — one navigator per tab</td></tr>
+      <tr><td>More menu contents</td><td><span class="pill a">build</span></td><td>Settings/About/Alerts/Search/Export</td></tr>
+      <tr><td>Deep-link routes</td><td><span class="pill a">build</span></td><td>notification → page wiring</td></tr>
+      <tr><td>Guards (auth, when cloud arrives)</td><td><span class="pill p">slot ready</span></td><td>task-guards already designed</td></tr>
     </tbody>
   </table>
 </section>
