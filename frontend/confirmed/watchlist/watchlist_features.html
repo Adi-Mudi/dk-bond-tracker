@@ -34,6 +34,15 @@
   .badge.mvp { background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.5); }
   .badge.later { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.45); }
   .badge.mix { background:rgba(147,180,255,.12); color:var(--accent-soft); border:1px solid rgba(147,180,255,.4); }
+  .cmap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); padding:8px 10px; border-bottom:1px solid var(--hairline); }
+  td { padding:7px 10px; border-bottom:1px dashed rgba(42,58,76,.5); vertical-align:top; color:var(--ink); }
+  td:first-child { color:var(--accent-soft); font-weight:700; white-space:nowrap; width:44px; }
+  td:nth-child(2) { color:var(--muted); width:30%; }
+  td:last-child { color:var(--ink); }
+  tr.grprow td { background:var(--raised); color:var(--accent-soft); font-size:10px; text-transform:uppercase; letter-spacing:.1em; font-weight:700; padding:8px 10px; border-bottom:1px solid var(--hairline); }
+  tr.grprow td:first-child { color:var(--accent-soft); }
   .split { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:720px){ .split { grid-template-columns:1fr; } }
   .split .box { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:14px 16px; }
@@ -97,6 +106,65 @@
     </div>
   </div>
   <div style="font-size:11px;color:var(--dim);margin-top:10px">0 dropped · conditional: if alerts are deferred entirely, the stat strip ships WATCHING-only and B1–B2 stay post-MVP. · Badge legend below each section: <span class="badge mvp">MVP</span> ship first · <span class="badge later">v1.1</span> post-MVP · <span class="badge mix">split</span> partly later.</div>
+</section>
+
+<section>
+  <h2>Component map — what each feature is built from <span class="count">41</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">UI components involved per feature — the widget shopping list for the Flutter build (F1–F5). Components are generic UI terms; Flutter equivalents map 1:1 (row → Row/Container, chip → Chip, input → TextField, etc.).</div>
+  <div class="cmap">
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Components involved</th></tr></thead>
+    <tbody>
+      <tr class="grprow"><td colspan="3">A · App shell (every frame)</td></tr>
+      <tr><td>A1</td><td>Top app bar</td><td>app-bar row · brand label · sync icon-button · notification icon-button + badge dot (Stack) · avatar circle</td></tr>
+      <tr><td>A2</td><td>Sticky tabs</td><td>segmented control (2 segments) · count labels · sticky wrapper</td></tr>
+      <tr><td>A3</td><td>Stat strip</td><td>stat card ×2 (WATCHING, ALERTS) · big count · sub-label · status dot</td></tr>
+      <tr><td>A4</td><td>Bottom navigation</td><td>nav bar · 5 items (icon + label) · active highlight state</td></tr>
+      <tr><td>A5</td><td>FAB +</td><td>FAB (56px) · plus icon · page-specific route action</td></tr>
+      <tr class="grprow"><td colspan="3">B · Notifications</td></tr>
+      <tr><td>B1</td><td>Rating Watch card</td><td>alert card · severity chip (Critical, red) · warning icon · title · body text</td></tr>
+      <tr><td>B2</td><td>Alert actions</td><td>text-button (Read Advisory) · ghost-button (Dismiss)</td></tr>
+      <tr class="grprow"><td colspan="3">C · Column 01 — Add Bond form</td></tr>
+      <tr><td>C1</td><td>Hidden-on-open form</td><td>visibility controller · FAB trigger · sheet presentation (no new widget)</td></tr>
+      <tr><td>C2</td><td>ISIN lookup + Fetch</td><td>text-field (ISIN) · Fetch button · lookup icon</td></tr>
+      <tr><td>C3</td><td>Fetch states ×4</td><td>state indicator (Found / Checking / Offline / Not Found) · icons + state labels</td></tr>
+      <tr><td>C4</td><td>Duplicate-ISIN banner</td><td>error banner (red) · warning icon · message text · guidance line · broker tag chip</td></tr>
+      <tr><td>C5</td><td>Identity fields</td><td>read-only fields (Company, Rating, Agency) · locked ISIN chip (lock icon) · "auto" chips ×4</td></tr>
+      <tr><td>C6</td><td>Economics fields</td><td>numeric inputs ×3 (Coupon, Yield, Face Value) · cycle select · auto/"you enter" chips</td></tr>
+      <tr><td>C7</td><td>Terms fields</td><td>selects ×2 (Issuer Type, Listing Status) · date field (Maturity) · "auto" chips</td></tr>
+      <tr><td>C8</td><td>Interest Credit Day</td><td>numeric input (day 1–31) · helper text</td></tr>
+      <tr><td>C9</td><td>Default History</td><td>disabled field · COMING SOON chip · helper note</td></tr>
+      <tr><td>C10</td><td>Secured NCD</td><td>display field (auto value) · helper text</td></tr>
+      <tr><td>C11</td><td>Target fields</td><td>currency input (Target Invested) · quantity input · empty placeholders</td></tr>
+      <tr><td>C12</td><td>Value per unit math</td><td>computed read-out · em-dash placeholder · formula helper text</td></tr>
+      <tr><td>C13</td><td>Broker typeahead</td><td>autocomplete input · suggestion chips ×4 (GoldenPi, Grip Invest, IndiaBonds, Zerodha) · free text</td></tr>
+      <tr><td>C14</td><td>Source Note + Save + chips</td><td>multiline note input · primary button (Save to Watchlist) · auto/"you enter" field chips</td></tr>
+      <tr class="grprow"><td colspan="3">D · Column 02 — Integrated ledger</td></tr>
+      <tr><td>D1</td><td>Company-first card</td><td>card container · company header block</td></tr>
+      <tr><td>D2</td><td>4-tier status pill</td><td>status chip · tier color mapping (Danger / Maturing / On-going / Matured)</td></tr>
+      <tr><td>D3</td><td>Header counts</td><td>invested-amount text · "N bonds / X completed / Y ongoing" counts line</td></tr>
+      <tr><td>D4</td><td>[HELD] rows</td><td>nested row · ISIN text · units text · settled amount + status label / maturing countdown</td></tr>
+      <tr><td>D5</td><td>[WATCH] rows</td><td>nested row · ISIN · meta line (cycle • date • structure) · yield text · secondary button (Move to Portfolio) · text-button (Details)</td></tr>
+      <tr><td>D6</td><td>Multi-broker compare card</td><td>card · broker rows ×3 (name + yield) · Best Yield chip · Select button · compare icon</td></tr>
+      <tr><td>D7</td><td>Buy-step line</td><td>hint line (10px muted) · arrow/cart icon</td></tr>
+      <tr><td>D8</td><td>Browse NSDL list</td><td>outline button · inventory icon · label</td></tr>
+      <tr class="grprow"><td colspan="3">E · Column 03 — Move to Portfolio</td></tr>
+      <tr><td>E1</td><td>Conversion form</td><td>section header (verified icon + title + meta) · inputs ×4 (quantity, amount, date picker, broker ref)</td></tr>
+      <tr><td>E2</td><td>Link to Goal</td><td>field label · goal select (3 goals) · "Update goals →" link-button</td></tr>
+      <tr><td>E3</td><td>Update-goals detour</td><td>navigation route out + return-with-state (no new widget)</td></tr>
+      <tr><td>E4</td><td>Confirm Move</td><td>primary button · Cancel ghost-button · broker-record info note</td></tr>
+      <tr class="grprow"><td colspan="3">F · Column 04 — Remove flow</td></tr>
+      <tr><td>F1</td><td>4-step buried delete</td><td>navigation chain: watch row → detail screen → overflow menu (3 surfaces)</td></tr>
+      <tr><td>F2</td><td>Bottom sheet actions</td><td>modal bottom sheet · action rows ×4 (icon + label) · destructive red style</td></tr>
+      <tr><td>F3</td><td>Type-ISIN guard</td><td>dialog · ISIN text-input · hold-2s confirm button (long-press) · warning text · confirm/cancel</td></tr>
+      <tr><td>F4</td><td>Guarded note</td><td>callout note line</td></tr>
+      <tr class="grprow"><td colspan="3">G · Column 05 — First open</td></tr>
+      <tr><td>G1</td><td>First-open behavior</td><td>tab control (LEDGER default) · zeroed stat cards ("0 nothing yet / 0 all clear")</td></tr>
+      <tr><td>G2</td><td>Empty state</td><td>empty icon (bookmarks) · headline · body text · CTA button (Add first bond)</td></tr>
+      <tr><td>G3</td><td>FAB page semantics</td><td>FAB + per-page route logic (Dashboard/Portfolio/Watchlist → Add Bond; Goals → Goal form)</td></tr>
+    </tbody>
+  </table>
+  </div>
 </section>
 
 <section>
