@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BUILD-FIX COMPONENTS — from component audit (16⚠)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#151f32',
+              900: '#0f172a',
+              950: '#0a0f1d'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0F172A;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+    }
+    .font-tabular {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-8 lg:p-12 selection:bg-blue-600 selection:text-white">
+
+  <!-- Header -->
+  <header class="max-w-7xl mx-auto border-b border-slate-700/60 pb-8 mb-10">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5 text-xs font-mono font-medium text-amber-400 tracking-wider uppercase mb-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          Audit Remediation · 16 Warnings Specimen Sheet
+        </div>
+        <h1 class="text-2xl lg:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+          BUILD-FIX COMPONENTS
+          <span class="text-sm font-mono font-normal px-2.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">from component audit (16⚠)</span>
+        </h1>
+        <p class="text-sm text-slate-400 mt-2 max-w-3xl">
+          Specification and live state specimens for unresolved interaction warnings flagged across mobile and web audit boards. Static, dark neutral palette (<code class="text-xs bg-slate-800 px-1 py-0.5 rounded text-slate-300">#0F172A</code> canvas, slate cards).
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 font-mono text-xs text-slate-400 bg-slate-800/80 border border-slate-700/80 px-4 py-2.5 rounded-lg">
+        <div>Platform: <span class="text-white font-medium">Desktop & Mobile Web</span></div>
+        <div class="text-slate-600">|</div>
+        <div>Standard: <span class="text-emerald-400 font-medium">Accessible (≥48px)</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Grid of Specimens -->
+  <main class="max-w-7xl mx-auto space-y-10">
+
+    <!-- Section 1: TOAST / SNACKBAR -->
+    <section class="bg-slate-850 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-sm">
+      <div class="flex items-baseline justify-between border-b border-slate-800 pb-4 mb-6">
+        <div>
+          <span class="text-xs font-mono font-semibold text-blue-400 uppercase tracking-widest">Specimen 01</span>
+          <h2 class="text-lg font-semibold text-white tracking-tight mt-0.5">TOAST / SNACKBAR</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700/60">Duration: 3–5s · Fixed Viewport Anchored</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        
+        <!-- (a) Plain Auto-dismiss -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between h-full">
+          <div class="text-xs font-mono text-slate-400 mb-3 flex items-center justify-between">
+            <span>(a) Standard Confirmation</span>
+            <span class="text-emerald-400 font-medium">Auto-dismiss 3s</span>
+          </div>
+          <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg my-2">
+            <svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-sm font-medium">Payment saved</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-4 leading-relaxed font-mono">
+            Dispatches on non-blocking write completion. Zero user intervention required.
+          </p>
+        </div>
+
+        <!-- (b) Entry removed + Undo -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between h-full">
+          <div class="text-xs font-mono text-slate-400 mb-3 flex items-center justify-between">
+            <span>(b) Destructive Reversible</span>
+            <span class="text-blue-400 font-medium">Auto-dismiss 5s</span>
+          </div>
+          <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-lg px-4 py-3 flex items-center justify-between gap-3 shadow-lg my-2">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              <span class="text-sm font-medium">Entry removed</span>
+            </div>
+            <button type="button" class="text-sm font-semibold text-blue-400 hover:text-blue-300 px-2 py-1 rounded transition-colors focus:ring-2 focus:ring-blue-500 outline-none">
+              Undo
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 mt-4 leading-relaxed font-mono">
+            Preserves 5-second undo buffer in local memory before committing database purge.
+          </p>
+        </div>
+
+        <!-- (c) Red Persistent Error (Antipattern flagged) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between h-full relative overflow-hidden">
+          <div class="text-xs font-mono text-rose-400 mb-3 flex items-center justify-between">
+            <span>(c) Antipattern Callout</span>
+            <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">NEVER-TOAST-FOR-ERROR</span>
+          </div>
+          <div class="bg-rose-950/70 text-rose-200 border border-rose-800/80 rounded-lg px-4 py-3 flex items-center justify-between gap-3 shadow-lg my-2">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              <span class="text-xs font-medium">Could not save: no connection</span>
+            </div>
+            <button type="button" class="text-xs font-bold text-white bg-rose-700 hover:bg-rose-600 px-2.5 py-1 rounded transition-colors focus:ring-2 focus:ring-rose-400 outline-none">
+              Retry
+            </button>
+          </div>
+          <p class="text-xs text-rose-400/80 mt-4 leading-relaxed font-mono">
+            Flagged rule: transient toasts must never hide critical failures. System errors require persistent inline banners.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs font-mono text-slate-400">
+        <span class="text-slate-500 font-bold">CAPTION:</span>
+        <span>one line, 3–5s, specific words.</span>
+      </div>
+    </section>
+
+    <!-- Section 2: SUBMIT-LOCK BUTTON -->
+    <section class="bg-slate-850 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-sm">
+      <div class="flex items-baseline justify-between border-b border-slate-800 pb-4 mb-6">
+        <div>
+          <span class="text-xs font-mono font-semibold text-blue-400 uppercase tracking-widest">Specimen 02</span>
+          <h2 class="text-lg font-semibold text-white tracking-tight mt-0.5">SUBMIT-LOCK BUTTON (Single-Action Lock)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700/60">Latency Target: ≤0.1s Feedback</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        
+        <!-- State 1: Idle -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between h-48">
+          <div class="text-xs font-mono text-slate-400 flex items-center justify-between">
+            <span>State 1: Idle</span>
+            <span class="text-slate-400 font-mono text-[11px]">Primary Enabled</span>
+          </div>
+          <div class="flex justify-center items-center py-2">
+            <button type="button" class="w-full h-12 px-5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg shadow-sm transition-all text-sm flex items-center justify-center gap-2 font-tabular">
+              <span>Save Payment</span>
+              <span class="text-blue-200 text-xs font-normal">(₹41,175)</span>
+            </button>
+          </div>
+          <p class="text-[11px] font-mono text-slate-500">
+            Explicit amount in label eliminates ambiguity before commitment.
+          </p>
+        </div>
+
+        <!-- State 2: Pressed -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between h-48">
+          <div class="text-xs font-mono text-slate-400 flex items-center justify-between">
+            <span>State 2: Pressed</span>
+            <span class="text-amber-400 font-mono text-[11px]">Active Touch</span>
+          </div>
+          <div class="flex justify-center items-center py-2">
+            <button type="button" class="w-full h-12 px-5 bg-blue-700 text-slate-200 font-medium rounded-lg text-sm flex items-center justify-center gap-2 scale-[0.98] opacity-90 transition-all font-tabular ring-2 ring-blue-400/40">
+              <span>Save Payment</span>
+              <span class="text-blue-300/80 text-xs font-normal">(₹41,175)</span>
+            </button>
+          </div>
+          <p class="text-[11px] font-mono text-slate-500">
+            Immediate visual feedback (scale down + dim) triggered &lt;100ms on tap down.
+          </p>
+        </div>
+
+        <!-- State 3: Disabled + Spinner -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between h-48">
+          <div class="text-xs font-mono text-slate-400 flex items-center justify-between">
+            <span>State 3: Disabled + Spinner</span>
+            <span class="text-rose-400 font-mono text-[11px]">Lock Engaged</span>
+          </div>
+          <div class="flex justify-center items-center py-2">
+            <button type="button" disabled class="w-full h-12 px-5 bg-slate-800 border border-slate-700 text-slate-400 font-medium rounded-lg text-sm flex items-center justify-center gap-2.5 cursor-not-allowed">
+              <svg class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+              <span>Saving…</span>
+            </button>
+          </div>
+          <p class="text-[11px] font-mono text-slate-500">
+            Pointer-events zeroed. Prevents multi-click duplicate network dispatches.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs font-mono text-slate-400">
+        <span class="text-slate-500 font-bold">CAPTION:</span>
+        <span>one tap = one action, feedback ≤0.1s.</span>
+      </div>
+    </section>
+
+    <!-- Row with 3 and 4 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+      <!-- Section 3: HOLD-2s PROGRESS -->
+      <section class="bg-slate-850 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-baseline justify-between border-b border-slate-800 pb-4 mb-6">
+            <div>
+              <span class="text-xs font-mono font-semibold text-blue-400 uppercase tracking-widest">Specimen 03</span>
+              <h2 class="text-lg font-semibold text-white tracking-tight mt-0.5">HOLD-2s PROGRESS (Destructive Guard)</h2>
+            </div>
+            <span class="text-xs font-mono text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded border border-rose-500/20 font-medium">Safe Invariant</span>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-lg p-6 flex flex-col items-center justify-center text-center">
+            
+            <!-- Circular Progress Ring (~70% fill) -->
+            <div class="relative w-28 h-28 my-3 flex items-center justify-center">
+              <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                <!-- Background track -->
+                <circle cx="50" cy="50" r="40" stroke="#1e293b" stroke-width="8" fill="transparent" />
+                <!-- 70% progress stroke: circumference = 2 * pi * 40 ≈ 251.3, dashoffset = 251.3 * 0.30 ≈ 75.4 -->
+                <circle cx="50" cy="50" r="40" stroke="#ef4444" stroke-width="8" stroke-dasharray="251.3" stroke-dashoffset="75.4" stroke-linecap="round" fill="transparent" />
+              </svg>
+              <!-- Center label -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-sm font-mono font-bold text-white">1.4s</span>
+                <span class="text-[10px] font-mono text-slate-400 uppercase">Holding</span>
+              </div>
+            </div>
+
+            <!-- Action Label & Input Prompt -->
+            <div class="mt-4 space-y-1">
+              <div class="text-sm font-semibold text-white">Type ISIN + hold</div>
+              <div class="text-xs font-mono text-slate-400 bg-slate-800/90 border border-slate-700/80 px-3 py-1.5 rounded mt-2 inline-flex items-center gap-2">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                <span>Haptic Note: Light tick at 1.0s, distinct confirm pulse at 2.0s</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span class="text-slate-500 font-bold">CAPTION:</span>
+          <span>destructive long-press shows progress.</span>
+        </div>
+      </section>
+
+      <!-- Section 4: SCROLL-TO-TOP -->
+      <section class="bg-slate-850 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-baseline justify-between border-b border-slate-800 pb-4 mb-6">
+            <div>
+              <span class="text-xs font-mono font-semibold text-blue-400 uppercase tracking-widest">Specimen 04</span>
+              <h2 class="text-lg font-semibold text-white tracking-tight mt-0.5">SCROLL-TO-TOP BUTTON</h2>
+            </div>
+            <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700/60">Viewport Triggered</span>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-lg p-6 flex flex-col items-center justify-center text-center relative min-h-[220px]">
+            
+            <div class="relative group cursor-pointer">
+              <!-- Circular Floating Button -->
+              <div class="w-14 h-14 rounded-full bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-blue-400 text-white flex items-center justify-center shadow-xl transition-all hover:scale-105 active:scale-95">
+                <svg class="w-6 h-6 text-blue-400 group-hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                </svg>
+              </div>
+              <div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-slate-900"></div>
+            </div>
+
+            <!-- State Badge & Description -->
+            <div class="mt-5 space-y-1">
+              <span class="inline-block text-xs font-mono font-medium px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                appears after 1 screen
+              </span>
+              <p class="text-xs text-slate-400 max-w-xs pt-1 font-mono">
+                Floating z-index 40. Smooth scrolls view back to offset 0 without retriggering queries.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span class="text-slate-500 font-bold">CAPTION:</span>
+          <span>required on long lists.</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Section 5: FIELD ERROR -->
+    <section class="bg-slate-850 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-sm">
+      <div class="flex items-baseline justify-between border-b border-slate-800 pb-4 mb-6">
+        <div>
+          <span class="text-xs font-mono font-semibold text-blue-400 uppercase tracking-widest">Specimen 05</span>
+          <h2 class="text-lg font-semibold text-white tracking-tight mt-0.5">FIELD ERROR (Accessible Validation Pattern)</h2>
+        </div>
+        <span class="text-xs font-mono text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded border border-rose-500/20">Never Color Alone</span>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-6 lg:p-8">
+        <div class="max-w-xl mx-auto space-y-2">
+          
+          <!-- Label and Optional Metadata -->
+          <div class="flex items-center justify-between text-xs font-medium">
+            <label for="isin-input" class="text-slate-300 font-mono">
+              SECURITY ISIN CODE <span class="text-rose-400">*</span>
+            </label>
+            <span class="text-slate-500 font-mono text-[11px]">Format: 2 Alpha + 9 Alphanumeric + 1 Check</span>
+          </div>
+
+          <!-- Input Element with Red Border & Error Icon -->
+          <div class="relative rounded-lg shadow-sm">
+            <input 
+              type="text" 
+              id="isin-input" 
+              readonly 
+              value="INE641A071" 
+              class="w-full h-12 bg-slate-950 border-2 border-rose-500 text-white font-mono text-sm px-4 pr-11 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"
+              aria-invalid="true"
+              aria-describedby="isin-error-msg"
+            />
+            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-rose-500">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Structured Error Feedback Message -->
+          <div id="isin-error-msg" class="flex items-center gap-1.5 text-xs text-rose-400 font-medium pt-1 font-mono">
+            <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Enter a valid ISIN (12 characters)</span>
+          </div>
+
+          <!-- Design System Rule Callout -->
+          <div class="mt-4 p-3 bg-slate-950/60 border border-slate-800 rounded text-xs text-slate-400 font-mono">
+            <span class="text-slate-300 font-semibold">Trio Verification:</span> 
+            1. Border (2px red) + 2. In-field warning icon + 3. High-contrast helper copy below field.
+          </div>
+
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs font-mono text-slate-400">
+        <span class="text-slate-500 font-bold">CAPTION:</span>
+        <span>border+icon+text, never colour alone; placement below field.</span>
+      </div>
+    </section>
+
+    <!-- Section 6: SEMANTICS LABELS table -->
+    <section class="bg-slate-850 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-sm">
+      <div class="flex items-baseline justify-between border-b border-slate-800 pb-4 mb-6">
+        <div>
+          <span class="text-xs font-mono font-semibold text-blue-400 uppercase tracking-widest">Specimen 06</span>
+          <h2 class="text-lg font-semibold text-white tracking-tight mt-0.5">SEMANTICS LABELS (Accessibility Mappings)</h2>
+        </div>
+        <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">WCAG 2.1 AA Compliant</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm font-sans border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700/80 text-xs font-mono uppercase text-slate-400 bg-slate-900/60">
+              <th class="py-3.5 px-4 font-semibold w-24">Symbol</th>
+              <th class="py-3.5 px-4 font-semibold w-40">Component Key</th>
+              <th class="py-3.5 px-4 font-semibold">Required Accessible Label (`aria-label` / `title`)</th>
+              <th class="py-3.5 px-4 font-semibold text-right w-44">Touch Target</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-200">
+            
+            <!-- Sync -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-blue-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">Sync</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"Sync Ledger"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">48 × 48 px</td>
+            </tr>
+
+            <!-- Bell -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-amber-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">Bell</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"Notifications"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">48 × 48 px</td>
+            </tr>
+
+            <!-- Theme -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-indigo-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 014-4h4a4 4 0 014 4 5 5 0 01-4 4H7zM7 13V5a2 2 0 012-2h6a2 2 0 012 2v8"></path>
+                </svg>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">Theme</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"Change theme"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">48 × 48 px</td>
+            </tr>
+
+            <!-- Eye -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-emerald-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                </svg>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">Eye</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"Hide amounts"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">48 × 48 px</td>
+            </tr>
+
+            <!-- FAB -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-blue-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">FAB</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"Add bond"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">56 × 56 px</td>
+            </tr>
+
+            <!-- Overflow ⋮ -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-slate-300 text-base font-bold">
+                ⋮
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">⋮ (Overflow)</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"More actions"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">48 × 48 px</td>
+            </tr>
+
+            <!-- Chevron -->
+            <tr class="hover:bg-slate-900/40 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-slate-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400">Chevron</td>
+              <td class="py-3.5 px-4 font-mono font-medium text-white">"Expand"</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-400 text-right">48 × 48 px</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+        <div>
+          <span class="text-slate-500 font-bold">CAPTION:</span>
+          <span>screen readers and accessibility trees require deterministic action strings over visual iconography.</span>
+        </div>
+        <div class="text-emerald-400">7 Canonical Mappings Enforced</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Document Footer -->
+  <footer class="max-w-7xl mx-auto border-t border-slate-800/80 mt-16 pt-6 pb-12 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-500">
+    <div>BUILD-FIX COMPONENTS SHEET · REFERENCE RUNTIME · 16-WARNING REMEDIATION</div>
+    <div class="flex items-center gap-4">
+      <span>#0F172A CANV</span>
+      <span>•</span>
+      <span>SLATE SURFACES</span>
+      <span>•</span>
+      <span>STRICT SPECIMENS ONLY</span>
+    </div>
+  </footer>
+
+</body>
+</html>
