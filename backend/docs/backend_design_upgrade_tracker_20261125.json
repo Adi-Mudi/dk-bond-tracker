@@ -1,6 +1,6 @@
 {
  "document": "backend_design_upgrade_tracker",
- "version": "v4.5",
+ "version": "v4.6",
  "date": "2026-11-25",
  "initiative": "backend-design-upgrade",
  "branch": "backend-design-upgrade",
@@ -282,6 +282,13 @@
    "topic": "CDSL pre-build intel (live probes 2026-11-26) — adapter #7 ready for consult/build",
    "summary": "Bulk: PreferenceShares_data.xlsx (401,949 B, A1:J3973, 3,972 rows, header row 1) + securitised_debt_instruments.xlsx (221 rows); cell types 39,708/39,708 shared-string (dates are TEXT) and 2,630 shared + 2 numeric => stdlib XLSX reader (zipfile+xml.etree, header-name mapping) with ZERO new deps (openpyxl/bs4 absent from requirements). LIGHT: popup-isin.aspx?isin_code= (200, 9,565 B, label:value pairs) + CorpBondDatabase.aspx?ISIN= (200, 117,317 B, stable span ids txtIssuerName/lblFaceValue/lblCouponRate/lblRedmDate/lblRatingStatus/grdRatingDtls). Cadence: bulk weekly, detail on-demand; robots.txt Allow + Cloudflare Content-Signal use=reference.",
    "relevance": "Build spec for src/bond_master/cdsl.py (next adapter after agy pre-build review)."
+  },
+  {
+   "id": "F19",
+   "date": "2026-11-26",
+   "topic": "Adapters #7 CDSL + #8 RSS shipped — 8/11 complete",
+   "summary": "13493dd7 CDSL: stdlib XLSX bulk (preference shares 3,972 rows + securitised debt, header-name mapping, sparse-row column letters, PK magic) + per-ISIN popup-isin/CorpBondDatabase detail (span-id parse, grdRatingDtls rating table with rating/outlook split, Cloudflare markers gated behind missing content); 15 tests, real fixtures. e1a3f365 RSS: shared RssAdapter for rbi_pressreleases + rbi_notifications + sebi + bse_notices (macro RBI feeds dropped per agy: tenders/AnnualReportMain/Bulletin/Publication; speeches+announcements deferred); namespace-agnostic, 4 pubDate formats, 0-item=OK, per-feed isolation, body sha256 (ETag conditional GET deferred to transport/raw_downloads); 11 tests. agy verified CDSL (15/15) + probed RSS (10/10 HTTP 200). Suite 828 passed / 432 skipped.",
+   "relevance": "Remaining: #9 ICRA -> #10 Acuite (then all 11 shipped; BSE announcements.xml + RBI speeches optional add-ons)."
   }
  ],
  "change_log": [
@@ -440,6 +447,10 @@
   {
    "date": "2026-11-26",
    "change": "v4.5: F16 hardening batch (a1ff12e1+5e44214d, suite 802), F17 agy design specs, F18 CDSL pre-build intel"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.6: F19 — CDSL (13493dd7) + RSS (e1a3f365) shipped, 8/11 adapters, suite 828"
   }
  ]
 }
