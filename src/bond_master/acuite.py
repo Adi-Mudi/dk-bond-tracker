@@ -44,6 +44,9 @@ TR_OPEN_RE = re.compile(r"<tr[^>]*>", re.S | re.I)
 CELL_RE = re.compile(r"<t[dh][^>]*>(.*?)</t[dh]>", re.S | re.I)
 LINK_RE = re.compile(r'<a[^>]*href="([^"]*fcompany-details[^"]*)"[^>]*>(.*?)</a>', re.S | re.I)
 MASTER_ID_RE = re.compile(r'\bid="(\d+)"')
+COMPANY_ATTR_RE = re.compile(r'data-company="(\d+)"')
+PR_DATE_RE = re.compile(r"<b>Press Release</b>.*?<b>([^<]+)</b>", re.S | re.I)
+TITLE_RE = re.compile(r"<title>([^<]+)</title>", re.S | re.I)
 DATE_CELL = re.compile(r'<th[^>]*class="[^"]*td-date[^"]*"[^>]*>(.*?)</th>', re.S | re.I)
 ISIN_CELL = re.compile(r"\b([A-Z]{2}[A-Z0-9]{9}[0-9])\b")
 CLOUDFLARE_MARKERS = ("just a moment", "cf-chl", "attention required")
@@ -149,9 +152,11 @@ def parse_liveratings(payload, as_of=None):
             continue
         seen.add(master_id)
         slug_match = re.search(r"fcompany-details/([^/]+)/", href)
+        company_match = COMPANY_ATTR_RE.search(row)
         records.append({
             "source": SOURCE_NAME,
             "master_id": master_id,
+            "company_id": company_match.group(1) if company_match else None,
             "date": _iso_date(date_match.group(1)),
             "entity": anchor,
             "entity_slug": slug_match.group(1) if slug_match else None,
@@ -165,6 +170,14 @@ def parse_company_details(payload, as_of=None):
     """fcompany-details page -> per-product rating records (+ ISIN rows when present)."""
     text = _html(payload)
     as_of = as_of or utc_as_of()
+    company = None
+    title_match = TITLE_RE.search(text)
+    if title_match:
+        company = _clean(title_match.group(1).split(" - ")[0]) or None
+    rating_date = None
+    pr_match = PR_DATE_RE.search(text)
+    if pr_match:
+        rating_date = _iso_date(pr_match.group(1))
     records = []
     isin_records = []
     for row_match in ROW_RE.finditer(text):
@@ -174,6 +187,8 @@ def parse_company_details(payload, as_of=None):
             short_rating, short_action, short_flag = _split_rating_cell(cells[4])
             records.append({
                 "source": SOURCE_NAME,
+                "company": company,
+                "isin": None,
                 "instrument": cells[0],
                 "quantum_sebi": _safe_float(cells[1]),
                 "quantum_other": _safe_float(cells[2]),
@@ -184,12 +199,14 @@ def parse_company_details(payload, as_of=None):
                 "short_term_action": short_action,
                 "short_term_flag": short_flag,
                 "regulated_by": cells[5],
+                "rating_date": rating_date,
                 "as_of": as_of,
             })
             continue
         if len(cells) >= 2 and cells[0] and ISIN_CELL.fullmatch(cells[1]):
             isin_records.append({
                 "source": SOURCE_NAME,
+                "company": company,
                 "lender": cells[0],
                 "isin": cells[1],
                 "facility": cells[2] if len(cells) > 2 else None,
@@ -241,4 +258,6 @@ class AcuiteAdapter:
             records, isin_records = parse_company_details(payload)
         except SourceError as exc:
             return {"failure_code": exc.failure_code, "records": [], "isin_records": []}
+        for record in records:
+            record["rationale_url"] = url
         return {"failure_code": FAILURE_OK, "records": records, "isin_records": isin_records}

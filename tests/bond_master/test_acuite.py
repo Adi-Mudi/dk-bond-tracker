@@ -50,6 +50,7 @@ def test_liveratings_parses_real_fixture():
     first = records[0]
     assert first["source"] == "Acuite"
     assert first["master_id"]
+    assert first["company_id"]
     assert first["date"] == "2026-11-26"
     assert first["entity"]
     assert first["entity_slug"]
@@ -84,6 +85,8 @@ def test_company_details_parses_rating_rows():
     assert len(records) >= 1
     row = records[0]
     assert row["source"] == "Acuite"
+    assert row["company"] == "GOLDEN FOOD PRODUCTS"
+    assert row["isin"] is None
     assert row["instrument"] == "Bank Loan Ratings"
     assert row["quantum_sebi"] == 0.0
     assert row["quantum_other"] == 12.0
@@ -92,6 +95,7 @@ def test_company_details_parses_rating_rows():
     assert "not co-operating" in row["long_term_flag"]
     assert row["short_term_rating"] is None
     assert row["regulated_by"] == "RBI"
+    assert row["rating_date"] == "2026-11-26"
     assert row["as_of"]
     assert isin_records == [] or all(r["isin"] for r in isin_records)
 
@@ -102,6 +106,7 @@ def test_company_details_fetch_ok():
     assert result["failure_code"] == FAILURE_OK
     assert calls == [DETAIL_URL]
     assert result["records"]
+    assert all(r["rationale_url"] == DETAIL_URL for r in result["records"])
 
 
 def test_company_details_rejects_foreign_url():
