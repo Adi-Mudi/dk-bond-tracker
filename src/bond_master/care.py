@@ -104,7 +104,16 @@ class CareAdapter:
 
     def search(self, query):
         url = SEARCH + quote_param(query)
-        data = self._get(url)
+        try:
+            data = self._get(url)
+        except SourceError as exc:
+            return {"failure_code": exc.failure_code, "records": []}
+        except TimeoutError:
+            return {"failure_code": FAILURE_TIMEOUT, "records": []}
+        except ConnectionError:
+            return {"failure_code": FAILURE_UNREACHABLE, "records": []}
+        except Exception:
+            return {"failure_code": FAILURE_UNREACHABLE, "records": []}
         companies = []
         _find_companies(data, companies)
         records = []

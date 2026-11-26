@@ -53,42 +53,36 @@ def test_search_finds_companies():
     assert calls == [SEARCH_URL]
 
 
-@pytest.mark.xfail(reason="WIP: CARE URL construction debug", strict=False)
 def test_search_no_results_is_not_found():
     adapter, _ = make_adapter({SEARCH_URL: []})
-    result = adapter.search("nothing")
+    result = adapter.search("Tata Capital")
     assert result["failure_code"] == FAILURE_NOT_FOUND
 
 
-@pytest.mark.xfail(reason="WIP", strict=False)
 def test_html_response_is_blocked():
     adapter, _ = make_adapter({SEARCH_URL: "<html>denied</html>"})
-    result = adapter.search("x")
+    result = adapter.search("Tata Capital")
     assert result["failure_code"] == FAILURE_BLOCKED
 
 
-@pytest.mark.xfail(reason="WIP", strict=False)
 def test_malformed_json_is_malformed():
     adapter, _ = make_adapter({SEARCH_URL: "not-json{"})
-    result = adapter.search("x")
+    result = adapter.search("Tata Capital")
     assert result["failure_code"] == FAILURE_MALFORMED
 
 
-@pytest.mark.xfail(reason="WIP", strict=False)
 def test_transport_timeout_is_timeout():
     adapter, _ = make_adapter({SEARCH_URL: TimeoutError("t")})
-    result = adapter.search("x")
+    result = adapter.search("Tata Capital")
     assert result["failure_code"] == FAILURE_TIMEOUT
 
 
-@pytest.mark.xfail(reason="WIP", strict=False)
 def test_transport_connection_error_is_unreachable():
     adapter, _ = make_adapter({SEARCH_URL: ConnectionError("x")})
-    result = adapter.search("x")
+    result = adapter.search("Tata Capital")
     assert result["failure_code"] == FAILURE_UNREACHABLE
 
 
-pytest.mark.xfail(reason="WIP", strict=False)
 def test_instrument_ratings_parse_real_fixture():
     pr = load_printrating()
     adapter, _ = make_adapter({PR_URL: pr})
