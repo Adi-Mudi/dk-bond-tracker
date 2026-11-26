@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Essentials — Universal Foundation (Visual Guide)</title>
+<style>
+  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --accent-soft:#93B4FF; --green:#4ADE80; --amber:#F59E0B; --red:#F87171; --purple:#C084FC; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--canvas); color:var(--ink); font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; line-height:1.6; padding:40px 20px; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  header { border-bottom:1px solid var(--hairline); padding-bottom:20px; margin-bottom:24px; }
+  .kicker { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-soft); }
+  h1 { font-size:26px; font-weight:700; margin:6px 0 10px; }
+  .lede { font-size:13px; color:var(--muted); max-width:820px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  .stat { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:8px 14px; font-size:12px; color:var(--muted); }
+  .stat b { color:var(--ink); font-size:15px; display:block; }
+  section { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:20px 22px; margin-bottom:18px; }
+  h2 { font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:var(--accent-soft); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+  h2 .num { background:var(--accent); color:#fff; border-radius:8px; font-size:12px; padding:2px 9px; letter-spacing:0; }
+  h3 { font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--accent-soft); margin:16px 0 8px; }
+  p { font-size:13px; color:var(--ink); margin-bottom:10px; }
+  p.muted { color:var(--muted); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  @media (max-width:760px){ .grid2,.grid3 { grid-template-columns:1fr; } }
+  .card { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:14px 16px; }
+  .card.local { border-color:rgba(74,222,128,.45); }
+  .card.global { border-color:rgba(192,132,252,.45); }
+  .card h4 { font-size:12px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .card.local h4 { color:var(--green); }
+  .card.global h4 { color:var(--purple); }
+  .card ul { list-style:none; }
+  .card li { font-size:12px; padding:4px 0; color:var(--ink); border-bottom:1px dashed rgba(42,58,76,.5); }
+  .card li:last-child { border-bottom:none; }
+  .card li span { color:var(--muted); display:block; font-size:11px; }
+  .tag { display:inline-block; font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-radius:4px; padding:1px 7px; margin-left:6px; vertical-align:middle; }
+  .tag.build { background:rgba(245,158,11,.12); color:var(--amber); border:1px solid rgba(245,158,11,.45); }
+  .tag.has { background:rgba(74,222,128,.12); color:var(--green); border:1px solid rgba(74,222,128,.45); }
+  .tag.rec { background:rgba(36,86,230,.2); color:var(--accent-soft); border:1px solid rgba(36,86,230,.5); }
+  /* diagram: memory map */
+  .diagram { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:18px; margin:12px 0; }
+  .diag-title { font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--dim); margin-bottom:12px; text-align:center; }
+  .app-cloud { background:rgba(192,132,252,.1); border:2px dashed var(--purple); border-radius:12px; padding:12px; margin-bottom:14px; }
+  .app-cloud .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--purple); margin-bottom:8px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:6px 10px; font-size:11px; color:var(--ink); }
+  .chip.p { border-color:var(--purple); color:var(--purple); }
+  .screens { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  @media (max-width:760px){ .screens { grid-template-columns:1fr; } }
+  .screen { background:var(--surface); border:1px solid var(--hairline); border-radius:10px; padding:10px; position:relative; }
+  .screen .name { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent-soft); margin-bottom:8px; }
+  .bubble { background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.5); border-radius:8px; padding:6px 8px; font-size:10px; color:var(--green); margin-top:6px; }
+  .bubble b { display:block; color:var(--ink); font-size:11px; font-weight:600; }
+  .arrow-row { display:flex; align-items:center; justify-content:center; gap:10px; margin:12px 0; flex-wrap:wrap; }
+  .arrow { color:var(--dim); font-size:16px; }
+  .flowbox { background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:8px 12px; font-size:11px; text-align:center; color:var(--ink); min-width:120px; }
+  .flowbox.hl { border-color:var(--accent); color:var(--accent-soft); }
+  .flowbox.green { border-color:rgba(74,222,128,.5); color:var(--green); }
+  .flowbox.purple { border-color:rgba(192,132,252,.5); color:var(--purple); }
+  /* decision flow */
+  .decision { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:18px; margin-top:8px; }
+  .q { background:rgba(36,86,230,.12); border:1px solid rgba(36,86,230,.5); border-radius:10px; padding:12px; text-align:center; font-size:13px; font-weight:700; color:var(--accent-soft); margin-bottom:12px; }
+  .branches { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:600px){ .branches { grid-template-columns:1fr; } }
+  .branch { border-radius:10px; padding:12px; font-size:12px; }
+  .branch.no { background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.45); }
+  .branch.yes { background:rgba(192,132,252,.08); border:1px solid rgba(192,132,252,.45); }
+  .branch b { display:block; font-size:13px; margin-bottom:6px; }
+  .branch.no b { color:var(--green); }
+  .branch.yes b { color:var(--purple); }
+  .branch .tool { display:inline-block; background:var(--raised); border:1px solid var(--hairline); border-radius:6px; padding:2px 8px; font-size:11px; margin-top:6px; color:var(--ink); }
+  /* tables */
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); padding:8px 10px; border-bottom:1px solid var(--hairline); }
+  td { padding:7px 10px; border-bottom:1px dashed rgba(42,58,76,.5); vertical-align:top; color:var(--ink); }
+  tr.grprow td { background:var(--raised); color:var(--accent-soft); font-size:10px; text-transform:uppercase; letter-spacing:.1em; font-weight:700; padding:8px 10px; }
+  .pill { display:inline-block; font-size:9px; font-weight:700; border-radius:999px; padding:2px 8px; text-transform:uppercase; letter-spacing:.06em; }
+  .pill.g { background:rgba(74,222,128,.15); color:var(--green); }
+  .pill.a { background:rgba(245,158,11,.15); color:var(--amber); }
+  .pill.p { background:rgba(192,132,252,.15); color:var(--purple); }
+  .pill.b { background:rgba(36,86,230,.2); color:var(--accent-soft); }
+  /* essentials index */
+  .groups { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:760px){ .groups { grid-template-columns:1fr; } }
+  .gcard { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px 14px; }
+  .gcard h4 { font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--accent-soft); margin-bottom:6px; }
+  .gcard ol { list-style:none; counter-reset:g; }
+  .gcard li { font-size:11px; color:var(--muted); padding:2px 0; }
+  .gcard li b { color:var(--ink); font-weight:600; }
+  footer { margin-top:28px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Universal Foundation</div>
+  <h1>App Essentials — Visual Guide</h1>
+  <p class="lede">The foundation every page shares. Not watchlist-specific — these apply to Dashboard, Portfolio, Watchlist, Goals, Settings, everything. This page explains the list and goes deep on <b style="color:var(--ink)">Essential 1: State Management</b> with visuals.</p>
+  <div class="stats">
+    <div class="stat"><b>9</b>groups</div>
+    <div class="stat"><b>30</b>essentials</div>
+    <div class="stat"><b>13</b>already covered</div>
+    <div class="stat"><b>17</b>to build in Flutter</div>
+  </div>
+</header>
+
+<!-- ============ ESSENTIAL 1 DEEP DIVE ============ -->
+<section>
+  <h2><span class="num">1</span> State Management — where the app keeps data while it runs</h2>
+  <p class="muted">While the app is open, it must remember things. State = all remembered values. State management = rules for where each memory lives and who can read it. Two scopes only: <b style="color:var(--green)">local</b> and <b style="color:var(--purple)">app-wide</b>.</p>
+
+  <h3>Visual · The running app's memory map</h3>
+  <div class="diagram">
+    <div class="diag-title">one running app → two kinds of memory</div>
+    <div class="app-cloud">
+      <div class="lbl">☁ App-wide state (Riverpod lives here) — any page can read; changes reach everyone</div>
+      <div class="chips">
+        <span class="chip p">Bond list cache</span>
+        <span class="chip p">Theme · Midnight Ledger</span>
+        <span class="chip p">Privacy mask (hide ₹)</span>
+        <span class="chip p">Alerts / notifications feed</span>
+        <span class="chip p">Sync status</span>
+        <span class="chip p">Current tab</span>
+        <span class="chip p">User settings</span>
+      </div>
+    </div>
+    <div class="screens">
+      <div class="screen">
+        <div class="name">Watchlist screen</div>
+        <div class="bubble"><b>Dropdown open?</b> local — nobody else cares</div>
+        <div class="bubble"><b>ISIN text typed</b> local — until Fetch pressed</div>
+        <div class="bubble"><b>Accordion expanded</b> local</div>
+      </div>
+      <div class="screen">
+        <div class="name">Payment sheet</div>
+        <div class="bubble"><b>Chip selected</b> local — visual only until Save</div>
+        <div class="bubble"><b>TDS switch ON/OFF</b> local</div>
+        <div class="bubble"><b>Sheet scrolled?</b> local</div>
+      </div>
+      <div class="screen">
+        <div class="name">Dashboard</div>
+        <div class="bubble"><b>Chart range picked</b> local</div>
+        <div class="bubble"><b>Refresh spinning?</b> local</div>
+        <div class="bubble"><b>reads bond cache</b> ← app-wide</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Green bubbles = setState (local) · Purple cloud = Riverpod (app-wide) · Screens read the cloud but never each other's bubbles</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card local">
+      <h4>Local state — one component only</h4>
+      <ul>
+        <li>Belongs to ONE widget <span>No other screen reads it</span></li>
+        <li>Destroyed with the widget <span>No cleanup plan needed</span></li>
+        <li>Examples: dropdown open · text in a field · chip tapped · accordion open · switch toggled</li>
+        <li>Tool: <b>setState()</b> <span>Built into Flutter — zero packages</span></li>
+      </ul>
+    </div>
+    <div class="card global">
+      <h4>App-wide state — shared across pages</h4>
+      <ul>
+        <li>Many pages read it <span>Bond list: Portfolio + Watchlist + Payouts</span></li>
+        <li>Outlives screens <span>Survives navigation</span></li>
+        <li>Examples: logged-in user · bond cache · theme · privacy mask · sync status</li>
+        <li>Tools: <b>Riverpod</b> (recommended) · Provider · Bloc</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Visual · How a change travels (two lanes)</h3>
+  <div class="diagram">
+    <div class="diag-title">user taps → state updates → UI rebuilds</div>
+    <div class="arrow-row">
+      <div class="flowbox">User action<br><span style="color:var(--muted);font-size:10px">tap / type</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">setState()<br><span style="color:var(--muted);font-size:10px">LOCAL: only this widget rebuilds</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">This widget redraws<br><span style="color:var(--muted);font-size:10px">fast · cheap · isolated</span></div>
+    </div>
+    <div class="arrow-row">
+      <div class="flowbox">User action<br><span style="color:var(--muted);font-size:10px">e.g. Save payment</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox purple">Riverpod store updates<br><span style="color:var(--muted);font-size:10px">GLOBAL: one source changes</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox purple">All watching pages rebuild<br><span style="color:var(--muted);font-size:10px">Portfolio + Watchlist + Dashboard</span></div>
+    </div>
+  </div>
+
+  <h3>Tools compared</h3>
+  <table>
+    <thead><tr><th>Tool</th><th>Scope</th><th>Ceremony</th><th>Best for</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td><b>setState</b></td><td>local only</td><td>none (built-in)</td><td>one widget's own UI state</td><td><span class="pill g">always use for local</span></td></tr>
+      <tr><td><b>Provider</b></td><td>app-wide</td><td>low</td><td>small apps, quick starts</td><td><span class="pill a">OK but aging</span></td></tr>
+      <tr><td><b>Riverpod</b></td><td>app-wide</td><td>medium</td><td>2026 community default — compile-safe, no BuildContext, scales</td><td><span class="pill b">RECOMMENDED</span></td></tr>
+      <tr><td><b>Bloc</b></td><td>app-wide</td><td>high (events/states/boilerplate)</td><td>regulated/fintech teams wanting strict unidirectional flow</td><td><span class="pill p">optional alternative</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Decision rule — one question settles it</h3>
+  <div class="decision">
+    <div class="q">"Would a SECOND screen ever need this value?"</div>
+    <div class="branches">
+      <div class="branch no">
+        <b>NO → keep it local</b>
+        Dropdown open? Text typed? Chip selected? Switch position?<br>
+        Lives inside the widget. No package. No plan.
+        <span class="tool">tool: setState()</span>
+      </div>
+      <div class="branch yes">
+        <b>YES → promote to app-wide</b>
+        Bond cache? Theme? Privacy mask? Sync status? Alerts?<br>
+        Lives in the shared store; every reader updates automatically.
+        <span class="tool">tool: Riverpod (recommended)</span>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:12px;font-size:11px">Golden rule: local state is NOT in the app-wide plan. Every promoted item costs boilerplate + debugging complexity — the bar is a second reader, not "might be useful someday".</p>
+  </div>
+
+  <h3>The decision you must make — DK Bond Tracker inventory</h3>
+  <p class="muted">Part 1: list every app-wide piece. Part 2: pick ONE tool (recommendation: Riverpod). Local items stay out of this table.</p>
+  <table>
+    <thead><tr><th>#</th><th>State piece</th><th>Scope</th><th>Held by</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Bond / ledger cache (all positions)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">bonds.db exists</span></td></tr>
+      <tr><td>2</td><td>Theme — Midnight Ledger tokens</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">designed</span></td></tr>
+      <tr><td>3</td><td>Privacy mask (hide ₹ default + eye)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">standing rule</span></td></tr>
+      <tr><td>4</td><td>Alerts / notifications feed</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">alerts.py exists</span></td></tr>
+      <tr><td>5</td><td>Sync status (last synced, spinning)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag build">to build</span></td></tr>
+      <tr><td>6</td><td>Current tab / nav state</td><td><span class="pill p">app-wide</span></td><td>Riverpod + go_router</td><td><span class="tag build">to build</span></td></tr>
+      <tr><td>7</td><td>User settings (credit day, TDS default, export prefs)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag build">to build</span></td></tr>
+      <tr><td>8</td><td>ISIN fetch session result</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">4 states designed</span></td></tr>
+      <tr><td>—</td><td>Dropdown open · field text · chip tap · accordion · switch · scroll</td><td><span class="pill g">local</span></td><td>setState()</td><td><span class="tag has">excluded from plan</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ FULL LIST ============ -->
+<section>
+  <h2><span class="num">ALL</span> The 30 app essentials — overview</h2>
+  <p class="muted">9 groups. Status: <span class="pill g">covered</span> = already designed or backend exists · <span class="pill a">build</span> = Flutter work needed.</p>
+  <div class="groups">
+    <div class="gcard">
+      <h4>A · Shell &amp; navigation (5)</h4>
+      <ol>
+        <li><b>App frame</b> — bar, tabs, nav, FAB <span class="tag has">designed</span></li>
+        <li><b>Routing + deep links + back rules</b> <span class="tag build">build</span></li>
+        <li><b>Page states</b> — first-open/empty/loading/error/offline <span class="tag has">designed</span></li>
+        <li><b>Overlays</b> — sheets, dialogs, guarded confirms <span class="tag has">designed</span></li>
+        <li><b>Scroll aids</b> — TOP/BOTTOM, sticky headers <span class="tag has">designed</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>B · Design foundation (4)</h4>
+      <ol start="6">
+        <li><b>Theme tokens</b> — Midnight Ledger → ThemeData <span class="tag build">map</span></li>
+        <li><b>Component kit</b> — buttons, chips, inputs, cards <span class="tag has">inventoried</span></li>
+        <li><b>Icon/asset conventions</b> <span class="tag build">build</span></li>
+        <li><b>Money formatting</b> — ₹ grouping, TDS display <span class="tag has">payment sheet</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>C · State &amp; architecture (4)</h4>
+      <ol start="10">
+        <li><b>State management</b> — Riverpod <span class="tag build">decide + build</span></li>
+        <li><b>Feature-first structure</b> <span class="tag build">build</span></li>
+        <li><b>DI container</b> — get_it/injectable <span class="tag build">build</span></li>
+        <li><b>View-model pattern</b> <span class="tag build">build</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>D · Data &amp; offline (4)</h4>
+      <ol start="14">
+        <li><b>SQLite SSOT</b> — bonds.db <span class="tag has">exists</span></li>
+        <li><b>Repository layer</b> <span class="tag build">build</span></li>
+        <li><b>Offline-first UI</b> <span class="tag has">designed</span></li>
+        <li><b>CSV + ISIN fetch</b> <span class="tag has">backend</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>E · States &amp; feedback (3)</h4>
+      <ol start="18">
+        <li><b>Friendly error copy</b> — never raw exceptions <span class="tag build">build</span></li>
+        <li><b>Notifications</b> — maturity + rating alerts <span class="tag has">backend</span></li>
+        <li><b>Sync feedback</b> — last synced, degraded net <span class="tag build">build</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>F · Accessibility &amp; input (4)</h4>
+      <ol start="21">
+        <li><b>Tap targets ≥48dp</b> <span class="tag has">standing rule</span></li>
+        <li><b>Contrast AA + non-color cues</b> <span class="tag build">verify</span></li>
+        <li><b>Text scaling + a11y labels</b> <span class="tag build">build</span></li>
+        <li><b>Permissions in-context</b> <span class="tag build">build</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>G · Security &amp; privacy (2)</h4>
+      <ol start="25">
+        <li><b>Privacy mask default-on</b> <span class="tag has">standing rule</span></li>
+        <li><b>No secrets in code</b> <span class="tag has">rule active</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>H · Performance &amp; quality (3)</h4>
+      <ol start="27">
+        <li><b>Fast start + lazy lists</b> <span class="tag build">build</span></li>
+        <li><b>Logging + error boundary</b> <span class="tag build">build</span></li>
+        <li><b>Test pyramid</b> — math units first <span class="tag has">backend 732 ✓</span></li>
+      </ol>
+    </div>
+    <div class="gcard">
+      <h4>I · Platform &amp; release (2)</h4>
+      <ol start="30">
+        <li><b>Lifecycle handling</b> — background/state loss <span class="tag build">build</span></li>
+        <li><b>Release checklist</b> — devices, permissions, store <span class="tag build">build</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>DK BOND SYSTEM v3.4 · UNIVERSAL FOUNDATION (not page-specific)</span>
+  <span>Created 2026-11-26 · sources: mobile UX checklists + Flutter 2026 architecture consensus</span>
+</footer>
+
+</div>
+</body>
+</html>
