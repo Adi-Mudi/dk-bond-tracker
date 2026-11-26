@@ -1,6 +1,6 @@
 {
  "document": "backend_design_upgrade_tracker",
- "version": "v4.7",
+ "version": "v4.8",
  "date": "2026-11-25",
  "initiative": "backend-design-upgrade",
  "branch": "backend-design-upgrade",
@@ -296,6 +296,13 @@
    "topic": "Adapter #9 ICRA shipped — 9/11 complete",
    "summary": "25940e88: src/bond_master/icra.py — AllRatingRationales p1 daily poll (regex tr/td walk, dedup by rationale_id, date/category/title/company_id/rationale_url/pdf_url) + on-demand RatingDetails?CompanyId= parse of '[ICRA]BBB+ (Positive)' into agency/rating/outlook; ShowRationaleReport PDF iframe never fetched (agy live finding: HTML page only wraps iframe -> application/pdf; HTML-only extraction via the two other endpoints); fixtures icra_rationales_p1.html + icra_rating_details.html + icra_rationale_report.html; 11 tests; .email-guard-allow += 2 public icraindia.com fixture contacts (precedent: kfintech). Suite 839 passed / 432 skipped.",
    "relevance": "Remaining: #10 Acuite (final). Optional leftovers: BSE announcements.xml, RBI speeches feed, Acuite sitemap lastmod-diff engine."
+  },
+  {
+   "id": "F21",
+   "date": "2026-11-26",
+   "topic": "Adapter #10 Acuite shipped — WAVE COMPLETE: 11/11 sources covered",
+   "summary": "18906cf2: src/bond_master/acuite.py — liveratings daily p1 (accordion tr id=master_id dedup key, ordinal date '26th Nov 26' -> ISO, entity anchor + fcompany-details slug/URL) + on-demand company-details ratings table (>=6 cells with numeric quantum -> Product/Quantum SEBI/Quantum Other/Long/Short/RegulatedBy; 'ACUITE B- | Reaffirmed | flag' split into rating/action/flag; ISIN lender rows -> isin_records when present). Sitemap polling DROPPED (live probe: Last-Modified 2025-08, broken non-XML head - stale). Fixtures: acuite_liveratings.html + acuite_company_details.html + acuite_sitemap_sample.xml. 12 tests. Suite 851 passed / 432 skipped. FINAL INVENTORY (10 modules, 11 sources): nsdl, bse_bulk, crisil, india_ratings, nse_wdm, care, cdsl, rss (RBI+SEBI+BSE notices), icra, acuite.",
+   "relevance": "Adapter wave DONE. Optional leftovers: BSE announcements.xml (2.73MB), RBI speeches feed, service.py integration of new adapters + T2-T4 design sessions (API contract/schema/NFR/packaging per F17)."
   }
  ],
  "change_log": [
@@ -462,6 +469,10 @@
   {
    "date": "2026-11-26",
    "change": "v4.7: F20 — ICRA (25940e88) shipped, 9/11 adapters, suite 839"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.8: F21 — Acuite (18906cf2) shipped, WAVE COMPLETE 11/11, suite 851"
   }
  ]
 }
