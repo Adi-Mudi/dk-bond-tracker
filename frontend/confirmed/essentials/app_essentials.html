@@ -280,6 +280,27 @@
   .wipe { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:8px; }
   .prot { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   @media (max-width:700px){ .prot { grid-template-columns:1fr; } }
+  /* crash reporting visuals */
+  .capture3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:700px){ .capture3 { grid-template-columns:1fr; } }
+  .cap { background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:12px; text-align:center; }
+  .cap b { display:block; font-size:12px; color:var(--ink); margin-bottom:4px; }
+  .cap span { font-size:10px; color:var(--muted); }
+  .cap.c1 { border-color:rgba(248,113,113,.5); }
+  .cap.c1 b { color:var(--red); }
+  .cap.c2 { border-color:rgba(245,158,11,.5); }
+  .cap.c2 b { color:var(--amber); }
+  .cap.c3 { border-color:rgba(36,86,230,.5); }
+  .cap.c3 b { color:var(--accent-soft); }
+  .ctx { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+  .ctxchip { background:var(--raised); border:1px solid var(--hairline); border-radius:999px; padding:5px 12px; font-size:11px; color:var(--ink); }
+  .ctxchip b { color:var(--accent-soft); }
+  .scrub { background:rgba(74,222,128,.05); border:1px dashed rgba(74,222,128,.5); border-radius:10px; padding:12px 14px; margin-top:10px; font-size:12px; }
+  .scrub .line { font-family:monospace; font-size:11px; color:var(--muted); margin-top:6px; }
+  .scrub .line .red { color:var(--red); text-decoration:line-through; }
+  .scrub .line .ok { color:var(--green); }
+  .triage { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  @media (max-width:700px){ .triage { grid-template-columns:1fr; } }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -1407,6 +1428,83 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 12 DEEP DIVE ============ -->
+<section>
+  <h2 id="e12"><span class="num">12</span> Crash &amp; Error Reporting — the app's black-box recorder</h2>
+  <p class="muted">When the app breaks on a user's device, you won't know unless the app tells you. Captures failures automatically, in the background, without disturbing the user — decided once, app-wide.</p>
+
+  <h3>Visual · Part 1 — what gets captured</h3>
+  <div class="capture3">
+    <div class="cap c1"><b>💥 Crashes</b><span>app closes unexpectedly</span></div>
+    <div class="cap c2"><b>⚠ Unhandled exceptions</b><span>errors that don't crash but break behaviour</span></div>
+    <div class="cap c3"><b>🌐 Slow / failed requests</b><span>network problems with timing</span></div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Each event records <b style="color:var(--ink)">what the user was doing</b> — last few screens + the action taken — so the problem can be reproduced, not just observed.</p>
+
+  <h3>Visual · Part 2 — one central catch at startup</h3>
+  <div class="diagram">
+    <div class="arrow-row" style="margin-top:0">
+      <div class="flowbox">App startup</div>
+      <div class="arrow">→</div>
+      <div class="flowbox hl">ONE global error handler<br><span style="color:var(--muted);font-size:10px">FlutterError.onError + PlatformDispatcher</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">User sees: calm friendly error screen<br><span style="color:var(--muted);font-size:10px">never blank · never raw error</span></div>
+      <div class="arrow">+</div>
+      <div class="flowbox purple">Team receives: silent background report</div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:8px">Companion to Essential 5 — network failures feed the same friendly offline/error copy ("You are offline. Your data is safe.")</div>
+  </div>
+
+  <h3>Visual · Part 3 — privacy scrub before send (ties to Essential 11)</h3>
+  <div class="scrub">
+    <b style="color:var(--green)">✓ Scrubbed automatically — configured redact keys/patterns:</b>
+    <div class="line"><span class="red">token=eyJhbG…</span> → <span class="ok">token=***</span> · <span class="red">pan=ABCDE1234F</span> → <span class="ok">pan=***</span> · <span class="red">authorization: Bearer …</span> → <span class="ok">authorization: ***</span></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Never in reports: passwords · auth tokens · personal details · anything classified sensitive</div>
+  </div>
+
+  <h3>Visual · Part 4 — context that makes it reproducible</h3>
+  <div class="diagram">
+    <div class="diag-title">every report carries, automatically</div>
+    <div class="ctx">
+      <span class="ctxchip"><b>app version</b> 1.4.2</span>
+      <span class="ctxchip"><b>device</b> Pixel 7a</span>
+      <span class="ctxchip"><b>OS</b> Android 15</span>
+      <span class="ctxchip"><b>nav steps</b> Watchlist → Detail → ⋮ → Remove</span>
+      <span class="ctxchip"><b>action</b> tap confirm</span>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Without this context, a report is "a stack trace with no way to recreate the conditions"</div>
+  </div>
+
+  <h3>Visual · Part 5 — alerts, triage, environment</h3>
+  <div class="triage">
+    <div class="card" style="padding:12px">
+      <h4 style="color:var(--red);font-size:11px">Notify immediately</h4>
+      <p style="font-size:11px;margin:0">High severity — e.g. crash on the payment screen. Scheduled review for the rest.</p>
+    </div>
+    <div class="card" style="padding:12px">
+      <h4 style="color:var(--accent-soft);font-size:11px">Group by root cause</h4>
+      <p style="font-size:11px;margin:0">Same stack = ONE issue with a count — one widespread bug must not create thousands of alerts.</p>
+    </div>
+    <div class="card" style="padding:12px">
+      <h4 style="color:var(--green);font-size:11px">Release only</h4>
+      <p style="font-size:11px;margin:0">Active in release builds · silent in debug — dev noise never buries production problems (your build_debug / build_release split already fits).</p>
+    </div>
+  </div>
+
+  <h3>Status — your project today</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Friendly error/offline screen copy</td><td><span class="pill g">designed</span></td><td>error board + offline copy = the user-facing half</td></tr>
+      <tr><td>Never-blank / never-raw rule</td><td><span class="pill g">decided</span></td><td>Essential 5 policy, same wording</td></tr>
+      <tr><td>Global handler at startup</td><td><span class="pill a">build</span></td><td>Flutter — one registration, not per-page</td></tr>
+      <tr><td>Reporting tool + redaction config</td><td><span class="pill p">slot ready</span></td><td>Crashlytics/Sentry-class when real users exist; redact list from E11</td></tr>
+      <tr><td>Severity routing + root-cause grouping</td><td><span class="pill a">build</span></td><td>decide severities when tooling lands</td></tr>
+      <tr><td>Release-only activation</td><td><span class="pill a">build</span></td><td>matches build_debug / build_release scripts</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -1507,6 +1605,7 @@
   <a href="#e8">8 · Motion</a>
   <a href="#e9">9 · Words</a>
   <a href="#e11">11 · Secure</a>
+  <a href="#e12">12 · Blackbox</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
