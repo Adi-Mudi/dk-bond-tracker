@@ -89,6 +89,14 @@
   .gcard ol { list-style:none; counter-reset:g; }
   .gcard li { font-size:11px; color:var(--muted); padding:2px 0; }
   .gcard li b { color:var(--ink); font-weight:600; }
+  /* bottom navigation */
+  .botnav { position:fixed; left:50%; transform:translateX(-50%); bottom:16px; z-index:50; display:flex; gap:6px; background:rgba(22,33,46,.95); border:1px solid var(--hairline); border-radius:999px; padding:6px 10px; backdrop-filter:blur(8px); box-shadow:0 8px 30px rgba(0,0,0,.45); }
+  .botnav a { font-size:11px; color:var(--muted); text-decoration:none; padding:6px 12px; border-radius:999px; border:1px solid transparent; white-space:nowrap; transition:all .15s; }
+  .botnav a:hover { color:var(--ink); background:var(--raised); border-color:var(--hairline); }
+  .botnav a.active { color:#fff; background:var(--accent); border-color:var(--accent); font-weight:700; }
+  .botnav a.top { color:var(--accent-soft); border-color:rgba(36,86,230,.4); }
+  @media (max-width:600px){ .botnav { gap:2px; padding:5px 6px; } .botnav a { padding:6px 8px; font-size:10px; } }
+  body { padding-bottom:80px; }
   /* navigation visuals */
   .pagemap { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin:12px 0; }
   .pm-tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
@@ -130,7 +138,7 @@
 
 <!-- ============ ESSENTIAL 1 DEEP DIVE ============ -->
 <section>
-  <h2><span class="num">1</span> State Management — where the app keeps data while it runs</h2>
+  <h2 id="e1"><span class="num">1</span> State Management — where the app keeps data while it runs</h2>
   <p class="muted">While the app is open, it must remember things. State = all remembered values. State management = rules for where each memory lives and who can read it. Two scopes only: <b style="color:var(--green)">local</b> and <b style="color:var(--purple)">app-wide</b>.</p>
 
   <h3>Visual · The running app's memory map</h3>
@@ -262,7 +270,7 @@
 
 <!-- ============ ESSENTIAL 2 DEEP DIVE ============ -->
 <section>
-  <h2><span class="num">2</span> Navigation — how users move between pages</h2>
+  <h2 id="e2"><span class="num">2</span> Navigation — how users move between pages</h2>
   <p class="muted">Four parts: the <b style="color:var(--ink)">page map</b> (what connects to what), the <b style="color:var(--ink)">menu pattern</b> (tabs vs drawer), the <b style="color:var(--ink)">behaviour</b> (how pages open + what Back does), and <b style="color:var(--ink)">guards &amp; deep links</b> (special entry rules).</p>
 
   <h3>Visual · The page map — every page and its connections</h3>
@@ -419,7 +427,7 @@
 
 <!-- ============ FULL LIST ============ -->
 <section>
-  <h2><span class="num">ALL</span> The 30 app essentials — overview</h2>
+  <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
   <p class="muted">9 groups. Status: <span class="pill g">covered</span> = already designed or backend exists · <span class="pill a">build</span> = Flutter work needed.</p>
   <div class="groups">
     <div class="gcard">
@@ -505,6 +513,14 @@
   <span>DK BOND SYSTEM v3.4 · UNIVERSAL FOUNDATION (not page-specific)</span>
   <span>Created 2026-11-26 · sources: mobile UX checklists + Flutter 2026 architecture consensus</span>
 </footer>
+
+<nav class="botnav">
+  <a href="#e1" class="active">1 · State</a>
+  <a href="#e2">2 · Nav</a>
+  <a href="#e3">3 · Design</a>
+  <a href="#all">All 30</a>
+  <a href="#" class="top">↑ Top</a>
+</nav>
 
 </div>
 </body>
