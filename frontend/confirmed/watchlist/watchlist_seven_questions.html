@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watchlist — Seven Questions (Design-Complete Check)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#0D1520',
+            surface: '#16212E',
+            'surface-alt': '#1B2738',
+            hairline: '#2A3A4C',
+            'hairline-subtle': '#1F2C3D',
+            ink: '#E8EEF5',
+            slate: '#8FA0B4',
+            mist: '#64748B',
+            accent: '#2456E6',
+            q1: '#38BDF8',
+            q2: '#34D399',
+            q3: '#FBBF24',
+            q4: '#818CF8',
+            q5: '#F87171',
+            q6: '#A78BFA',
+            q7: '#2DD4BF',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', sans-serif;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-canvas text-ink antialiased p-6 md:p-12 lg:p-16 selection:bg-accent/30 selection:text-white">
+
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto space-y-8">
+
+    <!-- Top Metadata Bar -->
+    <header class="border-b border-hairline pb-8 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-mono uppercase tracking-wider text-slate">
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="text-ink font-semibold">DK Bond Tracker</span>
+          <span class="text-hairline">•</span>
+          <span>System Architecture & Verification</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#052e16] text-[#4ade80] border border-[#166534] text-[11px] font-medium font-sans">
+            <span class="material-symbols-outlined text-[13px]">lock</span>
+            LOCKED AUDIT
+          </span>
+          <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-[11px] text-slate font-mono">
+            REF: 7Q-WATCHLIST-V4
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Headline & Subtitle -->
+      <div class="space-y-2 pt-2">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-white flex flex-wrap items-center gap-3">
+          WATCHLIST — SEVEN QUESTIONS (design-complete check)
+        </h1>
+        <p class="text-slate text-base md:text-lg font-normal">
+          Every page answers all seven before components are built.
+        </p>
+      </div>
+
+      <!-- Quick Index Indicator Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-3">
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q1"></span>
+          <span class="text-xs font-mono text-slate">Q1 Data</span>
+        </div>
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q2"></span>
+          <span class="text-xs font-mono text-slate">Q2 Actions</span>
+        </div>
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q3"></span>
+          <span class="text-xs font-mono text-slate">Q3 States</span>
+        </div>
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q4"></span>
+          <span class="text-xs font-mono text-slate">Q4 Scroll</span>
+        </div>
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q5"></span>
+          <span class="text-xs font-mono text-slate">Q5 Rules</span>
+        </div>
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q6"></span>
+          <span class="text-xs font-mono text-slate">Q6 Connect</span>
+        </div>
+        <div class="px-3 py-1.5 rounded bg-surface/80 border border-hairline/60 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-q7"></span>
+          <span class="text-xs font-mono text-slate">Q7 Screens</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Seven Question Cards Stack -->
+    <div class="space-y-4">
+
+      <!-- Q1 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q1/15 border border-q1/30 text-q1 font-mono font-bold text-sm">
+              01
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q1 font-mono font-bold">Q1 DATA</span>
+                <span class="text-slate font-normal">—</span>
+                <span>What data does it show?</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q1 uppercase tracking-wider bg-q1/10 px-2 py-0.5 rounded border border-q1/20">Data Contract</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q1 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Fields:</strong> company, ISIN, yield %, payout cycle, broker, invested amounts, unit counts, status pills, WATCHING/LEDGER counts</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q1 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Source:</strong> local <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">bonds.db</code> via repository (SSOT) · ISIN facts from NSDL/BSE fetch · counts derived from cache</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q2 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q2/15 border border-q2/30 text-q2 font-mono font-bold text-sm">
+              02
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q2 font-mono font-bold">Q2 ACTIONS</span>
+                <span class="text-slate font-normal">—</span>
+                <span>What can the user do?</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q2 uppercase tracking-wider bg-q2/10 px-2 py-0.5 rounded border border-q2/20">Interactivity</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q2 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">FAB+</strong> → Add Bond form · ISIN Fetch · Save to Watchlist</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q2 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Row:</strong> Move to Portfolio (qty/amount/date/broker ref) · Details → detail screen</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q2 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Detail:</strong> ⋮ overflow → Remove (type ISIN + hold 2s) · alerts: Read Advisory / Dismiss</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q2 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Navigation:</strong> Tabs + bottom nav navigation</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q3 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q3/15 border border-q3/30 text-q3 font-mono font-bold text-sm">
+              03
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q3 font-mono font-bold">Q3 STATES</span>
+                <span class="text-slate font-normal">—</span>
+                <span>all four + loading pattern</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q3 uppercase tracking-wider bg-q3/10 px-2 py-0.5 rounded border border-q3/20">Life Cycle</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q3 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Working ✓</strong> · <strong class="text-ink font-semibold">Loading</strong> = SKELETON for ledger rows, SPINNER for ISIN Fetch ("Checking")</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q3 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Empty ✓</strong> "No bonds yet — Add first bond" · <strong class="text-ink font-semibold">Error ✓</strong> offline copy + duplicate-ISIN banner</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q3 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-amber-300 font-semibold">Rule:</strong> skeleton never replaced by spinner when layout is known</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q4 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q4/15 border border-q4/30 text-q4 font-mono font-bold text-sm">
+              04
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q4 font-mono font-bold">Q4 SCROLL</span>
+                <span class="text-slate font-normal">—</span>
+                <span>three answers</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q4 uppercase tracking-wider bg-q4/10 px-2 py-0.5 rounded border border-q4/20">Viewport Behavior</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q4 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Load more:</strong> show-all + scroll-to-top at MVP scale (Load More when &gt;100 rows)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q4 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Sticky:</strong> top bar always + ADD FORM|LEDGER tabs ✓ designed</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q4 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Scroll-to-top:</strong> TOP button after one screen of content</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q5 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q5/15 border border-q5/30 text-q5 font-mono font-bold text-sm">
+              05
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q5 font-mono font-bold">Q5 RULES</span>
+                <span class="text-slate font-normal">—</span>
+                <span>hidden rules (written note)</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q5 uppercase tracking-wider bg-q5/10 px-2 py-0.5 rounded border border-q5/20">Business Logic</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q5 font-bold leading-none mt-1">•</span>
+                <span>ISIN 12 chars · duplicate active ISIN blocked (same company) · credit day 1–31</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q5 font-bold leading-none mt-1">•</span>
+                <span>Remove: exact ISIN + hold 2s · never on-card delete · held positions never deleted here</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q5 font-bold leading-none mt-1">•</span>
+                <span>TDS never on principal · one name per concept (Move to Portfolio)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q6 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q6/15 border border-q6/30 text-q6 font-mono font-bold text-sm">
+              06
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q6 font-mono font-bold">Q6 CONNECTION</span>
+                <span class="text-slate font-normal">—</span>
+                <span>how it talks (written note)</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q6 uppercase tracking-wider bg-q6/10 px-2 py-0.5 rounded border border-q6/20">Integration</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q6 font-bold leading-none mt-1">•</span>
+                <span>ISIN lookup → NSDL/BSE (4 states: Found/Checking/Offline/Not Found)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q6 font-bold leading-none mt-1">•</span>
+                <span>Save/Move → local repository write · Alerts ← <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">alerts.py</code></span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q6 font-bold leading-none mt-1">•</span>
+                <span>Dio wiring = contract phase (one instance, interceptor gate)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q7 CARD -->
+      <section class="bg-surface rounded-xl border border-hairline p-5 md:p-6 transition-all hover:border-slate/50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-q7/15 border border-q7/30 text-q7 font-mono font-bold text-sm">
+              07
+            </span>
+          </div>
+          <div class="flex-1 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline-subtle pb-2.5">
+              <h2 class="text-lg md:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="text-q7 font-mono font-bold">Q7 SCREENS</span>
+                <span class="text-slate font-normal">—</span>
+                <span>how it looks everywhere</span>
+              </h2>
+              <span class="text-[11px] font-mono text-q7 uppercase tracking-wider bg-q7/10 px-2 py-0.5 rounded border border-q7/20">Platform Parity</span>
+            </div>
+
+            <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
+              <li class="flex items-start gap-2.5">
+                <span class="text-q7 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Phone 412dp:</strong> LOCKED ✓ (all 5 columns designed)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q7 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Tablet/desktop:</strong> MVP = Compact only (support declaration pending)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q7 font-bold leading-none mt-1">•</span>
+                <span>Skeleton/scroll rules scale with size classes (Essential4)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Verification Sign-off Footer -->
+    <footer class="pt-6 border-t border-hairline flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>SEVEN QUESTIONS VERIFIED • COMPLETE SYSTEM SIGN-OFF</span>
+      </div>
+      <div>
+        <span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v4.0</span>
+      </div>
+    </footer>
+
+  </main>
+</body>
+</html>
