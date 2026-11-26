@@ -1,6 +1,6 @@
 {
  "document": "backend_design_upgrade_tracker",
- "version": "v4.6",
+ "version": "v4.7",
  "date": "2026-11-25",
  "initiative": "backend-design-upgrade",
  "branch": "backend-design-upgrade",
@@ -289,6 +289,13 @@
    "topic": "Adapters #7 CDSL + #8 RSS shipped — 8/11 complete",
    "summary": "13493dd7 CDSL: stdlib XLSX bulk (preference shares 3,972 rows + securitised debt, header-name mapping, sparse-row column letters, PK magic) + per-ISIN popup-isin/CorpBondDatabase detail (span-id parse, grdRatingDtls rating table with rating/outlook split, Cloudflare markers gated behind missing content); 15 tests, real fixtures. e1a3f365 RSS: shared RssAdapter for rbi_pressreleases + rbi_notifications + sebi + bse_notices (macro RBI feeds dropped per agy: tenders/AnnualReportMain/Bulletin/Publication; speeches+announcements deferred); namespace-agnostic, 4 pubDate formats, 0-item=OK, per-feed isolation, body sha256 (ETag conditional GET deferred to transport/raw_downloads); 11 tests. agy verified CDSL (15/15) + probed RSS (10/10 HTTP 200). Suite 828 passed / 432 skipped.",
    "relevance": "Remaining: #9 ICRA -> #10 Acuite (then all 11 shipped; BSE announcements.xml + RBI speeches optional add-ons)."
+  },
+  {
+   "id": "F20",
+   "date": "2026-11-26",
+   "topic": "Adapter #9 ICRA shipped — 9/11 complete",
+   "summary": "25940e88: src/bond_master/icra.py — AllRatingRationales p1 daily poll (regex tr/td walk, dedup by rationale_id, date/category/title/company_id/rationale_url/pdf_url) + on-demand RatingDetails?CompanyId= parse of '[ICRA]BBB+ (Positive)' into agency/rating/outlook; ShowRationaleReport PDF iframe never fetched (agy live finding: HTML page only wraps iframe -> application/pdf; HTML-only extraction via the two other endpoints); fixtures icra_rationales_p1.html + icra_rating_details.html + icra_rationale_report.html; 11 tests; .email-guard-allow += 2 public icraindia.com fixture contacts (precedent: kfintech). Suite 839 passed / 432 skipped.",
+   "relevance": "Remaining: #10 Acuite (final). Optional leftovers: BSE announcements.xml, RBI speeches feed, Acuite sitemap lastmod-diff engine."
   }
  ],
  "change_log": [
@@ -451,6 +458,10 @@
   {
    "date": "2026-11-26",
    "change": "v4.6: F19 — CDSL (13493dd7) + RSS (e1a3f365) shipped, 8/11 adapters, suite 828"
+  },
+  {
+   "date": "2026-11-26",
+   "change": "v4.7: F20 — ICRA (25940e88) shipped, 9/11 adapters, suite 839"
   }
  ]
 }
