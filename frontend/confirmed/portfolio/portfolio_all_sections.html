@@ -964,38 +964,97 @@ On-going
     From your bank statement — we'll figure out what it is
   </p>
 </div>
-<!-- 2. MATCH CARD (Appears once) -->
+<!-- 2. UNIFIED TYPE LIST CONTAINER -->
 <div class="p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-2 shadow-sm">
 <div class="flex items-center justify-between border-b border-[#2A3A4C]/60 pb-1.5">
 <div class="flex items-center gap-1.5 text-xs font-bold text-[#E8EEF5]">
-<span class="text-[#93B4FF] text-[13px]">✦</span>
-<span>We matched it</span>
+<span class="text-[10px] uppercase tracking-wider text-[#E8EEF5] font-semibold">What did you receive? *</span>
 </div>
 <span class="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-[#166534]/30 text-[#4ADE80] border border-[#166534]/50 flex items-center gap-1 font-mono">
 <span class="w-1 h-1 rounded-full bg-[#4ADE80]"></span>
-      Best match on amount + date
+      Matched from amount + date
     </span>
 </div>
-<!-- 4 Selectable Rows using radio inputs -->
-<div class="flex flex-col gap-1.5">
-<!-- Row 1: Active Match -->
-<label class="flex items-center justify-between p-2 rounded-lg bg-[#2456E6]/10 border-2 border-[#2456E6] cursor-pointer transition-all shadow-sm" for="mp1">
+<!-- Hidden radios FIRST before CSS and list -->
+<input checked="" class="sr-only" id="ty1" name="payment_type" type="radio"/>
+<input class="sr-only" id="ty2" name="payment_type" type="radio"/>
+<input class="sr-only" id="ty3" name="payment_type" type="radio"/>
+<input class="sr-only" id="ty4" name="payment_type" type="radio"/>
+<input class="sr-only" id="ty5" name="payment_type" type="radio"/>
+<input class="sr-only" id="ty6" name="payment_type" type="radio"/>
+<!-- Scoped Pure CSS styles for Unified List -->
+<style>
+    .ty-math { display: none; }
+    .ty-check { display: none; }
+    .ty-dot { display: block; }
+
+    #ty1:checked ~ .ty-list label[for="ty1"],
+    #ty2:checked ~ .ty-list label[for="ty2"],
+    #ty3:checked ~ .ty-list label[for="ty3"],
+    #ty4:checked ~ .ty-list label[for="ty4"],
+    #ty5:checked ~ .ty-list label[for="ty5"],
+    #ty6:checked ~ .ty-list label[for="ty6"] {
+      border: 1.5px solid #2456E6 !important;
+      background: rgba(36, 86, 230, 0.12) !important;
+    }
+
+    #ty1:checked ~ .ty-list label[for="ty1"] .ty-check,
+    #ty2:checked ~ .ty-list label[for="ty2"] .ty-check,
+    #ty3:checked ~ .ty-list label[for="ty3"] .ty-check,
+    #ty4:checked ~ .ty-list label[for="ty4"] .ty-check,
+    #ty5:checked ~ .ty-list label[for="ty5"] .ty-check,
+    #ty6:checked ~ .ty-list label[for="ty6"] .ty-check {
+      display: inline-flex !important;
+    }
+
+    #ty1:checked ~ .ty-list label[for="ty1"] .ty-dot,
+    #ty2:checked ~ .ty-list label[for="ty2"] .ty-dot,
+    #ty3:checked ~ .ty-list label[for="ty3"] .ty-dot,
+    #ty4:checked ~ .ty-list label[for="ty4"] .ty-dot,
+    #ty5:checked ~ .ty-list label[for="ty5"] .ty-dot,
+    #ty6:checked ~ .ty-list label[for="ty6"] .ty-dot {
+      display: none !important;
+    }
+
+    #ty1:checked ~ .ty-list label[for="ty1"] .ty-math {
+      display: block !important;
+    }
+    #ty3:checked ~ .ty-list label[for="ty3"] .ty-math {
+      display: block !important;
+    }
+
+    .ty-exit { display: none; }
+    #ty6:checked ~ .ty-exit { display: block !important; }
+    #ty6:checked ~ .ty-shared { display: none !important; }
+  </style>
+<!-- Unified Type List -->
+<div class="ty-list flex flex-col gap-1.5">
+<div class="text-[9px] uppercase tracking-wider text-[#7A8A99] font-mono px-1 pt-0.5">Matched</div>
+<!-- ty1: Interest after TDS (Default Matched) -->
+<label class="flex flex-col p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] cursor-pointer transition-all shadow-sm" for="ty1">
+<div class="flex items-center justify-between w-full">
 <div class="flex items-center gap-2">
-<input checked="" class="accent-[#2456E6] flex-shrink-0 cursor-pointer" id="mp1" name="match_pick" type="radio"/>
-<div class="flex flex-col">
-<span class="text-xs font-semibold text-white flex items-center gap-1">
-            Interest after TDS
-            <span class="material-symbols-outlined text-[12px] text-[#4ADE80]">check_circle</span>
+<span class="w-3.5 h-3.5 rounded-full border border-[#2A3A4C] bg-[#1E2C3B] ty-dot flex-shrink-0"></span>
+<span class="ty-check items-center justify-center w-3.5 h-3.5 rounded-full bg-[#2456E6] text-white text-[10px] flex-shrink-0">
+<span class="material-symbols-outlined text-[11px]">check</span>
 </span>
-<span class="text-[10px] text-[#93B4FF] font-mono">Gross ₹45,750 − TDS ₹4,575 (10%)</span>
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-[#E8EEF5]">Interest after TDS</span>
 </div>
 </div>
-<span class="text-xs font-bold font-mono text-white">₹ 41,175</span>
+<span class="text-xs font-semibold font-mono text-[#E8EEF5]">₹ 41,175</span>
+</div>
+<div class="ty-math mt-1 pl-5.5 text-[10px] text-[#93B4FF] font-mono">
+        Gross ₹45,750 − TDS ₹4,575 (10%)
+      </div>
 </label>
-<!-- Row 2 -->
-<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="mp2">
+<!-- ty2: Gross interest -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="ty2">
 <div class="flex items-center gap-2">
-<input class="accent-[#2456E6] flex-shrink-0 cursor-pointer" id="mp2" name="match_pick" type="radio"/>
+<span class="w-3.5 h-3.5 rounded-full border border-[#2A3A4C] bg-[#1E2C3B] ty-dot flex-shrink-0"></span>
+<span class="ty-check items-center justify-center w-3.5 h-3.5 rounded-full bg-[#2456E6] text-white text-[10px] flex-shrink-0">
+<span class="material-symbols-outlined text-[11px]">check</span>
+</span>
 <div class="flex flex-col">
 <span class="text-xs font-medium text-[#E8EEF5] group-hover:text-[#93B4FF]">Gross interest</span>
 <span class="text-[10px] text-[#7A8A99] font-mono">TDS not deducted yet</span>
@@ -1003,92 +1062,79 @@ On-going
 </div>
 <span class="text-xs font-mono font-medium text-[#7A8A99] group-hover:text-[#E8EEF5]">₹ 45,750</span>
 </label>
-<!-- Row 3 -->
-<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="mp3">
+<!-- ty3: Interest + Principal -->
+<label class="flex flex-col p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="ty3">
+<div class="flex items-center justify-between w-full">
 <div class="flex items-center gap-2">
-<input class="accent-[#2456E6] flex-shrink-0 cursor-pointer" id="mp3" name="match_pick" type="radio"/>
+<span class="w-3.5 h-3.5 rounded-full border border-[#2A3A4C] bg-[#1E2C3B] ty-dot flex-shrink-0"></span>
+<span class="ty-check items-center justify-center w-3.5 h-3.5 rounded-full bg-[#2456E6] text-white text-[10px] flex-shrink-0">
+<span class="material-symbols-outlined text-[11px]">check</span>
+</span>
 <div class="flex flex-col">
 <span class="text-xs font-medium text-[#E8EEF5] group-hover:text-[#93B4FF]">Interest + Principal</span>
-<span class="text-[10px] text-[#7A8A99] font-mono">with principal</span>
+<span class="text-[10px] text-[#7A8A99] font-mono">net interest + principal</span>
 </div>
 </div>
 <span class="text-xs font-mono font-medium text-[#7A8A99] group-hover:text-[#E8EEF5]">₹ 5,41,175</span>
+</div>
+<div class="ty-math mt-1 pl-5.5 text-[10px] text-[#93B4FF] font-mono">
+        ₹41,175 net (TDS deducted on interest) + ₹5,00,000 principal
+      </div>
 </label>
-<!-- Row 4 -->
-<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="mp4">
+<!-- ty4: Principal only -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="ty4">
 <div class="flex items-center gap-2">
-<input class="accent-[#2456E6] flex-shrink-0 cursor-pointer" id="mp4" name="match_pick" type="radio"/>
+<span class="w-3.5 h-3.5 rounded-full border border-[#2A3A4C] bg-[#1E2C3B] ty-dot flex-shrink-0"></span>
+<span class="ty-check items-center justify-center w-3.5 h-3.5 rounded-full bg-[#2456E6] text-white text-[10px] flex-shrink-0">
+<span class="material-symbols-outlined text-[11px]">check</span>
+</span>
 <div class="flex flex-col">
 <span class="text-xs font-medium text-[#E8EEF5] group-hover:text-[#93B4FF]">Principal only</span>
-<span class="text-[10px] text-[#7A8A99] font-mono">face value</span>
+<span class="text-[10px] text-[#7A8A99] font-mono">face value · no TDS</span>
 </div>
 </div>
 <span class="text-xs font-mono font-medium text-[#7A8A99] group-hover:text-[#E8EEF5]">₹ 5,00,000</span>
 </label>
+<!-- Divider with ALL TYPES label -->
+<div class="text-[9px] uppercase tracking-wider text-[#7A8A99] font-mono px-1 pt-2 pb-0.5 border-t border-[#2A3A4C]/60 mt-0.5">All Types</div>
+<!-- ty5: Maturity redemption -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="ty5">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full border border-[#2A3A4C] bg-[#1E2C3B] ty-dot flex-shrink-0"></span>
+<span class="ty-check items-center justify-center w-3.5 h-3.5 rounded-full bg-[#2456E6] text-white text-[10px] flex-shrink-0">
+<span class="material-symbols-outlined text-[11px]">check</span>
+</span>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-[#E8EEF5] group-hover:text-[#93B4FF]">Maturity redemption</span>
+<span class="text-[10px] text-[#7A8A99] font-mono">same split · closes position</span>
 </div>
+</div>
+<span class="text-xs font-mono font-medium text-[#7A8A99] group-hover:text-[#E8EEF5]">₹ 5,41,175</span>
+</label>
+<!-- ty6: Early exit -->
+<label class="flex items-center justify-between p-2 rounded-lg bg-[#16212E] border border-[#2A3A4C] hover:border-[#2456E6]/40 cursor-pointer transition-colors group" for="ty6">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full border border-[#2A3A4C] bg-[#1E2C3B] ty-dot flex-shrink-0"></span>
+<span class="ty-check items-center justify-center w-3.5 h-3.5 rounded-full bg-[#2456E6] text-white text-[10px] flex-shrink-0">
+<span class="material-symbols-outlined text-[11px]">check</span>
+</span>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-[#E8EEF5] group-hover:text-[#93B4FF]">Early exit</span>
+<span class="text-[10px] text-[#7A8A99] font-mono">sell before maturity</span>
+</div>
+</div>
+<span class="text-xs font-mono font-medium text-[#7A8A99] group-hover:text-[#E8EEF5]">—</span>
+</label>
+</div>
+<!-- List Footnotes -->
 <p class="text-[10px] text-[#7A8A99] font-mono leading-tight pt-1 border-t border-[#2A3A4C]/40">
-    Tap a row if the match is wrong. Match uses amount, date window and company name.
+    Auto-matched from amount, date and company — tap any type to override.
   </p>
 <p class="text-[9px] text-[#93B4FF] font-mono leading-none">
-    TDS 10% applies to interest only — never on principal.
+    TDS 10% on interest only — never on principal.
   </p>
-</div>
-<!-- 3. DIVIDER -->
-<div class="relative flex items-center justify-center py-1">
-<div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#2A3A4C]"></div></div>
-<span class="relative bg-[#16212E] px-2 text-[10px] font-mono uppercase text-[#7A8A99] tracking-wider">or choose type manually</span>
-</div>
-<!-- 4. MANUAL SWAP SECTION -->
-<div class="flex flex-col gap-2">
-<!-- Hidden radios FIRST -->
-<input checked="" class="sr-only" id="mt1" name="manual_type" type="radio"/>
-<input class="sr-only" id="mt2" name="manual_type" type="radio"/>
-<input class="sr-only" id="mt3" name="manual_type" type="radio"/>
-<input class="sr-only" id="mt4" name="manual_type" type="radio"/>
-<!-- Pure CSS scoping style -->
-<style>
-    .mt-panel { display: none; }
-    #mt1:checked ~ .mt-panel-1 { display: block; }
-    #mt2:checked ~ .mt-panel-2 { display: block; }
-    #mt3:checked ~ .mt-panel-3 { display: block; }
-    #mt4:checked ~ .mt-panel-4 { display: block; }
-    #mt4:checked ~ .mt-shared { display: none !important; }
-    #mt1:checked ~ .mt-chips label[for="mt1"],
-    #mt2:checked ~ .mt-chips label[for="mt2"],
-    #mt3:checked ~ .mt-chips label[for="mt3"],
-    #mt4:checked ~ .mt-chips label[for="mt4"] {
-      background: #2456E6 !important;
-      color: #ffffff !important;
-      border-color: #2456E6 !important;
-    }
-  </style>
-<!-- Chip labels -->
-<div class="mt-chips flex flex-wrap gap-1 text-[10px]">
-<label class="px-2.5 py-1 rounded-full bg-[#16212E] border border-[#2A3A4C] text-[#7A8A99] cursor-pointer font-medium hover:text-[#E8EEF5] transition-colors" for="mt1">Interest only</label>
-<label class="px-2.5 py-1 rounded-full bg-[#16212E] border border-[#2A3A4C] text-[#7A8A99] cursor-pointer font-medium hover:text-[#E8EEF5] transition-colors" for="mt2">Interest + Principal</label>
-<label class="px-2.5 py-1 rounded-full bg-[#16212E] border border-[#2A3A4C] text-[#7A8A99] cursor-pointer font-medium hover:text-[#E8EEF5] transition-colors" for="mt3">Maturity redemption</label>
-<label class="px-2.5 py-1 rounded-full bg-[#16212E] border border-[#2A3A4C] text-[#7A8A99] cursor-pointer font-medium hover:text-[#E8EEF5] transition-colors" for="mt4">Early exit</label>
-</div>
-<!-- Panel 1 -->
-<div class="mt-panel mt-panel-1 text-[10px] text-[#7A8A99] font-mono px-1 py-0.5">
-    Amount and type set above — adjust the match if wrong.
-  </div>
-<!-- Panel 2 -->
-<div class="mt-panel mt-panel-2 p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] text-xs font-mono flex flex-col gap-1">
-<div class="flex justify-between text-[#7A8A99] text-[11px]"><span>Interest ₹41,175</span><span>TDS ₹4,575 auto</span></div>
-<div class="flex justify-between text-[#7A8A99] text-[11px] pb-1 border-b border-[#2A3A4C]/50"><span>Principal ₹5,00,000</span><span>no TDS</span></div>
-<div class="flex justify-between font-bold text-white pt-0.5"><span>Bank credit</span><span class="text-[#4ADE80]">₹ 5,41,175</span></div>
-</div>
-<!-- Panel 3 -->
-<div class="mt-panel mt-panel-3 p-2.5 rounded-lg bg-[#0E1724] border border-[#2A3A4C] flex flex-col gap-1.5">
-<p class="text-[11px] text-[#E8EEF5] font-mono">Same split as Interest + Principal — saving marks the position Matured.</p>
-<div class="p-1.5 rounded bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center gap-1.5 text-[10px] text-[#F59E0B] font-mono">
-<span class="material-symbols-outlined text-[13px]">info</span>
-<span>Maturity closes the position.</span>
-</div>
-</div>
-<!-- Panel 4: Early Exit -->
-<div class="mt-panel mt-panel-4 p-2.5 rounded-lg bg-[#0E1724] border-2 border-[#2456E6]/60 flex flex-col gap-2.5">
+<!-- 3. SELECTED-TYPE EXTRAS: Early Exit (.ty-exit) -->
+<div class="ty-exit p-2.5 rounded-lg bg-[#0E1724] border-2 border-[#2456E6]/60 flex flex-col gap-2.5 mt-1">
 <div class="grid grid-cols-2 gap-2">
 <div class="flex flex-col gap-1">
 <label class="text-[10px] font-medium text-[#E8EEF5]">Exit Date *</label>
@@ -1112,8 +1158,8 @@ On-going
 </div>
 <input class="w-full bg-[#16212E] border border-[#2A3A4C] rounded px-2.5 py-1 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Exit notes (optional)" type="text"/>
 </div>
-<!-- 5. .mt-shared (sibling after panels) -->
-<div class="mt-shared flex flex-col gap-2.5">
+<!-- 4. SHARED SECTION (.ty-shared) -->
+<div class="ty-shared flex flex-col gap-2.5 mt-1">
 <!-- Credit Date row -->
 <div class="flex flex-col gap-1">
 <label class="text-[11px] font-medium text-[#E8EEF5]">Credit Date</label>
@@ -1122,7 +1168,7 @@ On-going
 <span class="material-symbols-outlined text-[15px] text-[#93B4FF]">calendar_today</span>
 <span class="text-xs font-mono font-semibold text-[#E8EEF5]">18 Dec 2026</span>
 </div>
-<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">scheduled</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#2456E6]/20 text-[#93B4FF] border border-[#2456E6]/30">Scheduled</span>
 </div>
 </div>
 <!-- Remarks * choice chips -->
@@ -1144,18 +1190,18 @@ On-going
 <!-- Exactly ONE notes input -->
 <input class="w-full bg-[#0E1724] border border-[#2A3A4C] rounded-lg px-3 py-1.5 text-xs font-mono text-[#E8EEF5] placeholder-[#55606e] focus:outline-none focus:border-[#2456E6]" placeholder="Optional payment note..." type="text"/>
 </div>
-<!-- 6. ACTION BAR (sibling after .mt-shared) -->
-<div class="flex flex-col gap-1.5 pt-1">
+<!-- 5. ACTION BAR -->
+<div class="flex flex-col gap-1.5 pt-1 mt-1">
 <div class="flex items-center gap-2">
-<button class="flex-1 py-2 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">
+<button class="flex-1 py-2.5 rounded-lg bg-[#2456E6] hover:bg-[#1a44c2] text-white text-xs font-semibold shadow-md transition-colors text-center font-mono" type="button">
         Confirm &amp; Save
       </button>
-<button class="px-4 py-2 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">
+<button class="px-4 py-2.5 rounded-lg bg-[#1E2C3B] hover:bg-[#2A3A4C] text-[#7A8A99] hover:text-[#E8EEF5] text-xs font-medium transition-colors" type="button">
         Cancel
       </button>
 </div>
 <p class="text-[10px] text-[#7A8A99] font-mono text-center">
-      Saves your selected match or manual entry.
+      Saves your selected type.
     </p>
 </div>
 </div></div></div>
