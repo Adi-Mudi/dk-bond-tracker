@@ -97,6 +97,40 @@
   .botnav a.top { color:var(--accent-soft); border-color:rgba(36,86,230,.4); }
   @media (max-width:600px){ .botnav { gap:2px; padding:5px 6px; } .botnav a { padding:6px 8px; font-size:10px; } }
   body { padding-bottom:80px; }
+  /* responsiveness visuals */
+  .ruler { background:var(--canvas); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin:10px 0; }
+  .ruler-bar { display:flex; border-radius:8px; overflow:hidden; border:1px solid var(--hairline); }
+  .ruler-seg { padding:12px 10px; text-align:center; font-size:11px; flex:1; }
+  .ruler-seg b { display:block; font-size:13px; margin-bottom:2px; }
+  .ruler-seg span { font-size:10px; opacity:.8; }
+  .ruler-seg.c { background:rgba(36,86,230,.25); color:var(--accent-soft); border-right:1px solid var(--hairline); flex:0 0 34%; }
+  .ruler-seg.m { background:rgba(192,132,252,.18); color:var(--purple); border-right:1px solid var(--hairline); flex:0 0 30%; }
+  .ruler-seg.e { background:rgba(74,222,128,.15); color:var(--green); flex:1; }
+  .devices { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+  @media (max-width:760px){ .devices { grid-template-columns:1fr; } }
+  .dev { background:var(--surface); border:1px solid var(--hairline); border-radius:10px; padding:12px; }
+  .dev h5 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .dev.c h5 { color:var(--accent-soft); }
+  .dev.m h5 { color:var(--purple); }
+  .dev.e h5 { color:var(--green); }
+  .dev ul { list-style:none; }
+  .dev li { font-size:11px; color:var(--muted); padding:3px 0; border-bottom:1px dashed rgba(42,58,76,.5); }
+  .dev li:last-child { border-bottom:none; }
+  .dev li b { color:var(--ink); font-weight:600; }
+  .mock { display:flex; gap:6px; margin-top:10px; }
+  .mock .nav { width:14px; background:var(--raised); border:1px solid var(--hairline); border-radius:4px; }
+  .mock .navb { height:12px; background:var(--raised); border:1px solid var(--hairline); border-radius:4px; margin-top:4px; }
+  .mock .body { flex:1; display:grid; gap:4px; }
+  .mock .body.i1 { grid-template-columns:1fr; }
+  .mock .body.i2 { grid-template-columns:1fr 1fr; }
+  .mock .body.i3 { grid-template-columns:1fr 1fr 1fr; }
+  .mock .cell { background:var(--raised); border:1px solid var(--hairline); border-radius:4px; height:22px; }
+  .flow3 { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .testgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:600px){ .testgrid { grid-template-columns:1fr; } }
+  .tcell { background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:10px; font-size:11px; text-align:center; color:var(--muted); }
+  .tcell b { display:block; color:var(--ink); font-size:12px; margin-bottom:4px; }
+  .tcell .ok { color:var(--green); font-size:10px; }
   /* design system visuals */
   .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   @media (max-width:760px){ .swatches { grid-template-columns:repeat(2,1fr); } }
@@ -559,6 +593,101 @@
   </table>
 </section>
 
+<!-- ============ ESSENTIAL 4 DEEP DIVE ============ -->
+<section>
+  <h2 id="e4"><span class="num">4</span> Responsiveness — how the layout adapts to screen size</h2>
+  <p class="muted">Same app on phone, small tablet, wide tablet/desktop. Four steps: <b style="color:var(--ink)">plan breakpoints → plan layout per size → let code detect automatically → test every size</b>. Decided once, applied everywhere.</p>
+
+  <h3>Step 1 · Plan your breakpoints — the three size classes</h3>
+  <div class="ruler">
+    <div class="ruler-bar">
+      <div class="ruler-seg c"><b>Compact</b><span>&lt; 600 dp · Phone</span></div>
+      <div class="ruler-seg m"><b>Medium</b><span>600–840 dp · Small tablet</span></div>
+      <div class="ruler-seg e"><b>Expanded</b><span>&gt; 840 dp · Wide tablet / desktop</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">First decision: <b style="color:var(--ink)">which sizes does the app support?</b> — declared BEFORE any page is designed · your boards are locked at 412dp = Compact (phone)</div>
+  </div>
+
+  <h3>Step 2 · Plan the layout for each size — write the rules before code</h3>
+  <div class="devices">
+    <div class="dev c">
+      <h5>Compact · &lt;600dp · Phone</h5>
+      <ul>
+        <li><b>Menu:</b> bottom tab bar</li>
+        <li><b>Columns:</b> 1</li>
+        <li><b>Stacks:</b> stat cards vertical</li>
+        <li><b>Your status:</b> all locked boards = this size</li>
+      </ul>
+      <div class="mock">
+        <div style="flex:1">
+          <div class="body i1"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+          <div class="navb"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dev m">
+      <h5>Medium · 600–840dp · Small tablet</h5>
+      <ul>
+        <li><b>Menu:</b> side navigation rail</li>
+        <li><b>Columns:</b> 2</li>
+        <li><b>Side-by-side:</b> form + preview</li>
+        <li><b>Your status:</b> not designed yet</li>
+      </ul>
+      <div class="mock">
+        <div class="nav"></div>
+        <div class="body i2"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+      </div>
+    </div>
+    <div class="dev e">
+      <h5>Expanded · &gt;840dp · Wide / desktop</h5>
+      <ul>
+        <li><b>Menu:</b> side navigation rail</li>
+        <li><b>Columns:</b> 3</li>
+        <li><b>Wide tables:</b> full ledger visible</li>
+        <li><b>Your status:</b> not designed yet</li>
+      </ul>
+      <div class="mock">
+        <div class="nav"></div>
+        <div class="body i3"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+      </div>
+    </div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">This table is the <b style="color:var(--ink)">contract</b> — written before Flutter code, exactly like the psrs is the contract for requirements.</p>
+
+  <h3>Step 3 · The code detects the size automatically</h3>
+  <div class="diagram">
+    <div class="diag-title">you never write if-phone / if-tablet by hand</div>
+    <div class="flow3">
+      <div class="flowbox">Screen width<br><span style="color:var(--muted);font-size:10px">runtime</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox hl">LayoutBuilder / MediaQuery<br><span style="color:var(--muted);font-size:10px">Flutter reads it</span></div>
+      <div class="arrow">→</div>
+      <div class="flowbox green">Applies Step-2 rules<br><span style="color:var(--muted);font-size:10px">nav + columns switch themselves</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">One-time build instruction to the agent: give it the breakpoint table — never a per-page user decision</div>
+  </div>
+
+  <h3>Step 4 · Test every screen at every declared size</h3>
+  <div class="testgrid">
+    <div class="tcell"><b>1 · Browser drag</b>narrow ↔ wide<br>watch Compact → Medium → Expanded<br><span class="ok">✓ your review boards make this easy</span></div>
+    <div class="tcell"><b>2 · Emulators</b>phone frame + tablet frame<br>Flutter device catalogue<br><span class="ok">✓ automated</span></div>
+    <div class="tcell"><b>3 · Real device</b>at least one physical phone<br>final acceptance<br><span class="ok">✓ every release</span></div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Acceptance rule: <b style="color:var(--ink)">every page and every component works at every size you declared support for.</b></p>
+
+  <h3>Status — the one decision waiting on you</h3>
+  <table>
+    <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Compact (phone) designs</td><td><span class="pill g">done</span></td><td>all boards locked at 412dp</td></tr>
+      <tr><td>Support declaration (phone-only vs +tablet)</td><td><span class="pill a">DECIDE</span></td><td>cheapest path: Compact-only for MVP, table says "Medium/Expanded deferred"</td></tr>
+      <tr><td>Breakpoint layout table (Step 2)</td><td><span class="pill a">build</span></td><td>write once support is declared</td></tr>
+      <tr><td>LayoutBuilder auto-switching</td><td><span class="pill a">build</span></td><td>Flutter — one-time instruction to the agent</td></tr>
+      <tr><td>Size test matrix</td><td><span class="pill a">build</span></td><td>browser + emulators + one real phone</td></tr>
+    </tbody>
+  </table>
+</section>
+
 <!-- ============ FULL LIST ============ -->
 <section>
   <h2 id="all"><span class="num">ALL</span> The 30 app essentials — overview</h2>
@@ -652,6 +781,7 @@
   <a href="#e1" class="active">1 · State</a>
   <a href="#e2">2 · Nav</a>
   <a href="#e3">3 · Design</a>
+  <a href="#e4">4 · Sizes</a>
   <a href="#all">All 30</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
