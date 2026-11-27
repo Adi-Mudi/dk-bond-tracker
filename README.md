@@ -179,6 +179,17 @@ Designed but not built yet, tracked in [Discussion #194](https://github.com/Adi-
 - **No market pricing.** Market value and unrealised market P&L wait on a settled price source.
 - **The repository is private**, so release download links require GitHub access. Anonymous downloads return 404 by design.
 
+## Working format — one track at a time
+
+The project deliberately works on **one thing at a time**: one page, one task, or one team — never several tracks in parallel. Each track runs the full loop before anything new starts:
+
+1. **Work it** to completion
+2. **Audit it** — an independent auditor (AGY / reviewer) verifies against the checklist
+3. **Fix every finding** the audit returns
+4. **Re-audit** until the verdict is **PASS**
+
+Only then does the next track begin. "Done" means the audit says PASS — not "looks finished". Findings never carry over: they are fixed (or explicitly deferred by the developer) before moving on. This keeps reviews cheap, context focused, and every finished piece verified rather than assumed.
+
 ## Contributing
 
 Issues and pull requests are welcome. Before opening a pull request:
