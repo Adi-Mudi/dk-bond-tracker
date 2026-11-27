@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Goals — Seven Questions (Design-Complete Check)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#0D1520',
+            surface: '#16212E',
+            'surface-raised': '#1A2736',
+            hairline: '#2A3A4C',
+            accent: '#2456E6',
+            ink: '#E8EEF5',
+            muted: '#8592A1',
+            slate: '#A8B6C4',
+            'paid-green': '#6FD898',
+            'due-red': '#FF8A80',
+            'upcoming-amber': '#FFC46B',
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body {
+      background-color: #0D1520;
+      color: #E8EEF5;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+  </style>
+<meta content="web_standard" name="shell-type"/></head>
+<body class="min-h-screen bg-canvas text-ink antialiased p-8 md:p-12 lg:p-16 flex flex-col items-center justify-start">
+<div class="w-full max-w-5xl mx-auto space-y-8">
+<!-- Top Meta Breadcrumb & Lock Tag -->
+<header class="space-y-4 border-b border-hairline/70 pb-8">
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-muted">
+<span class="inline-block w-2 h-2 rounded-full bg-paid-green"></span>
+<span>DK BOND TRACKER</span>
+<span>•</span>
+<span>SYSTEM ARCHITECTURE &amp; VERIFICATION</span>
+</div>
+<div class="flex items-center space-x-3 font-mono text-xs">
+<div class="flex items-center space-x-1.5 px-3 py-1 rounded bg-paid-green/10 border border-paid-green/30 text-paid-green font-medium">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>LOCKED AUDIT</span>
+</div>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">REF: 7Q-GOALS-V5</span>
+</div>
+</div>
+<div class="space-y-2">
+<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-ink uppercase font-sans">
+          GOALS — SEVEN QUESTIONS (design-complete check)
+        </h1>
+<p class="text-sm md:text-base text-muted max-w-3xl">
+          Every page answers all seven before components are built. End-to-end verification and data contracts for financial milestone allocations.
+        </p>
+</div>
+<!-- Quick Nav Chips -->
+<div class="flex flex-wrap gap-2 pt-2 text-xs font-mono">
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+<span>Q1 Data</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+<span>Q2 Actions</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+<span>Q3 States</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+<span>Q4 Scroll</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+<span>Q5 Rules</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+<span>Q6 Connect</span>
+</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+<span>Q7 Screens</span>
+</span>
+</div>
+</header>
+<!-- Checklist Cards Stack -->
+<main class="space-y-6"><div class="flex flex-col w-full">
+<!-- Interactive Audit Filter & Stats Bar -->
+<section class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-container p-4 rounded-xl shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-paid-green/10 flex items-center justify-center text-paid-green">
+<span class="material-symbols-outlined text-display">verified</span>
+</div>
+<div>
+<p class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+          14 / 14 Components Level-3 Audited
+        </p>
+<p class="font-label text-label text-slate">
+          100% SPEC CONFORMANCE · 7 QUESTIONS VERIFIED · ZERO LEAKED MUTATIONS
+        </p>
+</div>
+</div>
+<!-- Quick Status Toggles / Metric Strip -->
+<div class="flex flex-wrap items-center gap-2">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high text-ink font-label text-label">
+<span class="w-2 h-2 rounded-full bg-paid-green"></span>
+<span>4 Groups</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high text-ink font-label text-label">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span>98 Criteria Vectors</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high text-ink font-label text-label">
+<span class="w-2 h-2 rounded-full bg-upcoming-amber-fg"></span>
+<span>Gesture Guarded</span>
+</div>
+</div>
+</section>
+<!-- Canonical Guidance Callout Box -->
+<section class="mb-8 p-5 bg-surface-container-low rounded-xl shadow-sm">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary-container mt-0.5 text-headline-h2" style="font-variation-settings: 'FILL' 1;">
+        gavel
+      </span>
+<div class="space-y-1">
+<p class="font-label text-label uppercase tracking-widest text-primary font-semibold">
+          Architectural Invariant &amp; Gesture Enforcement
+        </p>
+<p class="font-body text-body text-on-surface leading-relaxed">
+<strong class="font-semibold text-ink">Gesture rules:</strong> Declare supported AND unsupported · Accidental swipes safe · System gesture wins · Long-press destructive = confirm first.
+          <span class="text-slate ml-1">
+<strong class="font-semibold text-ink">Nesting:</strong> Each level maintains its own isolated checklist; parent page never talks directly to the database layer — strictly orchestrated via reactive component data contracts.
+          </span>
+</p>
+</div>
+</div>
+</section>
+<!-- Main Audit Grid: 4 Groups in Bento Split -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- ========================================== -->
+<!-- GROUP A · GOAL CARDS & LIST (4 Components) -->
+<!-- ========================================== -->
+<div class="flex flex-col bg-surface-container-low p-6 rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4 bg-surface-container px-4 py-3 rounded-lg">
+<div class="flex items-center gap-2.5">
+<span class="px-2 py-0.5 rounded text-on-primary bg-primary font-label text-label font-bold">A</span>
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+              Goal Cards &amp; List
+            </h2>
+<p class="font-small text-small text-mist">Surface presentation &amp; primary touch targets</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-paid-green/15 text-paid-green-fg font-label text-label font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-small" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          4/4 PASSED
+        </span>
+</div>
+<div class="space-y-4">
+<!-- Component 01: Goal card -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">01</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Goal Card</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D (Data):</strong> Target, saved, dates from parent</div>
+<div class="text-slate"><strong class="text-ink font-medium">A (Actions):</strong> Tap Check-in, tap Details (no swipe)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S (States):</strong> Working · skeleton · empty · error</div>
+<div class="text-slate"><strong class="text-ink font-medium">F (Feedback):</strong> Press feedback, Check-in → sheet</div>
+<div class="text-slate"><strong class="text-ink font-medium">R (Rules):</strong> Urgency tier text + color synchronized</div>
+<div class="text-slate"><strong class="text-ink font-medium">C (Connect):</strong> Parent-passed props only</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Rf &amp; Scr:</strong> Swipe banned · stack phone / 2-col tablet</div>
+</div>
+</div>
+<!-- Component 02: Status pill -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">02</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Status Pill (4-Tier Urgency)</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Derived urgency calculation</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (pure display badge)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Behind / Due / OnTrack / Completed</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> — (inert, non-interactive)</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Color + TEXT never alone (a11y)</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed from goal schedule</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Inline wrap; never clips label</div>
+</div>
+</div>
+<!-- Component 03: Stat strip -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">03</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Stat Strip</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Target / Saved / On Track aggregates</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only telemetry)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Value · skeleton · zero/empty</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Number flash + directional arrow</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Tabular numerals, decimal invariant</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed rollups</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Grid 1-column mobile / 2-column desktop</div>
+</div>
+</div>
+<!-- Component 04: Empty state -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">04</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Empty State Display</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Parent goals length == 0</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap CTA → Open creation form</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Empty only (guarded mount)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> CTA press depth elevation shift</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Single actionable trigger only</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Dispatched to parent router</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Centered flex stack; full height bounds</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- GROUP B · CREATE / EDIT FORM (4 Components) -->
+<!-- ========================================== -->
+<div class="flex flex-col bg-surface-container-low p-6 rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4 bg-surface-container px-4 py-3 rounded-lg">
+<div class="flex items-center gap-2.5">
+<span class="px-2 py-0.5 rounded text-on-primary bg-primary font-label text-label font-bold">B</span>
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+              Create / Edit Form
+            </h2>
+<p class="font-small text-small text-mist">Input hygiene &amp; formula constraints</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-paid-green/15 text-paid-green-fg font-label text-label font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-small" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          4/4 PASSED
+        </span>
+</div>
+<div class="space-y-4">
+<!-- Component 05: Goal name input -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">05</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Goal Name Input</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> User typed string</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Type / Focus / Clear</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Focused · Filled · Error (4 states)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Inline error message below input</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Required, max 48 chars, collision guard</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Form state context</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full width, 52px touch-safe height</div>
+</div>
+</div>
+<!-- Component 06: Target / Monthly inputs -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">06</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Target / Monthly Inputs</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> User numeric values</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Numeric entry, blur auto-math</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Empty · Typing · Filled · Error</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Live formula per-unit ticker update</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Target-OR-Monthly mutual exclusivity</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Parent calculation pipeline</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full container span; numerical keypad tag</div>
+</div>
+</div>
+<!-- Component 07: Date pickers -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">07</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Date Pickers (Start / End)</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> ISO 8601 date strings</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap popover calendar modal</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Open · Selected · Disabled</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Inline helper displays delta months</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> End &gt; Start; monthly mode locks both</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Form container coordinator</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> 2-column on desktop, stacked on mobile</div>
+</div>
+</div>
+<!-- Component 08: Formula auto-compute read-out -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">08</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Formula Read-Out</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Derived (Monthly × Delta Months)</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only verified output)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Computed value / Pending dash (—)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Updates live on keystroke change</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> e.g. "22 mos × $35k = $770k Target"</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Pure reactive computed stream</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full span callout container</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- GROUP C · TRACKING & DETAIL (4 Components) -->
+<!-- ========================================== -->
+<div class="flex flex-col bg-surface-container-low p-6 rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4 bg-surface-container px-4 py-3 rounded-lg">
+<div class="flex items-center gap-2.5">
+<span class="px-2 py-0.5 rounded text-on-primary bg-primary font-label text-label font-bold">C</span>
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+              Tracking &amp; Detail
+            </h2>
+<p class="font-small text-small text-mist">Rhythm rows, bonds association &amp; progress</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-paid-green/15 text-paid-green-fg font-label text-label font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-small" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          4/4 PASSED
+        </span>
+</div>
+<div class="space-y-4">
+<!-- Component 09: Monthly rhythm rows -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">09</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Monthly Rhythm Rows</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Cashflow-derived milestones</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap row → Inspect allocation context</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Recorded · Missed · Due · Skeleton</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Missed state outputs warning token</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Zero manual toggles (strict auto-audit)</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Derived from Portfolio ledger</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Stacked rows with sticky month label</div>
+</div>
+</div>
+<!-- Component 10: Linked bonds rows -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">10</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Linked Bonds Rows</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Portfolio-derived bond relations</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap → Deep link to Bond Specimen</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Rendered rows / Empty zero state</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Active press visual feedback</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Strictly read-only within Goal spec</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Parent-passed bond collections</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Fluid tabular card layout</div>
+</div>
+</div>
+<!-- Component 11: Check-in form -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">11</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Check-In Form</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Amount, date, notes input</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Fill fields, tap Commit Save</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Submitting · Network Error</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Save → Toast "Check-in recorded"</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Amount &gt; 0; manual vs auto flag</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Emits local atomic event</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Bottom sheet on mobile / modal desktop</div>
+</div>
+</div>
+<!-- Component 12: Progress bar -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">12</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Progress Bar</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Computed (saved / target) %</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (readout track)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> 0%..100%, indeterminate pulse</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Animated width transition (250ms)</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Clamped at 100%; dim when matured</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Reactive value binding</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full container width, 8px rail height</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================== -->
+<!-- GROUP D · OVERLAYS & SHELL (4 Components) -->
+<!-- ========================================== -->
+<div class="flex flex-col bg-surface-container-low p-6 rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4 bg-surface-container px-4 py-3 rounded-lg">
+<div class="flex items-center gap-2.5">
+<span class="px-2 py-0.5 rounded text-on-primary bg-primary font-label text-label font-bold">D</span>
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+              Overlays &amp; Shell
+            </h2>
+<p class="font-small text-small text-mist">Guarded dialogs, overflow &amp; safety barriers</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-paid-green/15 text-paid-green-fg font-label text-label font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-small" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          4/4 PASSED
+        </span>
+</div>
+<div class="space-y-4">
+<!-- Component 13: Overflow menu -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">13</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Overflow Menu</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Goal active context ID</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap Edit, Archive, or Remove</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Closed / Opened overlay</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Instant reveal with click-away trap</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Destructive Remove in Danger Red</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Goal detail action bus</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Anchored to top-right trigger button</div>
+</div>
+</div>
+<!-- Component 14: Guarded delete dialog -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">14</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Guarded Delete Dialog</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Required confirmation match string</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Type goal name exactly + Confirm</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Invalid typed name · Executing</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Confirm button enabled strictly on match</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Exact name; linked bonds NEVER deleted</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Dispatches delete intent to parent</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr &amp; Gestures:</strong> Centered dialog · tap only, confirm-first destructive</div>
+</div>
+</div>
+<!-- Specimen Breakdown Visual -->
+<div class="p-4 bg-surface-container rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-3">
+<p class="font-label text-label uppercase tracking-wider text-ink font-semibold">
+              Live Specimen Verification
+            </p>
+<span class="font-label text-label text-slate">7/7 Question Vectors</span>
+</div>
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q1 Data</span>
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q2 Actions</span>
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q3 States</span>
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q4 Feedback</span>
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q5 Rules</span>
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q6 Connect</span>
+<span class="px-2 py-0.5 rounded bg-info-blue-bg text-info-blue-fg font-label text-label">Q7 Screens</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Shared Kit Reference Block -->
+<section class="mt-8 p-5 bg-surface-container rounded-xl shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-start gap-3.5">
+<span class="material-symbols-outlined text-primary-container text-headline-h2 mt-0.5">
+          share_location
+        </span>
+<div>
+<h4 class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+            Shared Shell Components Reference Block
+          </h4>
+<p class="font-body text-body text-slate max-w-2xl mt-0.5">
+            Shell references reused from universal kit: segmented GOALS/FORM tabs · bottom nav · FAB. Audited in universal kit (40✓), listed as shared kit pointers with cross-document validation.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-start md:self-center shrink-0">
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-high text-primary font-label text-label font-bold flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-small">link</span>
+          CANONICAL KIT POINTER
+        </span>
+</div>
+</div>
+</section>
+<!-- Technical Provenance & Footnote Block -->
+<section class="mt-8 pt-6 pb-2 border-t border-hairline/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-small text-mist">
+<div class="flex flex-col gap-1">
+<p class="text-slate">
+        Shared kit components → <span class="text-ink">app_components.html (40 ✓)</span> · Page checklist → <span class="text-ink">goals_seven_questions.html</span>
+</p>
+<p class="text-xs">
+        Gesture &amp; nesting isolation verified strictly per Level-3 Architectural Governance Specification.
+      </p>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate">
+<span class="w-2 h-2 rounded-full bg-paid-green"></span>
+<span>DK BOND TRACKER · GOVERNANCE PASS 2026-11-27</span>
+</div>
+</section>
+</div></main>
+<!-- Footer Audit Specification -->
+<footer class="pt-8 border-t border-hairline/60 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
+<div class="flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-paid-green"></span>
+<span>SEVEN QUESTIONS VERIFIED • COMPLETE SYSTEM SIGN-OFF</span>
+</div>
+<div>
+<span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v4.0</span>
+</div>
+</footer>
+</div>
+</body></html>
