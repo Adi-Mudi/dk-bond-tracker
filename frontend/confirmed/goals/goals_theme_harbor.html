@@ -1,688 +1,963 @@
 <!DOCTYPE html>
-
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Goals — Harbor Navy (Dark) Review Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
   theme: {
     extend: {
       colors: {
-        hn: {
-          bg: '#101824',
-          surface: '#172233',
-          raised: '#1F2D42',
-          border: '#2E405C',
-          primary: '#8AAEDB',
-          'on-primary': '#0E1724',
-          ink: '#E7EEF8',
-          muted: '#94A5BC',
-          success: '#74B89A',
-          warning: '#D4A55D',
-          error: '#D98488'
-        }
+        canvas: '#0B121C',
+        'hn-bg': '#101824',
+        'hn-card': '#1F2D42',
+        'hn-card-alt': '#172233',
+        'hn-border': '#2E405C',
+        'hn-ink': '#E7EEF8',
+        'hn-slate': '#93A4BD',
+        'hn-mist': '#627694',
+        'hn-accent': '#8AAEDB',
+        'hn-accent-hover': '#729ACA',
+        'hn-success': '#74B89A',
+        'hn-success-bg': 'rgba(116, 184, 154, 0.15)',
+        'hn-warn': '#D4A55D',
+        'hn-warn-bg': 'rgba(212, 165, 93, 0.15)',
+        'hn-err': '#D98488',
+        'hn-err-bg': 'rgba(217, 132, 136, 0.15)'
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+        sans: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
       }
     }
   }
 }
 </script>
 <style>
-  body {
-    background-color: #101824;
-    color: #E7EEF8;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-  }
-  ::-webkit-scrollbar {
-    height: 10px;
-    width: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #101824;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #2E405C;
-    border-radius: 5px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #3F5577;
-  }
+.tabular { font-variant-numeric: tabular-nums; }
+.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #101824; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #2E405C; border-radius: 4px; }
+.phone-frame {
+  width: 412px;
+  height: 860px;
+  background-color: #101824;
+  border: 1px solid #2E405C;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7);
+  position: relative;
+  flex-shrink: 0;
+}
 </style>
 </head>
-<body class="p-6 md:p-8 min-w-[2250px]">
-<!-- Top Presentation Board Header -->
-<header class="mb-8 border-b border-hn-border pb-6 flex flex-wrap items-center justify-between gap-4">
-<div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-lg bg-hn-raised border border-hn-border flex items-center justify-center text-hn-primary shadow-sm">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
-<circle cx="13.5" cy="6.5" fill="currentColor" r=".5"></circle>
-<circle cx="17.5" cy="10.5" fill="currentColor" r=".5"></circle>
-<circle cx="8.5" cy="7.5" fill="currentColor" r=".5"></circle>
-<circle cx="6.5" cy="12.5" fill="currentColor" r=".5"></circle>
-<path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
-</svg>
-</div>
-<h1 class="text-2xl font-bold tracking-tight text-hn-ink flex items-center gap-3">
-        Harbor Navy
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30">
-<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          LOCKED · 2026-11-27
-        </span>
-<span class="text-sm font-normal text-hn-muted ml-1">Theme: Harbor Navy · Dark</span>
-</h1>
-</div>
-<div class="flex items-center gap-4 bg-hn-surface/80 border border-hn-border px-4 py-2 rounded-xl text-xs font-mono">
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#101824] border border-hn-border"></span>
-<span class="text-hn-muted">bg</span> <span class="text-hn-ink">#101824</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#172233] border border-hn-border"></span>
-<span class="text-hn-muted">surface</span> <span class="text-hn-ink">#172233</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#1F2D42] border border-hn-border"></span>
-<span class="text-hn-muted">raised</span> <span class="text-hn-ink">#1F2D42</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#8AAEDB]"></span>
-<span class="text-hn-muted">primary</span> <span class="text-hn-primary font-bold">#8AAEDB</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#74B89A]"></span>
-<span class="text-hn-muted">success</span> <span class="text-hn-ink">#74B89A</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#D4A55D]"></span>
-<span class="text-hn-muted">warn</span> <span class="text-hn-ink">#D4A55D</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="w-3 h-3 rounded-full bg-[#D98488]"></span>
-<span class="text-hn-muted">err</span> <span class="text-hn-ink">#D98488</span>
-</div>
-</div>
-</header>
-<!-- Horizontal Review Board Strip: 5 Canonical Phone Frames -->
-<main class="flex items-start gap-8 pb-12 overflow-x-auto">
-<!-- ========================================== -->
-<!-- FRAME 1: FIRST OPEN (Empty State)         -->
-<!-- ========================================== -->
-<div class="flex-none flex flex-col gap-3">
-<div class="flex items-center justify-between text-xs px-1 text-hn-muted font-mono uppercase tracking-wider">
-<span>01 — First Open</span>
-<span class="bg-hn-surface px-2 py-0.5 rounded border border-hn-border text-hn-muted">EMPTY</span>
-</div>
-<div class="w-[412px] h-[860px] rounded-[32px] bg-hn-bg border-2 border-hn-border shadow-2xl flex flex-col relative overflow-hidden text-hn-ink">
-<div class="h-10 px-6 flex items-center justify-between text-xs font-semibold text-hn-muted select-none">
-<span>09:41</span>
-<div class="flex items-center gap-2">
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23C2.88 16.48 2 14.34 2 12 2 6.48 6.48 2 12 2s10 4.48 10 10c0 2.34-.88 4.48-2.35 6.23l-.62-.62C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"></path></svg>
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4z"></path></svg>
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"></path></svg>
-</div>
-</div>
-<div class="h-14 px-4 bg-hn-surface border-b border-hn-border flex items-center justify-between">
-<span class="text-base font-bold text-hn-ink tracking-tight">DK Bond Tracker</span>
-<div class="flex items-center gap-2.5">
-<button aria-label="Sync" class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>
-</button>
-<button aria-label="Notifications" class="p-1.5 text-hn-muted hover:text-hn-ink relative rounded-lg">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-hn-warning"></span>
-</button>
-<button aria-label="Palette" class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg>
-</button>
-<div class="w-8 h-8 rounded-full bg-hn-raised border border-hn-border flex items-center justify-center text-xs font-bold text-hn-primary">
+<body class="bg-[#0B121C] text-[#E7EEF8] font-sans antialiased min-h-screen p-8 custom-scrollbar">
+
+  <!-- Board Header -->
+  <header class="max-w-[2260px] mx-auto mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#2E405C] pb-6">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-3 rounded-full bg-[#8AAEDB] shadow-[0_0_8px_#8AAEDB]"></span>
+          <span class="text-xs font-mono uppercase tracking-widest text-[#93A4BD]">DK BOND TRACKER · GOALS & FINANCIAL MILESTONES REVIEW FLOW</span>
+        </div>
+        <div class="flex items-center gap-4 mt-2">
+          <h1 class="text-3xl font-bold tracking-tight text-[#E7EEF8]">Goals — Harbor Navy (Dark) Review Board</h1>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30 font-mono">
+            <span class="material-symbols-outlined text-[14px]">lock</span> LOCKED · 2026-11-27
+          </span>
+          <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-[#1F2D42] text-[#93A4BD] border border-[#2E405C]">
+            5 FRAMES
+          </span>
+        </div>
+        <p class="text-sm text-[#93A4BD] mt-1 font-mono">
+          VIEWPORT: 412dp × 860px · STRICT HARBOR NAVY TOKEN SET (DARK PALETTE) · ALL AMOUNTS IN INR (₹)
+        </p>
+      </div>
+
+      <!-- Token Chips Legend -->
+      <div class="flex flex-wrap items-center gap-2.5 bg-[#101824] px-4 py-2.5 rounded-xl border border-[#2E405C]">
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD]">
+          <span class="w-3 h-3 rounded-full bg-[#101824] border border-[#2E405C]"></span> bg <span class="text-[#E7EEF8]">#101824</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD] ml-2">
+          <span class="w-3 h-3 rounded-full bg-[#1F2D42] border border-[#2E405C]"></span> cards <span class="text-[#E7EEF8]">#1F2D42</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD] ml-2">
+          <span class="w-3 h-3 rounded-full bg-[#2E405C]"></span> border <span class="text-[#E7EEF8]">#2E405C</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD] ml-2">
+          <span class="w-3 h-3 rounded-full bg-[#E7EEF8]"></span> ink <span class="text-[#E7EEF8]">#E7EEF8</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD] ml-2">
+          <span class="w-3 h-3 rounded-full bg-[#8AAEDB]"></span> accent <span class="text-[#E7EEF8]">#8AAEDB</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD] ml-2">
+          <span class="w-3 h-3 rounded-full bg-[#74B89A]"></span> success <span class="text-[#E7EEF8]">#74B89A</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs font-mono text-[#93A4BD] ml-2">
+          <span class="w-3 h-3 rounded-full bg-[#D4A55D]"></span> warn <span class="text-[#E7EEF8]">#D4A55D</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Frames Container (Horizontal Row of 5 frames, 48px gap) -->
+  <main class="max-w-[2260px] mx-auto overflow-x-auto pb-8 custom-scrollbar">
+    <div class="flex items-start gap-[48px] min-w-max">
+
+      <!-- ========================================== -->
+      <!-- FRAME 01: FIRST OPEN (EMPTY STATE) -->
+      <!-- ========================================== -->
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between text-xs font-mono px-1">
+          <span class="text-[#93A4BD] font-semibold tracking-wider">01 — FIRST OPEN</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C]">EMPTY</span>
+        </div>
+
+        <div class="phone-frame">
+          <!-- System Status Bar -->
+          <div class="h-10 px-5 flex items-center justify-between text-xs font-mono text-[#93A4BD] shrink-0 border-b border-[#2E405C]/30">
+            <span>09:41</span>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">signal_cellular_alt</span>
+              <span class="material-symbols-outlined text-sm">wifi</span>
+              <span class="material-symbols-outlined text-sm">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Header -->
+          <div class="h-14 px-4 flex items-center justify-between shrink-0 bg-[#101824] border-b border-[#2E405C]">
+            <span class="font-bold text-base text-[#E7EEF8] tracking-tight">DK Bond Tracker</span>
+            <div class="flex items-center gap-2">
+              <button class="w-9 h-9 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8] hover:bg-[#1F2D42]">
+                <span class="material-symbols-outlined text-[20px]">sync</span>
+              </button>
+              <button class="w-9 h-9 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8] hover:bg-[#1F2D42] relative">
+                <span class="material-symbols-outlined text-[20px]">notifications</span>
+              </button>
+              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[11px] font-bold text-[#8AAEDB]">
+                DK
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Segmented Tab Bar (GOALS 0 / FORM 0) -->
+          <div class="px-4 py-2.5 bg-[#101824] border-b border-[#2E405C] shrink-0">
+            <div class="grid grid-cols-2 p-1 bg-[#172233] rounded-xl border border-[#2E405C]">
+              <button class="py-1.5 text-xs font-semibold rounded-lg bg-[#1F2D42] text-[#8AAEDB] shadow-sm border border-[#2E405C]">
+                GOALS (0)
+              </button>
+              <button class="py-1.5 text-xs font-medium rounded-lg text-[#93A4BD] hover:text-[#E7EEF8]">
+                FORM (0)
+              </button>
+            </div>
+          </div>
+
+          <!-- Content (Scrollable) -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+            <!-- Aggregate KPI Strip (Zeroed) -->
+            <div class="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C]">
+              <div>
+                <span class="text-[10px] uppercase font-mono tracking-wider text-[#93A4BD] block">TARGET</span>
+                <span class="text-sm font-bold text-[#E7EEF8] tabular">₹ 0</span>
+                <span class="text-[10px] text-[#627694] block">0 active</span>
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-mono tracking-wider text-[#93A4BD] block">SAVED</span>
+                <span class="text-sm font-bold text-[#E7EEF8] tabular">₹ 0</span>
+                <span class="text-[10px] text-[#627694] block">0% funded</span>
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-mono tracking-wider text-[#93A4BD] block">ON TRACK</span>
+                <span class="text-sm font-bold text-[#74B89A] tabular">0</span>
+                <span class="text-[10px] text-[#627694] block">all clear</span>
+              </div>
+            </div>
+
+            <!-- Empty State Card -->
+            <div class="rounded-2xl bg-[#1F2D42] border border-[#2E405C] p-7 flex flex-col items-center text-center mt-2">
+              <div class="w-14 h-14 rounded-2xl bg-[#172233] border border-[#2E405C] flex items-center justify-center text-[#8AAEDB] mb-4">
+                <span class="material-symbols-outlined text-3xl">flag</span>
+              </div>
+              <h2 class="text-base font-semibold text-[#E7EEF8]">No goals yet</h2>
+              <p class="text-xs text-[#93A4BD] mt-2 leading-relaxed max-w-[240px]">
+                Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.
+              </p>
+              <button class="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#8AAEDB] text-[#101824] font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#729ACA] transition shadow-md">
+                <span class="material-symbols-outlined text-[16px]">add</span> + Create first goal
+              </button>
+            </div>
+
+            <!-- Onboarding Invariant Notice -->
+            <div class="p-3.5 rounded-xl bg-[#172233] border border-[#2E405C] flex items-start gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-[#8AAEDB] shrink-0 mt-0.5">info</span>
+              <p class="text-xs text-[#93A4BD] leading-normal">
+                <strong class="text-[#E7EEF8]">Zero State Behavior:</strong> Goals ledger stays pristine until your first milestone is registered. Tap + FAB also opens the form.
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation (Goals active) -->
+          <div class="h-16 px-4 bg-[#101824] border-t border-[#2E405C] flex items-center justify-around shrink-0 text-[10px] font-medium text-[#93A4BD]">
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">grid_view</span>
+              <span>Dashboard</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+              <span>Portfolio</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+              <span>Watchlist</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-[#8AAEDB] cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">flag</span>
+              <span class="font-bold">Goals</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+              <span>More</span>
+            </div>
+          </div>
+
+          <!-- 56px FAB -->
+          <button class="absolute bottom-20 right-4 w-14 h-14 rounded-full bg-[#8AAEDB] text-[#101824] flex items-center justify-center shadow-lg hover:bg-[#729ACA] transition">
+            <span class="material-symbols-outlined text-2xl">add</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- FRAME 02: GOALS LIST (ACTIVE) -->
+      <!-- ========================================== -->
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between text-xs font-mono px-1">
+          <span class="text-[#93A4BD] font-semibold tracking-wider">02 — GOALS LIST</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#74B89A] border border-[#2E405C]">ACTIVE</span>
+        </div>
+
+        <div class="phone-frame">
+          <!-- Status Bar -->
+          <div class="h-10 px-5 flex items-center justify-between text-xs font-mono text-[#93A4BD] shrink-0 border-b border-[#2E405C]/30">
+            <span>09:41</span>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">signal_cellular_alt</span>
+              <span class="material-symbols-outlined text-sm">wifi</span>
+              <span class="material-symbols-outlined text-sm">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Header -->
+          <div class="h-14 px-4 flex items-center justify-between shrink-0 bg-[#101824] border-b border-[#2E405C]">
+            <span class="font-bold text-base text-[#E7EEF8] tracking-tight">DK Bond Tracker</span>
+            <div class="flex items-center gap-2">
+              <button class="w-9 h-9 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8] hover:bg-[#1F2D42]">
+                <span class="material-symbols-outlined text-[20px]">sync</span>
+              </button>
+              <button class="w-9 h-9 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8] hover:bg-[#1F2D42] relative">
+                <span class="material-symbols-outlined text-[20px]">notifications</span>
+                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#D98488]"></span>
+              </button>
+              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[11px] font-bold text-[#8AAEDB]">
+                DK
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Segmented Tab Bar (GOALS 3 / FORM 0) -->
+          <div class="px-4 py-2.5 bg-[#101824] border-b border-[#2E405C] shrink-0">
+            <div class="grid grid-cols-2 p-1 bg-[#172233] rounded-xl border border-[#2E405C]">
+              <button class="py-1.5 text-xs font-semibold rounded-lg bg-[#1F2D42] text-[#8AAEDB] shadow-sm border border-[#2E405C]">
+                GOALS (3)
+              </button>
+              <button class="py-1.5 text-xs font-medium rounded-lg text-[#93A4BD] hover:text-[#E7EEF8]">
+                FORM (0)
+              </button>
+            </div>
+          </div>
+
+          <!-- Content (Scrollable List) -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-3.5 custom-scrollbar pb-24">
+            <!-- Aggregate Target Header -->
+            <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#172233] border border-[#2E405C] text-xs">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-[#E7EEF8]">3 GOALS ACTIVE</span>
+                <span class="text-[#627694]">·</span>
+                <span class="text-[#93A4BD]">Target <strong class="text-[#E7EEF8] tabular">₹ 45,00,000</strong></span>
+              </div>
+              <span class="px-2 py-0.5 rounded-md bg-[#1F2D42] text-[#8AAEDB] font-mono text-[11px] border border-[#2E405C]">₹ 65k/mo</span>
+            </div>
+
+            <!-- Goal Card 1: Behind -->
+            <div class="rounded-xl bg-[#1F2D42] border border-[#2E405C] p-4 space-y-2.5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold text-[#E7EEF8]">Commercial Property Downpayment</h3>
+                  <div class="text-[11px] text-[#93A4BD] mt-0.5">Target: Jun 2029 · <span class="text-[#D4A55D] font-medium">30 Mos Left</span></div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#D4A55D]/15 text-[#D4A55D] border border-[#D4A55D]/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#D4A55D]"></span> Behind
+                </span>
+              </div>
+              <div class="flex items-baseline justify-between text-xs pt-1">
+                <span class="font-bold text-[#E7EEF8] tabular">Saved ₹ 3,50,000</span>
+                <span class="text-[#93A4BD] tabular">Target ₹ 20,00,000 (17.5%)</span>
+              </div>
+              <!-- Progress Bar -->
+              <div class="w-full h-2 rounded-full bg-[#172233] overflow-hidden">
+                <div class="h-full bg-[#D4A55D] rounded-full" style="width: 17.5%"></div>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-[#2E405C]/50">
+                <span class="text-[11px] font-mono text-[#D4A55D] bg-[#D4A55D]/10 px-2 py-1 rounded border border-[#D4A55D]/20">
+                  ₹ 20,000/mo (+₹ 5k needed)
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <button class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[#172233] text-[#8AAEDB] border border-[#2E405C] hover:bg-[#101824]">
+                    Check-in
+                  </button>
+                  <button class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[#172233] text-[#93A4BD] border border-[#2E405C] hover:bg-[#101824]">
+                    Details
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Goal Card 2: On Track -->
+            <div class="rounded-xl bg-[#1F2D42] border border-[#2E405C] p-4 space-y-2.5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold text-[#E7EEF8]">Child Higher Education Fund</h3>
+                  <div class="text-[11px] text-[#93A4BD] mt-0.5">Target: Oct 2028 · 22 Mos Left</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#74B89A]"></span> On track
+                </span>
+              </div>
+              <div class="flex items-baseline justify-between text-xs pt-1">
+                <span class="font-bold text-[#E7EEF8] tabular">Saved ₹ 11,50,000</span>
+                <span class="text-[#93A4BD] tabular">Target ₹ 20,00,000 (57.5%)</span>
+              </div>
+              <!-- Progress Bar -->
+              <div class="w-full h-2 rounded-full bg-[#172233] overflow-hidden">
+                <div class="h-full bg-[#74B89A] rounded-full" style="width: 57.5%"></div>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-[#2E405C]/50">
+                <span class="text-[11px] font-mono text-[#74B89A] bg-[#74B89A]/10 px-2 py-1 rounded border border-[#74B89A]/20">
+                  ₹ 35,000/mo pace
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <button class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[#172233] text-[#8AAEDB] border border-[#2E405C] hover:bg-[#101824]">
+                    Check-in
+                  </button>
+                  <button class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[#172233] text-[#93A4BD] border border-[#2E405C] hover:bg-[#101824]">
+                    Details
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Goal Card 3: On Track -->
+            <div class="rounded-xl bg-[#1F2D42] border border-[#2E405C] p-4 space-y-2.5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold text-[#E7EEF8]">Annual Family Vacation 2027</h3>
+                  <div class="text-[11px] text-[#93A4BD] mt-0.5">Target: Dec 2027 · 12 Mos Left</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#74B89A]"></span> On track
+                </span>
+              </div>
+              <div class="flex items-baseline justify-between text-xs pt-1">
+                <span class="font-bold text-[#E7EEF8] tabular">Saved ₹ 3,75,000</span>
+                <span class="text-[#93A4BD] tabular">Target ₹ 5,00,000 (75.0%)</span>
+              </div>
+              <!-- Progress Bar -->
+              <div class="w-full h-2 rounded-full bg-[#172233] overflow-hidden">
+                <div class="h-full bg-[#74B89A] rounded-full" style="width: 75%"></div>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-[#2E405C]/50">
+                <span class="text-[11px] font-mono text-[#74B89A] bg-[#74B89A]/10 px-2 py-1 rounded border border-[#74B89A]/20">
+                  ₹ 10,000/mo pace
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <button class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[#172233] text-[#8AAEDB] border border-[#2E405C] hover:bg-[#101824]">
+                    Check-in
+                  </button>
+                  <button class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[#172233] text-[#93A4BD] border border-[#2E405C] hover:bg-[#101824]">
+                    Details
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Archived Notice -->
+            <div class="rounded-xl bg-[#172233]/60 border border-[#2E405C]/60 p-3 flex items-center justify-between text-xs">
+              <div>
+                <span class="text-[#93A4BD] line-through">Emergency Buffer Vault</span>
+                <span class="text-[10px] text-[#627694] block">Matured ₹ 6,00,000 (100% completed)</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#1F2D42] text-[#93A4BD] border border-[#2E405C]">ARCHIVED</span>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="h-16 px-4 bg-[#101824] border-t border-[#2E405C] flex items-center justify-around shrink-0 text-[10px] font-medium text-[#93A4BD]">
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">grid_view</span>
+              <span>Dashboard</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+              <span>Portfolio</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+              <span>Watchlist</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-[#8AAEDB] cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">flag</span>
+              <span class="font-bold">Goals</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+              <span>More</span>
+            </div>
+          </div>
+
+          <!-- 56px FAB -->
+          <button class="absolute bottom-20 right-4 w-14 h-14 rounded-full bg-[#8AAEDB] text-[#101824] flex items-center justify-center shadow-lg hover:bg-[#729ACA] transition">
+            <span class="material-symbols-outlined text-2xl">add</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- FRAME 03: CREATE FORM (WITH STICKY TABS) -->
+      <!-- ========================================== -->
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between text-xs font-mono px-1">
+          <span class="text-[#93A4BD] font-semibold tracking-wider">03 — CREATE FORM</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C]">FORM</span>
+        </div>
+
+        <div class="phone-frame">
+          <!-- Status Bar -->
+          <div class="h-10 px-5 flex items-center justify-between text-xs font-mono text-[#93A4BD] shrink-0 border-b border-[#2E405C]/30">
+            <span>09:41</span>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">signal_cellular_alt</span>
+              <span class="material-symbols-outlined text-sm">wifi</span>
+              <span class="material-symbols-outlined text-sm">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Header with Back -->
+          <div class="h-14 px-4 flex items-center justify-between shrink-0 bg-[#101824] border-b border-[#2E405C]">
+            <div class="flex items-center gap-2">
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8]">
+                <span class="material-symbols-outlined text-lg">arrow_back</span>
+              </button>
+              <span class="font-bold text-base text-[#E7EEF8] tracking-tight">Create New Milestone</span>
+            </div>
+            <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[11px] font-bold text-[#8AAEDB]">
               DK
             </div>
-</div>
-</div>
-<!-- Fixed Segmented Tab Switcher -->
-<div class="px-4 pt-4">
-<div class="grid grid-cols-2 p-1 rounded-xl bg-hn-surface border border-hn-border text-xs font-medium">
-<button class="py-2 rounded-lg bg-hn-raised text-hn-primary font-semibold shadow-sm">GOALS (0)</button>
-<button class="py-2 rounded-lg text-hn-muted hover:text-hn-ink">FORM (0)</button>
-</div>
-</div>
-<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-<div class="grid grid-cols-3 gap-2 text-center">
-<div class="p-3 rounded-xl bg-hn-surface border border-hn-border">
-<div class="text-[10px] uppercase font-bold text-hn-muted">TARGET</div>
-<div class="text-base font-bold text-hn-ink mt-0.5 tabular-nums">₹ 0</div>
-<div class="text-[10px] text-hn-muted mt-0.5">0 active</div>
-</div>
-<div class="p-3 rounded-xl bg-hn-surface border border-hn-border">
-<div class="text-[10px] uppercase font-bold text-hn-muted">SAVED</div>
-<div class="text-base font-bold text-hn-ink mt-0.5 tabular-nums">₹ 0</div>
-<div class="text-[10px] text-hn-muted mt-0.5">0% funded</div>
-</div>
-<div class="p-3 rounded-xl bg-hn-surface border border-hn-border">
-<div class="text-[10px] uppercase font-bold text-hn-muted">ON TRACK</div>
-<div class="text-base font-bold text-hn-success mt-0.5 tabular-nums">0</div>
-<div class="text-[10px] text-hn-muted mt-0.5">all clear</div>
-</div>
-</div>
-<div class="flex-1 flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-hn-surface border border-hn-border my-2">
-<div class="w-14 h-14 rounded-2xl bg-hn-raised border border-hn-border flex items-center justify-center text-hn-primary mb-4 shadow-sm">
-<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
-<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-<line x1="4" x2="4" y1="22" y2="15"></line>
-</svg>
-</div>
-<h3 class="text-base font-bold text-hn-ink">No goals yet</h3>
-<p class="text-xs text-hn-muted mt-1.5 leading-relaxed max-w-[240px]">
-              Set a savings or investment goal — track it with monthly check-ins &amp; bond yield auto-matching.
-            </p>
-<button class="mt-5 w-full py-3 px-4 rounded-xl bg-hn-primary text-hn-on-primary font-semibold text-sm flex items-center justify-center gap-2 shadow-sm hover:opacity-95 transition">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
-              Create first goal
-            </button>
-</div>
-<div class="p-3 rounded-xl bg-hn-surface/60 border border-hn-border text-xs text-hn-muted flex items-start gap-2.5">
-<svg class="w-4 h-4 text-hn-primary flex-none mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg>
-<span><strong>Zero State:</strong> Goals ledger stays pristine until your first milestone is registered. Tap + FAB also opens form.</span>
-</div>
-</div>
-<button aria-label="Add goal" class="absolute bottom-20 right-4 w-14 h-14 rounded-full bg-hn-primary text-hn-on-primary flex items-center justify-center shadow-lg border border-hn-border hover:scale-105 transition">
-<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
-</button>
-<nav class="h-16 px-4 bg-hn-surface border-t border-hn-border flex items-center justify-around text-[10px] font-medium text-hn-muted select-none">
-<div class="flex flex-col items-center gap-1">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect><rect height="7" width="7" x="14" y="14"></rect><rect height="7" width="7" x="3" y="14"></rect></svg>
-<span>Dashboard</span>
-</div>
-<div class="flex flex-col items-center gap-1">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
-<span>Portfolio</span>
-</div>
-<div class="flex flex-col items-center gap-1">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-<span>Watchlist</span>
-</div>
-<div class="flex flex-col items-center gap-1 text-hn-primary font-semibold">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg>
-<span>Goals</span>
-</div>
-<div class="flex flex-col items-center gap-1">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-<span>More</span>
-</div>
-</nav>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 2: GOALS LIST (Active Ledger)       -->
-<!-- ========================================== -->
-<div class="flex-none flex flex-col gap-3">
-<div class="flex items-center justify-between text-xs px-1 text-hn-muted font-mono uppercase tracking-wider">
-<span>02 — Goals List</span>
-<span class="bg-hn-surface px-2 py-0.5 rounded border border-hn-border text-hn-success">ACTIVE</span>
-</div>
-<div class="w-[412px] h-[860px] rounded-[32px] bg-hn-bg border-2 border-hn-border shadow-2xl flex flex-col relative overflow-hidden text-hn-ink">
-<div class="h-10 px-6 flex items-center justify-between text-xs font-semibold text-hn-muted select-none">
-<span>09:41</span>
-<div class="flex items-center gap-2">
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23C2.88 16.48 2 14.34 2 12 2 6.48 6.48 2 12 2s10 4.48 10 10c0 2.34-.88 4.48-2.35 6.23l-.62-.62C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"></path></svg>
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4z"></path></svg>
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"></path></svg>
-</div>
-</div>
-<div class="h-14 px-4 bg-hn-surface border-b border-hn-border flex items-center justify-between">
-<span class="text-base font-bold text-hn-ink tracking-tight">DK Bond Tracker</span>
-<div class="flex items-center gap-2.5">
-<button class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg></button>
-<button class="p-1.5 text-hn-muted hover:text-hn-ink relative rounded-lg"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-hn-warning"></span></button>
-<button class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg></button>
-<div class="w-8 h-8 rounded-full bg-hn-raised border border-hn-border flex items-center justify-center text-xs font-bold text-hn-primary">DK</div>
-</div>
-</div>
-<!-- Fixed Segmented Tab Switcher -->
-<div class="px-4 pt-4">
-<div class="grid grid-cols-2 p-1 rounded-xl bg-hn-surface border border-hn-border text-xs font-medium">
-<button class="py-2 rounded-lg bg-hn-raised text-hn-primary font-semibold shadow-sm">GOALS (3)</button>
-<button class="py-2 rounded-lg text-hn-muted hover:text-hn-ink">FORM (0)</button>
-</div>
-</div>
-<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5">
-<div class="px-3.5 py-2.5 rounded-xl bg-hn-surface border border-hn-border flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="text-hn-muted">3 Goals Active</span>
-<span class="text-hn-border">•</span>
-<span class="text-hn-ink font-semibold tabular-nums">Target ₹ 45,00,000</span>
-</div>
-<span class="px-2 py-0.5 rounded-md bg-hn-raised text-hn-primary font-semibold text-[11px] tabular-nums border border-hn-border">₹ 65k/mo</span>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2.5">
-<div class="flex items-start justify-between">
-<div>
-<h4 class="text-sm font-bold text-hn-ink">Commercial Property Downpayment</h4>
-<div class="text-[11px] text-hn-muted mt-0.5 font-mono">Target: Jun 2029 · <span class="text-hn-warning">30 Mos Left</span></div>
-</div>
-<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D4A55D]/15 text-[#D4A55D] border border-[#D4A55D]/30 flex items-center gap-1">
-<span class="w-1.5 h-1.5 rounded-full bg-[#D4A55D]"></span> Behind
-              </span>
-</div>
-<div>
-<div class="flex justify-between text-xs font-medium mb-1">
-<span class="text-hn-ink font-semibold tabular-nums">Saved ₹ 3,50,000</span>
-<span class="text-hn-muted tabular-nums">Target ₹ 20,00,000 (17.5%)</span>
-</div>
-<div class="w-full h-2 rounded-full bg-hn-raised overflow-hidden">
-<div class="h-full bg-hn-warning rounded-full" style="width: 17.5%"></div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1 border-t border-hn-border/60 text-xs">
-<span class="text-[11px] text-hn-warning font-mono">₹ 20,000/mo (+₹ 5k needed)</span>
-<div class="flex items-center gap-2">
-<button class="px-3 py-1.5 rounded-lg bg-hn-raised hover:bg-hn-border text-hn-ink font-semibold text-xs border border-hn-border">Check-in</button>
-<button class="px-3 py-1.5 rounded-lg bg-hn-surface hover:bg-hn-raised text-hn-muted hover:text-hn-ink font-medium text-xs border border-hn-border">Details</button>
-</div>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2.5">
-<div class="flex items-start justify-between">
-<div>
-<h4 class="text-sm font-bold text-hn-ink">Child Higher Education Fund</h4>
-<div class="text-[11px] text-hn-muted mt-0.5 font-mono">Target: Oct 2028 · 22 Mos Left</div>
-</div>
-<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30 flex items-center gap-1">
-<span class="w-1.5 h-1.5 rounded-full bg-[#74B89A]"></span> On track
-              </span>
-</div>
-<div>
-<div class="flex justify-between text-xs font-medium mb-1">
-<span class="text-hn-ink font-semibold tabular-nums">Saved ₹ 11,50,000</span>
-<span class="text-hn-muted tabular-nums">Target ₹ 20,00,000 (57.5%)</span>
-</div>
-<div class="w-full h-2 rounded-full bg-hn-raised overflow-hidden">
-<div class="h-full bg-hn-primary rounded-full" style="width: 57.5%"></div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1 border-t border-hn-border/60 text-xs">
-<span class="text-[11px] text-hn-primary font-mono">₹ 35,000/mo pace</span>
-<div class="flex items-center gap-2">
-<button class="px-3 py-1.5 rounded-lg bg-hn-raised hover:bg-hn-border text-hn-ink font-semibold text-xs border border-hn-border">Check-in</button>
-<button class="px-3 py-1.5 rounded-lg bg-hn-surface hover:bg-hn-raised text-hn-muted hover:text-hn-ink font-medium text-xs border border-hn-border">Details</button>
-</div>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2.5">
-<div class="flex items-start justify-between">
-<div>
-<h4 class="text-sm font-bold text-hn-ink">Annual Family Vacation 2027</h4>
-<div class="text-[11px] text-hn-muted mt-0.5 font-mono">Target: Dec 2027 · 12 Mos Left</div>
-</div>
-<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30 flex items-center gap-1">
-<span class="w-1.5 h-1.5 rounded-full bg-[#74B89A]"></span> On track
-              </span>
-</div>
-<div>
-<div class="flex justify-between text-xs font-medium mb-1">
-<span class="text-hn-ink font-semibold tabular-nums">Saved ₹ 3,75,000</span>
-<span class="text-hn-muted tabular-nums">Target ₹ 5,00,000 (75.0%)</span>
-</div>
-<div class="w-full h-2 rounded-full bg-hn-raised overflow-hidden">
-<div class="h-full bg-hn-success rounded-full" style="width: 75%"></div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1 border-t border-hn-border/60 text-xs">
-<span class="text-[11px] text-hn-success font-mono">₹ 10,000/mo pace</span>
-<div class="flex items-center gap-2">
-<button class="px-3 py-1.5 rounded-lg bg-hn-raised hover:bg-hn-border text-hn-ink font-semibold text-xs border border-hn-border">Check-in</button>
-<button class="px-3 py-1.5 rounded-lg bg-hn-surface hover:bg-hn-raised text-hn-muted hover:text-hn-ink font-medium text-xs border border-hn-border">Details</button>
-</div>
-</div>
-</div>
-<div class="p-3 rounded-2xl bg-hn-surface/40 border border-hn-border/60 opacity-60 flex items-center justify-between">
-<div>
-<div class="text-xs font-semibold text-hn-muted line-through">Emergency Buffer Vault</div>
-<div class="text-[10px] text-hn-muted font-mono mt-0.5">Matured ₹ 6,00,000 (100% completed)</div>
-</div>
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-hn-raised text-hn-muted border border-hn-border">ARCHIVED</span>
-</div>
-</div>
-<button aria-label="Add goal" class="absolute bottom-20 right-4 w-14 h-14 rounded-full bg-hn-primary text-hn-on-primary flex items-center justify-center shadow-lg border border-hn-border hover:scale-105 transition">
-<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
-</button>
-<nav class="h-16 px-4 bg-hn-surface border-t border-hn-border flex items-center justify-around text-[10px] font-medium text-hn-muted select-none">
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect><rect height="7" width="7" x="14" y="14"></rect><rect height="7" width="7" x="3" y="14"></rect></svg><span>Dashboard</span></div>
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg><span>Portfolio</span></div>
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Watchlist</span></div>
-<div class="flex flex-col items-center gap-1 text-hn-primary font-semibold"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg><span>Goals</span></div>
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg><span>More</span></div>
-</nav>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 3: CREATE FORM                      -->
-<!-- ========================================== -->
-<div class="flex-none flex flex-col gap-3">
-<div class="flex items-center justify-between text-xs px-1 text-hn-muted font-mono uppercase tracking-wider">
-<span>03 — Create Form</span>
-<span class="bg-hn-surface px-2 py-0.5 rounded border border-hn-border text-hn-primary">FORM</span>
-</div>
-<div class="w-[412px] h-[860px] rounded-[32px] bg-hn-bg border-2 border-hn-border shadow-2xl flex flex-col relative overflow-hidden text-hn-ink">
-<div class="h-10 px-6 flex items-center justify-between text-xs font-semibold text-hn-muted select-none">
-<span>09:41</span>
-<div class="flex items-center gap-2">
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23C2.88 16.48 2 14.34 2 12 2 6.48 6.48 2 12 2s10 4.48 10 10c0 2.34-.88 4.48-2.35 6.23l-.62-.62C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"></path></svg>
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4z"></path></svg>
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"></path></svg>
-</div>
-</div>
-<div class="h-14 px-4 bg-hn-surface border-b border-hn-border flex items-center gap-3">
-<button aria-label="Go back" class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="19" x2="5" y1="12" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-</button>
-<span class="text-base font-bold text-hn-ink tracking-tight">Create New Milestone</span>
-</div>
-<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5">
-<div class="flex flex-col gap-1.5">
-<label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">GOAL NAME *</label>
-<input class="h-12 px-3.5 rounded-xl bg-hn-surface border border-hn-border text-sm text-hn-ink font-medium focus:outline-none focus:border-hn-primary" type="text" value="Child Higher Education Fund"/>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-3">
-<div class="flex items-center justify-between"><label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">TARGET AMOUNT (₹) · AUTO</label><span class="text-[10px] text-hn-primary font-mono">AUTO DERIVED</span></div>
-<div class="relative"><span class="absolute left-3.5 top-3.5 text-hn-muted text-sm font-semibold">₹</span><input class="h-12 pl-8 pr-3.5 w-full rounded-xl bg-hn-surface border border-hn-border text-sm font-bold text-hn-muted tabular-nums focus:outline-none" readonly="" type="text" value="20,00,000"/></div>
-<div class="text-[10px] text-hn-muted mt-0.5 leading-relaxed">Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.</div>
-<div class="flex items-center gap-2 my-0.5"><div class="flex-1 h-px bg-hn-border"></div><span class="text-[10px] font-bold text-hn-muted uppercase">monthly mode active · target derived above</span><div class="flex-1 h-px bg-hn-border"></div></div>
-<div class="flex items-center justify-between"><label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">MONTHLY CONTRIBUTION (₹)</label><span class="text-[10px] text-hn-muted font-mono">OPTION B</span></div>
-<div class="relative"><span class="absolute left-3.5 top-3.5 text-hn-muted text-sm font-semibold">₹</span><input class="h-12 pl-8 pr-3.5 w-full rounded-xl bg-hn-raised border border-hn-border text-sm font-bold text-hn-ink tabular-nums focus:outline-none focus:border-hn-primary" type="text" value="35,000"/></div>
-</div>
-<div class="grid grid-cols-2 gap-2.5">
-<div class="flex flex-col gap-1.5">
-<label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">START DATE</label>
-<div class="h-12 px-3 rounded-xl bg-hn-surface border border-hn-border flex items-center justify-between text-xs text-hn-ink font-medium">
-<span>Jan 2027</span>
-<svg class="w-4 h-4 text-hn-muted" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-</div>
-</div>
-<div class="flex flex-col gap-1.5">
-<label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">TARGET DATE</label>
-<div class="h-12 px-3 rounded-xl bg-hn-surface border border-hn-border flex items-center justify-between text-xs text-hn-ink font-medium">
-<span>Oct 2028</span>
-<svg class="w-4 h-4 text-hn-muted" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-</div>
-</div>
-</div>
-<div class="p-3 rounded-xl bg-hn-raised border border-hn-border flex items-start gap-2.5">
-<svg class="w-4 h-4 text-hn-primary flex-none mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="20" rx="2" width="16" x="4" y="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
-<div>
-<div class="text-[11px] font-bold text-hn-ink">DYNAMIC FORMULA COMPUTATION</div>
-<div class="text-xs font-mono font-semibold text-hn-primary mt-0.5">saved + contributions + portfolio growth (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)</div>
-<div class="text-[10px] text-hn-muted mt-0.5">Automates baseline capital accumulation pacing.</div>
-</div>
-</div>
-<div class="flex flex-col gap-1.5">
-<label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">SAVED SO FAR (OPTIONAL)</label>
-<div class="relative">
-<span class="absolute left-3.5 top-3.5 text-hn-muted text-sm font-semibold">₹</span>
-<input class="h-12 pl-8 pr-3.5 w-full rounded-xl bg-hn-surface border border-hn-border text-sm font-bold text-hn-ink tabular-nums focus:outline-none focus:border-hn-primary" type="text" value="11,50,000"/>
-</div>
-</div>
-<div class="flex flex-col gap-1.5">
-<label class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">NOTE (OPTIONAL)</label>
-<textarea class="p-3 rounded-xl bg-hn-surface border border-hn-border text-xs text-hn-ink font-medium focus:outline-none focus:border-hn-primary" rows="2">Priority milestone, mapped to AAA PSU bond yield reinvestment.</textarea>
-</div>
-<div class="pt-2 flex flex-col gap-2">
-<button class="w-full py-3.5 rounded-xl bg-hn-primary text-hn-on-primary font-bold text-sm shadow-md hover:opacity-95 transition">
-              Save goal
-            </button>
-<button class="w-full py-2.5 rounded-xl bg-transparent text-hn-muted hover:text-hn-ink font-semibold text-xs">
-              Cancel and discard
-            </button>
-</div>
-</div>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 4: MONTHLY TRACKING                 -->
-<!-- ========================================== -->
-<div class="flex-none flex flex-col gap-3">
-<div class="flex items-center justify-between text-xs px-1 text-hn-muted font-mono uppercase tracking-wider">
-<span>04 — Monthly Tracking</span>
-<span class="bg-hn-surface px-2 py-0.5 rounded border border-hn-border text-hn-warning">AUTOMATED</span>
-</div>
-<div class="w-[412px] h-[860px] rounded-[32px] bg-hn-bg border-2 border-hn-border shadow-2xl flex flex-col relative overflow-hidden text-hn-ink">
-<div class="h-10 px-6 flex items-center justify-between text-xs font-semibold text-hn-muted select-none">
-<span>09:41</span>
-<div class="flex items-center gap-2">
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23C2.88 16.48 2 14.34 2 12 2 6.48 6.48 2 12 2s10 4.48 10 10c0 2.34-.88 4.48-2.35 6.23l-.62-.62C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"></path></svg>
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4z"></path></svg>
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"></path></svg>
-</div>
-</div>
-<div class="h-14 px-4 bg-hn-surface border-b border-hn-border flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="text-base font-bold text-hn-ink tracking-tight">DK Bond Tracker</span>
-<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#8AAEDB]/15 text-[#8AAEDB] border border-[#8AAEDB]/30">AUTO</span>
-</div>
-<div class="flex items-center gap-2.5">
-<button class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg></button>
-<button class="p-1.5 text-hn-muted hover:text-hn-ink relative rounded-lg"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-hn-warning"></span></button>
-<div class="w-8 h-8 rounded-full bg-hn-raised border border-hn-border flex items-center justify-center text-xs font-bold text-hn-primary">DK</div>
-</div>
-</div>
-<!-- Fixed Segmented Tab Switcher -->
-<div class="px-4 pt-4">
-<div class="grid grid-cols-2 p-1 rounded-xl bg-hn-surface border border-hn-border text-xs font-medium">
-<button class="py-2 rounded-lg bg-hn-raised text-hn-primary font-semibold shadow-sm">GOALS (3)</button>
-<button class="py-2 rounded-lg text-hn-muted hover:text-hn-ink">FORM (0)</button>
-</div>
-</div>
-<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5">
-<div class="p-3 rounded-xl bg-[#D4A55D]/15 border border-[#D4A55D]/30 flex items-start gap-2.5">
-<svg class="w-4 h-4 text-hn-warning flex-none mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>
-<div>
-<div class="text-xs font-bold text-hn-warning">2 months missed — pace adjustment active</div>
-<div class="text-[11px] text-hn-muted mt-0.5 leading-relaxed">Oct &amp; Sep missed check-ins. Monthly pacing stepped from ₹35k to ₹42k to protect target date.</div>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2">
-<div class="text-[11px] font-bold text-hn-muted uppercase tracking-wider mb-1">RHYTHM LOG (2026)</div>
-<div class="p-2.5 rounded-xl bg-hn-raised border border-hn-border flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-hn-warning animate-pulse"></span>
-<span class="text-hn-ink font-semibold">Dec 2026</span>
-</div>
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#D4A55D]/20 text-[#D4A55D] border border-[#D4A55D]/30">Due Soon</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-surface/80 border border-hn-border/60 flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-hn-success"></span>
-<span class="text-hn-ink">Nov 2026</span>
-</div>
-<span class="text-hn-success font-semibold text-xs flex items-center gap-1">✓ ₹ 35,000</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-surface/80 border border-[#D98488]/30 flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-hn-error"></span>
-<span class="text-hn-ink">Oct 2026</span>
-</div>
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/30">MISSED</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-surface/80 border border-[#D98488]/30 flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-hn-error"></span>
-<span class="text-hn-ink">Sep 2026</span>
-</div>
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/30">MISSED</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-surface/80 border border-hn-border/60 flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-hn-success"></span>
-<span class="text-hn-ink">Aug 2026</span>
-</div>
-<span class="text-hn-success font-semibold text-xs flex items-center gap-1">✓ ₹ 35,000</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-surface/80 border border-hn-border/60 flex items-center justify-between text-xs font-medium">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-hn-success"></span>
-<span class="text-hn-ink">Jul 2026</span>
-</div>
-<span class="text-hn-success font-semibold text-xs flex items-center gap-1">✓ ₹ 35,000</span>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">UPCOMING PIPELINE (2027)</span>
-<span class="text-[10px] text-hn-primary font-mono font-semibold">11 Scheduled</span>
-</div>
-<div class="flex flex-wrap gap-1.5 pt-1">
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Jan '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Feb '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Mar '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Apr '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">May '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Jun '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Jul '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Aug '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Sep '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Oct '27</span>
-<span class="px-2.5 py-1 rounded-lg bg-hn-raised border border-hn-border text-[11px] font-mono text-hn-primary font-medium">Nov '27</span>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2">
-<div class="flex items-center justify-between text-[11px] font-bold text-hn-muted uppercase tracking-wider">
-<span>LINKED CASHFLOW BONDS</span>
-<span class="text-hn-success">Auto-routing</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-raised border border-hn-border flex items-center justify-between text-xs">
-<div>
-<div class="font-bold text-hn-ink">Tata Capital Fin Services</div>
-<div class="text-[10px] text-hn-muted font-mono">9.15% NCD · Annual Payout</div>
-</div>
-<div class="text-right">
-<div class="font-bold text-hn-success tabular-nums">+₹ 45,750/yr</div>
-<div class="text-[10px] text-hn-muted">auto-credited</div>
-</div>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-raised border border-hn-border flex items-center justify-between text-xs">
-<div>
-<div class="font-bold text-hn-ink">L&amp;T Finance Holdings</div>
-<div class="text-[10px] text-hn-muted font-mono">8.85% NCD · Semi-Annual</div>
-</div>
-<div class="text-right">
-<div class="font-bold text-hn-success tabular-nums">+₹ 35,400/yr</div>
-<div class="text-[10px] text-hn-muted">auto-credited</div>
-</div>
-</div>
-</div>
-</div>
-<nav class="h-16 px-4 bg-hn-surface border-t border-hn-border flex items-center justify-around text-[10px] font-medium text-hn-muted select-none">
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect><rect height="7" width="7" x="14" y="14"></rect><rect height="7" width="7" x="3" y="14"></rect></svg><span>Dashboard</span></div>
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg><span>Portfolio</span></div>
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Watchlist</span></div>
-<div class="flex flex-col items-center gap-1 text-hn-primary font-semibold"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg><span>Goals</span></div>
-<div class="flex flex-col items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg><span>More</span></div>
-</nav>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 5: DETAIL + CHECK-IN                -->
-<!-- ========================================== -->
-<div class="flex-none flex flex-col gap-3">
-<div class="flex items-center justify-between text-xs px-1 text-hn-muted font-mono uppercase tracking-wider">
-<span>05 — Detail + Check-in</span>
-<span class="bg-hn-surface px-2 py-0.5 rounded border border-hn-border text-hn-success">ACTIVE</span>
-</div>
-<div class="w-[412px] h-[860px] rounded-[32px] bg-hn-bg border-2 border-hn-border shadow-2xl flex flex-col relative overflow-hidden text-hn-ink">
-<div class="h-10 px-6 flex items-center justify-between text-xs font-semibold text-hn-muted select-none">
-<span>09:41</span>
-<div class="flex items-center gap-2">
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23C2.88 16.48 2 14.34 2 12 2 6.48 6.48 2 12 2s10 4.48 10 10c0 2.34-.88 4.48-2.35 6.23l-.62-.62C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"></path></svg>
-<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0 0 12 4z"></path></svg>
-<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M17 4h-3V2h-4v2H7v18h10V4z"></path></svg>
-</div>
-</div>
-<div class="h-14 px-4 bg-hn-surface border-b border-hn-border flex items-center justify-between">
-<div class="flex items-center gap-2.5">
-<button class="p-1.5 text-hn-muted hover:text-hn-ink rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="19" x2="5" y1="12" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-<div>
-<div class="text-xs font-bold text-hn-ink leading-tight">Child Higher Education Fund</div>
-<div class="text-[10px] text-hn-muted font-mono">Target: Oct 2028 · 22 Mos Left</div>
-</div>
-</div>
-<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30">On track</span>
-</div>
-<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2">
-<div class="flex items-center justify-between text-xs font-bold">
-<span class="text-hn-ink tabular-nums">Saved ₹ 11,50,000</span>
-<span class="text-hn-muted tabular-nums">Goal: ₹ 20,00,000</span>
-</div>
-<div class="w-full h-2 rounded-full bg-hn-raised overflow-hidden">
-<div class="h-full bg-hn-primary rounded-full" style="width: 57.5%"></div>
-</div>
-<div class="flex items-center justify-between text-[11px] font-mono text-hn-muted">
-<span>57.5% complete</span>
-<span class="text-hn-primary font-semibold">₹ 8,50,000 remaining</span>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<span class="text-[11px] font-bold text-hn-muted uppercase tracking-wider">RECORD MANUAL CHECK-IN</span>
-<span class="text-[10px] text-hn-muted">Fallback to auto</span>
-</div>
-<div class="grid grid-cols-2 gap-2">
-<div class="relative">
-<span class="absolute left-3 top-2.5 text-hn-muted text-xs font-semibold">₹</span>
-<input class="h-9 pl-7 pr-2.5 w-full rounded-lg bg-hn-raised border border-hn-border text-xs font-bold text-hn-ink tabular-nums" type="text" value="35,000"/>
-</div>
-<input class="h-9 px-3 rounded-lg bg-hn-raised border border-hn-border text-xs text-hn-ink font-medium" type="text" value="15 Dec 2026"/>
-</div>
-<input class="h-9 px-3 rounded-lg bg-hn-raised border border-hn-border text-xs text-hn-ink placeholder-hn-muted" placeholder="Check-in note (optional)..." type="text"/>
-<div class="grid grid-cols-2 gap-2">
-<button class="w-full py-2 rounded-lg bg-hn-raised hover:bg-hn-border text-hn-ink font-semibold text-xs border border-hn-border">Save draft</button>
-<button class="w-full py-2 rounded-lg bg-hn-primary text-hn-on-primary font-semibold text-xs shadow-sm hover:opacity-95 transition">Save Check-in</button>
-</div>
-</div>
-<div class="p-3.5 rounded-2xl bg-hn-surface border border-hn-border flex flex-col gap-2">
-<div class="flex items-center justify-between text-[11px] font-bold text-hn-muted uppercase tracking-wider">
-<span>LINKED CASHFLOW BONDS</span>
-<span class="text-hn-success">Auto-routing</span>
-</div>
-<div class="p-2.5 rounded-xl bg-hn-raised border border-hn-border flex items-center justify-between text-xs">
-<div>
-<div class="font-bold text-hn-ink">Tata Capital Fin Services</div>
-<div class="text-[10px] text-hn-muted font-mono">9.15% NCD · Annual Payout</div>
-</div>
-<div class="text-right">
-<div class="font-bold text-hn-success tabular-nums">+₹ 45,750/yr</div>
-<div class="text-[10px] text-hn-muted">auto-credited</div>
-</div>
-</div>
-</div>
-<div class="p-3 rounded-xl bg-hn-surface border border-hn-border flex flex-col gap-1.5">
-<div class="text-[10px] font-bold text-hn-muted uppercase tracking-wider">ACTIONS MENU (⋮ EXPANDED)</div>
-<div class="rounded-lg bg-hn-raised border border-hn-border divide-y divide-hn-border text-xs font-medium">
-<div class="px-3 py-2 flex items-center justify-between text-hn-ink hover:bg-hn-surface"><span>Edit goal</span><svg class="w-3.5 h-3.5 text-hn-muted" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
-<div class="px-3 py-2 flex items-center justify-between text-hn-ink hover:bg-hn-surface"><span>Archive goal</span><svg class="w-3.5 h-3.5 text-hn-muted" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect height="5" width="22" x="1" y="3"></rect><line x1="10" x2="14" y1="12" y2="12"></line></svg></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-<footer class="mt-4 pt-6 border-t border-hn-border/60 flex items-center justify-between text-xs text-hn-muted font-mono">
-<div class="flex items-center gap-3">
-<span class="w-2 h-2 rounded-full bg-[#74B89A]"></span>
-<span>HARBOR NAVY (DARK) REVIEW BOARD · FIVE CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
-</div>
-<div class="flex items-center gap-4">
-<span>STRICT TOKEN ENFORCEMENT (#101824, #172233, #1F2D42, #2E405C, #8AAEDB, #74B89A, #D4A55D, #D98488)</span>
-<span>•</span>
-<span>ZERO DRIFT SPECIFICATION</span>
-</div>
-</footer>
-</body></html>
+          </div>
+
+          <!-- FIX: Sticky Segmented Tab Bar (GOALS 3 / FORM 0 with FORM active) -->
+          <div class="px-4 py-2.5 bg-[#101824] border-b border-[#2E405C] shrink-0">
+            <div class="grid grid-cols-2 p-1 bg-[#172233] rounded-xl border border-[#2E405C]">
+              <button class="py-1.5 text-xs font-medium rounded-lg text-[#93A4BD] hover:text-[#E7EEF8]">
+                GOALS (3)
+              </button>
+              <button class="py-1.5 text-xs font-semibold rounded-lg bg-[#1F2D42] text-[#8AAEDB] shadow-sm border border-[#2E405C]">
+                FORM (0)
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Content (Scrollable) -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+            <!-- Goal Name (NO ASTERISK) -->
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">
+                Goal Name
+              </label>
+              <input type="text" value="Child Higher Education Fund" 
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-[#E7EEF8] text-sm focus:outline-none focus:border-[#8AAEDB] font-medium" />
+            </div>
+
+            <!-- Read-only Target Amount -->
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">
+                Target Amount (₹) · auto
+              </label>
+              <input type="text" readonly value="20,00,000" 
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-[#172233] border border-[#2E405C] text-[#8AAEDB] text-sm font-bold font-mono tabular cursor-not-allowed" />
+              <p class="text-[11px] text-[#93A4BD] mt-1.5 leading-relaxed">
+                Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.
+              </p>
+            </div>
+
+            <!-- Divider -->
+            <div class="relative py-2">
+              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#2E405C]"></div></div>
+              <div class="relative flex justify-center">
+                <span class="bg-[#101824] px-3 text-[10px] font-mono uppercase tracking-widest text-[#93A4BD]">
+                  monthly mode active · target derived above
+                </span>
+              </div>
+            </div>
+
+            <!-- Monthly Contribution (Editable 35,000) -->
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">
+                Monthly Contribution (₹)
+              </label>
+              <input type="text" value="35,000" 
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-[#E7EEF8] text-sm font-mono font-medium focus:outline-none focus:border-[#8AAEDB]" />
+            </div>
+
+            <!-- Start Date & Target Date -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">Start Date</label>
+                <div class="relative">
+                  <input type="text" value="Jan 2027" 
+                         class="w-full px-3.5 py-2.5 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-[#E7EEF8] text-xs font-mono" />
+                  <span class="material-symbols-outlined text-sm text-[#93A4BD] absolute right-3 top-3">calendar_month</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">Target Date</label>
+                <div class="relative">
+                  <input type="text" value="Oct 2028" 
+                         class="w-full px-3.5 py-2.5 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-[#E7EEF8] text-xs font-mono" />
+                  <span class="material-symbols-outlined text-sm text-[#93A4BD] absolute right-3 top-3">calendar_month</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Single Formula Callout -->
+            <div class="p-3.5 rounded-xl bg-[#172233] border border-[#2E405C] space-y-1.5">
+              <div class="flex items-center gap-1.5 text-xs font-semibold text-[#8AAEDB]">
+                <span class="material-symbols-outlined text-sm">calculate</span>
+                <span>saved + contributions + portfolio growth</span>
+              </div>
+              <p class="text-xs font-mono text-[#E7EEF8] leading-relaxed tabular bg-[#101824] p-2.5 rounded-lg border border-[#2E405C]">
+                (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)
+              </p>
+              <p class="text-[10px] text-[#93A4BD]">
+                Derived using 8.45% average yield reinvestment across secured debt assets.
+              </p>
+            </div>
+
+            <!-- Saved So Far (Optional) -->
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">
+                Saved So Far (Optional)
+              </label>
+              <input type="text" value="11,50,000" 
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-[#E7EEF8] text-sm font-mono focus:outline-none focus:border-[#8AAEDB]" />
+            </div>
+
+            <!-- Note (Optional) -->
+            <div>
+              <label class="block text-xs font-mono uppercase tracking-wider text-[#93A4BD] mb-1.5">
+                Note (Optional)
+              </label>
+              <textarea rows="2" 
+                        class="w-full px-3.5 py-2 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-[#E7EEF8] text-xs focus:outline-none focus:border-[#8AAEDB]">Priority milestone, mapped to AAA PSU bond yield reinvestment.</textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-2 space-y-2 pb-6">
+              <button class="w-full py-3 rounded-xl bg-[#8AAEDB] text-[#101824] font-bold text-sm hover:bg-[#729ACA] transition shadow-md">
+                Save goal
+              </button>
+              <button class="w-full py-2 text-xs text-[#93A4BD] hover:text-[#E7EEF8] text-center font-mono">
+                Cancel and discard
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- FRAME 04: MONTHLY TRACKING (AUTOMATED) -->
+      <!-- ========================================== -->
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between text-xs font-mono px-1">
+          <span class="text-[#93A4BD] font-semibold tracking-wider">04 — MONTHLY TRACKING</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#74B89A] border border-[#2E405C]">AUTOMATED</span>
+        </div>
+
+        <div class="phone-frame">
+          <!-- Status Bar -->
+          <div class="h-10 px-5 flex items-center justify-between text-xs font-mono text-[#93A4BD] shrink-0 border-b border-[#2E405C]/30">
+            <span>09:41</span>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">signal_cellular_alt</span>
+              <span class="material-symbols-outlined text-sm">wifi</span>
+              <span class="material-symbols-outlined text-sm">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Header -->
+          <div class="h-14 px-4 flex items-center justify-between shrink-0 bg-[#101824] border-b border-[#2E405C]">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-base text-[#E7EEF8] tracking-tight">DK Bond Tracker</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#74B89A]/15 text-[#74B89A] border border-[#74B89A]/30">AUTO</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8]">
+                <span class="material-symbols-outlined text-[18px]">sync</span>
+              </button>
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8]">
+                <span class="material-symbols-outlined text-[18px]">notifications</span>
+              </button>
+              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[11px] font-bold text-[#8AAEDB]">
+                DK
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Segmented Tab Bar (GOALS 3 / FORM 0) -->
+          <div class="px-4 py-2.5 bg-[#101824] border-b border-[#2E405C] shrink-0">
+            <div class="grid grid-cols-2 p-1 bg-[#172233] rounded-xl border border-[#2E405C]">
+              <button class="py-1.5 text-xs font-semibold rounded-lg bg-[#1F2D42] text-[#8AAEDB] shadow-sm border border-[#2E405C]">
+                GOALS (3)
+              </button>
+              <button class="py-1.5 text-xs font-medium rounded-lg text-[#93A4BD] hover:text-[#E7EEF8]">
+                FORM (0)
+              </button>
+            </div>
+          </div>
+
+          <!-- Tracking Content (Scrollable) -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar pb-24">
+            <!-- Pacing Warning Banner -->
+            <div class="p-3.5 rounded-xl bg-[#D4A55D]/10 border border-[#D4A55D]/30 flex items-start gap-3">
+              <span class="material-symbols-outlined text-[#D4A55D] text-lg shrink-0 mt-0.5">warning</span>
+              <div class="text-xs">
+                <span class="font-bold text-[#D4A55D] block">2 months missed — pace adjustment active</span>
+                <span class="text-[#93A4BD] text-[11px] leading-normal block mt-1">
+                  Oct & Sep missed check-ins. Monthly pacing stepped from ₹35k to ₹42k to protect target date.
+                </span>
+              </div>
+            </div>
+
+            <!-- Rhythm Log 2026 -->
+            <div class="rounded-xl bg-[#1F2D42] border border-[#2E405C] p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-[#2E405C] pb-2">
+                <span class="text-xs font-mono uppercase font-semibold text-[#E7EEF8]">RHYTHM LOG (2026)</span>
+                <span class="text-[11px] text-[#93A4BD] font-mono">Realized: ₹ 1,40,000</span>
+              </div>
+
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between py-1.5 border-b border-[#2E405C]/40">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#D4A55D]"></span>
+                    <span class="font-medium text-[#E7EEF8]">Dec 2026</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#D4A55D]/15 text-[#D4A55D] border border-[#D4A55D]/30">Due Soon</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-[#2E405C]/40">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#74B89A]"></span>
+                    <span class="font-medium text-[#E7EEF8]">Nov 2026</span>
+                  </div>
+                  <span class="text-[#74B89A] font-mono text-xs tabular font-medium">✓ ₹ 35,000</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-[#2E405C]/40">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#D98488]"></span>
+                    <span class="font-medium text-[#E7EEF8]">Oct 2026</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#D98488]/15 text-[#D98488] border border-[#D98488]/30">MISSED</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-[#2E405C]/40">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#D98488]"></span>
+                    <span class="font-medium text-[#E7EEF8]">Sep 2026</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#D98488]/15 text-[#D98488] border border-[#D98488]/30">MISSED</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-[#2E405C]/40">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#74B89A]"></span>
+                    <span class="font-medium text-[#E7EEF8]">Aug 2026</span>
+                  </div>
+                  <span class="text-[#74B89A] font-mono text-xs tabular font-medium">✓ ₹ 35,000</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#74B89A]"></span>
+                    <span class="font-medium text-[#E7EEF8]">Jul 2026</span>
+                  </div>
+                  <span class="text-[#74B89A] font-mono text-xs tabular font-medium">✓ ₹ 35,000</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upcoming Pipeline (2027) -->
+            <div class="rounded-xl bg-[#1F2D42] border border-[#2E405C] p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-[#2E405C] pb-2">
+                <span class="text-xs font-mono uppercase font-semibold text-[#E7EEF8]">UPCOMING PIPELINE (2027)</span>
+                <span class="text-[11px] text-[#93A4BD] font-mono">11 Scheduled</span>
+              </div>
+              <div class="grid grid-cols-4 gap-2 text-center text-xs font-mono">
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Jan '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Feb '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Mar '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Apr '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">May '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Jun '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Jul '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Aug '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Sep '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Oct '27</div>
+                <div class="p-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#8AAEDB]">Nov '27</div>
+              </div>
+            </div>
+
+            <!-- Linked Cashflow Bonds -->
+            <div class="rounded-xl bg-[#1F2D42] border border-[#2E405C] p-3.5 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-xs font-mono uppercase text-[#93A4BD] font-semibold">LINKED CASHFLOW BONDS</span>
+                <span class="text-[10px] text-[#74B89A] font-mono">AUTO-ROUTING</span>
+              </div>
+              <div class="flex items-center justify-between text-xs p-2.5 rounded-lg bg-[#172233] border border-[#2E405C]">
+                <div>
+                  <span class="font-medium text-[#E7EEF8] block">Tata Capital Fin Services</span>
+                  <span class="text-[10px] text-[#93A4BD]">Annual Payout · Cycle #4</span>
+                </div>
+                <span class="text-[#74B89A] font-mono font-bold">+₹ 45,750/yr</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="h-16 px-4 bg-[#101824] border-t border-[#2E405C] flex items-center justify-around shrink-0 text-[10px] font-medium text-[#93A4BD]">
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">grid_view</span>
+              <span>Dashboard</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+              <span>Portfolio</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+              <span>Watchlist</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-[#8AAEDB] cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">flag</span>
+              <span class="font-bold">Goals</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+              <span>More</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- FRAME 05: DETAIL + CHECK-IN (NO REMOVE) -->
+      <!-- ========================================== -->
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between text-xs font-mono px-1">
+          <span class="text-[#93A4BD] font-semibold tracking-wider">05 — DETAIL + CHECK-IN</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C]">DETAIL</span>
+        </div>
+
+        <div class="phone-frame">
+          <!-- Status Bar -->
+          <div class="h-10 px-5 flex items-center justify-between text-xs font-mono text-[#93A4BD] shrink-0 border-b border-[#2E405C]/30">
+            <span>09:41</span>
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">signal_cellular_alt</span>
+              <span class="material-symbols-outlined text-sm">wifi</span>
+              <span class="material-symbols-outlined text-sm">battery_full</span>
+            </div>
+          </div>
+
+          <!-- App Header with Back and Menu -->
+          <div class="h-14 px-4 flex items-center justify-between shrink-0 bg-[#101824] border-b border-[#2E405C]">
+            <div class="flex items-center gap-2">
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8]">
+                <span class="material-symbols-outlined text-lg">arrow_back</span>
+              </button>
+              <div>
+                <span class="font-bold text-sm text-[#E7EEF8] tracking-tight block">Child Higher Education</span>
+                <span class="text-[10px] font-mono text-[#74B89A]">ON TRACK · 57.5%</span>
+              </div>
+            </div>
+            <!-- Overflow Menu Trigger -->
+            <div class="relative">
+              <button class="w-8 h-8 rounded-lg bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[#93A4BD] hover:text-[#E7EEF8]">
+                <span class="material-symbols-outlined text-lg">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Actions Menu Specimen Callout (Shows ONLY Edit & Archive) -->
+          <div class="px-4 py-2 bg-[#172233] border-b border-[#2E405C] flex items-center justify-between text-[11px] font-mono">
+            <span class="text-[#93A4BD]">ACTIONS MENU:</span>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#E7EEF8] border border-[#2E405C]">Edit goal</span>
+              <span class="px-2 py-0.5 rounded bg-[#1F2D42] text-[#93A4BD] border border-[#2E405C]">Archive goal</span>
+            </div>
+          </div>
+
+          <!-- Detail & Check-in Content (Scrollable) -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+            <!-- Goal Summary Card -->
+            <div class="p-4 rounded-xl bg-[#1F2D42] border border-[#2E405C] space-y-2">
+              <div class="flex items-baseline justify-between text-xs">
+                <span class="text-[#93A4BD]">Accumulated Capital</span>
+                <span class="text-base font-bold text-[#E7EEF8] tabular">₹ 11,50,000</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-[#172233] overflow-hidden">
+                <div class="h-full bg-[#74B89A] rounded-full" style="width: 57.5%"></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-[#93A4BD] font-mono pt-1">
+                <span>Target: ₹ 20,00,000</span>
+                <span>22 Mos remaining</span>
+              </div>
+            </div>
+
+            <!-- Check-in Form Card -->
+            <div class="p-4 rounded-xl bg-[#1F2D42] border border-[#2E405C] space-y-3">
+              <div class="flex items-center justify-between border-b border-[#2E405C] pb-2">
+                <span class="text-xs font-mono uppercase font-bold text-[#E7EEF8]">Record Monthly Check-In</span>
+                <span class="text-[10px] text-[#8AAEDB] font-mono">DEC 2026</span>
+              </div>
+
+              <!-- Amount Input -->
+              <div>
+                <label class="block text-[11px] font-mono uppercase text-[#93A4BD] mb-1">Amount (₹)</label>
+                <input type="text" value="35,000" 
+                       class="w-full px-3 py-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#E7EEF8] text-xs font-mono font-medium focus:outline-none focus:border-[#8AAEDB]" />
+              </div>
+
+              <!-- Date Input -->
+              <div>
+                <label class="block text-[11px] font-mono uppercase text-[#93A4BD] mb-1">Date</label>
+                <div class="relative">
+                  <input type="text" value="15 Dec 2026" 
+                         class="w-full px-3 py-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#E7EEF8] text-xs font-mono" />
+                  <span class="material-symbols-outlined text-xs text-[#93A4BD] absolute right-3 top-2.5">calendar_month</span>
+                </div>
+              </div>
+
+              <!-- Note (Optional) -->
+              <div>
+                <label class="block text-[11px] font-mono uppercase text-[#93A4BD] mb-1">Note (Optional)</label>
+                <input type="text" placeholder="e.g. Credited via HDFC demat coupon" 
+                       class="w-full px-3 py-2 rounded-lg bg-[#172233] border border-[#2E405C] text-[#E7EEF8] text-xs focus:outline-none focus:border-[#8AAEDB]" />
+              </div>
+
+              <!-- Dual Buttons: Save Draft AND Record Check-in -->
+              <div class="grid grid-cols-2 gap-2.5 pt-2">
+                <button class="py-2.5 px-3 rounded-lg bg-[#172233] text-[#E7EEF8] text-xs font-semibold border border-[#2E405C] hover:bg-[#101824] transition text-center">
+                  Save draft
+                </button>
+                <button class="py-2.5 px-3 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-bold hover:bg-[#729ACA] transition text-center shadow-md">
+                  Record check-in
+                </button>
+              </div>
+            </div>
+
+            <!-- Linked Bonds Section (Tata Capital Fin Services + L&T Finance Holdings) -->
+            <div class="p-4 rounded-xl bg-[#1F2D42] border border-[#2E405C] space-y-3">
+              <div class="flex items-center justify-between border-b border-[#2E405C] pb-2">
+                <span class="text-xs font-mono uppercase font-bold text-[#E7EEF8]">Linked Bonds</span>
+                <span class="text-[10px] text-[#93A4BD] font-mono">2 ISSUERS</span>
+              </div>
+
+              <div class="space-y-2">
+                <!-- Bond 1 -->
+                <div class="p-2.5 rounded-lg bg-[#172233] border border-[#2E405C] flex items-center justify-between text-xs">
+                  <div>
+                    <span class="font-medium text-[#E7EEF8] block">Tata Capital Fin Services</span>
+                    <span class="text-[10px] text-[#93A4BD] font-mono">INE306N07MH1 · 9.15% Annual</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[#74B89A] font-mono font-bold block tabular">₹ 45,750/yr</span>
+                    <span class="text-[10px] text-[#93A4BD]">Annual Mandate</span>
+                  </div>
+                </div>
+
+                <!-- Bond 2 -->
+                <div class="p-2.5 rounded-lg bg-[#172233] border border-[#2E405C] flex items-center justify-between text-xs">
+                  <div>
+                    <span class="font-medium text-[#E7EEF8] block">L&amp;T Finance Holdings</span>
+                    <span class="text-[10px] text-[#93A4BD] font-mono">INE498L07185 · 8.85% Semi-Ann</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[#74B89A] font-mono font-bold block tabular">₹ 35,400/yr</span>
+                    <span class="text-[10px] text-[#93A4BD]">Semi-Annual</span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-[10px] text-[#93A4BD] leading-normal pt-1">
+                Linked bonds route coupon inflows automatically into this milestone's savings tracker on depository settlement date.
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="h-16 px-4 bg-[#101824] border-t border-[#2E405C] flex items-center justify-around shrink-0 text-[10px] font-medium text-[#93A4BD]">
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">grid_view</span>
+              <span>Dashboard</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+              <span>Portfolio</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+              <span>Watchlist</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-[#8AAEDB] cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">flag</span>
+              <span class="font-bold">Goals</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer">
+              <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+              <span>More</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Board Footer Metadata -->
+  <footer class="max-w-[2260px] mx-auto mt-6 pt-4 border-t border-[#2E405C] flex flex-wrap items-center justify-between text-xs font-mono text-[#93A4BD]">
+    <div class="flex items-center gap-3">
+      <span class="w-2 h-2 rounded-full bg-[#74B89A]"></span>
+      <span>HARBOR NAVY (DARK) REVIEW BOARD · FIVE CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
+    </div>
+    <div>
+      STRICT TOKEN ENFORCEMENT (#101824, #1F2D42, #2E405C, #E7EEF8, #8AAEDB, #74B89A, #D4A55D) · ZERO DRIFT SPECIFICATION
+    </div>
+  </footer>
+
+</body>
+</html>
