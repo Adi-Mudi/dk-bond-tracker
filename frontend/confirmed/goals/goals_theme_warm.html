@@ -9,221 +9,184 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --board-bg: #EAE5DB;
-    --board-ink: #1F2421;
-    --board-sub: #595E59;
-    --board-border: #D0C7B7;
-    
-    /* Warm Ledger Tokens */
-    --wl-bg: #F4F0E8;
-    --wl-cards: #FBF9F4;
-    --wl-border: #D8D0C2;
-    --wl-ink: #1F2421;
-    --wl-sub: #595E59;
-    --wl-accent: #264362;
-    --wl-accent-soft: rgba(38, 67, 98, 0.08);
-    --wl-success: #2B6144;
-    --wl-success-bg: #E8F2EC;
-    --wl-warn: #8A5300;
-    --wl-warn-bg: #FAF0DF;
-    --wl-error: #9E3B33;
-    --wl-error-bg: #FBEBEA;
-    --wl-hairline: #E7E0D3;
+    --bg: #F4F0E8;
+    --cards: #FBF9F4;
+    --cards-subtle: #F3EFE6;
+    --border: #D8D0C2;
+    --border-light: #E6E0D4;
+    --ink: #1F2421;
+    --ink-muted: #595E59;
+    --ink-faint: #838883;
+    --accent: #264362;
+    --accent-light: #EBF0F6;
+    --accent-hover: #1E344D;
+    --success: #2B6144;
+    --success-bg: #E8F2EC;
+    --warn: #8A5300;
+    --warn-bg: #FDF4E7;
+    --warn-border: #E8CCA4;
+    --error: #9E3B33;
+    --error-bg: #FAEAE9;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-full: 9999px;
   }
 
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-font-smoothing: antialiased;
   }
 
   body {
-    background-color: var(--board-bg);
-    color: var(--board-ink);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
+    background-color: #ECE7DD;
+    color: var(--ink);
+    font-family: var(--font-sans);
     padding: 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 28px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .mono {
-    font-family: 'JetBrains Mono', monospace;
-    font-variant-numeric: tabular-nums;
+  .review-header {
+    max-width: 2280px;
+    margin: 0 auto 28px;
+    padding: 20px 24px;
+    background: #F8F6F0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
   }
 
-  /* Board Header */
-  .board-header {
-    width: 100%;
-    max-width: 2240px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--board-border);
-  }
-
-  .board-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .eyebrow {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--wl-accent);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .eyebrow-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--wl-accent);
-  }
-
-  h1 {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--board-ink);
-    letter-spacing: -0.02em;
-  }
-
-  .spec-row {
-    font-size: 12px;
-    color: var(--board-sub);
+  .header-meta {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
   }
 
-  .badges-group {
-    display: flex;
+  .status-badge {
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #E8E2D5;
+    color: var(--ink);
   }
 
   .badge-locked {
-    background: #264362;
-    color: #FFFFFF;
-    font-size: 11px;
+    background: #E2DBD0;
+    border: 1px solid #D1C8BC;
+  }
+
+  h1 {
+    font-size: 24px;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 6px;
+    color: var(--ink);
+    margin-bottom: 12px;
     display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .token-strip {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+  }
+
+  .token-chip {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 3px 8px;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 4px;
   }
 
-  .badge-spec {
-    background: #DFD8CB;
-    color: #3C423E;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 6px;
-  }
-
-  .token-swatches {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: #DFD8CB;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 11px;
-    color: var(--board-ink);
-  }
-
-  .swatch {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .swatch-circle {
-    width: 12px;
-    height: 12px;
+  .color-dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.15);
+    display: inline-block;
   }
 
-  /* Frames Grid */
-  .frames-container {
-    width: 100%;
-    max-width: 2240px;
-    display: grid;
-    grid-template-columns: repeat(5, 412px);
-    gap: 24px;
-    justify-content: center;
+  /* Board layout */
+  .frames-board {
+    display: flex;
+    gap: 28px;
     overflow-x: auto;
-    padding-bottom: 24px;
+    padding-bottom: 32px;
+    max-width: 2280px;
+    margin: 0 auto;
   }
 
   .frame-column {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex: 0 0 412px;
+    width: 412px;
   }
 
   .frame-label {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--board-sub);
+    color: var(--ink-muted);
+    margin-bottom: 10px;
     padding: 0 4px;
   }
 
-  .frame-pill-label {
-    background: #DFD8CB;
-    padding: 3px 8px;
-    border-radius: 4px;
+  .frame-tag {
     font-size: 10px;
-    color: var(--wl-accent);
+    font-family: var(--font-mono);
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #DFD7C9;
+    color: var(--ink);
   }
 
-  /* Phone Shell Container */
-  .phone-frame {
-    width: 412px;
-    height: 870px;
-    background-color: var(--wl-bg);
-    border: 1px solid var(--wl-border);
+  /* Phone mock container */
+  .mobile-frame {
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: 28px;
+    box-shadow: 0 16px 36px rgba(31, 36, 33, 0.08), 0 2px 8px rgba(31, 36, 33, 0.04);
     overflow: hidden;
+    position: relative;
     display: flex;
     flex-direction: column;
-    position: relative;
-    box-shadow: 0 16px 36px rgba(45, 38, 28, 0.09);
+    min-height: 870px;
   }
 
-  /* System Status Bar */
+  /* Status Bar */
   .status-bar {
     height: 38px;
-    padding: 10px 20px 0;
+    padding: 8px 18px 0;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 12px;
+    justify-content: space-between;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--wl-ink);
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    font-family: var(--font-sans);
   }
 
   .status-icons {
@@ -232,931 +195,1041 @@
     gap: 6px;
   }
 
-  /* Top App Bar */
-  .top-app-bar {
+  /* App Bar */
+  .app-bar {
     height: 52px;
-    padding: 0 18px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid var(--wl-hairline);
-    background: var(--wl-bg);
-    flex-shrink: 0;
   }
 
-  .brand-area {
+  .app-bar-left {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--wl-ink);
+    gap: 12px;
   }
 
   .back-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--ink);
     cursor: pointer;
     display: flex;
     align-items: center;
-    color: var(--wl-accent);
+    padding: 4px;
+  }
+
+  .app-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
   }
 
   .app-bar-actions {
     display: flex;
     align-items: center;
     gap: 12px;
+    color: var(--ink-muted);
   }
 
   .action-icon {
     position: relative;
-    color: var(--wl-ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
   }
 
-  .action-badge {
+  .bell-badge {
     position: absolute;
     top: -4px;
     right: -5px;
-    background: var(--wl-error);
-    color: #FFF;
+    background: var(--error);
+    color: #FFFFFF;
     font-size: 9px;
     font-weight: 700;
-    padding: 1px 4px;
-    border-radius: 8px;
-  }
-
-  .avatar-chip {
-    width: 26px;
-    height: 26px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: var(--wl-accent);
-    color: #FFFFFF;
-    font-size: 11px;
-    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid var(--bg);
+  }
+
+  .avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
   }
 
   /* Sticky Segmented Tabs */
-  .segmented-tabs {
-    padding: 10px 16px 8px;
-    background: var(--wl-bg);
-    display: flex;
-    gap: 8px;
-    border-bottom: 1px solid var(--wl-hairline);
-    flex-shrink: 0;
+  .segmented-tabs-wrapper {
+    padding: 6px 16px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
   }
 
-  .segment-btn {
+  .segmented-tabs {
+    background: #E8E2D5;
+    padding: 3px;
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .segmented-tab {
     flex: 1;
-    padding: 9px 0;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    border-radius: 8px;
-    border: 1px solid transparent;
+    padding: 7px 12px;
     text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
-  .segment-btn.active {
-    background: var(--wl-accent);
-    color: #FFFFFF;
-    box-shadow: 0 2px 6px rgba(38, 67, 98, 0.2);
+  .segmented-tab.active {
+    background: var(--cards);
+    color: var(--ink);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.06);
   }
 
-  .segment-btn.inactive {
-    background: #EDE6D8;
-    color: var(--wl-sub);
-    border-color: var(--wl-border);
-  }
-
-  /* Scrollable Screen Body */
-  .screen-scroll-body {
+  /* Content body */
+  .frame-content {
     flex: 1;
+    padding: 0 16px 80px;
     overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
   }
 
-  /* Shared Stats Strip */
-  .stats-strip {
+  /* Psychology Rule A Stat Strip */
+  .stat-strip {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 12px;
-    padding: 12px;
-    gap: 8px;
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(31,36,33,0.02);
   }
 
   .stat-cell {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+  }
+
+  .stat-cell:not(:last-child) {
+    border-right: 1px solid var(--border-light);
+    padding-right: 10px;
+    margin-right: 10px;
   }
 
   .stat-label {
     font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--wl-sub);
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--ink-faint);
   }
 
   .stat-val {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    color: var(--wl-ink);
+    color: var(--ink);
+    font-family: var(--font-mono);
   }
 
-  .stat-caption {
+  .stat-sub {
     font-size: 10px;
-    color: var(--wl-sub);
+    color: var(--ink-muted);
   }
 
-  /* Empty State */
-  .empty-state-box {
-    margin: auto 0;
-    background: var(--wl-cards);
-    border: 1px dashed var(--wl-border);
-    border-radius: 14px;
-    padding: 36px 20px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .empty-icon-wrap {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--wl-accent-soft);
+  /* Goal Cards */
+  .section-headline-bar {
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: var(--wl-accent);
-  }
-
-  .empty-title {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--wl-ink);
-  }
-
-  .empty-desc {
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--wl-sub);
-    max-width: 270px;
-  }
-
-  .primary-btn {
-    background: var(--wl-accent);
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 12px 20px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    box-shadow: 0 3px 8px rgba(38, 67, 98, 0.18);
-  }
-
-  .secondary-btn {
-    background: transparent;
-    color: var(--wl-accent);
-    border: 1px solid var(--wl-accent);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-
-  .helper-card {
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 11px;
-    line-height: 1.45;
-    color: var(--wl-sub);
-    display: flex;
-    gap: 10px;
-  }
-
-  /* Goals List Active */
-  .list-header-row {
-    display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 0 2px;
+    margin-bottom: 12px;
   }
 
-  .list-count-badge {
+  .section-headline {
     font-size: 12px;
     font-weight: 700;
-    color: var(--wl-ink);
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .pace-summary-chip {
+  .pace-chip {
     font-size: 11px;
-    font-weight: 600;
-    background: #EDE6D8;
-    color: var(--wl-accent);
-    padding: 4px 10px;
-    border-radius: 6px;
+    font-family: var(--font-mono);
+    color: var(--ink-muted);
+    background: #E8E2D5;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
   }
 
   .goal-card {
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 14px;
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    position: relative;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(31,36,33,0.03);
   }
 
   .goal-card-top {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    gap: 8px;
   }
 
-  .goal-name {
-    font-size: 14px;
+  .goal-card-name {
+    font-size: 13px;
     font-weight: 700;
-    color: var(--wl-ink);
-    margin-bottom: 2px;
+    color: var(--ink);
+    line-height: 1.25;
   }
 
   .goal-dates {
     font-size: 11px;
-    color: var(--wl-sub);
-  }
-
-  .status-pill {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    letter-spacing: 0.02em;
-  }
-
-  .status-pill.on-track {
-    background: var(--wl-success-bg);
-    color: var(--wl-success);
-    border: 1px solid rgba(43, 97, 68, 0.2);
-  }
-
-  .status-pill.behind {
-    background: var(--wl-error-bg);
-    color: var(--wl-error);
-    border: 1px solid rgba(158, 59, 51, 0.2);
-  }
-
-  .status-pill.due-soon {
-    background: var(--wl-warn-bg);
-    color: var(--wl-warn);
-    border: 1px solid rgba(138, 83, 0, 0.2);
+    color: var(--ink-muted);
+    margin-bottom: 10px;
   }
 
   .signal-pill {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 7px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
-  .signal-pill.missed {
-    background: var(--wl-error-bg);
-    color: var(--wl-error);
-    border: 1px solid rgba(158, 59, 51, 0.15);
+  .signal-on-track {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid rgba(43,97,68,0.25);
   }
 
-  .signal-pill.success {
-    background: var(--wl-success-bg);
-    color: var(--wl-success);
-    border: 1px solid rgba(43, 97, 68, 0.15);
+  .signal-missed {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid rgba(158,59,51,0.25);
   }
 
-  .saved-row {
+  .signal-due {
+    background: var(--warn-bg);
+    color: var(--warn);
+    border: 1px solid var(--warn-border);
+  }
+
+  .goal-numbers-row {
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
-    padding-top: 2px;
+    justify-content: space-between;
+    margin-bottom: 8px;
   }
 
-  .saved-amount-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .saved-tag {
-    font-size: 9px;
+  .saved-figure {
+    font-size: 17px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    font-family: var(--font-mono);
+    color: var(--ink);
+  }
+
+  .saved-label {
+    font-size: 10px;
     text-transform: uppercase;
-    color: var(--wl-sub);
+    font-weight: 600;
+    color: var(--ink-faint);
+    margin-right: 4px;
   }
 
-  .saved-amount {
-    font-size: 19px;
-    font-weight: 700;
-    color: var(--wl-ink);
-  }
-
-  /* Progress Rail: psychology rule compliant (no labels, no target numbers) */
+  /* Unlabelled Clean Progress Rail */
   .progress-rail {
     height: 6px;
-    background: #E8E0D2;
-    border-radius: 999px;
+    background: #E8E2D5;
+    border-radius: 3px;
     overflow: hidden;
-    position: relative;
+    margin-bottom: 12px;
   }
 
   .progress-fill {
     height: 100%;
-    border-radius: 999px;
+    border-radius: 3px;
   }
 
-  .fill-accent {
-    background: var(--wl-accent);
+  .progress-fill.fill-accent {
+    background: var(--accent);
   }
 
-  .fill-success {
-    background: var(--wl-success);
+  .progress-fill.fill-success {
+    background: var(--success);
   }
 
-  .fill-warn {
-    background: var(--wl-warn);
+  .progress-fill.fill-warn {
+    background: var(--warn);
   }
 
   .goal-card-actions {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-top: 1px solid var(--wl-hairline);
+    justify-content: space-between;
     padding-top: 10px;
-    margin-top: 2px;
+    border-top: 1px solid var(--border-light);
   }
 
-  .monthly-pace-info {
+  .goal-pace-text {
     font-size: 11px;
-    color: var(--wl-sub);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
   }
 
-  .action-buttons-group {
+  .card-btn-group {
     display: flex;
     gap: 8px;
   }
 
-  .action-buttons-group .action-btn {
-    padding: 6px 12px;
+  .btn-xs {
+    padding: 5px 10px;
     font-size: 11px;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    border: 1px solid var(--border);
+    background: #FFFFFF;
+    color: var(--ink);
   }
 
-  .btn-checkin {
-    background: var(--wl-accent);
-    color: #FFF;
+  .btn-xs.btn-primary-xs {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+  }
+
+  /* Empty State */
+  .empty-state-box {
+    background: var(--cards);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 20px;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .empty-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #EFE9DC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    color: var(--ink-muted);
+    font-size: 20px;
+  }
+
+  .empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .empty-desc {
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.45;
+    margin-bottom: 20px;
+    max-width: 240px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-cta {
+    background: var(--accent);
+    color: #FFFFFF;
     border: none;
-  }
-
-  .btn-details {
-    background: transparent;
-    border: 1px solid var(--wl-border);
-    color: var(--wl-ink);
+    border-radius: var(--radius-md);
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(38,67,98,0.18);
   }
 
   /* Form Elements */
   .form-group {
+    margin-bottom: 14px;
+  }
+
+  .field-label {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .form-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
     text-transform: uppercase;
-    color: var(--wl-ink);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--ink-muted);
+    margin-bottom: 5px;
   }
 
-  .form-input {
+  .field-tag {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #E8E2D5;
+    color: var(--ink);
+  }
+
+  .text-input {
     width: 100%;
-    height: 48px;
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 10px;
-    padding: 0 14px;
-    font-size: 14px;
-    color: var(--wl-ink);
-    font-family: inherit;
-    outline: none;
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--ink);
+    font-family: var(--font-sans);
   }
 
-  .form-input:focus {
-    border-color: var(--wl-accent);
-    box-shadow: 0 0 0 2px rgba(38, 67, 98, 0.12);
-  }
-
-  .form-input.readonly {
-    background: #EDE6D8;
-    color: #4A514D;
-    border-color: #D4CBBA;
+  .text-input.readonly {
+    background: #EDE8DE;
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
     font-weight: 600;
   }
 
-  .input-caption {
-    font-size: 11px;
-    line-height: 1.4;
-    color: var(--wl-sub);
+  .input-with-icon {
+    position: relative;
   }
 
-  .divider-spec {
+  .input-with-icon .lock-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+
+  .input-with-icon .text-input {
+    padding-left: 30px;
+  }
+
+  .field-caption {
+    font-size: 10px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+
+  .mode-divider {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    gap: 8px;
+    margin: 14px 0;
+    font-size: 9px;
     text-transform: uppercase;
-    color: var(--wl-sub);
-    margin: 4px 0;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 700;
   }
 
-  .divider-spec::before, .divider-spec::after {
+  .mode-divider::before,
+  .mode-divider::after {
     content: "";
     flex: 1;
     height: 1px;
-    background: var(--wl-hairline);
+    background: #D8D0C2;
   }
 
-  .formula-box {
-    background: #F0E9DC;
-    border: 1px solid #D6CCBA;
-    border-radius: 8px;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .formula-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--wl-accent);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .formula-text {
-    font-size: 11px;
-    line-height: 1.45;
-    color: var(--wl-ink);
-  }
-
-  .date-row {
+  .date-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
+  }
+
+  /* 5-Column Derivation Spec Table */
+  .spec-table-card {
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin: 16px 0 14px;
+  }
+
+  .spec-table-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .spec-table-sub {
+    font-size: 10px;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .derivation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    font-family: var(--font-mono);
+  }
+
+  .derivation-table th {
+    text-align: right;
+    padding: 5px 4px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  .derivation-table th:first-child {
+    text-align: left;
+    padding-left: 2px;
+  }
+
+  .derivation-table td {
+    padding: 6px 4px;
+    text-align: right;
+    border-bottom: 1px solid #EFEAE0;
+    color: var(--ink);
+  }
+
+  .derivation-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    padding-left: 2px;
+    color: var(--ink);
+  }
+
+  .derivation-table tr.gap-row td {
+    text-align: center;
+    color: var(--ink-faint);
+    padding: 4px 0;
+    font-size: 9px;
+  }
+
+  .derivation-table tr.final-row td {
+    background: #E8EFEA;
+    font-weight: 700;
+    color: var(--success);
+    border-top: 1px solid #CADBCF;
+    border-bottom: 1px solid #CADBCF;
+  }
+
+  .derivation-table td.ret-green {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .table-footer-formula {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-light);
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--ink);
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .table-helper-note {
+    font-size: 9.5px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  .submit-bar {
+    padding: 12px 16px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  .btn-submit-full {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 6px rgba(38,67,98,0.22);
   }
 
   /* Warning Banner */
   .system-banner {
-    background: var(--wl-warn-bg);
-    border: 1px solid rgba(138, 83, 0, 0.25);
-    border-radius: 10px;
-    padding: 12px;
     display: flex;
-    gap: 10px;
     align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .system-banner.banner-warning {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn);
   }
 
   .banner-icon {
-    color: var(--wl-warn);
+    font-size: 13px;
     flex-shrink: 0;
     margin-top: 1px;
   }
 
-  .banner-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .banner-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--wl-warn);
-  }
-
-  .banner-sub {
-    font-size: 11px;
-    line-height: 1.4;
-    color: #5C3800;
-  }
-
-  /* Rhythm rows */
-  .rhythm-card {
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 12px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  /* Rhythm Log */
+  .rhythm-list {
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 14px;
   }
 
   .rhythm-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--wl-hairline);
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 11px;
   }
 
   .rhythm-row:last-child {
     border-bottom: none;
-    padding-bottom: 2px;
   }
 
-  .rhythm-date-group {
+  .rhythm-date-col {
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
 
   .rhythm-month {
-    font-size: 12px;
     font-weight: 700;
-    color: var(--wl-ink);
+    color: var(--ink);
   }
 
-  .rhythm-status-tag {
-    font-size: 10px;
+  .rhythm-metrics {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+  }
+
+  .invested-val {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .returns-val {
+    color: var(--success);
     font-weight: 600;
   }
 
-  .rhythm-status-tag.invested {
-    color: var(--wl-success);
-  }
-
-  .rhythm-status-tag.missed {
-    color: var(--wl-error);
-    font-weight: 700;
-  }
-
-  .rhythm-returns {
+  .pipeline-card {
+    background: var(--cards-subtle);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 11px;
-    font-weight: 600;
-    color: var(--wl-accent);
-    background: #EAE3D5;
-    padding: 3px 8px;
-    border-radius: 4px;
+    margin-bottom: 16px;
   }
 
-  /* Linked Bonds */
+  /* Detail Screen Components */
+  .detail-progress-card {
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .linked-bonds-card {
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
   .bond-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 8px;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 11px;
+  }
+
+  .bond-item:last-child {
+    border-bottom: none;
   }
 
   .bond-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--wl-ink);
+    font-weight: 600;
+    color: var(--ink);
   }
 
   .bond-meta {
     font-size: 10px;
-    color: var(--wl-sub);
+    color: var(--ink-muted);
   }
 
   .bond-yield {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--success);
+  }
+
+  .checkin-form-box {
+    background: var(--cards);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  .checkin-title {
     font-size: 12px;
     font-weight: 700;
-    color: var(--wl-success);
-  }
-
-  /* Guarded Overflow Menu */
-  .guarded-menu {
-    background: var(--wl-cards);
-    border: 1px solid var(--wl-border);
-    border-radius: 10px;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
-
-  .menu-action {
+    color: var(--ink);
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+  }
+
+  .btn-group-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    padding: 8px 10px;
-    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .btn-secondary {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
     font-weight: 600;
-    color: var(--wl-ink);
-    border-radius: 6px;
     cursor: pointer;
+    text-align: center;
   }
 
-  .menu-action:hover {
-    background: #EDE6D8;
+  .btn-primary-form {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: #FFFFFF;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
   }
 
-  .zero-remove-tag {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--wl-sub);
-    padding: 4px 10px;
-    border-top: 1px solid var(--wl-hairline);
-    margin-top: 2px;
+  .actions-menu-strip {
+    background: var(--cards-subtle);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+  }
+
+  .menu-actions-list {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 11px;
+    cursor: pointer;
   }
 
   /* Bottom Navigation */
   .bottom-nav {
-    height: 56px;
-    background: var(--wl-bg);
-    border-top: 1px solid var(--wl-hairline);
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding: 0 10px;
-    flex-shrink: 0;
+    height: 58px;
+    background: var(--cards);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
   }
 
   .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 3px;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
-    color: var(--wl-sub);
-    cursor: pointer;
+    color: var(--ink-faint);
+    text-decoration: none;
   }
 
   .nav-item.active {
-    color: var(--wl-accent);
-    font-weight: 700;
+    color: var(--accent);
   }
 
-  .nav-item.active svg {
-    stroke: var(--wl-accent);
+  .nav-item.active svg path {
+    fill: var(--accent);
   }
 
-  /* Board Footer */
-  .board-footer {
-    width: 100%;
-    max-width: 2240px;
-    padding-top: 16px;
-    border-top: 1px solid var(--board-border);
+  .footer-audit-note {
+    max-width: 2280px;
+    margin: 20px auto 0;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--board-sub);
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .footer-legend {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-family: 'JetBrains Mono', monospace;
+    padding: 0 6px;
   }
 </style>
 </head>
 <body>
 
-  <!-- REVIEW BOARD HEADER -->
-  <header class="board-header">
-    <div class="board-meta">
-      <div class="eyebrow">
-        <span class="eyebrow-dot"></span>
-        DK Bond Tracker • Financial Milestones Architecture
-      </div>
-      <h1>Goals — Warm Ledger (Light) Review Board</h1>
-      <div class="spec-row">
-        <span>VIEWPORT: 412dp × 870dp (Compact MVP)</span>
-        <span>•</span>
-        <span>CURRENCY: ₹ INR Only</span>
-        <span>•</span>
-        <span>PSYCHOLOGY INVARIANTS: Rule A (Zero Target on Reading) & Rule B (Month Signal Precedence)</span>
-      </div>
+  <!-- Review Board Top Banner -->
+  <header class="review-header">
+    <div class="header-meta">
+      <span>• DK BOND TRACKER</span>
+      <span>• FINANCIAL MILESTONES ARCHITECTURE</span>
+      <span class="status-badge badge-locked">🔒 LOCKED • 2026-11-27</span>
+      <span class="status-badge">5 FRAMES CANONICAL REVIEW</span>
     </div>
-    <div class="badges-group">
-      <div class="badge-locked">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        LOCKED • 2026-11-27
-      </div>
-      <div class="badge-spec">5 FRAMES CANONICAL REVIEW</div>
-      <div class="token-swatches">
-        <div class="swatch"><span class="swatch-circle" style="background:#F4F0E8;"></span>bg #F4F0E8</div>
-        <div class="swatch"><span class="swatch-circle" style="background:#FBF9F4;"></span>cards #FBF9F4</div>
-        <div class="swatch"><span class="swatch-circle" style="background:#D8D0C2;"></span>border #D8D0C2</div>
-        <div class="swatch"><span class="swatch-circle" style="background:#1F2421;"></span>ink #1F2421</div>
-        <div class="swatch"><span class="swatch-circle" style="background:#264362;"></span>accent #264362</div>
+    <h1>Goals — Warm Ledger (Light) Review Board</h1>
+    <div class="token-strip">
+      <span>VIEWPORT: 412dp × 870dp (Compact MVP)</span>
+      <span>• CURRENCY: ₹ INR Only</span>
+      <span>• PSYCHOLOGY INVARIANTS: Rule A (Zero Target on Reading) &amp; Rule B (Month Signal Precedence)</span>
+      <div style="margin-left: auto; display: flex; gap: 8px;">
+        <span class="token-chip"><span class="color-dot" style="background: #F4F0E8; border: 1px solid #D8D0C2;"></span> bg #F4F0E8</span>
+        <span class="token-chip"><span class="color-dot" style="background: #FBF9F4; border: 1px solid #D8D0C2;"></span> cards #FBF9F4</span>
+        <span class="token-chip"><span class="color-dot" style="background: #D8D0C2;"></span> border #D8D0C2</span>
+        <span class="token-chip"><span class="color-dot" style="background: #1F2421;"></span> ink #1F2421</span>
+        <span class="token-chip"><span class="color-dot" style="background: #264362;"></span> accent #264362</span>
+        <span class="token-chip"><span class="color-dot" style="background: #2B6144;"></span> success #2B6144</span>
+        <span class="token-chip"><span class="color-dot" style="background: #8A5300;"></span> warn #8A5300</span>
+        <span class="token-chip"><span class="color-dot" style="background: #9E3B33;"></span> error #9E3B33</span>
       </div>
     </div>
   </header>
 
-  <!-- 5 FRAMES HORIZONTAL ROW -->
-  <main class="frames-container">
+  <!-- 5 Frames Horizontal Flow -->
+  <main class="frames-board">
 
-    <!-- FRAME 01: FIRST OPEN / ZERO STATE -->
+    <!-- 01 — FIRST OPEN / EMPTY STATE -->
     <div class="frame-column">
       <div class="frame-label">
         <span>01 — First Open / Empty State</span>
-        <span class="frame-pill-label">EMPTY</span>
+        <span class="frame-tag">EMPTY (0)</span>
       </div>
-      <div class="phone-frame">
+      <div class="mobile-frame">
         <div class="status-bar">
           <span>09:41</span>
           <div class="status-icons">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
           </div>
         </div>
-
-        <div class="top-app-bar">
-          <div class="brand-area">DK Bond Tracker</div>
+        <div class="app-bar">
+          <div class="app-bar-left">
+            <span class="app-title">DK Bond Tracker</span>
+          </div>
           <div class="app-bar-actions">
-            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></span>
-            <span class="action-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span class="action-badge">2</span>
-            </span>
-            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg></span>
-            <div class="avatar-chip">DK</div>
+            <span class="action-icon">↻</span>
+            <span class="action-icon">🔔<span class="bell-badge">2</span></span>
+            <span class="action-icon">🎨</span>
+            <div class="avatar">DK</div>
           </div>
         </div>
 
-        <div class="segmented-tabs">
-          <div class="segment-btn active">GOALS (0)</div>
-          <div class="segment-btn inactive">FORM (0)</div>
+        <div class="segmented-tabs-wrapper">
+          <div class="segmented-tabs">
+            <button class="segmented-tab active">GOALS (0)</button>
+            <button class="segmented-tab">FORM (0)</button>
+          </div>
         </div>
 
-        <div class="screen-scroll-body">
-          <!-- Psychology Rule A Stat Strip on First Open -->
-          <div class="stats-strip">
+        <div class="frame-content">
+          <!-- Psychology Rule A: MONTHS instead of TARGET -->
+          <div class="stat-strip">
             <div class="stat-cell">
               <span class="stat-label">MONTHS</span>
-              <span class="stat-val mono">0/12</span>
-              <span class="stat-caption">0 active</span>
+              <span class="stat-val">0/12</span>
+              <span class="stat-sub">0 active</span>
             </div>
             <div class="stat-cell">
               <span class="stat-label">SAVED</span>
-              <span class="stat-val mono">₹ 0</span>
-              <span class="stat-caption">active pace</span>
+              <span class="stat-val">₹ 0</span>
+              <span class="stat-sub">active pace</span>
             </div>
             <div class="stat-cell">
               <span class="stat-label">ON TRACK</span>
-              <span class="stat-val mono" style="color:var(--wl-success);">0</span>
-              <span class="stat-caption">all clear</span>
+              <span class="stat-val">0</span>
+              <span class="stat-sub">all clear</span>
             </div>
           </div>
 
-          <!-- Empty State -->
           <div class="empty-state-box">
-            <div class="empty-icon-wrap">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
-            </div>
-            <h2 class="empty-title">No goals yet</h2>
-            <p class="empty-desc">Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.</p>
-            <button class="primary-btn" style="margin-top:8px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Create first goal
-            </button>
+            <div class="empty-icon-circle">⚑</div>
+            <div class="empty-title">No goals yet</div>
+            <p class="empty-desc">Set a savings or investment goal — track it with monthly check-ins &amp; bond yield auto-matching.</p>
+            <button class="btn-cta">+ Create first goal</button>
           </div>
 
-          <div class="helper-card">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:2px; color:var(--wl-accent);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <div><strong>Zero State Behavior</strong><br>Goals ledger stays pristine until your first milestone is registered. Tap + button or CTA opens the form.</div>
+          <div class="system-banner" style="background: #EFE9DC; border: 1px solid var(--border);">
+            <span class="banner-icon">ℹ</span>
+            <div>
+              <strong style="color: var(--ink);">Zero State Behavior</strong><br>
+              Goals ledger stays pristine until your first milestone is registered. Tap + CTA opens the form.
+            </div>
           </div>
         </div>
 
+        <!-- Bottom Nav Bar -->
         <nav class="bottom-nav">
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
-          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+          <a class="nav-item"><span>⊞</span><span>Dashboard</span></a>
+          <a class="nav-item"><span>💼</span><span>Portfolio</span></a>
+          <a class="nav-item"><span>👁</span><span>Watchlist</span></a>
+          <a class="nav-item active"><span>⚑</span><span>Goals</span></a>
+          <a class="nav-item"><span>⋯</span><span>More</span></a>
         </nav>
       </div>
     </div>
 
-    <!-- FRAME 02: GOALS LIST (ACTIVE ROSTER) -->
+    <!-- 02 — GOALS LIST / ACTIVE ROSTER -->
     <div class="frame-column">
       <div class="frame-label">
         <span>02 — Goals List / Active Roster</span>
-        <span class="frame-pill-label">ACTIVE (3)</span>
+        <span class="frame-tag">ACTIVE (3)</span>
       </div>
-      <div class="phone-frame">
+      <div class="mobile-frame">
         <div class="status-bar">
           <span>09:41</span>
           <div class="status-icons">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
           </div>
         </div>
-
-        <div class="top-app-bar">
-          <div class="brand-area">DK Bond Tracker</div>
+        <div class="app-bar">
+          <div class="app-bar-left">
+            <span class="app-title">DK Bond Tracker</span>
+          </div>
           <div class="app-bar-actions">
-            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></span>
-            <span class="action-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span class="action-badge">2</span>
-            </span>
-            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg></span>
-            <div class="avatar-chip">DK</div>
+            <span class="action-icon">↻</span>
+            <span class="action-icon">🔔<span class="bell-badge">2</span></span>
+            <span class="action-icon">🎨</span>
+            <div class="avatar">DK</div>
           </div>
         </div>
 
-        <div class="segmented-tabs">
-          <div class="segment-btn active">GOALS (3)</div>
-          <div class="segment-btn inactive">FORM (0)</div>
+        <div class="segmented-tabs-wrapper">
+          <div class="segmented-tabs">
+            <button class="segmented-tab active">GOALS (3)</button>
+            <button class="segmented-tab">FORM (0)</button>
+          </div>
         </div>
 
-        <div class="screen-scroll-body">
-          <div class="list-header-row">
-            <span class="list-count-badge">3 Goals Active</span>
-            <span class="pace-summary-chip mono">₹ 65k/mo pace</span>
+        <div class="frame-content">
+          <div class="section-headline-bar">
+            <span class="section-headline">3 Goals Active</span>
+            <span class="pace-chip">₹ 65k/mo pace</span>
           </div>
 
-          <!-- Goal 1: Commercial Property Downpayment (Behind, 4 months missed) -->
+          <!-- Goal 1: Commercial Property (4 months missed) -->
           <div class="goal-card">
             <div class="goal-card-top">
-              <div>
-                <div class="goal-name">Commercial Property Downpayment</div>
-                <div class="goal-dates">Target: Jun 2029 • 30 Mos Left</div>
-              </div>
-              <span class="status-pill behind">Behind</span>
+              <span class="goal-card-name">Commercial Property Downpayment</span>
+              <span class="signal-pill signal-due">Behind</span>
             </div>
-
-            <div class="saved-row">
-              <div class="saved-amount-group">
-                <span class="saved-tag">SAVED</span>
-                <span class="saved-amount mono">₹ 3,50,000</span>
+            <div class="goal-dates">Target: Jun 2029 • 30 Mos Left</div>
+            <div class="goal-numbers-row">
+              <div>
+                <span class="saved-label">SAVED</span>
+                <span class="saved-figure">₹ 3,50,000</span>
               </div>
               <!-- Rule B: Negative precedence -->
-              <span class="signal-pill missed">4 months missed</span>
+              <span class="signal-pill signal-missed">4 months missed</span>
             </div>
-
-            <!-- Rule A: Progress rail without target labels -->
             <div class="progress-rail">
-              <div class="progress-fill fill-warn" style="width: 28%;"></div>
+              <div class="progress-fill fill-warn" style="width: 25%;"></div>
             </div>
-
             <div class="goal-card-actions">
-              <span class="monthly-pace-info mono">₹ 20,000/mo pace</span>
-              <div class="action-buttons-group">
-                <button class="action-btn btn-checkin">Check-in</button>
-                <button class="action-btn btn-details">Details</button>
+              <span class="goal-pace-text">₹ 20,000/mo pace</span>
+              <div class="card-btn-group">
+                <button class="btn-xs btn-primary-xs">Check-in</button>
+                <button class="btn-xs">Details</button>
               </div>
             </div>
           </div>
@@ -1164,428 +1237,499 @@
           <!-- Goal 2: Child Higher Education Fund (2 months missed) -->
           <div class="goal-card">
             <div class="goal-card-top">
-              <div>
-                <div class="goal-name">Child Higher Education Fund</div>
-                <div class="goal-dates">Target: Oct 2028 • 22 Mos Left</div>
-              </div>
-              <span class="status-pill on-track">On track</span>
+              <span class="goal-card-name">Child Higher Education Fund</span>
+              <span class="signal-pill signal-on-track">On track</span>
             </div>
-
-            <div class="saved-row">
-              <div class="saved-amount-group">
-                <span class="saved-tag">SAVED</span>
-                <span class="saved-amount mono">₹ 11,50,000</span>
+            <div class="goal-dates">Target: Oct 2028 • 22 Mos Left</div>
+            <div class="goal-numbers-row">
+              <div>
+                <span class="saved-label">SAVED</span>
+                <span class="saved-figure">₹ 11,50,000</span>
               </div>
               <!-- Rule B: Negative precedence -->
-              <span class="signal-pill missed">2 months missed</span>
+              <span class="signal-pill signal-missed">2 months missed</span>
             </div>
-
-            <!-- Rule A: Progress rail without target labels -->
             <div class="progress-rail">
               <div class="progress-fill fill-accent" style="width: 58%;"></div>
             </div>
-
             <div class="goal-card-actions">
-              <span class="monthly-pace-info mono">₹ 35,000/mo pace</span>
-              <div class="action-buttons-group">
-                <button class="action-btn btn-checkin">Check-in</button>
-                <button class="action-btn btn-details">Details</button>
+              <span class="goal-pace-text">₹ 35,000/mo pace</span>
+              <div class="card-btn-group">
+                <button class="btn-xs btn-primary-xs">Check-in</button>
+                <button class="btn-xs">Details</button>
               </div>
             </div>
           </div>
 
-          <!-- Goal 3: Annual Family Vacation 2027 (On Plan: 15/20 months ✓) -->
+          <!-- Goal 3: Annual Family Vacation 2027 (On plan: 15/20 months) -->
           <div class="goal-card">
             <div class="goal-card-top">
+              <span class="goal-card-name">Annual Family Vacation 2027</span>
+              <span class="signal-pill signal-on-track">On track</span>
+            </div>
+            <div class="goal-dates">Target: Dec 2027 • 12 Mos Left</div>
+            <div class="goal-numbers-row">
               <div>
-                <div class="goal-name">Annual Family Vacation 2027</div>
-                <div class="goal-dates">Target: Dec 2027 • 12 Mos Left</div>
+                <span class="saved-label">SAVED</span>
+                <span class="saved-figure">₹ 3,75,000</span>
               </div>
-              <span class="status-pill on-track">On track</span>
+              <!-- Rule B: On plan signal -->
+              <span class="signal-pill signal-on-track">15/20 months ✓</span>
             </div>
-
-            <div class="saved-row">
-              <div class="saved-amount-group">
-                <span class="saved-tag">SAVED</span>
-                <span class="saved-amount mono">₹ 3,75,000</span>
-              </div>
-              <!-- Rule B: On plan success signal -->
-              <span class="signal-pill success">15/20 months ✓</span>
-            </div>
-
             <div class="progress-rail">
               <div class="progress-fill fill-success" style="width: 75%;"></div>
             </div>
-
             <div class="goal-card-actions">
-              <span class="monthly-pace-info mono">₹ 10,000/mo pace</span>
-              <div class="action-buttons-group">
-                <button class="action-btn btn-checkin">Check-in</button>
-                <button class="action-btn btn-details">Details</button>
+              <span class="goal-pace-text">₹ 10,000/mo pace</span>
+              <div class="card-btn-group">
+                <button class="btn-xs btn-primary-xs">Check-in</button>
+                <button class="btn-xs">Details</button>
               </div>
             </div>
           </div>
         </div>
 
         <nav class="bottom-nav">
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
-          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+          <a class="nav-item"><span>⊞</span><span>Dashboard</span></a>
+          <a class="nav-item"><span>💼</span><span>Portfolio</span></a>
+          <a class="nav-item"><span>👁</span><span>Watchlist</span></a>
+          <a class="nav-item active"><span>⚑</span><span>Goals</span></a>
+          <a class="nav-item"><span>⋯</span><span>More</span></a>
         </nav>
       </div>
     </div>
 
-    <!-- FRAME 03: CREATE FORM / DERIVATION SPEC -->
+    <!-- 03 — CREATE FORM / DERIVATION SPEC -->
     <div class="frame-column">
       <div class="frame-label">
         <span>03 — Create Form / Derivation Spec</span>
-        <span class="frame-pill-label">FORM ENTRY</span>
+        <span class="frame-tag">FORM (1)</span>
       </div>
-      <div class="phone-frame">
+      <div class="mobile-frame">
         <div class="status-bar">
           <span>09:41</span>
           <div class="status-icons">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
           </div>
         </div>
-
-        <div class="top-app-bar">
-          <div class="brand-area">
-            <span class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></span>
-            <span>Create New Milestone</span>
+        <div class="app-bar">
+          <div class="app-bar-left">
+            <button class="back-btn">←</button>
+            <span class="app-title">Create New Milestone</span>
           </div>
           <div class="app-bar-actions">
-            <div class="avatar-chip">DK</div>
+            <div class="avatar">DK</div>
           </div>
         </div>
 
-        <div class="segmented-tabs">
-          <div class="segment-btn inactive">GOALS (3)</div>
-          <div class="segment-btn active">FORM (1)</div>
+        <div class="segmented-tabs-wrapper">
+          <div class="segmented-tabs">
+            <button class="segmented-tab">GOALS (3)</button>
+            <button class="segmented-tab active">FORM (1)</button>
+          </div>
         </div>
 
-        <div class="screen-scroll-body">
-          <!-- Goal Name without asterisk -->
+        <div class="frame-content" style="padding-bottom: 20px;">
+          <!-- Goal Name (no asterisk) -->
           <div class="form-group">
-            <label class="form-label">Goal Name</label>
-            <input type="text" class="form-input" value="Child Higher Education Fund">
+            <div class="field-label">
+              <span>Goal Name</span>
+            </div>
+            <input type="text" class="text-input" value="Child Higher Education Fund">
           </div>
 
-          <!-- Psychology Rule A: Read-Only Target with exact caption -->
+          <!-- Target Amount read-only AUTO -->
           <div class="form-group">
-            <label class="form-label">Target Amount (₹) · auto</label>
-            <input type="text" class="form-input readonly mono" value="20,00,000" readonly>
-            <span class="input-caption">Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.</span>
+            <div class="field-label">
+              <span>Target Amount (₹) · AUTO</span>
+              <span class="field-tag">AUTO COMPUTED</span>
+            </div>
+            <input type="text" class="text-input readonly" value="20,00,000" readonly>
+            <div class="field-caption">Derived below by the month table — Target-OR-Monthly exclusivity: you enter Monthly, Target is derived.</div>
           </div>
 
-          <!-- Divider Spec -->
-          <div class="divider-spec">monthly mode active · target derived above</div>
+          <div class="mode-divider">monthly mode active · target derived from table</div>
 
-          <!-- Editable Monthly Contribution -->
+          <!-- Monthly Target (₹) · PLAN read-only locked -->
           <div class="form-group">
-            <label class="form-label">Monthly Contribution (₹)</label>
-            <input type="text" class="form-input mono" value="35,000">
+            <div class="field-label">
+              <span>🔒 Monthly Target (₹) · PLAN</span>
+              <span class="field-tag">LOCKED</span>
+            </div>
+            <div class="input-with-icon">
+              <span class="lock-icon">🔒</span>
+              <input type="text" class="text-input readonly" value="50,000 / month" readonly>
+            </div>
+            <div class="field-caption">How much you plan to save each month — set once when the goal is created; NEVER editable after (full read-only mode).</div>
+          </div>
+
+          <!-- Monthly Invested (₹) · AUTO read-only -->
+          <div class="form-group">
+            <div class="field-label">
+              <span>Monthly Invested (₹) · AUTO</span>
+              <span class="field-tag">AUTO</span>
+            </div>
+            <input type="text" class="text-input readonly" value="35,000 / month" readonly>
+            <div class="field-caption">Auto-calculated: goal-linked buys from Watchlist → Move to Portfolio this month — never typed.</div>
           </div>
 
           <!-- Dates -->
-          <div class="date-row">
-            <div class="form-group">
-              <label class="form-label">Start Date</label>
-              <input type="text" class="form-input mono" value="Jan 2027">
+          <div class="date-grid form-group">
+            <div>
+              <div class="field-label">Start Date</div>
+              <input type="text" class="text-input" value="Jan 2027">
             </div>
-            <div class="form-group">
-              <label class="form-label">Target Date</label>
-              <input type="text" class="form-input mono" value="Oct 2028">
+            <div>
+              <div class="field-label">Target Date</div>
+              <input type="text" class="text-input" value="Oct 2028">
             </div>
           </div>
 
-          <!-- EXACTLY ONE FORMULA -->
-          <div class="formula-box">
-            <span class="formula-label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              SAVED + CONTRIBUTIONS + PORTFOLIO GROWTH
-            </span>
-            <span class="formula-text mono" style="font-weight:600;">(₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)</span>
-            <span class="input-caption" style="font-size:10px; margin-top:2px;">Automates baseline capital accumulation pacing coupled with yield reinvestment matching.</span>
-          </div>
-
-          <!-- Saved So Far (Optional) -->
+          <!-- Saved so far -->
           <div class="form-group">
-            <label class="form-label">Saved So Far (Optional)</label>
-            <input type="text" class="form-input mono" value="11,50,000">
+            <div class="field-label">Saved so far (optional)</div>
+            <input type="text" class="text-input" value="11,50,000">
           </div>
 
-          <!-- Note (Optional) -->
+          <!-- Note -->
           <div class="form-group">
-            <label class="form-label">Note (Optional)</label>
-            <input type="text" class="form-input" value="Priority milestone, mapped to AAA PSU bond yield reinvestment.">
+            <div class="field-label">Note (optional)</div>
+            <input type="text" class="text-input" value="Mapped to AAA PSU coupon reinvestment schedule">
           </div>
 
-          <!-- Submit CTA: exactly "Save goal" -->
-          <button class="primary-btn" style="margin-top:6px;">Save goal</button>
+          <!-- SPEC TABLE: 5 Columns -->
+          <div class="spec-table-card">
+            <div class="spec-table-title">Month-wise derivation — 22 months · Jan 2027 → Oct 2028</div>
+            <div class="spec-table-sub">Target = plan · Invested + Returns = auto from the portfolio</div>
+
+            <div class="table-responsive">
+              <table class="derivation-table">
+                <thead>
+                  <tr>
+                    <th>MONTH</th>
+                    <th>TARGET</th>
+                    <th>INVESTED</th>
+                    <th>RETURNS</th>
+                    <th>RUNNING TOTAL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Jan 2027</td>
+                    <td>₹50,000</td>
+                    <td>₹35,000</td>
+                    <td class="ret-green">+₹3,600</td>
+                    <td>₹11,88,600</td>
+                  </tr>
+                  <tr>
+                    <td>Feb 2027</td>
+                    <td>₹50,000</td>
+                    <td>₹35,000</td>
+                    <td class="ret-green">+₹3,600</td>
+                    <td>₹12,27,200</td>
+                  </tr>
+                  <tr>
+                    <td>Mar 2027</td>
+                    <td>₹50,000</td>
+                    <td>₹35,000</td>
+                    <td class="ret-green">+₹3,600</td>
+                    <td>₹12,65,800</td>
+                  </tr>
+                  <tr class="gap-row">
+                    <td colspan="5">· · · 17 more months · · ·</td>
+                  </tr>
+                  <tr>
+                    <td>Sep 2028</td>
+                    <td>₹50,000</td>
+                    <td>₹35,000</td>
+                    <td class="ret-green">+₹3,600</td>
+                    <td>₹19,60,600</td>
+                  </tr>
+                  <tr class="final-row">
+                    <td>Oct 2028 ✓</td>
+                    <td>₹50,000</td>
+                    <td>₹35,000</td>
+                    <td class="ret-green">+₹4,400</td>
+                    <td>₹20,00,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-footer-formula">
+              → Target ₹20,00,000 = saved ₹11,50,000 + invested ₹7,70,000 + returns ₹80,000
+            </div>
+            <div class="table-helper-note">
+              Target = plan · Invested + Returns = auto from the portfolio — nothing typed here.
+            </div>
+          </div>
         </div>
 
-        <nav class="bottom-nav">
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
-          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
-        </nav>
+        <div class="submit-bar">
+          <button class="btn-submit-full">Save goal</button>
+        </div>
       </div>
     </div>
 
-    <!-- FRAME 04: MONTHLY TRACKING / RHYTHM LOG -->
+    <!-- 04 — MONTHLY TRACKING / RHYTHM LOG -->
     <div class="frame-column">
       <div class="frame-label">
         <span>04 — Monthly Tracking / Rhythm Log</span>
-        <span class="frame-pill-label">RHYTHM LOG</span>
+        <span class="frame-tag">TRACKING</span>
       </div>
-      <div class="phone-frame">
+      <div class="mobile-frame">
         <div class="status-bar">
           <span>09:41</span>
           <div class="status-icons">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
           </div>
         </div>
-
-        <div class="top-app-bar">
-          <div class="brand-area">
-            <span class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></span>
-            <span>Rhythm & Pacing</span>
+        <div class="app-bar">
+          <div class="app-bar-left">
+            <button class="back-btn">←</button>
+            <span class="app-title">Rhythm &amp; Pacing</span>
           </div>
           <div class="app-bar-actions">
-            <div class="avatar-chip">DK</div>
+            <div class="avatar">DK</div>
           </div>
         </div>
 
-        <div class="segmented-tabs">
-          <div class="segment-btn active">GOALS (3)</div>
-          <div class="segment-btn inactive">FORM (0)</div>
+        <div class="segmented-tabs-wrapper">
+          <div class="segmented-tabs">
+            <button class="segmented-tab active">GOALS (3)</button>
+            <button class="segmented-tab">FORM (0)</button>
+          </div>
         </div>
 
-        <div class="screen-scroll-body">
-          <!-- Pace Warning Banner -->
-          <div class="system-banner">
-            <div class="banner-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <div class="banner-content">
-              <span class="banner-title">2 months missed — pace adjustment active</span>
-              <span class="banner-sub">Oct & Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.</span>
+        <div class="frame-content">
+          <!-- System Warning Banner -->
+          <div class="system-banner banner-warning">
+            <span class="banner-icon">⚠</span>
+            <div>
+              <strong style="color: var(--warn);">2 months missed — pace adjustment active</strong><br>
+              Oct &amp; Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.
             </div>
           </div>
 
-          <!-- Summary card: Rule A compliant (no target number) -->
-          <div class="goal-card" style="padding:12px;">
+          <!-- Goal Summary Card: Zero Target on Reading Surface -->
+          <div class="goal-card" style="margin-bottom: 14px;">
             <div class="goal-card-top">
-              <span class="goal-name">Child Higher Education Fund</span>
-              <span class="signal-pill missed">2 months missed</span>
+              <span class="goal-card-name">Child Higher Education Fund</span>
+              <span class="signal-pill signal-missed">2 months missed</span>
             </div>
-            <div class="saved-row" style="margin-top:2px;">
-              <span class="saved-amount mono" style="font-size:17px;">Saved ₹ 11,50,000</span>
-              <span class="monthly-pace-info mono">₹ 35,000/mo pace</span>
+            <div class="goal-numbers-row" style="margin-top: 8px;">
+              <div>
+                <span class="saved-label">SAVED</span>
+                <span class="saved-figure">₹ 11,50,000</span>
+              </div>
+              <span style="font-size: 11px; font-family: var(--font-mono); color: var(--ink-muted);">₹ 35,000/mo pace</span>
             </div>
           </div>
 
-          <!-- RHYTHM LOG: row show invested AND returns -->
-          <div class="rhythm-card">
-            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--wl-sub); margin-bottom:2px;">Reconciliation Ledger</div>
-            
-            <!-- Nov 2026 -->
+          <!-- RHYTHM LOG: Invested AND Returns -->
+          <div class="section-headline-bar">
+            <span class="section-headline">Reconciliation Ledger</span>
+          </div>
+          <div class="rhythm-list">
+            <!-- Dec 2026 Due Soon -->
             <div class="rhythm-row">
-              <div class="rhythm-date-group">
+              <div class="rhythm-date-col">
+                <span class="rhythm-month">Dec 2026</span>
+                <span class="signal-pill signal-due" style="align-self: flex-start; padding: 1px 6px;">Due Soon</span>
+              </div>
+              <div class="rhythm-metrics">
+                <span class="invested-val">₹35,000 queued</span>
+                <span class="returns-val">+₹1,850 returns</span>
+              </div>
+            </div>
+
+            <!-- Nov 2026 Invested -->
+            <div class="rhythm-row">
+              <div class="rhythm-date-col">
                 <span class="rhythm-month">Nov 2026</span>
-                <span class="rhythm-status-tag invested mono">✓ ₹35,000 invested</span>
+                <span style="font-size: 10px; color: var(--success); font-weight: 600;">✓ Invested</span>
               </div>
-              <span class="rhythm-returns mono">+₹1,820 returns</span>
+              <div class="rhythm-metrics">
+                <span class="invested-val">✓ ₹35,000 invested</span>
+                <span class="returns-val">+₹1,820 returns</span>
+              </div>
             </div>
 
-            <!-- Oct 2026: MISSED with returns -->
+            <!-- Oct 2026 Missed -->
             <div class="rhythm-row">
-              <div class="rhythm-date-group">
+              <div class="rhythm-date-col">
                 <span class="rhythm-month">Oct 2026</span>
-                <span class="rhythm-status-tag missed mono">MISSED</span>
+                <span class="signal-pill signal-missed" style="align-self: flex-start; padding: 1px 6px;">MISSED</span>
               </div>
-              <span class="rhythm-returns mono">+₹1,710 returns</span>
+              <div class="rhythm-metrics">
+                <span style="color: var(--error); font-weight: 600;">MISSED</span>
+                <span class="returns-val">+₹1,710 returns</span>
+              </div>
             </div>
 
-            <!-- Sep 2026: MISSED with returns -->
+            <!-- Sep 2026 Missed -->
             <div class="rhythm-row">
-              <div class="rhythm-date-group">
+              <div class="rhythm-date-col">
                 <span class="rhythm-month">Sep 2026</span>
-                <span class="rhythm-status-tag missed mono">MISSED</span>
+                <span class="signal-pill signal-missed" style="align-self: flex-start; padding: 1px 6px;">MISSED</span>
               </div>
-              <span class="rhythm-returns mono">+₹1,695 returns</span>
+              <div class="rhythm-metrics">
+                <span style="color: var(--error); font-weight: 600;">MISSED</span>
+                <span class="returns-val">+₹1,695 returns</span>
+              </div>
             </div>
 
-            <!-- Aug 2026 -->
+            <!-- Aug 2026 Invested -->
             <div class="rhythm-row">
-              <div class="rhythm-date-group">
+              <div class="rhythm-date-col">
                 <span class="rhythm-month">Aug 2026</span>
-                <span class="rhythm-status-tag invested mono">✓ ₹35,000 invested</span>
+                <span style="font-size: 10px; color: var(--success); font-weight: 600;">✓ Invested</span>
               </div>
-              <span class="rhythm-returns mono">+₹1,680 returns</span>
+              <div class="rhythm-metrics">
+                <span class="invested-val">✓ ₹35,000 invested</span>
+                <span class="returns-val">+₹1,680 returns</span>
+              </div>
             </div>
           </div>
 
           <!-- Upcoming Pipeline -->
-          <div class="helper-card" style="align-items:center; justify-content:space-between;">
+          <div class="pipeline-card">
             <div>
-              <span class="stat-label">UPCOMING PIPELINE</span>
-              <div class="mono" style="font-size:12px; font-weight:700; color:var(--wl-ink); margin-top:2px;">Dec 2026 Check-in</div>
-              <div style="font-size:10px; color:var(--wl-sub);">Due in 14 days • ₹35,000 allocation</div>
+              <strong style="color: var(--ink);">Upcoming Pipeline</strong>
+              <div style="color: var(--ink-muted); font-size: 10px; margin-top: 2px;">Dec 2026 Check-in • Due in 14 days</div>
             </div>
-            <button class="secondary-btn" style="padding:6px 10px;">Queue</button>
+            <button class="btn-xs btn-primary-xs">Queue</button>
           </div>
         </div>
 
         <nav class="bottom-nav">
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
-          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+          <a class="nav-item"><span>⊞</span><span>Dashboard</span></a>
+          <a class="nav-item"><span>💼</span><span>Portfolio</span></a>
+          <a class="nav-item"><span>👁</span><span>Watchlist</span></a>
+          <a class="nav-item active"><span>⚑</span><span>Goals</span></a>
+          <a class="nav-item"><span>⋯</span><span>More</span></a>
         </nav>
       </div>
     </div>
 
-    <!-- FRAME 05: DETAIL + CHECK-IN FORM -->
+    <!-- 05 — DETAIL + CHECK-IN FORM -->
     <div class="frame-column">
       <div class="frame-label">
         <span>05 — Detail + Check-in</span>
-        <span class="frame-pill-label">CHECK-IN</span>
+        <span class="frame-tag">CHECK-IN</span>
       </div>
-      <div class="phone-frame">
+      <div class="mobile-frame">
         <div class="status-bar">
           <span>09:41</span>
           <div class="status-icons">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
           </div>
         </div>
-
-        <div class="top-app-bar">
-          <div class="brand-area">
-            <span class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></span>
-            <span>Goal Reconciliation</span>
+        <div class="app-bar">
+          <div class="app-bar-left">
+            <button class="back-btn">←</button>
+            <span class="app-title">Child Higher Education</span>
           </div>
           <div class="app-bar-actions">
-            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></span>
+            <div class="avatar">DK</div>
           </div>
         </div>
 
-        <div class="screen-scroll-body">
-          <!-- Detail progress card: Rule A & B compliant -->
-          <div class="goal-card">
+        <div class="frame-content" style="padding-top: 8px;">
+          <!-- Detail progress card: Saved + 2 months missed, NO target amount, unlabelled rail -->
+          <div class="detail-progress-card">
             <div class="goal-card-top">
+              <span class="goal-card-name" style="font-size: 14px;">Accumulation Progress</span>
+              <span class="signal-pill signal-missed">2 months missed</span>
+            </div>
+            <div class="goal-numbers-row" style="margin-top: 8px;">
               <div>
-                <div class="goal-name">Child Higher Education Fund</div>
-                <div class="goal-dates">Oct 2028 Target • 22 Months Remaining</div>
+                <span class="saved-label">SAVED</span>
+                <span class="saved-figure">₹ 11,50,000</span>
               </div>
-              <span class="status-pill on-track">On track</span>
+              <span style="font-size: 10px; color: var(--error); font-weight: 600;">Pace Adjustment Active</span>
             </div>
-
-            <!-- Mandatory: "Saved ₹11,50,000 · 2 months missed" red, no target number -->
-            <div class="saved-row" style="align-items:center; margin-top:2px;">
-              <span class="saved-amount mono" style="font-size:18px;">Saved ₹ 11,50,000</span>
-              <span class="signal-pill missed">2 months missed</span>
-            </div>
-
-            <!-- Rail without labels -->
-            <div class="progress-rail" style="margin-top:2px;">
+            <div class="progress-rail" style="margin-top: 10px; margin-bottom: 4px;">
               <div class="progress-fill fill-accent" style="width: 58%;"></div>
             </div>
           </div>
 
-          <!-- CHECK-IN FORM -->
-          <div class="goal-card" style="gap:10px;">
-            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--wl-sub);">Monthly Check-In Form</div>
-            
+          <!-- Check-in form with Save draft + Record check-in -->
+          <div class="checkin-form-box">
+            <div class="checkin-title">
+              <span>Monthly Check-in</span>
+              <span class="field-tag">DEC 2026</span>
+            </div>
             <div class="form-group">
-              <label class="form-label">Check-in Amount (₹)</label>
-              <input type="text" class="form-input mono" value="35,000">
+              <div class="field-label">Check-in Amount (₹)</div>
+              <input type="text" class="text-input" value="35,000">
             </div>
-
-            <div class="date-row">
-              <div class="form-group">
-                <label class="form-label">Date</label>
-                <input type="text" class="form-input mono" value="15 Dec 2026">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Note (Optional)</label>
-                <input type="text" class="form-input" placeholder="Deposit UTR...">
-              </div>
+            <div class="form-group">
+              <div class="field-label">Date</div>
+              <input type="text" class="text-input" value="15 Dec 2026">
             </div>
-
-            <div style="display:flex; gap:8px; margin-top:4px;">
-              <button class="secondary-btn" style="flex:1;">Save draft</button>
-              <button class="primary-btn" style="flex:1; padding:10px 14px;">Record check-in</button>
+            <div class="form-group">
+              <div class="field-label">Note (Optional)</div>
+              <input type="text" class="text-input" placeholder="e.g. Added quarterly bonus allocation">
+            </div>
+            <div class="btn-group-dual">
+              <button class="btn-secondary">Save draft</button>
+              <button class="btn-primary-form">Record check-in</button>
             </div>
           </div>
 
           <!-- Linked Bonds Section -->
-          <div style="display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--wl-sub); padding:0 2px;">Linked Bonds Yield Matching</div>
-            
+          <div class="linked-bonds-card">
+            <div class="checkin-title" style="margin-bottom: 6px;">
+              <span>Linked Yield Inflow</span>
+              <span class="field-tag">2 BONDS</span>
+            </div>
             <div class="bond-item">
               <div>
                 <div class="bond-name">Tata Capital Fin Services</div>
-                <div class="bond-meta mono">INE306N07LG1 • 9.60% NCD</div>
+                <div class="bond-meta">9.60% NCD • Quarterly Payout</div>
               </div>
-              <div class="bond-yield mono">+₹1,120/mo</div>
+              <div class="bond-yield">+₹41,175 / yr</div>
             </div>
-
             <div class="bond-item">
               <div>
-                <div class="bond-name">L&T Finance Holdings</div>
-                <div class="bond-meta mono">INE498L07185 • 9.15% NCD</div>
+                <div class="bond-name">L&amp;T Finance Holdings</div>
+                <div class="bond-meta">9.15% Tier II • Semi-Annual</div>
               </div>
-              <div class="bond-yield mono">+₹700/mo</div>
+              <div class="bond-yield">+₹18,300 / yr</div>
             </div>
           </div>
 
-          <!-- Guarded Actions Menu: ONLY Edit goal + Archive goal (ZERO Remove) -->
-          <div class="guarded-menu">
-            <div class="menu-action">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span>Edit goal</span>
+          <!-- Action Menu: Strictly Edit goal + Archive goal. ZERO Remove. -->
+          <div class="actions-menu-strip">
+            <span style="color: var(--ink-muted); font-size: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Milestone Management</span>
+            <div class="menu-actions-list">
+              <span class="action-link">Edit goal</span>
+              <span style="color: var(--border);">|</span>
+              <span class="action-link">Archive goal</span>
             </div>
-            <div class="menu-action">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-              <span>Archive goal</span>
-            </div>
-            <div class="zero-remove-tag">[Zero destructive delete permitted]</div>
           </div>
         </div>
 
         <nav class="bottom-nav">
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
-          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
-          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+          <a class="nav-item"><span>⊞</span><span>Dashboard</span></a>
+          <a class="nav-item"><span>💼</span><span>Portfolio</span></a>
+          <a class="nav-item"><span>👁</span><span>Watchlist</span></a>
+          <a class="nav-item active"><span>⚑</span><span>Goals</span></a>
+          <a class="nav-item"><span>⋯</span><span>More</span></a>
         </nav>
       </div>
     </div>
 
   </main>
 
-  <!-- REVIEW BOARD FOOTER -->
-  <footer class="board-footer">
-    <div class="footer-legend">
-      <span>• WARM LEDGER (LIGHT) REVIEW BOARD</span>
-      <span>• 5 CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
-      <span>• STRICT TOKEN ENFORCEMENT (#F4F0E8, #FBF9F4, #D8D0C2, #1F2421, #264362)</span>
-      <span>• ZERO DRIFT SPECIFICATION</span>
-    </div>
-    <div style="font-size:11px; color:var(--board-sub);">
-      Psychology Rules A & B Strict Enforcement • Zero Destructive Delete Permitted
-    </div>
+  <footer class="footer-audit-note">
+    <span>• WARM LEDGER (LIGHT) REVIEW BOARD • 5 CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
+    <span>• STRICT TOKEN ENFORCEMENT (#F4F0E8, #FBF9F4, #D8D0C2, #1F2421, #264362)</span>
+    <span>• ZERO DRIFT SPECIFICATION • ZERO DESTRUCTIVE DELETE PERMITTED</span>
   </footer>
 
 </body>
