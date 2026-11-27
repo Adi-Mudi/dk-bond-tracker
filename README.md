@@ -192,6 +192,8 @@ Only then does the next track begins. "Done" means the audit says PASS — not "
 
 **Efficiency rule (added same day):** one audit round only — REAL findings get fixed, MINOR findings are accepted. Each design phase designates **one primary design** (the base for implementation) and then moves to implementation instead of more audit rounds.
 
+**One-design rule (added 2026-11-28):** develop **ONE design only** (single theme/base) until the developer confirms it complete — components, states, everything. Multi-theme or other-team expansion happens only **after** that confirmation, so a still-changing design is never multiplied. Review requests share only files that already exist and were verified.
+
 ## Contributing
 
 Issues and pull requests are welcome. Before opening a pull request:
