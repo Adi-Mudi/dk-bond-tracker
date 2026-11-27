@@ -1094,7 +1094,7 @@
 <!-- ============ ESSENTIAL 7 DEEP DIVE ============ -->
 <section>
   <h2 id="e7"><span class="num">7</span> Accessibility — usable by everyone</h2>
-  <p class="muted">Works for screen-reader users, poor eyesight, small-button difficulty. Test on a real device with <b style="color:var(--ink)">TalkBack (Android) / VoiceOver (iPhone)</b>: swipe right = move focus, double-tap = activate.</p>
+  <p class="muted">Works for screen-reader users, poor eyesight, small-button difficulty. Test on a real Android device with <b style="color:var(--ink)">TalkBack</b>: swipe right = move focus, double-tap = activate. Conformance target: <b style="color:var(--ink)">WCAG 2.2 AA</b> (see § Mandatory Bar).</p>
 
   <h3>Visual · Colour contrast — 4.5:1 body · 3:1 large (18sp+) · disabled exempt</h3>
   <div class="contrast-row">
@@ -1148,7 +1148,7 @@
       <div class="txt">Gross ₹45,750 − TDS ₹4,575 (10%) · Interest received</div>
     </div>
     <div class="scale-card s130">
-      <div class="cap">130% system scale — text grows, row reflows</div>
+      <div class="cap">200% system scale — text grows, row reflows</div>
       <div class="txt">Gross ₹45,750 − TDS ₹4,575 (10%) · Interest received</div>
     </div>
   </div>
@@ -1171,7 +1171,7 @@
   <div class="testgrid">
     <div class="tcell"><b>TalkBack pass</b>Android real device<br>swipe right · double-tap<br><span class="ok">✓ core flows completable</span></div>
     <div class="tcell"><b>Contrast audit</b>on the tokens<br>4.5:1 body · 3:1 large<br><span class="ok">✓ one check, whole app</span></div>
-    <div class="tcell"><b>Font at 130%</b>every page<br>no overlap / truncate<br><span class="ok">✓ + 48dp targets spot-check</span></div>
+    <div class="tcell"><b>Font at 200%</b>every page<br>no overlap / truncate<br><span class="ok">✓ + 48dp targets spot-check</span></div>
   </div>
 
   <h3>Status</h3>
@@ -1182,7 +1182,7 @@
       <tr><td>Non-color cues (severity = text+color)</td><td><span class="pill g">designed</span></td><td>chips always carry words</td></tr>
       <tr><td>Dim-text contrast token (#55606E)</td><td><span class="pill a">FIX</span></td><td>≈2.4:1 fails — lift to ≥4.5:1 in app_theme.dart</td></tr>
       <tr><td>Semantics labels on icon buttons</td><td><span class="pill a">build</span></td><td>sync, bell, eye, ⋮, FAB, chevrons</td></tr>
-      <tr><td>Text-scale test pass (130%)</td><td><span class="pill a">build</span></td><td>esp. 9–11px helper rows</td></tr>
+      <tr><td>Text-scale test pass (200%)</td><td><span class="pill a">build</span></td><td>esp. 9–11px helper rows</td></tr>
       <tr><td>Keyboard/focus for web boards</td><td><span class="pill a">build</span></td><td>visible rings, Tab order</td></tr>
     </tbody>
   </table>
@@ -1972,6 +1972,41 @@
   <p class="muted" style="font-size:11px;margin-top:8px">Flow: change a contract HERE → mirror into DESIGN.md draft → regenerate screens with <code>--design-system &lt;id&gt;</code>. New element = added here FIRST, then generated. Page-level components stay in each page's audit; shared-kit inventory stays in app_components.</p>
 </section>
 
+<!-- ============ MANDATORY BAR ============ -->
+<section>
+  <h2 id="bar"><span class="num">⚠</span> Mandatory Bar — Android-first (Material3 + WCAG2.2 AA · HIG reference only)</h2>
+  <p class="muted">The non-negotiable quality bar for <b style="color:var(--ink)">every screen and every element</b>, swept from Material3 + Android docs + W3C WCAG2.2 AA + industry practice (2026-11-27; Apple HIG = reference principles only, no iOS target). <b style="color:var(--ink)">Conformance target: WCAG 2.2 Level AA</b> (POUR ·55 testable A+AA criteria). Visual demo: <a href="mandatory_bar_visual.html" style="color:var(--accent-soft)">mandatory_bar_visual.html</a>. Rules live HERE; pages and elements consume them.</p>
+  <table>
+    <thead><tr><th>#</th><th>Mandatory rule</th><th>Authority</th><th>Owned by</th></tr></thead>
+    <tbody>
+      <tr><td>M1</td><td>Touch targets ≥ <b>48×48dp</b> (invisible hit area included)</td><td>Material3</td><td>E8/E9 + element DoD</td></tr>
+      <tr><td>M2</td><td>Contrast <b>4.5:1 body ·3:1 large</b> (large = ≥24px regular or ≥18.67px bold) — light AND dark</td><td>WCAG AA</td><td>Essential3 +7</td></tr>
+      <tr><td>M3</td><td>Never colour alone — colour + <b>text</b> (+ icon when it speeds)</td><td>WCAG · HIG ref</td><td>Essential7 +14</td></tr>
+      <tr><td>M4</td><td>Text-scale test at <b>200%</b> — reflow, no clip/overlap (text styles, not fixed px)</td><td>Android / WCAG</td><td>Essential7</td></tr>
+      <tr><td>M5</td><td><b>TalkBack label</b> on every interactive element; test core flows on a real device</td><td>Android a11y</td><td>Essential7 + element DoD</td></tr>
+      <tr><td>M6</td><td>Operable by keyboard/focus (web boards) and by TalkBack swipe/double-tap</td><td>WCAG</td><td>Essential7</td></tr>
+      <tr><td>M7</td><td><b>Safe-area insets</b> — content never under status bar or gesture bar (edge-to-edge)</td><td>Android</td><td>Essential4 + app shell</td></tr>
+      <tr><td>M8</td><td>Every sheet/dialog has <b>≥1 visible exit</b> (X / Cancel / scrim) and system back works — never trapped</td><td>Material · HIG ref</td><td>Essential2 + overlays</td></tr>
+      <tr><td>M9</td><td>Semantic colour tokens, dark-aware — system-adapting values over hardcodes</td><td>Material3</td><td>Essential3</td></tr>
+      <tr><td>M10</td><td><b>Reduce Motion</b> (OS "Remove animations") → swap motion for fades/state changes</td><td>WCAG · Android</td><td>Essential8</td></tr>
+      <tr><td>M11</td><td><b>WCAG 2.2 AA = our conformance target</b> (POUR: Perceivable · Operable · Understandable · Robust)</td><td>W3C</td><td>this bar</td></tr>
+      <tr><td>M12</td><td><b>Failure matrix</b> — all twelve end in a recoverable state, never blank (list below)</td><td>industry</td><td>Essential5/6/12/15</td></tr>
+      <tr><td>M13</td><td><b>Real-device testing</b> — physical phone, realistic content (desktop preview ≠ phone)</td><td>industry · NN/g</td><td>Essential4/7 ✓ exists</td></tr>
+      <tr><td>M14</td><td><b>Platform idiom</b> — Android = Material patterns; never ship web/desktop habits</td><td>industry</td><td>this bar</td></tr>
+      <tr><td>M15</td><td><b>Thumb zone</b> — primary actions in the lower/reachable arc; top corners = secondary only</td><td>industry</td><td>Essential2</td></tr>
+      <tr><td>M16</td><td><b>A11y in the Definition of Done</b> — no element/screen is "done" until a11y checks pass</td><td>industry (Carbon/UXPin)</td><td>elements skill ✓</td></tr>
+      <tr><td>M17</td><td><b>Material Symbols</b> only; meaningful icons get labels, decorative icons hidden from TalkBack</td><td>Material3</td><td>Essential3 ✓ set exists</td></tr>
+      <tr><td>M18</td><td><b>Review-grade flows</b> — every flow completes with TalkBack on; no trapped modal; no fixed-size text</td><td>Android quality gates</td><td>page checklists</td></tr>
+    </tbody>
+  </table>
+
+  <h3>M12 · Failure matrix (design these BEFORE building — each ends recoverable, never blank)</h3>
+  <p class="muted" style="font-size:12px">offline → saved view + retry · loading → skeleton (never whole-page spinner) · duplicate tap → button locked + spinner · expired token → silent refresh + retry · timeout → fail fast + retry · server error → plain message + retry · stale cache → show age + refresh · process restart → state restored · partial failure → show what worked, retry what failed · import conflict → show both, user picks · validation error → field-level, entries preserved · crash → friendly error screen + report.</p>
+
+  <h3>Scan result (2026-11-27, all10 pages vs this bar)</h3>
+  <p class="muted" style="font-size:12px">Bar evidence per page: watchlist strongest (TalkBack/dismiss/failure) · dashboard/portfolio/app_frame partial · goals thin · <b style="color:var(--amber)">settings, search, alerts = ZERO bar evidence</b> (never checked) · NO page documents200% or Reduce Motion. → Page-fix queue after this foundation lock; pages are fixed ONE AT A TIME (Q11), goals first.</p>
+</section>
+
 <!-- ============ LOCKED DECISIONS ============ -->
 <section>
   <h2 id="decisions"><span class="num">✓</span> Locked decisions —6 pending items resolved (2026-11-27)</h2>
@@ -2063,6 +2098,7 @@
   <a href="#e15">15 · Loading</a>
   <a href="#e16">16 · Scroll</a>
   <a href="#elements">Elements</a>
+  <a href="#bar">Bar</a>
   <a href="#all">Index</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
