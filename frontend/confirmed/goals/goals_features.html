@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Goals Page — Feature List (Documentation Handoff)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B;--red:#FF8A80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.55;padding:40px 20px}
+  .wrap{max-width:1060px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:920px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .stat{background:var(--surface);border:1px solid var(--hairline);border-radius:8px;padding:7px 13px;font-size:11px;color:var(--muted)}
+  .stat b{color:var(--ink);font-size:14px;display:block}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  h2 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:10px;padding:2px 8px;letter-spacing:0}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);padding:6px 8px;border-bottom:1px solid var(--hairline)}
+  td{padding:6px 8px;border-bottom:1px dashed rgba(42,58,76,.5);vertical-align:top;color:var(--muted)}
+  td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+  td.id{color:var(--soft);font-weight:700;width:34px}
+  .pill{display:inline-block;font-size:9px;padding:2px7px;border-radius:999px;border:1px solid;letter-spacing:.05em}
+  .pill.new{color:var(--green);border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+  .pill.auto{color:var(--soft);border-color:rgba(147,180,255,.5);background:rgba(36,86,230,.15)}
+  .pill.core{color:var(--amber);border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.1)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+  .flag{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--amber);margin-top:10px}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Documentation Handoff · Page: Goals</div>
+  <h1>Goals Page — Feature List</h1>
+  <p class="lede">Every feature of the Goals page as designed (base design + locked board + manifest). Source of truth = the locked design; this list is the handoff input for component inventory and GitHub issues.</p>
+  <div class="stats">
+    <div class="stat"><b>26</b>features</div>
+    <div class="stat"><b>3</b>states of the page</div>
+    <div class="stat"><b>0</b>remove paths (locked)</div>
+    <div class="stat"><b>₹</b>INR only</div>
+  </div>
+</header>
+
+<section>
+  <h2>Entry &amp; navigation <span class="count">6</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G01</td><td>Bottom-nav destination</td><td>Goals tab in bottom nav (Dashboard · Portfolio · Watchlist · <b>Goals</b> · More); own back stack per tab (locked: per-tab stacks)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G02</td><td>GOALS / FORM segmented tabs</td><td>Top tabs switch list ↔ create form; counts e.g. GOALS (3) / FORM (0); sticky on list+form states</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G03</td><td>FAB + (create)</td><td>Floating + opens the clean create form (also reachable via FORM tab)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G04</td><td>App bar</td><td>Title + sync / bell / theme / avatar (fixed icon order — shared element E1)</td><td><span class="pill core">shared</span></td></tr>
+      <tr><td class="id">G05</td><td>Empty-first state</td><td>GOALS0: zeroed stats, placeholder "No goals yet", CTA "Create first goal"; form hidden until FAB/tap</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G06</td><td>Goal detail navigation</td><td>Card → Details opens goal detail (single page, states merged: list / form / detail)</td><td><span class="pill core">core</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Goal list &amp; cards <span class="count">6</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G07</td><td>Goal card</td><td>Name · dates · Saved ₹ · progress rail · status pill · Details button (Check-in button REMOVED per developer)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G08</td><td>Months signal (one only)</td><td>Positive <b>X/Y months ✓</b> (green) when on plan · negative <b>N months missed</b> (red) when any miss — negative wins and stays until resolved. NEVER target amounts on cards (psychology rule)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G09</td><td>Status pill (4-tier)</td><td>Behind · Due Soon · On Track · Completed — colour + text always paired (shared E13)</td><td><span class="pill core">shared</span></td></tr>
+      <tr><td class="id">G10</td><td>Progress rail</td><td>Saved-vs-target bar, no numbers/targets on it (shared E14)</td><td><span class="pill core">shared</span></td></tr>
+      <tr><td class="id">G11</td><td>Pace line</td><td>₹X/mo pace per goal (plan pace indicator on card)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G12</td><td>Skeleton loading</td><td>List skeleton before data — never a whole-page spinner (locked loading rule)</td><td><span class="pill core">core</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Create form (clean) <span class="count">4</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G13</td><td>Four inputs only</td><td>Goal name · Start date · End date · Amount (₹ monthly, user-entered). Nothing else — no Saved, no Note, no invested field</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G14</td><td>Auto total months</td><td>Dates → total months computed live (e.g. Jan2027→Oct2028 =22)</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G15</td><td>Auto target amount</td><td>Amount × months → target readout (₹ icon, never $), e.g. ₹11,00,000; read-only</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G16</td><td>Save goal</td><td>Submit with lock (no double-tap); labels without asterisks; validation errors keep entries</td><td><span class="pill core">core</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Goal detail <span class="count">6</span></h2>
+  <table>
+    <thead><tr><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G17</td><td>Overflow menu</td><td>⋮ → <b>Edit goal</b> · <b>Archive goal</b> ONLY — no Remove anywhere (locked)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G18</td><td>Saved so far + rail</td><td>Top summary: Saved ₹ + progress rail (no target shouting)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G19</td><td>Month-wise derivation table</td><td>5 columns: Month · Target · Invested · Returns · Running Total (dimmed); rows month-by-month; TOTAL row = months · completed · target · invested · returns</td><td><span class="pill new">NEW</span></td></tr>
+      <tr><td class="id">G20</td><td>Auto invested column</td><td>Invested per month = <b>auto from portfolio purchase dates</b> (Watchlist → Move to Portfolio) — never typed (Q3 rule)</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G21</td><td>Auto returns column</td><td>Returns per month = <b>bond monthly interest</b> from linked bonds — never typed</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G22</td><td>Linked bonds (with links)</td><td>Auto-allocated yield list (Tata Capital, L&amp;T Finance + yields/mo) — <b>each row tappable → opens that bond's detail</b> (Q1 addition)</td><td><span class="pill new">NEW</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Lifecycle &amp; data rules <span class="count">4</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G23</td><td>Archive only lifecycle</td><td>Goals end via Achieved or Archived — <b>no Remove path anywhere</b> (locked developer rule)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G24</td><td>Auto tracking source</td><td>Portfolio cashflow (synced) drives invested/returns; goals stay local-first (goals store + portfolio derivation)</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G25</td><td>Target-OR-Monthly exclusivity</td><td>User enters one side; other derives (form: Amount entered → target auto)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G26</td><td>Psychology rules</td><td>No target amounts on list/detail displays (target total only inside derivation math); months signal = one signal, negative sticky</td><td><span class="pill core">core</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>⚠ Open items before this list is final</h2>
+  <div class="flag"><b>Confirm dropped features:</b> the old Monthly Tracking frame had (a) Rhythm Log with MISSED badges, (b) Upcoming Pipeline month grid, (c) "2 months missed — pace adjustment active" banner, (d) manual Record Check-in + Save draft (removed today). The new3-frame base design folds month-wise data into the derivation table — but (b) pipeline grid, (c) banner and the failure-counter are not shown. Say <b>keep / drop</b> for each and the list updates.</div>
+</section>
+
+<footer>
+  <span>GOALS · FEATURE LIST · documentation handoff input (features → components → traceability → GitHub)</span>
+  <span>source: base design screen6e072293… + goals manifest + locked board ·2026-11-28</span>
+</footer>
+
+</div>
+</body>
+</html>
