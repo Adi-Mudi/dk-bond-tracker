@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=1920, initial-scale=1.0">
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=1920, initial-scale=1.0" name="viewport"/>
 <title>Goals — Nordic Mist (Light) Review Board</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -15,12 +15,12 @@ tailwind.config = {
       colors: {
         'nm-bg': '#EFF2F5',
         'nm-surface': '#F8FAFC',
-        'nm-raised': '#E4E9EF',
+        'nm-raised': '#EFF2F5',
         'nm-border': '#CFD7E2',
         'nm-primary': '#28595B',
         'nm-on-primary': '#F5FAFA',
         'nm-ink': '#18212C',
-        'nm-muted': '#525F70',
+        'nm-muted': '#64748B',
         'nm-success': '#28614E',
         'nm-warning': '#8C5409',
         'nm-error': '#9C3B44',
@@ -35,7 +35,7 @@ tailwind.config = {
 </script>
 <style>
   body {
-    background-color: #0B1118;
+    background-color: #0B131D;
     color: #F8FAFC;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -43,7 +43,6 @@ tailwind.config = {
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
-  /* Custom scrollbar for mobile frames */
   .frame-content::-webkit-scrollbar {
     width: 4px;
   }
@@ -57,810 +56,655 @@ tailwind.config = {
 </style>
 </head>
 <body class="p-8 lg:p-12 min-h-screen flex flex-col justify-between selection:bg-[#28595B] selection:text-white">
-
-  <!-- TOP AUDIT / BOARD HEADER -->
-  <header class="max-w-[2260px] mx-auto w-full mb-8">
-    <div class="flex items-center justify-between border-b border-[#1E293B] pb-6">
-      <div>
-        <div class="flex items-center gap-3 mb-2">
-          <!-- Palette Icon -->
-          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#28595B]/20 text-[#68D391] border border-[#28595B]/40">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 44 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-            </svg>
-          </span>
-          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            Nordic Mist
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#28614E]/20 text-[#48BB78] border border-[#28614E]/50">
-              LOCKED
+<!-- TOP AUDIT / BOARD HEADER -->
+<header class="max-w-[2400px] mx-auto w-full mb-8">
+<div class="flex items-center justify-between border-b border-[#1E293B] pb-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#28595B]/20 text-[#48BB78] border border-[#28595B]/40">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            Goals — Nordic Mist (Light) Review Board
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#28614E]/25 text-[#48BB78] border border-[#28614E]/60 font-mono">
+              LOCKED · 2026-11-27
             </span>
-            <span class="text-sm font-normal text-slate-400">· Theme: Nordic Mist · Light</span>
-          </h1>
-        </div>
-        <p class="text-xs text-slate-400 font-mono tracking-wide">
+</h1>
+</div>
+<p class="text-xs text-slate-400 font-mono tracking-wide">
           VIEWPORT: 412dp × 860px · STRICT NORDIC MIST TOKEN SET (LIGHT PALETTE) · 5 CANONICAL LIFECYCLE STAGES
         </p>
-      </div>
-
-      <!-- Token Legend Swatches -->
-      <div class="hidden xl:flex items-center gap-4 bg-[#141E28] border border-[#1E293B] px-4 py-2.5 rounded-xl text-xs font-mono">
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#EFF2F5] border border-gray-400"></span><span class="text-slate-300">bg #EFF2F5</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#F8FAFC] border border-gray-400"></span><span class="text-slate-300">surface #F8FAFC</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#28595B]"></span><span class="text-slate-300">primary #28595B</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#18212C]"></span><span class="text-slate-300">ink #18212C</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#28614E]"></span><span class="text-slate-300">success #28614E</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#8C5409]"></span><span class="text-slate-300">warning #8C5409</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#9C3B44]"></span><span class="text-slate-300">error #9C3B44</span></div>
-      </div>
-    </div>
-  </header>
-
-  <!-- 5 PHONE FRAMES STRIP -->
-  <main class="max-w-[2260px] mx-auto w-full overflow-x-auto pb-6">
-    <div class="flex items-start gap-8 min-w-max">
-
-      <!-- ========================================================================= -->
-      <!-- FRAME 1: FIRST OPEN (ZERO STATE) -->
-      <!-- ========================================================================= -->
-      <div class="flex flex-col">
-        <!-- Frame Header Label -->
-        <div class="flex items-center justify-between mb-3 px-2">
-          <span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">01 — FIRST OPEN</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#1E293B] text-slate-300 border border-slate-700">EMPTY</span>
-        </div>
-
-        <!-- 412dp x 860px Phone Device Frame -->
-        <div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
-          <!-- Status Bar -->
-          <div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#525F70]">
-            <span class="font-semibold text-xs text-[#18212C]">09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"/></svg>
-              <div class="w-5 h-2.5 border border-[#525F70] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#525F70] rounded-2xs"></div></div>
-            </div>
-          </div>
-
-          <!-- Top App Bar -->
-          <div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
-            <span class="font-bold text-[17px] tracking-tight text-[#18212C]">DK Bond Tracker</span>
-            <div class="flex items-center gap-2.5 text-[#525F70]">
-              <!-- Sync -->
-              <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#525F70]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              </button>
-              <!-- Bell with notification badge -->
-              <div class="relative w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#525F70]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#9C3B44]"></span>
-              </div>
-              <!-- Theme Palette -->
-              <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#28595B]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-              </button>
-              <!-- DK Avatar -->
-              <div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">
-                DK
-              </div>
-            </div>
-          </div>
-
-          <!-- Body Content Area -->
-          <div class="flex-1 overflow-y-auto frame-content p-4 flex flex-col justify-between">
-            <div>
-              <!-- Segmented View Tabs -->
-              <div class="flex items-center p-1 rounded-xl bg-[#E4E9EF] border border-[#CFD7E2] mb-4">
-                <button class="flex-1 py-1.5 rounded-lg bg-[#F8FAFC] text-[#28595B] font-semibold text-xs shadow-sm border border-[#CFD7E2]/60">
-                  GOALS (0)
-                </button>
-                <button class="flex-1 py-1.5 rounded-lg text-[#525F70] font-medium text-xs hover:text-[#18212C]">
-                  FORM (0)
-                </button>
-              </div>
-
-              <!-- Zeroed Stat Strip -->
-              <div class="grid grid-cols-3 gap-2.5 mb-6">
-                <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#CFD7E2] text-center">
-                  <div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">TARGET</div>
-                  <div class="text-base font-bold text-[#18212C] tabular-nums">₹0</div>
-                  <div class="text-[10px] text-[#525F70]">0 active</div>
-                </div>
-                <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#CFD7E2] text-center">
-                  <div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">SAVED</div>
-                  <div class="text-base font-bold text-[#18212C] tabular-nums">₹0</div>
-                  <div class="text-[10px] text-[#525F70]">0% funded</div>
-                </div>
-                <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#CFD7E2] text-center">
-                  <div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">ON TRACK</div>
-                  <div class="text-base font-bold text-[#28614E] tabular-nums">0</div>
-                  <div class="text-[10px] text-[#525F70]">all clear</div>
-                </div>
-              </div>
-
-              <!-- Calm Empty State Card -->
-              <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-8 text-center flex flex-col items-center my-6">
-                <div class="w-14 h-14 rounded-2xl bg-[#E4E9EF] border border-[#CFD7E2] flex items-center justify-center text-[#28595B] mb-4">
-                  <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
-                  </svg>
-                </div>
-                <h3 class="text-base font-bold text-[#18212C] mb-1">No goals yet</h3>
-                <p class="text-xs text-[#525F70] max-w-[240px] leading-relaxed mb-6">
-                  Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.
+</div>
+<!-- Token Legend Swatches -->
+<div class="hidden xl:flex items-center gap-4 bg-[#141E28] border border-[#1E293B] px-4 py-2.5 rounded-xl text-xs font-mono">
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#EFF2F5] border border-gray-400"></span><span class="text-slate-300">bg #EFF2F5</span></div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#F8FAFC] border border-gray-400"></span><span class="text-slate-300">surface #F8FAFC</span></div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#28595B]"></span><span class="text-slate-300">primary #28595B</span></div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#18212C]"></span><span class="text-slate-300">ink #18212C</span></div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#28614E]"></span><span class="text-slate-300">success #28614E</span></div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#8C5409]"></span><span class="text-slate-300">warning #8C5409</span></div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#9C3B44]"></span><span class="text-slate-300">error #9C3B44</span></div>
+</div>
+</div>
+</header>
+<!-- 5 PHONE FRAMES STRIP -->
+<main class="max-w-[2400px] mx-auto w-full overflow-x-auto pb-6">
+<div class="flex items-start gap-12 min-w-max">
+<!-- ========================================================================= -->
+<!-- FRAME 1: FIRST OPEN (ZERO STATE) -->
+<!-- ========================================================================= -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3 px-2">
+<span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">01 — FIRST OPEN</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#1E293B] text-slate-300 border border-slate-700">EMPTY</span>
+</div>
+<div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
+<div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#64748B]">
+<span class="font-semibold text-xs text-[#18212C]">09:41</span>
+<div class="flex items-center gap-2">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"></path></svg>
+<div class="w-5 h-2.5 border border-[#64748B] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#64748B] rounded-2xs"></div></div>
+</div>
+</div>
+<div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
+<span class="font-bold text-[17px] tracking-tight text-[#18212C]">DK Bond Tracker</span>
+<div class="flex items-center gap-2.5 text-[#64748B]">
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#64748B]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="relative w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#64748B]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#9C3B44]"></span>
+</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#28595B]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto frame-content p-4 flex flex-col justify-between">
+<div>
+<div class="flex items-center p-1 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] mb-4">
+<button class="flex-1 py-1.5 rounded-lg bg-[#F8FAFC] text-[#28595B] font-semibold text-xs shadow-sm border border-[#CFD7E2]/60">GOALS (0)</button>
+<button class="flex-1 py-1.5 rounded-lg text-[#64748B] font-medium text-xs hover:text-[#18212C]">FORM (0)</button>
+</div>
+<div class="grid grid-cols-3 gap-2.5 mb-6">
+<div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#CFD7E2] text-center">
+<div class="text-[10px] font-semibold tracking-wider text-[#64748B] uppercase mb-0.5">TARGET</div>
+<div class="text-base font-bold text-[#18212C] tabular-nums">₹ 0</div>
+<div class="text-[10px] text-[#64748B]">0 active</div>
+</div>
+<div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#CFD7E2] text-center">
+<div class="text-[10px] font-semibold tracking-wider text-[#64748B] uppercase mb-0.5">SAVED</div>
+<div class="text-base font-bold text-[#18212C] tabular-nums">₹ 0</div>
+<div class="text-[10px] text-[#64748B]">0% funded</div>
+</div>
+<div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#CFD7E2] text-center">
+<div class="text-[10px] font-semibold tracking-wider text-[#64748B] uppercase mb-0.5">ON TRACK</div>
+<div class="text-base font-bold text-[#28614E] tabular-nums">0</div>
+<div class="text-[10px] text-[#64748B]">all clear</div>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-8 text-center flex flex-col items-center my-6">
+<div class="w-14 h-14 rounded-2xl bg-[#EFF2F5] border border-[#CFD7E2] flex items-center justify-center text-[#28595B] mb-4">
+<svg class="w-7 h-7" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+</svg>
+</div>
+<h3 class="text-base font-bold text-[#18212C] mb-1">No goals yet</h3>
+<p class="text-xs text-[#64748B] max-w-[240px] leading-relaxed mb-6">
+                  Set a savings or investment goal — track it with monthly check-ins &amp; bond yield auto-matching.
                 </p>
-                <button class="w-full py-3 px-4 rounded-xl bg-[#28595B] text-[#F5FAFA] font-semibold text-xs tracking-wide shadow-sm hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                  Create first goal
+<button class="w-full py-3 px-4 rounded-xl bg-[#28595B] text-[#F5FAFA] font-semibold text-xs tracking-wide shadow-sm hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                  + Create first goal
                 </button>
-              </div>
-
-              <!-- Note -->
-              <div class="p-3 rounded-xl bg-[#E4E9EF] border border-[#CFD7E2] flex items-start gap-2.5">
-                <svg class="w-4 h-4 text-[#28595B] mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <p class="text-[11px] text-[#525F70] leading-snug">
-                  <strong class="text-[#18212C] font-semibold">Zero State Behavior:</strong> Goals ledger stays pristine until your first milestone is registered. Tap + FAB also opens the form.
+</div>
+<div class="p-3 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] flex items-start gap-2.5">
+<svg class="w-4 h-4 text-[#28595B] mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<p class="text-[11px] text-[#64748B] leading-snug">
+<strong class="text-[#18212C] font-semibold">Zero State Behavior:</strong> Goals ledger stays pristine until your first milestone is registered. Tap + FAB also opens the form.
                 </p>
-              </div>
-            </div>
-
-            <!-- Floating Action Button (+ in bottom corner) -->
-            <div class="flex justify-end pt-4">
-              <button class="w-14 h-14 rounded-full bg-[#28595B] text-[#F5FAFA] shadow-lg flex items-center justify-center hover:scale-105 transition-transform border border-[#28595B]">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v12m6-6H6"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Bottom Navigation Bar (5 tabs) -->
-          <div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
-            <div class="flex flex-col items-center text-[#525F70]">
-              <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-              <span class="text-[9px] font-medium">Dashboard</span>
-            </div>
-            <div class="flex flex-col items-center text-[#525F70]">
-              <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-              <span class="text-[9px] font-medium">Portfolio</span>
-            </div>
-            <div class="flex flex-col items-center text-[#525F70]">
-              <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              <span class="text-[9px] font-medium">Watchlist</span>
-            </div>
-            <div class="flex flex-col items-center text-[#28595B]">
-              <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
-              <span class="text-[9px] font-bold">Goals</span>
-            </div>
-            <div class="flex flex-col items-center text-[#525F70]">
-              <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
-              <span class="text-[9px] font-medium">More</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- FRAME 2: GOALS LIST (ACTIVE LEDGER) -->
-      <!-- ========================================================================= -->
-      <div class="flex flex-col">
-        <!-- Frame Header Label -->
-        <div class="flex items-center justify-between mb-3 px-2">
-          <span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">02 — GOALS LIST</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/20 text-[#48BB78] border border-[#28614E]/50">ACTIVE</span>
-        </div>
-
-        <!-- 412dp x 860px Phone Device Frame -->
-        <div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
-          <!-- Status Bar -->
-          <div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#525F70]">
-            <span class="font-semibold text-xs text-[#18212C]">09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"/></svg>
-              <div class="w-5 h-2.5 border border-[#525F70] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#525F70] rounded-2xs"></div></div>
-            </div>
-          </div>
-
-          <!-- Top App Bar -->
-          <div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
-            <span class="font-bold text-[17px] tracking-tight text-[#18212C]">DK Bond Tracker</span>
-            <div class="flex items-center gap-2.5 text-[#525F70]">
-              <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#525F70]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></button>
-              <div class="relative w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#525F70]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#9C3B44]"></span></div>
-              <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#28595B]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg></button>
-              <div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
-            </div>
-          </div>
-
-          <!-- Body Content Area -->
-          <div class="flex-1 overflow-y-auto frame-content p-4 space-y-3 pb-20">
-            <!-- Segmented View Switcher -->
-            <div class="flex items-center p-1 rounded-xl bg-[#E4E9EF] border border-[#CFD7E2]">
-              <button class="flex-1 py-1.5 rounded-lg bg-[#F8FAFC] text-[#28595B] font-semibold text-xs shadow-sm border border-[#CFD7E2]/60">
-                GOALS (3)
-              </button>
-              <button class="flex-1 py-1.5 rounded-lg text-[#525F70] font-medium text-xs hover:text-[#18212C]">
-                FORM (0)
-              </button>
-            </div>
-
-            <!-- Summary Strip -->
-            <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs">
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-[#18212C]">3 Goals Active</span>
-                <span class="text-[#525F70]">·</span>
-                <span class="text-[#525F70]">Target <strong class="text-[#18212C] font-semibold">₹ 45,00,000</strong></span>
-              </div>
-              <span class="font-semibold text-[#28595B] bg-[#E4E9EF] px-2 py-0.5 rounded-md border border-[#CFD7E2] tabular-nums">
-                ₹ 65k/mo
-              </span>
-            </div>
-
-            <!-- Goal Card 1: Commercial Property (Behind) -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h4 class="font-bold text-sm text-[#18212C]">Commercial Property Downpayment</h4>
-                  <div class="text-[11px] text-[#525F70] mt-0.5">Target: Jun 2029 · <span class="font-semibold text-[#8C5409]">30 Mos Left</span></div>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#8C5409]/10 text-[#8C5409] border border-[#8C5409]/30">
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#8C5409]"></span> Behind
+</div>
+</div>
+<div class="flex justify-end pt-4">
+<button class="w-14 h-14 rounded-full bg-[#28595B] text-[#F5FAFA] shadow-lg flex items-center justify-center hover:scale-105 transition-transform border border-[#28595B]">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+</div>
+</div>
+<div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Dashboard</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Portfolio</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Watchlist</span></div>
+<div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewbox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"></path></svg><span class="text-[9px] font-bold">Goals</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">More</span></div>
+</div>
+</div>
+</div>
+<!-- ========================================================================= -->
+<!-- FRAME 2: GOALS LIST (ACTIVE LEDGER) -->
+<!-- ========================================================================= -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3 px-2">
+<span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">02 — GOALS LIST</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/20 text-[#48BB78] border border-[#28614E]/50">ACTIVE</span>
+</div>
+<div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
+<div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#64748B]">
+<span class="font-semibold text-xs text-[#18212C]">09:41</span>
+<div class="flex items-center gap-2">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"></path></svg>
+<div class="w-5 h-2.5 border border-[#64748B] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#64748B] rounded-2xs"></div></div>
+</div>
+</div>
+<div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
+<span class="font-bold text-[17px] tracking-tight text-[#18212C]">DK Bond Tracker</span>
+<div class="flex items-center gap-2.5 text-[#64748B]">
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#64748B]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#64748B]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#9C3B44]"></span></div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#28595B]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto frame-content p-4 space-y-3 pb-20 relative">
+<div class="flex items-center p-1 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2]">
+<button class="flex-1 py-1.5 rounded-lg bg-[#F8FAFC] text-[#28595B] font-semibold text-xs shadow-sm border border-[#CFD7E2]/60">GOALS (3)</button>
+<button class="flex-1 py-1.5 rounded-lg text-[#64748B] font-medium text-xs hover:text-[#18212C]">FORM (0)</button>
+</div>
+<div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs">
+<div class="flex items-center gap-2">
+<span class="font-bold text-[#18212C]">3 Goals Active</span>
+<span class="text-[#64748B]">·</span>
+<span class="text-[#64748B]">Target <strong class="text-[#18212C] font-semibold">₹ 45,00,000</strong></span>
+</div>
+<span class="font-semibold text-[#28595B] bg-[#EFF2F5] px-2 py-0.5 rounded-md border border-[#CFD7E2] tabular-nums">₹ 65k/mo</span>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h4 class="font-bold text-sm text-[#18212C]">Commercial Property Downpayment</h4>
+<div class="text-[11px] text-[#64748B] mt-0.5">Target: Jun 2029 · <span class="font-semibold text-[#8C5409]">30 Mos Left</span></div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#8C5409]/10 text-[#8C5409] border border-[#8C5409]/30">
+<span class="w-1.5 h-1.5 rounded-full bg-[#8C5409]"></span> Behind
                 </span>
-              </div>
-
-              <!-- Progress Amounts -->
-              <div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
-                <span class="font-bold text-[#18212C]">Saved ₹ 3,50,000</span>
-                <span class="text-[#525F70]">Target ₹ 20,00,000 (17.5%)</span>
-              </div>
-
-              <!-- Progress Bar -->
-              <div class="w-full h-2 rounded-full bg-[#E4E9EF] overflow-hidden mb-3">
-                <div class="h-full bg-[#8C5409] rounded-full" style="width: 17.5%;"></div>
-              </div>
-
-              <!-- Required Pace & Action Buttons -->
-              <div class="flex items-center justify-between pt-2 border-t border-[#CFD7E2]/60">
-                <span class="text-[11px] font-medium text-[#8C5409] bg-[#E4E9EF] px-2 py-0.5 rounded border border-[#CFD7E2]">
+</div>
+<div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
+<span class="font-bold text-[#18212C]">Saved ₹ 3,50,000</span>
+<span class="text-[#64748B]">Target ₹ 20,00,000 (17.5%)</span>
+</div>
+<div class="w-full h-2 rounded-full bg-[#EFF2F5] overflow-hidden mb-3">
+<div class="h-full bg-[#8C5409] rounded-full" style="width: 17.5%;"></div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-[#CFD7E2]/60">
+<span class="text-[11px] font-medium text-[#8C5409] bg-[#EFF2F5] px-2 py-0.5 rounded border border-[#CFD7E2]">
                   ₹ 20,000/mo <span class="text-[10px]">(+₹ 5k needed)</span>
+</span>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-[#28595B] text-[#F5FAFA] text-xs font-semibold hover:opacity-95 shadow-xs">Check-in</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#EFF2F5] text-[#18212C] text-xs font-medium border border-[#CFD7E2] hover:bg-[#CFD7E2]/50">Details</button>
+</div>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h4 class="font-bold text-sm text-[#18212C]">Child Higher Education Fund</h4>
+<div class="text-[11px] text-[#64748B] mt-0.5">Target: Oct 2028 · 22 Mos Left</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#28614E]/10 text-[#28614E] border border-[#28614E]/30">
+<span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span> On track
                 </span>
-                <div class="flex items-center gap-2">
-                  <button class="px-3 py-1.5 rounded-lg bg-[#28595B] text-[#F5FAFA] text-xs font-semibold hover:opacity-95 shadow-xs">
-                    Check-in
-                  </button>
-                  <button class="px-3 py-1.5 rounded-lg bg-[#E4E9EF] text-[#18212C] text-xs font-medium border border-[#CFD7E2] hover:bg-[#CFD7E2]/50">
-                    Details
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Goal Card 2: Child Education (On Track) -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h4 class="font-bold text-sm text-[#18212C]">Child Higher Education Fund</h4>
-                  <div class="text-[11px] text-[#525F70] mt-0.5">Target: Oct 2028 · 22 Mos Left</div>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#28614E]/10 text-[#28614E] border border-[#28614E]/30">
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span> On track
-                </span>
-              </div>
-
-              <div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
-                <span class="font-bold text-[#18212C]">Saved ₹ 11,50,000</span>
-                <span class="text-[#525F70]">Target ₹ 20,00,000 (57.5%)</span>
-              </div>
-
-              <div class="w-full h-2 rounded-full bg-[#E4E9EF] overflow-hidden mb-3">
-                <div class="h-full bg-[#28595B] rounded-full" style="width: 57.5%;"></div>
-              </div>
-
-              <div class="flex items-center justify-between pt-2 border-t border-[#CFD7E2]/60">
-                <span class="text-[11px] font-medium text-[#28595B] bg-[#E4E9EF] px-2 py-0.5 rounded border border-[#CFD7E2]">
+</div>
+<div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
+<span class="font-bold text-[#18212C]">Saved ₹ 11,50,000</span>
+<span class="text-[#64748B]">Target ₹ 20,00,000 (57.5%)</span>
+</div>
+<div class="w-full h-2 rounded-full bg-[#EFF2F5] overflow-hidden mb-3">
+<div class="h-full bg-[#28595B] rounded-full" style="width: 57.5%;"></div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-[#CFD7E2]/60">
+<span class="text-[11px] font-medium text-[#28595B] bg-[#EFF2F5] px-2 py-0.5 rounded border border-[#CFD7E2]">
                   ₹ 35,000/mo pace
                 </span>
-                <div class="flex items-center gap-2">
-                  <button class="px-3 py-1.5 rounded-lg bg-[#28595B] text-[#F5FAFA] text-xs font-semibold hover:opacity-95 shadow-xs">
-                    Check-in
-                  </button>
-                  <button class="px-3 py-1.5 rounded-lg bg-[#E4E9EF] text-[#18212C] text-xs font-medium border border-[#CFD7E2] hover:bg-[#CFD7E2]/50">
-                    Details
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Goal Card 3: Annual Vacation 2027 (On Track) -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h4 class="font-bold text-sm text-[#18212C]">Annual Family Vacation 2027</h4>
-                  <div class="text-[11px] text-[#525F70] mt-0.5">Target: Dec 2027 · 12 Mos Left</div>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#28614E]/10 text-[#28614E] border border-[#28614E]/30">
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span> On track
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-[#28595B] text-[#F5FAFA] text-xs font-semibold hover:opacity-95 shadow-xs">Check-in</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#EFF2F5] text-[#18212C] text-xs font-medium border border-[#CFD7E2] hover:bg-[#CFD7E2]/50">Details</button>
+</div>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<div>
+<h4 class="font-bold text-sm text-[#18212C]">Annual Family Vacation 2027</h4>
+<div class="text-[11px] text-[#64748B] mt-0.5">Target: Dec 2027 · 12 Mos Left</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#28614E]/10 text-[#28614E] border border-[#28614E]/30">
+<span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span> On track
                 </span>
-              </div>
-
-              <div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
-                <span class="font-bold text-[#18212C]">Saved ₹ 3,75,000</span>
-                <span class="text-[#525F70]">Target ₹ 5,00,000 (75.0%)</span>
-              </div>
-
-              <div class="w-full h-2 rounded-full bg-[#E4E9EF] overflow-hidden mb-3">
-                <div class="h-full bg-[#28595B] rounded-full" style="width: 75%;"></div>
-              </div>
-
-              <div class="flex items-center justify-between pt-2 border-t border-[#CFD7E2]/60">
-                <span class="text-[11px] font-medium text-[#28595B] bg-[#E4E9EF] px-2 py-0.5 rounded border border-[#CFD7E2]">
+</div>
+<div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
+<span class="font-bold text-[#18212C]">Saved ₹ 3,75,000</span>
+<span class="text-[#64748B]">Target ₹ 5,00,000 (75.0%)</span>
+</div>
+<div class="w-full h-2 rounded-full bg-[#EFF2F5] overflow-hidden mb-3">
+<div class="h-full bg-[#28595B] rounded-full" style="width: 75%;"></div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-[#CFD7E2]/60">
+<span class="text-[11px] font-medium text-[#28595B] bg-[#EFF2F5] px-2 py-0.5 rounded border border-[#CFD7E2]">
                   ₹ 10,000/mo pace
                 </span>
-                <div class="flex items-center gap-2">
-                  <button class="px-3 py-1.5 rounded-lg bg-[#28595B] text-[#F5FAFA] text-xs font-semibold hover:opacity-95 shadow-xs">
-                    Check-in
-                  </button>
-                  <button class="px-3 py-1.5 rounded-lg bg-[#E4E9EF] text-[#18212C] text-xs font-medium border border-[#CFD7E2] hover:bg-[#CFD7E2]/50">
-                    Details
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dimmed Completed Goal Card: Emergency Buffer (Archived) -->
-            <div class="bg-[#F8FAFC]/60 rounded-2xl border border-[#CFD7E2]/70 p-3.5 opacity-75">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h5 class="text-xs font-bold text-[#525F70] line-through">Emergency Buffer Vault</h5>
-                  <div class="text-[10px] text-[#525F70]">Matured ₹ 6,00,000 (100% completed)</div>
-                </div>
-                <span class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-[#E4E9EF] text-[#525F70] border border-[#CFD7E2]">
-                  ARCHIVED
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-[#28595B] text-[#F5FAFA] text-xs font-semibold hover:opacity-95 shadow-xs">Check-in</button>
+<button class="px-3 py-1.5 rounded-lg bg-[#EFF2F5] text-[#18212C] text-xs font-medium border border-[#CFD7E2] hover:bg-[#CFD7E2]/50">Details</button>
+</div>
+</div>
+</div>
+<div class="bg-[#F8FAFC]/60 rounded-2xl border border-[#CFD7E2]/70 p-3.5 opacity-75">
+<div class="flex items-center justify-between">
+<div>
+<h5 class="text-xs font-bold text-[#64748B] line-through">Emergency Buffer Vault</h5>
+<div class="text-[10px] text-[#64748B]">Matured ₹ 6,00,000 (100% completed)</div>
+</div>
+<span class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-[#EFF2F5] text-[#64748B] border border-[#CFD7E2]">ARCHIVED</span>
+</div>
+</div>
+<div class="absolute right-4 bottom-4">
+<button class="w-14 h-14 rounded-full bg-[#28595B] text-[#F5FAFA] shadow-lg flex items-center justify-center hover:scale-105 transition-transform border border-[#28595B]">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</button>
+</div>
+</div>
+<div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Dashboard</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Portfolio</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Watchlist</span></div>
+<div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewbox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"></path></svg><span class="text-[9px] font-bold">Goals</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">More</span></div>
+</div>
+</div>
+</div>
+<!-- ========================================================================= -->
+<!-- FRAME 3: CREATE FORM -->
+<!-- ========================================================================= -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3 px-2">
+<span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">03 — CREATE FORM</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28595B]/20 text-[#68D391] border border-[#28595B]/40">FORM</span>
+</div>
+<div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
+<div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#64748B]">
+<span class="font-semibold text-xs text-[#18212C]">09:41</span>
+<div class="flex items-center gap-2">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"></path></svg>
+<div class="w-5 h-2.5 border border-[#64748B] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#64748B] rounded-2xs"></div></div>
+</div>
+</div>
+<div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
+<div class="flex items-center gap-2.5">
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#18212C]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<span class="font-bold text-[16px] text-[#18212C]">Create New Milestone</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
+</div>
+<div class="flex-1 overflow-y-auto frame-content p-4 space-y-3.5">
+<div>
+<label class="block text-[11px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">GOAL NAME *</label>
+<input class="w-full h-11 px-3.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-sm font-medium text-[#18212C] focus:outline-none focus:border-[#28595B]" readonly="" type="text" value="Child Higher Education Fund"/>
+</div>
+<div class="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#CFD7E2] space-y-3">
+<div>
+<label class="block text-[11px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">
+                  TARGET AMOUNT (₹) · AUTO
+                </label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-xl bg-slate-200/50 border border-[#CFD7E2] text-sm font-bold text-[#64748B] tabular-nums cursor-not-allowed" disabled="" type="text" value="20,00,000"/>
+<span class="absolute right-3 top-3 text-[10px] font-semibold text-[#64748B] bg-[#EFF2F5] px-2 py-0.5 rounded border border-[#CFD7E2]">Derived</span>
+</div>
+<p class="text-[10px] text-[#64748B] mt-1.5 leading-snug">
+                  Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.
+                </p>
+</div>
+<div class="relative flex items-center justify-center my-1">
+<div class="border-t border-[#CFD7E2] w-full"></div>
+<span class="bg-[#F8FAFC] px-2 text-[9px] uppercase font-bold text-[#28595B] absolute tracking-wider">
+                  monthly mode active · target derived above
                 </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Navigation Bar (5 tabs) -->
-          <div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg><span class="text-[9px] font-medium">Dashboard</span></div>
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span class="text-[9px] font-medium">Portfolio</span></div>
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg><span class="text-[9px] font-medium">Watchlist</span></div>
-            <div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg><span class="text-[9px] font-bold">Goals</span></div>
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg><span class="text-[9px] font-medium">More</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- FRAME 3: CREATE FORM -->
-      <!-- ========================================================================= -->
-      <div class="flex flex-col">
-        <!-- Frame Header Label -->
-        <div class="flex items-center justify-between mb-3 px-2">
-          <span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">03 — CREATE FORM</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28595B]/20 text-[#68D391] border border-[#28595B]/40">ENTRY</span>
-        </div>
-
-        <!-- 412dp x 860px Phone Device Frame -->
-        <div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
-          <!-- Status Bar -->
-          <div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#525F70]">
-            <span class="font-semibold text-xs text-[#18212C]">09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"/></svg>
-              <div class="w-5 h-2.5 border border-[#525F70] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#525F70] rounded-2xs"></div></div>
-            </div>
-          </div>
-
-          <!-- Top App Bar with Back / Title -->
-          <div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
-            <div class="flex items-center gap-2.5">
-              <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#18212C]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              </button>
-              <span class="font-bold text-[16px] text-[#18212C]">Create New Milestone</span>
-            </div>
-            <div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
-          </div>
-
-          <!-- Body Content Area -->
-          <div class="flex-1 overflow-y-auto frame-content p-4 space-y-3.5">
-            <!-- Goal Name Input -->
-            <div>
-              <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">GOAL NAME *</label>
-              <input type="text" value="Child Higher Education Fund" class="w-full h-11 px-3.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-sm font-medium text-[#18212C] focus:outline-none focus:border-[#28595B]" readonly>
-            </div>
-
-            <!-- Exclusive Target OR Monthly Contribution Group -->
-            <div class="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#CFD7E2] space-y-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">TARGET AMOUNT (₹)</label>
-                <div class="relative">
-                  <input type="text" value="20,00,000" class="w-full h-11 px-3.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] text-sm font-bold text-[#18212C] tabular-nums" readonly>
-                  <span class="absolute right-3 top-3 text-[11px] text-[#525F70] font-medium">Auto-calc</span>
-                </div>
-              </div>
-
-              <!-- OR Divider -->
-              <div class="relative flex items-center justify-center">
-                <div class="border-t border-[#CFD7E2] w-full"></div>
-                <span class="bg-[#F8FAFC] px-2 text-[10px] uppercase font-bold text-[#525F70] absolute tracking-wider">OR MONTHLY CALCULATION</span>
-              </div>
-
-              <div>
-                <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">MONTHLY CONTRIBUTION (₹)</label>
-                <input type="text" value="35,000" class="w-full h-11 px-3.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] text-sm font-bold text-[#28595B] tabular-nums" readonly>
-              </div>
-            </div>
-
-            <!-- Start / End Dates -->
-            <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="block text-[10px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">START DATE</label>
-                <div class="h-11 px-3 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs font-medium text-[#18212C] flex items-center justify-between">
-                  <span>Jan 2027</span>
-                  <svg class="w-4 h-4 text-[#525F70]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[10px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">TARGET DATE</label>
-                <div class="h-11 px-3 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs font-medium text-[#18212C] flex items-center justify-between">
-                  <span>Oct 2028</span>
-                  <svg class="w-4 h-4 text-[#525F70]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-              </div>
-            </div>
-
-            <!-- Auto-Compute Formula Callout -->
-            <div class="p-3.5 rounded-xl bg-[#E4E9EF] border border-[#CFD7E2]">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-[#28595B] mb-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                <span>DYNAMIC YIELD FORMULA</span>
-              </div>
-              <div class="text-xs font-bold text-[#18212C] font-mono tracking-tight mb-1">
-                22 mos × ₹35k = ₹7,70,000
-              </div>
-              <p class="text-[10px] text-[#525F70] leading-snug">
-                Derived using 8.45% average yield reinvestment across linked senior secured debt assets.
+</div>
+<div>
+<label class="block text-[11px] font-semibold text-[#18212C] uppercase tracking-wider mb-1">MONTHLY CONTRIBUTION (₹) *</label>
+<input class="w-full h-11 px-3.5 rounded-xl bg-[#EFF2F5] border border-[#28595B] text-sm font-bold text-[#28595B] tabular-nums focus:outline-none focus:ring-1 focus:ring-[#28595B]" type="text" value="35,000"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<div>
+<label class="block text-[10px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">START DATE</label>
+<div class="h-11 px-3 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs font-medium text-[#18212C] flex items-center justify-between">
+<span>Jan 2027</span>
+<svg class="w-4 h-4 text-[#64748B]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div>
+<label class="block text-[10px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">TARGET DATE</label>
+<div class="h-11 px-3 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs font-medium text-[#18212C] flex items-center justify-between">
+<span>Oct 2028</span>
+<svg class="w-4 h-4 text-[#64748B]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+<div class="p-3.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2]">
+<div class="flex items-center gap-1.5 text-xs font-bold text-[#28595B] mb-1">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>DYNAMIC YIELD FORMULA</span>
+</div>
+<p class="text-[11px] text-[#18212C] leading-snug font-medium">
+                saved + contributions + portfolio growth (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000).
               </p>
-            </div>
-
-            <!-- Saved So Far (Optional) -->
-            <div>
-              <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">SAVED SO FAR (OPTIONAL)</label>
-              <input type="text" value="11,50,000" class="w-full h-11 px-3.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-sm font-medium text-[#18212C] tabular-nums" readonly>
-            </div>
-
-            <!-- Note (Optional) -->
-            <div>
-              <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">NOTE (OPTIONAL)</label>
-              <input type="text" value="Priority milestone, mapped to AAA PSU bond yields." class="w-full h-11 px-3.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs font-normal text-[#525F70]" readonly>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="pt-2 space-y-2">
-              <button class="w-full py-3 rounded-xl bg-[#28595B] text-[#F5FAFA] font-bold text-xs tracking-wide shadow-sm hover:opacity-95">
-                Save Milestone Goal
-              </button>
-              <button class="w-full py-2.5 rounded-xl bg-transparent text-[#525F70] font-medium text-xs hover:text-[#18212C]">
+</div>
+<div>
+<label class="block text-[11px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">SAVED SO FAR (OPTIONAL)</label>
+<input class="w-full h-11 px-3.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-sm font-medium text-[#18212C] tabular-nums" readonly="" type="text" value="11,50,000"/>
+</div>
+<div>
+<label class="block text-[11px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">NOTE (OPTIONAL)</label>
+<input class="w-full h-11 px-3.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] text-xs font-normal text-[#64748B]" readonly="" type="text" value="Priority milestone, mapped to AAA PSU bond yield reinvestment."/>
+</div>
+<div class="pt-2 space-y-2">
+<button class="w-full py-3 rounded-xl bg-[#28595B] text-[#F5FAFA] font-bold text-xs tracking-wide shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5">
+<span>✓ Save Milestone Goal</span>
+</button>
+<button class="w-full py-2.5 rounded-xl bg-transparent text-[#64748B] font-medium text-xs hover:text-[#18212C]">
                 Cancel and discard
               </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- FRAME 4: MONTHLY TRACKING -->
-      <!-- ========================================================================= -->
-      <div class="flex flex-col">
-        <!-- Frame Header Label -->
-        <div class="flex items-center justify-between mb-3 px-2">
-          <span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">04 — MONTHLY TRACKING</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#8C5409]/20 text-[#D69E2E] border border-[#8C5409]/40">PACING</span>
-        </div>
-
-        <!-- 412dp x 860px Phone Device Frame -->
-        <div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
-          <!-- Status Bar -->
-          <div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#525F70]">
-            <span class="font-semibold text-xs text-[#18212C]">09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"/></svg>
-              <div class="w-5 h-2.5 border border-[#525F70] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#525F70] rounded-2xs"></div></div>
-            </div>
-          </div>
-
-          <!-- Top App Bar with Navigation -->
-          <div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-[17px] tracking-tight text-[#18212C]">Execution Rhythm</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#28595B]/10 text-[#28595B] border border-[#28595B]/30">AUTO</span>
-            </div>
-            <div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
-          </div>
-
-          <!-- Body Content Area -->
-          <div class="flex-1 overflow-y-auto frame-content p-4 space-y-3.5 pb-20">
-            <!-- Warning Banner: 2 months missed -->
-            <div class="p-3.5 rounded-xl bg-[#9C3B44]/10 border border-[#9C3B44]/30 flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-[#9C3B44]/20 text-[#9C3B44] flex items-center justify-center shrink-0 mt-0.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-[#9C3B44]">2 months missed in pacing</h4>
-                <p class="text-[11px] text-[#525F70] leading-snug mt-0.5">
-                  Catch-up contribution needed to maintain target completion by October 2028.
+</div>
+</div>
+</div>
+</div>
+<!-- ========================================================================= -->
+<!-- FRAME 4: MONTHLY TRACKING -->
+<!-- ========================================================================= -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3 px-2">
+<span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">04 — MONTHLY TRACKING</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28595B]/20 text-[#68D391] border border-[#28595B]/40">AUTOMATED</span>
+</div>
+<div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
+<div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#64748B]">
+<span class="font-semibold text-xs text-[#18212C]">09:41</span>
+<div class="flex items-center gap-2">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"></path></svg>
+<div class="w-5 h-2.5 border border-[#64748B] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#64748B] rounded-2xs"></div></div>
+</div>
+</div>
+<div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
+<div class="flex items-center gap-2">
+<span class="font-bold text-[17px] tracking-tight text-[#18212C]">DK Bond Tracker</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#28595B]/15 text-[#28595B] border border-[#28595B]/30">AUTO</span>
+</div>
+<div class="flex items-center gap-2.5 text-[#64748B]">
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#64748B]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#64748B]"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#9C3B44]"></span></div>
+<div class="w-8 h-8 rounded-full bg-[#28595B] text-[#F5FAFA] font-semibold text-xs flex items-center justify-center">DK</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto frame-content p-4 space-y-3.5 pb-20">
+<div class="p-3.5 rounded-xl bg-[#9C3B44]/10 border border-[#9C3B44]/30 flex items-start gap-3">
+<div class="w-6 h-6 rounded-full bg-[#9C3B44]/20 text-[#9C3B44] flex items-center justify-center shrink-0 mt-0.5">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<div>
+<h4 class="text-xs font-bold text-[#9C3B44]">2 months missed — pace adjustment active</h4>
+<p class="text-[11px] text-[#64748B] leading-snug mt-0.5">
+                  Oct &amp; Sep missed check-ins. Monthly pacing stepped from ₹35k to ₹42k to protect target date.
                 </p>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] overflow-hidden">
+<div class="px-4 py-2.5 bg-[#EFF2F5] border-b border-[#CFD7E2] flex items-center justify-between">
+<span class="text-[11px] font-bold text-[#18212C] uppercase tracking-wider">RHYTHM LOG (2026)</span>
+<span class="text-[10px] text-[#64748B] font-mono">₹ 35k/mo target</span>
+</div>
+<div class="divide-y divide-[#CFD7E2]">
+<div class="px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#8C5409]"></span>
+<div>
+<div class="text-xs font-bold text-[#18212C]">Dec 2026</div>
+<div class="text-[10px] text-[#64748B]">Scheduled coupon auto-inflow</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#8C5409]/15 text-[#8C5409] border border-[#8C5409]/30">Due Soon</span>
+</div>
+<div class="px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
+<div>
+<div class="text-xs font-bold text-[#18212C]">Nov 2026</div>
+<div class="text-[10px] text-[#64748B]">₹ 35,000 deposited · Ref #CAS8912</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">✓ ₹ 35,000</span>
+</div>
+<div class="px-4 py-2.5 flex items-center justify-between bg-[#9C3B44]/5">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#9C3B44]"></span>
+<div>
+<div class="text-xs font-bold text-[#9C3B44]">Oct 2026</div>
+<div class="text-[10px] text-[#64748B]">No credit registered</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44] text-white">MISSED</span>
+</div>
+<div class="px-4 py-2.5 flex items-center justify-between bg-[#9C3B44]/5">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#9C3B44]"></span>
+<div>
+<div class="text-xs font-bold text-[#9C3B44]">Sep 2026</div>
+<div class="text-[10px] text-[#64748B]">No credit registered</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44] text-white">MISSED</span>
+</div>
+<div class="px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
+<div>
+<div class="text-xs font-bold text-[#18212C]">Aug 2026</div>
+<div class="text-[10px] text-[#64748B]">₹ 35,000 deposited</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">✓ ₹ 35,000</span>
+</div>
+<div class="px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
+<div>
+<div class="text-xs font-bold text-[#18212C]">Jul 2026</div>
+<div class="text-[10px] text-[#64748B]">₹ 35,000 deposited</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">✓ ₹ 35,000</span>
+</div>
+</div>
+</div>
+<div class="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#CFD7E2]">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">UPCOMING PIPELINE (2027)</span>
+<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EFF2F5] text-[#28595B] border border-[#CFD7E2]">11 Scheduled</span>
+</div>
+<div class="grid grid-cols-4 gap-1.5">
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Jan '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Feb '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Mar '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Apr '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">May '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Jun '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Jul '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Aug '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Sep '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Oct '27</span>
+<span class="px-2 py-1 text-center rounded-md bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Nov '27</span>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-3.5">
+<div class="flex items-center justify-between mb-2.5">
+<span class="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">LINKED CASHFLOW BONDS</span>
+<span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#28614E]/10 text-[#28614E] border border-[#28614E]/30">AUTO-ROUTING</span>
+</div>
+<div class="p-2.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] flex items-center justify-between text-xs">
+<div>
+<div class="font-bold text-[#18212C]">Tata Capital Fin Services</div>
+<div class="text-[10px] text-[#64748B]">9.15% Annual · Invested ₹ 5,00,000</div>
+</div>
+<span class="font-bold text-[#28595B] tabular-nums">+₹ 45,750/yr</span>
+</div>
+</div>
+</div>
+<div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Dashboard</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Portfolio</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Watchlist</span></div>
+<div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewbox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"></path></svg><span class="text-[9px] font-bold">Goals</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">More</span></div>
+</div>
+</div>
+</div>
+<!-- ========================================================================= -->
+<!-- FRAME 5: DETAIL + CHECK-IN -->
+<!-- ========================================================================= -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-3 px-2">
+<span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">05 — DETAIL + CHECK-IN</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/20 text-[#48BB78] border border-[#28614E]/50">DETAIL</span>
+</div>
+<div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
+<div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#64748B]">
+<span class="font-semibold text-xs text-[#18212C]">09:41</span>
+<div class="flex items-center gap-2">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"></path></svg>
+<div class="w-5 h-2.5 border border-[#64748B] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#64748B] rounded-2xs"></div></div>
+</div>
+</div>
+<div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
+<div class="flex items-center gap-2.5">
+<button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EFF2F5] text-[#18212C]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div>
+<h4 class="font-bold text-sm text-[#18212C] leading-none">Child Higher Education Fund</h4>
+<span class="text-[10px] text-[#64748B]">Target: Oct 2028 · 22 Mos Left</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30">✓ On track</span>
+<button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#EFF2F5] text-[#18212C] border border-[#CFD7E2]">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path></svg>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto frame-content p-4 space-y-3.5 pb-20">
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
+<div class="flex items-baseline justify-between mb-1 tabular-nums">
+<span class="text-sm font-bold text-[#18212C]">Saved ₹ 11,50,000 / Target ₹ 20,00,000</span>
+<span class="text-xs font-bold text-[#28595B]">57.5%</span>
+</div>
+<div class="w-full h-2.5 rounded-full bg-[#EFF2F5] overflow-hidden mb-2">
+<div class="h-full bg-[#28595B] rounded-full" style="width: 57.5%;"></div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-[#64748B]">
+<span>₹ 8,50,000 to go</span>
+<span class="font-medium text-[#28614E]">+₹ 35,000/mo pace</span>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-3.5">
+<span class="block text-[11px] font-bold text-[#64748B] uppercase tracking-wider mb-2">LINKED SERVICING BONDS (2)</span>
+<div class="space-y-2">
+<div class="p-2.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] flex items-center justify-between text-xs">
+<div>
+<div class="font-bold text-[#18212C]">Tata Capital Fin Services</div>
+<div class="text-[10px] text-[#64748B]">9.15% Annual · Invested ₹ 5,00,000</div>
+</div>
+<span class="font-bold text-[#28595B] tabular-nums">Returns ₹ 1,42,500</span>
+</div>
+<div class="p-2.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] flex items-center justify-between text-xs">
+<div>
+<div class="font-bold text-[#18212C]">L&amp;T Finance Holdings</div>
+<div class="text-[10px] text-[#64748B]">8.85% Semi-Ann · Invested ₹ 4,00,000</div>
+</div>
+<span class="font-bold text-[#28595B] tabular-nums">Returns ₹ 1,24,000</span>
+</div>
+</div>
+</div>
+<div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-3.5 space-y-2.5">
+<div class="flex items-center justify-between">
+<span class="text-[11px] font-bold text-[#18212C] uppercase tracking-wider">RECORD CHECK-IN</span>
+<span class="text-[10px] text-[#64748B]">Manual fallback above auto-tracking</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div>
+<label class="block text-[10px] font-medium text-[#64748B] mb-0.5">AMOUNT (₹)</label>
+<input class="w-full h-8 px-2.5 rounded-lg bg-[#EFF2F5] border border-[#CFD7E2] text-xs font-bold text-[#18212C] tabular-nums" readonly="" type="text" value="35,000"/>
+</div>
+<div>
+<label class="block text-[10px] font-medium text-[#64748B] mb-0.5">DATE</label>
+<input class="w-full h-8 px-2.5 rounded-lg bg-[#EFF2F5] border border-[#CFD7E2] text-xs font-medium text-[#18212C]" readonly="" type="text" value="15 Dec 2026"/>
+</div>
+</div>
+<div>
+<label class="block text-[10px] font-medium text-[#64748B] mb-0.5">NOTE (OPTIONAL)</label>
+<input class="w-full h-8 px-2.5 rounded-lg bg-[#EFF2F5] border border-[#CFD7E2] text-xs text-[#64748B]" readonly="" type="text" value="Direct ECS coupon credit reconciliation"/>
+</div>
+<button class="w-full py-2 rounded-lg bg-[#28595B] text-[#F5FAFA] font-semibold text-xs shadow-xs hover:opacity-95">Save check-in</button>
+</div>
+<div class="bg-[#F8FAFC] rounded-xl border border-[#CFD7E2] p-1 shadow-sm">
+<div class="px-3 py-1.5 text-[10px] font-bold uppercase text-[#64748B] border-b border-[#CFD7E2]">
+                MILESTONE ACTIONS (⋮)
               </div>
-            </div>
-
-            <!-- Rhythm Rows Section -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] overflow-hidden">
-              <div class="px-4 py-2.5 bg-[#E4E9EF] border-b border-[#CFD7E2] flex items-center justify-between">
-                <span class="text-[11px] font-bold text-[#18212C] uppercase tracking-wider">MONTHLY LOG (CY 2026)</span>
-                <span class="text-[10px] text-[#525F70] font-mono">₹35k/mo target</span>
-              </div>
-              
-              <div class="divide-y divide-[#CFD7E2]">
-                <!-- Dec: Due Soon -->
-                <div class="px-4 py-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#8C5409]"></span>
-                    <div>
-                      <div class="text-xs font-bold text-[#18212C]">Dec 2026</div>
-                      <div class="text-[10px] text-[#525F70]">Scheduled coupon auto-inflow</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#8C5409]/15 text-[#8C5409] border border-[#8C5409]/30">
-                    Due Soon
-                  </span>
-                </div>
-
-                <!-- Nov: Received -->
-                <div class="px-4 py-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
-                    <div>
-                      <div class="text-xs font-bold text-[#18212C]">Nov 2026</div>
-                      <div class="text-[10px] text-[#525F70]">₹35,000 deposited · Ref #CAS8912</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">
-                    ✓ Paid
-                  </span>
-                </div>
-
-                <!-- Oct: MISSED -->
-                <div class="px-4 py-3 flex items-center justify-between bg-[#9C3B44]/5">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#9C3B44]"></span>
-                    <div>
-                      <div class="text-xs font-bold text-[#9C3B44]">Oct 2026</div>
-                      <div class="text-[10px] text-[#525F70]">No credit registered</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44] text-white">
-                    MISSED
-                  </span>
-                </div>
-
-                <!-- Sep: MISSED -->
-                <div class="px-4 py-3 flex items-center justify-between bg-[#9C3B44]/5">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#9C3B44]"></span>
-                    <div>
-                      <div class="text-xs font-bold text-[#9C3B44]">Sep 2026</div>
-                      <div class="text-[10px] text-[#525F70]">No credit registered</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44] text-white">
-                    MISSED
-                  </span>
-                </div>
-
-                <!-- Aug: Received -->
-                <div class="px-4 py-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
-                    <div>
-                      <div class="text-xs font-bold text-[#18212C]">Aug 2026</div>
-                      <div class="text-[10px] text-[#525F70]">₹35,000 deposited</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">
-                    ✓ Paid
-                  </span>
-                </div>
-
-                <!-- Jul: Received -->
-                <div class="px-4 py-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
-                    <div>
-                      <div class="text-xs font-bold text-[#18212C]">Jul 2026</div>
-                      <div class="text-[10px] text-[#525F70]">₹35,000 deposited</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">
-                    ✓ Paid
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Upcoming Horizon Chips (Jan - Nov 2027) -->
-            <div class="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#CFD7E2]">
-              <span class="block text-[11px] font-bold text-[#525F70] uppercase tracking-wider mb-2.5">UPCOMING HORIZON (2027)</span>
-              <div class="flex flex-wrap gap-1.5">
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Jan '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Feb '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Mar '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Apr '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">May '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Jun '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Jul '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Aug '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Sep '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Oct '27</span>
-                <span class="px-2.5 py-1 rounded-md bg-[#E4E9EF] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Nov '27</span>
-              </div>
-            </div>
-
-            <!-- Linked Bonds Section (Tata 9.15%, L&T 8.85%) -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-3.5">
-              <span class="block text-[11px] font-bold text-[#525F70] uppercase tracking-wider mb-2.5">LINKED SERVICING BONDS (2)</span>
-              <div class="space-y-2">
-                <div class="p-2.5 rounded-xl bg-[#E4E9EF] border border-[#CFD7E2] flex items-center justify-between text-xs">
-                  <div>
-                    <div class="font-bold text-[#18212C]">Tata Capital Fin Services</div>
-                    <div class="text-[10px] text-[#525F70]">9.15% Annual · Invested ₹5,00,000</div>
-                  </div>
-                  <span class="font-bold text-[#28595B] tabular-nums">Returns ₹1,42,500</span>
-                </div>
-                <div class="p-2.5 rounded-xl bg-[#E4E9EF] border border-[#CFD7E2] flex items-center justify-between text-xs">
-                  <div>
-                    <div class="font-bold text-[#18212C]">L&amp;T Finance Holdings</div>
-                    <div class="text-[10px] text-[#525F70]">8.85% Semi-Ann · Invested ₹4,00,000</div>
-                  </div>
-                  <span class="font-bold text-[#28595B] tabular-nums">Returns ₹1,24,000</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Navigation Bar (5 tabs) -->
-          <div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg><span class="text-[9px] font-medium">Dashboard</span></div>
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span class="text-[9px] font-medium">Portfolio</span></div>
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg><span class="text-[9px] font-medium">Watchlist</span></div>
-            <div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg><span class="text-[9px] font-bold">Goals</span></div>
-            <div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg><span class="text-[9px] font-medium">More</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- FRAME 5: DETAIL + CHECK-IN -->
-      <!-- ========================================================================= -->
-      <div class="flex flex-col">
-        <!-- Frame Header Label -->
-        <div class="flex items-center justify-between mb-3 px-2">
-          <span class="text-xs font-semibold text-slate-400 font-mono tracking-wider">05 — DETAIL + CHECK-IN</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44]/20 text-[#FEB2B2] border border-[#9C3B44]/40">DETAIL</span>
-        </div>
-
-        <!-- 412dp x 860px Phone Device Frame -->
-        <div class="w-[412px] h-[860px] rounded-[32px] bg-[#EFF2F5] text-[#18212C] border-4 border-[#2A374A] shadow-2xl overflow-hidden flex flex-col relative select-none">
-          <!-- Status Bar -->
-          <div class="h-8 px-6 pt-2 flex items-center justify-between text-xs font-medium text-[#525F70]">
-            <span class="font-semibold text-xs text-[#18212C]">09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"/></svg>
-              <div class="w-5 h-2.5 border border-[#525F70] rounded-sm p-0.5 flex items-center"><div class="h-full w-full bg-[#525F70] rounded-2xs"></div></div>
-            </div>
-          </div>
-
-          <!-- Top App Bar with Overflow Trigger -->
-          <div class="h-14 px-4 flex items-center justify-between bg-[#F8FAFC] border-b border-[#CFD7E2]">
-            <div class="flex items-center gap-2.5">
-              <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#E4E9EF] text-[#18212C]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              </button>
-              <div>
-                <h4 class="font-bold text-sm text-[#18212C] leading-none">Child Education</h4>
-                <span class="text-[10px] text-[#525F70]">Target: Oct 2028 · 22 Mos Left</span>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30">
-                ✓ On track
-              </span>
-              <!-- Overflow Menu Button -->
-              <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E4E9EF] text-[#18212C] border border-[#CFD7E2]">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Body Content Area with Modal Dialog & Overflow Preview -->
-          <div class="flex-1 overflow-y-auto frame-content p-4 space-y-3.5">
-            <!-- Progress Card -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
-              <div class="flex items-baseline justify-between mb-1 tabular-nums">
-                <span class="text-sm font-bold text-[#18212C]">₹ 11,50,000 / ₹ 20,00,000</span>
-                <span class="text-xs font-bold text-[#28595B]">57.5%</span>
-              </div>
-              <div class="w-full h-2.5 rounded-full bg-[#E4E9EF] overflow-hidden mb-2">
-                <div class="h-full bg-[#28595B] rounded-full" style="width: 57.5%;"></div>
-              </div>
-              <div class="flex items-center justify-between text-[11px] text-[#525F70]">
-                <span>₹ 8,50,000 to go</span>
-                <span class="font-medium text-[#28614E]">+₹ 35,000/mo pace</span>
-              </div>
-            </div>
-
-            <!-- Manual Check-In Section -->
-            <div class="bg-[#F8FAFC] rounded-2xl border border-[#CFD7E2] p-3.5 space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-[#18212C] uppercase tracking-wider">RECORD MANUAL CHECK-IN</span>
-                <span class="text-[10px] text-[#525F70]">Fallback entry</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[10px] font-medium text-[#525F70] mb-0.5">AMOUNT (₹)</label>
-                  <input type="text" value="35,000" class="w-full h-9 px-2.5 rounded-lg bg-[#EFF2F5] border border-[#CFD7E2] text-xs font-bold text-[#18212C] tabular-nums" readonly>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-medium text-[#525F70] mb-0.5">DATE</label>
-                  <input type="text" value="15 Dec 2026" class="w-full h-9 px-2.5 rounded-lg bg-[#EFF2F5] border border-[#CFD7E2] text-xs font-medium text-[#18212C]" readonly>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[10px] font-medium text-[#525F70] mb-0.5">NOTE (OPTIONAL)</label>
-                <input type="text" value="Direct ECS coupon credit reconciliation" class="w-full h-9 px-2.5 rounded-lg bg-[#EFF2F5] border border-[#CFD7E2] text-xs text-[#525F70]" readonly>
-              </div>
-              <button class="w-full py-2 rounded-lg bg-[#28595B] text-[#F5FAFA] font-semibold text-xs shadow-xs hover:opacity-95">
-                Commit Check-in
-              </button>
-            </div>
-
-            <!-- Overflow Action Menu Specimen Preview -->
-            <div class="bg-[#F8FAFC] rounded-xl border border-[#CFD7E2] p-1 shadow-sm">
-              <div class="px-3 py-1.5 text-[10px] font-bold uppercase text-[#525F70] border-b border-[#CFD7E2]">
-                OVERFLOW ACTIONS (⋮)
-              </div>
-              <div class="divide-y divide-[#CFD7E2]">
-                <button class="w-full px-3 py-2 text-left text-xs font-medium text-[#18212C] flex items-center justify-between hover:bg-[#E4E9EF]">
-                  <span>Edit goal parameters</span>
-                  <svg class="w-3.5 h-3.5 text-[#525F70]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
-                <button class="w-full px-3 py-2 text-left text-xs font-medium text-[#18212C] flex items-center justify-between hover:bg-[#E4E9EF]">
-                  <span>Archive to completed</span>
-                  <svg class="w-3.5 h-3.5 text-[#525F70]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+<div class="divide-y divide-[#CFD7E2]">
+<button class="w-full px-3 py-2 text-left text-xs font-medium text-[#18212C] flex items-center justify-between hover:bg-[#EFF2F5]">
+<span>Edit goal</span>
+<svg class="w-3.5 h-3.5 text-[#64748B]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button class="w-full px-3 py-2 text-left text-xs font-medium text-[#18212C] flex items-center justify-between hover:bg-[#EFF2F5]">
+<span>Archive goal</span>
+<svg class="w-3.5 h-3.5 text-[#64748B]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] flex items-start gap-2.5">
+<svg class="w-4 h-4 text-[#28595B] mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<p class="text-[11px] text-[#64748B] leading-snug">
+<strong class="text-[#18212C] font-semibold">Milestone completion:</strong> Goals end via Achieved or Archived. Linked portfolio bonds remain permanently preserved.
+              </p>
+</div>
+</div>
+<div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Dashboard</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Portfolio</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Watchlist</span></div>
+<div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewbox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"></path></svg><span class="text-[9px] font-bold">Goals</span></div>
+<div class="flex flex-col items-center text-[#64748B]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">More</span></div>
+</div>
+</div>
+</div>
+</div></main>
+<footer class="max-w-[2400px] mx-auto w-full pt-4 border-t border-[#1E293B] flex items-center justify-between text-xs font-mono text-slate-500">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
+<span>NORDIC MIST (LIGHT) REVIEW BOARD · FIVE CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
+</div>
+<div>
+      STRICT PALETTE ENFORCEMENT (#F8FAFC, #EFF2F5, #CFD7E2, #18212C, #28595B) · ZERO DRIFT SPECIFICATION
     </div>
-  </main>
-
-  <!-- FOOTER SPECIFICATION CAPTION -->
-  <footer class="max-w-[2260px] mx-auto w-full pt-4 border-t border-[#1E293B] flex items-center justify-between text-xs font-mono text-slate-500">
-    <div class="flex items-center gap-2">
-      <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
-      <span>NORDIC MIST (LIGHT) REVIEW BOARD · FIVE CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
-    </div>
-    <div>
-      STRICT PALETTE ENFORCEMENT (#EFF2F5, #F8FAFC, #28595B, #28614E, #8C5409, #9C3B44) · ZERO DRIFT SPECIFICATION
-    </div>
-  </footer>
-
-</body>
-</html>
+</footer>
+</body></html>
