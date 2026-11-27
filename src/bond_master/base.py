@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Mapping, Protocol
+
+
+def utc_as_of() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 INSTRUMENT_FIELDS = (
     "company",
@@ -70,6 +75,7 @@ class FetchResult:
     maturity: str | None = None
     sources: Mapping[str, str] = field(default_factory=dict)
     failure_code: str = FAILURE_OK
+    as_of: str | None = None
 
     def facts(self) -> dict[str, object]:
         return {name: getattr(self, name) for name in INSTRUMENT_FIELDS}

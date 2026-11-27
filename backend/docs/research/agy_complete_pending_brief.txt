@@ -1,0 +1,16 @@
+COMPLETE ALL PENDING TASKS (read-only, report only). You are the standing worker; finish everything in your scope.
+
+1. FINAL VERIFICATION (repo files + your MCP access if needed):
+   - src/bond_master/nse_wdm.py + tests/bond_master/test_nse_wdm.py (13 tests green) — verify against F15 spec: daily-reports discovery, WDM CSV parse, payout fields (issue_date/last_ip_dt/next_ip_dt/cpn_freq), BOM handling, UTF-8
+   - src/bond_master/care.py + tests/bond_master/test_care.py (3 pass/5 xfail) — verify the adapter core: search (companies), instrument_ratings (6 records from real fixture), quote_param in transport.py. The 5 xfail tests are known WIP (test-harness URL-key mismatch) — confirm they are harness issues, not adapter bugs
+   - src/bond_master/crisil.py, bse_bulk.py, india_ratings.py — spot-check D8 canonical record shape (source + as_of on all)
+
+2. DESIGN DECISIONS RESEARCH (the checklist PARTIAL items — produce actionable specs):
+   a. API contract shapes: for the locked frontend screens (STITCH_LOCK_REGISTRY: watchlist, portfolio, dashboard, goals, settings, about + app_frame), define the flask-smorest schema per route group — request/response JSON shapes, status codes, error payload format. Output: a contract spec the Flutter agent can code against.
+   b. Schema session prep: what SQLite tables/indexes the new backend needs beyond the current 6 (bonds, payment_ledger, financial_goals, notifications, alert_prefs, bond_master) — identify gaps (e.g., adapter raw-file store table, ratings history table, source-health events table).
+   c. NFR targets: propose measurable values (lookup latency, refresh duration budget, storage/year growth) as PROPOSED pending T2.
+   d. Flutter packaging: what changes for the Flask+flask-smorest stack inside the APK (Chaquopy config, Waitress vs Werkzeug, build size).
+
+3. REMAINING ADAPTERS PRE-BUILD CONFIRM: for ICRA, Acuité, CDSL, RBI RSS, SEBI RSS — confirm the F15 record-shape specs are buildable, flag any missing field or edge case, and give the final build order.
+
+CONSTRAINTS: READ-ONLY (no file edits, no code changes). Report: hc send t1w4 <one consolidated report: verification verdicts + design specs + build-order confirmation>. Under 500 words. Stay alive.

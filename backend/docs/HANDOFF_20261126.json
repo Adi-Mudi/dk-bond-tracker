@@ -1,0 +1,65 @@
+{
+  "document": "session_handoff",
+  "date": "2026-11-26",
+  "from_session": "kimi session that built the Open Design migration + adapter wave (context exhausted, restarting)",
+  "read_first": [
+    "backend/docs/backend_design_upgrade_tracker_20261125.json (tracker v4.1 on disk, v3.9-v4.1 change log = the full story)",
+    ".agents/skills/backend-design/SKILL.md (the backend-design skill - auto-loads, follow it)",
+    "AGENTS.md (Stitch Design Cycle + Lane Permission + Platform Scope rulings)"
+  ],
+  "state_summary": {
+    "lane": "backend-design-upgrade worktree, branch backend-design-upgrade",
+    "head": "7465d9c9 or later (v3.5 migration commit)",
+    "committed": "ALL critical work: adapters NSDL/BSE/CRISIL/IndiaRatings with tests, tracker v4.1 (decisions D1-D7 CONFIRMED, findings F1-F15), research docs, backend-design skill",
+    "uncommitted_wip_on_disk": [
+      "src/bond_master/nse_wdm.py + tests/bond_master/test_nse_wdm.py + tests/bond_master/fixtures/nse_wdm_wdmlist.csv - NSE WDM adapter COMPLETE, 13/13 tests green, just needs commit",
+      "src/bond_master/care.py + tests/bond_master/test_care.py + fixtures care_searchlist.json + care_printrating.json - CARE adapter WIP, 6/8 tests xfailing (known bug, see care_bug)",
+      "backend/docs/research/agy_framework_research_20261126.json + agy_framework_v2_research_20261126.json + pm_framework_research_20261126.json + pm_framework_v2_research_20261126.json - framework research reports (agy + PM streams converged)",
+      "backend/docs/research/agy_*_brief.txt - verification/consult briefs"
+    ],
+    "front_lane_strays": "root checkout has 2 accidental backend-lane commits (80f04d75 + 3077bf13 - stray backend/docs copies from cwd drift) + root/backend/docs/ stray directory. Reversion pending DEVELOPER decision (Lane Permission - their lane)."
+  },
+  "decisions_confirmed": {
+    "D1": "dead adapters RBI/NSE/BSE removed (CLOSED)",
+    "D2": "12-site core list (CONFIRMED)",
+    "D3": "existential sources, download-first, no hacking (CONFIRMED)",
+    "D4": "download-first policy, standing agy lane t1w7 never auto-closed (CONFIRMED)",
+    "D5": "in-place design updates, same screen chain, same file (CONFIRMED)",
+    "D6": "framework: Flask 3.1.3 stays; FastAPI/Litestar ruled out - pydantic-core 2.50.5 has 0 Android wheels (0/140 PyPI verified live) (CONFIRMED - superseded by D7 clean-slate framing)",
+    "D7": "CLEAN-SLATE REWRITE: old backend deleted; new backend = Flask 3.1.3 + flask-smorest 0.47.0 (contract layer) + Waitress/Werkzeug Mode A localhost HTTP; download tooling httpx/feedparser/openpyxl/stdlib; runner-up Mode B Chaquopy MethodChannel; FastAPI flips to primary ONLY if pydantic-core ships official Android wheels (CONFIRMED)"
+  },
+  "known_bug_care": {
+    "symptom": "6/8 CARE tests fail: transport returns None -> MALFORMED - the test make_adapter URL keys do not match the adapter-built URLs",
+    "suspected_root": "double URL-encoding of the encrypted CompanyID (search returns b64 'MYPjaBsE6/+MP8Mnsz03TA==', adapter quotes it once - verify the test fixture keys match quote-once output)",
+    "files": "src/bond_master/care.py + tests/bond_master/test_care.py + fixtures care_searchlist.json + care_printrating.json",
+    "fix_hint": "quote exactly once inside the adapter; keep the test's expected URL as quote(raw_id)"
+  },
+  "queue_after_care_fix": [
+    "commit NSE WDM + CARE + fixtures + handoff",
+    "adapter: ICRA (AllRatingRationales p1 + ShowRationaleReport HTML - sitemap lacks rationale IDs)",
+    "adapter: Acuite (liveratings p1 daily + 6.7MB sitemap weekly lastmod diff; ISIN absent - issuer+NCD key)",
+    "adapter: CDSL (LIGHT endpoints: popup-isin.aspx per-ISIN, XLSX lists, CorpBondDatabase.aspx)",
+    "adapter: RBI RSS (7 feeds) + SEBI RSS (sebirss.xml) + BSE notices.xml - feed watchers (XML namespaces, 0-item batches valid OK)",
+    "BSE OBP_MEMBER_LIST.zip (monthly, ZIP-containing-XLSX safety)",
+    "then: API contract shapes per locked screen -> schema session (database-architect skill) -> NFR values -> Flutter packaging decision"
+  ],
+  "agy_standing_worker": {
+    "terminal": "t1w7 agy-research (herdr space spffcaa4fe1f35d9033c03db7c0d884547)",
+    "ruling": "NEVER auto-close (developer 2026-11-25, overrides Q6)",
+    "dispatch_pattern": "hc send agy-research '<brief>' (done state -> plain send starts new turn; blocked = read screen + approve via hc send --force '1' if in-scope)",
+    "completed_tasks": "framework research v2 (clean-slate), batch-8 adapter consult, CRISIL design consult, 5-round board verification - all reported to t1w4",
+    "reports_received": "round-5 ALL PASS; framework v2 recommendation (Flask+flask-smorest, Apiflask blocked correction)"
+  },
+  "first_actions_for_new_session": [
+    "1. Read the tracker + this handoff + the skill",
+    "2. Fix the CARE double-encoding bug (see known_bug_care)",
+    "3. Run the full worktree suite (expect 749+ green with CARE fixed)",
+    "4. Commit: NSE WDM + CARE + handoff + fixtures",
+    "5. Continue the queue: ICRA -> Acuite -> CDSL -> RSS feeds -> OBP zip",
+    "6. agy verifies each adapter (consult before build, verify after)"
+  ],
+  "tool_notes": {
+    "open_design_mcp": "mcp__open-design__* tools bind properly in a FRESH session (this exhausted session could not route them). Bridge: http://127.0.0.1:8006/mcp (systemd user service open-design-bridge, verified 22 tools). The board artifact lives in project dk-bond-tracker-backend-dataflow-c451.",
+    "stitch": "RETIRED for backend design - occupied by the frontend agent (developer 2026-11-26)"
+  }
+}
