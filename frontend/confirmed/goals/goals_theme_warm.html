@@ -1,1004 +1,1592 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals — Warm Ledger (Light) Review Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board-bg: #EAE5DB;
+    --board-ink: #1F2421;
+    --board-sub: #595E59;
+    --board-border: #D0C7B7;
+    
+    /* Warm Ledger Tokens */
+    --wl-bg: #F4F0E8;
+    --wl-cards: #FBF9F4;
+    --wl-border: #D8D0C2;
+    --wl-ink: #1F2421;
+    --wl-sub: #595E59;
+    --wl-accent: #264362;
+    --wl-accent-soft: rgba(38, 67, 98, 0.08);
+    --wl-success: #2B6144;
+    --wl-success-bg: #E8F2EC;
+    --wl-warn: #8A5300;
+    --wl-warn-bg: #FAF0DF;
+    --wl-error: #9E3B33;
+    --wl-error-bg: #FBEBEA;
+    --wl-hairline: #E7E0D3;
+  }
 
-<html lang="en"><head><title>Goals — Warm Ledger (Light) Review Board</title><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
-    darkMode: "class",
-    theme: {
-      extend: {
-        "colors": {
-          "on-background": "#191b24",
-          "upcoming-amber-bg": "#fdf3e0",
-          "primary-container": "#2456e6",
-          "on-surface": "#191b24",
-          "on-error-container": "#93000a",
-          "primary-fixed-dim": "#b7c4ff",
-          "surface-container-low": "#f3f2ff",
-          "surface-container-highest": "#e2e1ed",
-          "inverse-surface": "#2e3039",
-          "mist": "#8592a1",
-          "surface-bright": "#faf8ff",
-          "surface-variant": "#e2e1ed",
-          "on-tertiary-fixed": "#380d00",
-          "on-tertiary-container": "#ffdace",
-          "primary-fixed": "#dce1ff",
-          "surface-container-high": "#e7e7f3",
-          "surface-container": "#ededf9",
-          "slate": "#55606e",
-          "info-blue-fg": "#1d4ed8",
-          "on-secondary-fixed-variant": "#43474b",
-          "primary": "#003dc1",
-          "background": "#faf8ff",
-          "inverse-on-surface": "#f0f0fc",
-          "on-primary-fixed": "#001551",
-          "tertiary-container": "#b23d00",
-          "on-primary-fixed-variant": "#0039b5",
-          "surface": "#faf8ff",
-          "ink": "#16212e",
-          "due-red-bg": "#fdeceb",
-          "upcoming-amber-fg": "#92400e",
-          "secondary-fixed": "#e0e3e7",
-          "on-primary": "#ffffff",
-          "tertiary-fixed-dim": "#ffb59a",
-          "outline-variant": "#c4c5d8",
-          "surface-tint": "#194fe0",
-          "on-secondary-fixed": "#181c1f",
-          "secondary-container": "#dde0e4",
-          "on-secondary": "#ffffff",
-          "error": "#ba1a1a",
-          "surface-container-lowest": "#ffffff",
-          "on-secondary-container": "#5f6367",
-          "info-blue-bg": "#e8effc",
-          "paid-green-fg": "#166534",
-          "on-error": "#ffffff",
-          "on-tertiary": "#ffffff",
-          "hairline": "#e3e8ee",
-          "inverse-primary": "#b7c4ff",
-          "on-surface-variant": "#434655",
-          "due-red-fg": "#b42318",
-          "on-tertiary-fixed-variant": "#802a00",
-          "surface-dim": "#d9d9e5",
-          "secondary-fixed-dim": "#c3c7cb",
-          "paper-surface": "#ffffff",
-          "outline": "#747687",
-          "secondary": "#5b5f62",
-          "on-primary-container": "#dbe0ff",
-          "tertiary-fixed": "#ffdbcf",
-          "tertiary": "#8a2d00",
-          "paid-green-bg": "#e8f6ee",
-          "error-container": "#ffdad6",
-          "ledger-canvas": "#f6f7f9"
-        },
-        "borderRadius": {
-          "DEFAULT": "0.125rem",
-          "lg": "0.25rem",
-          "xl": "0.5rem",
-          "full": "0.75rem"
-        },
-        "spacing": {
-          "space-xl": "24px",
-          "gutter": "16px",
-          "space-xs": "4px",
-          "space-lg": "20px",
-          "space-sm": "8px",
-          "margin": "24px",
-          "space-md": "16px"
-        },
-        "fontFamily": {
-          "label": [
-            "\"Inter, system-ui, sans-serif\""
-          ],
-          "body-md": [
-            "\"Inter, system-ui, sans-serif\""
-          ],
-          "headline-lg": [
-            "\"Inter, system-ui, sans-serif\""
-          ],
-          "body-sm": [
-            "\"Inter, system-ui, sans-serif\""
-          ],
-          "display": [
-            "\"Inter, system-ui, sans-serif\""
-          ],
-          "headline-md": [
-            "\"Inter, system-ui, sans-serif\""
-          ]
-        },
-        "fontSize": {
-          "label": [
-            "12px",
-            {
-              "lineHeight": "16px",
-              "letterSpacing": "0.03em",
-              "fontWeight": "500"
-            }
-          ],
-          "body-md": [
-            "15px",
-            {
-              "lineHeight": "22px",
-              "fontWeight": "400"
-            }
-          ],
-          "headline-lg": [
-            "22px",
-            {
-              "lineHeight": "30px",
-              "fontWeight": "600"
-            }
-          ],
-          "body-sm": [
-            "13px",
-            {
-              "lineHeight": "18px",
-              "fontWeight": "400"
-            }
-          ],
-          "display": [
-            "28px",
-            {
-              "lineHeight": "36px",
-              "fontWeight": "600"
-            }
-          ],
-          "headline-md": [
-            "16px",
-            {
-              "lineHeight": "24px",
-              "fontWeight": "600"
-            }
-          ]
-        }
-      }
-    }
-  }</script></head><body class="bg-ink text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-ink/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.16)]"><div class="h-20 w-full px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-xl bg-surface-container-highest/20 flex items-center justify-center"><span class="material-symbols-outlined text-paper-surface text-[20px]">palette</span></div><div><div class="flex items-center gap-space-sm"><span class="font-headline-md text-headline-md text-paper-surface tracking-tight">Warm Ledger</span><span class="inline-flex items-center gap-space-xs px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label uppercase"><span class="material-symbols-outlined text-[13px]">lock</span>LOCKED</span></div><p class="font-body-sm text-body-sm text-mist">Tactile personal finance review suite</p></div></div><div class="hidden xl:flex items-center gap-space-xs"><span class="px-2.5 py-1 rounded-lg bg-surface-container-highest/15 text-paper-surface font-label text-label">Theme: Light Ledger</span><span class="px-2.5 py-1 rounded-lg bg-surface-container-highest/15 text-paper-surface font-label text-label">Base: #f6f7f9</span><span class="px-2.5 py-1 rounded-lg bg-surface-container-highest/15 text-paper-surface font-label text-label">Accent: #003dc1</span><span class="px-2.5 py-1 rounded-lg bg-surface-container-highest/15 text-paper-surface font-label text-label">Ratio: 4.5:1 AA</span></div></div><nav class="flex items-center gap-space-xs" data-active-classes="bg-surface-container-highest/20 text-paper-surface"><a class="px-3 py-1.5 rounded-lg text-mist hover:text-paper-surface hover:bg-surface-container-highest/10 transition-colors font-body-sm text-body-sm" data-path="canonical-review-board" href="#">Review Board</a><a class="px-3 py-1.5 rounded-lg text-mist hover:text-paper-surface hover:bg-surface-container-highest/10 transition-colors font-body-sm text-body-sm" data-path="design-token-audit" href="#">Token Specs</a><a class="px-3 py-1.5 rounded-lg text-mist hover:text-paper-surface hover:bg-surface-container-highest/10 transition-colors font-body-sm text-body-sm" data-path="frame-inspector" href="#">Frame Details</a></nav><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-xs px-3 py-1.5 rounded-lg bg-surface-container-highest/10 text-paper-surface font-label text-label"><span class="material-symbols-outlined text-[16px] text-paid-green-fg">check_circle</span>5 Frames Active</div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-ink min-h-screen"><div class="flex flex-col w-full text-slate selection:bg-primary-fixed selection:text-ink">
-<!-- Top Spec Board Control Strip -->
-<section class="w-full px-margin py-space-xl flex flex-col gap-space-lg max-w-[2400px] mx-auto">
-<!-- Super Header & Metas -->
-<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
-<div class="flex flex-col gap-space-xs">
-<div class="flex flex-wrap items-center gap-space-sm">
-<span class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-label uppercase font-medium">
-<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">lock</span>
-            LOCKED · 2026-11-27
-          </span>
-<span class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container-high text-paper-surface font-label text-label font-medium">
-<span class="material-symbols-outlined text-[14px]">devices</span>
-            5 FRAMES
-          </span>
-<span class="text-mist font-label text-label tracking-wide uppercase">CANONICAL VERIFICATION BENCH</span>
-</div>
-<h1 class="font-display text-display text-paper-surface tracking-tight">Goals — Warm Ledger (Light) Review Board</h1>
-<p class="font-body-sm text-body-sm text-mist uppercase tracking-wider">
-          VIEWPORT: 412dp × 860px · STRICT WARM LEDGER TOKEN SET (LIGHT PALETTE) · ALL AMOUNTS IN INR (₹)
-        </p>
-</div>
-<!-- Color Palette Spec Strip -->
-<div class="flex flex-wrap items-center gap-space-xs p-2 rounded-xl bg-surface-container-highest/10">
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F4F0E8] text-[#1F2421] font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#F4F0E8] border border-black/10"></span>
-          bg #F4F0E8
-        </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#FBF9F4] text-[#1F2421] font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#FBF9F4] border border-black/10"></span>
-          cards #FBF9F4
-        </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#D8D0C2] text-[#1F2421] font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#D8D0C2]"></span>
-          border #D8D0C2
-        </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#1F2421] text-[#F4F0E8] font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#1F2421]"></span>
-          ink #1F2421
-        </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#264362] text-white font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#264362]"></span>
-          accent #264362
-        </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#28614E] text-white font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#28614E]"></span>
-          success #28614E
-        </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#9E3B33] text-white font-label text-label font-medium shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-[#9E3B33]"></span>
-          warn #9E3B33
-        </div>
-</div>
-</div>
-</section>
-<!-- Canonical Frames Scroll Viewport -->
-<div class="w-full overflow-x-auto pb-space-xl px-margin">
-<div class="flex items-start gap-10 min-w-max pb-8 mx-auto justify-start xl:justify-center">
-<!-- ========================================== -->
-<!-- FRAME 01: FIRST OPEN (EMPTY) -->
-<!-- ========================================== -->
-<div class="flex flex-col gap-3">
-<div class="flex items-center justify-between text-mist font-label text-label px-2">
-<span class="text-paper-surface font-semibold">01 — FIRST OPEN</span>
-<span>EMPTY ZERO STATE</span>
-</div>
-<!-- 412x860 Mobile Canvas -->
-<div class="w-[412px] h-[860px] bg-[#F4F0E8] rounded-[28px] shadow-[0_24px_50px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden relative select-none">
-<!-- Phone Status Bar -->
-<div class="h-8 px-6 pt-2 flex items-center justify-between text-[#1F2421] text-[12px] font-medium bg-[#F4F0E8] z-20">
-<span>09:41</span>
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-<span class="material-symbols-outlined text-[14px]">wifi</span>
-<span class="material-symbols-outlined text-[14px]">battery_full</span>
-</div>
-</div>
-<!-- Top App Bar -->
-<div class="h-14 px-5 flex items-center justify-between bg-[#F4F0E8] z-20">
-<span class="font-headline-md text-headline-md text-[#1F2421] tracking-tight">DK Bond Tracker</span>
-<div class="flex items-center gap-3">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421]/70 hover:text-[#1F2421]">
-<span class="material-symbols-outlined text-[20px]">sync</span>
-</button>
-<div class="relative">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421]/70 hover:text-[#1F2421]">
-<span class="material-symbols-outlined text-[20px]">notifications</span>
-</button>
-<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#9E3B33]"></span>
-</div>
-<div class="w-8 h-8 rounded-full bg-[#264362] text-white flex items-center justify-center font-label text-label font-medium shadow-sm">
-                DK
-              </div>
-</div>
-</div>
-<!-- Sticky Segmented Tabs -->
-<div class="px-5 py-2 bg-[#F4F0E8] z-20">
-<div class="h-10 p-1 bg-[#D8D0C2]/50 rounded-xl flex items-center text-label font-label">
-<button class="flex-1 h-full rounded-lg bg-[#FBF9F4] text-[#1F2421] font-semibold shadow-sm flex items-center justify-center transition-all">
-                GOALS (0)
-              </button>
-<button class="flex-1 h-full rounded-lg text-[#1F2421]/60 font-medium flex items-center justify-center hover:text-[#1F2421]">
-                FORM (0)
-              </button>
-</div>
-</div>
-<!-- Scrollable Content -->
-<div class="flex-1 overflow-y-auto px-5 py-3 flex flex-col gap-4">
-<!-- Ledger Stat Strip -->
-<div class="grid grid-cols-3 gap-2 bg-[#FBF9F4] p-3 rounded-xl shadow-[0_1px_2px_rgba(22,33,46,0.06)]">
-<div class="flex flex-col">
-<span class="font-label text-[10px] text-[#1F2421]/50 uppercase tracking-wider">TARGET</span>
-<span class="font-headline-md text-[#1F2421] font-semibold tabular-nums">₹ 0</span>
-<span class="text-[11px] text-[#1F2421]/60">0 active</span>
-</div>
-<div class="flex flex-col">
-<span class="font-label text-[10px] text-[#1F2421]/50 uppercase tracking-wider">SAVED</span>
-<span class="font-headline-md text-[#1F2421] font-semibold tabular-nums">₹ 0</span>
-<span class="text-[11px] text-[#1F2421]/60">0% funded</span>
-</div>
-<div class="flex flex-col">
-<span class="font-label text-[10px] text-[#1F2421]/50 uppercase tracking-wider">ON TRACK</span>
-<span class="font-headline-md text-[#28614E] font-semibold tabular-nums">0</span>
-<span class="text-[11px] text-[#28614E]">all clear</span>
-</div>
-</div>
-<!-- Empty State Card -->
-<div class="bg-[#FBF9F4] rounded-xl p-6 flex flex-col items-center text-center gap-3 shadow-[0_1px_2px_rgba(22,33,46,0.06)] mt-2">
-<div class="w-14 h-14 rounded-full bg-[#EAE3D2] flex items-center justify-center text-[#264362]">
-<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">flag</span>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="font-headline-md text-headline-md text-[#1F2421]">No goals yet</h3>
-<p class="font-body-sm text-body-sm text-[#1F2421]/70 max-w-[260px] mx-auto leading-relaxed">
-                  Set a savings or investment goal — track it with monthly check-ins &amp; bond yield auto-matching.
-                </p>
-</div>
-<button class="mt-2 h-11 px-6 rounded-lg bg-[#264362] text-white font-body-md text-body-md font-medium shadow-sm hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-2">
-<span class="material-symbols-outlined text-[18px]">add</span>
-                + Create first goal
-              </button>
-</div>
-<!-- Zero State Behavior / Information Spec Card -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_1px_2px_rgba(22,33,46,0.06)]">
-<div class="flex items-center gap-2 text-[#264362] font-label text-label font-semibold uppercase tracking-wider">
-<span class="material-symbols-outlined text-[16px]">info</span>
-                Zero State Behavior
-              </div>
-<ul class="text-[12px] text-[#1F2421]/75 flex flex-col gap-1.5 leading-snug list-disc pl-4">
-<li>Goals target calculations auto-sync with verified PSU bond interest disbursements.</li>
-<li>Monthly pacing adjustments trigger if 2 consecutive cycles fall behind.</li>
-<li>All milestone assets remain secured under local sovereign audit.</li>
-</ul>
-</div>
-</div>
-<!-- Floating Action Button -->
-<button class="absolute bottom-20 right-5 w-13 h-13 rounded-full bg-[#264362] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform z-30">
-<span class="material-symbols-outlined text-[24px]">add</span>
-</button>
-<!-- Bottom Navigation Bar -->
-<div class="h-16 bg-[#FBF9F4] z-20 flex items-center justify-around px-2 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">dashboard</span>
-<span class="font-label text-[10px]">Dashboard</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-<span class="font-label text-[10px]">Portfolio</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-<span class="font-label text-[10px]">Watchlist</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#264362] font-semibold cursor-pointer">
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">flag</span>
-<span class="font-label text-[10px]">Goals</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">more_horiz</span>
-<span class="font-label text-[10px]">More</span>
-</div>
-</div>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 02: GOALS LIST (ACTIVE) -->
-<!-- ========================================== -->
-<div class="flex flex-col gap-3">
-<div class="flex items-center justify-between text-mist font-label text-label px-2">
-<span class="text-paper-surface font-semibold">02 — GOALS LIST</span>
-<span>ACTIVE (3 ACTIVE)</span>
-</div>
-<!-- 412x860 Mobile Canvas -->
-<div class="w-[412px] h-[860px] bg-[#F4F0E8] rounded-[28px] shadow-[0_24px_50px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden relative select-none">
-<!-- Phone Status Bar -->
-<div class="h-8 px-6 pt-2 flex items-center justify-between text-[#1F2421] text-[12px] font-medium bg-[#F4F0E8] z-20">
-<span>09:41</span>
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-<span class="material-symbols-outlined text-[14px]">wifi</span>
-<span class="material-symbols-outlined text-[14px]">battery_full</span>
-</div>
-</div>
-<!-- Top App Bar -->
-<div class="h-14 px-5 flex items-center justify-between bg-[#F4F0E8] z-20">
-<span class="font-headline-md text-headline-md text-[#1F2421] tracking-tight">DK Bond Tracker</span>
-<div class="flex items-center gap-3">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421]/70">
-<span class="material-symbols-outlined text-[20px]">sync</span>
-</button>
-<div class="relative">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421]/70">
-<span class="material-symbols-outlined text-[20px]">notifications</span>
-</button>
-<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#9E3B33]"></span>
-</div>
-<div class="w-8 h-8 rounded-full bg-[#264362] text-white flex items-center justify-center font-label text-label font-medium shadow-sm">
-                DK
-              </div>
-</div>
-</div>
-<!-- Sticky Segmented Tabs -->
-<div class="px-5 py-2 bg-[#F4F0E8] z-20">
-<div class="h-10 p-1 bg-[#D8D0C2]/50 rounded-xl flex items-center text-label font-label">
-<button class="flex-1 h-full rounded-lg bg-[#FBF9F4] text-[#1F2421] font-semibold shadow-sm flex items-center justify-center transition-all">
-                GOALS (3)
-              </button>
-<button class="flex-1 h-full rounded-lg text-[#1F2421]/60 font-medium flex items-center justify-center hover:text-[#1F2421]">
-                FORM (0)
-              </button>
-</div>
-</div>
-<!-- Scrollable Content -->
-<div class="flex-1 overflow-y-auto px-5 py-2 flex flex-col gap-3">
-<!-- Summary Header Banner -->
-<div class="bg-[#FBF9F4] p-3.5 rounded-xl shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex items-center justify-between">
-<div>
-<span class="font-label text-[11px] text-[#1F2421]/60 font-semibold uppercase tracking-wider block">3 GOALS ACTIVE</span>
-<span class="font-headline-md text-[#1F2421] font-semibold tabular-nums text-[17px]">Target ₹ 45,00,000</span>
-</div>
-<span class="px-2.5 py-1 rounded-full bg-[#264362]/10 text-[#264362] font-label text-label font-semibold tabular-nums">
-                ₹ 65k/mo chip
-              </span>
-</div>
-<!-- Card 1: Commercial Property -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-3">
-<div class="flex items-start justify-between gap-2">
-<div>
-<h4 class="font-headline-md text-[15px] text-[#1F2421] leading-snug">Commercial Property Downpayment</h4>
-<div class="text-[12px] text-[#1F2421]/60 flex items-center gap-1.5 mt-0.5">
-<span>Target Jun 2029</span>
-<span>•</span>
-<span class="tabular-nums font-medium text-[#1F2421]/80">30 Mos Left</span>
-</div>
-</div>
-<!-- Behind Status Chip -->
-<span class="px-2 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-[11px] font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[13px]">warning</span>
-                  Behind
-                </span>
-</div>
-<!-- Amounts & Progress -->
-<div class="flex flex-col gap-1.5">
-<div class="flex justify-between items-baseline text-[13px]">
-<span class="text-[#1F2421]/70">Saved <strong class="text-[#1F2421] tabular-nums">₹ 3,50,000</strong></span>
-<span class="text-[#1F2421]/50 tabular-nums">Target ₹ 20,00,000</span>
-<span class="font-semibold text-due-red-fg tabular-nums">17.5%</span>
-</div>
-<div class="w-full h-2 rounded-full bg-[#EAE3D2] overflow-hidden">
-<div class="h-full bg-due-red-fg rounded-full" style="width: 17.5%;"></div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1">
-<span class="text-[12px] text-due-red-fg font-medium tabular-nums">₹ 20,00,000 total (+₹ 5k needed)</span>
-<div class="flex items-center gap-2">
-<button class="px-3 py-1.5 rounded-lg bg-[#EAE3D2]/70 text-[#1F2421] text-[12px] font-medium hover:bg-[#EAE3D2]">
-                    Details
-                  </button>
-<button class="px-3 py-1.5 rounded-lg bg-[#264362] text-white text-[12px] font-medium hover:brightness-110">
-                    Check-in
-                  </button>
-</div>
-</div>
-</div>
-<!-- Card 2: Child Higher Education Fund -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-3">
-<div class="flex items-start justify-between gap-2">
-<div>
-<h4 class="font-headline-md text-[15px] text-[#1F2421] leading-snug">Child Higher Education Fund</h4>
-<div class="text-[12px] text-[#1F2421]/60 flex items-center gap-1.5 mt-0.5">
-<span>Target Oct 2028</span>
-<span>•</span>
-<span class="tabular-nums font-medium text-[#1F2421]/80">22 Mos Left</span>
-</div>
-</div>
-<!-- On Track Chip -->
-<span class="px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[13px]">check_circle</span>
-                  On track
-                </span>
-</div>
-<!-- Amounts & Progress -->
-<div class="flex flex-col gap-1.5">
-<div class="flex justify-between items-baseline text-[13px]">
-<span class="text-[#1F2421]/70">Saved <strong class="text-[#1F2421] tabular-nums">₹ 11,50,000</strong></span>
-<span class="text-[#1F2421]/50 tabular-nums">Target ₹ 20,00,000</span>
-<span class="font-semibold text-paid-green-fg tabular-nums">57.5%</span>
-</div>
-<div class="w-full h-2 rounded-full bg-[#EAE3D2] overflow-hidden">
-<div class="h-full bg-paid-green-fg rounded-full" style="width: 57.5%;"></div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1">
-<span class="text-[12px] text-[#1F2421]/70 font-medium tabular-nums">₹ 35,000/mo pace</span>
-<div class="flex items-center gap-2">
-<button class="px-3 py-1.5 rounded-lg bg-[#EAE3D2]/70 text-[#1F2421] text-[12px] font-medium hover:bg-[#EAE3D2]">
-                    Details
-                  </button>
-<button class="px-3 py-1.5 rounded-lg bg-[#264362] text-white text-[12px] font-medium hover:brightness-110">
-                    Check-in
-                  </button>
-</div>
-</div>
-</div>
-<!-- Card 3: Annual Family Vacation -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-3">
-<div class="flex items-start justify-between gap-2">
-<div>
-<h4 class="font-headline-md text-[15px] text-[#1F2421] leading-snug">Annual Family Vacation 2027</h4>
-<div class="text-[12px] text-[#1F2421]/60 flex items-center gap-1.5 mt-0.5">
-<span>Target Dec 2027</span>
-<span>•</span>
-<span class="tabular-nums font-medium text-[#1F2421]/80">12 Mos Left</span>
-</div>
-</div>
-<!-- On Track Chip -->
-<span class="px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[13px]">check_circle</span>
-                  On track
-                </span>
-</div>
-<!-- Amounts & Progress -->
-<div class="flex flex-col gap-1.5">
-<div class="flex justify-between items-baseline text-[13px]">
-<span class="text-[#1F2421]/70">Saved <strong class="text-[#1F2421] tabular-nums">₹ 3,75,000</strong></span>
-<span class="text-[#1F2421]/50 tabular-nums">Target ₹ 5,00,000</span>
-<span class="font-semibold text-paid-green-fg tabular-nums">75.0%</span>
-</div>
-<div class="w-full h-2 rounded-full bg-[#EAE3D2] overflow-hidden">
-<div class="h-full bg-paid-green-fg rounded-full" style="width: 75%;"></div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-1">
-<span class="text-[12px] text-[#1F2421]/70 font-medium tabular-nums">₹ 10,000/mo pace</span>
-<div class="flex items-center gap-2">
-<button class="px-3 py-1.5 rounded-lg bg-[#EAE3D2]/70 text-[#1F2421] text-[12px] font-medium hover:bg-[#EAE3D2]">
-                    Details
-                  </button>
-<button class="px-3 py-1.5 rounded-lg bg-[#264362] text-white text-[12px] font-medium hover:brightness-110">
-                    Check-in
-                  </button>
-</div>
-</div>
-</div>
-</div>
-<!-- Floating Action Button -->
-<button class="absolute bottom-20 right-5 w-13 h-13 rounded-full bg-[#264362] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform z-30">
-<span class="material-symbols-outlined text-[24px]">add</span>
-</button>
-<!-- Bottom Navigation Bar -->
-<div class="h-16 bg-[#FBF9F4] z-20 flex items-center justify-around px-2 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">dashboard</span>
-<span class="font-label text-[10px]">Dashboard</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-<span class="font-label text-[10px]">Portfolio</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-<span class="font-label text-[10px]">Watchlist</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#264362] font-semibold cursor-pointer">
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">flag</span>
-<span class="font-label text-[10px]">Goals</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">more_horiz</span>
-<span class="font-label text-[10px]">More</span>
-</div>
-</div>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 03: CREATE FORM (FORM) -->
-<!-- ========================================== -->
-<div class="flex flex-col gap-3">
-<div class="flex items-center justify-between text-mist font-label text-label px-2">
-<span class="text-paper-surface font-semibold">03 — CREATE FORM</span>
-<span>FORM ENTRY &amp; LOGIC</span>
-</div>
-<!-- 412x860 Mobile Canvas -->
-<div class="w-[412px] h-[860px] bg-[#F4F0E8] rounded-[28px] shadow-[0_24px_50px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden relative select-none">
-<!-- Phone Status Bar -->
-<div class="h-8 px-6 pt-2 flex items-center justify-between text-[#1F2421] text-[12px] font-medium bg-[#F4F0E8] z-20">
-<span>09:41</span>
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-<span class="material-symbols-outlined text-[14px]">wifi</span>
-<span class="material-symbols-outlined text-[14px]">battery_full</span>
-</div>
-</div>
-<!-- Top App Bar (Back Arrow + Title) -->
-<div class="h-14 px-4 flex items-center justify-between bg-[#F4F0E8] z-20">
-<div class="flex items-center gap-2">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421] hover:bg-black/5">
-<span class="material-symbols-outlined text-[20px]">arrow_back</span>
-</button>
-<span class="font-headline-md text-headline-md text-[#1F2421] tracking-tight">Create New Milestone</span>
-</div>
-<div class="w-8 h-8 rounded-full bg-[#264362] text-white flex items-center justify-center font-label text-label font-medium shadow-sm">
-              DK
-            </div>
-</div>
-<!-- MANDATORY FIX 1: Sticky Segmented Tabs (FORM ACTIVE) -->
-<div class="px-5 py-2 bg-[#F4F0E8] z-20">
-<div class="h-10 p-1 bg-[#D8D0C2]/50 rounded-xl flex items-center text-label font-label">
-<button class="flex-1 h-full rounded-lg text-[#1F2421]/60 font-medium flex items-center justify-center hover:text-[#1F2421]">
-                GOALS (3)
-              </button>
-<button class="flex-1 h-full rounded-lg bg-[#FBF9F4] text-[#1F2421] font-semibold shadow-sm flex items-center justify-center transition-all">
-                FORM (0)
-              </button>
-</div>
-</div>
-<!-- Scrollable Content: Form Inputs -->
-<div class="flex-1 overflow-y-auto px-5 py-3 flex flex-col gap-3.5">
-<!-- Goal Name -->
-<div class="flex flex-col gap-1">
-<label class="font-label text-[11px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">
-                GOAL NAME
-              </label>
-<input class="h-11 px-3.5 rounded-lg bg-[#FBF9F4] text-[#1F2421] font-body-md text-body-md shadow-sm outline-none focus:ring-1 focus:ring-[#264362]" type="text" value="Child Higher Education Fund"/>
-</div>
-<!-- Target Amount (Readonly Derived) -->
-<div class="flex flex-col gap-1">
-<label class="font-label text-[11px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">
-                TARGET AMOUNT (₹) · AUTO
-              </label>
-<div class="relative">
-<span class="absolute left-3.5 top-3 text-[#1F2421]/50 text-body-md font-medium">₹</span>
-<input class="w-full h-11 pl-8 pr-3.5 rounded-lg bg-[#EAE3D2]/60 text-[#1F2421] font-headline-md text-headline-md tabular-nums font-semibold cursor-not-allowed outline-none" readonly="" value="20,00,000"/>
-</div>
-<p class="text-[11px] text-[#1F2421]/65 leading-tight mt-0.5">
-                Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.
-              </p>
-</div>
-<!-- Mode Divider Badge -->
-<div class="py-1 flex items-center gap-2">
-<div class="flex-1 h-[1px] bg-[#D8D0C2]"></div>
-<span class="px-2 py-0.5 rounded-full bg-[#EAE3D2] text-[#1F2421]/70 text-[10px] font-label uppercase tracking-wider">
-                monthly mode active · target derived above
-              </span>
-<div class="flex-1 h-[1px] bg-[#D8D0C2]"></div>
-</div>
-<!-- Monthly Contribution -->
-<div class="flex flex-col gap-1">
-<label class="font-label text-[11px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">
-                MONTHLY CONTRIBUTION (₹)
-              </label>
-<div class="relative">
-<span class="absolute left-3.5 top-3 text-[#1F2421]/50 text-body-md font-medium">₹</span>
-<input class="w-full h-11 pl-8 pr-3.5 rounded-lg bg-[#FBF9F4] text-[#1F2421] font-body-md text-body-md tabular-nums font-medium shadow-sm outline-none focus:ring-1 focus:ring-[#264362]" type="text" value="35,000"/>
-</div>
-</div>
-<!-- Date Pickers Grid -->
-<div class="grid grid-cols-2 gap-3">
-<div class="flex flex-col gap-1">
-<label class="font-label text-[10px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">START DATE</label>
-<div class="h-11 px-3 rounded-lg bg-[#FBF9F4] flex items-center justify-between shadow-sm cursor-pointer">
-<span class="text-[13px] text-[#1F2421] font-medium">Jan 2027</span>
-<span class="material-symbols-outlined text-[18px] text-[#1F2421]/40">calendar_month</span>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<label class="font-label text-[10px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">TARGET DATE</label>
-<div class="h-11 px-3 rounded-lg bg-[#FBF9F4] flex items-center justify-between shadow-sm cursor-pointer">
-<span class="text-[13px] text-[#1F2421] font-medium">Oct 2028</span>
-<span class="material-symbols-outlined text-[18px] text-[#1F2421]/40">calendar_month</span>
-</div>
-</div>
-</div>
-<!-- Exactly ONE Formula Computation Card -->
-<div class="bg-[#FBF9F4] rounded-xl p-3 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-1">
-<span class="font-label text-[10px] text-[#264362] font-semibold uppercase tracking-wider">Formula Verification</span>
-<p class="text-[11px] text-[#1F2421]/80 font-mono leading-relaxed">
-                saved + contributions + portfolio growth (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)
-              </p>
-</div>
-<!-- Saved So Far (Optional) -->
-<div class="flex flex-col gap-1">
-<label class="font-label text-[11px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">
-                SAVED SO FAR (OPTIONAL)
-              </label>
-<div class="relative">
-<span class="absolute left-3.5 top-3 text-[#1F2421]/50 text-body-md font-medium">₹</span>
-<input class="w-full h-11 pl-8 pr-3.5 rounded-lg bg-[#FBF9F4] text-[#1F2421] font-body-md text-body-md tabular-nums font-medium shadow-sm outline-none focus:ring-1 focus:ring-[#264362]" type="text" value="11,50,000"/>
-</div>
-</div>
-<!-- Note (Optional) -->
-<div class="flex flex-col gap-1">
-<label class="font-label text-[11px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">
-                NOTE (OPTIONAL)
-              </label>
-<textarea class="p-3 rounded-lg bg-[#FBF9F4] text-[#1F2421] text-[13px] leading-snug shadow-sm outline-none focus:ring-1 focus:ring-[#264362] resize-none" rows="2">Priority milestone, mapped to AAA PSU bond yield reinvestment.</textarea>
-</div>
-<!-- Action Controls -->
-<div class="flex flex-col gap-2 pt-1 pb-4">
-<button class="h-11 w-full rounded-lg bg-[#264362] text-white font-body-md text-body-md font-medium shadow-sm hover:brightness-110 active:scale-[0.99] transition-all">
-                Save goal
-              </button>
-<button class="h-9 w-full rounded-lg text-[#1F2421]/60 font-body-sm text-body-sm hover:text-[#1F2421] transition-colors">
-                Cancel and discard
-              </button>
-</div>
-</div>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 04: MONTHLY TRACKING (AUTOMATED) -->
-<!-- ========================================== -->
-<div class="flex flex-col gap-3">
-<div class="flex items-center justify-between text-mist font-label text-label px-2">
-<span class="text-paper-surface font-semibold">04 — MONTHLY TRACKING</span>
-<span>PACE AUTO-CORRECTION</span>
-</div>
-<!-- 412x860 Mobile Canvas -->
-<div class="w-[412px] h-[860px] bg-[#F4F0E8] rounded-[28px] shadow-[0_24px_50px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden relative select-none">
-<!-- Phone Status Bar -->
-<div class="h-8 px-6 pt-2 flex items-center justify-between text-[#1F2421] text-[12px] font-medium bg-[#F4F0E8] z-20">
-<span>09:41</span>
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-<span class="material-symbols-outlined text-[14px]">wifi</span>
-<span class="material-symbols-outlined text-[14px]">battery_full</span>
-</div>
-</div>
-<!-- Top App Bar -->
-<div class="h-14 px-5 flex items-center justify-between bg-[#F4F0E8] z-20">
-<span class="font-headline-md text-headline-md text-[#1F2421] tracking-tight">DK Bond Tracker</span>
-<div class="flex items-center gap-3">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421]/70">
-<span class="material-symbols-outlined text-[20px]">sync</span>
-</button>
-<div class="relative">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421]/70">
-<span class="material-symbols-outlined text-[20px]">notifications</span>
-</button>
-<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#9E3B33]"></span>
-</div>
-<div class="w-8 h-8 rounded-full bg-[#264362] text-white flex items-center justify-center font-label text-label font-medium shadow-sm">
-                DK
-              </div>
-</div>
-</div>
-<!-- MANDATORY FIX 1: Sticky Segmented Tabs (GOALS ACTIVE) -->
-<div class="px-5 py-2 bg-[#F4F0E8] z-20">
-<div class="h-10 p-1 bg-[#D8D0C2]/50 rounded-xl flex items-center text-label font-label">
-<button class="flex-1 h-full rounded-lg bg-[#FBF9F4] text-[#1F2421] font-semibold shadow-sm flex items-center justify-center transition-all">
-                GOALS (3)
-              </button>
-<button class="flex-1 h-full rounded-lg text-[#1F2421]/60 font-medium flex items-center justify-center hover:text-[#1F2421]">
-                FORM (0)
-              </button>
-</div>
-</div>
-<!-- Scrollable Content -->
-<div class="flex-1 overflow-y-auto px-5 py-2 flex flex-col gap-3">
-<!-- Dynamic Pacing Notice Banner -->
-<div class="bg-due-red-bg rounded-xl p-3.5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex gap-2.5 items-start">
-<span class="material-symbols-outlined text-[18px] text-due-red-fg mt-0.5">warning</span>
-<div class="flex flex-col gap-0.5">
-<span class="font-headline-md text-[13px] text-due-red-fg font-semibold">2 months missed — pace adjustment active.</span>
-<p class="text-[12px] text-due-red-fg/90 leading-snug">
-                  Oct &amp; Sep missed check-ins. Monthly pacing stepped from ₹35k to ₹42k to protect target date.
-                </p>
-</div>
-</div>
-<!-- Rhythm Log (2026) Card -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<h4 class="font-headline-md text-[14px] text-[#1F2421]">Rhythm Log (2026)</h4>
-<span class="font-label text-[11px] text-[#1F2421]/50">Child Education Fund</span>
-</div>
-<!-- Cycle Entries -->
-<div class="flex flex-col divide-y divide-[#EAE3D2]">
-<!-- Dec 2026 -->
-<div class="py-2 flex items-center justify-between text-[13px]">
-<span class="font-medium text-[#1F2421]">Dec 2026</span>
-<span class="px-2 py-0.5 rounded-full bg-upcoming-amber-bg text-upcoming-amber-fg font-label text-[11px] font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[13px]">hourglass_top</span>
-                    Due Soon
-                  </span>
-</div>
-<!-- Nov 2026 -->
-<div class="py-2 flex items-center justify-between text-[13px]">
-<span class="font-medium text-[#1F2421]">Nov 2026</span>
-<span class="font-medium text-paid-green-fg tabular-nums flex items-center gap-1">
-<span class="material-symbols-outlined text-[15px]">check</span>
-                    ₹ 35,000
-                  </span>
-</div>
-<!-- Oct 2026 -->
-<div class="py-2 flex items-center justify-between text-[13px]">
-<span class="font-medium text-[#1F2421]">Oct 2026</span>
-<span class="px-2 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-[11px] font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[13px]">close</span>
-                    MISSED
-                  </span>
-</div>
-<!-- Sep 2026 -->
-<div class="py-2 flex items-center justify-between text-[13px]">
-<span class="font-medium text-[#1F2421]">Sep 2026</span>
-<span class="px-2 py-0.5 rounded-full bg-due-red-bg text-due-red-fg font-label text-[11px] font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[13px]">close</span>
-                    MISSED
-                  </span>
-</div>
-<!-- Aug 2026 -->
-<div class="py-2 flex items-center justify-between text-[13px]">
-<span class="font-medium text-[#1F2421]">Aug 2026</span>
-<span class="font-medium text-paid-green-fg tabular-nums flex items-center gap-1">
-<span class="material-symbols-outlined text-[15px]">check</span>
-                    ₹ 35,000
-                  </span>
-</div>
-<!-- Jul 2026 -->
-<div class="py-2 flex items-center justify-between text-[13px]">
-<span class="font-medium text-[#1F2421]">Jul 2026</span>
-<span class="font-medium text-paid-green-fg tabular-nums flex items-center gap-1">
-<span class="material-symbols-outlined text-[15px]">check</span>
-                    ₹ 35,000
-                  </span>
-</div>
-</div>
-</div>
-<!-- Upcoming Pipeline (2027) -->
-<div class="bg-[#FBF9F4] rounded-xl p-3.5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-2">
-<span class="font-label text-[11px] text-[#1F2421]/60 font-semibold uppercase tracking-wider">
-                Upcoming Pipeline (2027) · 11 Scheduled Cycles
-              </span>
-<div class="flex flex-wrap gap-1.5 pt-1">
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Jan '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Feb '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Mar '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Apr '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">May '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Jun '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Jul '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Aug '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Sep '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Oct '27</span>
-<span class="px-2 py-1 rounded bg-[#EAE3D2]/70 text-[#1F2421] text-[11px] font-medium font-mono">Nov '27</span>
-</div>
-</div>
-<!-- Linked Cashflow Bonds Card -->
-<div class="bg-[#FBF9F4] rounded-xl p-3.5 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex items-center justify-between">
-<div>
-<span class="font-label text-[10px] text-[#264362] font-semibold uppercase tracking-wider block">Auto-Routing Bond Cashflow</span>
-<span class="font-headline-md text-[13px] text-[#1F2421]">Tata Capital Fin Services</span>
-</div>
-<span class="font-headline-md text-[13px] text-paid-green-fg tabular-nums font-semibold">
-                +₹ 45,750/yr
-              </span>
-</div>
-</div>
-<!-- Bottom Navigation Bar -->
-<div class="h-16 bg-[#FBF9F4] z-20 flex items-center justify-around px-2 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">dashboard</span>
-<span class="font-label text-[10px]">Dashboard</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-<span class="font-label text-[10px]">Portfolio</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-<span class="font-label text-[10px]">Watchlist</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#264362] font-semibold cursor-pointer">
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">flag</span>
-<span class="font-label text-[10px]">Goals</span>
-</div>
-<div class="flex flex-col items-center gap-0.5 text-[#1F2421]/50 cursor-pointer">
-<span class="material-symbols-outlined text-[20px]">more_horiz</span>
-<span class="font-label text-[10px]">More</span>
-</div>
-</div>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- FRAME 05: DETAIL + CHECK-IN (GUARDED) -->
-<!-- ========================================== -->
-<div class="flex flex-col gap-3">
-<div class="flex items-center justify-between text-mist font-label text-label px-2">
-<span class="text-paper-surface font-semibold">05 — DETAIL + CHECK-IN</span>
-<span>RECORD PROGRESS</span>
-</div>
-<!-- 412x860 Mobile Canvas -->
-<div class="w-[412px] h-[860px] bg-[#F4F0E8] rounded-[28px] shadow-[0_24px_50px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden relative select-none">
-<!-- Phone Status Bar -->
-<div class="h-8 px-6 pt-2 flex items-center justify-between text-[#1F2421] text-[12px] font-medium bg-[#F4F0E8] z-20">
-<span>09:41</span>
-<div class="flex items-center gap-1.5">
-<span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
-<span class="material-symbols-outlined text-[14px]">wifi</span>
-<span class="material-symbols-outlined text-[14px]">battery_full</span>
-</div>
-</div>
-<!-- Top App Bar (Back Arrow + Title + OverFlow Menu) -->
-<div class="h-14 px-4 flex items-center justify-between bg-[#F4F0E8] z-20 relative">
-<div class="flex items-center gap-2">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421] hover:bg-black/5">
-<span class="material-symbols-outlined text-[20px]">arrow_back</span>
-</button>
-<span class="font-headline-md text-[16px] text-[#1F2421] tracking-tight">Child Higher Education Fund</span>
-</div>
-<div class="relative">
-<button class="w-8 h-8 rounded-full flex items-center justify-center text-[#1F2421] hover:bg-black/5" id="menu-btn">
-<span class="material-symbols-outlined text-[20px]">more_vert</span>
-</button>
-<!-- STRICT OVERFLOW MENU: ONLY "Edit goal" and "Archive goal" -->
-<div class="absolute right-0 top-10 w-36 bg-[#FBF9F4] rounded-xl shadow-lg border border-[#D8D0C2] py-1 z-50 flex flex-col">
-<button class="w-full text-left px-3.5 py-2 text-[13px] text-[#1F2421] hover:bg-[#EAE3D2] flex items-center gap-2 font-medium">
-<span class="material-symbols-outlined text-[16px] text-[#1F2421]/60">edit</span>
-                  Edit goal
-                </button>
-<button class="w-full text-left px-3.5 py-2 text-[13px] text-[#1F2421] hover:bg-[#EAE3D2] flex items-center gap-2 font-medium">
-<span class="material-symbols-outlined text-[16px] text-[#1F2421]/60">archive</span>
-                  Archive goal
-                </button>
-</div>
-</div>
-</div>
-<!-- Scrollable Content -->
-<div class="flex-1 overflow-y-auto px-5 py-2 flex flex-col gap-3.5">
-<!-- Milestone Progress Header Card -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-3">
-<div class="flex items-start justify-between">
-<div>
-<span class="font-label text-[10px] text-[#1F2421]/50 uppercase tracking-wider block">CAPITAL ACCUMULATION</span>
-<div class="flex items-baseline gap-1.5 mt-0.5">
-<span class="font-headline-lg text-[#1F2421] font-bold tabular-nums">₹ 11,50,000</span>
-<span class="text-[12px] text-[#1F2421]/50 tabular-nums">/ ₹ 20,00,000</span>
-</div>
-</div>
-<div class="flex flex-col items-end">
-<span class="px-2 py-0.5 rounded-full bg-paid-green-bg text-paid-green-fg font-label text-[11px] font-semibold">
-                    57.5%
-                  </span>
-<span class="text-[11px] text-[#1F2421]/60 mt-1 font-medium tabular-nums">22 Mos Left</span>
-</div>
-</div>
-<!-- Progress Bar -->
-<div class="w-full h-2.5 rounded-full bg-[#EAE3D2] overflow-hidden">
-<div class="h-full bg-[#264362] rounded-full" style="width: 57.5%;"></div>
-</div>
-<div class="flex items-center justify-between text-[11px] text-[#1F2421]/65 font-medium pt-0.5">
-<span>Start: Jan 2027</span>
-<span>Pace: ₹ 35,000/mo</span>
-<span>Maturity: Oct 2028</span>
-</div>
-</div>
-<!-- Check-in Form Section -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-3">
-<h4 class="font-headline-md text-[14px] text-[#1F2421]">Record Monthly Check-in</h4>
-<!-- Inputs -->
-<div class="grid grid-cols-2 gap-2.5">
-<div class="flex flex-col gap-1">
-<label class="font-label text-[10px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">Amount (₹)</label>
-<div class="relative">
-<span class="absolute left-3 top-2.5 text-[#1F2421]/50 text-[13px] font-medium">₹</span>
-<input class="w-full h-10 pl-7 pr-2 rounded-lg bg-[#EAE3D2]/40 text-[#1F2421] text-[13px] font-medium tabular-nums shadow-sm outline-none focus:ring-1 focus:ring-[#264362]" type="text" value="35,000"/>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<label class="font-label text-[10px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">Date</label>
-<div class="h-10 px-3 rounded-lg bg-[#EAE3D2]/40 flex items-center justify-between shadow-sm cursor-pointer">
-<span class="text-[13px] text-[#1F2421] font-medium">15 Dec 2026</span>
-<span class="material-symbols-outlined text-[16px] text-[#1F2421]/40">calendar_today</span>
-</div>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<label class="font-label text-[10px] text-[#1F2421]/70 uppercase tracking-wider font-semibold">Note (Optional)</label>
-<input class="h-10 px-3 rounded-lg bg-[#EAE3D2]/40 text-[#1F2421] text-[13px] shadow-sm outline-none focus:ring-1 focus:ring-[#264362]" placeholder="e.g. Dividend transfer from bond pool" type="text"/>
-</div>
-<!-- Action Buttons -->
-<div class="grid grid-cols-2 gap-2 pt-1">
-<button class="h-10 rounded-lg border border-[#D8D0C2] bg-transparent text-[#1F2421] text-[13px] font-medium hover:bg-black/5 transition-colors">
-                  Save draft
-                </button>
-<button class="h-10 rounded-lg bg-[#264362] text-white text-[13px] font-medium hover:brightness-110 active:scale-[0.99] transition-all">
-                  Record check-in
-                </button>
-</div>
-</div>
-<!-- Linked Bonds Section (Tata Capital + L&T ONLY) -->
-<div class="bg-[#FBF9F4] rounded-xl p-4 shadow-[0_1px_2px_rgba(22,33,46,0.06)] flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<h4 class="font-headline-md text-[14px] text-[#1F2421]">Linked Bonds</h4>
-<span class="font-label text-[11px] text-[#28614E] font-medium">2 Instruments Mapped</span>
-</div>
-<!-- Bond List (EXACTLY Tata Capital and L&T) -->
-<div class="flex flex-col gap-2">
-<!-- Tata Capital -->
-<div class="p-2.5 rounded-lg bg-[#EAE3D2]/40 flex items-center justify-between">
-<div class="flex flex-col">
-<span class="text-[13px] font-medium text-[#1F2421]">Tata Capital Fin Services</span>
-<span class="text-[11px] text-[#1F2421]/60">Coupon 8.45% · Semi-annual</span>
-</div>
-<span class="font-headline-md text-[13px] text-paid-green-fg tabular-nums font-semibold">
-                    +₹ 45,750/yr
-                  </span>
-</div>
-<!-- L&T Finance Holdings -->
-<div class="p-2.5 rounded-lg bg-[#EAE3D2]/40 flex items-center justify-between">
-<div class="flex flex-col">
-<span class="text-[13px] font-medium text-[#1F2421]">L&amp;T Finance Holdings</span>
-<span class="text-[11px] text-[#1F2421]/60">Coupon 8.12% · Annual</span>
-</div>
-<span class="font-headline-md text-[13px] text-paid-green-fg tabular-nums font-semibold">
-                    +₹ 35,400/yr
-                  </span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Board Bottom Compliance Verification Bar -->
-<section class="w-full px-margin py-space-lg max-w-[2400px] mx-auto">
-<div class="p-4 rounded-xl bg-surface-container-highest/10 text-mist font-label text-label leading-relaxed">
-      • WARM LEDGER (LIGHT) REVIEW BOARD · FIVE CANONICAL MILESTONE GOAL STAGES COMPLETE · STRICT TOKEN ENFORCEMENT (#F4F0E8, #FBF9F4, #D8D0C2, #1F2421, #264362, #28614E, #9E3B33) · ZERO DRIFT SPECIFICATION
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--board-bg);
+    color: var(--board-ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Board Header */
+  .board-header {
+    width: 100%;
+    max-width: 2240px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--board-border);
+  }
+
+  .board-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--wl-accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--wl-accent);
+  }
+
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--board-ink);
+    letter-spacing: -0.02em;
+  }
+
+  .spec-row {
+    font-size: 12px;
+    color: var(--board-sub);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .badges-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .badge-locked {
+    background: #264362;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge-spec {
+    background: #DFD8CB;
+    color: #3C423E;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+
+  .token-swatches {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #DFD8CB;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--board-ink);
+  }
+
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .swatch-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  /* Frames Grid */
+  .frames-container {
+    width: 100%;
+    max-width: 2240px;
+    display: grid;
+    grid-template-columns: repeat(5, 412px);
+    gap: 24px;
+    justify-content: center;
+    overflow-x: auto;
+    padding-bottom: 24px;
+  }
+
+  .frame-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .frame-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--board-sub);
+    padding: 0 4px;
+  }
+
+  .frame-pill-label {
+    background: #DFD8CB;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--wl-accent);
+  }
+
+  /* Phone Shell Container */
+  .phone-frame {
+    width: 412px;
+    height: 870px;
+    background-color: var(--wl-bg);
+    border: 1px solid var(--wl-border);
+    border-radius: 28px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 16px 36px rgba(45, 38, 28, 0.09);
+  }
+
+  /* System Status Bar */
+  .status-bar {
+    height: 38px;
+    padding: 10px 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--wl-ink);
+  }
+
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Top App Bar */
+  .top-app-bar {
+    height: 52px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--wl-hairline);
+    background: var(--wl-bg);
+    flex-shrink: 0;
+  }
+
+  .brand-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  .back-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--wl-accent);
+  }
+
+  .app-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .action-icon {
+    position: relative;
+    color: var(--wl-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .action-badge {
+    position: absolute;
+    top: -4px;
+    right: -5px;
+    background: var(--wl-error);
+    color: #FFF;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 8px;
+  }
+
+  .avatar-chip {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--wl-accent);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sticky Segmented Tabs */
+  .segmented-tabs {
+    padding: 10px 16px 8px;
+    background: var(--wl-bg);
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--wl-hairline);
+    flex-shrink: 0;
+  }
+
+  .segment-btn {
+    flex: 1;
+    padding: 9px 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .segment-btn.active {
+    background: var(--wl-accent);
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(38, 67, 98, 0.2);
+  }
+
+  .segment-btn.inactive {
+    background: #EDE6D8;
+    color: var(--wl-sub);
+    border-color: var(--wl-border);
+  }
+
+  /* Scrollable Screen Body */
+  .screen-scroll-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Shared Stats Strip */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 12px;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .stat-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wl-sub);
+  }
+
+  .stat-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  .stat-caption {
+    font-size: 10px;
+    color: var(--wl-sub);
+  }
+
+  /* Empty State */
+  .empty-state-box {
+    margin: auto 0;
+    background: var(--wl-cards);
+    border: 1px dashed var(--wl-border);
+    border-radius: 14px;
+    padding: 36px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .empty-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--wl-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--wl-accent);
+  }
+
+  .empty-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  .empty-desc {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--wl-sub);
+    max-width: 270px;
+  }
+
+  .primary-btn {
+    background: var(--wl-accent);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    box-shadow: 0 3px 8px rgba(38, 67, 98, 0.18);
+  }
+
+  .secondary-btn {
+    background: transparent;
+    color: var(--wl-accent);
+    border: 1px solid var(--wl-accent);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .helper-card {
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--wl-sub);
+    display: flex;
+    gap: 10px;
+  }
+
+  /* Goals List Active */
+  .list-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2px;
+  }
+
+  .list-count-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  .pace-summary-chip {
+    font-size: 11px;
+    font-weight: 600;
+    background: #EDE6D8;
+    color: var(--wl-accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .goal-card {
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  }
+
+  .goal-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .goal-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wl-ink);
+    margin-bottom: 2px;
+  }
+
+  .goal-dates {
+    font-size: 11px;
+    color: var(--wl-sub);
+  }
+
+  .status-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .status-pill.on-track {
+    background: var(--wl-success-bg);
+    color: var(--wl-success);
+    border: 1px solid rgba(43, 97, 68, 0.2);
+  }
+
+  .status-pill.behind {
+    background: var(--wl-error-bg);
+    color: var(--wl-error);
+    border: 1px solid rgba(158, 59, 51, 0.2);
+  }
+
+  .status-pill.due-soon {
+    background: var(--wl-warn-bg);
+    color: var(--wl-warn);
+    border: 1px solid rgba(138, 83, 0, 0.2);
+  }
+
+  .signal-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .signal-pill.missed {
+    background: var(--wl-error-bg);
+    color: var(--wl-error);
+    border: 1px solid rgba(158, 59, 51, 0.15);
+  }
+
+  .signal-pill.success {
+    background: var(--wl-success-bg);
+    color: var(--wl-success);
+    border: 1px solid rgba(43, 97, 68, 0.15);
+  }
+
+  .saved-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 2px;
+  }
+
+  .saved-amount-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .saved-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wl-sub);
+  }
+
+  .saved-amount {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  /* Progress Rail: psychology rule compliant (no labels, no target numbers) */
+  .progress-rail {
+    height: 6px;
+    background: #E8E0D2;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  .fill-accent {
+    background: var(--wl-accent);
+  }
+
+  .fill-success {
+    background: var(--wl-success);
+  }
+
+  .fill-warn {
+    background: var(--wl-warn);
+  }
+
+  .goal-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--wl-hairline);
+    padding-top: 10px;
+    margin-top: 2px;
+  }
+
+  .monthly-pace-info {
+    font-size: 11px;
+    color: var(--wl-sub);
+  }
+
+  .action-buttons-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-buttons-group .action-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .btn-checkin {
+    background: var(--wl-accent);
+    color: #FFF;
+    border: none;
+  }
+
+  .btn-details {
+    background: transparent;
+    border: 1px solid var(--wl-border);
+    color: var(--wl-ink);
+  }
+
+  /* Form Elements */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--wl-ink);
+  }
+
+  .form-input {
+    width: 100%;
+    height: 48px;
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+    color: var(--wl-ink);
+    font-family: inherit;
+    outline: none;
+  }
+
+  .form-input:focus {
+    border-color: var(--wl-accent);
+    box-shadow: 0 0 0 2px rgba(38, 67, 98, 0.12);
+  }
+
+  .form-input.readonly {
+    background: #EDE6D8;
+    color: #4A514D;
+    border-color: #D4CBBA;
+    font-weight: 600;
+  }
+
+  .input-caption {
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--wl-sub);
+  }
+
+  .divider-spec {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wl-sub);
+    margin: 4px 0;
+  }
+
+  .divider-spec::before, .divider-spec::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--wl-hairline);
+  }
+
+  .formula-box {
+    background: #F0E9DC;
+    border: 1px solid #D6CCBA;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .formula-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wl-accent);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .formula-text {
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--wl-ink);
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Warning Banner */
+  .system-banner {
+    background: var(--wl-warn-bg);
+    border: 1px solid rgba(138, 83, 0, 0.25);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .banner-icon {
+    color: var(--wl-warn);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .banner-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wl-warn);
+  }
+
+  .banner-sub {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #5C3800;
+  }
+
+  /* Rhythm rows */
+  .rhythm-card {
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rhythm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--wl-hairline);
+  }
+
+  .rhythm-row:last-child {
+    border-bottom: none;
+    padding-bottom: 2px;
+  }
+
+  .rhythm-date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .rhythm-month {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  .rhythm-status-tag {
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .rhythm-status-tag.invested {
+    color: var(--wl-success);
+  }
+
+  .rhythm-status-tag.missed {
+    color: var(--wl-error);
+    font-weight: 700;
+  }
+
+  .rhythm-returns {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--wl-accent);
+    background: #EAE3D5;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  /* Linked Bonds */
+  .bond-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 8px;
+  }
+
+  .bond-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wl-ink);
+  }
+
+  .bond-meta {
+    font-size: 10px;
+    color: var(--wl-sub);
+  }
+
+  .bond-yield {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--wl-success);
+  }
+
+  /* Guarded Overflow Menu */
+  .guarded-menu {
+    background: var(--wl-cards);
+    border: 1px solid var(--wl-border);
+    border-radius: 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .menu-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--wl-ink);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .menu-action:hover {
+    background: #EDE6D8;
+  }
+
+  .zero-remove-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wl-sub);
+    padding: 4px 10px;
+    border-top: 1px solid var(--wl-hairline);
+    margin-top: 2px;
+  }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    height: 56px;
+    background: var(--wl-bg);
+    border-top: 1px solid var(--wl-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--wl-sub);
+    cursor: pointer;
+  }
+
+  .nav-item.active {
+    color: var(--wl-accent);
+    font-weight: 700;
+  }
+
+  .nav-item.active svg {
+    stroke: var(--wl-accent);
+  }
+
+  /* Board Footer */
+  .board-footer {
+    width: 100%;
+    max-width: 2240px;
+    padding-top: 16px;
+    border-top: 1px solid var(--board-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--board-sub);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+  <!-- REVIEW BOARD HEADER -->
+  <header class="board-header">
+    <div class="board-meta">
+      <div class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        DK Bond Tracker • Financial Milestones Architecture
+      </div>
+      <h1>Goals — Warm Ledger (Light) Review Board</h1>
+      <div class="spec-row">
+        <span>VIEWPORT: 412dp × 870dp (Compact MVP)</span>
+        <span>•</span>
+        <span>CURRENCY: ₹ INR Only</span>
+        <span>•</span>
+        <span>PSYCHOLOGY INVARIANTS: Rule A (Zero Target on Reading) & Rule B (Month Signal Precedence)</span>
+      </div>
     </div>
-</section>
-</div></main><footer class="w-full bg-ink/90 py-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.12)]"><div class="w-full px-margin flex flex-col sm:flex-row items-center justify-between gap-space-sm text-mist font-body-sm text-body-sm"><div>Warm Ledger Design System Review • Build Verification Shell</div><div class="flex items-center gap-space-md"><span>5 Mobile Viewports</span><span>Spatial Unit 8px</span><span>Tactile Ledger v1.0</span></div></div></footer></body></html>
+    <div class="badges-group">
+      <div class="badge-locked">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        LOCKED • 2026-11-27
+      </div>
+      <div class="badge-spec">5 FRAMES CANONICAL REVIEW</div>
+      <div class="token-swatches">
+        <div class="swatch"><span class="swatch-circle" style="background:#F4F0E8;"></span>bg #F4F0E8</div>
+        <div class="swatch"><span class="swatch-circle" style="background:#FBF9F4;"></span>cards #FBF9F4</div>
+        <div class="swatch"><span class="swatch-circle" style="background:#D8D0C2;"></span>border #D8D0C2</div>
+        <div class="swatch"><span class="swatch-circle" style="background:#1F2421;"></span>ink #1F2421</div>
+        <div class="swatch"><span class="swatch-circle" style="background:#264362;"></span>accent #264362</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 5 FRAMES HORIZONTAL ROW -->
+  <main class="frames-container">
+
+    <!-- FRAME 01: FIRST OPEN / ZERO STATE -->
+    <div class="frame-column">
+      <div class="frame-label">
+        <span>01 — First Open / Empty State</span>
+        <span class="frame-pill-label">EMPTY</span>
+      </div>
+      <div class="phone-frame">
+        <div class="status-bar">
+          <span>09:41</span>
+          <div class="status-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+          </div>
+        </div>
+
+        <div class="top-app-bar">
+          <div class="brand-area">DK Bond Tracker</div>
+          <div class="app-bar-actions">
+            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></span>
+            <span class="action-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="action-badge">2</span>
+            </span>
+            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg></span>
+            <div class="avatar-chip">DK</div>
+          </div>
+        </div>
+
+        <div class="segmented-tabs">
+          <div class="segment-btn active">GOALS (0)</div>
+          <div class="segment-btn inactive">FORM (0)</div>
+        </div>
+
+        <div class="screen-scroll-body">
+          <!-- Psychology Rule A Stat Strip on First Open -->
+          <div class="stats-strip">
+            <div class="stat-cell">
+              <span class="stat-label">MONTHS</span>
+              <span class="stat-val mono">0/12</span>
+              <span class="stat-caption">0 active</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">SAVED</span>
+              <span class="stat-val mono">₹ 0</span>
+              <span class="stat-caption">active pace</span>
+            </div>
+            <div class="stat-cell">
+              <span class="stat-label">ON TRACK</span>
+              <span class="stat-val mono" style="color:var(--wl-success);">0</span>
+              <span class="stat-caption">all clear</span>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state-box">
+            <div class="empty-icon-wrap">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+            </div>
+            <h2 class="empty-title">No goals yet</h2>
+            <p class="empty-desc">Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.</p>
+            <button class="primary-btn" style="margin-top:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Create first goal
+            </button>
+          </div>
+
+          <div class="helper-card">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:2px; color:var(--wl-accent);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div><strong>Zero State Behavior</strong><br>Goals ledger stays pristine until your first milestone is registered. Tap + button or CTA opens the form.</div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
+          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 02: GOALS LIST (ACTIVE ROSTER) -->
+    <div class="frame-column">
+      <div class="frame-label">
+        <span>02 — Goals List / Active Roster</span>
+        <span class="frame-pill-label">ACTIVE (3)</span>
+      </div>
+      <div class="phone-frame">
+        <div class="status-bar">
+          <span>09:41</span>
+          <div class="status-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+          </div>
+        </div>
+
+        <div class="top-app-bar">
+          <div class="brand-area">DK Bond Tracker</div>
+          <div class="app-bar-actions">
+            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></span>
+            <span class="action-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="action-badge">2</span>
+            </span>
+            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg></span>
+            <div class="avatar-chip">DK</div>
+          </div>
+        </div>
+
+        <div class="segmented-tabs">
+          <div class="segment-btn active">GOALS (3)</div>
+          <div class="segment-btn inactive">FORM (0)</div>
+        </div>
+
+        <div class="screen-scroll-body">
+          <div class="list-header-row">
+            <span class="list-count-badge">3 Goals Active</span>
+            <span class="pace-summary-chip mono">₹ 65k/mo pace</span>
+          </div>
+
+          <!-- Goal 1: Commercial Property Downpayment (Behind, 4 months missed) -->
+          <div class="goal-card">
+            <div class="goal-card-top">
+              <div>
+                <div class="goal-name">Commercial Property Downpayment</div>
+                <div class="goal-dates">Target: Jun 2029 • 30 Mos Left</div>
+              </div>
+              <span class="status-pill behind">Behind</span>
+            </div>
+
+            <div class="saved-row">
+              <div class="saved-amount-group">
+                <span class="saved-tag">SAVED</span>
+                <span class="saved-amount mono">₹ 3,50,000</span>
+              </div>
+              <!-- Rule B: Negative precedence -->
+              <span class="signal-pill missed">4 months missed</span>
+            </div>
+
+            <!-- Rule A: Progress rail without target labels -->
+            <div class="progress-rail">
+              <div class="progress-fill fill-warn" style="width: 28%;"></div>
+            </div>
+
+            <div class="goal-card-actions">
+              <span class="monthly-pace-info mono">₹ 20,000/mo pace</span>
+              <div class="action-buttons-group">
+                <button class="action-btn btn-checkin">Check-in</button>
+                <button class="action-btn btn-details">Details</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Goal 2: Child Higher Education Fund (2 months missed) -->
+          <div class="goal-card">
+            <div class="goal-card-top">
+              <div>
+                <div class="goal-name">Child Higher Education Fund</div>
+                <div class="goal-dates">Target: Oct 2028 • 22 Mos Left</div>
+              </div>
+              <span class="status-pill on-track">On track</span>
+            </div>
+
+            <div class="saved-row">
+              <div class="saved-amount-group">
+                <span class="saved-tag">SAVED</span>
+                <span class="saved-amount mono">₹ 11,50,000</span>
+              </div>
+              <!-- Rule B: Negative precedence -->
+              <span class="signal-pill missed">2 months missed</span>
+            </div>
+
+            <!-- Rule A: Progress rail without target labels -->
+            <div class="progress-rail">
+              <div class="progress-fill fill-accent" style="width: 58%;"></div>
+            </div>
+
+            <div class="goal-card-actions">
+              <span class="monthly-pace-info mono">₹ 35,000/mo pace</span>
+              <div class="action-buttons-group">
+                <button class="action-btn btn-checkin">Check-in</button>
+                <button class="action-btn btn-details">Details</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Goal 3: Annual Family Vacation 2027 (On Plan: 15/20 months ✓) -->
+          <div class="goal-card">
+            <div class="goal-card-top">
+              <div>
+                <div class="goal-name">Annual Family Vacation 2027</div>
+                <div class="goal-dates">Target: Dec 2027 • 12 Mos Left</div>
+              </div>
+              <span class="status-pill on-track">On track</span>
+            </div>
+
+            <div class="saved-row">
+              <div class="saved-amount-group">
+                <span class="saved-tag">SAVED</span>
+                <span class="saved-amount mono">₹ 3,75,000</span>
+              </div>
+              <!-- Rule B: On plan success signal -->
+              <span class="signal-pill success">15/20 months ✓</span>
+            </div>
+
+            <div class="progress-rail">
+              <div class="progress-fill fill-success" style="width: 75%;"></div>
+            </div>
+
+            <div class="goal-card-actions">
+              <span class="monthly-pace-info mono">₹ 10,000/mo pace</span>
+              <div class="action-buttons-group">
+                <button class="action-btn btn-checkin">Check-in</button>
+                <button class="action-btn btn-details">Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
+          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 03: CREATE FORM / DERIVATION SPEC -->
+    <div class="frame-column">
+      <div class="frame-label">
+        <span>03 — Create Form / Derivation Spec</span>
+        <span class="frame-pill-label">FORM ENTRY</span>
+      </div>
+      <div class="phone-frame">
+        <div class="status-bar">
+          <span>09:41</span>
+          <div class="status-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+          </div>
+        </div>
+
+        <div class="top-app-bar">
+          <div class="brand-area">
+            <span class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></span>
+            <span>Create New Milestone</span>
+          </div>
+          <div class="app-bar-actions">
+            <div class="avatar-chip">DK</div>
+          </div>
+        </div>
+
+        <div class="segmented-tabs">
+          <div class="segment-btn inactive">GOALS (3)</div>
+          <div class="segment-btn active">FORM (1)</div>
+        </div>
+
+        <div class="screen-scroll-body">
+          <!-- Goal Name without asterisk -->
+          <div class="form-group">
+            <label class="form-label">Goal Name</label>
+            <input type="text" class="form-input" value="Child Higher Education Fund">
+          </div>
+
+          <!-- Psychology Rule A: Read-Only Target with exact caption -->
+          <div class="form-group">
+            <label class="form-label">Target Amount (₹) · auto</label>
+            <input type="text" class="form-input readonly mono" value="20,00,000" readonly>
+            <span class="input-caption">Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.</span>
+          </div>
+
+          <!-- Divider Spec -->
+          <div class="divider-spec">monthly mode active · target derived above</div>
+
+          <!-- Editable Monthly Contribution -->
+          <div class="form-group">
+            <label class="form-label">Monthly Contribution (₹)</label>
+            <input type="text" class="form-input mono" value="35,000">
+          </div>
+
+          <!-- Dates -->
+          <div class="date-row">
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input type="text" class="form-input mono" value="Jan 2027">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Date</label>
+              <input type="text" class="form-input mono" value="Oct 2028">
+            </div>
+          </div>
+
+          <!-- EXACTLY ONE FORMULA -->
+          <div class="formula-box">
+            <span class="formula-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              SAVED + CONTRIBUTIONS + PORTFOLIO GROWTH
+            </span>
+            <span class="formula-text mono" style="font-weight:600;">(₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)</span>
+            <span class="input-caption" style="font-size:10px; margin-top:2px;">Automates baseline capital accumulation pacing coupled with yield reinvestment matching.</span>
+          </div>
+
+          <!-- Saved So Far (Optional) -->
+          <div class="form-group">
+            <label class="form-label">Saved So Far (Optional)</label>
+            <input type="text" class="form-input mono" value="11,50,000">
+          </div>
+
+          <!-- Note (Optional) -->
+          <div class="form-group">
+            <label class="form-label">Note (Optional)</label>
+            <input type="text" class="form-input" value="Priority milestone, mapped to AAA PSU bond yield reinvestment.">
+          </div>
+
+          <!-- Submit CTA: exactly "Save goal" -->
+          <button class="primary-btn" style="margin-top:6px;">Save goal</button>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
+          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 04: MONTHLY TRACKING / RHYTHM LOG -->
+    <div class="frame-column">
+      <div class="frame-label">
+        <span>04 — Monthly Tracking / Rhythm Log</span>
+        <span class="frame-pill-label">RHYTHM LOG</span>
+      </div>
+      <div class="phone-frame">
+        <div class="status-bar">
+          <span>09:41</span>
+          <div class="status-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+          </div>
+        </div>
+
+        <div class="top-app-bar">
+          <div class="brand-area">
+            <span class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></span>
+            <span>Rhythm & Pacing</span>
+          </div>
+          <div class="app-bar-actions">
+            <div class="avatar-chip">DK</div>
+          </div>
+        </div>
+
+        <div class="segmented-tabs">
+          <div class="segment-btn active">GOALS (3)</div>
+          <div class="segment-btn inactive">FORM (0)</div>
+        </div>
+
+        <div class="screen-scroll-body">
+          <!-- Pace Warning Banner -->
+          <div class="system-banner">
+            <div class="banner-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="banner-content">
+              <span class="banner-title">2 months missed — pace adjustment active</span>
+              <span class="banner-sub">Oct & Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.</span>
+            </div>
+          </div>
+
+          <!-- Summary card: Rule A compliant (no target number) -->
+          <div class="goal-card" style="padding:12px;">
+            <div class="goal-card-top">
+              <span class="goal-name">Child Higher Education Fund</span>
+              <span class="signal-pill missed">2 months missed</span>
+            </div>
+            <div class="saved-row" style="margin-top:2px;">
+              <span class="saved-amount mono" style="font-size:17px;">Saved ₹ 11,50,000</span>
+              <span class="monthly-pace-info mono">₹ 35,000/mo pace</span>
+            </div>
+          </div>
+
+          <!-- RHYTHM LOG: row show invested AND returns -->
+          <div class="rhythm-card">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--wl-sub); margin-bottom:2px;">Reconciliation Ledger</div>
+            
+            <!-- Nov 2026 -->
+            <div class="rhythm-row">
+              <div class="rhythm-date-group">
+                <span class="rhythm-month">Nov 2026</span>
+                <span class="rhythm-status-tag invested mono">✓ ₹35,000 invested</span>
+              </div>
+              <span class="rhythm-returns mono">+₹1,820 returns</span>
+            </div>
+
+            <!-- Oct 2026: MISSED with returns -->
+            <div class="rhythm-row">
+              <div class="rhythm-date-group">
+                <span class="rhythm-month">Oct 2026</span>
+                <span class="rhythm-status-tag missed mono">MISSED</span>
+              </div>
+              <span class="rhythm-returns mono">+₹1,710 returns</span>
+            </div>
+
+            <!-- Sep 2026: MISSED with returns -->
+            <div class="rhythm-row">
+              <div class="rhythm-date-group">
+                <span class="rhythm-month">Sep 2026</span>
+                <span class="rhythm-status-tag missed mono">MISSED</span>
+              </div>
+              <span class="rhythm-returns mono">+₹1,695 returns</span>
+            </div>
+
+            <!-- Aug 2026 -->
+            <div class="rhythm-row">
+              <div class="rhythm-date-group">
+                <span class="rhythm-month">Aug 2026</span>
+                <span class="rhythm-status-tag invested mono">✓ ₹35,000 invested</span>
+              </div>
+              <span class="rhythm-returns mono">+₹1,680 returns</span>
+            </div>
+          </div>
+
+          <!-- Upcoming Pipeline -->
+          <div class="helper-card" style="align-items:center; justify-content:space-between;">
+            <div>
+              <span class="stat-label">UPCOMING PIPELINE</span>
+              <div class="mono" style="font-size:12px; font-weight:700; color:var(--wl-ink); margin-top:2px;">Dec 2026 Check-in</div>
+              <div style="font-size:10px; color:var(--wl-sub);">Due in 14 days • ₹35,000 allocation</div>
+            </div>
+            <button class="secondary-btn" style="padding:6px 10px;">Queue</button>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
+          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 05: DETAIL + CHECK-IN FORM -->
+    <div class="frame-column">
+      <div class="frame-label">
+        <span>05 — Detail + Check-in</span>
+        <span class="frame-pill-label">CHECK-IN</span>
+      </div>
+      <div class="phone-frame">
+        <div class="status-bar">
+          <span>09:41</span>
+          <div class="status-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+          </div>
+        </div>
+
+        <div class="top-app-bar">
+          <div class="brand-area">
+            <span class="back-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></span>
+            <span>Goal Reconciliation</span>
+          </div>
+          <div class="app-bar-actions">
+            <span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></span>
+          </div>
+        </div>
+
+        <div class="screen-scroll-body">
+          <!-- Detail progress card: Rule A & B compliant -->
+          <div class="goal-card">
+            <div class="goal-card-top">
+              <div>
+                <div class="goal-name">Child Higher Education Fund</div>
+                <div class="goal-dates">Oct 2028 Target • 22 Months Remaining</div>
+              </div>
+              <span class="status-pill on-track">On track</span>
+            </div>
+
+            <!-- Mandatory: "Saved ₹11,50,000 · 2 months missed" red, no target number -->
+            <div class="saved-row" style="align-items:center; margin-top:2px;">
+              <span class="saved-amount mono" style="font-size:18px;">Saved ₹ 11,50,000</span>
+              <span class="signal-pill missed">2 months missed</span>
+            </div>
+
+            <!-- Rail without labels -->
+            <div class="progress-rail" style="margin-top:2px;">
+              <div class="progress-fill fill-accent" style="width: 58%;"></div>
+            </div>
+          </div>
+
+          <!-- CHECK-IN FORM -->
+          <div class="goal-card" style="gap:10px;">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--wl-sub);">Monthly Check-In Form</div>
+            
+            <div class="form-group">
+              <label class="form-label">Check-in Amount (₹)</label>
+              <input type="text" class="form-input mono" value="35,000">
+            </div>
+
+            <div class="date-row">
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="text" class="form-input mono" value="15 Dec 2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Note (Optional)</label>
+                <input type="text" class="form-input" placeholder="Deposit UTR...">
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <button class="secondary-btn" style="flex:1;">Save draft</button>
+              <button class="primary-btn" style="flex:1; padding:10px 14px;">Record check-in</button>
+            </div>
+          </div>
+
+          <!-- Linked Bonds Section -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--wl-sub); padding:0 2px;">Linked Bonds Yield Matching</div>
+            
+            <div class="bond-item">
+              <div>
+                <div class="bond-name">Tata Capital Fin Services</div>
+                <div class="bond-meta mono">INE306N07LG1 • 9.60% NCD</div>
+              </div>
+              <div class="bond-yield mono">+₹1,120/mo</div>
+            </div>
+
+            <div class="bond-item">
+              <div>
+                <div class="bond-name">L&T Finance Holdings</div>
+                <div class="bond-meta mono">INE498L07185 • 9.15% NCD</div>
+              </div>
+              <div class="bond-yield mono">+₹700/mo</div>
+            </div>
+          </div>
+
+          <!-- Guarded Actions Menu: ONLY Edit goal + Archive goal (ZERO Remove) -->
+          <div class="guarded-menu">
+            <div class="menu-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <span>Edit goal</span>
+            </div>
+            <div class="menu-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+              <span>Archive goal</span>
+            </div>
+            <div class="zero-remove-tag">[Zero destructive delete permitted]</div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Portfolio</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Watchlist</div>
+          <div class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>Goals</div>
+          <div class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</div>
+        </nav>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- REVIEW BOARD FOOTER -->
+  <footer class="board-footer">
+    <div class="footer-legend">
+      <span>• WARM LEDGER (LIGHT) REVIEW BOARD</span>
+      <span>• 5 CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
+      <span>• STRICT TOKEN ENFORCEMENT (#F4F0E8, #FBF9F4, #D8D0C2, #1F2421, #264362)</span>
+      <span>• ZERO DRIFT SPECIFICATION</span>
+    </div>
+    <div style="font-size:11px; color:var(--board-sub);">
+      Psychology Rules A & B Strict Enforcement • Zero Destructive Delete Permitted
+    </div>
+  </footer>
+
+</body>
+</html>
