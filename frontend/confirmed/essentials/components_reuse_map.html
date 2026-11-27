@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Components — Reuse Map (Nordic Mist · PRIMARY)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#0b1118',
+            surface: '#111923',
+            'surface-card': '#162231',
+            'border-dark': '#223447',
+            // Nordic Mist Light tokens for specimen cards
+            nordic: {
+              bg: '#F8FAFC',
+              card: '#EFF2F5',
+              border: '#CFD7E2',
+              ink: '#18212C',
+              slate: '#5A6878',
+              mist: '#8B98A7',
+              accent: '#28595B',
+              'accent-hover': '#1F4749',
+              'accent-subtle': '#E2ECEC',
+              success: '#28614E',
+              'success-bg': '#E4F2EC',
+              warn: '#8C5409',
+              'warn-bg': '#FEF5E8',
+              'warn-border': '#F4D8A8',
+              error: '#9C3B44',
+              'error-bg': '#FBECEE',
+              'error-border': '#F4BFC5',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #0b1118;
+      color: #E2E8F0;
+    }
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-8 lg:p-12">
+  <div class="max-w-[1600px] mx-auto space-y-10">
+
+    <!-- Board Header -->
+    <header class="border-b border-[#223447] pb-8 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#28595B]/20 border border-[#28595B]/40 flex items-center justify-center text-[#75B5B8]">
+            <span class="material-symbols-outlined text-[24px]">account_tree</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-2xl lg:text-3xl font-bold tracking-tight text-white">Shared Components — Reuse Map (Nordic Mist · PRIMARY)</h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#28614E]/20 text-[#68D391] border border-[#28614E]/40">
+                <span class="material-symbols-outlined text-[14px]">lock</span>
+                LOCKED · 2026-11-27
+              </span>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#1F2D42] text-[#A0AEC0] border border-[#2E405C]">
+                14 COMPONENT SPECIMENS
+              </span>
+            </div>
+            <p class="text-sm text-slate-400 mt-1">
+              Component reuse taxonomy & scope allocation across DK Bond Tracker • Section A universal elements vs Section B page-scoped contracts • All amounts in ₹ INR • Zero target amounts on display surfaces
+            </p>
+          </div>
+        </div>
+
+        <!-- Token Palette Badges -->
+        <div class="flex items-center gap-2 bg-[#111923] px-4 py-2 rounded-xl border border-[#223447] text-xs">
+          <span class="text-slate-400 font-medium mr-1">Nordic Mist Tokens:</span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#F8FAFC] text-[#18212C] font-mono font-medium border border-slate-300">
+            <span class="w-2 h-2 rounded-full bg-[#F8FAFC] border border-slate-400"></span>bg #F8FAFC
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#EFF2F5] text-[#18212C] font-mono font-medium border border-slate-300">
+            <span class="w-2 h-2 rounded-full bg-[#EFF2F5] border border-slate-400"></span>cards #EFF2F5
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#162231] text-[#CFD7E2] font-mono border border-slate-600">
+            <span class="w-2 h-2 rounded-full bg-[#CFD7E2]"></span>border #CFD7E2
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#18212C] text-white font-mono border border-slate-700">
+            <span class="w-2 h-2 rounded-full bg-[#18212C]"></span>ink #18212C
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#28595B] text-white font-mono">
+            <span class="w-2 h-2 rounded-full bg-[#75B5B8]"></span>accent #28595B
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION A: REUSABLE ON EVERY PAGE (Green Accent) -->
+    <section class="space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-l-4 border-[#28614E] pl-4 py-1">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span class="px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[#28614E]/20 text-[#68D391] border border-[#28614E]/50 rounded">
+              Section A
+            </span>
+            <h2 class="text-xl font-bold text-white tracking-tight">REUSABLE ON EVERY PAGE</h2>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">Universal cross-cutting app shell primitives and baseline form controls • Tagged: <span class="text-emerald-400 font-mono">used by: any page</span></p>
+        </div>
+        <span class="text-xs font-medium text-slate-400 bg-surface px-3 py-1 rounded-full border border-border-dark">10 Universal Specimen Cards</span>
+      </div>
+
+      <!-- Specimen Grid Section A -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+        <!-- A1: Top App Bar -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A1 · Top App Bar</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame (Nordic Mist Light) -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="bg-white rounded-lg border border-[#CFD7E2] px-3 py-2 flex items-center justify-between shadow-sm">
+              <div class="flex items-center gap-2">
+                <button class="w-8 h-8 rounded-full flex items-center justify-center text-[#18212C] hover:bg-slate-100">
+                  <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                </button>
+                <span class="font-bold text-sm text-[#18212C]">DK Bond Tracker</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="w-7 h-7 rounded-full flex items-center justify-center text-[#5A6878] hover:bg-slate-100">
+                  <span class="material-symbols-outlined text-[18px]">sync</span>
+                </button>
+                <button class="w-7 h-7 rounded-full flex items-center justify-center text-[#5A6878] hover:bg-slate-100 relative">
+                  <span class="material-symbols-outlined text-[18px]">notifications</span>
+                  <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#9C3B44]"></span>
+                </button>
+                <button class="w-7 h-7 rounded-full flex items-center justify-center text-[#5A6878] hover:bg-slate-100">
+                  <span class="material-symbols-outlined text-[18px]">palette</span>
+                </button>
+                <div class="w-7 h-7 rounded-full bg-[#28595B] text-white flex items-center justify-center text-[10px] font-bold">
+                  DK
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> 56px height header. Back button (optional), brand title, right action cluster strictly ordered: <span class="font-mono text-emerald-400">Sync → Bell (with badge) → Theme Palette → Avatar (DK)</span>.</p>
+          </div>
+        </div>
+
+        <!-- A2: Bottom Nav -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A2 · Bottom Navigation Bar</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="bg-white rounded-lg border border-[#CFD7E2] px-2 py-1.5 grid grid-cols-5 gap-1 shadow-sm">
+              <div class="flex flex-col items-center justify-center py-1 text-[#5A6878]">
+                <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                <span class="text-[9px] mt-0.5 font-medium">Dashboard</span>
+              </div>
+              <div class="flex flex-col items-center justify-center py-1 text-[#5A6878]">
+                <span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                <span class="text-[9px] mt-0.5 font-medium">Portfolio</span>
+              </div>
+              <div class="flex flex-col items-center justify-center py-1 text-[#5A6878]">
+                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                <span class="text-[9px] mt-0.5 font-medium">Watchlist</span>
+              </div>
+              <div class="flex flex-col items-center justify-center py-1 text-[#28595B]">
+                <span class="material-symbols-outlined filled text-[18px]">flag</span>
+                <span class="text-[9px] mt-0.5 font-bold">Goals</span>
+                <span class="w-1 h-1 rounded-full bg-[#28595B] mt-0.5"></span>
+              </div>
+              <div class="flex flex-col items-center justify-center py-1 text-[#5A6878]">
+                <span class="material-symbols-outlined text-[18px]">more_horiz</span>
+                <span class="text-[9px] mt-0.5 font-medium">More</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> 5 canonical persistent destinations: Dashboard, Portfolio, Watchlist, Goals, More. Active state uses filled icon, bold label, and primary anchor dot.</p>
+          </div>
+        </div>
+
+        <!-- A3: Stat Cells (Psychology Invariant: Never TARGET) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A3 · Stat Cells (Psychology Invariant)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="grid grid-cols-3 gap-2">
+              <div class="bg-white p-2.5 rounded-lg border border-[#CFD7E2] text-center shadow-xs">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-[#5A6878]">MONTHS</span>
+                <span class="block text-base font-bold text-[#18212C] mt-0.5 tabular">0/12</span>
+                <span class="block text-[9px] text-[#8B98A7]">0 active</span>
+              </div>
+              <div class="bg-white p-2.5 rounded-lg border border-[#CFD7E2] text-center shadow-xs">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-[#5A6878]">SAVED</span>
+                <span class="block text-base font-bold text-[#18212C] mt-0.5 tabular">₹ 0</span>
+                <span class="block text-[9px] text-[#8B98A7]">active pace</span>
+              </div>
+              <div class="bg-white p-2.5 rounded-lg border border-[#CFD7E2] text-center shadow-xs">
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-[#5A6878]">ON TRACK</span>
+                <span class="block text-base font-bold text-[#28614E] mt-0.5 tabular">0</span>
+                <span class="block text-[9px] text-[#8B98A7]">all clear</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Rule A Enforced:</strong> Stat cells feature MONTHS, SAVED, and ON TRACK. <span class="text-rose-400 font-semibold">TARGET amount is strictly prohibited</span> on any reading surface.</p>
+          </div>
+        </div>
+
+        <!-- A4: Buttons (Single Family) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A4 · Action Buttons (Single Family)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2] space-y-2.5">
+            <div class="flex items-center gap-2">
+              <button class="h-10 px-4 rounded-lg bg-[#28595B] hover:bg-[#1F4749] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition">
+                <span class="material-symbols-outlined text-[16px]">check</span> Save goal
+              </button>
+              <button class="h-10 px-4 rounded-lg bg-[#EFF2F5] hover:bg-[#E2ECEC] text-[#18212C] text-xs font-semibold border border-[#CFD7E2] transition">
+                Cancel
+              </button>
+              <button class="h-10 px-3 text-[#28595B] hover:underline text-xs font-medium transition">
+                Ghost Action
+              </button>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Min-height 48px calibrated (40px compact specimen shown), radius 8-10px, clear typography. Primary (#28595B), Secondary (#EFF2F5 with hairline), and Ghost.</p>
+          </div>
+        </div>
+
+        <!-- A5: Text Input (No Asterisk) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A5 · Text Input (No Asterisk)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2] space-y-2">
+            <div>
+              <label class="block text-xs font-semibold text-[#18212C] mb-1">Goal Name</label>
+              <input type="text" value="Child Higher Education Fund" class="w-full h-9 px-3 text-xs bg-white text-[#18212C] border border-[#CFD7E2] rounded-lg focus:outline-none focus:border-[#28595B] focus:ring-1 focus:ring-[#28595B]" readonly />
+              <span class="block text-[10px] text-[#5A6878] mt-1">Specify milestone name or target allocation pool.</span>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#18212C] mb-1">Monthly Contribution (₹)</label>
+              <div class="relative">
+                <input type="text" value="0" class="w-full h-9 px-3 text-xs bg-white text-[#9C3B44] border-2 border-[#9C3B44] rounded-lg focus:outline-none tabular" readonly />
+                <span class="material-symbols-outlined text-[16px] text-[#9C3B44] absolute right-2.5 top-2.5">error</span>
+              </div>
+              <span class="block text-[10px] text-[#9C3B44] font-medium mt-1">Monthly contribution must be greater than zero.</span>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Label above with <span class="text-emerald-400 font-semibold">strictly NO asterisks</span>. 48-52px height container, 1px hairline, inline validation error below.</p>
+          </div>
+        </div>
+
+        <!-- A6: Status Pill (Color + Text) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A6 · Status Pills (Color + Text)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#FEF5E8] text-[#8C5409] border border-[#F4D8A8]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#8C5409]"></span>Behind
+                </span>
+                <span class="text-[10px] text-[#5A6878]">Pacing deficit</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#FEF5E8] text-[#8C5409] border border-[#F4D8A8]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#8C5409]"></span>Due Soon
+                </span>
+                <span class="text-[10px] text-[#5A6878]">Next 5 days</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#E4F2EC] text-[#28614E] border border-[#28614E]/30">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span>On Track
+                </span>
+                <span class="text-[10px] text-[#5A6878]">Nominal pace</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#EFF2F5] text-[#5A6878] border border-[#CFD7E2]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#8B98A7]"></span>Completed
+                </span>
+                <span class="text-[10px] text-[#5A6878]">Archived</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> WCAG AA compliant fg/bg pairs. Always color plus text label; never color alone. Pill radius 999px with 6px solid dot.</p>
+          </div>
+        </div>
+
+        <!-- A7: Warning Banner -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A7 · System Warning Banner</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="bg-[#FEF5E8] border border-[#F4D8A8] rounded-xl p-3 flex items-start gap-2.5 text-[#8C5409]">
+              <span class="material-symbols-outlined text-[20px] text-[#8C5409] shrink-0 mt-0.5">warning</span>
+              <div class="space-y-0.5 text-xs">
+                <strong class="font-semibold block text-[#8C5409]">2 months missed — pace adjustment active</strong>
+                <p class="text-[11px] text-[#8C5409]/90 leading-relaxed">Oct & Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Warning glyph + bold title "2 months missed — pace adjustment active" + descriptive body. Background #FEF5E8 with 1px #F4D8A8 border.</p>
+          </div>
+        </div>
+
+        <!-- A8: Empty State -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A8 · Empty State</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-4 border border-[#CFD7E2]">
+            <div class="bg-white rounded-xl border border-[#CFD7E2] p-4 text-center space-y-2.5 shadow-xs">
+              <div class="w-10 h-10 rounded-full bg-[#EFF2F5] text-[#28595B] flex items-center justify-center mx-auto border border-[#CFD7E2]">
+                <span class="material-symbols-outlined text-[20px]">flag</span>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-[#18212C]">No goals yet</h4>
+                <p class="text-[11px] text-[#5A6878] mt-0.5">Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.</p>
+              </div>
+              <button class="h-8 px-3.5 rounded-lg bg-[#28595B] text-white text-[11px] font-semibold inline-flex items-center gap-1 shadow-xs">
+                <span class="material-symbols-outlined text-[14px]">add</span> Create first goal
+              </button>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Centered vector badge + Header "No goals yet" + plain-language explanation + Primary action button [Create first goal]. Pristine ledger contract.</p>
+          </div>
+        </div>
+
+        <!-- A9: Overflow Menu (Guarded: No Remove) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A9 · Overflow Menu (Guarded: No Remove)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2] flex items-center justify-center">
+            <div class="bg-white rounded-xl border border-[#CFD7E2] w-48 shadow-lg overflow-hidden py-1">
+              <div class="px-3 py-1.5 border-b border-[#EFF2F5] flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#8B98A7]">Goal Options</span>
+                <span class="material-symbols-outlined text-[16px] text-[#5A6878]">more_vert</span>
+              </div>
+              <button class="w-full px-3 py-2 text-left text-xs text-[#18212C] hover:bg-[#EFF2F5] flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px] text-[#5A6878]">edit</span> Edit goal
+              </button>
+              <button class="w-full px-3 py-2 text-left text-xs text-[#18212C] hover:bg-[#EFF2F5] flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px] text-[#5A6878]">archive</span> Archive goal
+              </button>
+              <div class="px-3 py-1 bg-[#F8FAFC] border-t border-[#EFF2F5] text-[9px] text-[#8B98A7] italic">
+                [Zero destructive delete permitted]
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Invariant:</strong> Trigger button (`more_vert` ⋮) opens elevated popover showing <span class="text-emerald-400 font-semibold">ONLY Edit goal + Archive goal</span>. Destructive "Remove" is completely purged.</p>
+          </div>
+        </div>
+
+        <!-- A10: Progress Rail (Zero Numbers) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">A10 · Progress Rail (No Numbers)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800">used by: any page</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2] space-y-3">
+            <div>
+              <div class="flex items-center justify-between text-[11px] text-[#5A6878] mb-1 font-medium">
+                <span>Capital Accumulation Progress</span>
+                <span class="text-[#28595B] font-semibold">58% Pace</span>
+              </div>
+              <div class="w-full h-2 bg-[#CFD7E2]/50 rounded-full overflow-hidden">
+                <div class="h-full bg-[#28595B] rounded-full" style="width: 58%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between text-[11px] text-[#5A6878] mb-1 font-medium">
+                <span>Matured Reinvestment Vault</span>
+                <span class="text-[#28614E] font-semibold">100% Matured</span>
+              </div>
+              <div class="w-full h-2 bg-[#CFD7E2]/50 rounded-full overflow-hidden">
+                <div class="h-full bg-[#28614E] rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Thin horizontal bar (6-8px height), rounded-full geometry, pure track rail without numerical target labels or intrusive percentages.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION B: PAGE-SCOPED (Goals only) (Amber Accent) -->
+    <section class="space-y-6 pt-4">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-l-4 border-[#8C5409] pl-4 py-1">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span class="px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[#8C5409]/20 text-[#F6AD55] border border-[#8C5409]/50 rounded">
+              Section B
+            </span>
+            <h2 class="text-xl font-bold text-white tracking-tight">PAGE-SCOPED (Goals only)</h2>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">Specialized financial goal pacing, monthly rhythm logs, and reconciliation • Tagged: <span class="text-amber-400 font-mono">used by: Goals</span></p>
+        </div>
+        <span class="text-xs font-medium text-slate-400 bg-surface px-3 py-1 rounded-full border border-border-dark">4 Dedicated Specimen Cards</span>
+      </div>
+
+      <!-- Specimen Grid Section B -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <!-- B1: GOALS / FORM Segmented Tabs -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">B1 · GOALS / FORM Segmented Tabs</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/60 text-amber-300 border border-amber-800">used by: Goals</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="bg-[#EFF2F5] p-1 rounded-xl border border-[#CFD7E2] grid grid-cols-2 gap-1">
+              <button class="py-2 text-xs font-bold text-[#18212C] bg-white rounded-lg shadow-sm border border-[#CFD7E2]">
+                GOALS (3)
+              </button>
+              <button class="py-2 text-xs font-medium text-[#5A6878] hover:text-[#18212C] rounded-lg">
+                FORM (0)
+              </button>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Pinned viewport sticky control strip. Background #EFF2F5 with 1px border. Dual button layout displaying dynamic counts: GOALS (n) / FORM (n).</p>
+          </div>
+        </div>
+
+        <!-- B2: Goal Card (Reading Invariant: Never TARGET Amount) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">B2 · Goal Card (Negative Precedence)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/60 text-amber-300 border border-amber-800">used by: Goals</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2]">
+            <div class="bg-white rounded-xl border border-[#CFD7E2] p-3.5 space-y-2.5 shadow-xs">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="text-xs font-bold text-[#18212C]">Child Higher Education Fund</h4>
+                  <span class="text-[10px] text-[#5A6878]">Target: Oct 2028 • 22 Mos Left</span>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#E4F2EC] text-[#28614E] border border-[#28614E]/30 shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span>On track
+                </span>
+              </div>
+
+              <!-- Rule B Months Signal: Negative Precedence -->
+              <div class="flex items-center justify-between pt-1">
+                <div>
+                  <span class="block text-[10px] text-[#8B98A7]">Saved</span>
+                  <span class="text-sm font-bold text-[#18212C] tabular">₹ 11,50,000</span>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#FBECEE] text-[#9C3B44] border border-[#F4BFC5]">
+                  2 months missed
+                </span>
+              </div>
+
+              <div class="w-full h-1.5 bg-[#EFF2F5] rounded-full overflow-hidden">
+                <div class="h-full bg-[#28595B] rounded-full" style="width: 58%"></div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1 border-t border-[#EFF2F5]">
+                <span class="text-[10px] text-[#5A6878] font-medium tabular">₹ 35,000/mo pace</span>
+                <div class="flex items-center gap-1.5">
+                  <button class="h-6 px-2 rounded bg-[#28595B] text-white text-[10px] font-semibold">Check-in</button>
+                  <button class="h-6 px-2 rounded bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Details</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Psychology Rules:</strong> Negative precedence badge ("2 months missed" in red) supersedes positive progress. <span class="text-rose-400 font-semibold">Zero target amount on display</span>.</p>
+          </div>
+        </div>
+
+        <!-- B3: Rhythm Row (Invested & Yield) -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">B3 · Rhythm Row (Invested & Yield)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/60 text-amber-300 border border-amber-800">used by: Goals</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2] space-y-2">
+            <!-- Row 1: Invested + Returns -->
+            <div class="bg-white p-2.5 rounded-lg border border-[#CFD7E2] flex items-center justify-between text-xs shadow-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#28614E]"></span>
+                <span class="font-bold text-[#18212C]">Nov 2026</span>
+              </div>
+              <div class="text-right tabular">
+                <span class="text-[11px] font-medium text-[#28614E]">✓ ₹ 35,000 invested</span>
+                <span class="block text-[10px] text-[#5A6878] font-bold">+₹ 1,820 returns</span>
+              </div>
+            </div>
+
+            <!-- Row 2: Missed Month with Returns -->
+            <div class="bg-white p-2.5 rounded-lg border border-[#CFD7E2] flex items-center justify-between text-xs shadow-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#9C3B44]"></span>
+                <span class="font-bold text-[#18212C]">Oct 2026</span>
+              </div>
+              <div class="flex items-center gap-2 tabular">
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FBECEE] text-[#9C3B44] border border-[#F4BFC5]">MISSED</span>
+                <span class="text-[10px] text-[#5A6878] font-bold">+₹ 1,710 returns</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Timeline dot + Month/Year + Status indicator + Dual financial values: user monthly capital contribution and underlying bond yield returns.</p>
+          </div>
+        </div>
+
+        <!-- B4: Check-in Form -->
+        <div class="bg-surface rounded-2xl border border-border-dark p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-border-dark/60 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-200">B4 · Check-In Form</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/60 text-amber-300 border border-amber-800">used by: Goals</span>
+          </div>
+
+          <!-- Component Render Frame -->
+          <div class="bg-[#F8FAFC] rounded-xl p-3 border border-[#CFD7E2] space-y-2">
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5A6878] mb-0.5">CHECK-IN AMOUNT (₹)</label>
+              <input type="text" value="35,000" class="w-full h-8 px-2.5 text-xs bg-white text-[#18212C] border border-[#CFD7E2] rounded font-semibold tabular" readonly />
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5A6878] mb-0.5">DATE</label>
+                <input type="text" value="15 Dec 2026" class="w-full h-8 px-2 text-[11px] bg-white text-[#18212C] border border-[#CFD7E2] rounded" readonly />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-[#5A6878] mb-0.5">NOTE (OPTIONAL)</label>
+                <input type="text" value="Deposit UTR..." class="w-full h-8 px-2 text-[11px] bg-white text-[#5A6878] border border-[#CFD7E2] rounded" readonly />
+              </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button class="h-7 px-2.5 rounded bg-[#EFF2F5] text-[#18212C] text-[10px] font-semibold border border-[#CFD7E2]">Save draft</button>
+              <button class="h-7 px-3 rounded bg-[#28595B] text-white text-[10px] font-semibold">Record check-in</button>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 bg-surface-card p-2.5 rounded-lg border border-border-dark space-y-1">
+            <p><strong class="text-slate-300">Specimen:</strong> Amount (₹) + Date selector + Note (Optional) + Dual Action Controls: [Record check-in] primary & [Save draft] secondary.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer Architectural Ledger -->
+    <footer class="pt-8 border-t border-[#223447] text-xs text-slate-400 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#28595B]"></span>
+        <span class="font-mono text-slate-300">contracts = app_essentials Universal Elements · inventory = app_components.html · attach design-system 4248452823204668669</span>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] font-mono text-slate-500">
+        <span>Nordic Mist Tokens: #F8FAFC, #EFF2F5, #CFD7E2, #18212C, #28595B</span>
+        <span>•</span>
+        <span>Rupee INR Only</span>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
