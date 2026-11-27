@@ -4,984 +4,1018 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Goals — Harbor Navy (Dark) Review Board</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        harbor: {
+          bg: '#101824',
+          surface: '#1F2D42',
+          card: '#1F2D42',
+          border: '#2E405C',
+          ink: '#E7EEF8',
+          muted: '#8AAEDB',
+          accent: '#8AAEDB',
+          success: '#7BB892',
+          warn: '#D4A55D',
+          error: '#D98488'
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
+      }
+    }
+  }
+}
+</script>
 <style>
-  body {
-    font-family: 'Inter', sans-serif;
-    background-color: #0b111a;
-    color: #E7EEF8;
-    margin: 0;
-    padding: 24px;
-    box-sizing: border-box;
-  }
-  .font-mono-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-variant-numeric: tabular-nums;
-  }
-  /* Phone Frame Simulation: 412px standard */
-  .mobile-frame {
-    width: 412px;
-    min-width: 412px;
-    background-color: #101824;
-    border: 1px solid #2E405C;
-    border-radius: 28px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7);
-    position: relative;
-  }
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+body {
+  background-color: #0b111a;
+  color: #E7EEF8;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 32px 24px;
+}
+.tabular {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+.mobile-frame {
+  width: 412px;
+  min-width: 412px;
+  max-width: 412px;
+  background-color: #101824;
+  border: 1px solid #2E405C;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-[#0b111a] text-[#E7EEF8]">
 
-  <!-- Board Header -->
-  <header class="max-w-[2200px] mx-auto mb-8">
-    <div class="flex items-center justify-between pb-4 border-b border-[#2E405C]/60">
+  <!-- Top Governance Header -->
+  <div class="max-w-[2250px] mx-auto mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#2E405C]/60 pb-6">
       <div>
-        <div class="flex items-center gap-2 mb-2">
+        <div class="flex items-center gap-3">
           <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#8AAEDB]"></span>
-          <span class="text-xs uppercase tracking-widest text-[#8AAEDB] font-semibold">DK BOND TRACKER • GOALS & FINANCIAL MILESTONES REVIEW FLOW</span>
-          <span class="ml-3 px-2 py-0.5 rounded text-[11px] font-medium bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C] flex items-center gap-1">
-            <svg class="w-3 h-3 text-[#7BB892]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-            LOCKED • 2026-11-27
+          <span class="text-xs font-mono uppercase tracking-wider text-[#8AAEDB]">DK Bond Tracker • Financial Milestones Architecture</span>
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-[#1F2D42] border border-[#2E405C] text-[#8AAEDB]">
+            🔒 LOCKED • 2026-11-27
           </span>
-          <span class="px-2 py-0.5 rounded text-[11px] font-medium bg-[#1F2D42] text-[#E7EEF8]/70 border border-[#2E405C]">5 FRAMES</span>
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[#1F2D42] text-[#8AAEDB]/80 border border-[#2E405C]">
+            5 FRAMES CANONICAL REVIEW
+          </span>
         </div>
-        <h1 class="text-3xl font-bold tracking-tight text-[#E7EEF8]">Goals — Harbor Navy (Dark) Review Board</h1>
-        <p class="text-sm text-[#8AAEDB]/80 mt-1">VIEWPORT: 412dp × 860px • STRICT HARBOR NAVY TOKEN SET (DARK PALETTE) • ALL AMOUNTS IN INR (₹)</p>
+        <h1 class="text-2xl font-bold mt-2 text-[#E7EEF8] tracking-tight">Goals — Harbor Navy (Dark) Review Board</h1>
+        <p class="text-xs font-mono text-[#8AAEDB]/80 mt-1">
+          VIEWPORT: 412dp × 870dp (Compact MVP) • CURRENCY: ₹ INR Only • PSYCHOLOGY INVARIANTS: Rule A (Zero Target on Reading) &amp; Rule B (Month Signal Precedence)
+        </p>
       </div>
 
       <!-- Token Chips -->
-      <div class="flex items-center gap-3 bg-[#1F2D42] px-4 py-2.5 rounded-xl border border-[#2E405C]">
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#101824] border border-[#2E405C]"></span>
-          <span class="font-mono-num text-[11px]">bg #101824</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#1F2D42] border border-[#2E405C]"></span>
-          <span class="font-mono-num text-[11px]">cards #1F2D42</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#2E405C]"></span>
-          <span class="font-mono-num text-[11px]">border #2E405C</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#E7EEF8]"></span>
-          <span class="font-mono-num text-[11px]">ink #E7EEF8</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#8AAEDB]"></span>
-          <span class="font-mono-num text-[11px]">accent #8AAEDB</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#7BB892]"></span>
-          <span class="font-mono-num text-[11px]">success #7BB892</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#D4A55D]"></span>
-          <span class="font-mono-num text-[11px]">warn #D4A55D</span>
-        </div>
-        <div class="flex items-center gap-1.5 text-xs text-[#E7EEF8]/80">
-          <span class="w-3 h-3 rounded-full bg-[#D98488]"></span>
-          <span class="font-mono-num text-[11px]">error #D98488</span>
-        </div>
+      <div class="flex items-center flex-wrap gap-2 text-xs font-mono bg-[#101824] p-2.5 rounded-xl border border-[#2E405C]">
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#8AAEDB]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#101824] border border-[#2E405C]"></span> bg #101824
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#8AAEDB]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#1F2D42]"></span> cards #1F2D42
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#8AAEDB]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#2E405C]"></span> border #2E405C
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#8AAEDB]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#E7EEF8]"></span> ink #E7EEF8
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#8AAEDB]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#8AAEDB]"></span> accent #8AAEDB
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#7BB892]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#7BB892]"></span> success #7BB892
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#D4A55D]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#D4A55D]"></span> warn #D4A55D
+        </span>
+        <span class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1F2D42] text-[#D98488]">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#D98488]"></span> error #D98488
+        </span>
       </div>
     </div>
-  </header>
+  </div>
 
-  <!-- 5 Frames Row -->
-  <main class="max-w-[2200px] mx-auto overflow-x-auto pb-8 hide-scrollbar">
-    <div class="flex gap-8 items-start min-w-[2140px]">
+  <!-- 5 Frames Horizontal Board -->
+  <div class="max-w-[2250px] mx-auto overflow-x-auto pb-12 hide-scrollbar">
+    <div class="flex gap-8 items-start min-w-[2180px]">
 
       <!-- ========================================== -->
-      <!-- FRAME 01: FIRST OPEN (EMPTY STATE) -->
+      <!-- FRAME 01: FIRST OPEN / EMPTY STATE -->
       <!-- ========================================== -->
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between text-xs font-semibold px-2">
-          <span class="text-[#8AAEDB] tracking-wider uppercase">01 — First Open / Empty State</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono-num bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C]">EMPTY</span>
+        <div class="flex items-center justify-between text-xs font-mono text-[#8AAEDB] px-2">
+          <span>01 — FIRST OPEN / EMPTY STATE</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] border border-[#2E405C] text-[10px]">EMPTY (0)</span>
         </div>
 
-        <div class="mobile-frame h-[860px]">
-          <!-- Mobile Status Bar -->
-          <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-[#E7EEF8]/70">
+        <div class="mobile-frame h-[870px] bg-[#101824] flex flex-col justify-between relative border border-[#2E405C]">
+          <!-- Device Status Bar -->
+          <div class="px-6 pt-3 pb-1 flex justify-between items-center text-xs text-[#8AAEDB] font-mono">
             <span>09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zm-2.829 2.828a3 3 0 00-4.242 0 1 1 0 01-1.415-1.414 5 5 0 017.072 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-              <div class="w-5 h-2.5 border border-[#E7EEF8]/70 rounded-sm p-0.5 flex items-center">
-                <div class="h-full w-full bg-[#E7EEF8]/90 rounded-2xs"></div>
-              </div>
+            <div class="flex items-center gap-1.5">
+              <span>●●</span>
+              <span>📶</span>
+              <span>🔋</span>
             </div>
           </div>
 
-          <!-- Top App Bar -->
-          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/40 bg-[#101824]">
-            <span class="text-[17px] font-bold tracking-tight text-[#E7EEF8]">DK Bond Tracker</span>
+          <!-- App Bar -->
+          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/70">
+            <h2 class="text-base font-bold text-[#E7EEF8] tracking-tight">DK Bond Tracker</h2>
             <div class="flex items-center gap-3">
-              <button class="text-[#8AAEDB] hover:text-white transition-colors" title="Sync">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <button class="text-[#8AAEDB] hover:text-[#E7EEF8]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               </button>
               <div class="relative">
-                <svg class="w-4 h-4 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#D98488] text-white text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
+                <svg class="w-4 h-4 text-[#8AAEDB]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#D98488] rounded-full text-[8px] flex items-center justify-center font-bold text-[#101824]">2</span>
               </div>
-              <button class="text-[#8AAEDB]" title="Theme Palette">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 015-5h4a2 2 0 012 2v2a4 4 0 01-4 4H7zM17 14a2 2 0 100-4 2 2 0 000 4zm2-6a2 2 0 100-4 2 2 0 000 4z"/></svg>
-              </button>
-              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-semibold flex items-center justify-center">DK</div>
+              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-bold flex items-center justify-center">
+                DK
+              </div>
             </div>
           </div>
 
-          <!-- Segmented Sticky Control Strip -->
-          <div class="p-3 bg-[#101824] border-b border-[#2E405C]/50">
-            <div class="grid grid-cols-2 p-1 bg-[#1F2D42] rounded-xl border border-[#2E405C]">
-              <button class="py-2 text-center text-xs font-semibold rounded-lg bg-[#8AAEDB] text-[#101824] shadow-sm">
+          <!-- Sticky Segmented Tabs: GOALS (0) / FORM (0) -->
+          <div class="px-5 pt-3 pb-2 bg-[#101824]">
+            <div class="p-1 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex">
+              <button class="flex-1 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] font-semibold text-xs tracking-wide shadow-sm">
                 GOALS (0)
               </button>
-              <button class="py-2 text-center text-xs font-medium rounded-lg text-[#8AAEDB] hover:text-[#E7EEF8]">
+              <button class="flex-1 py-1.5 rounded-lg text-[#8AAEDB] font-medium text-xs tracking-wide hover:text-[#E7EEF8]">
                 FORM (0)
               </button>
             </div>
           </div>
 
-          <!-- Frame Content Area (Scrollable) -->
-          <div class="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar">
-            <!-- Psychology Rule A: Stats Strip - MONTHS instead of TARGET -->
-            <div class="grid grid-cols-3 gap-2">
-              <div class="bg-[#1F2D42] p-3 rounded-xl border border-[#2E405C]">
-                <span class="text-[10px] uppercase font-semibold text-[#8AAEDB] tracking-wider block">MONTHS</span>
-                <span class="text-base font-bold text-[#E7EEF8] font-mono-num mt-0.5 block">0/12</span>
-                <span class="text-[10px] text-[#8AAEDB]/70 mt-0.5 block">0 active</span>
+          <!-- Scrollable Body Content -->
+          <div class="px-5 py-3 flex-1 flex flex-col justify-between overflow-y-auto hide-scrollbar">
+            <div>
+              <!-- Stats Strip: Psychology Rule A Enforced (MONTHS, not TARGET) -->
+              <div class="grid grid-cols-3 gap-2.5 p-3 rounded-2xl bg-[#1F2D42] border border-[#2E405C] mb-5">
+                <div class="flex flex-col">
+                  <span class="text-[10px] font-mono tracking-wider uppercase text-[#8AAEDB]">MONTHS</span>
+                  <span class="text-base font-bold text-[#E7EEF8] tabular mt-0.5">0/12</span>
+                  <span class="text-[10px] text-[#8AAEDB]/70 mt-0.5">0 active</span>
+                </div>
+                <div class="flex flex-col border-l border-[#2E405C] pl-2.5">
+                  <span class="text-[10px] font-mono tracking-wider uppercase text-[#8AAEDB]">SAVED</span>
+                  <span class="text-base font-bold text-[#E7EEF8] tabular mt-0.5">₹ 0</span>
+                  <span class="text-[10px] text-[#8AAEDB]/70 mt-0.5">active pace</span>
+                </div>
+                <div class="flex flex-col border-l border-[#2E405C] pl-2.5">
+                  <span class="text-[10px] font-mono tracking-wider uppercase text-[#8AAEDB]">ON TRACK</span>
+                  <span class="text-base font-bold text-[#7BB892] tabular mt-0.5">0</span>
+                  <span class="text-[10px] text-[#8AAEDB]/70 mt-0.5">all clear</span>
+                </div>
               </div>
-              <div class="bg-[#1F2D42] p-3 rounded-xl border border-[#2E405C]">
-                <span class="text-[10px] uppercase font-semibold text-[#8AAEDB] tracking-wider block">SAVED</span>
-                <span class="text-base font-bold text-[#E7EEF8] font-mono-num mt-0.5 block">₹ 0</span>
-                <span class="text-[10px] text-[#8AAEDB]/70 mt-0.5 block">active pace</span>
-              </div>
-              <div class="bg-[#1F2D42] p-3 rounded-xl border border-[#2E405C]">
-                <span class="text-[10px] uppercase font-semibold text-[#8AAEDB] tracking-wider block">ON TRACK</span>
-                <span class="text-base font-bold text-[#7BB892] font-mono-num mt-0.5 block">0</span>
-                <span class="text-[10px] text-[#8AAEDB]/70 mt-0.5 block">all clear</span>
-              </div>
-            </div>
 
-            <!-- Empty State Card -->
-            <div class="bg-[#1F2D42] border border-[#2E405C] rounded-2xl p-8 flex flex-col items-center justify-center text-center mt-6">
-              <div class="w-14 h-14 rounded-full bg-[#101824] border border-[#2E405C] flex items-center justify-center text-[#8AAEDB] mb-4">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+              <!-- Empty State Hero Card -->
+              <div class="p-6 rounded-2xl bg-[#1F2D42] border border-[#2E405C] text-center flex flex-col items-center justify-center my-4">
+                <div class="w-12 h-12 rounded-full bg-[#101824] border border-[#2E405C] flex items-center justify-center mb-3 text-[#8AAEDB]">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+                </div>
+                <h3 class="text-base font-bold text-[#E7EEF8]">No goals yet</h3>
+                <p class="text-xs text-[#8AAEDB] max-w-[240px] mt-1.5 leading-relaxed">
+                  Set a savings or investment goal — track it with monthly check-ins &amp; bond yield auto-matching.
+                </p>
+                <button class="mt-5 w-full py-2.5 px-4 rounded-xl bg-[#8AAEDB] text-[#101824] font-semibold text-xs flex items-center justify-center gap-2 shadow-sm hover:brightness-110">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                  Create first goal
+                </button>
               </div>
-              <h3 class="text-base font-bold text-[#E7EEF8] mb-1">No goals yet</h3>
-              <p class="text-xs text-[#8AAEDB]/80 max-w-[240px] leading-relaxed mb-6">
-                Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.
-              </p>
-              <button class="w-full max-w-[220px] py-3 px-4 rounded-xl bg-[#8AAEDB] text-[#101824] font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#8AAEDB]/90 transition-all shadow-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Create first goal
-              </button>
-            </div>
 
-            <!-- System Spec Note -->
-            <div class="bg-[#1F2D42]/50 border border-[#2E405C]/70 rounded-xl p-3 flex gap-2.5 items-start text-xs text-[#8AAEDB]/80">
-              <svg class="w-4 h-4 text-[#8AAEDB] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <div>
-                <span class="font-semibold text-[#E7EEF8] block mb-0.5">Zero State Behavior</span>
-                Goals ledger stays pristine until your first milestone is registered. Tap + button or CTA opens the form.
+              <!-- Zero State Invariant Note -->
+              <div class="p-3.5 rounded-xl bg-[#1F2D42]/60 border border-[#2E405C] text-[11px] text-[#8AAEDB] leading-relaxed flex items-start gap-2.5">
+                <span class="text-sm">ℹ️</span>
+                <div>
+                  <strong class="text-[#E7EEF8] font-semibold block mb-0.5">Zero State Behavior</strong>
+                  Goals ledger stays pristine until your first milestone is registered. Tap + CTA opens the form.
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Bottom Navigation Bar -->
-          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex justify-between items-center text-[10px]">
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <!-- Bottom Navigation Bar (5 Canonical destinations) -->
+          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex items-center justify-around text-[10px] font-medium text-[#8AAEDB]">
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
               <span>Dashboard</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
               <span>Portfolio</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <span>Watchlist</span>
             </div>
             <div class="flex flex-col items-center gap-1 text-[#8AAEDB] font-bold">
-              <div class="relative">
-                <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-                <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#8AAEDB]"></span>
-              </div>
+              <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h12a1 1 0 01.8 1.6L14.25 8l2.55 3.4a1 1 0 01-.8 1.6H4v7a1 1 0 11-2 0V4z"/></svg>
               <span>Goals</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
               <span>More</span>
             </div>
           </div>
         </div>
       </div>
 
-
       <!-- ========================================== -->
-      <!-- FRAME 02: GOALS LIST (ACTIVE) -->
+      <!-- FRAME 02: GOALS LIST / ACTIVE ROSTER -->
       <!-- ========================================== -->
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between text-xs font-semibold px-2">
-          <span class="text-[#8AAEDB] tracking-wider uppercase">02 — Goals List / Active Roster</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono-num bg-[#1F2D42] text-[#7BB892] border border-[#2E405C]">ACTIVE (3)</span>
+        <div class="flex items-center justify-between text-xs font-mono text-[#8AAEDB] px-2">
+          <span>02 — GOALS LIST / ACTIVE ROSTER</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] border border-[#2E405C] text-[10px]">ACTIVE (3)</span>
         </div>
 
-        <div class="mobile-frame h-[860px]">
-          <!-- Mobile Status Bar -->
-          <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-[#E7EEF8]/70">
+        <div class="mobile-frame h-[870px] bg-[#101824] flex flex-col justify-between relative border border-[#2E405C]">
+          <!-- Status Bar -->
+          <div class="px-6 pt-3 pb-1 flex justify-between items-center text-xs text-[#8AAEDB] font-mono">
             <span>09:41</span>
-            <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zm-2.829 2.828a3 3 0 00-4.242 0 1 1 0 01-1.415-1.414 5 5 0 017.072 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-              <div class="w-5 h-2.5 border border-[#E7EEF8]/70 rounded-sm p-0.5 flex items-center">
-                <div class="h-full w-full bg-[#E7EEF8]/90 rounded-2xs"></div>
-              </div>
+            <div class="flex items-center gap-1.5">
+              <span>●●</span>
+              <span>📶</span>
+              <span>🔋</span>
             </div>
           </div>
 
-          <!-- Top App Bar -->
-          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/40 bg-[#101824]">
-            <span class="text-[17px] font-bold tracking-tight text-[#E7EEF8]">DK Bond Tracker</span>
+          <!-- App Bar -->
+          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/70">
+            <h2 class="text-base font-bold text-[#E7EEF8] tracking-tight">DK Bond Tracker</h2>
             <div class="flex items-center gap-3">
-              <button class="text-[#8AAEDB]" title="Sync">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              </button>
+              <button class="text-[#8AAEDB]"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></button>
               <div class="relative">
-                <svg class="w-4 h-4 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#D98488] text-white text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
+                <svg class="w-4 h-4 text-[#8AAEDB]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#D98488] rounded-full text-[8px] flex items-center justify-center font-bold text-[#101824]">2</span>
               </div>
-              <button class="text-[#8AAEDB]" title="Theme Palette">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 015-5h4a2 2 0 012 2v2a4 4 0 01-4 4H7zM17 14a2 2 0 100-4 2 2 0 000 4zm2-6a2 2 0 100-4 2 2 0 000 4z"/></svg>
-              </button>
-              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-semibold flex items-center justify-center">DK</div>
+              <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-bold flex items-center justify-center">DK</div>
             </div>
           </div>
 
-          <!-- Segmented Sticky Control Strip -->
-          <div class="p-3 bg-[#101824] border-b border-[#2E405C]/50">
-            <div class="grid grid-cols-2 p-1 bg-[#1F2D42] rounded-xl border border-[#2E405C]">
-              <button class="py-2 text-center text-xs font-semibold rounded-lg bg-[#8AAEDB] text-[#101824] shadow-sm">
+          <!-- Sticky Segmented Tabs: GOALS (3) / FORM (0) -->
+          <div class="px-5 pt-3 pb-2 bg-[#101824]">
+            <div class="p-1 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex">
+              <button class="flex-1 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] font-semibold text-xs tracking-wide shadow-sm">
                 GOALS (3)
               </button>
-              <button class="py-2 text-center text-xs font-medium rounded-lg text-[#8AAEDB] hover:text-[#E7EEF8]">
+              <button class="flex-1 py-1.5 rounded-lg text-[#8AAEDB] font-medium text-xs tracking-wide hover:text-[#E7EEF8]">
                 FORM (0)
               </button>
             </div>
           </div>
 
-          <!-- Goals List Content -->
-          <div class="flex-1 overflow-y-auto p-4 space-y-3.5 hide-scrollbar">
-            <!-- Header Summary Strip (Strict Rule A: NO Target amount) -->
-            <div class="flex items-center justify-between text-xs px-1 text-[#8AAEDB]">
+          <!-- List Content -->
+          <div class="px-5 py-2 flex-1 overflow-y-auto space-y-3.5 hide-scrollbar">
+            <!-- Active Subheader -->
+            <div class="flex items-center justify-between text-xs text-[#8AAEDB] pt-1 pb-0.5">
               <span class="font-semibold text-[#E7EEF8]">3 Goals Active</span>
-              <span class="font-mono-num text-[11px] bg-[#1F2D42] px-2 py-0.5 rounded border border-[#2E405C] text-[#8AAEDB]">₹ 65k/mo pace</span>
+              <span class="tabular px-2 py-0.5 rounded-md bg-[#1F2D42] border border-[#2E405C] text-[11px] text-[#8AAEDB]">₹ 65k/mo pace</span>
             </div>
 
-            <!-- Goal Card 1: Commercial Property (Negative Rule B: "4 months missed") -->
-            <!-- STRICT RULE A: NO TARGET AMOUNT (NO ₹20,00,000, NO PERCENT) -->
-            <div class="bg-[#1F2D42] rounded-2xl border border-[#2E405C] p-4 space-y-3">
-              <div class="flex justify-between items-start">
+            <!-- Card 1: Commercial Property Downpayment (4 months missed) -->
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-3">
+              <div class="flex items-start justify-between">
                 <div>
-                  <h4 class="text-sm font-bold text-[#E7EEF8]">Commercial Property Downpayment</h4>
-                  <span class="text-[11px] text-[#8AAEDB]/70 mt-0.5 block">Target: Jun 2029 • 30 Mos Left</span>
+                  <h3 class="text-sm font-bold text-[#E7EEF8] leading-snug">Commercial Property Downpayment</h3>
+                  <p class="text-[11px] text-[#8AAEDB]/80 mt-0.5">Target: Jun 2029 • 30 Mos Left</p>
                 </div>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#D4A55D]/20 text-[#D4A55D] border border-[#D4A55D]/40">
                   Behind
                 </span>
               </div>
 
-              <!-- Saved Amount & EXACTLY ONE Signal (Negative takes precedence) -->
+              <!-- Psychology Invariant Rule A & B: Saved only, exactly one months signal (red 4 months missed) -->
               <div class="flex items-baseline justify-between pt-1">
                 <div>
-                  <span class="text-[10px] uppercase font-semibold text-[#8AAEDB]/70 block">SAVED</span>
-                  <span class="text-lg font-bold text-[#E7EEF8] font-mono-num">₹ 3,50,000</span>
+                  <span class="text-[10px] uppercase font-mono tracking-wider text-[#8AAEDB] block">SAVED</span>
+                  <span class="text-lg font-bold text-[#E7EEF8] tabular">₹ 3,50,000</span>
                 </div>
-                <!-- Psychology Rule B: 4 months missed (red) -->
-                <span class="text-xs font-semibold text-[#D98488] font-mono-num bg-[#D98488]/15 px-2 py-1 rounded-md border border-[#D98488]/30">
+                <div class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/40">
                   4 months missed
-                </span>
+                </div>
               </div>
 
-              <!-- Progress Rail (Zero numbers / zero target labels) -->
-              <div class="w-full bg-[#101824] h-2 rounded-full overflow-hidden border border-[#2E405C]/50">
-                <div class="bg-[#D98488] h-full rounded-full" style="width: 28%"></div>
+              <!-- Unlabelled progress rail (Rule A) -->
+              <div class="w-full h-1.5 bg-[#101824] rounded-full overflow-hidden">
+                <div class="h-full bg-[#D4A55D] rounded-full" style="width: 25%;"></div>
               </div>
 
-              <!-- Card Action Controls -->
               <div class="flex items-center justify-between pt-1">
-                <span class="text-xs text-[#8AAEDB]/80 font-mono-num">₹ 20,000/mo pace</span>
-                <div class="flex items-center gap-2">
-                  <button class="px-3 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-semibold hover:bg-[#8AAEDB]/90">
-                    Check-in
-                  </button>
-                  <button class="px-3 py-1.5 rounded-lg bg-[#101824] text-[#8AAEDB] border border-[#2E405C] text-xs font-medium hover:text-[#E7EEF8]">
-                    Details
-                  </button>
+                <span class="text-xs font-mono text-[#8AAEDB]">₹ 20,000/mo pace</span>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-semibold hover:brightness-110">Check-in</button>
+                  <button class="px-3 py-1.5 rounded-lg bg-[#101824] border border-[#2E405C] text-[#E7EEF8] text-xs font-medium hover:bg-[#101824]/80">Details</button>
                 </div>
               </div>
             </div>
 
-            <!-- Goal Card 2: Child Higher Education (Negative Rule B: "2 months missed") -->
-            <!-- STRICT RULE A: NO TARGET AMOUNT (NO ₹20,00,000, NO PERCENT) -->
-            <div class="bg-[#1F2D42] rounded-2xl border border-[#2E405C] p-4 space-y-3">
-              <div class="flex justify-between items-start">
+            <!-- Card 2: Child Higher Education Fund (2 months missed) -->
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-3">
+              <div class="flex items-start justify-between">
                 <div>
-                  <h4 class="text-sm font-bold text-[#E7EEF8]">Child Higher Education Fund</h4>
-                  <span class="text-[11px] text-[#8AAEDB]/70 mt-0.5 block">Target: Oct 2028 • 22 Mos Left</span>
+                  <h3 class="text-sm font-bold text-[#E7EEF8] leading-snug">Child Higher Education Fund</h3>
+                  <p class="text-[11px] text-[#8AAEDB]/80 mt-0.5">Target: Oct 2028 • 22 Mos Left</p>
                 </div>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#7BB892]/20 text-[#7BB892] border border-[#7BB892]/40">
                   On track
                 </span>
               </div>
 
+              <!-- Psychology Invariant Rule A & B: Negative signal takes precedence (red 2 months missed) -->
               <div class="flex items-baseline justify-between pt-1">
                 <div>
-                  <span class="text-[10px] uppercase font-semibold text-[#8AAEDB]/70 block">SAVED</span>
-                  <span class="text-lg font-bold text-[#E7EEF8] font-mono-num">₹ 11,50,000</span>
+                  <span class="text-[10px] uppercase font-mono tracking-wider text-[#8AAEDB] block">SAVED</span>
+                  <span class="text-lg font-bold text-[#E7EEF8] tabular">₹ 11,50,000</span>
                 </div>
-                <!-- Psychology Rule B: 2 months missed (red) -->
-                <span class="text-xs font-semibold text-[#D98488] font-mono-num bg-[#D98488]/15 px-2 py-1 rounded-md border border-[#D98488]/30">
+                <div class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/40">
                   2 months missed
-                </span>
+                </div>
               </div>
 
-              <!-- Progress Rail (Zero labels / target values) -->
-              <div class="w-full bg-[#101824] h-2 rounded-full overflow-hidden border border-[#2E405C]/50">
-                <div class="bg-[#7BB892] h-full rounded-full" style="width: 58%"></div>
+              <!-- Unlabelled progress rail (Rule A) -->
+              <div class="w-full h-1.5 bg-[#101824] rounded-full overflow-hidden">
+                <div class="h-full bg-[#8AAEDB] rounded-full" style="width: 58%;"></div>
               </div>
 
               <div class="flex items-center justify-between pt-1">
-                <span class="text-xs text-[#8AAEDB]/80 font-mono-num">₹ 35,000/mo pace</span>
-                <div class="flex items-center gap-2">
-                  <button class="px-3 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-semibold hover:bg-[#8AAEDB]/90">
-                    Check-in
-                  </button>
-                  <button class="px-3 py-1.5 rounded-lg bg-[#101824] text-[#8AAEDB] border border-[#2E405C] text-xs font-medium hover:text-[#E7EEF8]">
-                    Details
-                  </button>
+                <span class="text-xs font-mono text-[#8AAEDB]">₹ 35,000/mo pace</span>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-semibold hover:brightness-110">Check-in</button>
+                  <button class="px-3 py-1.5 rounded-lg bg-[#101824] border border-[#2E405C] text-[#E7EEF8] text-xs font-medium hover:bg-[#101824]/80">Details</button>
                 </div>
               </div>
             </div>
 
-            <!-- Goal Card 3: Annual Family Vacation (Positive Rule B: "15/20 months ✓") -->
-            <!-- STRICT RULE A: NO TARGET AMOUNT (NO ₹5,00,000, NO PERCENT) -->
-            <div class="bg-[#1F2D42] rounded-2xl border border-[#2E405C] p-4 space-y-3">
-              <div class="flex justify-between items-start">
+            <!-- Card 3: Annual Family Vacation 2027 (15/20 months ✓ green) -->
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-3">
+              <div class="flex items-start justify-between">
                 <div>
-                  <h4 class="text-sm font-bold text-[#E7EEF8]">Annual Family Vacation 2027</h4>
-                  <span class="text-[11px] text-[#8AAEDB]/70 mt-0.5 block">Target: Dec 2027 • 12 Mos Left</span>
+                  <h3 class="text-sm font-bold text-[#E7EEF8] leading-snug">Annual Family Vacation 2027</h3>
+                  <p class="text-[11px] text-[#8AAEDB]/80 mt-0.5">Target: Dec 2027 • 12 Mos Left</p>
                 </div>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#7BB892]/20 text-[#7BB892] border border-[#7BB892]/40">
                   On track
                 </span>
               </div>
 
+              <!-- Psychology Invariant Rule B: On plan -> green "15/20 months ✓" -->
               <div class="flex items-baseline justify-between pt-1">
                 <div>
-                  <span class="text-[10px] uppercase font-semibold text-[#8AAEDB]/70 block">SAVED</span>
-                  <span class="text-lg font-bold text-[#E7EEF8] font-mono-num">₹ 3,75,000</span>
+                  <span class="text-[10px] uppercase font-mono tracking-wider text-[#8AAEDB] block">SAVED</span>
+                  <span class="text-lg font-bold text-[#E7EEF8] tabular">₹ 3,75,000</span>
                 </div>
-                <!-- Psychology Rule B: on plan "15/20 months ✓" (green) -->
-                <span class="text-xs font-semibold text-[#7BB892] font-mono-num bg-[#7BB892]/15 px-2 py-1 rounded-md border border-[#7BB892]/30">
+                <div class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#7BB892]/20 text-[#7BB892] border border-[#7BB892]/40">
                   15/20 months ✓
-                </span>
+                </div>
               </div>
 
-              <div class="w-full bg-[#101824] h-2 rounded-full overflow-hidden border border-[#2E405C]/50">
-                <div class="bg-[#7BB892] h-full rounded-full" style="width: 75%"></div>
+              <!-- Unlabelled progress rail (Rule A) -->
+              <div class="w-full h-1.5 bg-[#101824] rounded-full overflow-hidden">
+                <div class="h-full bg-[#7BB892] rounded-full" style="width: 75%;"></div>
               </div>
 
               <div class="flex items-center justify-between pt-1">
-                <span class="text-xs text-[#8AAEDB]/80 font-mono-num">₹ 10,000/mo pace</span>
-                <div class="flex items-center gap-2">
-                  <button class="px-3 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-semibold hover:bg-[#8AAEDB]/90">
-                    Check-in
-                  </button>
-                  <button class="px-3 py-1.5 rounded-lg bg-[#101824] text-[#8AAEDB] border border-[#2E405C] text-xs font-medium hover:text-[#E7EEF8]">
-                    Details
-                  </button>
+                <span class="text-xs font-mono text-[#8AAEDB]">₹ 10,000/mo pace</span>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] text-xs font-semibold hover:brightness-110">Check-in</button>
+                  <button class="px-3 py-1.5 rounded-lg bg-[#101824] border border-[#2E405C] text-[#E7EEF8] text-xs font-medium hover:bg-[#101824]/80">Details</button>
                 </div>
-              </div>
-            </div>
-
-            <!-- Archived Goals Accordion Row (Zero deletion) -->
-            <div class="pt-1">
-              <div class="bg-[#1F2D42]/40 border border-[#2E405C]/60 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-[#8AAEDB]/70">
-                <div class="flex items-center gap-2">
-                  <svg class="w-3.5 h-3.5 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                  <span>Emergency Buffer Vault</span>
-                </div>
-                <span class="text-[10px] font-mono-num uppercase bg-[#101824] px-1.5 py-0.5 rounded border border-[#2E405C]">Archived</span>
               </div>
             </div>
           </div>
 
           <!-- Bottom Navigation Bar -->
-          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex justify-between items-center text-[10px]">
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex items-center justify-around text-[10px] font-medium text-[#8AAEDB]">
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
               <span>Dashboard</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
               <span>Portfolio</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <span>Watchlist</span>
             </div>
             <div class="flex flex-col items-center gap-1 text-[#8AAEDB] font-bold">
-              <div class="relative">
-                <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-                <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#8AAEDB]"></span>
-              </div>
+              <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h12a1 1 0 01.8 1.6L14.25 8l2.55 3.4a1 1 0 01-.8 1.6H4v7a1 1 0 11-2 0V4z"/></svg>
               <span>Goals</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
               <span>More</span>
             </div>
           </div>
         </div>
       </div>
 
-
       <!-- ========================================== -->
-      <!-- FRAME 03: CREATE FORM -->
+      <!-- FRAME 03: CREATE FORM / DERIVATION SPEC -->
       <!-- ========================================== -->
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between text-xs font-semibold px-2">
-          <span class="text-[#8AAEDB] tracking-wider uppercase">03 — Create Form / Derivation Spec</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono-num bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C]">FORM (1)</span>
+        <div class="flex items-center justify-between text-xs font-mono text-[#8AAEDB] px-2">
+          <span>03 — CREATE FORM / DERIVATION SPEC</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] border border-[#2E405C] text-[10px]">FORM (1)</span>
         </div>
 
-        <div class="mobile-frame h-[860px]">
-          <!-- Mobile Status Bar -->
-          <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-[#E7EEF8]/70">
+        <div class="mobile-frame h-[870px] bg-[#101824] flex flex-col justify-between relative border border-[#2E405C]">
+          <!-- Status Bar -->
+          <div class="px-6 pt-3 pb-1 flex justify-between items-center text-xs text-[#8AAEDB] font-mono">
             <span>09:41</span>
+            <div class="flex items-center gap-1.5">
+              <span>●●</span>
+              <span>📶</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <!-- App Bar with Back -->
+          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/70">
             <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zm-2.829 2.828a3 3 0 00-4.242 0 1 1 0 01-1.415-1.414 5 5 0 017.072 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-              <div class="w-5 h-2.5 border border-[#E7EEF8]/70 rounded-sm p-0.5 flex items-center">
-                <div class="h-full w-full bg-[#E7EEF8]/90 rounded-2xs"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Top App Bar with Drilldown Back -->
-          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/40 bg-[#101824]">
-            <div class="flex items-center gap-3">
-              <button class="text-[#8AAEDB] hover:text-white transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+              <button class="text-[#8AAEDB] hover:text-[#E7EEF8]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
               </button>
-              <span class="text-[17px] font-bold tracking-tight text-[#E7EEF8]">Create New Milestone</span>
+              <h2 class="text-sm font-bold text-[#E7EEF8]">Create New Milestone</h2>
             </div>
-            <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-semibold flex items-center justify-center">DK</div>
+            <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-bold flex items-center justify-center">DK</div>
           </div>
 
-          <!-- Segmented Sticky Control Strip -->
-          <div class="p-3 bg-[#101824] border-b border-[#2E405C]/50">
-            <div class="grid grid-cols-2 p-1 bg-[#1F2D42] rounded-xl border border-[#2E405C]">
-              <button class="py-2 text-center text-xs font-medium rounded-lg text-[#8AAEDB] hover:text-[#E7EEF8]">
+          <!-- Sticky Segmented Tabs: GOALS (3) / FORM (1) -->
+          <div class="px-5 pt-3 pb-2 bg-[#101824]">
+            <div class="p-1 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex">
+              <button class="flex-1 py-1.5 rounded-lg text-[#8AAEDB] font-medium text-xs tracking-wide hover:text-[#E7EEF8]">
                 GOALS (3)
               </button>
-              <button class="py-2 text-center text-xs font-semibold rounded-lg bg-[#8AAEDB] text-[#101824] shadow-sm">
+              <button class="flex-1 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] font-semibold text-xs tracking-wide shadow-sm">
                 FORM (1)
               </button>
             </div>
           </div>
 
-          <!-- Form Content -->
-          <div class="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar">
-            <!-- Goal Name (Strict: NO Asterisk) -->
+          <!-- Form Body -->
+          <div class="px-5 py-2 flex-1 overflow-y-auto space-y-3.5 hide-scrollbar">
+            <!-- Goal Name (NO asterisk) -->
             <div>
-              <label class="text-xs font-semibold text-[#8AAEDB] block mb-1.5 uppercase tracking-wide">
-                Goal Name
-              </label>
-              <input type="text" value="Child Higher Education Fund" class="w-full bg-[#1F2D42] border border-[#2E405C] rounded-xl px-3.5 py-2.5 text-sm font-semibold text-[#E7EEF8] focus:outline-none focus:border-[#8AAEDB]">
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB] mb-1.5">GOAL NAME</label>
+              <input type="text" value="Child Higher Education Fund" class="w-full px-3.5 py-2.5 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-sm text-[#E7EEF8] font-semibold focus:outline-none focus:border-[#8AAEDB]">
             </div>
 
-            <!-- Read-only Target Amount (The ONLY place target exists in product) -->
+            <!-- Target Amount (₹) · AUTO (Read-Only) -->
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label class="text-xs font-semibold text-[#8AAEDB] uppercase tracking-wide">
-                  Target Amount (₹) · auto
-                </label>
-                <span class="text-[10px] uppercase font-mono-num px-1.5 py-0.5 rounded bg-[#101824] text-[#8AAEDB] border border-[#2E405C]">Derived</span>
+                <label class="text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB]">TARGET AMOUNT (₹) · AUTO</label>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#101824] text-[#8AAEDB] border border-[#2E405C]">AUTO COMPUTED</span>
               </div>
-              <input type="text" readonly value="20,00,000" class="w-full bg-[#101824] border border-[#2E405C] rounded-xl px-3.5 py-2.5 text-sm font-bold font-mono-num text-[#E7EEF8] cursor-not-allowed">
-              <p class="text-[11px] text-[#8AAEDB]/70 mt-1.5 leading-relaxed">
-                Derived: saved + contributions + portfolio growth — Target-OR-Monthly exclusivity: user enters one, the other is derived.
+              <div class="w-full px-3.5 py-2.5 rounded-xl bg-[#101824] border border-[#2E405C] flex items-center justify-between">
+                <span class="text-base font-bold text-[#E7EEF8] tabular">20,00,000</span>
+                <span class="text-xs font-mono text-[#8AAEDB]">₹ INR</span>
+              </div>
+              <p class="text-[10px] text-[#8AAEDB] mt-1 leading-relaxed">
+                Derived below by the month table — Target-OR-Monthly exclusivity: you enter Monthly, Target is derived.
               </p>
             </div>
 
             <!-- Exclusivity Divider -->
-            <div class="flex items-center gap-2 py-1">
-              <div class="flex-1 h-[1px] bg-[#2E405C]"></div>
-              <span class="text-[10px] uppercase tracking-wider font-semibold text-[#8AAEDB]/60 font-mono-num">
-                monthly mode active · target derived above
+            <div class="relative flex items-center justify-center my-2">
+              <div class="border-t border-[#2E405C] w-full"></div>
+              <span class="bg-[#101824] px-2 text-[9px] font-mono uppercase tracking-widest text-[#8AAEDB] whitespace-nowrap">
+                monthly mode active • target derived from table
               </span>
-              <div class="flex-1 h-[1px] bg-[#2E405C]"></div>
             </div>
 
-            <!-- Monthly Contribution (Editable 35,000) -->
-            <div>
-              <label class="text-xs font-semibold text-[#8AAEDB] block mb-1.5 uppercase tracking-wide">
-                Monthly Contribution (₹)
-              </label>
-              <input type="text" value="35,000" class="w-full bg-[#1F2D42] border border-[#8AAEDB] rounded-xl px-3.5 py-2.5 text-sm font-semibold font-mono-num text-[#E7EEF8] focus:outline-none">
+            <!-- NEW FIELD 1: Monthly Target (₹) · PLAN (Read-Only Locked) -->
+            <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C]">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs">🔒</span>
+                  <label class="text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB]">MONTHLY TARGET (₹) · PLAN</label>
+                </div>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#101824] text-[#8AAEDB] border border-[#2E405C]">LOCKED</span>
+              </div>
+              <div class="w-full px-3 py-2 rounded-lg bg-[#101824] border border-[#2E405C] flex items-center justify-between">
+                <span class="text-sm font-bold text-[#E7EEF8] tabular">50,000</span>
+                <span class="text-xs font-mono text-[#8AAEDB]">/ month</span>
+              </div>
+              <p class="text-[10px] text-[#8AAEDB] mt-1.5 leading-snug">
+                How much you plan to save each month — set once when the goal is created; NEVER editable after (full read-only mode).
+              </p>
             </div>
 
-            <!-- Start Date & Target Date -->
-            <div class="grid grid-cols-2 gap-3">
+            <!-- NEW FIELD 2: Monthly Invested (₹) · AUTO (Read-Only) -->
+            <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C]">
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB]">MONTHLY INVESTED (₹) · AUTO</label>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#101824] text-[#7BB892] border border-[#2E405C]">AUTO</span>
+              </div>
+              <div class="w-full px-3 py-2 rounded-lg bg-[#101824] border border-[#2E405C] flex items-center justify-between">
+                <span class="text-sm font-bold text-[#E7EEF8] tabular">35,000</span>
+                <span class="text-xs font-mono text-[#8AAEDB]">/ month</span>
+              </div>
+              <p class="text-[10px] text-[#8AAEDB] mt-1.5 leading-snug">
+                Auto-calculated: goal-linked buys from Watchlist → Move to Portfolio this month — never typed.
+              </p>
+            </div>
+
+            <!-- Date Selectors -->
+            <div class="grid grid-cols-2 gap-2.5">
               <div>
-                <label class="text-xs font-semibold text-[#8AAEDB] block mb-1.5 uppercase tracking-wide">
-                  Start Date
-                </label>
-                <div class="bg-[#1F2D42] border border-[#2E405C] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs font-mono-num text-[#E7EEF8]">
+                <label class="block text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB] mb-1">START DATE</label>
+                <div class="px-3 py-2 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-xs font-medium text-[#E7EEF8] flex items-center justify-between">
                   <span>Jan 2027</span>
-                  <svg class="w-4 h-4 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span class="text-xs text-[#8AAEDB]">📅</span>
                 </div>
               </div>
               <div>
-                <label class="text-xs font-semibold text-[#8AAEDB] block mb-1.5 uppercase tracking-wide">
-                  Target Date
-                </label>
-                <div class="bg-[#1F2D42] border border-[#2E405C] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs font-mono-num text-[#E7EEF8]">
+                <label class="block text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB] mb-1">TARGET DATE</label>
+                <div class="px-3 py-2 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-xs font-medium text-[#E7EEF8] flex items-center justify-between">
                   <span>Oct 2028</span>
-                  <svg class="w-4 h-4 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span class="text-xs text-[#8AAEDB]">📅</span>
                 </div>
               </div>
-            </div>
-
-            <!-- EXACT ONE FORMULA SPEC (No old 7,70,000 card) -->
-            <div class="bg-[#101824] border border-[#2E405C] rounded-xl p-3 space-y-1.5">
-              <div class="flex items-center gap-1.5 text-xs text-[#8AAEDB] font-semibold">
-                <svg class="w-3.5 h-3.5 text-[#7BB892]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
-                <span class="text-[11px] font-mono-num uppercase tracking-wider">saved + contributions + portfolio growth</span>
-              </div>
-              <p class="text-xs font-mono-num font-semibold text-[#E7EEF8] pl-5 leading-relaxed">
-                (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)
-              </p>
-              <p class="text-[10px] text-[#8AAEDB]/60 pl-5">
-                Automates baseline capital accumulation pacing coupled with yield reinvestment matching.
-              </p>
             </div>
 
             <!-- Saved So Far (Optional) -->
             <div>
-              <label class="text-xs font-semibold text-[#8AAEDB] block mb-1.5 uppercase tracking-wide">
-                Saved So Far (Optional)
-              </label>
-              <input type="text" value="11,50,000" class="w-full bg-[#1F2D42] border border-[#2E405C] rounded-xl px-3.5 py-2.5 text-sm font-semibold font-mono-num text-[#E7EEF8] focus:outline-none focus:border-[#8AAEDB]">
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB] mb-1">SAVED SO FAR (OPTIONAL)</label>
+              <div class="px-3 py-2 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex items-center justify-between">
+                <span class="text-sm font-medium text-[#E7EEF8] tabular">11,50,000</span>
+                <span class="text-xs text-[#8AAEDB]">₹</span>
+              </div>
             </div>
 
             <!-- Note (Optional) -->
             <div>
-              <label class="text-xs font-semibold text-[#8AAEDB] block mb-1.5 uppercase tracking-wide">
-                Note (Optional)
-              </label>
-              <textarea rows="2" class="w-full bg-[#1F2D42] border border-[#2E405C] rounded-xl p-3 text-xs text-[#E7EEF8] focus:outline-none focus:border-[#8AAEDB] resize-none" placeholder="e.g. Priority milestone, mapped to AAA PSU bond yield reinvestment.">Priority milestone, mapped to AAA PSU bond yield reinvestment.</textarea>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB] mb-1">NOTE (OPTIONAL)</label>
+              <input type="text" value="Mapped to AAA PSU coupon reinvestment schedule" class="w-full px-3 py-2 rounded-xl bg-[#1F2D42] border border-[#2E405C] text-xs text-[#E7EEF8]">
             </div>
 
-            <!-- Submit Button (Strictly: "Save goal") -->
-            <button class="w-full py-3.5 rounded-xl bg-[#8AAEDB] text-[#101824] font-bold text-sm hover:bg-[#8AAEDB]/90 transition-all shadow-md">
+            <!-- SPEC TABLE: 5 Columns (MONTH | TARGET | INVESTED | RETURNS | RUNNING TOTAL) -->
+            <div class="p-3 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-2">
+              <div class="text-[11px] font-bold text-[#E7EEF8]">
+                Month-wise derivation — 22 months • Jan 2027 → Oct 2028
+              </div>
+              <div class="text-[10px] text-[#8AAEDB]/80 mb-1">
+                Baseline saved ₹11,50,000 + monthly target plan vs actual pacing
+              </div>
+
+              <!-- 5-Column Table -->
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-[10px] font-mono">
+                  <thead>
+                    <tr class="border-b border-[#2E405C] text-[#8AAEDB] uppercase">
+                      <th class="py-1.5 pr-1">MONTH</th>
+                      <th class="py-1.5 px-1 text-right">TARGET</th>
+                      <th class="py-1.5 px-1 text-right">INVESTED</th>
+                      <th class="py-1.5 px-1 text-right">RETURNS</th>
+                      <th class="py-1.5 pl-1 text-right">RUNNING TOTAL</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[#2E405C]/50 text-[#E7EEF8]">
+                    <tr>
+                      <td class="py-1.5 pr-1 font-medium">Jan 2027</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#8AAEDB]">₹50,000</td>
+                      <td class="py-1.5 px-1 text-right tabular">₹35,000</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#7BB892]">+₹3,600</td>
+                      <td class="py-1.5 pl-1 text-right tabular font-bold">₹11,88,600</td>
+                    </tr>
+                    <tr>
+                      <td class="py-1.5 pr-1 font-medium">Feb 2027</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#8AAEDB]">₹50,000</td>
+                      <td class="py-1.5 px-1 text-right tabular">₹35,000</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#7BB892]">+₹3,600</td>
+                      <td class="py-1.5 pl-1 text-right tabular font-bold">₹12,27,200</td>
+                    </tr>
+                    <tr>
+                      <td class="py-1.5 pr-1 font-medium">Mar 2027</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#8AAEDB]">₹50,000</td>
+                      <td class="py-1.5 px-1 text-right tabular">₹35,000</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#7BB892]">+₹3,600</td>
+                      <td class="py-1.5 pl-1 text-right tabular font-bold">₹12,65,800</td>
+                    </tr>
+                    <tr>
+                      <td colspan="5" class="py-1.5 text-center text-[#8AAEDB]/60 text-[9px] tracking-wider">
+                        • • • 17 more months • • •
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-1.5 pr-1 font-medium">Sep 2028</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#8AAEDB]">₹50,000</td>
+                      <td class="py-1.5 px-1 text-right tabular">₹35,000</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#7BB892]">+₹3,600</td>
+                      <td class="py-1.5 pl-1 text-right tabular font-bold">₹19,60,600</td>
+                    </tr>
+                    <!-- Highlighted Final Row -->
+                    <tr class="bg-[#8AAEDB]/10 rounded font-semibold text-[#8AAEDB]">
+                      <td class="py-1.5 pr-1 flex items-center gap-1 text-[#E7EEF8]">
+                        Oct 2028 <span class="text-[#7BB892]">✓</span>
+                      </td>
+                      <td class="py-1.5 px-1 text-right tabular">₹50,000</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#E7EEF8]">₹35,000</td>
+                      <td class="py-1.5 px-1 text-right tabular text-[#7BB892]">+₹4,400</td>
+                      <td class="py-1.5 pl-1 text-right tabular font-bold text-[#E7EEF8]">₹20,00,000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Table Footer & Helper -->
+              <div class="pt-2 border-t border-[#2E405C] space-y-1.5">
+                <div class="text-[10px] font-mono text-[#8AAEDB] leading-relaxed">
+                  → Target ₹20,00,000 = saved ₹11,50,000 + invested ₹7,70,000 + returns ₹80,000
+                </div>
+                <div class="text-[9px] text-[#8AAEDB]/80 flex items-start gap-1 leading-snug">
+                  <span class="text-[#8AAEDB]">ℹ️</span>
+                  <span>Target = plan • Invested + Returns = auto from the portfolio — nothing typed here.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit CTA -->
+            <button class="w-full py-3 rounded-xl bg-[#8AAEDB] text-[#101824] font-bold text-xs uppercase tracking-wide hover:brightness-110 shadow-lg">
               Save goal
             </button>
           </div>
         </div>
       </div>
 
-
       <!-- ========================================== -->
-      <!-- FRAME 04: MONTHLY TRACKING & RHYTHM LOG -->
+      <!-- FRAME 04: MONTHLY TRACKING / RHYTHM LOG -->
       <!-- ========================================== -->
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between text-xs font-semibold px-2">
-          <span class="text-[#8AAEDB] tracking-wider uppercase">04 — Monthly Tracking / Rhythm Log</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono-num bg-[#1F2D42] text-[#D98488] border border-[#2E405C]">PACING ACTIVE</span>
+        <div class="flex items-center justify-between text-xs font-mono text-[#8AAEDB] px-2">
+          <span>04 — MONTHLY TRACKING / RHYTHM LOG</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] border border-[#2E405C] text-[10px]">RHYTHM LOG</span>
         </div>
 
-        <div class="mobile-frame h-[860px]">
-          <!-- Mobile Status Bar -->
-          <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-[#E7EEF8]/70">
+        <div class="mobile-frame h-[870px] bg-[#101824] flex flex-col justify-between relative border border-[#2E405C]">
+          <!-- Status Bar -->
+          <div class="px-6 pt-3 pb-1 flex justify-between items-center text-xs text-[#8AAEDB] font-mono">
             <span>09:41</span>
+            <div class="flex items-center gap-1.5">
+              <span>●●</span>
+              <span>📶</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <!-- App Bar with Back -->
+          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/70">
             <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zm-2.829 2.828a3 3 0 00-4.242 0 1 1 0 01-1.415-1.414 5 5 0 017.072 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-              <div class="w-5 h-2.5 border border-[#E7EEF8]/70 rounded-sm p-0.5 flex items-center">
-                <div class="h-full w-full bg-[#E7EEF8]/90 rounded-2xs"></div>
-              </div>
+              <button class="text-[#8AAEDB]"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+              <h2 class="text-sm font-bold text-[#E7EEF8]">Rhythm &amp; Pacing</h2>
             </div>
+            <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-bold flex items-center justify-center">DK</div>
           </div>
 
-          <!-- Top App Bar -->
-          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/40 bg-[#101824]">
-            <div class="flex items-center gap-3">
-              <button class="text-[#8AAEDB] hover:text-white transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              </button>
-              <span class="text-[17px] font-bold tracking-tight text-[#E7EEF8]">Monthly Tracking</span>
-            </div>
-            <div class="w-7 h-7 rounded-full bg-[#1F2D42] border border-[#8AAEDB] text-[#8AAEDB] text-xs font-semibold flex items-center justify-center">DK</div>
-          </div>
-
-          <!-- Segmented Sticky Control Strip -->
-          <div class="p-3 bg-[#101824] border-b border-[#2E405C]/50">
-            <div class="grid grid-cols-2 p-1 bg-[#1F2D42] rounded-xl border border-[#2E405C]">
-              <button class="py-2 text-center text-xs font-semibold rounded-lg bg-[#8AAEDB] text-[#101824] shadow-sm">
+          <!-- Sticky Segmented Tabs -->
+          <div class="px-5 pt-3 pb-2 bg-[#101824]">
+            <div class="p-1 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex">
+              <button class="flex-1 py-1.5 rounded-lg bg-[#8AAEDB] text-[#101824] font-semibold text-xs tracking-wide shadow-sm">
                 GOALS (3)
               </button>
-              <button class="py-2 text-center text-xs font-medium rounded-lg text-[#8AAEDB] hover:text-[#E7EEF8]">
+              <button class="flex-1 py-1.5 rounded-lg text-[#8AAEDB] font-medium text-xs tracking-wide hover:text-[#E7EEF8]">
                 FORM (0)
               </button>
             </div>
           </div>
 
-          <!-- Tracking Content -->
-          <div class="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar">
-            <!-- Warning Banner: "2 months missed — pace adjustment active" -->
-            <div class="bg-[#1F2D42] border border-[#D4A55D] rounded-2xl p-3.5 flex items-start gap-3">
-              <div class="p-2 rounded-xl bg-[#D4A55D]/20 text-[#D4A55D] shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              </div>
+          <!-- Tracking Body -->
+          <div class="px-5 py-2 flex-1 overflow-y-auto space-y-3.5 hide-scrollbar">
+            <!-- Warning Banner -->
+            <div class="p-3.5 rounded-2xl bg-[#D4A55D]/15 border border-[#D4A55D]/40 flex items-start gap-3">
+              <span class="text-base text-[#D4A55D] mt-0.5">⚠️</span>
               <div>
-                <h4 class="text-xs font-bold text-[#E7EEF8]">2 months missed — pace adjustment active</h4>
-                <p class="text-[11px] text-[#8AAEDB]/80 mt-0.5 leading-relaxed">
-                  Oct & Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.
+                <h4 class="text-xs font-bold text-[#D4A55D]">2 months missed — pace adjustment active</h4>
+                <p class="text-[11px] text-[#E7EEF8]/80 mt-0.5 leading-relaxed">
+                  Oct &amp; Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.
                 </p>
               </div>
             </div>
 
-            <!-- Goal Summary Header (NO TARGET AMOUNT / NO PERCENT) -->
-            <div class="bg-[#1F2D42] rounded-xl p-3.5 border border-[#2E405C] flex items-center justify-between">
-              <div>
-                <span class="text-[10px] uppercase font-semibold text-[#8AAEDB]/70 block">Child Higher Education</span>
-                <span class="text-base font-bold text-[#E7EEF8] font-mono-num">₹ 11,50,000 Saved</span>
+            <!-- Milestone Summary (Zero Target Displayed) -->
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-2">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold text-[#E7EEF8]">Child Higher Education Fund</h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/40">
+                  2 months missed
+                </span>
               </div>
-              <span class="text-xs font-semibold text-[#D98488] font-mono-num bg-[#D98488]/15 px-2.5 py-1 rounded-lg border border-[#D98488]/30">
-                2 months missed
-              </span>
+              <div class="flex items-baseline justify-between pt-1">
+                <div>
+                  <span class="text-[10px] uppercase font-mono tracking-wider text-[#8AAEDB] block">SAVED</span>
+                  <span class="text-lg font-bold text-[#E7EEF8] tabular">₹ 11,50,000</span>
+                </div>
+                <span class="text-xs font-mono text-[#8AAEDB]">₹ 35,000/mo pace</span>
+              </div>
             </div>
 
-            <!-- Rhythm Log Rows (Strictly showing invested AND returns) -->
+            <!-- Reconciliation Ledger -->
             <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#8AAEDB]">Rhythm Log</span>
-                <span class="text-[11px] font-mono-num text-[#8AAEDB]/60">Monthly Ledger</span>
-              </div>
-
+              <span class="text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB] block mb-2">RECONCILIATION LEDGER</span>
+              
               <div class="space-y-2">
-                <!-- Nov 2026: Invested AND returns -->
-                <div class="bg-[#1F2D42] border border-[#2E405C] rounded-xl p-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#7BB892]"></span>
+                <!-- Dec 2026: Due Soon -->
+                <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#8AAEDB]"></span>
                     <div>
+                      <span class="text-xs font-bold text-[#E7EEF8] block">Dec 2026</span>
+                      <span class="text-[10px] text-[#8AAEDB]">Due in 14 days • ₹35,000 scheduled</span>
+                    </div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#8AAEDB]/20 text-[#8AAEDB] border border-[#8AAEDB]/40">
+                    Due Soon
+                  </span>
+                </div>
+
+                <!-- Nov 2026: Invested + Returns -->
+                <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex items-center justify-between">
+                  <div>
+                    <div class="flex items-center gap-1.5">
                       <span class="text-xs font-bold text-[#E7EEF8]">Nov 2026</span>
-                      <span class="text-[11px] text-[#7BB892] font-semibold block font-mono-num">✓ ₹35,000 invested</span>
+                      <span class="text-[11px] text-[#7BB892] font-medium">✓ ₹35,000 invested</span>
                     </div>
+                    <span class="text-[10px] font-mono text-[#8AAEDB]">Auto-matched via Demat</span>
                   </div>
-                  <div class="text-right">
-                    <span class="text-xs font-bold text-[#7BB892] font-mono-num">+₹1,820 returns</span>
-                    <span class="text-[10px] text-[#8AAEDB]/60 block">Verified ECS</span>
-                  </div>
+                  <span class="text-xs font-mono font-bold text-[#7BB892] tabular">+₹1,820 returns</span>
                 </div>
 
-                <!-- Oct 2026: MISSED AND returns -->
-                <div class="bg-[#1F2D42] border border-[#D98488]/40 rounded-xl p-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#D98488]"></span>
-                    <div>
+                <!-- Oct 2026: MISSED + Returns -->
+                <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex items-center justify-between">
+                  <div>
+                    <div class="flex items-center gap-1.5">
                       <span class="text-xs font-bold text-[#E7EEF8]">Oct 2026</span>
-                      <span class="text-[11px] text-[#D98488] font-semibold block font-mono-num uppercase">MISSED</span>
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/40 uppercase">MISSED</span>
                     </div>
+                    <span class="text-[10px] text-[#8AAEDB]">Coupon credits retained</span>
                   </div>
-                  <div class="text-right">
-                    <span class="text-xs font-bold text-[#8AAEDB] font-mono-num">+₹1,710 returns</span>
-                    <span class="text-[10px] text-[#8AAEDB]/60 block">Bond Yield Inflow</span>
-                  </div>
+                  <span class="text-xs font-mono font-bold text-[#7BB892] tabular">+₹1,710 returns</span>
                 </div>
 
-                <!-- Sep 2026: MISSED AND returns -->
-                <div class="bg-[#1F2D42] border border-[#D98488]/40 rounded-xl p-3 flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#D98488]"></span>
-                    <div>
+                <!-- Sep 2026: MISSED + Returns -->
+                <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex items-center justify-between">
+                  <div>
+                    <div class="flex items-center gap-1.5">
                       <span class="text-xs font-bold text-[#E7EEF8]">Sep 2026</span>
-                      <span class="text-[11px] text-[#D98488] font-semibold block font-mono-num uppercase">MISSED</span>
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#D98488]/20 text-[#D98488] border border-[#D98488]/40 uppercase">MISSED</span>
                     </div>
+                    <span class="text-[10px] text-[#8AAEDB]">Coupon credits retained</span>
                   </div>
-                  <div class="text-right">
-                    <span class="text-xs font-bold text-[#8AAEDB] font-mono-num">+₹1,695 returns</span>
-                    <span class="text-[10px] text-[#8AAEDB]/60 block">Bond Yield Inflow</span>
-                  </div>
+                  <span class="text-xs font-mono font-bold text-[#7BB892] tabular">+₹1,695 returns</span>
                 </div>
 
-                <!-- Aug 2026: Done -->
-                <div class="bg-[#1F2D42] border border-[#2E405C] rounded-xl p-3 flex items-center justify-between opacity-80">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-[#7BB892]"></span>
-                    <div>
+                <!-- Aug 2026: Invested + Returns -->
+                <div class="p-3 rounded-xl bg-[#1F2D42] border border-[#2E405C] flex items-center justify-between">
+                  <div>
+                    <div class="flex items-center gap-1.5">
                       <span class="text-xs font-bold text-[#E7EEF8]">Aug 2026</span>
-                      <span class="text-[11px] text-[#7BB892] font-semibold block font-mono-num">✓ ₹35,000 invested</span>
+                      <span class="text-[11px] text-[#7BB892] font-medium">✓ ₹35,000 invested</span>
                     </div>
+                    <span class="text-[10px] font-mono text-[#8AAEDB]">Regular pacing completed</span>
                   </div>
-                  <div class="text-right">
-                    <span class="text-xs font-bold text-[#7BB892] font-mono-num">+₹1,695 returns</span>
-                    <span class="text-[10px] text-[#8AAEDB]/60 block">Verified ECS</span>
-                  </div>
+                  <span class="text-xs font-mono font-bold text-[#7BB892] tabular">+₹1,680 returns</span>
                 </div>
               </div>
             </div>
 
             <!-- Upcoming Pipeline -->
-            <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-[#8AAEDB] block mb-2">Upcoming Pipeline</span>
-              <div class="bg-[#101824] border border-[#2E405C] rounded-xl p-3 flex items-center justify-between">
+            <div class="p-3.5 rounded-2xl bg-[#101824] border border-[#2E405C] space-y-2">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-[#8AAEDB] block">UPCOMING PIPELINE</span>
+              <div class="flex items-center justify-between">
                 <div>
-                  <span class="text-xs font-semibold text-[#E7EEF8]">Dec 2026 Check-in</span>
-                  <span class="text-[10px] text-[#8AAEDB]/70 block font-mono-num">Pace Target: ₹35,000</span>
+                  <h4 class="text-xs font-bold text-[#E7EEF8]">Dec 2026 Check-in</h4>
+                  <p class="text-[10px] text-[#8AAEDB] mt-0.5">Due in 14 days • ₹35,000 allocation</p>
                 </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#8AAEDB]/20 text-[#8AAEDB] border border-[#8AAEDB]/40 font-mono-num">
-                  Due in 18d
-                </span>
+                <button class="px-3 py-1.5 rounded-lg bg-[#1F2D42] border border-[#2E405C] text-[#8AAEDB] text-xs font-medium hover:text-[#E7EEF8]">Queue</button>
               </div>
             </div>
           </div>
 
           <!-- Bottom Navigation Bar -->
-          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex justify-between items-center text-[10px]">
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex items-center justify-around text-[10px] font-medium text-[#8AAEDB]">
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
               <span>Dashboard</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
               <span>Portfolio</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <span>Watchlist</span>
             </div>
             <div class="flex flex-col items-center gap-1 text-[#8AAEDB] font-bold">
-              <div class="relative">
-                <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-                <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#8AAEDB]"></span>
-              </div>
+              <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h12a1 1 0 01.8 1.6L14.25 8l2.55 3.4a1 1 0 01-.8 1.6H4v7a1 1 0 11-2 0V4z"/></svg>
               <span>Goals</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
               <span>More</span>
             </div>
           </div>
         </div>
       </div>
 
-
       <!-- ========================================== -->
       <!-- FRAME 05: DETAIL + CHECK-IN -->
       <!-- ========================================== -->
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between text-xs font-semibold px-2">
-          <span class="text-[#8AAEDB] tracking-wider uppercase">05 — Goal Detail + Check-in Form</span>
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono-num bg-[#1F2D42] text-[#8AAEDB] border border-[#2E405C]">DETAIL VIEW</span>
+        <div class="flex items-center justify-between text-xs font-mono text-[#8AAEDB] px-2">
+          <span>05 — GOAL DETAIL + CHECK-IN</span>
+          <span class="px-2 py-0.5 rounded bg-[#1F2D42] border border-[#2E405C] text-[10px]">DETAIL VIEW</span>
         </div>
 
-        <div class="mobile-frame h-[860px]">
-          <!-- Mobile Status Bar -->
-          <div class="px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-[#E7EEF8]/70">
+        <div class="mobile-frame h-[870px] bg-[#101824] flex flex-col justify-between relative border border-[#2E405C]">
+          <!-- Status Bar -->
+          <div class="px-6 pt-3 pb-1 flex justify-between items-center text-xs text-[#8AAEDB] font-mono">
             <span>09:41</span>
+            <div class="flex items-center gap-1.5">
+              <span>●●</span>
+              <span>📶</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <!-- App Bar with Actions Menu (Zero Remove) -->
+          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/70">
             <div class="flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zm-2.829 2.828a3 3 0 00-4.242 0 1 1 0 01-1.415-1.414 5 5 0 017.072 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-              <div class="w-5 h-2.5 border border-[#E7EEF8]/70 rounded-sm p-0.5 flex items-center">
-                <div class="h-full w-full bg-[#E7EEF8]/90 rounded-2xs"></div>
+              <button class="text-[#8AAEDB]"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+              <h2 class="text-sm font-bold text-[#E7EEF8]">Milestone Detail</h2>
+            </div>
+            
+            <!-- Actions Menu Dropdown Trigger (Edit goal + Archive goal ONLY) -->
+            <div class="relative group">
+              <button class="w-7 h-7 rounded-lg bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[#8AAEDB] hover:text-[#E7EEF8]">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+              </button>
+              <!-- Popover preview -->
+              <div class="absolute right-0 top-8 w-36 bg-[#1F2D42] border border-[#2E405C] rounded-xl shadow-xl py-1 z-20">
+                <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-xs text-[#E7EEF8] hover:bg-[#101824]">
+                  <span>✏️</span> Edit goal
+                </a>
+                <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-xs text-[#8AAEDB] hover:bg-[#101824]">
+                  <span>📁</span> Archive goal
+                </a>
+                <div class="border-t border-[#2E405C] my-1"></div>
+                <div class="px-3 py-0.5 text-[9px] font-mono text-[#8AAEDB]/60">
+                  [Zero remove permitted]
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Top App Bar with Drilldown Back + Overflow Trigger -->
-          <div class="px-5 py-3 flex items-center justify-between border-b border-[#2E405C]/40 bg-[#101824]">
-            <div class="flex items-center gap-3">
-              <button class="text-[#8AAEDB] hover:text-white transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              </button>
-              <span class="text-[17px] font-bold tracking-tight text-[#E7EEF8]">Goal Detail</span>
-            </div>
-            <!-- Actions Menu Trigger (Strictly Edit + Archive, NO REMOVE) -->
-            <div class="flex items-center gap-2">
-              <button class="w-8 h-8 rounded-lg bg-[#1F2D42] border border-[#2E405C] flex items-center justify-center text-[#8AAEDB] hover:text-white" title="Goal Options">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Detail Scrollable View -->
-          <div class="flex-1 overflow-y-auto p-4 space-y-4 hide-scrollbar">
-            
-            <!-- Detail Progress Card: Psychology Rule A & B:
-                 "Saved ₹11,50,000 · 2 months missed" red, NO target number, rail without labels -->
-            <div class="bg-[#1F2D42] border border-[#2E405C] rounded-2xl p-4 space-y-3">
+          <!-- Detail Body -->
+          <div class="px-5 py-3 flex-1 overflow-y-auto space-y-3.5 hide-scrollbar">
+            <!-- Detail Progress Card: Rule A & B strictly applied -->
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-2.5">
               <div class="flex items-start justify-between">
                 <div>
-                  <h3 class="text-base font-bold text-[#E7EEF8]">Child Higher Education Fund</h3>
-                  <span class="text-xs text-[#8AAEDB]/70 mt-0.5 block">Target Date: Oct 2028 • 22 Mos Left</span>
+                  <h3 class="text-sm font-bold text-[#E7EEF8]">Child Higher Education Fund</h3>
+                  <p class="text-[11px] text-[#8AAEDB]/80">Target: Oct 2028 • 22 Mos Left</p>
                 </div>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#7BB892]/20 text-[#7BB892] border border-[#7BB892]/40">
                   On track
                 </span>
               </div>
 
-              <!-- Required Verbatim Progress Text (Strictly NO target number) -->
-              <div class="pt-1 flex items-baseline justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-[#E7EEF8] font-mono-num">Saved ₹11,50,000</span>
-                  <span class="text-xs font-semibold text-[#D98488] font-mono-num bg-[#D98488]/15 px-2 py-0.5 rounded border border-[#D98488]/30">
-                    2 months missed
-                  </span>
+              <!-- Required: "Saved ₹11,50,000 · 2 months missed" red, NO target number -->
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-base font-bold text-[#E7EEF8] tabular">Saved ₹11,50,000</span>
+                  <span class="text-xs font-semibold text-[#D98488]">• 2 months missed</span>
                 </div>
               </div>
 
-              <!-- Rail WITHOUT labels or target % -->
-              <div class="w-full bg-[#101824] h-2 rounded-full overflow-hidden border border-[#2E405C]/50">
-                <div class="bg-[#7BB892] h-full rounded-full" style="width: 58%"></div>
+              <!-- Rail without numbers or labels -->
+              <div class="w-full h-2 bg-[#101824] rounded-full overflow-hidden">
+                <div class="h-full bg-[#8AAEDB] rounded-full" style="width: 58%;"></div>
               </div>
 
-              <div class="flex justify-between items-center text-xs text-[#8AAEDB]/70 pt-0.5 font-mono-num">
-                <span>Monthly Pace: ₹35,000</span>
-                <span>Auto-yield matching active</span>
+              <div class="text-[10px] text-[#8AAEDB] pt-0.5">
+                Pacing: ₹35,000/month baseline allocation
               </div>
             </div>
 
-            <!-- Guarded Actions Dropdown Spec Specimen (Strict: ONLY Edit goal + Archive goal, zero Remove) -->
-            <div class="bg-[#101824] border border-[#2E405C] rounded-xl p-3">
-              <div class="flex items-center justify-between text-[11px] font-semibold text-[#8AAEDB] mb-2 uppercase tracking-wide">
-                <span>Actions Menu (Zero Destructive Delete)</span>
-                <span class="text-[#7BB892] text-[10px]">Guarded</span>
+            <!-- Check-in Form -->
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB]">CHECK-IN FORM</span>
+                <span class="text-[10px] text-[#7BB892] font-mono">Monthly Reconciliation</span>
               </div>
-              <div class="bg-[#1F2D42] border border-[#2E405C] rounded-lg divide-y divide-[#2E405C]">
-                <button class="w-full px-3 py-2 text-left text-xs font-medium text-[#E7EEF8] flex items-center gap-2 hover:bg-[#2E405C]/30">
-                  <svg class="w-3.5 h-3.5 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                  Edit goal
-                </button>
-                <button class="w-full px-3 py-2 text-left text-xs font-medium text-[#E7EEF8] flex items-center gap-2 hover:bg-[#2E405C]/30">
-                  <svg class="w-3.5 h-3.5 text-[#8AAEDB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                  Archive goal
-                </button>
-              </div>
-            </div>
-
-            <!-- Check-in Form (Amount, Date, Note Optional + Save draft + Record check-in) -->
-            <div class="bg-[#1F2D42] border border-[#2E405C] rounded-2xl p-4 space-y-3">
-              <span class="text-xs font-bold uppercase tracking-wider text-[#8AAEDB] block">
-                Monthly Reconciliation Check-in
-              </span>
 
               <div>
-                <label class="text-[11px] font-semibold text-[#8AAEDB] block mb-1 uppercase tracking-wide">
-                  Check-in Amount (₹)
-                </label>
-                <input type="text" value="35,000" class="w-full bg-[#101824] border border-[#2E405C] rounded-xl px-3 py-2 text-xs font-semibold font-mono-num text-[#E7EEF8] focus:outline-none focus:border-[#8AAEDB]">
+                <label class="block text-[10px] font-mono uppercase text-[#8AAEDB] mb-1">CHECK-IN AMOUNT (₹)</label>
+                <input type="text" value="35,000" class="w-full px-3 py-2 rounded-xl bg-[#101824] border border-[#2E405C] text-sm font-bold text-[#E7EEF8] tabular">
               </div>
 
-              <div class="grid grid-cols-2 gap-2.5">
+              <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="text-[11px] font-semibold text-[#8AAEDB] block mb-1 uppercase tracking-wide">
-                    Date
-                  </label>
-                  <input type="text" value="15 Dec 2026" class="w-full bg-[#101824] border border-[#2E405C] rounded-xl px-3 py-2 text-xs font-mono-num text-[#E7EEF8]">
+                  <label class="block text-[10px] font-mono uppercase text-[#8AAEDB] mb-1">DATE</label>
+                  <div class="px-3 py-2 rounded-xl bg-[#101824] border border-[#2E405C] text-xs text-[#E7EEF8] flex justify-between items-center">
+                    <span>15 Dec 2026</span>
+                    <span class="text-[10px] text-[#8AAEDB]">📅</span>
+                  </div>
                 </div>
                 <div>
-                  <label class="text-[11px] font-semibold text-[#8AAEDB] block mb-1 uppercase tracking-wide">
-                    Note (Optional)
-                  </label>
-                  <input type="text" placeholder="Deposit UTR..." value="Deposit UTR#9281" class="w-full bg-[#101824] border border-[#2E405C] rounded-xl px-3 py-2 text-xs text-[#E7EEF8]">
+                  <label class="block text-[10px] font-mono uppercase text-[#8AAEDB] mb-1">NOTE (OPTIONAL)</label>
+                  <input type="text" placeholder="Deposit UTR..." class="w-full px-3 py-2 rounded-xl bg-[#101824] border border-[#2E405C] text-xs text-[#E7EEF8]">
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <button class="py-2.5 px-3 rounded-xl bg-[#101824] text-[#8AAEDB] border border-[#2E405C] text-xs font-medium hover:text-[#E7EEF8]">
+              <div class="flex gap-2 pt-1">
+                <button class="flex-1 py-2 rounded-xl bg-[#101824] border border-[#2E405C] text-xs font-semibold text-[#8AAEDB] hover:text-[#E7EEF8]">
                   Save draft
                 </button>
-                <button class="py-2.5 px-3 rounded-xl bg-[#8AAEDB] text-[#101824] text-xs font-bold hover:bg-[#8AAEDB]/90">
+                <button class="flex-1 py-2 rounded-xl bg-[#8AAEDB] text-xs font-bold text-[#101824] hover:brightness-110">
                   Record check-in
                 </button>
               </div>
             </div>
 
             <!-- Linked Bonds Section: Tata Capital Fin Services & L&T Finance Holdings -->
-            <div class="bg-[#1F2D42] border border-[#2E405C] rounded-2xl p-4 space-y-2.5">
+            <div class="p-4 rounded-2xl bg-[#1F2D42] border border-[#2E405C] space-y-2.5">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#8AAEDB]">Linked Bonds (Yield Reinvestment)</span>
-                <span class="text-[10px] font-mono-num text-[#7BB892] bg-[#7BB892]/15 px-2 py-0.5 rounded border border-[#7BB892]/30">2 Active</span>
+                <span class="text-[11px] font-mono uppercase tracking-wider text-[#8AAEDB]">LINKED BONDS (AUTO-ALLOCATED)</span>
+                <span class="text-[10px] font-mono text-[#8AAEDB]">2 Holdings</span>
               </div>
 
-              <!-- Bond 1: Tata Capital Fin Services -->
-              <div class="bg-[#101824] border border-[#2E405C] rounded-xl p-3 flex items-center justify-between">
-                <div>
-                  <span class="text-xs font-bold text-[#E7EEF8] block">Tata Capital Fin Services</span>
-                  <span class="text-[10px] font-mono-num text-[#8AAEDB]/70">INE306N07LG1 • 9.60% p.a.</span>
+              <div class="space-y-2">
+                <!-- Tata Capital Fin Services -->
+                <div class="p-2.5 rounded-xl bg-[#101824] border border-[#2E405C] flex items-center justify-between">
+                  <div>
+                    <h5 class="text-xs font-semibold text-[#E7EEF8]">Tata Capital Fin Services</h5>
+                    <span class="text-[10px] text-[#8AAEDB] font-mono">INE306N07LG1 • AAA</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs font-bold text-[#7BB892] tabular font-mono">+₹41,175</span>
+                    <span class="block text-[9px] text-[#8AAEDB]">Dec 2026 Coupon</span>
+                  </div>
                 </div>
-                <div class="text-right">
-                  <span class="text-xs font-bold text-[#7BB892] font-mono-num block">+₹23,125/qtr</span>
-                  <span class="text-[10px] text-[#8AAEDB]/60">Auto-allocated</span>
-                </div>
-              </div>
 
-              <!-- Bond 2: L&T Finance Holdings -->
-              <div class="bg-[#101824] border border-[#2E405C] rounded-xl p-3 flex items-center justify-between">
-                <div>
-                  <span class="text-xs font-bold text-[#E7EEF8] block">L&amp;T Finance Holdings</span>
-                  <span class="text-[10px] font-mono-num text-[#8AAEDB]/70">INE498L07185 • 9.15% p.a.</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-xs font-bold text-[#7BB892] font-mono-num block">+₹13,350/qtr</span>
-                  <span class="text-[10px] text-[#8AAEDB]/60">Auto-allocated</span>
+                <!-- L&T Finance Holdings -->
+                <div class="p-2.5 rounded-xl bg-[#101824] border border-[#2E405C] flex items-center justify-between">
+                  <div>
+                    <h5 class="text-xs font-semibold text-[#E7EEF8]">L&amp;T Finance Holdings</h5>
+                    <span class="text-[10px] text-[#8AAEDB] font-mono">INE498L07BC2 • AAA</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs font-bold text-[#7BB892] tabular font-mono">+₹13,350</span>
+                    <span class="block text-[9px] text-[#8AAEDB]">Jan 2027 Coupon</span>
+                  </div>
                 </div>
               </div>
             </div>
-
           </div>
 
           <!-- Bottom Navigation Bar -->
-          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex justify-between items-center text-[10px]">
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <div class="border-t border-[#2E405C] bg-[#101824] px-4 py-2 flex items-center justify-around text-[10px] font-medium text-[#8AAEDB]">
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
               <span>Dashboard</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
               <span>Portfolio</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <span>Watchlist</span>
             </div>
             <div class="flex flex-col items-center gap-1 text-[#8AAEDB] font-bold">
-              <div class="relative">
-                <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-                <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#8AAEDB]"></span>
-              </div>
+              <svg class="w-5 h-5 text-[#8AAEDB]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h12a1 1 0 01.8 1.6L14.25 8l2.55 3.4a1 1 0 01-.8 1.6H4v7a1 1 0 11-2 0V4z"/></svg>
               <span>Goals</span>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#8AAEDB]/60">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+            <div class="flex flex-col items-center gap-1 opacity-70">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
               <span>More</span>
             </div>
           </div>
@@ -989,20 +1023,20 @@
       </div>
 
     </div>
-  </main>
+  </div>
 
-  <!-- Review Board Footer Manifest -->
-  <footer class="max-w-[2200px] mx-auto mt-8 pt-4 border-t border-[#2E405C]/60 flex items-center justify-between text-xs text-[#8AAEDB]/70">
-    <div class="flex items-center gap-2">
-      <span class="w-2 h-2 rounded-full bg-[#7BB892]"></span>
+  <!-- Board Footer Audit -->
+  <div class="max-w-[2250px] mx-auto border-t border-[#2E405C]/60 pt-4 flex flex-wrap items-center justify-between text-xs font-mono text-[#8AAEDB]/80">
+    <div class="flex items-center gap-4">
+      <span class="inline-block w-2 h-2 rounded-full bg-[#7BB892]"></span>
       <span>HARBOR NAVY (DARK) REVIEW BOARD • 5 CANONICAL MILESTONE GOAL STAGES COMPLETE</span>
-      <span class="mx-2">•</span>
-      <span class="font-mono-num">PSYCHOLOGY RULES A &amp; B STRICT PALETTE ENFORCEMENT (#101824, #1F2D42, #2E405C, #E7EEF8, #8AAEDB, #7BB892, #D4A55D, #D98488)</span>
     </div>
-    <div class="font-mono-num text-[11px]">
-      ZERO DRIFT SPECIFICATION • ZERO DESTRUCTIVE DELETE PERMITTED
+    <div class="flex items-center gap-6">
+      <span>PSYCHOLOGY RULES A &amp; B STRICT PALETTE ENFORCEMENT (#101824, #1F2D42, #2E405C, #E7EEF8, #8AAEDB, #7BB892, #D4A55D, #D98488)</span>
+      <span>ZERO DRIFT SPECIFICATION</span>
+      <span class="text-[#7BB892]">ZERO DESTRUCTIVE DELETE PERMITTED</span>
     </div>
-  </footer>
+  </div>
 
 </body>
 </html>
