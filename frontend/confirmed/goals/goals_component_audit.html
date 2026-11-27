@@ -3,7 +3,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Goals — Seven Questions (Design-Complete Check)</title>
+<title>Goals — Component Audit (Level-3)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -21,15 +21,41 @@
             canvas: '#0D1520',
             surface: '#16212E',
             'surface-raised': '#1A2736',
+            'surface-container': '#1A2736',
+            'surface-container-low': '#16212E',
+            'surface-container-high': '#1F2E40',
+            'paper-surface': '#1A2736',
             hairline: '#2A3A4C',
             accent: '#2456E6',
+            primary: '#2456E6',
+            'primary-container': '#1B3FA8',
+            'on-primary': '#FFFFFF',
+            'on-surface': '#E8EEF5',
             ink: '#E8EEF5',
             muted: '#8592A1',
+            mist: '#8592A1',
             slate: '#A8B6C4',
             'paid-green': '#6FD898',
+            'paid-green-fg': '#6FD898',
             'due-red': '#FF8A80',
             'upcoming-amber': '#FFC46B',
-          }
+            'upcoming-amber-fg': '#FFC46B',
+            'info-blue-bg': '#14304A',
+            'info-blue-fg': '#7FB3E8',
+          },
+          fontSize: {
+            display: ['1.5rem', { lineHeight: '2rem', fontWeight: '700' }],
+            'headline-h2': ['1rem', { lineHeight: '1.5rem', fontWeight: '600' }],
+            body: ['0.875rem', { lineHeight: '1.25rem' }],
+            label: ['0.75rem', { lineHeight: '1rem' }],
+            small: ['0.75rem', { lineHeight: '1.125rem' }],
+          },
+          fontFamily: {
+            'headline-h2': ['Inter', 'system-ui', 'sans-serif'],
+            label: ['Inter', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+            small: ['JetBrains Mono', 'monospace'],
+          },
         }
       }
     };
@@ -60,15 +86,15 @@
 </svg>
 <span>LOCKED AUDIT</span>
 </div>
-<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">REF: 7Q-GOALS-V5</span>
+<span class="px-2.5 py-1 rounded bg-surface border border-hairline text-muted">REF: L3-GOALS-V1</span>
 </div>
 </div>
 <div class="space-y-2">
 <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-ink uppercase font-sans">
-          GOALS — SEVEN QUESTIONS (design-complete check)
+          GOALS — COMPONENT AUDIT (level-3 · 7 questions × 21 components)
         </h1>
 <p class="text-sm md:text-base text-muted max-w-3xl">
-          Every page answers all seven before components are built. End-to-end verification and data contracts for financial milestone allocations.
+          After the page design locks, every component answers all seven questions — Data, Actions, States, Feedback, Rules, Connection, Screens — plus gesture rules and the nesting rule.
         </p>
 </div>
 <!-- Quick Nav Chips -->
@@ -87,7 +113,7 @@
 </span>
 <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
 <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-<span>Q4 Scroll</span>
+<span>Q4 Feedback</span>
 </span>
 <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-slate flex items-center space-x-1.5">
 <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
@@ -113,10 +139,10 @@
 </div>
 <div>
 <p class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
-          14 / 14 Components Level-3 Audited — AGY VERDICT: 2 ✓ · 12 ⚠ · 0 ✗
+          21 / 21 Components Level-3 Audited — 14 core + 7 board widgets
         </p>
 <p class="font-label text-label text-due-red">
-          AGY INDEPENDENT VERIFICATION 2026-11-27: FAIL · FIX PENDING (self-claim was 14 ✓ · 0 ⚠ · 0 ✗)
+          AGY ROUND 1: FAIL (2 ✓ · 12 ⚠ · 0 ✗) — F01–F12 FIXES APPLIED 2026-11-27 · RE-VERIFY PENDING
         </p>
 </div>
 </div>
@@ -124,11 +150,11 @@
 <div class="flex flex-wrap items-center gap-2">
 <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high text-ink font-label text-label">
 <span class="w-2 h-2 rounded-full bg-paid-green"></span>
-<span>4 Groups</span>
+<span>5 Groups</span>
 </div>
 <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high text-ink font-label text-label">
 <span class="w-2 h-2 rounded-full bg-primary-container"></span>
-<span>98 Criteria Vectors</span>
+<span>147 Criteria Vectors (21 × 7)</span>
 </div>
 <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high text-ink font-label text-label">
 <span class="w-2 h-2 rounded-full bg-upcoming-amber-fg"></span>
@@ -195,7 +221,8 @@
 <div class="text-slate"><strong class="text-ink font-medium">F (Feedback):</strong> Press feedback, Check-in → sheet</div>
 <div class="text-slate"><strong class="text-ink font-medium">R (Rules):</strong> Urgency tier text + color synchronized</div>
 <div class="text-slate"><strong class="text-ink font-medium">C (Connect):</strong> Parent-passed props only</div>
-<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Rf &amp; Scr:</strong> Swipe banned · stack phone / 2-col tablet</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Rf &amp; Scr:</strong> Swipe banned · compact phone layout (tablet/desktop reflow = post-MVP)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Tap only (Check-in, Details) · swipe-delete banned · no long-press destructive · system edge swipe = back, wins</div>
 </div>
 </div>
 <!-- Component 02: Status pill -->
@@ -217,6 +244,7 @@
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Color + TEXT never alone (a11y)</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed from goal schedule</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Inline wrap; never clips label</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — inert badge (no gestures supported)</div>
 </div>
 </div>
 <!-- Component 03: Stat strip -->
@@ -231,13 +259,14 @@
             </span>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
-<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Target / Saved / On Track aggregates</div>
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Target / Saved aggregates + active-count summary pill</div>
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only telemetry)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Value · skeleton · zero/empty</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Number flash + directional arrow</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Tabular numerals, decimal invariant</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed rollups</div>
-<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Grid 1-column mobile / 2-column desktop</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> 3-col metric grid (First Open) · single summary pill (Active List) — compact-safe</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — scrolls with the page only</div>
 </div>
 </div>
 <!-- Component 04: Empty state -->
@@ -259,6 +288,7 @@
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Single actionable trigger only</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Dispatched to parent router</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Centered flex stack; full height bounds</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Tap CTA only · no swipe or long-press</div>
 </div>
 </div>
 </div>
@@ -302,6 +332,7 @@
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Required, max 48 chars, collision guard</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Form state context</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full width, 52px touch-safe height</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Type / focus / clear (keyboard) · no swipe or long-press</div>
 </div>
 </div>
 <!-- Component 06: Target / Monthly inputs -->
@@ -323,6 +354,7 @@
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Target-OR-Monthly mutual exclusivity</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Parent calculation pipeline</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full container span; numerical keypad tag</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Numeric type + tap keypad · blur commits math · no swipe</div>
 </div>
 </div>
 <!-- Component 07: Date pickers -->
@@ -341,9 +373,10 @@
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap popover calendar modal</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Open · Selected · Disabled</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Inline helper displays delta months</div>
-<div class="text-slate"><strong class="text-ink font-medium">R:</strong> End &gt; Start; monthly mode locks both</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Monthly plan needs start + end dates; End &gt; Start enforced</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Form container coordinator</div>
-<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> 2-column on desktop, stacked on mobile</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Stacked on compact (phone-first); popover anchored to field</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Tap opens calendar · tap-outside / system back closes · system edge gesture wins (overlay)</div>
 </div>
 </div>
 <!-- Component 08: Formula auto-compute read-out -->
@@ -362,9 +395,10 @@
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only verified output)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Computed value / Pending dash (—)</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Updates live on keystroke change</div>
-<div class="text-slate"><strong class="text-ink font-medium">R:</strong> e.g. "22 mos × $35k = $770k Target"</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> e.g. "₹11,50,000 + 22 mos × ₹35k + ₹80k growth = ₹20,00,000 target"</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Pure reactive computed stream</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full span callout container</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — read-only display</div>
 </div>
 </div>
 </div>
@@ -402,12 +436,13 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> Cashflow-derived milestones</div>
-<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap row → Inspect allocation context</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None — static read-only rows (zero manual toggles)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Recorded · Missed · Due · Skeleton</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Missed state outputs warning token</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Zero manual toggles (strict auto-audit)</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Derived from Portfolio ledger</div>
-<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Stacked rows with sticky month label</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Stacked read-only rows with per-row month label (Col04)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — static read-only rows · scrolls with the page</div>
 </div>
 </div>
 <!-- Component 10: Linked bonds rows -->
@@ -423,12 +458,13 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> Portfolio-derived bond relations</div>
-<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap → Deep link to Bond Specimen</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None — static read-only display (no deep link)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Rendered rows / Empty zero state</div>
-<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Active press visual feedback</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> — (inert, read-only)</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Strictly read-only within Goal spec</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Parent-passed bond collections</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Fluid tabular card layout</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — static read-only display (no deep link)</div>
 </div>
 </div>
 <!-- Component 11: Check-in form -->
@@ -445,11 +481,12 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> Amount, date, notes input</div>
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> Fill fields, tap Commit Save</div>
-<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Submitting · Network Error</div>
-<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Save → Toast "Check-in recorded"</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Filled · Saving · Validation error (local-first — no network)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Record → toast "Check-in recorded" · Save draft → toast "Draft saved"</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Amount &gt; 0; manual vs auto flag</div>
-<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Emits local atomic event</div>
-<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Bottom sheet on mobile / modal desktop</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Local ledger write (manual, no endpoint)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Inline in detail scroll (Col05): Record check-in + Save draft</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Type / focus / tap Record check-in + Save draft · no swipe (inline — not a sheet)</div>
 </div>
 </div>
 <!-- Component 12: Progress bar -->
@@ -466,11 +503,12 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> Computed (saved / target) %</div>
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (readout track)</div>
-<div class="text-slate"><strong class="text-ink font-medium">S:</strong> 0%..100%, indeterminate pulse</div>
-<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Animated width transition (250ms)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> 0%..100% deterministic (no indeterminate pulse)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Scale-x fill transition · 150ms easeInOut (Motion scale)</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Clamped at 100%; dim when matured</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Reactive value binding</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full container width, 8px rail height</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — inert readout</div>
 </div>
 </div>
 </div>
@@ -508,12 +546,13 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> Goal active context ID</div>
-<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap Edit, Archive, or Remove</div>
-<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Closed / Opened overlay</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap Edit · Archive; Remove DISABLED until achieved</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Closed / Opened / Opened with Remove disabled</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Instant reveal with click-away trap</div>
-<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Destructive Remove in Danger Red</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Remove locked until achieved (Archive-only while active); Danger Red only when enabled</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Goal detail action bus</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Anchored to top-right trigger button</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Tap item · tap-away closes · Remove tap disabled until achieved · system edge gesture wins (overlay)</div>
 </div>
 </div>
 <!-- Component 14: Guarded delete dialog -->
@@ -532,9 +571,9 @@
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> Type goal name exactly + Confirm</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Idle · Invalid typed name · Executing</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Confirm button enabled strictly on match</div>
-<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Exact name; linked bonds NEVER deleted</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Exact name · dialog unlocks only after achievement; linked bonds NEVER deleted</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Dispatches delete intent to parent</div>
-<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr &amp; Gestures:</strong> Centered dialog · tap only, confirm-first destructive</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr &amp; Gestures:</strong> Centered dialog · tap only, confirm-first destructive · system edge gesture wins</div>
 </div>
 </div>
 <!-- Specimen Breakdown Visual -->
@@ -558,6 +597,182 @@
 </div>
 </div>
 </div>
+<!-- ========================================== -->
+<!-- GROUP E · BOARD WIDGETS (7 Components · F04 coverage) -->
+<!-- ========================================== -->
+<section class="mt-6 flex flex-col bg-surface-container-low p-6 rounded-xl shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-4 bg-surface-container px-4 py-3 rounded-lg">
+<div class="flex items-center gap-2.5">
+<span class="px-2 py-0.5 rounded text-on-primary bg-primary font-label text-label font-bold">E</span>
+<div>
+<h2 class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
+              Board Widgets (F04 Coverage)
+            </h2>
+<p class="font-small text-small text-mist">Board-only widgets previously missing from the audit — banners, strips, grids, form furniture, app bar</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-paid-green/15 text-paid-green-fg font-label text-label font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-small" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+          7/7 PASSED
+        </span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<!-- Component 15: Failure summary banner -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">15</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Failure Summary Banner</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Missed-months summary ("2 months missed") from rhythm</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (static informational banner)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Present only when missed &gt; 0 · hidden otherwise (guarded)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Warning colour + icon + text — never colour alone</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Shows only for missed &gt; 0; mirrors rhythm counts</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed from portfolio ledger rollup</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full-width banner above summary strip (Col04)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — informational</div>
+</div>
+</div>
+<!-- Component 16: Col04 3-metric summary strip -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">16</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Tracking Summary Strip (3-Metric)</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> On Track 8/12 mos · Missed 2 · Next Due Dec 15</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only telemetry)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Value · skeleton · all-caught-up zero state</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Number flash + directional arrow (locked decision)</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Tabular numerals; locale date format</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed rollups from ledger</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> 3 equal cells in one row — compact-safe</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — scrolls with the page</div>
+</div>
+</div>
+<!-- Component 17: Upcoming scheduled months grid -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">17</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Upcoming Scheduled Months Grid</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Future months Jan–Nov 2027 with ₹35,000 due each</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only schedule preview)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Recorded · upcoming · far-future dimmed</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Due-soon highlight (amber) at ≤ 30 days</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Schedule derived from monthly plan; no manual edit</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Derived from goal schedule</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> 4-column grid (Col04); wraps on narrow widths</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — scrolls with the page</div>
+</div>
+</div>
+<!-- Component 18: Optional fields (Saved So Far + Note) -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">18</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Optional Fields (Saved So Far + Note)</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Optional seed amount + free-text note (form state)</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Type / focus / clear</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Empty · Filled · Invalid numeric (Saved)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Inline validation below the field — rule text, not colour alone</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Both optional; Saved numeric ≥ 0; Note ≤ 200 chars</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Form state context (parent form)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full-width stacked inputs (Col03)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Type / focus only · no swipe or long-press</div>
+</div>
+</div>
+<!-- Component 19: Form action buttons -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">19</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Form Actions (Save goal / Cancel)</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Form validity state (enabled / disabled)</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap Save (submit) · Tap Cancel (discard)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Enabled · Disabled (invalid) · Saving (locked + spinner)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Save → toast "Goal saved" · Cancel + dirty → confirm-discard dialog · errors keep entries</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Submit-lock blocks double-tap; validate first, scroll to first error</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Emits submit / cancel to parent form</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Stacked full-width buttons (Col03)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Tap only · no swipe or long-press</div>
+</div>
+</div>
+<!-- Component 20: Detail top app bar -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">20</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Detail Top App Bar (Back + ⋮)</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Goal title + back affordance + overflow trigger</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> Tap Back (pop) · Tap ⋮ (open Goal Actions)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Default · ⋮ pressed</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Standard pop transition; ⋮ instant reveal</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Per-tab stack (locked): tab-root → Dashboard → exit</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Nav stack + goal action bus</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Sticky top bar on Detail only (Col05); list tabs have none</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> Tap only · system edge swipe = back (wins)</div>
+</div>
+</div>
+<!-- Component 21: Info / footnote banners -->
+<div class="p-4 bg-paper-surface rounded-xl shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="font-label text-label px-2 py-0.5 bg-surface-container-high rounded text-slate">21</span>
+<h3 class="font-headline-h2 text-headline-h2 text-ink">Info / Footnote Banners</h3>
+</div>
+<span class="font-label text-label font-semibold text-paid-green-fg flex items-center gap-1">
+<span class="material-symbols-outlined text-small">check</span> VERIFIED
+            </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Static guidance copy (e.g. "Derived from portfolio activity…")</div>
+<div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (informational)</div>
+<div class="text-slate"><strong class="text-ink font-medium">S:</strong> Always present (static); wrap never clip</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> — (inert)</div>
+<div class="text-slate"><strong class="text-ink font-medium">R:</strong> Copy follows Microcopy standard (Essential 9)</div>
+<div class="text-slate"><strong class="text-ink font-medium">C:</strong> Static string or parent-passed</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full-width footnote under sections (Col01/Col04)</div>
+<div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">G (Gestures):</strong> None — informational</div>
+</div>
+</div>
+</div>
+</section>
 <!-- Shared Kit Reference Block -->
 <section class="mt-8 p-5 bg-surface-container rounded-xl shadow-sm">
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -617,6 +832,9 @@
 <div class="mt-4 pt-4 border-t border-hairline/60 font-mono text-xs text-slate">
 <strong class="text-ink">AGY VERDICT:</strong> Page (goals_seven_questions.html): <span class="text-due-red font-semibold">FAIL</span> — 2 real contradictions (F09 Q5 exclusivity vs Col03, F10 Q7 Compact-only vs reflow) · Components (goals_component_audit.html): <span class="text-due-red font-semibold">FAIL</span> — <span class="text-due-red font-semibold">2 ✓ / 12 ⚠ / 0 ✗</span> (self-claim was 14 ✓ / 0 ⚠ / 0 ✗; completeness14/14 audited items, but F01–F08 stand). FIX PENDING.
 </div>
+<div class="mt-3 pt-3 border-t border-hairline/60 font-mono text-xs text-paid-green">
+<strong class="text-ink">FIX SWEEP:</strong> F01–F12 applied 2026-11-27 (header/CSS/gestures/7 new widget cards/₹/dates/local-first/board alignment) + removal rule (Archive-only until achieved) — AGY ROUND 2 RE-VERIFY PENDING.
+</div>
 </section>
 <!-- Technical Provenance & Footnote Block -->
 <section class="mt-8 pt-6 pb-2 border-t border-hairline/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-small text-mist">
@@ -630,7 +848,7 @@
 </div>
 <div class="flex items-center gap-2 text-xs text-slate">
 <span class="w-2 h-2 rounded-full bg-paid-green"></span>
-<span>DK BOND TRACKER · AGY AUDIT 2026-11-27 · FAIL · FIX PENDING</span>
+<span>DK BOND TRACKER · R1 FAIL 2026-11-27 · FIXES APPLIED · R2 PENDING</span>
 </div>
 </section>
 </div></main>
@@ -638,7 +856,7 @@
 <footer class="pt-8 border-t border-hairline/60 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
 <div class="flex items-center space-x-2">
 <span class="w-2 h-2 rounded-full bg-paid-green"></span>
-<span>AGY VERIFIED • PAGE FAIL · COMPONENTS FAIL (2 ✓ / 12 ⚠ / 0 ✗) • FIX PENDING</span>
+<span>AGY R1: PAGE FAIL · COMPONENTS FAIL (2 ✓ / 12 ⚠ / 0 ✗) · FIXES APPLIED · R2 RE-VERIFY PENDING</span>
 </div>
 <div>
 <span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v4.0</span>

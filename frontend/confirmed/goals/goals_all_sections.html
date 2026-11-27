@@ -93,7 +93,7 @@
 </div>
 </header>
 <!-- END: BoardHeader -->
-<!-- BEGIN: ReviewBoardContainer (4 Columns Row) -->
+<!-- BEGIN: ReviewBoardContainer (5 Columns Row) -->
 <main class="max-w-[1850px] mx-auto overflow-x-auto pb-8">
 <div class="inline-flex gap-12 items-start justify-center min-w-max mx-auto py-2">
 <!-- ========================================================================= -->
@@ -526,19 +526,20 @@
 <label class="block text-[11px] font-semibold text-[#A8B6C4] uppercase tracking-wider mb-1">Goal Name</label>
 <input class="w-full bg-[#0D1520] border border-[#2A3A4C] focus:border-[#2456E6] focus:ring-1 focus:ring-[#2456E6] text-[#E8EEF5] text-xs rounded-xl px-3 py-2.5 outline-none transition placeholder-[#7A8A99]" placeholder="e.g. Child Higher Education 2028" type="text" value="Child Higher Education Fund"/>
 </div>
-<!-- Target Amount -->
+<!-- Target Amount (derived in monthly mode) -->
 <div>
-<label class="block text-[11px] font-semibold text-[#A8B6C4] uppercase tracking-wider mb-1">Target Amount (₹)</label>
+<label class="block text-[11px] font-semibold text-[#7A8A99] uppercase tracking-wider mb-1">Target Amount (₹) · auto</label>
 <div class="relative">
-<span class="absolute left-3 top-2.5 text-xs text-[#7A8A99]">₹</span>
-<input class="w-full bg-[#0D1520] border border-[#2A3A4C] focus:border-[#2456E6] focus:ring-1 focus:ring-[#2456E6] text-[#E8EEF5] text-xs font-semibold rounded-xl pl-7 pr-3 py-2.5 outline-none transition placeholder-[#7A8A99] tabular-nums" placeholder="e.g. 20,00,000" type="text" value="20,00,000"/>
+<span class="absolute left-3 top-2.5 text-xs text-[#5C6B7A]">₹</span>
+<input class="w-full bg-[#0D1520]/60 border border-[#2A3A4C] text-[#7A8A99] text-xs font-semibold rounded-xl pl-7 pr-3 py-2.5 outline-none tabular-nums cursor-not-allowed" placeholder="auto from saved + monthly" readonly="" type="text" value="20,00,000"/>
 </div>
+<div class="text-[9px] text-[#7A8A99] mt-1">Derived: saved + contributions + portfolio growth — edit Monthly (or Saved) to change. Target-OR-Monthly exclusivity: user enters one, the other is derived.</div>
 </div>
 <!-- Divider with text -->
 <div class="relative my-2">
 <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#2A3A4C]"></div></div>
 <div class="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-[#7A8A99]">
-<span class="bg-[#16212E] px-2">or monthly calculation</span>
+<span class="bg-[#16212E] px-2">monthly mode active · target derived above</span>
 </div>
 </div>
 <!-- Monthly Amount -->
@@ -567,7 +568,7 @@
                   Formula auto-compute
                 </div>
 <p class="text-[#A8B6C4] leading-relaxed text-[10px]">
-                  Monthly plan computes target automatically = monthly × months (22 mos × ₹ 35k = ₹ 7,70,000 base).
+                  Monthly plan computes target automatically = saved + contributions + portfolio growth (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000).
                 </p>
 <div class="text-[9px] text-[#7A8A99]">Monthly plan needs start + end dates.</div>
 </div>
@@ -1021,10 +1022,11 @@
 <span>Archive goal</span>
 <svg class="w-4 h-4 text-[#7A8A99]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
-<button class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-[#FF8A80]/10 text-[#FF8A80] transition text-left" type="button">
-<span class="font-medium">Remove goal</span>
-<svg class="w-4 h-4 text-[#FF8A80]" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<button class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-[#5C6B7A] cursor-not-allowed text-left" aria-disabled="true" type="button">
+<span class="font-medium">Remove goal <span class="text-[9px] normal-case font-normal">· locked until achieved</span></span>
+<svg class="w-3.5 h-3.5 text-[#5C6B7A] shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </button>
+<div class="text-[9px] text-[#7A8A99] px-2.5 pt-0.5">Active goals can only be Archived. Remove unlocks at 100% achieved.</div>
 </div>
 <!-- Guarded Delete Dialog Preview -->
 <div class="p-3.5 rounded-2xl bg-[#16212E] border border-[#FF8A80]/40 space-y-3">
@@ -1046,11 +1048,15 @@ Type the full goal name to confirm removal:
 <span class="text-[#6FD898]">✓</span>
 <span>Safety invariant: Linked bonds are never deleted — only the goal is removed.</span>
 </div>
+<div class="text-[10px] text-[#7A8A99] flex items-start space-x-1.5 pt-0.5">
+<span class="text-[#FFC46B]">🔒</span>
+<span>Gate: this dialog opens only after the goal is achieved (100%) — active goals can only be Archived.</span>
+</div>
 </div>
 </div>
 </article>
 <p class="text-xs text-[#7A8A99] mt-3 text-center max-w-[340px]">
-Detail reached from Check-in/Details buttons · removal mirrors watchlist guarded pattern.
+Detail reached from Check-in/Details buttons · removal mirrors watchlist guarded pattern · locked until achieved.
 </p>
 </section>
 </div>
