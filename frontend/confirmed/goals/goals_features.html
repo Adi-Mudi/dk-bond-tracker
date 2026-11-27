@@ -120,6 +120,21 @@
 </section>
 
 <section>
+  <h2>Data sources — where each value comes from <span class="count">origins</span></h2>
+  <table>
+    <thead><tr><th>Value shown on Goals</th><th>Original source</th><th>How it arrives</th></tr></thead>
+    <tbody>
+      <tr><td>Invested per month (derivation table)</td><td><b>PORTFOLIO page details</b></td><td>Watchlist → Move to Portfolio creates a holding; its <b>purchase date</b> assigns the invested amount to that month — auto, never typed</td></tr>
+      <tr><td>Returns per month (derivation table)</td><td><b>PORTFOLIO page details</b></td><td>Monthly bond interest / coupon yield on the goal-linked holdings — auto from bond data</td></tr>
+      <tr><td>Linked Bonds (yield/mo rows)</td><td><b>PORTFOLIO page details</b></td><td>Goal-linked holdings with per-bond rate (e.g.9.60% p.a. → ₹1,820/mo); rows link back to the bond detail</td></tr>
+      <tr><td>Saved so far · Goal name · dates · Amount</td><td>Local goals store</td><td>User-entered at creation (form G13) or migrated</td></tr>
+      <tr><td>Status pill · months signal · totals</td><td>Derived</td><td>Computed from the above (schedule vs invested vs missed)</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Rule: Goals page NEVER re-calculates holdings itself — Portfolio is the single origin for invested/returns/linked data (repository boundary, Essential5).</p>
+</section>
+
+<section>
   <h2>⚠ Open items before this list is final</h2>
   <div class="flag"><b>Confirm dropped features:</b> the old Monthly Tracking frame had (a) Rhythm Log with MISSED badges, (b) Upcoming Pipeline month grid, (c) "2 months missed — pace adjustment active" banner, (d) manual Record Check-in + Save draft (removed today). The new3-frame base design folds month-wise data into the derivation table — but (b) pipeline grid, (c) banner and the failure-counter are not shown. Say <b>keep / drop</b> for each and the list updates.</div>
 </section>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Goals Page — Component Inventory (Documentation Handoff)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B;--red:#FF8A80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.55;padding:40px 20px}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:940px}
+  .lede a{color:var(--soft)}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .stat{background:var(--surface);border:1px solid var(--hairline);border-radius:8px;padding:7px 13px;font-size:11px;color:var(--muted)}
+  .stat b{color:var(--ink);font-size:14px;display:block}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  h2 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:10px;padding:2px 8px;letter-spacing:0}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);padding:6px 8px;border-bottom:1px solid var(--hairline)}
+  td{padding:7px 8px;border-bottom:1px dashed rgba(42,58,76,.5);vertical-align:top;color:var(--muted)}
+  td b{color:var(--ink)}
+  td.id{color:var(--soft);font-weight:700;width:38px;white-space:nowrap}
+  .pill{display:inline-block;font-size:9px;padding:2px7px;border-radius:999px;border:1px solid;letter-spacing:.05em;white-space:nowrap}
+  .sh{color:var(--green);border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+  .pg{color:var(--amber);border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.1)}
+  .nw{color:var(--soft);border-color:rgba(147,180,255,.5);background:rgba(36,86,230,.15)}
+  .rm{color:var(--red);border-color:rgba(255,138,128,.5);background:rgba(255,138,128,.1)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Documentation Handoff · Page: Goals</div>
+  <h1>Goals Page — Component Inventory</h1>
+  <p class="lede">Every component rendered on the Goals page (base design screen <span style="color:var(--soft)">6e072293…</span>). Shared components keep their contracts in <a href="app_essentials.html#elements">app_essentials § Universal Elements</a>; goals-specific components are defined here. Pair list: <a href="goals_features.html">goals_features.html</a> (26 features).</p>
+  <div class="stats">
+    <div class="stat"><b>18</b>live components</div>
+    <div class="stat"><b>8</b>shared</div>
+    <div class="stat"><b>10</b>goals-specific</div>
+    <div class="stat"><b>5</b>removed (history)</div>
+  </div>
+</header>
+
+<section>
+  <h2>Shared components (contract lives in Universal Elements) <span class="count">8</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Component</th><th>Anatomy</th><th>States</th><th>Gestures</th></tr></thead>
+    <tbody>
+      <tr><td class="id">E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync / bell / theme / avatar (fixed order)</td><td>default</td><td>tap icons</td></tr>
+      <tr><td class="id">E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · <b>Goals</b> · More</td><td>default · active tab</td><td>tap tabs</td></tr>
+      <tr><td class="id">E8</td><td><b>Buttons</b></td><td>primary (Save goal) · secondary (Details) · ghost; verb labels ≤4 words; press −6%/150ms</td><td>enabled · pressed · disabled · loading-lock</td><td>tap · press feedback</td></tr>
+      <tr><td class="id">E9</td><td><b>Text Input</b></td><td>label above (no asterisk) · input · helper/error below (icon+text)</td><td>idle · focused · filled · error</td><td>type · focus</td></tr>
+      <tr><td class="id">E10</td><td><b>Overflow menu ⋮</b></td><td>trigger + popup: <b>Edit goal · Archive goal ONLY</b> (no Remove — locked)</td><td>closed · open</td><td>tap · tap-away closes · system back wins</td></tr>
+      <tr><td class="id">E12</td><td><b>Empty State</b></td><td>icon · "No goals yet" · body · "Create first goal" CTA</td><td>empty only (guarded)</td><td>tap CTA</td></tr>
+      <tr><td class="id">E13</td><td><b>Status Pill</b></td><td>Behind · Due Soon · On Track · Completed — colour + TEXT paired</td><td>4 tiers</td><td>none (inert)</td></tr>
+      <tr><td class="id">E14</td><td><b>Progress Rail</b></td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic</td><td>none (inert)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Goals-specific components <span class="count">10</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Component</th><th>Anatomy</th><th>States / rules</th><th>Data source</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G1</td><td><b>GOALS/FORM tabs</b></td><td>segmented control: GOALS (n) · FORM (n)</td><td>either active · sticky top</td><td>local counts</td></tr>
+      <tr><td class="id">G2</td><td><b>Goal Card</b></td><td>name · dates · Saved ₹ · <b>months signal</b> · pace line · <b>Details button only</b> (Check-in removed)</td><td>on-plan · missed (red) · skeleton · pressed</td><td>local goals store</td></tr>
+      <tr><td class="id">G3</td><td><b>Months Signal</b></td><td>green <b>X/Y months ✓</b> OR red <b>N months missed</b> — exactly one; negative sticky until resolved</td><td>positive · negative (precedence)</td><td>derived (schedule vs invested)</td></tr>
+      <tr><td class="id">G4</td><td><b>Auto Readout Card</b> <span class="pill nw">NEW</span></td><td>Total months (dates) · Target amount ₹ (Amount × months) — ₹ icon, never $</td><td>computing · final · read-only</td><td>derived from form inputs</td></tr>
+      <tr><td class="id">G5</td><td><b>Create Form</b></td><td>exactly4 inputs: name · start · end · amount(₹ monthly) + readouts + Save goal</td><td>pristine · filling · validation-error · submitting</td><td>user entry (local store on save)</td></tr>
+      <tr><td class="id">G6</td><td><b>Detail Top App Bar</b></td><td>back · title · ⋮ (opens E10)</td><td>default</td><td>tap back / ⋮ · system edge = back</td></tr>
+      <tr><td class="id">G7</td><td><b>Saved-so-Far card</b></td><td>Saved ₹ amount + progress rail (no target shouting)</td><td>value · zero</td><td>local store (derived %)</td></tr>
+      <tr><td class="id">G8</td><td><b>Derivation Table</b> <span class="pill nw">NEW</span></td><td>title ·5 cols (Month · Target · Invested · Returns · <b>Running Total dimmed</b>) · month rows · gap row · final row · <b>TOTAL row</b> (months · completed · target · invested · returns) · auto-caption</td><td>rows live-update · final ✓ row highlighted</td><td>Target=plan · Invested/Returns=AUTO from portfolio</td></tr>
+      <tr><td class="id">G9</td><td><b>Linked Bonds card</b></td><td>header "Linked Bonds (auto-allocating yield)" + row list</td><td>list · empty-none</td><td><b>PORTFOLIO holdings</b> linked to goal</td></tr>
+      <tr><td class="id">G10</td><td><b>Linked Bond Row</b> <span class="pill nw">NEW</span></td><td>bond name · ISIN · rate · ₹y/mo · <b>chevron → opens bond detail</b></td><td>default · pressed</td><td>PORTFOLIO · tap → bond detail page</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Gestures summary: everything is tap-only; no swipe-destructive actions exist on this page (no Remove); long-press unused; system edge-swipe = back (wins over in-page gestures).</p>
+</section>
+
+<section>
+  <h2>Removed from design (history — do not rebuild) <span class="count">5</span></h2>
+  <table>
+    <thead><tr><th>Component</th><th>Was</th><th>Removed</th></tr></thead>
+    <tbody>
+      <tr><td class="id">✗</td><td><b>Check-in Form</b> (Amount/Date/Note + Record)</td><td>2026-11-28 — invested auto from purchase dates; no manual purpose</td></tr>
+      <tr><td class="id">✗</td><td><b>Save draft</b> button</td><td>2026-11-28 — same reason</td></tr>
+      <tr><td class="id">✗</td><td><b>Monthly Target / Monthly Invested cards</b> (detail)</td><td>2026-11-28 — data lives in derivation table columns</td></tr>
+      <tr><td class="id">✗</td><td><b>Guarded Delete / Remove UI</b></td><td>2026-11-27 — no removal path (Archive only, locked)</td></tr>
+      <tr><td class="id">✗</td><td><b>Target-amount displays</b> (cards/detail/stats)</td><td>2026-11-27 — psychology rule; only derivation math shows totals</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <span>GOALS · COMPONENT INVENTORY ·18 live (8 shared +10 page) +5 removed · handoff step2</span>
+  <span>source: base design + Universal Elements + AGY audits ·2026-11-28</span>
+</footer>
+
+</div>
+</body>
+</html>
