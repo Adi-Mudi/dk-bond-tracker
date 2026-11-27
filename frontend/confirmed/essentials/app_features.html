@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Features — Universal (Full Application)</title>
+<style>
+  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --soft:#93B4FF; --green:#4ADE80; --amber:#F59E0B; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--canvas); color:var(--ink); font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; line-height:1.55; padding:40px 20px; }
+  .wrap { max-width:1060px; margin:0 auto; }
+  header { border-bottom:1px solid var(--hairline); padding-bottom:18px; margin-bottom:18px; }
+  .kicker { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--soft); }
+  h1 { font-size:24px; font-weight:700; margin:6px 0 8px; }
+  .lede { font-size:13px; color:var(--muted); max-width:920px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .stat { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:7px 13px; font-size:11px; color:var(--muted); }
+  .stat b { color:var(--ink); font-size:14px; display:block; }
+  .conn { display:inline-block; background:rgba(36,86,230,.15); border:1px solid rgba(36,86,230,.5); color:var(--soft); border-radius:999px; font-size:10px; padding:3px 10px; text-decoration:none; }
+  section { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin-bottom:10px; display:flex; gap:8px; align-items:center; }
+  h2 .count { background:var(--accent); color:#fff; border-radius:999px; font-size:10px; padding:2px 8px; letter-spacing:0; }
+  h3 { font-size:11px; color:var(--accent-soft); text-transform:uppercase; letter-spacing:.07em; margin:12px 0 6px; }
+  ol, ul { list-style:none; }
+  li { font-size:12.5px; padding:5px 0; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
+  li:last-child { border-bottom:none; }
+  li span.det { color:var(--muted); }
+  li .comps { display:block; color:var(--dim); font-size:11px; }
+  li .comps::before { content:"▸ uses: "; color:var(--soft); font-size:9px; text-transform:uppercase; letter-spacing:.06em; }
+  .pill { display:inline-block; font-size:9px; font-weight:700; border-radius:999px; padding:1px 8px; text-transform:uppercase; margin-left:6px; }
+  .pill.det { background:rgba(74,222,128,.15); color:var(--green); }
+  .pill.struct { background:rgba(245,158,11,.15); color:var(--amber); }
+  footer { margin-top:22px; padding-top:12px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Universal · Full-application feature registry</div>
+  <h1>App Features — Universal (all pages)</h1>
+  <p class="lede">Every feature across the entire application, with the components each depends on. Companion document: <a class="conn" href="app_components.html">→ App Components (universal)</a> — components list which features use them (two-way link). Watchlist is fully detailed (40); other pages are column-level until their own feature pass.</p>
+  <div class="stats">
+    <div class="stat"><b>10</b>pages covered</div>
+    <div class="stat"><b>40</b>watchlist features (detailed)</div>
+    <div class="stat"><b>9</b>boards scanned</div>
+    <div class="stat"><b>2</b>docs connected</div>
+  </div>
+</header>
+
+<section>
+  <h2>Universal shell — every page <span class="count">10</span></h2>
+  <ol>
+    <li>Top app bar — brand · sync · notifications+badge · DK avatar <span class="comps">app-bar · icon-buttons ×3 · avatar</span></li>
+    <li>Sticky section tabs (page-specific pairs) with live counts <span class="comps">segmented control · count labels</span></li>
+    <li>Stat strip (WATCHING / ALERTS) <span class="comps">stat cards</span></li>
+    <li>Bottom navigation —5 tabs, per-tab stacks <span class="comps">bottom nav · router</span></li>
+    <li>FAB — page-specific route (Add Bond / Goal form) <span class="comps">FAB · route logic</span></li>
+    <li>Page states — first-open / empty / loading / error / offline <span class="comps">empty state · fetch states · error banner</span></li>
+    <li>Overlays — bottom sheets, dialogs, guarded confirms <span class="comps">bottom sheet · dialog · overflow menu</span></li>
+    <li>Scroll aids — TOP/BOTTOM, inner sheet scroll <span class="comps">scroll-to-top · scroll container</span></li>
+    <li>Privacy mask — amounts hidden default + eye <span class="comps">icon-button (eye) · global flag</span></li>
+    <li>Feedback system — toast / undo / persistent errors <span class="comps">toast · undo snackbar · error banner</span></li>
+  </ol>
+</section>
+
+<section>
+  <h2>Watchlist — detailed (40) <span class="count">detailed</span></h2>
+  <p class="lede" style="font-size:12px">Fully documented page: feature list, components, seven-questions, audit all pass.
+  <a class="conn" href="../watchlist/watchlist_features.html">→ features + components mapping</a>
+  <a class="conn" href="../watchlist/watchlist_features_board.html">→ visual board</a></p>
+  <h3>Columns</h3>
+  <ul>
+    <li>01 Add Bond Sheet — ISIN lookup ·4 fetch states · dup-error banner · Identity/Economics/Terms/Targets sections · credit day · Default History · broker typeahead · Save <span class="det pill">14 features</span><span class="comps">inputs ×8 set · chips · primary button</span></li>
+    <li>02 Integrated Ledger — company-first cards · status pills · HELD/WATCH rows · compare card + buy-step · NSDL browse <span class="det pill">8 features</span><span class="comps">cards · nested rows · chips · compare card</span></li>
+    <li>03 Move to Portfolio — conversion form · Link to Goal · detour · Confirm <span class="det pill">4 features</span><span class="comps">inputs ×4 · select · primary/ghost</span></li>
+    <li>04 Remove Flow — buried 4-step · overflow sheet · type-ISIN+hold · guarded note <span class="det pill">4 features</span><span class="comps">overflow · sheet · dialog · hold-2s</span></li>
+    <li>05 First Open — LEDGER default · empty CTA · FAB semantics <span class="det pill">3 features</span><span class="comps">empty state · CTA</span></li>
+    <li>Shell extras — notification strip (WATCHING/ALERTS + rating card) <span class="det pill">2 features</span><span class="comps">stat cards · alert card</span></li>
+  </ul>
+  <p style="font-size:11px;color:var(--dim);margin-top:6px">App shell5 of the40 live inside this page (bar/tabs/stat/nav/FAB) — total counted in the detailed doc.</p>
+</section>
+
+<section>
+  <h2>Portfolio <span class="count">4 columns</span></h2>
+  <ul>
+    <li>01 Holdings — positions list · yield/amounts · row → detail <span class="comps">cards/rows · status pill</span></li>
+    <li>02 Payout Details — payout matrix (cycle cells) · tap cell → Payment Edit · totals <span class="comps">matrix cell (page-specific) · table rows</span></li>
+    <li>03 Bond Detail — facts · payments mini-ledger · overflow actions <span class="comps">read-only fields · nested rows · overflow menu</span></li>
+    <li>04 Payment Edit — bank-amount hero · auto-match suggestions ×5 · type dropdown · equation breakdown · TDS switch · credit date · remarks chips · single Confirm <span class="comps">hero input · suggestion rows · radio group · chips · date · primary button</span> <span class="det pill">locked design</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Dashboard <span class="count">3 columns</span></h2>
+  <ul>
+    <li>01 Dashboard — portfolio overview cards · quick stats · entry points <span class="comps">stat cards · list rows</span></li>
+    <li>02 Returns History — returns over time (chart/table) <span class="comps">chart (page-specific) · table rows</span></li>
+    <li>03 Cashflow — scheduled/actual cashflow calendar <span class="comps">calendar cells (page-specific) · summary cards</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Goals <span class="count">4 columns</span></h2>
+  <ul>
+    <li>01 First Open — empty goals + create CTA <span class="comps">empty state · CTA</span></li>
+    <li>02 Goals — goal cards · progress · totals <span class="comps">goal progress bar (page-specific) · cards</span></li>
+    <li>03 Create — goal form (target, date, note) <span class="comps">inputs · date · primary button</span></li>
+    <li>04 Monthly Tracking — allocation vs target per month <span class="comps">progress rows · status chips</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Settings <span class="count">4 columns</span></h2>
+  <ul>
+    <li>01 General — preferences (theme, display) <span class="comps">switches/toggles (page-specific) · selects</span></li>
+    <li>02 Notifications — reminder prefs <span class="comps">switches · time input</span></li>
+    <li>03 Share — share/export options <span class="comps">rows · primary buttons</span></li>
+    <li>04 Data — import/export/backup <span class="comps">file actions · danger button + confirm</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Alerts <span class="count">3 columns</span></h2>
+  <ul>
+    <li>01 First Open — all-clear zero state <span class="comps">empty state (zeroed)</span></li>
+    <li>02 Severity Feed — alert cards with severity · Read/Dismiss <span class="comps">alert card · severity chip · text/ghost buttons</span></li>
+    <li>03 Detail / Advisory — full advisory text <span class="comps">detail view · read-only text · back</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Search <span class="count">3 columns</span></h2>
+  <ul>
+    <li>01 First Open — scope + zero state <span class="comps">search input · empty state</span></li>
+    <li>02 Results — grouped entities (companies/ISINs) <span class="comps">search input · grouped result rows</span></li>
+    <li>03 No Result &amp; ISIN Direct — fast fetch path <span class="comps">empty/no-result state · fetch states</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>CSV Export <span class="count">3 columns</span></h2>
+  <ul>
+    <li>01 First Open — zero state <span class="comps">empty state</span></li>
+    <li>02 CSV / Transform — options · preview <span class="comps">option rows · preview table · primary button</span></li>
+    <li>03 Saved / Receipt — saved confirmation <span class="comps">toast/confirmation · receipt card (page-specific)</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>About <span class="count">3 columns</span></h2>
+  <ul>
+    <li>01 First Open — zero state <span class="comps">empty state</span></li>
+    <li>02 About / Provenance — version, sources, credits <span class="comps">read-only text blocks</span></li>
+    <li>03 Update Popup — available-update dialog <span class="comps">dialog · primary/ghost buttons (page-specific)</span></li>
+  </ul>
+</section>
+
+<footer>
+  <span>Source:9 locked boards + app_frame · watchlist detailed from watchlist_features.html</span>
+  <span>Connected pair: app_features.html ↔ app_components.html ·2026-11-27</span>
+</footer>
+
+</div>
+</body>
+</html>

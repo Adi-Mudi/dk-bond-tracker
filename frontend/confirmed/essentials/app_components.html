@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Components — Universal (Full Application)</title>
+<style>
+  :root { --canvas:#0D1520; --surface:#16212E; --raised:#1C2C40; --hairline:#2A3A4C; --ink:#E8EEF5; --muted:#8592A1; --dim:#55606E; --accent:#2456E6; --soft:#93B4FF; --green:#4ADE80; --amber:#F59E0B; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--canvas); color:var(--ink); font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace; line-height:1.55; padding:40px 20px; }
+  .wrap { max-width:1060px; margin:0 auto; }
+  header { border-bottom:1px solid var(--hairline); padding-bottom:18px; margin-bottom:18px; }
+  .kicker { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--soft); }
+  h1 { font-size:24px; font-weight:700; margin:6px 0 8px; }
+  .lede { font-size:13px; color:var(--muted); max-width:920px; }
+  .conn { display:inline-block; background:rgba(36,86,230,.15); border:1px solid rgba(36,86,230,.5); color:var(--soft); border-radius:999px; font-size:10px; padding:3px 10px; text-decoration:none; margin-right:6px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .stat { background:var(--surface); border:1px solid var(--hairline); border-radius:8px; padding:7px 13px; font-size:11px; color:var(--muted); }
+  .stat b { color:var(--ink); font-size:14px; display:block; }
+  section { background:var(--surface); border:1px solid var(--hairline); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin-bottom:10px; display:flex; gap:8px; align-items:center; }
+  h2 .count { background:var(--accent); color:#fff; border-radius:999px; font-size:10px; padding:2px 8px; letter-spacing:0; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; font-size:9px; text-transform:uppercase; letter-spacing:.07em; color:var(--dim); padding:6px 8px; border-bottom:1px solid var(--hairline); }
+  td { padding:6px 8px; border-bottom:1px dashed rgba(42,58,76,.5); vertical-align:top; color:var(--muted); }
+  td:first-child { color:var(--ink); font-weight:600; white-space:nowrap; }
+  td.id { color:var(--soft); font-weight:700; width:30px; }
+  .pages { font-size:10px; }
+  .pg { display:inline-block; background:var(--raised); border:1px solid var(--hairline); border-radius:4px; padding:1px 6px; margin:1px; color:var(--muted); font-size:9px; }
+  .pg.hot { border-color:rgba(36,86,230,.5); color:var(--soft); }
+  ul { list-style:none; }
+  li { font-size:12.5px; padding:5px 0; border-bottom:1px dashed rgba(42,58,76,.5); color:var(--ink); }
+  li:last-child { border-bottom:none; }
+  li span.det { color:var(--muted); font-size:11px; }
+  footer { margin-top:22px; padding-top:12px; border-top:1px solid var(--hairline); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Universal · Full-application component registry</div>
+  <h1>App Components — Universal (all pages)</h1>
+  <p class="lede">Every component in the application: the shared kit (used across pages) + page-specific components. Each row lists <b style="color:var(--ink)">which pages use it</b> — the reverse link of the features doc. <a class="conn" href="app_features.html">→ App Features (universal)</a> <a class="conn" href="../watchlist/watchlist_components_board.html">→ visual gallery (40)</a> <a class="conn" href="component_audit.html">→ audit (40 ✓)</a></p>
+  <div class="stats">
+    <div class="stat"><b>40</b>shared kit types</div>
+    <div class="stat"><b>84</b>kit instances (watchlist baseline)</div>
+    <div class="stat"><b>8</b>page-specific types</div>
+    <div class="stat"><b>✓</b>audit passed</div>
+  </div>
+</header>
+
+<section>
+  <h2>Shared component kit — used across pages <span class="count">40</span></h2>
+  <p style="font-size:11px;color:var(--dim);margin-bottom:8px">W = Watchlist (detailed baseline) · P = Portfolio · D = Dashboard · G = Goals · S = Settings · A = Alerts · R = Search · C = CSV · B = About · SH = shell/everywhere</p>
+  <table>
+    <thead><tr><th>#</th><th>Component</th><th>Category</th><th>Used by (pages)</th></tr></thead>
+    <tbody>
+      <tr><td class="id">1</td><td>text-field</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">G</span><span class="pg">S</span><span class="pg">R</span></td></tr>
+      <tr><td class="id">2</td><td>numeric / currency input</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">3</td><td>date picker</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">4</td><td>select / dropdown</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">S</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">5</td><td>autocomplete (broker)</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">6</td><td>multiline note</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">7</td><td>read-only field</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">B</span></td></tr>
+      <tr><td class="id">8</td><td>disabled field</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">S</span></td></tr>
+      <tr><td class="id">9</td><td>computed read-out</td><td>input</td><td class="pages"><span class="pg">W</span><span class="pg">G</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">10</td><td>primary button</td><td>button</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
+      <tr><td class="id">11</td><td>ghost / secondary</td><td>button</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
+      <tr><td class="id">12</td><td>text / link</td><td>button</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">D</span></td></tr>
+      <tr><td class="id">13</td><td>outline button</td><td>button</td><td class="pages"><span class="pg">W</span><span class="pg">C</span></td></tr>
+      <tr><td class="id">14</td><td>icon-button</td><td>button</td><td class="pages"><span class="pg hot">SH</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">15</td><td>FAB</td><td>button</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">D</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">16</td><td>hold-2s confirm</td><td>button</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">17</td><td>auto/"you enter" chips</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">18</td><td>status pill (4-tier)</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">D</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">19</td><td>severity chip</td><td>chip</td><td class="pages"><span class="pg">A</span><span class="pg">W</span></td></tr>
+      <tr><td class="id">20</td><td>locked chip</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">21</td><td>tag chip</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">22</td><td>COMING SOON chip</td><td>chip</td><td class="pages"><span class="pg">W</span></td></tr>
+      <tr><td class="id">23</td><td>Best Yield chip</td><td>chip</td><td class="pages"><span class="pg">W</span></td></tr>
+      <tr><td class="id">24</td><td>notification badge</td><td>chip</td><td class="pages"><span class="pg hot">SH</span></td></tr>
+      <tr><td class="id">25</td><td>suggestion chips</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">26</td><td>card (company / holding)</td><td>container</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">D</span><span class="pg">G</span></td></tr>
+      <tr><td class="id">27</td><td>alert card</td><td>container</td><td class="pages"><span class="pg">A</span><span class="pg">W</span></td></tr>
+      <tr><td class="id">28</td><td>stat card</td><td>container</td><td class="pages"><span class="pg">D</span><span class="pg">W</span><span class="pg hot">SH</span></td></tr>
+      <tr><td class="id">29</td><td>nested row (HELD/WATCH)</td><td>container</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">30</td><td>error banner</td><td>container</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg hot">SH</span></td></tr>
+      <tr><td class="id">31</td><td>callout note</td><td>container</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">32</td><td>empty state</td><td>container</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
+      <tr><td class="id">33</td><td>segmented control (tabs)</td><td>nav</td><td class="pages"><span class="pg hot">SH</span></td></tr>
+      <tr><td class="id">34</td><td>bottom navigation</td><td>nav</td><td class="pages"><span class="pg hot">SH</span></td></tr>
+      <tr><td class="id">35</td><td>bottom sheet</td><td>overlay</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">36</td><td>dialog</td><td>overlay</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">S</span><span class="pg">B</span></td></tr>
+      <tr><td class="id">37</td><td>overflow menu</td><td>overlay</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
+      <tr><td class="id">38</td><td>route / detour logic</td><td>logic</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
+      <tr><td class="id">39</td><td>fetch state indicator</td><td>indicator</td><td class="pages"><span class="pg">W</span><span class="pg">R</span></td></tr>
+      <tr><td class="id">40</td><td>helper text</td><td>indicator</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Page-specific components — not in the shared kit <span class="count">8</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>Component</th><th>Page</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="id">P1</td><td>Payout matrix + cycle cell</td><td>Portfolio</td><td>tap cell → Payment Edit; totals derive per cell</td></tr>
+      <tr><td class="id">P2</td><td>Returns chart / history viz</td><td>Dashboard</td><td>returns over time (chart type TBD at build)</td></tr>
+      <tr><td class="id">P3</td><td>Cashflow calendar cell</td><td>Dashboard</td><td>scheduled/actual day cells</td></tr>
+      <tr><td class="id">P4</td><td>Goal progress bar</td><td>Goals</td><td>target vs current fill</td></tr>
+      <tr><td class="id">P5</td><td>Settings toggle switch</td><td>Settings</td><td>preferences on/off (notif, display)</td></tr>
+      <tr><td class="id">P6</td><td>Search input + grouped result rows</td><td>Search</td><td>live query + entity groups</td></tr>
+      <tr><td class="id">P7</td><td>CSV receipt / saved card</td><td>CSV Export</td><td>post-save confirmation</td></tr>
+      <tr><td class="id">P8</td><td>Update dialog</td><td>About</td><td>available-update prompt</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Connection rules — features ↔ components <span class="count">two-way</span></h2>
+  <ul>
+    <li>Each feature row in <a class="conn" href="app_features.html">app_features.html</a> carries <b>▸ uses:</b> its components (feature → components)</li>
+    <li>Each component row above carries <b>Used by</b> pages (component → features/pages)</li>
+    <li>Shared kit = build ONCE, every page consumes · page-specific = built with its page</li>
+    <li>Before building any component: check this registry + the <a class="conn" href="component_audit.html">component audit (40 ✓)</a> for its7-question answers</li>
+    <li>Watchlist remains the detailed baseline: <a class="conn" href="../watchlist/watchlist_components_board.html">gallery</a> · <a class="conn" href="../watchlist/watchlist_features.html">mapping</a></li>
+  </ul>
+</section>
+
+<footer>
+  <span>Source: watchlist inventory (40/84, audited ✓) + scans of9 boards · page-specific set from board structure</span>
+  <span>Connected pair: app_components.html ↔ app_features.html ·2026-11-27</span>
+</footer>
+
+</div>
+</body>
+</html>
