@@ -842,9 +842,9 @@ tailwind.config = {
                   <span>Archive to completed</span>
                   <svg class="w-3.5 h-3.5 text-[#525F70]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                 </button>
-                <button class="w-full px-3 py-2 text-left text-xs font-bold text-[#9C3B44] flex items-center justify-between hover:bg-[#9C3B44]/10">
-                  <span>Remove goal</span>
-                  <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#9C3B44]/20 text-[#9C3B44]">Destructive</span>
+                <button class="w-full px-3 py-2 text-left text-xs font-medium text-[#8A96A8] flex items-center justify-between cursor-not-allowed" aria-disabled="true">
+                  <span>Remove goal <span class="text-[9px] font-normal">· locked until achieved</span></span>
+                  <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#E4E9EF] text-[#525F70] border border-[#CFD7E2]">Locked</span>
                 </button>
               </div>
             </div>
@@ -863,6 +863,11 @@ tailwind.config = {
               
               <div class="p-2 rounded-lg bg-[#E4E9EF] border border-[#CFD7E2] text-[10px] text-[#525F70] mb-3 leading-snug">
                 <strong class="text-[#18212C]">Safety invariant:</strong> Linked bonds are never deleted — only the goal metadata and accrual targets are removed.
+              </div>
+
+              <div class="p-2 rounded-lg bg-[#F5EFE0] border border-[#E2D5B8] text-[10px] text-[#525F70] mb-3 leading-snug flex items-start gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#A8842C] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span><strong class="text-[#18212C]">Gate:</strong> opens only after the goal is achieved (100%) — active goals can only be Archived.</span>
               </div>
 
               <div class="flex items-center gap-2">
