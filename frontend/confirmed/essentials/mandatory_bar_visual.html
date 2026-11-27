@@ -70,11 +70,11 @@
   .fscard{background:#fff;border:1px solid var(--nordic-border);border-radius:10px;padding:10px;overflow:hidden}
   .fscard .t{font-weight:700;font-size:13px;color:var(--nordic-ink)}
   .fscard .s{font-size:11px;color:var(--nordic-mut);margin-top:4px}
-  .fscard.big .t{font-size:22px;line-height:1.2}
-  .fscard.big .s{font-size:17px}
-  .fscard.clipped{position:relative;height:74px}
-  .fscard.clipped .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fscard.clipped .s{position:absolute;bottom:-8px;left:10px;right:10px;white-space:nowrap;overflow:hidden}
+  .fscard.big .t{font-size:26px;line-height:1.15}
+  .fscard.big .s{font-size:22px}
+  .fscard.clipped{position:relative;height:74px;overflow:hidden}
+  .fscard.clipped .t{font-size:26px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fscard.clipped .s{font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fslabel{font:700 9px/1 'JetBrains Mono',monospace;letter-spacing:.08em;margin-bottom:6px;text-transform:uppercase}
   /* safe area */
   .phonewrap{display:flex;justify-content:center;padding:6px 0}
@@ -100,7 +100,7 @@
   /* thumb */
   .thumbwrap{display:flex;justify-content:center;padding:6px 0;position:relative}
   .tphone{width:170px;border:3px solid #2E405C;border-radius:20px;background:#101824;position:relative;overflow:hidden}
-  .tarc{position:absolute;left:-30px;bottom:-40px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(111,216,152,.28),transparent 65%);pointer-events:none}
+  .tarc{position:absolute;right:-30px;bottom:-40px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(111,216,152,.28),transparent 65%);pointer-events:none}
   .tzone{padding:8px 10px 26px;position:relative}
   .tbar{display:flex;justify-content:space-between;gap:6px;margin-top:10px}
   .tact{flex:1;text-align:center;font-size:10.5px;font-weight:700;padding:10px 4px;border-radius:8px}
@@ -111,7 +111,7 @@
   /* icon label */
   .icrow{display:flex;gap:20px;justify-content:center;align-items:flex-start;padding:6px 0}
   .iccell{text-align:center;width:130px}
-  .icbtn{width:44px;height:44px;border-radius:10px;background:#fff;border:1px solid var(--nordic-border);display:inline-flex;align-items:center;justify-content:center;position:relative}
+  .icbtn{width:48px;height:48px;border-radius:10px;background:#fff;border:1px solid var(--nordic-border);display:inline-flex;align-items:center;justify-content:center;position:relative}
   .icbtn svg{width:20px;height:20px;stroke:var(--nordic-mut);fill:none;stroke-width:2}
   .iccap{font-size:11px;color:var(--nordic-mut);margin-top:6px}
   .iccap b{display:block;font-size:11.5px}
@@ -163,11 +163,11 @@
   <p class="plain">TalkBack is Android's screen reader: a blind user swipes and it <b>reads each element aloud</b>. It reads the element's <b>label</b>, not the picture. An icon button with no label is announced as just <b style="color:#B3261E">"button"</b> — useless. With a label it says <b style="color:#1B6B3A">"Notifications, double tap to activate"</b>. The dashed ring = TalkBack's focus.</p>
   <div class="grid2">
     <div class="demo bad"><div class="dlabel">✗ No label</div>
-      <div class="tbrow"><div class="tbbtn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-39-3 9h18s-3-2-3-9M13.7321a2 2 0 11-3.464 0"/></svg></div></div>
+      <div class="tbrow"><div class="tbbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div></div>
       <div class="announce none">TalkBack announces: <b>"button"</b></div>
     </div>
     <div class="demo good"><div class="dlabel">✓ Label set</div>
-      <div class="tbrow"><div class="tbbtn labeled"><span class="focusring"></span><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-39-3 9h18s-3-2-3-9M13.7321a2 2 0 11-3.464 0"/></svg></div></div>
+      <div class="tbrow"><div class="tbbtn labeled"><span class="focusring"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div></div>
       <div class="announce">TalkBack announces: <b>"Notifications, double tap to activate"</b></div>
     </div>
   </div>
@@ -177,12 +177,12 @@
 <!-- M2 CONTRAST -->
 <section class="card">
   <div class="chead"><span class="num">M2</span><h2>Contrast — text must stand out (4.5:1)</h2><span class="tag wc">WCAG 2.2 AA</span></div>
-  <p class="plain">Contrast = how much brighter text is than its background, as a ratio. <b>Body text needs4.5:1, large/bold text3:1.</b> Light grey on white usually fails — it looks "clean" but is unreadable in sunlight or for low-vision users.</p>
+  <p class="plain">Contrast = how much brighter text is than its background, as a ratio. <b>Body text needs4.5:1;</b> "large text" gets the looser <b>3:1</b> — and WCAG defines large precisely as <b>≥24px regular or ≥18.67px bold</b> (not just any bold). Light grey on white usually fails — it looks "clean" but is unreadable in sunlight or for low-vision users.</p>
   <div class="demo"><div class="dlabel">Same card, three samples</div>
     <div class="ctable">
-      <div class="csample" style="background:#fff;color:#18212C">Tata Capital · ₹41,175 <span class="cbadge pass">7.8:1 ✓</span></div>
-      <div class="csample" style="background:#fff;color:#8A94A0">Tata Capital · ₹41,175 <span class="cbadge fail">2.9:1 ✗</span></div>
-      <div class="csample" style="background:#101824;color:#E7EEF8">Tata Capital · ₹41,175 <span class="cbadge pass">14:1 ✓</span></div>
+      <div class="csample" style="background:#fff;color:#18212C">Tata Capital · ₹41,175 <span class="cbadge pass">16.24:1 ✓</span></div>
+      <div class="csample" style="background:#fff;color:#8A94A0">Tata Capital · ₹41,175 <span class="cbadge fail">3.08:1 ✗ body</span></div>
+      <div class="csample" style="background:#101824;color:#E7EEF8">Tata Capital · ₹41,175 <span class="cbadge pass">15.26:1 ✓</span></div>
     </div>
   </div>
   <div class="rule"><b>Rule:</b> check every text/background pair in <b>both</b> light and dark themes (4.5:1 body ·3:1 large). <b>In our app:</b> Essential7 + every theme palette.</div>
@@ -224,7 +224,7 @@
       <div style="font-size:12.5px;color:#E7EEF8">Sheet slides up · button scales on press · numbers flash</div>
     </div>
     <div class="demo dark"><div class="dlabel" style="color:#FFC46B">"Remove animations" ON</div>
-      <div style="font-size:12.5px;color:#E7EEF8">Sheet appears instantly · press = colour change only · no flash</div>
+      <div style="font-size:12.5px;color:#E7EEF8">Sheet fades in (no slide) · press = colour change only · no flash</div>
     </div>
   </div>
   <div class="rule"><b>Rule:</b> read the OS setting; replace motion with fades/state changes. <b>In our app:</b> Essential8 + Essential7.</div>
@@ -248,8 +248,8 @@
   <p class="plain">A bottom sheet or dialog that the user <b>cannot close</b> traps them (a real store-rejection pattern). Every overlay needs a clear exit: an <b>X</b>, a <b>Cancel</b>, a <b>scrim tap</b>, or the system back gesture.</p>
   <div class="grid2">
     <div class="demo good"><div class="dlabel">✓ Clear exits</div>
-      <div class="msheet"><span class="x">✕</span><div class="mt">Remove goal?</div><div class="mb">Type the full goal name…</div><div class="macts"><span class="mbtn s">Cancel</span><span class="mbtn p">Remove</span></div></div>
-      <div style="font-size:11px;color:#1B6B3A;margin-top:6px">✕ · Cancel · scrim tap · system back — four exits</div>
+      <div class="msheet"><span class="x">✕</span><div class="mt">Discard changes?</div><div class="mb">Your typed entries will be lost.</div><div class="macts"><span class="mbtn s">Keep editing</span><span class="mbtn p">Discard</span></div></div>
+      <div style="font-size:11px;color:#1B6B3A;margin-top:6px">✕ · Keep editing · scrim tap · system back — four exits</div>
     </div>
     <div class="demo bad"><div class="dlabel">✗ Trapped</div>
       <div class="mtrapped"><div class="mt" style="color:#B3261E">Payment required</div><div class="mb">Subscribe to continue. There is no close.</div></div>
@@ -273,11 +273,11 @@
     <div class="chip"><b>Stale cache</b>show age + refresh action<span class="end">recoverable</span></div>
     <div class="chip"><b>Process restart</b>state restored from store<span class="end">recoverable</span></div>
     <div class="chip"><b>Partial failure</b>what worked shown, what failed retried<span class="end">recoverable</span></div>
-    <div class="chip"><b>Conflict</b>show both versions, let user pick<span class="end">recoverable</span></div>
+    <div class="chip"><b>Import conflict</b>show both versions, user picks<span class="end">recoverable</span></div>
     <div class="chip"><b>Validation error</b>field-level, entries preserved<span class="end">recoverable</span></div>
     <div class="chip"><b>Crash</b>friendly error screen + report<span class="end">recoverable</span></div>
   </div>
-  <div class="rule"><b>Rule:</b> design all twelve BEFORE building; each has a visible end-state. <b>In our app:</b> Essential5 + Essential12 + Essential15.</div>
+  <div class="rule"><b>Rule:</b> design all twelve BEFORE building; each has a visible end-state. <b>In our app:</b> Essential5 + Essential6 + Essential12 + Essential15.</div>
 </section>
 
 <!-- M13 THUMB -->
@@ -309,9 +309,9 @@
   <div class="chead"><span class="num">M17</span><h2>Icons must announce themselves</h2><span class="tag m3">MATERIAL3</span></div>
   <p class="plain">Icons are pictures — TalkBack can't see them. Every meaningful icon needs a label (Material Symbols ship with names; we still declare them). Decorative-only icons are hidden from TalkBack so they don't add noise.</p>
   <div class="demo"><div class="icrow">
-    <div class="iccell"><span class="icbtn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-39-3 9h18s-3-2-3-9M13.7321a2 2 0 11-3.464 0"/></svg></span><div class="iccap no"><b>✗ silent</b>no label attached</div></div>
-    <div class="iccell"><span class="icbtn" style="outline:3px solid var(--accent);outline-offset:2px"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-39-3 9h18s-3-2-3-9M13.7321a2 2 0 11-3.464 0"/></svg></span><div class="iccap ok"><b>✓ "Notifications"</b>label set</div></div>
-    <div class="iccell"><span class="icbtn" style="opacity:.4"><svg viewBox="0 0 24 24"><path d="M123l3-9 39-9 33-12122-2-122012l3-129l-3-9"/></svg></span><div class="iccap"><b>◌ decorative</b>hidden from TalkBack</div></div>
+    <div class="iccell"><span class="icbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><div class="iccap no"><b>✗ silent</b>no label attached</div></div>
+    <div class="iccell"><span class="icbtn" style="outline:3px solid var(--accent);outline-offset:2px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><div class="iccap ok"><b>✓ "Notifications"</b>label set</div></div>
+    <div class="iccell"><span class="icbtn" style="opacity:.4"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="17" cy="12" r="1.6"/></svg></span><div class="iccap"><b>◌ decorative</b>hidden from TalkBack</div></div>
   </div></div>
   <div class="rule"><b>Rule:</b> meaningful icon = label; decorative icon = excluded from a11y tree. Use Material Symbols (our icon table in Essential3). <b>In our app:</b> sync/bell/theme/avatar/eye/⋮/chevrons/FAB.</div>
 </section>
