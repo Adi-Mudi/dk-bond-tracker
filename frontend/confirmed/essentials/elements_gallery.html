@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Elements — DK Bond Tracker (Nordic Mist · PRIMARY)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'nordic-bg': '#F8FAFC',
+            'nordic-card': '#EFF2F5',
+            'nordic-border': '#CFD7E2',
+            'nordic-ink': '#18212C',
+            'nordic-muted': '#5D6B7C',
+            'nordic-accent': '#28595B',
+            'nordic-accent-hover': '#1F4749',
+            'nordic-success': '#28614E',
+            'nordic-success-bg': '#EAF3EF',
+            'nordic-warn': '#8C5409',
+            'nordic-warn-bg': '#FDF4E7',
+            'nordic-error': '#9C3B44',
+            'nordic-error-bg': '#FCEEEF',
+            'board-dark': '#0B131D',
+            'board-card': '#131E2B',
+            'board-border': '#1F2E40',
+            'board-text': '#E8EEF5',
+            'board-muted': '#8295AB'
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.fill-1 {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    /* Custom scrollbar for demo containers */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+    ::-webkit-scrollbar-thumb { background: #CFD7E2; border-radius: 999px; }
+  </style>
+</head>
+<body class="bg-board-dark text-board-text min-h-screen font-sans p-6 lg:p-10 antialiased selection:bg-nordic-accent selection:text-white">
+
+  <!-- ==================== BOARD PRESENTATION HEADER ==================== -->
+  <header class="max-w-[1720px] mx-auto mb-10 pb-6 border-b border-board-border">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-nordic-accent/20 border border-nordic-accent flex items-center justify-center text-nordic-accent">
+          <span class="material-symbols-outlined text-2xl text-[#67B5B8]">grid_view</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-bold tracking-tight text-white">Universal Elements — DK Bond Tracker (Nordic Mist · PRIMARY)</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60 shadow-sm">
+              <span class="material-symbols-outlined text-xs fill-1">lock</span> LOCKED · 2026-11-27
+            </span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-nordic-accent/20 text-[#78C2C5] border border-nordic-accent/40">
+              14 SPECIMEN CARDS (E1–E14)
+            </span>
+          </div>
+          <p class="text-board-muted text-xs mt-1">
+            Canonical UI Primitives & Architectural Invariants • Nordic Mist Light Theme Palette Specimen Grid • All Currency in ₹ INR • Zero Target Visibility on Reading Surfaces
+          </p>
+        </div>
+      </div>
+
+      <!-- Theme Token Reference Strip -->
+      <div class="flex items-center gap-3 bg-board-card px-4 py-2 rounded-xl border border-board-border text-xs">
+        <span class="text-board-muted uppercase text-[10px] tracking-wider font-semibold">Nordic Mist Tokens:</span>
+        <div class="flex items-center gap-1.5" title="bg: #F8FAFC">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#F8FAFC] border border-gray-400"></span>
+          <span class="font-mono text-[11px] text-gray-300">#F8FAFC</span>
+        </div>
+        <div class="flex items-center gap-1.5" title="cards: #EFF2F5">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#EFF2F5] border border-gray-400"></span>
+          <span class="font-mono text-[11px] text-gray-300">#EFF2F5</span>
+        </div>
+        <div class="flex items-center gap-1.5" title="border: #CFD7E2">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#CFD7E2]"></span>
+          <span class="font-mono text-[11px] text-gray-300">#CFD7E2</span>
+        </div>
+        <div class="flex items-center gap-1.5" title="ink: #18212C">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#18212C]"></span>
+          <span class="font-mono text-[11px] text-gray-300">#18212C</span>
+        </div>
+        <div class="flex items-center gap-1.5" title="accent: #28595B">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#28595B]"></span>
+          <span class="font-mono text-[11px] text-[#78C2C5] font-semibold">#28595B</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== SPECIMENS GRID (E1 - E14) ==================== -->
+  <main class="max-w-[1720px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+    <!-- ==================== E1: TOP APP BAR ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E1</span>
+            <h2 class="text-sm font-semibold text-white">Top App Bar</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">Viewport Header • 56px H</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="h-14 bg-white border border-nordic-border rounded-lg px-3 flex items-center justify-between shadow-xs">
+            <!-- Left: Back + Title -->
+            <div class="flex items-center gap-2.5">
+              <button type="button" class="w-8 h-8 rounded-full hover:bg-nordic-card flex items-center justify-center text-nordic-ink transition-colors">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+              </button>
+              <span class="font-bold text-sm tracking-tight text-nordic-ink">DK Bond Tracker</span>
+            </div>
+            <!-- Right: Fixed Order (sync, bell, theme, avatar) -->
+            <div class="flex items-center gap-1">
+              <button type="button" class="w-8 h-8 rounded-full hover:bg-nordic-card flex items-center justify-center text-nordic-muted transition-colors" title="Sync">
+                <span class="material-symbols-outlined text-[19px]">sync</span>
+              </button>
+              <div class="relative">
+                <button type="button" class="w-8 h-8 rounded-full hover:bg-nordic-card flex items-center justify-center text-nordic-muted transition-colors" title="Notifications">
+                  <span class="material-symbols-outlined text-[19px]">notifications</span>
+                </button>
+                <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-nordic-error ring-1 ring-white"></span>
+              </div>
+              <button type="button" class="w-8 h-8 rounded-full hover:bg-nordic-card flex items-center justify-center text-nordic-muted transition-colors" title="Theme Palette">
+                <span class="material-symbols-outlined text-[19px]">palette</span>
+              </button>
+              <div class="w-7 h-7 rounded-full bg-nordic-accent text-white flex items-center justify-center text-[11px] font-bold tracking-tight shadow-xs ml-1">
+                DK
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Default / Root (Title Only)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-sky-300 border border-sky-900/40">Drilldown (Back Arrow Active)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-300 border border-amber-900/40">Unread Alert Bell (Dot On)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Back button (optional) + Title (bold 14px) + Action Cluster in strict order: [Sync → Bell with Badge → Theme Palette → 28px Avatar 'DK'].</span>
+      </div>
+    </section>
+
+    <!-- ==================== E2: BOTTOM NAV ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E2</span>
+            <h2 class="text-sm font-semibold text-white">Bottom Navigation</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">Fixed Bottom Bar • 5 Tabs</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="h-16 bg-white border border-nordic-border rounded-lg px-2 flex items-center justify-around shadow-xs">
+            <!-- Tab 1 -->
+            <button class="flex flex-col items-center justify-center gap-1 text-nordic-muted hover:text-nordic-ink py-1">
+              <span class="material-symbols-outlined text-[20px]">dashboard</span>
+              <span class="text-[10px] font-medium leading-none">Dashboard</span>
+            </button>
+            <!-- Tab 2 -->
+            <button class="flex flex-col items-center justify-center gap-1 text-nordic-muted hover:text-nordic-ink py-1">
+              <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+              <span class="text-[10px] font-medium leading-none">Portfolio</span>
+            </button>
+            <!-- Tab 3 -->
+            <button class="flex flex-col items-center justify-center gap-1 text-nordic-muted hover:text-nordic-ink py-1">
+              <span class="material-symbols-outlined text-[20px]">visibility</span>
+              <span class="text-[10px] font-medium leading-none">Watchlist</span>
+            </button>
+            <!-- Tab 4: ACTIVE (Goals) -->
+            <button class="flex flex-col items-center justify-center gap-1 text-nordic-accent font-bold py-1 relative">
+              <span class="material-symbols-outlined text-[20px] fill-1">flag</span>
+              <span class="text-[10px] font-bold leading-none text-nordic-accent">Goals</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-nordic-accent absolute -bottom-1"></span>
+            </button>
+            <!-- Tab 5 -->
+            <button class="flex flex-col items-center justify-center gap-1 text-nordic-muted hover:text-nordic-ink py-1">
+              <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+              <span class="text-[10px] font-medium leading-none">More</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Active Tab (#28595B + filled icon + dot)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Inactive Tab (#5D6B7C outline)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-300 border border-amber-900/40">More (Dispatches secondary bottom sheet)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>5 fixed destinations: Dashboard, Portfolio, Watchlist, Goals, More. Height 56–64px with safe-area padding. 48px touch targets.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E3: GOALS / FORM SEGMENTED TABS ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E3</span>
+            <h2 class="text-sm font-semibold text-white">GOALS / FORM Segmented Tabs</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">Sticky Control Strip</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="bg-nordic-card p-1 rounded-xl border border-nordic-border flex gap-1.5">
+            <!-- Active Goals Tab -->
+            <button class="flex-1 py-2 px-3 bg-white text-nordic-ink font-semibold rounded-lg text-xs shadow-xs border border-nordic-border flex items-center justify-center gap-1.5 transition-all">
+              <span>GOALS (3)</span>
+            </button>
+            <!-- Inactive Form Tab -->
+            <button class="flex-1 py-2 px-3 text-nordic-muted hover:text-nordic-ink font-medium rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all">
+              <span>FORM (0)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Goals Active (White pill + border shadow)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-sky-300 border border-sky-900/40">Form Active (Focus switches to create form)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Empty State: GOALS (0) / FORM (0)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Container: background #EFF2F5 with 1px #CFD7E2 border. Dual button layout displaying live dynamic counts: GOALS (n) / FORM (n).</span>
+      </div>
+    </section>
+
+    <!-- ==================== E4: STAT CELLS ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E4</span>
+            <h2 class="text-sm font-semibold text-white">Stat Cells (Psychology Invariant)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-amber-400">Rule A: Never TARGET</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="grid grid-cols-3 gap-2">
+            <!-- Cell 1: MONTHS (Never Target) -->
+            <div class="bg-white border border-nordic-border rounded-xl p-2.5 text-center shadow-xs">
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-nordic-muted">MONTHS</span>
+              <span class="block text-base font-bold text-nordic-ink tabular-nums mt-0.5">0/12</span>
+              <span class="block text-[10px] text-nordic-muted mt-0.5">0 active</span>
+            </div>
+            <!-- Cell 2: SAVED (Rupees) -->
+            <div class="bg-white border border-nordic-border rounded-xl p-2.5 text-center shadow-xs">
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-nordic-muted">SAVED</span>
+              <span class="block text-base font-bold text-nordic-ink tabular-nums mt-0.5">₹ 0</span>
+              <span class="block text-[10px] text-nordic-muted mt-0.5">active pace</span>
+            </div>
+            <!-- Cell 3: ON TRACK -->
+            <div class="bg-white border border-nordic-border rounded-xl p-2.5 text-center shadow-xs">
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-nordic-muted">ON TRACK</span>
+              <span class="block text-base font-bold text-nordic-success tabular-nums mt-0.5">0</span>
+              <span class="block text-[10px] text-nordic-muted mt-0.5">all clear</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Zero State (0/12 · ₹ 0 · 0)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Active State (22/24 · ₹ 11,50,000 · 3)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Tri-column stat strip: [MONTHS (X/Y) | SAVED (₹ INR) | ON TRACK (count)]. Governed by Rule A: Target amount permanently prohibited.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E5: GOAL CARD ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E5</span>
+            <h2 class="text-sm font-semibold text-white">Goal Card (Reading Invariant)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-emerald-400">Rule B: Negative Precedence</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="bg-white border border-nordic-border rounded-xl p-3.5 shadow-xs">
+            <!-- Header: Title + Status Pill -->
+            <div class="flex items-start justify-between gap-2 mb-1.5">
+              <div>
+                <h3 class="font-bold text-xs text-nordic-ink">Child Higher Education Fund</h3>
+                <p class="text-[11px] text-nordic-muted">Target: Oct 2028 • 22 Mos Left</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-nordic-success-bg text-nordic-success border border-nordic-success/30 flex items-center gap-1 shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-nordic-success"></span> On track
+              </span>
+            </div>
+
+            <!-- Reading Line: Saved & Months Signal (NO TARGET AMOUNT) -->
+            <div class="flex items-center justify-between text-xs my-2">
+              <span class="font-bold text-nordic-ink tabular-nums">Saved ₹ 11,50,000</span>
+              <span class="text-[11px] font-bold text-nordic-error bg-nordic-error-bg px-2 py-0.5 rounded border border-nordic-error/30">
+                2 months missed
+              </span>
+            </div>
+
+            <!-- Thin Progress Rail (No Numbers) -->
+            <div class="w-full h-1.5 bg-nordic-card rounded-full overflow-hidden mb-3">
+              <div class="h-full bg-nordic-accent rounded-full" style="width: 58%;"></div>
+            </div>
+
+            <!-- Actions Row -->
+            <div class="flex items-center justify-between pt-2 border-t border-nordic-border/50">
+              <span class="text-[11px] font-mono text-nordic-muted bg-nordic-card px-2 py-0.5 rounded border border-nordic-border">₹ 35,000/mo pace</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="px-2.5 py-1 text-xs font-semibold rounded bg-nordic-accent text-white hover:bg-nordic-accent-hover transition-colors shadow-xs">Check-in</button>
+                <button type="button" class="px-2.5 py-1 text-xs font-semibold rounded bg-nordic-card text-nordic-ink border border-nordic-border hover:bg-white transition-colors">Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-rose-300 border border-rose-900/40">Negative Signal: "2 months missed" (red)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Positive Signal: "15/20 months ✓" (green)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Title + Dates + Status pill + Saved amount + Months progress signal + Rail + Pace badge + [Check-in] and [Details] action buttons. Zero Target.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E6: RHYTHM ROW ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E6</span>
+            <h2 class="text-sm font-semibold text-white">Rhythm Row (Invested & Yield)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">Tracking Ledger Unit</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm space-y-2">
+          <!-- Row 1: Invested + Returns -->
+          <div class="bg-white border border-nordic-border rounded-lg p-2.5 flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-nordic-success"></span>
+              <span class="font-bold text-xs text-nordic-ink">Nov 2026</span>
+            </div>
+            <div class="text-right tabular-nums text-xs">
+              <span class="text-nordic-success font-semibold">✓ ₹ 35,000 invested</span>
+              <span class="text-nordic-muted text-[11px] ml-1.5">+₹ 1,820 returns</span>
+            </div>
+          </div>
+          <!-- Row 2: Missed Month with Autonomous Bond Yield Returns -->
+          <div class="bg-white border border-nordic-border rounded-lg p-2.5 flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-nordic-error"></span>
+              <span class="font-bold text-xs text-nordic-ink">Oct 2026</span>
+            </div>
+            <div class="text-right tabular-nums text-xs">
+              <span class="text-nordic-error font-bold px-1.5 py-0.5 rounded bg-nordic-error-bg text-[10px]">MISSED</span>
+              <span class="text-nordic-muted text-[11px] ml-1.5">+₹ 1,710 returns</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Invested (✓ ₹35k invested · +returns)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-rose-300 border border-rose-900/40">Missed (MISSED · +returns arrive)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-300 border border-amber-900/40">Due Soon (+est. returns)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Timeline dot + Month/Year + Status indicator + Dual financial values: user monthly capital contribution and underlying coupon yield credits.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E7: CHECK-IN FORM ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E7</span>
+            <h2 class="text-sm font-semibold text-white">Check-In Form</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">Monthly Reconciliation Form</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="bg-white border border-nordic-border rounded-xl p-3.5 space-y-2.5 shadow-xs">
+            <!-- Amount Input -->
+            <div>
+              <label class="block text-[10px] font-bold text-nordic-ink uppercase tracking-wider mb-1">Check-in Amount (₹)</label>
+              <input type="text" value="35,000" readonly class="w-full h-8 px-2.5 bg-nordic-card border border-nordic-border rounded-md text-xs font-bold text-nordic-ink tabular-nums">
+            </div>
+            <!-- Date & Note (Optional) -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-nordic-ink uppercase tracking-wider mb-1">Date</label>
+                <input type="text" value="15 Dec 2026" readonly class="w-full h-8 px-2.5 bg-nordic-card border border-nordic-border rounded-md text-xs text-nordic-ink">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-nordic-muted uppercase tracking-wider mb-1">Note (Optional)</label>
+                <input type="text" placeholder="Deposit UTR..." readonly class="w-full h-8 px-2.5 bg-white border border-nordic-border rounded-md text-xs text-nordic-muted">
+              </div>
+            </div>
+            <!-- Dual Buttons -->
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded bg-nordic-card text-nordic-ink border border-nordic-border">Save draft</button>
+              <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded bg-nordic-accent text-white shadow-xs">Record check-in</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Record Check-in (Commits transaction)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Save Draft (Non-blocking local storage)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Amount (₹) + Date selector + Note (Optional) + Dual Action Controls: [Record check-in] primary & [Save draft] secondary.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E8: BUTTONS ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E8</span>
+            <h2 class="text-sm font-semibold text-white">Action Buttons (Single Family)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">Primary • Secondary • Ghost</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Primary: Save goal -->
+            <button class="h-10 px-4 rounded-lg bg-nordic-accent text-white font-semibold text-xs hover:bg-nordic-accent-hover transition-colors shadow-xs flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[17px]">check</span> Save goal
+            </button>
+            <!-- Secondary: Archive goal -->
+            <button class="h-10 px-4 rounded-lg bg-nordic-card text-nordic-ink font-semibold text-xs border border-nordic-border hover:bg-white transition-colors flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[17px]">archive</span> Archive goal
+            </button>
+            <!-- Ghost: Cancel -->
+            <button class="h-10 px-3 rounded-lg text-nordic-muted hover:text-nordic-ink font-medium text-xs transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Primary Fill (#28595B, white label)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Secondary (#EFF2F5, ink label)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-zinc-400 border border-zinc-700">Ghost / Text (Border-free)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Min-height 48px calibrated (specimen 40px scale), radius 8–10px, clear typography. Zero flashy gradients or pill buttons.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E9: TEXT INPUT ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E9</span>
+            <h2 class="text-sm font-semibold text-white">Text Input (No Asterisk)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-emerald-400">Label Above • Helper Below</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm space-y-3">
+          <!-- Input 1: Normal with Helper -->
+          <div>
+            <label class="block text-xs font-semibold text-nordic-ink mb-1">Goal Name</label>
+            <input type="text" value="Child Higher Education Fund" readonly class="w-full h-9 px-3 bg-white border border-nordic-border rounded-lg text-xs text-nordic-ink focus:outline-none focus:border-nordic-accent shadow-xs">
+            <span class="block text-[11px] text-nordic-muted mt-1">Specify milestone name or target allocation pool.</span>
+          </div>
+          <!-- Input 2: Error State (Accessible Pattern) -->
+          <div>
+            <label class="block text-xs font-semibold text-nordic-ink mb-1">Monthly Contribution (₹)</label>
+            <div class="relative">
+              <input type="text" value="0" readonly class="w-full h-9 px-3 bg-nordic-error-bg/30 border border-nordic-error rounded-lg text-xs font-bold text-nordic-error focus:outline-none shadow-xs">
+              <span class="material-symbols-outlined text-nordic-error text-sm absolute right-2.5 top-2.5">error</span>
+            </div>
+            <span class="text-[11px] font-medium text-nordic-error mt-1 flex items-center gap-1">
+              Monthly contribution must be greater than zero.
+            </span>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Default / Focused (Border #28595B)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-rose-300 border border-rose-900/40">Error (2px red border + icon + text)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-300 border border-amber-900/40">Read-Only Auto Input</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Clean label above (strictly NO asterisks), 48–52px height container, 1px hairline, contextual helper or validation error below.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E10: OVERFLOW MENU TRIGGER ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E10</span>
+            <h2 class="text-sm font-semibold text-white">Overflow Menu Trigger (Guarded)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-emerald-400">Zero "Remove" Permitted</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm flex items-center justify-center">
+          <div class="relative bg-white p-3 rounded-xl border border-nordic-border shadow-md w-48">
+            <div class="flex items-center justify-between border-b border-nordic-border pb-1.5 mb-2">
+              <span class="text-[10px] font-bold uppercase text-nordic-muted">Goal Options</span>
+              <span class="material-symbols-outlined text-sm text-nordic-ink">more_vert</span>
+            </div>
+            <!-- Menu Items: ONLY Edit goal & Archive goal -->
+            <div class="space-y-1">
+              <button class="w-full text-left px-2.5 py-1.5 rounded hover:bg-nordic-card text-xs font-medium text-nordic-ink flex items-center gap-2 transition-colors">
+                <span class="material-symbols-outlined text-[16px] text-nordic-muted">edit</span> Edit goal
+              </button>
+              <button class="w-full text-left px-2.5 py-1.5 rounded hover:bg-nordic-card text-xs font-medium text-nordic-ink flex items-center gap-2 transition-colors">
+                <span class="material-symbols-outlined text-[16px] text-nordic-muted">archive</span> Archive goal
+              </button>
+            </div>
+            <!-- Invariant Tag -->
+            <div class="mt-2 pt-2 border-t border-nordic-border text-[9px] text-nordic-muted text-center font-mono">
+              [Zero destructive delete]
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Closed (⋮ Icon trigger)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Opened Popover (Elevated card #FFFFFF)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-rose-300 border border-rose-900/40">Invariant: "Remove" purged</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Trigger button (more_vert ⋮) + Floating card (radius 10px, shadow) showing ONLY Edit goal + Archive goal. No destructive options.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E11: BANNER ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E11</span>
+            <h2 class="text-sm font-semibold text-white">System Warning Banner</h2>
+          </div>
+          <span class="text-[11px] font-mono text-amber-400">Pace Adjustment Notice</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="p-3 bg-nordic-warn-bg border border-nordic-warn/40 rounded-xl flex items-start gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-nordic-warn text-[18px] shrink-0 mt-0.5">warning</span>
+            <div>
+              <h4 class="text-xs font-bold text-nordic-warn">2 months missed — pace adjustment active</h4>
+              <p class="text-[11px] text-nordic-ink/80 mt-0.5 leading-snug">
+                Oct & Sep missed check-ins. Monthly pacing stepped up to protect final target milestone date.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-300 border border-amber-900/40">Warning Active (Amber #8C5409 on #FDF4E7)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Resolved / Dismissed (Zero layout drift)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Warning glyph + Bold title "2 months missed — pace adjustment active" + Descriptive body copy. Background #FDF4E7 with 1px #8C5409 border.</span>
+      </div>
+    </section>
+
+    <!-- ==================== E12: EMPTY STATE ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E12</span>
+            <h2 class="text-sm font-semibold text-white">Empty State</h2>
+          </div>
+          <span class="text-[11px] font-mono text-board-muted">First Open Specimen</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="bg-white border border-nordic-border rounded-xl p-5 text-center flex flex-col items-center justify-center shadow-xs">
+            <div class="w-10 h-10 rounded-full bg-nordic-card border border-nordic-border flex items-center justify-center text-nordic-muted mb-2.5">
+              <span class="material-symbols-outlined text-[22px]">flag</span>
+            </div>
+            <h4 class="text-xs font-bold text-nordic-ink">No goals yet</h4>
+            <p class="text-[11px] text-nordic-muted max-w-xs mt-1 mb-3 leading-relaxed">
+              Set a savings or investment goal — track it with monthly check-ins & bond yield auto-matching.
+            </p>
+            <button class="px-3.5 py-1.5 rounded-lg bg-nordic-accent text-white text-xs font-semibold hover:bg-nordic-accent-hover transition-colors shadow-xs flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">add</span> Create first goal
+            </button>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Initial Empty State (Displays single CTA)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-sky-300 border border-sky-900/40">Pristine Ledger Contract (Zero ghost cards)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Centered vector badge + Header "No goals yet" + Calm plain-language explanation + Primary action button [Create first goal].</span>
+      </div>
+    </section>
+
+    <!-- ==================== E13: STATUS PILLS ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E13</span>
+            <h2 class="text-sm font-semibold text-white">Status Pills (Color + Text)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-emerald-400">WCAG AA Compliant</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm">
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Behind -->
+            <div class="p-2 bg-white rounded-lg border border-nordic-border flex items-center justify-between">
+              <span class="text-[11px] font-medium text-nordic-muted">Behind:</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-nordic-warn-bg text-nordic-warn border border-nordic-warn/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-nordic-warn"></span> Behind
+              </span>
+            </div>
+            <!-- Due Soon -->
+            <div class="p-2 bg-white rounded-lg border border-nordic-border flex items-center justify-between">
+              <span class="text-[11px] font-medium text-nordic-muted">Due Soon:</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-300 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Due Soon
+              </span>
+            </div>
+            <!-- On Track -->
+            <div class="p-2 bg-white rounded-lg border border-nordic-border flex items-center justify-between">
+              <span class="text-[11px] font-medium text-nordic-muted">On Track:</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-nordic-success-bg text-nordic-success border border-nordic-success/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-nordic-success"></span> On track
+              </span>
+            </div>
+            <!-- Completed -->
+            <div class="p-2 bg-white rounded-lg border border-nordic-border flex items-center justify-between">
+              <span class="text-[11px] font-medium text-nordic-muted">Completed:</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-300 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> Completed
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-300 border border-amber-900/40">Behind (Pacing deficit)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-amber-400 border border-amber-800/40">Due Soon (Window active)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">On Track (Nominal pace)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-400 border border-slate-700">Completed (Archived)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Strict fg/bg token pairs paired with a text label and 6px solid dot. Never color-only (a11y accessible requirement).</span>
+      </div>
+    </section>
+
+    <!-- ==================== E14: PROGRESS RAIL ==================== -->
+    <section class="bg-board-card border border-board-border rounded-2xl p-5 flex flex-col justify-between shadow-lg">
+      <div>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-board-border/70">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-bold font-mono bg-nordic-accent/30 text-[#78C2C5] border border-nordic-accent/50">E14</span>
+            <h2 class="text-sm font-semibold text-white">Progress Rail (Zero Numbers)</h2>
+          </div>
+          <span class="text-[11px] font-mono text-emerald-400">Psychology Invariant</span>
+        </div>
+
+        <!-- Mini Visual Demo in Nordic Mist -->
+        <div class="bg-nordic-bg p-4 rounded-xl border border-nordic-border text-nordic-ink mb-4 shadow-sm space-y-3">
+          <!-- Specimen A: Active Progress -->
+          <div>
+            <div class="flex justify-between text-[11px] font-semibold text-nordic-muted mb-1">
+              <span>Capital Accumulation Progress</span>
+              <span class="text-nordic-accent font-bold">58% Pace</span>
+            </div>
+            <div class="w-full h-2 bg-nordic-card border border-nordic-border rounded-full overflow-hidden">
+              <div class="h-full bg-nordic-accent rounded-full transition-all duration-500" style="width: 58%;"></div>
+            </div>
+          </div>
+
+          <!-- Specimen B: Completed / Settled -->
+          <div>
+            <div class="flex justify-between text-[11px] font-semibold text-nordic-muted mb-1">
+              <span>Matured Reinvestment Vault</span>
+              <span class="text-nordic-success font-bold">100% Matured</span>
+            </div>
+            <div class="w-full h-2 bg-nordic-card border border-nordic-border rounded-full overflow-hidden">
+              <div class="h-full bg-nordic-success rounded-full transition-all duration-500" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- States Row -->
+        <div class="bg-board-dark/60 rounded-lg p-2.5 border border-board-border/60 mb-3 text-xs">
+          <div class="text-[10px] font-semibold text-board-muted uppercase tracking-wider mb-1.5">States Matrix:</div>
+          <div class="flex flex-wrap gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-board-card text-emerald-300 border border-emerald-900/40">Active Rail (Accent #28595B fill)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-teal-300 border border-teal-900/40">Matured (Success #28614E fill)</span>
+            <span class="px-2 py-0.5 rounded bg-board-card text-slate-300 border border-slate-700">Empty (Unfilled background track)</span>
+          </div>
+        </div>
+      </div>
+      <!-- Anatomy -->
+      <div class="pt-3 border-t border-board-border/60 text-[11px] text-board-muted flex items-start gap-1.5">
+        <span class="text-nordic-accent font-semibold shrink-0">Anatomy:</span>
+        <span>Thin horizontal bar (6–8px height), rounded-full geometry, pure track rail without numerical target labels or intrusive percentages.</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== BOARD FOOTER METADATA ==================== -->
+  <footer class="max-w-[1720px] mx-auto mt-12 pt-6 border-t border-board-border flex flex-wrap items-center justify-between gap-4 text-xs text-board-muted font-mono">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span>UNIVERSAL ELEMENTS GALLERY • NORDIC MIST LIGHT PALETTE (#F8FAFC, #EFF2F5, #CFD7E2, #18212C, #28595B)</span>
+    </div>
+    <div class="text-right">
+      <span>contracts live in app_essentials Universal Elements; attach design-system 4248452823204668669 on future edits</span>
+    </div>
+  </footer>
+
+</body>
+</html>
