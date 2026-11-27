@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Goals — Feature → Component Map (Traceability)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.55;padding:40px 20px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:940px}
+  .lede a{color:var(--soft)}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .stat{background:var(--surface);border:1px solid var(--hairline);border-radius:8px;padding:7px 13px;font-size:11px;color:var(--muted)}
+  .stat b{color:var(--ink);font-size:14px;display:block}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  h2 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:10px;padding:2px 8px;letter-spacing:0}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);padding:6px 8px;border-bottom:1px solid var(--hairline)}
+  td{padding:6px 8px;border-bottom:1px dashed rgba(42,58,76,.5);vertical-align:top;color:var(--muted)}
+  td.fid{color:var(--soft);font-weight:700;width:44px;white-space:nowrap}
+  td.comp{white-space:nowrap}
+  .c{display:inline-block;background:var(--raised);border:1px solid var(--hairline);border-radius:5px;padding:2px7px;margin:1px;font-size:10px;color:var(--ink)}
+  .c.nw{border-color:rgba(147,180,255,.5);color:var(--soft)}
+  .c.sh{border-color:rgba(74,222,128,.4);color:var(--green)}
+  .src{font-size:10.5px}
+  .src.p{color:var(--amber)}
+  .src.l{color:var(--soft)}
+  .src.d{color:var(--green)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--dim);margin-top:6px}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Documentation Handoff · Traceability</div>
+  <h1>Goals — Feature → Component Map</h1>
+  <p class="lede">Every feature wired to the components that render it, plus the data source. Inputs: <a href="goals_features.html">goals_features.html</a> (26 features) ↔ <a href="goals_components.html">goals_components.html</a> (18 components) ↔ <a href="app_essentials.html#elements">Universal Elements</a>. Ready for GitHub issues (#337/#339 drafts).</p>
+  <div class="stats">
+    <div class="stat"><b>26/26</b>features mapped</div>
+    <div class="stat"><b>18</b>components referenced</div>
+    <div class="stat"><b>0</b>unmapped</div>
+    <div class="stat"><b>3</b>origins (local · portfolio · derived)</div>
+  </div>
+  <div class="legend">
+    <span><span class="c sh">green edge</span> shared element</span>
+    <span><span class="c nw">blue edge</span> new in this design</span>
+    <span class="src p">amber = PORTFOLIO origin</span>
+    <span class="src l">blue = local store</span>
+    <span class="src d">green = derived/computed</span>
+  </div>
+</header>
+
+<section>
+  <h2>Feature → Component map <span class="count">26</span></h2>
+  <table>
+    <thead><tr><th>Feature</th><th>Name</th><th>Component(s)</th><th>Data source</th></tr></thead>
+    <tbody>
+      <tr><td class="fid">G01</td><td>Bottom-nav destination</td><td class="comp"><span class="c sh">E2 Bottom Nav</span></td><td class="src l">local (tab state)</td></tr>
+      <tr><td class="fid">G02</td><td>GOALS/FORM tabs</td><td class="comp"><span class="c nw">G1 Tabs</span></td><td class="src l">local counts</td></tr>
+      <tr><td class="fid">G03</td><td>FAB + (create)</td><td class="comp"><span class="c sh">E8 Button</span> <span class="c sh">E1 App Bar</span></td><td class="src l">nav action</td></tr>
+      <tr><td class="fid">G04</td><td>App bar</td><td class="comp"><span class="c sh">E1 Top App Bar</span></td><td class="src l">shell state</td></tr>
+      <tr><td class="fid">G05</td><td>Empty-first state</td><td class="comp"><span class="c sh">E12 Empty State</span> <span class="c sh">E8 Button</span> <span class="c nw">G1 Tabs</span></td><td class="src l">local (goals count=0)</td></tr>
+      <tr><td class="fid">G06</td><td>Goal detail navigation</td><td class="comp"><span class="c nw">G2 Goal Card</span> <span class="c nw">G6 Detail App Bar</span></td><td class="src d">nav (card tap → detail)</td></tr>
+      <tr><td class="fid">G07</td><td>Goal card</td><td class="comp"><span class="c nw">G2 Goal Card</span> <span class="c sh">E13 Pill</span> <span class="c sh">E14 Rail</span> <span class="c sh">E8 Details btn</span></td><td class="src l">local goals store</td></tr>
+      <tr><td class="fid">G08</td><td>Months signal (one only)</td><td class="comp"><span class="c nw">G3 Months Signal</span> (inside G2)</td><td class="src d">derived: schedule vs invested</td></tr>
+      <tr><td class="fid">G09</td><td>Status pill (4-tier)</td><td class="comp"><span class="c sh">E13 Status Pill</span></td><td class="src d">derived (urgency tier)</td></tr>
+      <tr><td class="fid">G10</td><td>Progress rail</td><td class="comp"><span class="c sh">E14 Progress Rail</span></td><td class="src d">derived (saved %)</td></tr>
+      <tr><td class="fid">G11</td><td>Pace line</td><td class="comp"><span class="c nw">G2 Goal Card</span> (pace row)</td><td class="src d">derived (plan ₹/mo)</td></tr>
+      <tr><td class="fid">G12</td><td>Skeleton loading</td><td class="comp"><span class="c nw">G2 skeleton variant</span></td><td class="src l">loading state</td></tr>
+      <tr><td class="fid">G13</td><td>Four inputs only</td><td class="comp"><span class="c nw">G5 Create Form</span> <span class="c sh">E9 Text Input ×4</span></td><td class="src l">user entry</td></tr>
+      <tr><td class="fid">G14</td><td>Auto total months</td><td class="comp"><span class="c nw">G4 Auto Readout</span></td><td class="src d">dates → months</td></tr>
+      <tr><td class="fid">G15</td><td>Auto target amount</td><td class="comp"><span class="c nw">G4 Auto Readout</span></td><td class="src d">Amount × months</td></tr>
+      <tr><td class="fid">G16</td><td>Save goal</td><td class="comp"><span class="c sh">E8 primary btn</span> <span class="c sh">E9 validation</span></td><td class="src l">local store write</td></tr>
+      <tr><td class="fid">G17</td><td>Overflow menu (Edit/Archive)</td><td class="comp"><span class="c sh">E10 Overflow menu</span> <span class="c nw">G6 ⋮ trigger</span></td><td class="src l">lifecycle actions</td></tr>
+      <tr><td class="fid">G18</td><td>Saved so far + rail</td><td class="comp"><span class="c nw">G7 Saved card</span> <span class="c sh">E14 Rail</span></td><td class="src l">local goals store</td></tr>
+      <tr><td class="fid">G19</td><td>Derivation table (5-col + TOTAL)</td><td class="comp"><span class="c nw">G8 Derivation Table</span></td><td class="src d">computed rows + totals</td></tr>
+      <tr><td class="fid">G20</td><td>Auto invested column</td><td class="comp"><span class="c nw">G8 → INVESTED col</span></td><td class="src p">PORTFOLIO purchase dates</td></tr>
+      <tr><td class="fid">G21</td><td>Auto returns column</td><td class="comp"><span class="c nw">G8 → RETURNS col</span></td><td class="src p">PORTFOLIO bond interest</td></tr>
+      <tr><td class="fid">G22</td><td>Linked bonds (tappable)</td><td class="comp"><span class="c nw">G9 Linked card</span> <span class="c nw">G10 Bond Row →</span></td><td class="src p">PORTFOLIO holdings → bond detail</td></tr>
+      <tr><td class="fid">G23</td><td>Archive-only lifecycle</td><td class="comp"><span class="c sh">E10 menu items</span></td><td class="src l">goals store status</td></tr>
+      <tr><td class="fid">G24</td><td>Auto tracking source</td><td class="comp"><span class="c nw">G8</span> + <span class="c nw">G9</span> (render path)</td><td class="src p">PORTFOLIO cashflow (sync)</td></tr>
+      <tr><td class="fid">G25</td><td>Target-OR-Monthly exclusivity</td><td class="comp"><span class="c nw">G5 Form</span> + <span class="c nw">G4 Readout</span></td><td class="src d">one entered → other derived</td></tr>
+      <tr><td class="fid">G26</td><td>Psychology rules</td><td class="comp"><span class="c nw">G2/G3 cards</span> <span class="c nw">G7 saved</span> <span class="c nw">G8 totals-only</span></td><td class="src d">display rules (locked)</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Coverage:26/26 features mapped · every component referenced by ≥1 feature · shared components (green) keep contracts in app_essentials; new components (blue) are defined in goals_components.html.</p>
+</section>
+
+<section>
+  <h2>Reverse check — components with no feature <span class="count">0</span></h2>
+  <table>
+    <thead><tr><th>Component</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td class="fid">—</td><td>All18 live components appear in at least one feature row. No orphans.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <span>GOALS · TRACEABILITY · feature ↔ component ↔ source · handoff step3 · ready for GitHub #337/#339 drafts</span>
+  <span>built:2026-11-28 · inputs: goals_features + goals_components + Universal Elements</span>
+</footer>
+
+</div>
+</body>
+</html>
