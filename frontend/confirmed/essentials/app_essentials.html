@@ -413,12 +413,12 @@
 <header>
   <div class="kicker">DK Bond Tracker · Universal Foundation</div>
   <h1>App Essentials — Visual Guide</h1>
-  <p class="lede">The foundation every page shares. Not watchlist-specific — these apply to Dashboard, Portfolio, Watchlist, Goals, Settings, everything. This page explains the list and goes deep on <b style="color:var(--ink)">Essential 1: State Management</b> with visuals.</p>
+  <p class="lede">The foundation every page shares. Not watchlist-specific — these apply to Dashboard, Portfolio, Watchlist, Goals, Settings, everything. This page explains the list and goes deep on <b style="color:var(--ink)">Essential 1: State Management</b> with visuals. Element contracts live in <a href="#elements" style="color:var(--accent-soft)">Universal Elements</a> (below); registry → <a href="app_components.html" style="color:var(--accent-soft)">app_components</a> · features → <a href="app_features.html" style="color:var(--accent-soft)">app_features</a> · Stitch rules → <a href="stitch_design_md_draft.md" style="color:var(--accent-soft)">DESIGN.md draft</a>.</p>
   <div class="stats">
-    <div class="stat"><b>9</b>groups</div>
-    <div class="stat"><b>30</b>essentials</div>
-    <div class="stat"><b>13</b>already covered</div>
-    <div class="stat"><b>17</b>to build in Flutter</div>
+    <div class="stat"><b>15</b>deep dives</div>
+    <div class="stat"><b>14</b>universal elements</div>
+    <div class="stat"><b>4</b>locked themes (Stitch)</div>
+    <div class="stat"><b>6/6</b>decisions ✓</div>
   </div>
 </header>
 
@@ -836,6 +836,18 @@
       <tr><td>Design tool</td><td><span class="pill b">Stitch</span></td><td>Google Stitch (our Stitch CLI) — design exploration + export toward Flutter/Figma; authority stays app_theme.dart</td></tr>
     </tbody>
   </table>
+
+  <h3 id="themes">Locked theme palettes — 4 (Stitch design systems · tokens read from Stitch 2026-11-27)</h3>
+  <table>
+    <thead><tr><th>Theme</th><th>Mode</th><th>Background</th><th>Surface</th><th>Border</th><th>Ink</th><th>Accent (Primary)</th><th>Stitch system id</th></tr></thead>
+    <tbody>
+      <tr><td><b>Nordic Mist</b> ★ PRIMARY</td><td>LIGHT</td><td>#F8FAFC</td><td>#EFF2F5</td><td>#CFD7E2</td><td>#18212C</td><td>#28595B</td><td class="mono">4248452823204668669</td></tr>
+      <tr><td>Harbor Navy</td><td>DARK</td><td>#101824</td><td>#1F2D42</td><td>#2E405C</td><td>#E7EEF8</td><td>#8AAEDB</td><td class="mono">6903295787447113049</td></tr>
+      <tr><td>Warm Ledger</td><td>LIGHT</td><td>#F4F0E8</td><td>#FBF9F4</td><td>#D8D0C2</td><td>#1F2421</td><td>#264362</td><td class="mono">4644219733811612137</td></tr>
+      <tr><td>Deep Fjord</td><td>DARK</td><td>#0F1A1C</td><td>#162528</td><td>#2D4449</td><td>#DCE7E7</td><td>#75B5B8</td><td class="mono">6301137585119319306</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:11px;margin-top:6px">Stitch tokens: type = Inter (body + headline) · radius = 12px (ROUND_TWELVE, matched to board cards) · colour mode per theme. Same table mirrored in <a href="stitch_design_md_draft.md" style="color:var(--accent-soft)">DESIGN.md draft</a> — paste it into Stitch web → project DESIGN.md.</p>
 </section>
 
 <!-- ============ ESSENTIAL 4 DEEP DIVE ============ -->
@@ -1910,6 +1922,56 @@
   </table>
 </section>
 
+<!-- ============ UNIVERSAL ELEMENTS ============ -->
+<section>
+  <h2 id="elements"><span class="num">⬡</span> Universal Elements — the shared building blocks (every page)</h2>
+  <p class="muted">Same elements, many pages: defined ONCE here, composed by every page, enforced in Stitch via <b style="color:var(--ink)">DESIGN.md</b> (<a href="stitch_design_md_draft.md" style="color:var(--accent-soft)">draft</a>) and the theme design-systems below. Inventory/usage matrix lives in <a href="app_components.html" style="color:var(--accent-soft)">app_components.html</a>; feature list in <a href="app_features.html" style="color:var(--accent-soft)">app_features.html</a>.</p>
+
+  <h3>Locked global rules (hard constraints on every generation)</h3>
+  <div class="card" style="margin-bottom:12px">
+    <ul>
+      <li><b>No target amounts on reading surfaces</b> — cards/detail/stats never show ₹20,00,000 or %-of-target; the Target input exists only in Create Form (exclusivity design).</li>
+      <li><b>Progress = months, exactly one signal</b> — on plan: <code>X/Y months ✓</code> (green) · any miss: <code>N months missed</code> (red) — <b>negative wins and stays until resolved</b>.</li>
+      <li><b>Rhythm rows show invested AND returns</b> — <code>✓ ₹35,000 invested · +₹1,820 returns</code>; MISSED months still show returns (motivation).</li>
+      <li><b>Goals have no Remove</b> — menus = Edit goal · Archive goal only; goals end via Achieved or Archived.</li>
+      <li><b>₹ INR only</b> · <b>Compact-only MVP (412dp)</b> · skeleton loading for lists · no asterisks on labels · one label per concept (<i>Save goal · Record check-in · Save draft · Archive goal</i>).</li>
+    </ul>
+  </div>
+
+  <h3>Stitch design systems (attach on every edit with --design-system)</h3>
+  <table style="margin-bottom:12px">
+    <thead><tr><th>Theme</th><th>System id</th><th>Mode</th><th>Accent</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Nordic Mist</td><td class="mono">4248452823204668669</td><td>LIGHT</td><td>#28595B</td><td><b style="color:var(--green)">PRIMARY — implementation base</b></td></tr>
+      <tr><td>Harbor Navy</td><td class="mono">6903295787447113049</td><td>DARK</td><td>#8AAEDB</td><td>variant</td></tr>
+      <tr><td>Warm Ledger</td><td class="mono">4644219733811612137</td><td>LIGHT</td><td>#264362</td><td>variant</td></tr>
+      <tr><td>Deep Fjord</td><td class="mono">6301137585119319306</td><td>DARK</td><td>#75B5B8</td><td>variant</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Element contracts E1–E14 (anatomy · states · labels · scope)</h3>
+  <table>
+    <thead><tr><th>#</th><th>Element</th><th>Anatomy (defined once)</th><th>States</th><th>Scope</th></tr></thead>
+    <tbody>
+      <tr><td>E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync/bell/theme/avatar (fixed order)</td><td>default · scrolled</td><td>SHARED</td></tr>
+      <tr><td>E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · Goals · More</td><td>default · active tab</td><td>SHARED</td></tr>
+      <tr><td>E3</td><td><b>GOALS/FORM tabs</b></td><td>buttons "GOALS (n)" / "FORM (n)", sticky top of frames 01–04</td><td>default · either active</td><td>Goals page</td></tr>
+      <tr><td>E4</td><td><b>Stat cell / strip</b></td><td>MONTHS (never TARGET) · SAVED · ON TRACK · tabular ₹</td><td>zero · value · skeleton</td><td>SHARED</td></tr>
+      <tr><td>E5</td><td><b>Goal card</b></td><td>name · dates · Saved ₹ · <b>months signal (one only)</b> · status pill · Check-in + Details</td><td>on-plan · missed (red) · skeleton · pressed</td><td>Goals page</td></tr>
+      <tr><td>E6</td><td><b>Rhythm row</b></td><td>month · invested ₹ · <b>returns +₹</b> · pill (Due Soon/MISSED/done)</td><td>done · missed · due-soon · future</td><td>Goals page</td></tr>
+      <tr><td>E7</td><td><b>Check-in form</b></td><td>Amount · Date · Note (optional) · Record check-in + Save draft — inline, local-first</td><td>idle · filled · saving · validation error</td><td>Goals page</td></tr>
+      <tr><td>E8</td><td><b>Buttons</b></td><td>primary / secondary / ghost · verb label ≤4 words · press −6% / 150ms</td><td>enabled · pressed · disabled · loading-lock</td><td>SHARED</td></tr>
+      <tr><td>E9</td><td><b>Text input</b></td><td>label above (no asterisk) · helper/error below (icon+text, never colour alone) · 52px</td><td>idle · focused · filled · error</td><td>SHARED</td></tr>
+      <tr><td>E10</td><td><b>Overflow menu ⋮</b></td><td>page-allowed items only (goals: Edit goal · Archive goal — no Remove ever)</td><td>closed · open</td><td>SHARED</td></tr>
+      <tr><td>E11</td><td><b>Banner</b></td><td>icon + headline + body (info / warning)</td><td>info · warning</td><td>SHARED</td></tr>
+      <tr><td>E12</td><td><b>Empty state</b></td><td>icon · headline · body · CTA</td><td>empty only (guarded)</td><td>SHARED</td></tr>
+      <tr><td>E13</td><td><b>Status pill</b></td><td>Behind / Due Soon / On Track / Completed — colour + TEXT paired</td><td>4 tiers</td><td>SHARED</td></tr>
+      <tr><td>E14</td><td><b>Progress rail</b></td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic</td><td>SHARED</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:11px;margin-top:8px">Flow: change a contract HERE → mirror into DESIGN.md draft → regenerate screens with <code>--design-system &lt;id&gt;</code>. New element = added here FIRST, then generated. Page-level components stay in each page's audit; shared-kit inventory stays in app_components.</p>
+</section>
+
 <!-- ============ LOCKED DECISIONS ============ -->
 <section>
   <h2 id="decisions"><span class="num">✓</span> Locked decisions —6 pending items resolved (2026-11-27)</h2>
@@ -1969,9 +2031,10 @@
       <h4>Companion documents</h4>
       <ol>
         <li><b>Locked decisions</b> —6/6 resolved <a href="#decisions" style="color:var(--green)">✓ table</a></li>
-        <li><b>Component audit</b> —40 types AGY-verified · <span style="color:var(--amber)">16 ⚠ = build fix list</span> → component_audit.html</li>
-        <li><b>Themes</b> —4 locked (01/03/04/07) → theme_proposals.html · theme_showcase.html</li>
-        <li><b>Watchlist</b> — features · psrs (DB projection ON HOLD) · seven-questions</li>
+        <li><b>Element contracts</b> — <a href="#elements" style="color:var(--accent-soft)">Universal Elements E1–E14</a> + locked rules + Stitch system ids</li>
+        <li><b>Component audit</b> —40 types AGY-verified · <span style="color:var(--amber)">16 ⚠ = build fix list</span> → <a href="component_audit.html" style="color:var(--accent-soft)">component_audit.html</a></li>
+        <li><b>Themes</b> —4 locked (01/03/04/07) → <a href="../themes/theme_proposals.html" style="color:var(--accent-soft)">theme_proposals</a> · <a href="../themes/theme_showcase.html" style="color:var(--accent-soft)">theme_showcase</a></li>
+        <li><b>Watchlist</b> → <a href="../watchlist/watchlist_features.html" style="color:var(--accent-soft)">features</a> · psrs (DB projection ON HOLD) · <a href="../watchlist/watchlist_seven_questions.html" style="color:var(--accent-soft)">seven-questions</a></li>
       </ol>
     </div>
   </div>
@@ -1999,6 +2062,7 @@
   <a href="#e14">14 · Feedback</a>
   <a href="#e15">15 · Loading</a>
   <a href="#e16">16 · Scroll</a>
+  <a href="#elements">Elements</a>
   <a href="#all">Index</a>
   <a href="#" class="top">↑ Top</a>
 </nav>
