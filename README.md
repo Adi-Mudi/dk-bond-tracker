@@ -188,7 +188,9 @@ The project deliberately works on **one thing at a time**: one page, one task, o
 3. **Fix every finding** the audit returns
 4. **Re-audit** until the verdict is **PASS**
 
-Only then does the next track begin. "Done" means the audit says PASS — not "looks finished". Findings never carry over: they are fixed (or explicitly deferred by the developer) before moving on. This keeps reviews cheap, context focused, and every finished piece verified rather than assumed.
+Only then does the next track begins. "Done" means the audit says PASS — not "looks finished". Findings never carry over: they are fixed (or explicitly deferred by the developer) before moving on. This keeps reviews cheap, context focused, and every finished piece verified rather than assumed.
+
+**Efficiency rule (added same day):** one audit round only — REAL findings get fixed, MINOR findings are accepted. Each design phase designates **one primary design** (the base for implementation) and then moves to implementation instead of more audit rounds.
 
 ## Contributing
 
