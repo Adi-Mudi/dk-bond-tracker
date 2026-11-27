@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Watchlist — Four Locked Themes (Theme Showcase Board)</title>
+<!-- Tailwind CSS v3 CDN with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- BEGIN: Custom Typography and Base Styling -->
+<style data-purpose="typography">
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #080C11;
+      color: #E2E8F0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .font-mono-numbers {
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: 'tnum' on, 'zero' on;
+    }
+  </style>
+<!-- END: Custom Typography and Base Styling -->
+<!-- BEGIN: Theme Custom Properties & Helpers -->
+<style data-purpose="theme-variables">
+    /* Theme 1: Nordic Mist (Light) */
+    .theme-nordic {
+      --bg: #EFF2F5;
+      --surface: #FFFFFF;
+      --surface-raised: #E4E9EF;
+      --border: #CFD7E2;
+      --primary: #205958;
+      --on-primary: #FFFFFF;
+      --ink: #18212C;
+      --muted: #525F70;
+      --success: #28614E;
+      --warning: #8C5409;
+      --error: #9C3B44;
+      --card-shadow: 0 4px 16px -2px rgba(24, 33, 44, 0.06);
+    }
+
+    /* Theme 2: Harbor Navy (Dark) */
+    .theme-harbor {
+      --bg: #101824;
+      --surface: #172233;
+      --surface-raised: #1F2D42;
+      --border: #2E405C;
+      --primary: #8AAED8;
+      --on-primary: #0E1724;
+      --ink: #DFE6F0;
+      --muted: #94A5BC;
+      --success: #74B89A;
+      --warning: #D4A55D;
+      --error: #D98488;
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Theme 3: Warm Ledger (Light) */
+    .theme-warm {
+      --bg: #F4F0E8;
+      --surface: #FBF9F4;
+      --surface-raised: #EBE5D9;
+      --border: #D0D0C2;
+      --primary: #264362;
+      --on-primary: #FFFFFF;
+      --ink: #1F2421;
+      --muted: #595E59;
+      --success: #2B6144;
+      --warning: #8A5300;
+      --error: #9E3B33;
+      --card-shadow: 0 4px 16px -2px rgba(31, 36, 33, 0.06);
+    }
+
+    /* Theme 4: Deep Fjord (Dark) */
+    .theme-fjord {
+      --bg: #0F1A1C;
+      --surface: #162528;
+      --surface-raised: #1E3034;
+      --border: #204449;
+      --primary: #758588;
+      --on-primary: #0C191A;
+      --ink: #DCE7E7;
+      --muted: #8FA6A8;
+      --success: #7BB892;
+      --warning: #D1A35E;
+      --error: #D68582;
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Custom Phone Frame Dimensions and Scroll Styling */
+    .phone-mockup {
+      width: 412px;
+      height: 860px;
+      min-width: 412px;
+      max-width: 412px;
+      background-color: var(--bg);
+      color: var(--ink);
+      border-color: var(--border);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 36px;
+      border-width: 4px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    /* Thin Custom Scrollbars for mockup interior */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Custom horizontal scroll board */
+    .board-scroll-row {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #334155 #0f172a;
+    }
+  </style>
+<!-- END: Theme Custom Properties & Helpers -->
+</head>
+<body class="p-6 md:p-10 min-w-[2240px]">
+<!-- BEGIN: BoardHeader -->
+<header class="mb-10 pb-8 border-b border-slate-800" data-purpose="board-header">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            DK BOND TRACKER • WATCHLIST FLOW AUDIT
+          </span>
+<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 font-mono-numbers">
+            🔒 LOCKED • 2026-11-25
+          </span>
+</div>
+<h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+          Watchlist — Four Locked Themes (Theme Showcase Board)
+        </h1>
+<p class="text-slate-400 text-sm md:text-base mt-2 max-w-4xl">
+          Side-by-side comparison of the canonical 5-frame Watchlist mobile flow (Add Bond Sheet, Integrated Ledger, Move to Portfolio, Guarded Deletion, Zero State) across Nordic Mist, Harbor Navy, Warm Ledger, and Deep Fjord palettes.
+        </p>
+</div>
+<!-- Header Metadata Badges -->
+<div class="flex items-center gap-4" data-purpose="meta-pills">
+<div class="bg-slate-900/90 border border-slate-700/70 rounded-xl px-4 py-3 flex items-center gap-3">
+<svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<rect height="20" rx="2" stroke-width="1.8" width="14" x="5" y="2"></rect>
+<path d="M12 18h.01" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+<div>
+<div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Viewport Reference</div>
+<div class="text-sm font-bold font-mono-numbers text-slate-100">412dp × 860px (Mobile)</div>
+</div>
+</div>
+<div class="bg-slate-900/90 border border-slate-700/70 rounded-xl px-4 py-3 flex items-center gap-3">
+<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<div>
+<div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Specification Status</div>
+<div class="text-sm font-bold text-slate-100">4 Locked Production Palettes</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- END: BoardHeader -->
+<!-- BEGIN: MainContainer -->
+<main class="flex flex-col gap-12" data-purpose="theme-board-rows">
+<!-- ========================================================================= -->
+<!-- ROW 1 — NORDIC MIST (LIGHT, LOCKED) -->
+<!-- ========================================================================= -->
+<section class="theme-nordic flex flex-col gap-4" data-purpose="theme-row" id="row-nordic-mist">
+<!-- Row Title Header -->
+<div class="flex items-center justify-between px-2 py-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-teal-400 border border-slate-700">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-xl font-bold text-white tracking-wide">01 Nordic Mist · Light</h2>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/50">🔒 LOCKED</span>
+</div>
+<p class="text-xs text-slate-400 font-mono-numbers">Bg: #EFF2F5 • Surface: #F8FAFC • Raised: #E4E9EF • Border: #CFD7E2 • Primary: #28595B</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs font-medium text-slate-400">
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg">Viewport: 412dp × 860px</span>
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg font-mono-numbers">5 Frames Flow</span>
+</div>
+</div>
+<!-- Five Phone Frames Flow Container -->
+<div class="board-scroll-row flex gap-6 pb-4">
+<!-- FRAME 1: ADD FORM -->
+<article class="phone-mockup" data-purpose="mobile-frame-1">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);">
+<span>09:41</span>
+<div class="flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.62-.62C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"></path></svg>
+<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.66-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"></path></svg>
+<div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div>
+</div>
+</div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center font-mono-numbers" style="background-color: var(--error); color: #FFF;">2</span>
+</div>
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all" style="background-color: var(--primary); color: var(--on-primary);">ADD FORM <span class="ml-1 opacity-80 font-mono-numbers">0</span></button>
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">LEDGER <span class="ml-1 font-mono-numbers">14</span></button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<!-- Advisory Strip -->
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--muted);">WATCHING</div>
+<div class="text-base font-extrabold mt-0.5 font-mono-numbers" style="color: var(--ink);">6 <span class="text-xs font-normal" style="color: var(--muted);">Active items</span></div>
+</div>
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--muted);">ALERTS</div>
+<div class="text-base font-extrabold mt-0.5 font-mono-numbers" style="color: var(--error);">2 <span class="text-xs font-normal" style="color: var(--muted);">· 1 Rating Watch</span></div>
+</div>
+</div>
+<!-- Red Warning Banner -->
+<div class="p-2.5 rounded-xl border text-xs" style="background-color: rgba(156,59,68,0.08); border-color: var(--error);">
+<div class="flex items-center justify-between mb-1">
+<span class="font-bold flex items-center gap-1.5" style="color: var(--error);">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                  CRISIL Rating Watch Alert
+                </span>
+<span class="px-1.5 py-0.2 rounded font-bold uppercase text-[9px]" style="background-color: var(--error); color: #fff;">CRITICAL</span>
+</div>
+<p class="leading-relaxed" style="color: var(--ink);">Piramal Capital placed on CRISIL rating watch with negative implications following recent structured review.</p>
+<div class="flex items-center gap-3 mt-2 font-semibold">
+<button class="underline" style="color: var(--error);">Read Advisory</button>
+<button style="color: var(--muted);">Dismiss</button>
+</div>
+</div>
+<!-- Add Bond Form Container -->
+<div class="p-3 rounded-2xl border space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-center justify-between">
+<span class="font-bold text-xs uppercase tracking-wide" style="color: var(--ink);">Add Bond to Watchlist</span>
+<span class="text-[10px] font-mono-numbers" style="color: var(--muted);">STEP 01</span>
+</div>
+<div>
+<label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color: var(--muted);">Quick ISIN Lookup</label>
+<div class="flex gap-1.5">
+<div class="relative flex-1">
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="INE601U07238"/>
+<span class="absolute right-2 top-2 text-[10px]" style="color: var(--primary);">🛡️</span>
+</div>
+<button class="px-3 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">Fetch</button>
+</div>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap text-[10px]">
+<span class="px-2 py-0.5 rounded-md font-semibold flex items-center gap-1" style="background-color: rgba(40,97,78,0.15); color: var(--success); border: 1px solid var(--success);">
+<span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--success);"></span> Found (NSDL/BSE)
+                </span>
+<span class="px-2 py-0.5 rounded-md" style="background-color: var(--surface-raised); color: var(--muted);">Checking</span>
+<span class="px-2 py-0.5 rounded-md" style="background-color: var(--surface-raised); color: var(--muted);">Offline</span>
+</div>
+<!-- Duplicate Error Banner -->
+<div class="p-2 rounded-lg border text-[11px]" style="background-color: rgba(156,59,68,0.08); border-color: var(--error); color: var(--error);">
+<div class="font-bold">⚠️ Duplicate ISIN Warning</div>
+                INE601U07238 already in watchlist (Broker: Zerodha) — same company and active ISIN cannot be added again.
+              </div>
+<!-- Section A -->
+<div class="space-y-1.5 pt-1 border-t" style="border-color: var(--border);">
+<div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider" style="color: var(--muted);">
+<span>A. IDENTITY</span>
+<span class="font-mono-numbers">NSDL FETCH</span>
+</div>
+<div class="p-2 rounded-lg border text-[11px] flex justify-between items-center" style="background-color: var(--bg); border-color: var(--border);">
+<div>
+<div class="text-[9px] uppercase" style="color: var(--muted);">Company Name</div>
+<div class="font-bold" style="color: var(--ink);">Tata Motors Finance Limited</div>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold" style="background-color: var(--surface-raised); color: var(--primary);">auto</span>
+</div>
+<div class="p-2 rounded-lg border text-[11px] flex justify-between items-center" style="background-color: var(--bg); border-color: var(--border);">
+<div>
+<div class="text-[9px] uppercase" style="color: var(--muted);">ISIN (Locked)</div>
+<div class="font-mono font-bold" style="color: var(--ink);">INE601U07238</div>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold" style="background-color: var(--surface-raised); color: var(--muted);">immutable</span>
+</div>
+</div>
+<!-- Section B -->
+<div class="space-y-1.5 pt-1 border-t" style="border-color: var(--border);">
+<div class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--muted);">B. ECONOMICS</div>
+<div class="grid grid-cols-3 gap-1.5 text-center font-mono-numbers">
+<div class="p-1.5 rounded-lg border" style="background-color: var(--bg); border-color: var(--border);">
+<div class="text-[9px]" style="color: var(--muted);">Coupon</div>
+<div class="font-bold text-[11px]" style="color: var(--ink);">9.15%</div>
+</div>
+<div class="p-1.5 rounded-lg border" style="background-color: var(--bg); border-color: var(--border);">
+<div class="text-[9px]" style="color: var(--muted);">Exp Yield</div>
+<div class="font-bold text-[11px]" style="color: var(--success);">9.40%</div>
+</div>
+<div class="p-1.5 rounded-lg border" style="background-color: var(--bg); border-color: var(--border);">
+<div class="text-[9px]" style="color: var(--muted);">Freq</div>
+<div class="font-bold text-[11px]" style="color: var(--ink);">Monthly</div>
+</div>
+</div>
+</div>
+<!-- Section C & D -->
+<div class="pt-1 border-t space-y-2" style="border-color: var(--border);">
+<div class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--muted);">C. TARGETS &amp; D. BROKER CHIPS</div>
+<div class="flex gap-1.5 flex-wrap text-[10px]">
+<span class="px-2 py-1 rounded font-semibold border" style="background-color: var(--primary); color: var(--on-primary); border-color: var(--primary);">Zerodha</span>
+<span class="px-2 py-1 rounded border" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);">Grip Invest</span>
+<span class="px-2 py-1 rounded border" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);">GoldenPi</span>
+<span class="px-2 py-1 rounded border" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);">Other</span>
+</div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs shadow-sm mt-1" style="background-color: var(--primary); color: var(--on-primary);">
+                  Save to Watchlist
+                </button>
+</div>
+</div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>Dashboard</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>Portfolio</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-bold" style="color: var(--primary);"><svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg><span>Watchlist</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>Goals</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>More</span></div>
+</footer>
+</article>
+<!-- FRAME 2: INTEGRATED LEDGER -->
+<article class="phone-mockup" data-purpose="mobile-frame-2">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);">
+<span>09:41</span>
+<div class="flex items-center gap-1.5 font-mono-numbers">
+<span>5G</span>
+<div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div>
+</div>
+</div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center font-mono-numbers" style="background-color: var(--error); color: #FFF;">2</span>
+</div>
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">ADD FORM <span class="ml-1 font-mono-numbers">0</span></button>
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all" style="background-color: var(--primary); color: var(--on-primary);">LEDGER <span class="ml-1 opacity-80 font-mono-numbers">14</span></button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<div class="flex items-center justify-between">
+<span class="font-extrabold uppercase text-xs tracking-wider" style="color: var(--ink);">INTEGRATED WATCHLIST — 14</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background-color: var(--surface-raised); color: var(--primary);">COMPANY-FIRST VIEW</span>
+</div>
+<!-- Multi-broker compare card -->
+<div class="p-3 rounded-2xl border space-y-2.5" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-bold text-xs" style="color: var(--ink);">Same ISIN — compare brokers</span>
+<div class="font-mono text-[10px]" style="color: var(--muted);">INE774D09TU0 • Tata Motors Finance Ltd</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background-color: var(--surface-raised); color: var(--primary);">3 Brokers</span>
+</div>
+<div class="space-y-1.5 font-mono-numbers text-xs">
+<div class="p-2 rounded-xl border flex items-center justify-between" style="background-color: var(--bg); border-color: var(--border);">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full border flex items-center justify-center" style="border-color: var(--muted);"></span>
+<span class="font-semibold font-sans" style="color: var(--ink);">GoldenPi</span>
+</div>
+<span class="font-bold" style="color: var(--ink);">9.60% p.a.</span>
+</div>
+<div class="p-2 rounded-xl border flex items-center justify-between" style="background-color: var(--bg); border-color: var(--border);">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full border flex items-center justify-center" style="border-color: var(--muted);"></span>
+<span class="font-semibold font-sans" style="color: var(--ink);">Zerodha</span>
+</div>
+<span class="font-bold" style="color: var(--ink);">9.40% p.a.</span>
+</div>
+<div class="p-2 rounded-xl border flex items-center justify-between" style="background-color: rgba(40,97,78,0.1); border-color: var(--success);">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px]" style="background-color: var(--success); color: #fff;">✓</span>
+<span class="font-semibold font-sans" style="color: var(--ink);">Grip Invest</span>
+<span class="px-1.5 py-0.2 rounded text-[9px] font-bold" style="background-color: var(--success); color: #fff;">Best Yield</span>
+</div>
+<span class="font-bold" style="color: var(--success);">9.75% p.a.</span>
+</div>
+</div>
+<button class="w-full py-2 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">
+                Select Grip Invest (9.75%) →
+              </button>
+<div class="text-[10px] leading-tight font-medium" style="color: var(--muted);">
+                ↳ Buy at your broker first, then return here to log execution
+              </div>
+</div>
+<!-- Company Card: Piramal Capital (HELD + WATCH lots) -->
+<div class="p-3 rounded-2xl border space-y-2.5" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-xs" style="color: var(--ink);">Piramal Capital &amp; Housing Fin</span>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-bold" style="background-color: rgba(156,59,68,0.12); color: var(--error);">Rating Watch</span>
+</div>
+<div class="text-[10px] mt-0.5" style="color: var(--muted);">4 bonds / 2 completed / 2 ongoing</div>
+</div>
+<div class="text-right">
+<div class="text-xs font-mono font-bold" style="color: var(--ink);">₹ 3,50,000</div>
+<div class="text-[9px]" style="color: var(--muted);">Total Invested</div>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="p-2 rounded-xl border flex items-center justify-between" style="background-color: var(--bg); border-color: var(--border);">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.5 rounded text-[9px] font-bold font-mono" style="background-color: var(--surface-raised); color: var(--primary);">HELD</span>
+<div>
+<div class="font-mono text-[10px] font-semibold" style="color: var(--ink);">INE641A07137</div>
+<div class="text-[9px]" style="color: var(--muted);">150 units • 2 completed / 0 ongoing</div>
+</div>
+</div>
+<span class="font-mono text-xs font-bold" style="color: var(--success);">₹ 1,50,000 Settled</span>
+</div>
+<!-- WATCH Lot -->
+<div class="p-2.5 rounded-xl border space-y-2" style="background-color: rgba(140,84,9,0.06); border-color: var(--warning);">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.5 rounded text-[9px] font-bold font-mono" style="background-color: var(--warning); color: #fff;">WATCH</span>
+<span class="font-mono text-[11px] font-bold" style="color: var(--ink);">INE641A07137</span>
+</div>
+<span class="text-xs font-mono font-bold" style="color: var(--warning);">10.75% p.a.</span>
+</div>
+<div class="text-[10px] flex justify-between" style="color: var(--muted);">
+<span>Broker: Zerodha</span>
+<span>Monthly • 20 Nov 2027</span>
+</div>
+<div class="flex gap-2 pt-1">
+<button class="flex-1 py-1 rounded-lg text-xs font-bold" style="background-color: var(--primary); color: var(--on-primary);">Move to Portfolio</button>
+<button class="px-3 py-1 rounded-lg text-xs font-semibold border" style="background-color: var(--surface); border-color: var(--border); color: var(--ink);">Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Tata Capital -->
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between items-center">
+<span class="font-bold text-xs" style="color: var(--ink);">Tata Capital Financial Services</span>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-bold" style="background-color: rgba(40,97,78,0.15); color: var(--success);">AAA CRISIL</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="font-mono" style="color: var(--muted);">INE774D07TU2</span>
+<span class="font-mono font-bold" style="color: var(--ink);">9.60% p.a.</span>
+</div>
+</div>
+</div>
+<!-- Floating Action Button '+' -->
+<button class="absolute bottom-16 right-5 w-12 h-12 rounded-full shadow-xl flex items-center justify-center font-extrabold text-2xl" style="background-color: var(--primary); color: var(--on-primary); z-index: 10;">+</button>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>Dashboard</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>Portfolio</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-bold" style="color: var(--primary);"><svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg><span>Watchlist</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>Goals</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>More</span></div>
+</footer>
+</article>
+<!-- FRAME 3: MOVE TO PORTFOLIO -->
+<article class="phone-mockup" data-purpose="mobile-frame-3">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);">
+<span>09:41</span>
+<div class="flex items-center gap-1.5 font-mono-numbers">
+<span>LTE</span>
+<div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div>
+</div>
+</div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<div class="flex items-center gap-2">
+<button style="color: var(--ink);">←</button>
+<span class="text-base font-bold" style="color: var(--ink);">Move to Portfolio</span>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</header>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]" style="background-color: var(--primary); color: var(--on-primary);">✓</span>
+<div>
+<div class="font-bold text-xs" style="color: var(--ink);">Tata Capital Financial Services</div>
+<div class="font-mono text-[10px]" style="color: var(--muted);">INE774D07TU2 • 9.60% p.a. • Broker: Zerodha</div>
+</div>
+</div>
+</div>
+<div class="p-3 rounded-2xl border space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between items-center">
+<span class="font-bold text-xs" style="color: var(--ink);">Execution Details</span>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-mono" style="background-color: var(--surface-raised); color: var(--primary);">INE774D07TU2</span>
+</div>
+<div>
+<label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color: var(--muted);">Purchased Quantity</label>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold" placeholder="e.g. 500" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500"/>
+</div>
+<div>
+<label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color: var(--muted);">Invested Amount (₹)</label>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold" placeholder="e.g. 500000" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500000"/>
+</div>
+<div>
+<label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color: var(--muted);">Execution / Ref Date</label>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="date" value="2026-11-25"/>
+</div>
+<div>
+<label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color: var(--muted);">Demat / Broker Ref</label>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs" placeholder="e.g. Zerodha / Demat Sync" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="Zerodha / Demat Sync"/>
+</div>
+<!-- Link to Goal -->
+<div class="pt-1 border-t space-y-1" style="border-color: var(--border);">
+<label class="block text-[10px] uppercase font-bold tracking-wider" style="color: var(--muted);">LINK TO GOAL (OPTIONAL)</label>
+<select class="w-full px-2.5 py-1.5 rounded-lg border text-xs" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);">
+<option>Attach to goal...</option>
+<option selected="">Retirement Corpus 2035</option>
+<option>Child Education Reserve</option>
+</select>
+<p class="text-[9px] leading-relaxed" style="color: var(--muted);">If your goal already exists, pick it here. Need a new one? Create it in Goals tab.</p>
+</div>
+<!-- Net Worth Preservation Note -->
+<div class="p-2.5 rounded-xl border text-[10px] leading-relaxed" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--muted);">
+                ℹ️ Move creates portfolio holding while preserving historical watchlist watchpoint and net worth calculations.
+              </div>
+<div class="pt-1 space-y-2">
+<button class="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm" style="background-color: var(--primary); color: var(--on-primary);">
+<span>✓</span> Confirm Move to Portfolio
+                </button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">
+                  Cancel &amp; Keep in Watchlist
+                </button>
+</div>
+</div>
+</div>
+</article>
+<!-- FRAME 4: REMOVE FLOW -->
+<article class="phone-mockup relative" data-purpose="mobile-frame-4">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);">
+<span>09:41</span>
+<div class="flex items-center gap-1.5 font-mono-numbers">
+<span>5G</span>
+<div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div>
+</div>
+</div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold" style="color: var(--ink);">Bond Details</span>
+<div class="text-base font-bold px-2 py-0.5 rounded cursor-pointer" style="color: var(--ink);">⋮</div>
+</header>
+<div class="flex-1 p-3.5 space-y-3 opacity-30 pointer-events-none">
+<div class="p-3 rounded-2xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="font-bold text-xs" style="color: var(--ink);">Piramal Capital INE641A07137</div>
+<div class="text-[10px]" style="color: var(--muted);">10.75% p.a. • Mature 2027</div>
+</div>
+</div>
+<!-- Guarded Confirmation Modal Dialog Overlay -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-30">
+<div class="w-full rounded-2xl border p-4 space-y-3 shadow-2xl" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-center gap-2" style="color: var(--error);">
+<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<h3 class="font-extrabold text-sm" style="color: var(--ink);">Remove INE641A07137?</h3>
+</div>
+<p class="text-xs leading-relaxed" style="color: var(--muted);">
+                This will remove the monitored watchpoint. Existing portfolio lots remain unaffected.
+              </p>
+<!-- Safety Prompt -->
+<div class="p-2.5 rounded-xl border text-xs space-y-1.5" style="background-color: var(--bg); border-color: var(--border);">
+<label class="block text-[10px] font-bold uppercase tracking-wider" style="color: var(--muted);">Required safety verification:</label>
+<input class="w-full px-2 py-1.5 rounded border text-xs font-mono font-semibold" placeholder="Type INE641A07137" style="background-color: var(--surface); border-color: var(--border); color: var(--ink);" type="text" value="INE641A07137"/>
+</div>
+<div class="pt-1 space-y-2">
+<button class="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 text-white relative overflow-hidden shadow-sm" style="background-color: var(--error);">
+<span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                  Hold 2s to Confirm Delete
+                </button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">
+                  Cancel
+                </button>
+</div>
+</div>
+</div>
+</article>
+<!-- FRAME 5: FIRST OPEN (ZERO STATE) -->
+<article class="phone-mockup" data-purpose="mobile-frame-5">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);">
+<span>09:41</span>
+<div class="flex items-center gap-1.5 font-mono-numbers">
+<span>5G</span>
+<div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div>
+</div>
+</div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">ADD FORM <span class="ml-1 font-mono-numbers">0</span></button>
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all" style="background-color: var(--primary); color: var(--on-primary);">LEDGER <span class="ml-1 opacity-80 font-mono-numbers">0</span></button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-5 flex flex-col items-center justify-center text-center space-y-4">
+<!-- Empty Stats Strip -->
+<div class="w-full grid grid-cols-2 gap-2 mb-2">
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">WATCHING</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--ink);">0</div>
+</div>
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">ALERTS</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--muted);">0</div>
+</div>
+</div>
+<!-- Empty Graphic -->
+<div class="w-20 h-20 rounded-full flex items-center justify-center" style="background-color: var(--surface-raised); border: 2px dashed var(--border);">
+<svg class="w-10 h-10" fill="none" stroke="currentColor" style="color: var(--muted);" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="space-y-1 max-w-xs">
+<h4 class="font-extrabold text-base" style="color: var(--ink);">No bonds in your watchlist yet</h4>
+<p class="text-xs leading-relaxed" style="color: var(--muted);">Add corporate bonds to compare yields across brokers and receive rating watch alerts.</p>
+</div>
+<button class="px-6 py-2.5 rounded-xl font-bold text-xs shadow-md" style="background-color: var(--primary); color: var(--on-primary);">
+              + Add first bond
+            </button>
+<!-- Zero State Behavior Note Box -->
+<div class="w-full p-2.5 rounded-xl border text-[10px] text-left leading-relaxed mt-4" style="background-color: var(--surface); border-color: var(--border); color: var(--muted);">
+              💡 Tip: Ingest an ISIN from Zerodha or BSE to populate live comparative spreads immediately.
+            </div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Dashboard</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Portfolio</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-bold" style="color: var(--primary);"><span>Watchlist</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Goals</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>More</span></div>
+</footer>
+</article>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- ROW 2 — HARBOR NAVY (DARK, LOCKED) -->
+<!-- ========================================================================= -->
+<section class="theme-harbor flex flex-col gap-4" data-purpose="theme-row" id="row-harbor-navy">
+<div class="flex items-center justify-between px-2 py-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-blue-400 border border-slate-700">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-xl font-bold text-white tracking-wide">02 Harbor Navy · Dark</h2>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/50">🔒 LOCKED</span>
+</div>
+<p class="text-xs text-slate-400 font-mono-numbers">Bg: #101824 • Surface: #172233 • Raised: #1F2D42 • Border: #2E405C • Primary: #8AAEDB</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs font-medium text-slate-400">
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg">Viewport: 412dp × 860px</span>
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg font-mono-numbers">5 Frames Flow</span>
+</div>
+</div>
+<div class="board-scroll-row flex gap-6 pb-4">
+<!-- Frame 1: Add Form -->
+<article class="phone-mockup" data-purpose="mobile-frame-1">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);">
+<span>09:41</span>
+<div class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.62-.62C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"></path></svg><span>5G</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div></div>
+</div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative"><button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button><span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center font-mono-numbers" style="background-color: var(--error); color: var(--on-primary);">2</span></div>
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all" style="background-color: var(--primary); color: var(--on-primary);">ADD FORM <span class="ml-1 opacity-80 font-mono-numbers">0</span></button>
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">LEDGER <span class="ml-1 font-mono-numbers">14</span></button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--muted);">WATCHING</div>
+<div class="text-base font-extrabold mt-0.5 font-mono-numbers" style="color: var(--ink);">6 <span class="text-xs font-normal" style="color: var(--muted);">Active items</span></div>
+</div>
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--muted);">ALERTS</div>
+<div class="text-base font-extrabold mt-0.5 font-mono-numbers" style="color: var(--error);">2 <span class="text-xs font-normal" style="color: var(--muted);">· 1 Rating Watch</span></div>
+</div>
+</div>
+<div class="p-2.5 rounded-xl border text-xs" style="background-color: rgba(217,132,136,0.1); border-color: var(--error);">
+<div class="flex items-center justify-between mb-1">
+<span class="font-bold flex items-center gap-1.5" style="color: var(--error);">⚠️ CRISIL Rating Watch Alert</span>
+<span class="px-1.5 py-0.2 rounded font-bold uppercase text-[9px]" style="background-color: var(--error); color: var(--on-primary);">CRITICAL</span>
+</div>
+<p class="leading-relaxed" style="color: var(--ink);">Piramal Capital placed on CRISIL rating watch with negative implications following recent structured review.</p>
+<div class="flex items-center gap-3 mt-2 font-semibold">
+<button class="underline" style="color: var(--error);">Read Advisory</button>
+<button style="color: var(--muted);">Dismiss</button>
+</div>
+</div>
+<div class="p-3 rounded-2xl border space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-center justify-between">
+<span class="font-bold text-xs uppercase tracking-wide" style="color: var(--ink);">Add Bond to Watchlist</span>
+<span class="text-[10px] font-mono-numbers" style="color: var(--muted);">STEP 01</span>
+</div>
+<div>
+<label class="block text-[10px] uppercase font-bold tracking-wider mb-1" style="color: var(--muted);">Quick ISIN Lookup</label>
+<div class="flex gap-1.5">
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="INE601U07238"/>
+<button class="px-3 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">Fetch</button>
+</div>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap text-[10px]">
+<span class="px-2 py-0.5 rounded-md font-semibold" style="background-color: rgba(116,184,154,0.15); color: var(--success); border: 1px solid var(--success);">● Found (NSDL/BSE)</span>
+<span class="px-2 py-0.5 rounded-md" style="background-color: var(--surface-raised); color: var(--muted);">Checking</span>
+<span class="px-2 py-0.5 rounded-md" style="background-color: var(--surface-raised); color: var(--muted);">Offline</span>
+</div>
+<div class="p-2 rounded-lg border text-[11px]" style="background-color: rgba(217,132,136,0.1); border-color: var(--error); color: var(--error);">
+                INE601U07238 already in watchlist (Broker: Zerodha) — same company and active ISIN cannot be added again.
+              </div>
+<div class="space-y-1.5 pt-1 border-t" style="border-color: var(--border);">
+<div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider" style="color: var(--muted);">
+<span>A. IDENTITY</span><span class="font-mono-numbers">NSDL FETCH</span>
+</div>
+<div class="p-2 rounded-lg border text-[11px] flex justify-between items-center" style="background-color: var(--bg); border-color: var(--border);">
+<div><div class="text-[9px] uppercase" style="color: var(--muted);">Company Name</div><div class="font-bold" style="color: var(--ink);">Tata Motors Finance Limited</div></div>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold" style="background-color: var(--surface-raised); color: var(--primary);">auto</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs shadow-sm" style="background-color: var(--primary); color: var(--on-primary);">Save to Watchlist</button>
+</div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Dashboard</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Portfolio</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-bold" style="color: var(--primary);"><span>Watchlist</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Goals</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>More</span></div>
+</footer>
+</article>
+<!-- Frame 2: Integrated Ledger -->
+<article class="phone-mockup" data-purpose="mobile-frame-2">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="flex items-center gap-1.5"><span>5G</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">ADD FORM 0</button>
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all" style="background-color: var(--primary); color: var(--on-primary);">LEDGER 14</button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<div class="p-3 rounded-2xl border space-y-2.5" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-bold text-xs" style="color: var(--ink);">Same ISIN — compare brokers</span>
+<div class="font-mono text-[10px]" style="color: var(--muted);">INE774D09TU0 • Tata Motors Finance Ltd</div>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background-color: var(--surface-raised); color: var(--primary);">3 Brokers</span>
+</div>
+<div class="space-y-1.5 font-mono-numbers">
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: var(--bg); border-color: var(--border);"><span>GoldenPi</span><span class="font-bold">9.60% p.a.</span></div>
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: var(--bg); border-color: var(--border);"><span>Zerodha</span><span class="font-bold">9.40% p.a.</span></div>
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: rgba(116,184,154,0.15); border-color: var(--success); color: var(--success);"><span>Grip Invest (Best Yield)</span><span class="font-bold">9.75% p.a.</span></div>
+</div>
+<button class="w-full py-2 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">Select Grip Invest (9.75%) →</button>
+<div class="text-[10px] leading-tight font-medium" style="color: var(--muted);">
+                ↳ Buy at your broker first, then return here to log execution
+              </div>
+</div>
+<!-- Piramal Card -->
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between items-start">
+<div><div class="font-bold" style="color: var(--ink);">Piramal Capital &amp; Housing Fin</div><div class="text-[9px]" style="color: var(--muted);">4 bonds / 2 completed / 2 ongoing</div></div>
+<div class="text-right font-mono font-bold" style="color: var(--ink);">₹ 3,50,000</div>
+</div>
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: var(--bg); border-color: var(--border);">
+<div><span class="font-bold font-mono text-[10px]" style="color: var(--primary);">[HELD]</span> INE641A07137</div>
+<span class="font-bold font-mono" style="color: var(--success);">₹ 1,50,000</span>
+</div>
+<div class="p-2 rounded-xl border space-y-1.5" style="background-color: rgba(212,165,93,0.1); border-color: var(--warning);">
+<div class="flex justify-between font-bold"><span style="color: var(--warning);">[WATCH] INE641A07137</span><span style="color: var(--warning);">10.75% p.a.</span></div>
+<button class="w-full py-1 rounded-lg text-xs font-bold" style="background-color: var(--primary); color: var(--on-primary);">Move to Portfolio</button>
+</div>
+</div>
+</div>
+<button class="absolute bottom-16 right-5 w-12 h-12 rounded-full shadow-xl flex items-center justify-center font-extrabold text-2xl" style="background-color: var(--primary); color: var(--on-primary); z-index: 10;">+</button>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Dashboard</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Portfolio</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-bold" style="color: var(--primary);"><span>Watchlist</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>Goals</span></div>
+<div class="flex flex-col items-center gap-0.5 text-[9px] font-medium" style="color: var(--muted);"><span>More</span></div>
+</footer>
+</article>
+<!-- Frame 3: Move to Portfolio -->
+<article class="phone-mockup" data-purpose="mobile-frame-3">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5 flex items-center"><div class="h-full w-3/4 bg-current rounded-xs"></div></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold" style="color: var(--ink);">Move to Portfolio</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3 text-xs">
+<div class="p-3 rounded-2xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="font-bold" style="color: var(--ink);">Tata Capital Financial Services</div>
+<div class="font-mono text-[10px]" style="color: var(--muted);">INE774D07TU2 • 9.60% p.a. • Broker: Zerodha</div>
+</div>
+<div class="p-3 rounded-2xl border space-y-2.5" style="background-color: var(--surface); border-color: var(--border);">
+<div><label class="block text-[10px] uppercase font-bold" style="color: var(--muted);">Purchased Quantity</label><input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="e.g. 500" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500"/></div>
+<div><label class="block text-[10px] uppercase font-bold" style="color: var(--muted);">Invested Amount (₹)</label><input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="e.g. 500000" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500000"/></div>
+<div><label class="block text-[10px] uppercase font-bold" style="color: var(--muted);">Execution / Ref Date</label><input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="date" value="2026-11-25"/></div>
+<div><label class="block text-[10px] uppercase font-bold" style="color: var(--muted);">Demat / Broker Ref</label><input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="Zerodha Demat Sync" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="Zerodha / Demat Sync"/></div>
+<div class="pt-1 border-t space-y-1" style="border-color: var(--border);">
+<label class="block text-[10px] uppercase font-bold" style="color: var(--muted);">LINK TO GOAL (OPTIONAL)</label>
+<select class="w-full px-2.5 py-1.5 rounded-lg border text-xs" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);"><option>Attach to goal...</option><option selected="">Retirement Corpus 2035</option></select>
+</div>
+<div class="p-2 rounded-lg border text-[10px]" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--muted);">
+                ℹ️ Move creates portfolio holding while preserving historical watchlist watchpoint and net worth calculations.
+              </div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">Confirm Move to Portfolio</button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">Cancel &amp; Keep in Watchlist</button>
+</div>
+</div>
+</article>
+<!-- Frame 4: Remove Flow -->
+<article class="phone-mockup relative" data-purpose="mobile-frame-4">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold" style="color: var(--ink);">Bond Details</span><div>⋮</div></header>
+<div class="p-4 space-y-2 opacity-30 pointer-events-none"><div class="p-3 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">Piramal Capital</div></div>
+<!-- Modal -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-30">
+<div class="w-full rounded-2xl border p-4 space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<h3 class="font-extrabold text-sm" style="color: var(--error);">Remove INE641A07137?</h3>
+<p class="text-xs" style="color: var(--muted);">This will remove the monitored watchpoint. Existing portfolio lots remain unaffected.</p>
+<div class="p-2 rounded border" style="background-color: var(--bg); border-color: var(--border);">
+<span class="text-[10px] uppercase font-bold block mb-1" style="color: var(--muted);">Safety verification:</span>
+<input class="w-full px-2 py-1 rounded border text-xs font-mono" placeholder="Type INE641A07137" style="background-color: var(--surface); border-color: var(--border); color: var(--ink);" type="text" value="INE641A07137"/>
+</div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs" style="background-color: var(--error); color: var(--on-primary);">Hold 2s to Confirm Delete</button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">Cancel</button>
+</div>
+</div>
+</article>
+<!-- Frame 5: First Open -->
+<article class="phone-mockup" data-purpose="mobile-frame-5">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<div class="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-3">
+<div class="w-full grid grid-cols-2 gap-2 mb-2">
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">WATCHING</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--ink);">0</div>
+</div>
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">ALERTS</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--muted);">0</div>
+</div>
+</div>
+<div class="w-16 h-16 rounded-full flex items-center justify-center" style="background-color: var(--surface-raised); border: 2px dashed var(--border); color: var(--muted);">🔍</div>
+<h4 class="font-bold text-base" style="color: var(--ink);">No bonds in your watchlist yet</h4>
+<p class="text-xs" style="color: var(--muted);">Add corporate bonds to compare yields across brokers and receive alerts.</p>
+<button class="px-5 py-2 rounded-xl font-bold text-xs shadow-sm" style="background-color: var(--primary); color: var(--on-primary);">+ Add first bond</button>
+<div class="w-full p-2.5 rounded-xl border text-[10px] text-left leading-relaxed mt-4" style="background-color: var(--surface); border-color: var(--border); color: var(--muted);">
+              💡 Tip: Ingest an ISIN from Zerodha or BSE to populate live comparative spreads immediately.
+            </div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- ROW 3 — WARM LEDGER (LIGHT, LOCKED) -->
+<!-- ========================================================================= -->
+<section class="theme-warm flex flex-col gap-4" data-purpose="theme-row" id="row-warm-ledger">
+<div class="flex items-center justify-between px-2 py-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-amber-950/40 flex items-center justify-center text-amber-300 border border-amber-800/60">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-xl font-bold text-white tracking-wide">03 Warm Ledger · Light</h2>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/50">🔒 LOCKED</span>
+</div>
+<p class="text-xs text-slate-400 font-mono-numbers">Bg: #F4F0E8 • Surface: #FBF9F4 • Raised: #EBE5D9 • Border: #D8D0C2 • Primary: #264362</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs font-medium text-slate-400">
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg">Viewport: 412dp × 860px</span>
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg font-mono-numbers">5 Frames Flow</span>
+</div>
+</div>
+<div class="board-scroll-row flex gap-6 pb-4">
+<!-- FRAME 1: ADD FORM -->
+<article class="phone-mockup" data-purpose="mobile-frame-1">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative"><button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button><span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center font-mono-numbers" style="background-color: var(--error); color: #FFF;">2</span></div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary); border: 1px solid var(--border);">DK</div>
+</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">ADD FORM 0</button>
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">LEDGER 14</button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold" style="color: var(--muted);">WATCHING</div>
+<div class="text-base font-extrabold font-mono-numbers" style="color: var(--ink);">6</div>
+</div>
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold" style="color: var(--muted);">ALERTS</div>
+<div class="text-base font-extrabold font-mono-numbers" style="color: var(--error);">2</div>
+</div>
+</div>
+<div class="p-2.5 rounded-xl border text-xs" style="background-color: rgba(158,59,51,0.08); border-color: var(--error);">
+<div class="flex items-center justify-between mb-1">
+<span class="font-bold" style="color: var(--error);">CRISIL Rating Watch Alert</span>
+<span class="px-1.5 py-0.2 rounded font-bold uppercase text-[9px]" style="background-color: var(--error); color: #fff;">CRITICAL</span>
+</div>
+<p style="color: var(--ink);">Piramal Capital placed on CRISIL rating watch with negative implications.</p>
+</div>
+<div class="p-3 rounded-2xl border space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<div class="font-bold text-xs uppercase" style="color: var(--ink);">Add Bond to Watchlist</div>
+<div class="flex gap-1.5">
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="INE601U07238"/>
+<button class="px-3 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">Fetch</button>
+</div>
+<div class="p-2 rounded-lg border text-[11px]" style="background-color: rgba(158,59,51,0.08); border-color: var(--error); color: var(--error);">
+                INE601U07238 already in watchlist (Zerodha)
+              </div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs shadow-sm" style="background-color: var(--primary); color: var(--on-primary);">Save to Watchlist</button>
+</div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+<!-- FRAME 2: INTEGRATED LEDGER -->
+<article class="phone-mockup" data-purpose="mobile-frame-2">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">ADD FORM 0</button>
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">LEDGER 14</button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3 text-xs">
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between items-center"><span class="font-bold text-xs" style="color: var(--ink);">Same ISIN — compare brokers</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background-color: var(--surface-raised); color: var(--primary);">3 Brokers</span></div>
+<div class="space-y-1 font-mono-numbers">
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: var(--bg); border-color: var(--border);"><span>GoldenPi</span><span class="font-bold">9.60% p.a.</span></div>
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: rgba(43,97,68,0.1); border-color: var(--success); color: var(--success);"><span>Grip Invest (Best Yield)</span><span class="font-bold">9.75% p.a.</span></div>
+</div>
+<button class="w-full py-2 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">Select Grip Invest (9.75%) →</button>
+<div class="text-[10px] leading-tight font-medium" style="color: var(--muted);">
+                ↳ Buy at your broker first, then return here to log execution
+              </div>
+</div>
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between font-bold"><span>Piramal Capital</span><span class="font-mono">₹ 3,50,000</span></div>
+<div class="p-2 rounded-xl border space-y-1" style="background-color: rgba(138,83,0,0.08); border-color: var(--warning);">
+<div class="flex justify-between font-bold" style="color: var(--warning);"><span>WATCH INE641A07137</span><span>10.75% p.a.</span></div>
+<button class="w-full py-1 rounded-lg text-xs font-bold" style="background-color: var(--primary); color: var(--on-primary);">Move to Portfolio</button>
+</div>
+</div>
+</div>
+<button class="absolute bottom-16 right-5 w-12 h-12 rounded-full shadow-xl flex items-center justify-center font-extrabold text-2xl" style="background-color: var(--primary); color: var(--on-primary); z-index: 10;">+</button>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+<!-- FRAME 3: MOVE TO PORTFOLIO -->
+<article class="phone-mockup" data-purpose="mobile-frame-3">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold" style="color: var(--ink);">Move to Portfolio</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3 text-xs">
+<div class="p-3 rounded-2xl border space-y-2.5" style="background-color: var(--surface); border-color: var(--border);">
+<div class="font-bold text-xs" style="color: var(--ink);">Execution Details: Tata Capital</div>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="Quantity e.g. 500" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500"/>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="Amount (₹) e.g. 500000" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500000"/>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="date" value="2026-11-25"/>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs" placeholder="Demat / Broker ref" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="Zerodha Demat"/>
+<div class="p-2 rounded-lg border text-[10px]" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--muted);">
+                ℹ️ Preserves historical watchlist watchpoint and net worth calculations.
+              </div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">Confirm Move to Portfolio</button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">Cancel &amp; Keep in Watchlist</button>
+</div>
+</div>
+</article>
+<!-- FRAME 4: REMOVE FLOW -->
+<article class="phone-mockup relative" data-purpose="mobile-frame-4">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold" style="color: var(--ink);">Bond Details</span><div>⋮</div></header>
+<div class="p-4 opacity-30 pointer-events-none"><div class="p-3 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">Piramal Capital</div></div>
+<div class="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-30">
+<div class="w-full rounded-2xl border p-4 space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<h3 class="font-extrabold text-sm" style="color: var(--error);">Remove INE641A07137?</h3>
+<p class="text-xs" style="color: var(--muted);">This will remove monitored watchpoint. Existing portfolio lots remain unaffected.</p>
+<input class="w-full px-2 py-1 rounded border text-xs font-mono" placeholder="Type INE641A07137" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="INE641A07137"/>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs text-white" style="background-color: var(--error);">Hold 2s to Confirm Delete</button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">Cancel</button>
+</div>
+</div>
+</article>
+<!-- FRAME 5: FIRST OPEN -->
+<article class="phone-mockup" data-purpose="mobile-frame-5">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<div class="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-3">
+<div class="w-full grid grid-cols-2 gap-2 mb-2">
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">WATCHING</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--ink);">0</div>
+</div>
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">ALERTS</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--muted);">0</div>
+</div>
+</div>
+<div class="w-16 h-16 rounded-full flex items-center justify-center" style="background-color: var(--surface-raised); border: 2px dashed var(--border); color: var(--muted);">🏷️</div>
+<h4 class="font-bold text-base" style="color: var(--ink);">No bonds in your watchlist yet</h4>
+<p class="text-xs" style="color: var(--muted);">Add corporate bonds to compare yields across brokers and receive alerts.</p>
+<button class="px-5 py-2 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">+ Add first bond</button>
+<div class="w-full p-2.5 rounded-xl border text-[10px] text-left leading-relaxed mt-4" style="background-color: var(--surface); border-color: var(--border); color: var(--muted);">
+              💡 Tip: Ingest an ISIN from Zerodha or BSE to populate live comparative spreads immediately.
+            </div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+</div>
+</section>
+<!-- ========================================================================= -->
+<!-- ROW 4 — DEEP FJORD (DARK, LOCKED) -->
+<!-- ========================================================================= -->
+<section class="theme-fjord flex flex-col gap-4" data-purpose="theme-row" id="row-deep-fjord">
+<div class="flex items-center justify-between px-2 py-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-teal-950/60 flex items-center justify-center text-teal-300 border border-teal-800/60">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-xl font-bold text-white tracking-wide">04 Deep Fjord · Dark</h2>
+<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/50">🔒 LOCKED</span>
+</div>
+<p class="text-xs text-slate-400 font-mono-numbers">Bg: #0F1A1C • Surface: #162528 • Raised: #1E3034 • Border: #2D4449 • Primary: #75B5B8</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs font-medium text-slate-400">
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg">Viewport: 412dp × 860px</span>
+<span class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg font-mono-numbers">5 Frames Flow</span>
+</div>
+</div>
+<div class="board-scroll-row flex gap-6 pb-4">
+<!-- FRAME 1: ADD FORM -->
+<article class="phone-mockup" data-purpose="mobile-frame-1">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);">
+<span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+<div class="relative"><button class="p-1.5 rounded-full" style="color: var(--muted);"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button><span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center font-mono-numbers" style="background-color: var(--error); color: var(--on-primary);">2</span></div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div>
+</div>
+</header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">ADD FORM 0</button>
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">LEDGER 14</button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3.5 text-xs">
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold" style="color: var(--muted);">WATCHING</div>
+<div class="text-base font-extrabold font-mono-numbers" style="color: var(--ink);">6</div>
+</div>
+<div class="p-2.5 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[10px] uppercase font-bold" style="color: var(--muted);">ALERTS</div>
+<div class="text-base font-extrabold font-mono-numbers" style="color: var(--error);">2</div>
+</div>
+</div>
+<div class="p-2.5 rounded-xl border text-xs" style="background-color: rgba(214,133,130,0.12); border-color: var(--error);">
+<div class="flex items-center justify-between mb-1">
+<span class="font-bold" style="color: var(--error);">CRISIL Rating Watch Alert</span>
+<span class="px-1.5 py-0.2 rounded font-bold uppercase text-[9px]" style="background-color: var(--error); color: var(--on-primary);">CRITICAL</span>
+</div>
+<p style="color: var(--ink);">Piramal Capital placed on CRISIL rating watch with negative implications.</p>
+</div>
+<div class="p-3 rounded-2xl border space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<div class="font-bold text-xs uppercase" style="color: var(--ink);">Add Bond to Watchlist</div>
+<div class="flex gap-1.5">
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono font-semibold" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="INE601U07238"/>
+<button class="px-3 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">Fetch</button>
+</div>
+<div class="p-2 rounded-lg border text-[11px]" style="background-color: rgba(214,133,130,0.1); border-color: var(--error); color: var(--error);">
+                INE601U07238 already in watchlist (Zerodha)
+              </div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs shadow-sm" style="background-color: var(--primary); color: var(--on-primary);">Save to Watchlist</button>
+</div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+<!-- FRAME 2: INTEGRATED LEDGER -->
+<article class="phone-mockup" data-purpose="mobile-frame-2">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<nav class="p-2 border-b flex gap-2" style="border-color: var(--border); background-color: var(--surface);">
+<button class="flex-1 py-1.5 text-xs font-semibold rounded-lg" style="background-color: var(--surface-raised); color: var(--muted);">ADD FORM 0</button>
+<button class="flex-1 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--primary); color: var(--on-primary);">LEDGER 14</button>
+</nav>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3 text-xs">
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between items-center"><span class="font-bold text-xs" style="color: var(--ink);">Same ISIN — compare brokers</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background-color: var(--surface-raised); color: var(--primary);">3 Brokers</span></div>
+<div class="space-y-1 font-mono-numbers">
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: var(--bg); border-color: var(--border);"><span>GoldenPi</span><span class="font-bold">9.60% p.a.</span></div>
+<div class="p-2 rounded-xl border flex justify-between" style="background-color: rgba(123,184,146,0.15); border-color: var(--success); color: var(--success);"><span>Grip Invest (Best Yield)</span><span class="font-bold">9.75% p.a.</span></div>
+</div>
+<button class="w-full py-2 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">Select Grip Invest (9.75%) →</button>
+<div class="text-[10px] leading-tight font-medium" style="color: var(--muted);">
+                ↳ Buy at your broker first, then return here to log execution
+              </div>
+</div>
+<div class="p-3 rounded-2xl border space-y-2" style="background-color: var(--surface); border-color: var(--border);">
+<div class="flex justify-between font-bold"><span>Piramal Capital</span><span class="font-mono">₹ 3,50,000</span></div>
+<div class="p-2 rounded-xl border space-y-1" style="background-color: rgba(209,163,94,0.1); border-color: var(--warning);">
+<div class="flex justify-between font-bold" style="color: var(--warning);"><span>WATCH INE641A07137</span><span>10.75% p.a.</span></div>
+<button class="w-full py-1 rounded-lg text-xs font-bold" style="background-color: var(--primary); color: var(--on-primary);">Move to Portfolio</button>
+</div>
+</div>
+</div>
+<button class="absolute bottom-16 right-5 w-12 h-12 rounded-full shadow-xl flex items-center justify-center font-extrabold text-2xl" style="background-color: var(--primary); color: var(--on-primary); z-index: 10;">+</button>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+<!-- FRAME 3: MOVE TO PORTFOLIO -->
+<article class="phone-mockup" data-purpose="mobile-frame-3">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold" style="color: var(--ink);">Move to Portfolio</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-3.5 space-y-3 text-xs">
+<div class="p-3 rounded-2xl border space-y-2.5" style="background-color: var(--surface); border-color: var(--border);">
+<div class="font-bold text-xs" style="color: var(--ink);">Execution Details: Tata Capital</div>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="Quantity e.g. 500" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500"/>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" placeholder="Amount (₹) e.g. 500000" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="500000"/>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs font-mono" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="date" value="2026-11-25"/>
+<input class="w-full px-2.5 py-1.5 rounded-lg border text-xs" placeholder="Demat / Broker ref" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="Zerodha Demat"/>
+<div class="p-2 rounded-lg border text-[10px]" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--muted);">
+                ℹ️ Preserves historical watchlist watchpoint and net worth calculations.
+              </div>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">Confirm Move to Portfolio</button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">Cancel &amp; Keep in Watchlist</button>
+</div>
+</div>
+</article>
+<!-- FRAME 4: REMOVE FLOW -->
+<article class="phone-mockup relative" data-purpose="mobile-frame-4">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold" style="color: var(--ink);">Bond Details</span><div>⋮</div></header>
+<div class="p-4 opacity-30 pointer-events-none"><div class="p-3 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">Piramal Capital</div></div>
+<div class="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-30">
+<div class="w-full rounded-2xl border p-4 space-y-3" style="background-color: var(--surface); border-color: var(--border);">
+<h3 class="font-extrabold text-sm" style="color: var(--error);">Remove INE641A07137?</h3>
+<p class="text-xs" style="color: var(--muted);">This will remove monitored watchpoint. Existing portfolio lots remain unaffected.</p>
+<input class="w-full px-2 py-1 rounded border text-xs font-mono" placeholder="Type INE641A07137" style="background-color: var(--bg); border-color: var(--border); color: var(--ink);" type="text" value="INE641A07137"/>
+<button class="w-full py-2.5 rounded-xl font-bold text-xs text-white" style="background-color: var(--error);">Hold 2s to Confirm Delete</button>
+<button class="w-full py-2 rounded-xl font-semibold text-xs border" style="background-color: var(--surface-raised); border-color: var(--border); color: var(--ink);">Cancel</button>
+</div>
+</div>
+</article>
+<!-- FRAME 5: FIRST OPEN -->
+<article class="phone-mockup" data-purpose="mobile-frame-5">
+<div class="px-5 pt-3 pb-2 flex items-center justify-between text-xs font-semibold" style="color: var(--muted);"><span>09:41</span><div class="w-5 h-2.5 border border-current rounded-sm p-0.5"></div></div>
+<header class="px-4 py-2.5 flex items-center justify-between border-b" style="border-color: var(--border); background-color: var(--surface);"><span class="text-base font-bold tracking-tight" style="color: var(--ink);">DK Bond Tracker</span><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background-color: var(--surface-raised); color: var(--primary);">DK</div></header>
+<div class="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-3">
+<div class="w-full grid grid-cols-2 gap-2 mb-2">
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">WATCHING</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--ink);">0</div>
+</div>
+<div class="p-2 rounded-xl border" style="background-color: var(--surface); border-color: var(--border);">
+<div class="text-[9px] uppercase font-bold" style="color: var(--muted);">ALERTS</div>
+<div class="text-sm font-bold font-mono-numbers" style="color: var(--muted);">0</div>
+</div>
+</div>
+<div class="w-16 h-16 rounded-full flex items-center justify-center" style="background-color: var(--surface-raised); border: 2px dashed var(--border); color: var(--muted);">🔍</div>
+<h4 class="font-bold text-base" style="color: var(--ink);">No bonds in your watchlist yet</h4>
+<p class="text-xs" style="color: var(--muted);">Add corporate bonds to compare yields across brokers and receive alerts.</p>
+<button class="px-5 py-2 rounded-xl font-bold text-xs" style="background-color: var(--primary); color: var(--on-primary);">+ Add first bond</button>
+<div class="w-full p-2.5 rounded-xl border text-[10px] text-left leading-relaxed mt-4" style="background-color: var(--surface); border-color: var(--border); color: var(--muted);">
+              💡 Tip: Ingest an ISIN from Zerodha or BSE to populate live comparative spreads immediately.
+            </div>
+</div>
+<footer class="border-t py-2 px-3 flex justify-around items-center" style="border-color: var(--border); background-color: var(--surface);">
+<div class="text-[9px]" style="color: var(--muted);">Dashboard</div><div class="text-[9px]" style="color: var(--muted);">Portfolio</div><div class="text-[9px] font-bold" style="color: var(--primary);">Watchlist</div><div class="text-[9px]" style="color: var(--muted);">Goals</div>
+</footer>
+</article>
+</div>
+</section>
+</main>
+<!-- END: MainContainer -->
+<!-- BEGIN: BoardFooter -->
+<footer class="mt-14 pt-8 border-t border-slate-800 text-center text-xs tracking-wider font-mono text-slate-500 uppercase" data-purpose="board-footer">
+    WATCHLIST × 4 THEMES • 412DP REFERENCE VIEWPORT • STRICT PRODUCTION TOKENS • ZERO DRIFT SPECIFICATION
+  </footer>
+<!-- END: BoardFooter -->
+</body></html>
