@@ -1,7 +1,7 @@
 # Goals — Design Notes (LOCKED 2026-11-25)
 
 ## Flow (navigation_flow)
-Empty first open (GOALS 0) -> FAB + or Create button opens the FORM (same-file, hidden until then) -> save -> list with progress cards -> Details: check-ins strip (auto + manual fallback), linked bonds (goal_derived), overflow guarded delete. Back from form returns to list; Goal linking also available from Move to Portfolio (watchlist flow).
+Empty first open (GOALS 0) -> FAB + or Create button opens the FORM (same-file, hidden until then) -> save -> list with progress cards -> Details: check-ins strip (auto + manual fallback), linked bonds (goal_derived), overflow Edit/Archive menu (no Remove — deleted from design 2026-11-27). Back from form returns to list; Goal linking also available from Move to Portfolio (watchlist flow).
 
 ## Rulings applied (developer 2026-11-25)
 1. Monthly plan: invest target auto-computed (monthly x months) — no manual target math.
