@@ -16,6 +16,10 @@
           fontFamily: {
             sans: ['Inter', 'system-ui', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
+            'headline-h2': ['Inter', 'system-ui', 'sans-serif'],
+            label: ['Inter', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+            small: ['JetBrains Mono', 'monospace'],
           },
           colors: {
             canvas: '#0D1520',
@@ -49,12 +53,6 @@
             body: ['0.875rem', { lineHeight: '1.25rem' }],
             label: ['0.75rem', { lineHeight: '1rem' }],
             small: ['0.75rem', { lineHeight: '1.125rem' }],
-          },
-          fontFamily: {
-            'headline-h2': ['Inter', 'system-ui', 'sans-serif'],
-            label: ['Inter', 'system-ui', 'sans-serif'],
-            body: ['Inter', 'system-ui', 'sans-serif'],
-            small: ['JetBrains Mono', 'monospace'],
           },
         }
       }
@@ -141,8 +139,8 @@
 <p class="font-headline-h2 text-headline-h2 text-ink uppercase tracking-wide">
           21 / 21 Components Level-3 Audited — 14 core + 7 board widgets
         </p>
-<p class="font-label text-label text-due-red">
-          AGY ROUND 1: FAIL (2 ✓ · 12 ⚠ · 0 ✗) — F01–F12 FIXES APPLIED 2026-11-27 · RE-VERIFY PENDING
+<p class="font-label text-label text-paid-green-fg">
+          AGY ROUND 2: PASS — 21 ✓ · 0 ⚠ · 0 ✗ (F01–F12 + removal gate verified; R1 was 2 ✓ · 12 ⚠)
         </p>
 </div>
 </div>
@@ -181,7 +179,7 @@
 </div>
 </div>
 </section>
-<!-- Main Audit Grid: 4 Groups in Bento Split -->
+<!-- Main Audit Grid: 5 Groups in Bento Split -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 <!-- ========================================== -->
 <!-- GROUP A · GOAL CARDS & LIST (4 Components) -->
@@ -391,7 +389,7 @@
             </span>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4 font-small text-small">
-<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Derived (Monthly × Delta Months)</div>
+<div class="text-slate"><strong class="text-ink font-medium">D:</strong> Derived (saved + monthly × months + portfolio growth)</div>
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only verified output)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Computed value / Pending dash (—)</div>
 <div class="text-slate"><strong class="text-ink font-medium">F:</strong> Updates live on keystroke change</div>
@@ -514,7 +512,7 @@
 </div>
 </div>
 <!-- ========================================== -->
-<!-- GROUP D · OVERLAYS & SHELL (4 Components) -->
+<!-- GROUP D · OVERLAYS & SHELL (2 Components) -->
 <!-- ========================================== -->
 <div class="flex flex-col bg-surface-container-low p-6 rounded-xl shadow-sm">
 <div class="flex items-center justify-between pb-4 mb-4 bg-surface-container px-4 py-3 rounded-lg">
@@ -529,7 +527,7 @@
 </div>
 <span class="px-2.5 py-1 rounded-full bg-paid-green/15 text-paid-green-fg font-label text-label font-semibold flex items-center gap-1">
 <span class="material-symbols-outlined text-small" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-          4/4 PASSED
+          2/2 PASSED
         </span>
 </div>
 <div class="space-y-4">
@@ -632,7 +630,7 @@
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> Missed-months summary ("2 months missed") from rhythm</div>
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (static informational banner)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Present only when missed &gt; 0 · hidden otherwise (guarded)</div>
-<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Warning colour + icon + text — never colour alone</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Danger Red (#FF8A80) + icon + text — never colour alone</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Shows only for missed &gt; 0; mirrors rhythm counts</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed from portfolio ledger rollup</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> Full-width banner above summary strip (Col04)</div>
@@ -654,7 +652,7 @@
 <div class="text-slate"><strong class="text-ink font-medium">D:</strong> On Track 8/12 mos · Missed 2 · Next Due Dec 15</div>
 <div class="text-slate"><strong class="text-ink font-medium">A:</strong> None (read-only telemetry)</div>
 <div class="text-slate"><strong class="text-ink font-medium">S:</strong> Value · skeleton · all-caught-up zero state</div>
-<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Number flash + directional arrow (locked decision)</div>
+<div class="text-slate"><strong class="text-ink font-medium">F:</strong> Number flash + directional arrow (locked decision #2)</div>
 <div class="text-slate"><strong class="text-ink font-medium">R:</strong> Tabular numerals; locale date format</div>
 <div class="text-slate"><strong class="text-ink font-medium">C:</strong> Computed rollups from ledger</div>
 <div class="text-slate sm:col-span-2"><strong class="text-ink font-medium">Scr:</strong> 3 equal cells in one row — compact-safe</div>
@@ -833,8 +831,7 @@
 <strong class="text-ink">AGY VERDICT:</strong> Page (goals_seven_questions.html): <span class="text-due-red font-semibold">FAIL</span> — 2 real contradictions (F09 Q5 exclusivity vs Col03, F10 Q7 Compact-only vs reflow) · Components (goals_component_audit.html): <span class="text-due-red font-semibold">FAIL</span> — <span class="text-due-red font-semibold">2 ✓ / 12 ⚠ / 0 ✗</span> (self-claim was 14 ✓ / 0 ⚠ / 0 ✗; completeness14/14 audited items, but F01–F08 stand). FIX PENDING.
 </div>
 <div class="mt-3 pt-3 border-t border-hairline/60 font-mono text-xs text-paid-green">
-<strong class="text-ink">FIX SWEEP:</strong> F01–F12 applied 2026-11-27 (header/CSS/gestures/7 new widget cards/₹/dates/local-first/board alignment) + removal rule (Archive-only until achieved) — AGY ROUND 2 RE-VERIFY PENDING.
-</div>
+<strong class="text-ink">FIX SWEEP:</strong> F01–F12 applied 2026-11-27 (header/CSS/gestures/7 new widget cards/₹/dates/local-first/board alignment) + removal rule (Archive-only until achieved) — <strong class="text-ink">AGY ROUND 2: PASS · 21 ✓ / 0 ⚠ / 0 ✗</strong> · 4 minor nits applied same day.</div>
 </section>
 <!-- Technical Provenance & Footnote Block -->
 <section class="mt-8 pt-6 pb-2 border-t border-hairline/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-small text-mist">
@@ -848,7 +845,7 @@
 </div>
 <div class="flex items-center gap-2 text-xs text-slate">
 <span class="w-2 h-2 rounded-full bg-paid-green"></span>
-<span>DK BOND TRACKER · R1 FAIL 2026-11-27 · FIXES APPLIED · R2 PENDING</span>
+<span>DK BOND TRACKER · AGY R2 PASS 2026-11-27 · 21 ✓ / 0 ⚠ / 0 ✗</span>
 </div>
 </section>
 </div></main>
@@ -856,7 +853,7 @@
 <footer class="pt-8 border-t border-hairline/60 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
 <div class="flex items-center space-x-2">
 <span class="w-2 h-2 rounded-full bg-paid-green"></span>
-<span>AGY R1: PAGE FAIL · COMPONENTS FAIL (2 ✓ / 12 ⚠ / 0 ✗) · FIXES APPLIED · R2 RE-VERIFY PENDING</span>
+<span>AGY R2 PASS • PAGE PASS • COMPONENTS PASS (21 ✓ / 0 ⚠ / 0 ✗) • R1 FINDINGS F01–F12 CLOSED</span>
 </div>
 <div>
 <span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v4.0</span>
