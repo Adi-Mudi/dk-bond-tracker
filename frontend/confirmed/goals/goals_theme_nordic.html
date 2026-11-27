@@ -2,7 +2,7 @@
 
 <html lang="en"><head>
 <meta charset="utf-8"/>
-<meta content="width=2300, initial-scale=1.0" name="viewport"/>
+<meta content="width=2400, initial-scale=1.0" name="viewport"/>
 <title>Goals — Nordic Mist (Light) Review Board</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -55,7 +55,7 @@ tailwind.config = {
 </head>
 <body class="p-8 lg:p-10 min-h-screen flex flex-col justify-between selection:bg-[#28595B] selection:text-white">
 <!-- TOP BAR HEADER -->
-<header class="max-w-[2260px] mx-auto w-full mb-8">
+<header class="max-w-[2300px] mx-auto w-full mb-8">
 <div class="flex items-center justify-between border-b border-[#1E293B] pb-6">
 <div>
 <div class="flex items-center gap-3 mb-2">
@@ -92,9 +92,9 @@ tailwind.config = {
 </div>
 </div>
 </header>
-<!-- 5 PHONE FRAMES ROW -->
-<main class="max-w-[2260px] mx-auto w-full overflow-x-auto pb-6">
-<div class="flex items-start gap-8 min-w-max">
+<!-- 5 PHONE FRAMES ROW (side-by-side flex layout with 48px gap) -->
+<main class="max-w-[2300px] mx-auto w-full overflow-x-auto pb-6">
+<div class="flex items-start gap-12 min-w-max justify-center">
 <!-- ========================================================================= -->
 <!-- FRAME 1: FIRST OPEN (ZERO STATE) -->
 <!-- ========================================================================= -->
@@ -141,17 +141,17 @@ tailwind.config = {
 <!-- Scrollable Body Content -->
 <div class="flex-1 overflow-y-auto frame-content p-4 flex flex-col justify-between">
 <div>
-<!-- Stat Strip -->
+<!-- Stat Strip: Rule A Target hidden -> MONTHS cell value "0/12", SAVED "₹ 0", ON TRACK "0" -->
 <div class="grid grid-cols-3 gap-2.5 mb-5">
 <div class="bg-[#EFF2F5] p-3 rounded-xl border border-[#CFD7E2] text-center">
-<div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">TARGET</div>
-<div class="text-base font-bold text-[#18212C] tabular-nums">₹0</div>
+<div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">MONTHS</div>
+<div class="text-base font-bold text-[#18212C] tabular-nums">0/12</div>
 <div class="text-[10px] text-[#525F70]">0 active</div>
 </div>
 <div class="bg-[#EFF2F5] p-3 rounded-xl border border-[#CFD7E2] text-center">
 <div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">SAVED</div>
-<div class="text-base font-bold text-[#18212C] tabular-nums">₹0</div>
-<div class="text-[10px] text-[#525F70]">0% funded</div>
+<div class="text-base font-bold text-[#18212C] tabular-nums">₹ 0</div>
+<div class="text-[10px] text-[#525F70]">active pace</div>
 </div>
 <div class="bg-[#EFF2F5] p-3 rounded-xl border border-[#CFD7E2] text-center">
 <div class="text-[10px] font-semibold tracking-wider text-[#525F70] uppercase mb-0.5">ON TRACK</div>
@@ -185,7 +185,7 @@ tailwind.config = {
 </div>
 <!-- Floating Action Button -->
 <div class="flex justify-end pt-3">
-<button class="w-13 h-13 p-3.5 rounded-full bg-[#28595B] text-[#F8FAFC] shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
+<button class="w-12 h-12 rounded-full bg-[#28595B] text-[#F8FAFC] shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
 </button>
 </div>
@@ -255,18 +255,18 @@ tailwind.config = {
 </div>
 <!-- Scrollable Body Content -->
 <div class="flex-1 overflow-y-auto frame-content p-4 space-y-3 relative">
-<!-- Summary Stat Strip -->
+<!-- Top Summary Chip: NO target amount, strictly "3 GOALS ACTIVE · ₹ 65k/mo pace" -->
 <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] text-xs">
 <div class="flex items-center gap-2">
 <span class="font-bold text-[#18212C]">3 GOALS ACTIVE</span>
 <span class="text-[#525F70]">·</span>
-<span class="text-[#525F70]">Target <strong class="text-[#18212C] font-semibold">₹ 45,00,000</strong></span>
+<span class="font-semibold text-[#28595B]">₹ 65k/mo pace</span>
 </div>
-<span class="font-semibold text-[#28595B] bg-[#F8FAFC] px-2 py-0.5 rounded-md border border-[#CFD7E2] tabular-nums">
-                ₹ 65k/mo
+<span class="text-[10px] font-medium text-[#525F70] bg-[#F8FAFC] px-2 py-0.5 rounded-md border border-[#CFD7E2]">
+                Auto-synced
               </span>
 </div>
-<!-- Goal Card 1: Commercial Property (Behind) -->
+<!-- Goal Card 1: Commercial Property (Behind) -> Signal: red "4 months missed" · NO target amount -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
 <div class="flex items-start justify-between mb-2">
 <div>
@@ -279,7 +279,7 @@ tailwind.config = {
 </div>
 <div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
 <span class="font-bold text-[#18212C]">Saved ₹ 3,50,000</span>
-<span class="text-[#525F70]">Target ₹ 20,00,000 (17.5%)</span>
+<span class="font-semibold text-[#9C3B44]">4 months missed</span>
 </div>
 <div class="w-full h-2 rounded-full bg-[#CFD7E2] overflow-hidden mb-3">
 <div class="h-full bg-[#8C5409] rounded-full" style="width: 17.5%;"></div>
@@ -298,7 +298,7 @@ tailwind.config = {
 </div>
 </div>
 </div>
-<!-- Goal Card 2: Child Higher Education Fund (On track) -->
+<!-- Goal Card 2: Child Higher Education Fund (On track) -> Signal: red "2 months missed" · NO target amount -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
 <div class="flex items-start justify-between mb-2">
 <div>
@@ -311,7 +311,7 @@ tailwind.config = {
 </div>
 <div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
 <span class="font-bold text-[#18212C]">Saved ₹ 11,50,000</span>
-<span class="text-[#525F70]">Target ₹ 20,00,000 (57.5%)</span>
+<span class="font-semibold text-[#9C3B44]">2 months missed</span>
 </div>
 <div class="w-full h-2 rounded-full bg-[#CFD7E2] overflow-hidden mb-3">
 <div class="h-full bg-[#28595B] rounded-full" style="width: 57.5%;"></div>
@@ -330,7 +330,7 @@ tailwind.config = {
 </div>
 </div>
 </div>
-<!-- Goal Card 3: Annual Family Vacation 2027 -->
+<!-- Goal Card 3: Annual Family Vacation 2027 (On track) -> Signal: green "15/20 months ✓" · NO target amount -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
 <div class="flex items-start justify-between mb-2">
 <div>
@@ -343,7 +343,7 @@ tailwind.config = {
 </div>
 <div class="flex items-baseline justify-between text-xs mt-3 mb-1.5 tabular-nums">
 <span class="font-bold text-[#18212C]">Saved ₹ 3,75,000</span>
-<span class="text-[#525F70]">Target ₹ 5,00,000 (75.0%)</span>
+<span class="font-semibold text-[#28614E]">15/20 months ✓</span>
 </div>
 <div class="w-full h-2 rounded-full bg-[#CFD7E2] overflow-hidden mb-3">
 <div class="h-full bg-[#28595B] rounded-full" style="width: 75%;"></div>
@@ -361,6 +361,14 @@ tailwind.config = {
                   </button>
 </div>
 </div>
+</div>
+<!-- Archived Goal Item -->
+<div class="px-3.5 py-2.5 rounded-xl bg-[#EFF2F5]/70 border border-[#CFD7E2] border-dashed flex items-center justify-between opacity-80">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-[#525F70]">archive</span>
+<span class="text-xs font-medium text-[#525F70]">Emergency Buffer Vault</span>
+</div>
+<span class="text-[10px] font-semibold text-[#525F70] uppercase">Archived</span>
 </div>
 <!-- Floating Action Button (+) -->
 <div class="sticky bottom-2 flex justify-end pointer-events-none">
@@ -425,7 +433,7 @@ tailwind.config = {
 <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">GOAL NAME</label>
 <input class="w-full h-10 px-3.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] text-sm font-medium text-[#18212C] focus:outline-none" type="text" value="Child Higher Education Fund"/>
 </div>
-<!-- Target-OR-Monthly Exclusivity Card -->
+<!-- Target-OR-Monthly Exclusivity Card: ONLY place where Target Amount input exists -->
 <div class="p-3.5 rounded-2xl bg-[#EFF2F5] border border-[#CFD7E2] space-y-2.5">
 <div>
 <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">Target Amount (₹) · auto</label>
@@ -463,7 +471,7 @@ tailwind.config = {
 </div>
 </div>
 </div>
-<!-- Exactly ONE Formula Callout -->
+<!-- Dynamic Formula Card -->
 <div class="p-3 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2]">
 <div class="flex items-center gap-1.5 text-xs font-bold text-[#28595B] mb-1">
 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -472,6 +480,7 @@ tailwind.config = {
 <div class="text-[11px] font-mono text-[#18212C] bg-[#F8FAFC] p-2 rounded-lg border border-[#CFD7E2] tracking-tight">
                 (₹11,50,000 + 22 mos × ₹35k + ₹80,000 growth = ₹20,00,000)
               </div>
+<div class="text-[10px] text-[#525F70] mt-1.5">Compound reinvestment from AAA bond coupon schedules factored automatically.</div>
 </div>
 <!-- Saved So Far (Optional) -->
 <div>
@@ -481,9 +490,9 @@ tailwind.config = {
 <!-- Note (Optional) -->
 <div>
 <label class="block text-[11px] font-semibold text-[#525F70] uppercase tracking-wider mb-1">NOTE (OPTIONAL)</label>
-<input class="w-full h-10 px-3.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] text-xs font-normal text-[#525F70]" type="text" value="Priority milestone, mapped to AAA PSU bond yields."/>
+<textarea class="w-full h-14 p-2.5 rounded-xl bg-[#EFF2F5] border border-[#CFD7E2] text-xs font-normal text-[#18212C] resize-none focus:outline-none">Priority milestone, mapped to AAA PSU bond yields.</textarea>
 </div>
-<!-- Action Buttons -->
+<!-- Action Button: strictly "Save goal" -->
 <div class="pt-1 space-y-2">
 <button class="w-full py-3 rounded-xl bg-[#28595B] text-[#F8FAFC] font-bold text-xs tracking-wide shadow-sm hover:opacity-95">
                 Save goal
@@ -540,78 +549,91 @@ tailwind.config = {
 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </div>
 <div>
-<h4 class="text-xs font-bold text-[#9C3B44]">2 months missed in pacing</h4>
+<h4 class="text-xs font-bold text-[#9C3B44]">2 months missed — pace adjustment active</h4>
 <p class="text-[11px] text-[#525F70] leading-snug mt-0.5">
-                  Catch-up contribution needed to maintain target completion by October 2028.
+                  Oct &amp; Sep missed check-ins. Monthly pacing stepped from ₹35k to ₹42k to protect target date.
                 </p>
 </div>
 </div>
-<!-- 2026 Rhythm Log -->
+<!-- Section RHYTHM LOG (2026): Every row shows invested AND returns -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] overflow-hidden">
 <div class="px-4 py-2.5 bg-[#F8FAFC] border-b border-[#CFD7E2] flex items-center justify-between">
-<span class="text-[11px] font-bold text-[#18212C] uppercase tracking-wider">MONTHLY LOG (CY 2026)</span>
-<span class="text-[10px] text-[#525F70] font-mono">₹35k/mo target</span>
+<span class="text-[11px] font-bold text-[#18212C] uppercase tracking-wider">RHYTHM LOG (2026)</span>
+<span class="text-[10px] text-[#525F70] font-mono">monthly audit</span>
 </div>
 <div class="divide-y divide-[#CFD7E2]">
-<!-- Dec: Due Soon -->
+<!-- Dec 2026: Due Soon badge · "Dec 2026 · Due Soon · +₹1,760 est. returns" -->
 <div class="px-4 py-2.5 flex items-center justify-between bg-[#EFF2F5]">
 <div class="flex items-center gap-2.5">
 <span class="w-2 h-2 rounded-full bg-[#8C5409]"></span>
 <div>
 <div class="text-xs font-bold text-[#18212C]">Dec 2026</div>
-<div class="text-[10px] text-[#525F70]">Scheduled coupon auto-inflow</div>
+<div class="text-[10px] text-[#525F70]">Scheduled coupon auto-inflow · +₹1,760 est. returns</div>
 </div>
 </div>
 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#8C5409]/15 text-[#8C5409] border border-[#8C5409]/30">
                     Due Soon
                   </span>
 </div>
-<!-- Nov: Paid -->
+<!-- Nov 2026: "Nov 2026 · ✓ ₹35,000 invested · +₹1,820 returns" -->
 <div class="px-4 py-2.5 flex items-center justify-between bg-[#EFF2F5]">
 <div class="flex items-center gap-2.5">
 <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
 <div>
 <div class="text-xs font-bold text-[#18212C]">Nov 2026</div>
-<div class="text-[10px] text-[#525F70]">₹35,000 deposited · Ref #CAS8912</div>
+<div class="text-[10px] text-[#525F70]">✓ ₹35,000 invested · +₹1,820 returns</div>
 </div>
 </div>
 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">
                     ✓ Paid
                   </span>
 </div>
-<!-- Oct: MISSED -->
+<!-- Oct 2026: "Oct 2026 · MISSED · +₹1,710 returns" (badge MISSED in red) -->
 <div class="px-4 py-2.5 flex items-center justify-between bg-[#9C3B44]/5">
 <div class="flex items-center gap-2.5">
 <span class="w-2 h-2 rounded-full bg-[#9C3B44]"></span>
 <div>
 <div class="text-xs font-bold text-[#9C3B44]">Oct 2026</div>
-<div class="text-[10px] text-[#525F70]">No credit registered</div>
+<div class="text-[10px] text-[#525F70]">No credit registered · +₹1,710 returns</div>
 </div>
 </div>
 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44] text-white">
                     MISSED
                   </span>
 </div>
-<!-- Sep: MISSED -->
+<!-- Sep 2026: "Sep 2026 · MISSED · +₹1,695 returns" (badge MISSED in red) -->
 <div class="px-4 py-2.5 flex items-center justify-between bg-[#9C3B44]/5">
 <div class="flex items-center gap-2.5">
 <span class="w-2 h-2 rounded-full bg-[#9C3B44]"></span>
 <div>
 <div class="text-xs font-bold text-[#9C3B44]">Sep 2026</div>
-<div class="text-[10px] text-[#525F70]">No credit registered</div>
+<div class="text-[10px] text-[#525F70]">No credit registered · +₹1,695 returns</div>
 </div>
 </div>
 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#9C3B44] text-white">
                     MISSED
                   </span>
 </div>
-<!-- Aug: Paid -->
+<!-- Aug 2026: "Aug 2026 · ✓ ₹35,000 invested · +₹1,750 returns" -->
 <div class="px-4 py-2.5 flex items-center justify-between bg-[#EFF2F5]">
 <div class="flex items-center gap-2.5">
 <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
 <div>
 <div class="text-xs font-bold text-[#18212C]">Aug 2026</div>
-<div class="text-[10px] text-[#525F70]">₹35,000 deposited</div>
+<div class="text-[10px] text-[#525F70]">✓ ₹35,000 invested · +₹1,750 returns</div>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">
+                    ✓ Paid
+                  </span>
+</div>
+<!-- Jul 2026: "Jul 2026 · ✓ ₹35,000 invested · +₹1,730 returns" -->
+<div class="px-4 py-2.5 flex items-center justify-between bg-[#EFF2F5]">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
+<div>
+<div class="text-xs font-bold text-[#18212C]">Jul 2026</div>
+<div class="text-[10px] text-[#525F70]">✓ ₹35,000 invested · +₹1,730 returns</div>
 </div>
 </div>
 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-[#28614E]/15 text-[#28614E] border border-[#28614E]/30 flex items-center gap-1">
@@ -708,17 +730,17 @@ tailwind.config = {
 </div>
 <!-- Body Content Area -->
 <div class="flex-1 overflow-y-auto frame-content p-4 space-y-3">
-<!-- Progress Card -->
+<!-- Progress Card: Rule A & B - Displays "Saved ₹ 11,50,000 · 2 months missed" in red, progress rail bar without any target amount number -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] p-4 shadow-sm">
-<div class="flex items-baseline justify-between mb-1 tabular-nums">
-<span class="text-sm font-bold text-[#18212C]">₹ 11,50,000 / ₹ 20,00,000</span>
-<span class="text-xs font-bold text-[#28595B]">57.5%</span>
+<div class="flex items-baseline justify-between mb-1.5 tabular-nums">
+<span class="text-sm font-bold text-[#18212C]">Saved ₹ 11,50,000</span>
+<span class="text-xs font-bold text-[#9C3B44]">2 months missed</span>
 </div>
 <div class="w-full h-2.5 rounded-full bg-[#CFD7E2] overflow-hidden mb-2">
 <div class="h-full bg-[#28595B] rounded-full" style="width: 57.5%;"></div>
 </div>
 <div class="flex items-center justify-between text-[11px] text-[#525F70]">
-<span>₹ 8,50,000 to go</span>
+<span>22 months left in cycle</span>
 <span class="font-medium text-[#28614E]">+₹ 35,000/mo pace</span>
 </div>
 </div>
@@ -752,7 +774,7 @@ tailwind.config = {
                 </button>
 </div>
 </div>
-<!-- Linked Bonds Section (Title exact: "Linked Bonds") -->
+<!-- Linked Bonds Section (Title exact: "Linked Bonds") with specified values -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] p-3.5">
 <span class="block text-[11px] font-bold text-[#18212C] uppercase tracking-wider mb-2.5">Linked Bonds</span>
 <div class="space-y-2">
@@ -761,18 +783,18 @@ tailwind.config = {
 <div class="font-bold text-[#18212C]">Tata Capital Fin Services</div>
 <div class="text-[10px] text-[#525F70]">9.15% Annual · ₹5,00,000 principal</div>
 </div>
-<span class="font-bold text-[#28595B] tabular-nums">Yield ₹1,42,500</span>
+<span class="font-bold text-[#28595B] tabular-nums">+₹ 45,750/yr</span>
 </div>
 <div class="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#CFD7E2] flex items-center justify-between text-xs">
 <div>
 <div class="font-bold text-[#18212C]">L&amp;T Finance Holdings</div>
 <div class="text-[10px] text-[#525F70]">8.85% Semi-Ann · ₹4,00,000 principal</div>
 </div>
-<span class="font-bold text-[#28595B] tabular-nums">Yield ₹1,24,000</span>
+<span class="font-bold text-[#28595B] tabular-nums">+₹ 35,400/yr</span>
 </div>
 </div>
 </div>
-<!-- Actions Menu Showing ONLY "Edit goal" and "Archive goal" -->
+<!-- Actions Menu Showing ONLY "Edit goal" and "Archive goal" (ZERO occurrences of "Remove") -->
 <div class="bg-[#EFF2F5] rounded-2xl border border-[#CFD7E2] p-1 shadow-sm">
 <div class="px-3 py-1.5 text-[10px] font-bold uppercase text-[#525F70] border-b border-[#CFD7E2]">
                 ACTIONS (⋮)
@@ -795,15 +817,23 @@ tailwind.config = {
 </div>
 </div>
 </div>
+<!-- Bottom Navigation Bar -->
+<div class="h-16 px-3 bg-[#F8FAFC] border-t border-[#CFD7E2] grid grid-cols-5 items-center text-center">
+<div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Dashboard</span></div>
+<div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Portfolio</span></div>
+<div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">Watchlist</span></div>
+<div class="flex flex-col items-center text-[#28595B]"><svg class="w-5 h-5 mb-1" fill="currentColor" viewbox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"></path></svg><span class="text-[9px] font-bold">Goals</span></div>
+<div class="flex flex-col items-center text-[#525F70]"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span class="text-[9px] font-medium">More</span></div>
+</div>
 </div>
 </div>
 </div>
 </main>
 <!-- FOOTER SPECIFICATION CAPTION -->
-<footer class="max-w-[2260px] mx-auto w-full pt-4 border-t border-[#1E293B] flex items-center justify-between text-xs font-mono text-slate-500">
+<footer class="max-w-[2300px] mx-auto w-full pt-4 border-t border-[#1E293B] flex items-center justify-between text-xs font-mono text-slate-500">
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-[#28614E]"></span>
-<span>ONE ROW MULTIPLE COLUMNS — NORDIC MIST (LIGHT) REVIEW BOARD</span>
+<span>ONE ROW MULTIPLE COLUMNS — NORDIC MIST (LIGHT) REVIEW BOARD · PSYCHOLOGY RULES A &amp; B ENFORCEMENT · STRICT TOKEN SPECIFICATION</span>
 </div>
 <div>
       STRICT PALETTE ENFORCEMENT (#F8FAFC, #EFF2F5, #CFD7E2, #18212C, #28595B, #28614E, #8C5409, #9C3B44) · ZERO DRIFT SPECIFICATION
