@@ -1,5 +1,7 @@
 # DESIGN.md — DK Bond Tracker (paste into Stitch → Project → DESIGN.md)
 
+> **SOURCE OF TRUTH = `app_essentials.html` § Universal Elements** (element contracts E1–E14 + locked rules + Stitch system ids) **and § Essential 3** (theme palettes). This file is the **machine copy** for pasting into Stitch web — edit the essentials first, then mirror here. Never hand-edit this draft as the primary source.
+
 > Stitch CLI cannot write project DESIGN.md (project = create-only), so this draft is for one paste into the Stitch web editor. It becomes the hard-constraint context on every generation. Source of truth for the element library: `app_components.html` §Element Library.
 
 ```yaml
