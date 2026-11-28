@@ -1627,6 +1627,7 @@
 <!-- ============ ESSENTIAL 13 DEEP DIVE ============ -->
 <section>
   <h2 id="e13"><span class="num">13</span> Gestures — the app-wide gesture map and rules</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R1 FAIL (3 REAL,2 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential13_audit_report.html</p>
   <p class="muted">A gesture = a physical move (tap · long-press · swipe · pull · drag). Decided once at app level — every screen follows. Never redefine a standard gesture; if it fights the system, <b style="color:var(--ink)">the system wins</b>. Per-component choices live inside this frame.</p>
 
   <h3>Part 1 · The gesture map</h3>
@@ -1686,7 +1687,7 @@
   <div class="feedback4">
     <div class="fb"><b>Press</b>highlight + scale (locked: 0.90 + dim 62%)</div>
     <div class="fb"><b>Drag</b>item follows the finger</div>
-    <div class="fb"><b>Pull</b>loading indicator appears</div>
+    <div class="fb"><b>Pull</b>loading indicator appears (if pull ever added — #6 keeps refresh button-only today)</div>
     <div class="fb gap"><b>Long-press</b>⚠ progress ring / ripple — NOT yet designed (hold-2s gap)</div>
   </div>
   <p class="muted" style="font-size:11px;margin-top:8px">No feedback = user doesn't know it worked → repeats the gesture → double actions.</p>
@@ -1714,8 +1715,8 @@
       <tr><td>Tap-only core + guarded delete lock</td><td><span class="pill g">compliant</span></td><td>Parts 1/2/4 already satisfied</td></tr>
       <tr><td>Sheet drag handle (discoverability)</td><td><span class="pill g">designed</span></td><td>Part 6 ✓</td></tr>
       <tr><td>Hold-2s progress ring/ripple</td><td><span class="pill a">build</span></td><td>Part 5 gap — Stitch component</td></tr>
-      <tr><td>Pull-to-refresh decision</td><td><span class="pill a">DECIDE</span></td><td>button-only vs +pull (pending your call)</td></tr>
-      <tr><td>Sheet swipe-dismiss rule</td><td><span class="pill a">write</span></td><td>mirror of back rule: keeps entries</td></tr>
+      <tr><td>Pull-to-refresh</td><td><span class="pill g">DECIDED</span></td><td>sync-button only for MVP — no pull gesture (locked #6)</td></tr>
+      <tr><td>Sheet swipe-dismiss rule</td><td><span class="pill g">DECIDED</span></td><td>drag-down dismisses + keeps entries (#9) — Flutter wiring = build</td></tr>
       <tr><td>Gesture-nav device test</td><td><span class="pill a">build</span></td><td>Part 3 — no hardware-back phones</td></tr>
       <tr><td>Tap-equivalent checklist in reviews</td><td><span class="pill a">build</span></td><td>Part 7 enforcement</td></tr>
     </tbody>
