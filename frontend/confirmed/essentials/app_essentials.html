@@ -458,7 +458,7 @@
       <div class="screen">
         <div class="name">Dashboard</div>
         <div class="bubble"><b>Chart range picked</b> local</div>
-        <div class="bubble"><b>Refresh spinning?</b> local</div>
+        <div class="bubble"><b>Refresh spinning?</b> ← app-wide</div>
         <div class="bubble"><b>reads bond cache</b> ← app-wide</div>
       </div>
     </div>
@@ -542,13 +542,15 @@
     <thead><tr><th>#</th><th>State piece</th><th>Scope</th><th>Held by</th><th>Status</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>Bond / ledger cache (all positions)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">bonds.db exists</span></td></tr>
-      <tr><td>2</td><td>Theme — Midnight Ledger tokens</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">designed</span></td></tr>
+      <tr><td>2</td><td>Theme (active of 4 locked: Nordic Mist PRIMARY · Harbor · Warm · Fjord)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">4 locked themes</span></td></tr>
       <tr><td>3</td><td>Privacy mask (hide ₹ default + eye)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">standing rule</span></td></tr>
       <tr><td>4</td><td>Alerts / notifications feed</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">alerts.py exists</span></td></tr>
       <tr><td>5</td><td>Sync status (last synced, spinning)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag build">to build</span></td></tr>
       <tr><td>6</td><td>Current tab / nav state</td><td><span class="pill p">app-wide</span></td><td>Riverpod + go_router</td><td><span class="tag build">to build</span></td></tr>
       <tr><td>7</td><td>User settings (credit day, TDS default, export prefs)</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag build">to build</span></td></tr>
       <tr><td>8</td><td>ISIN fetch session result</td><td><span class="pill p">app-wide</span></td><td>Riverpod</td><td><span class="tag has">4 states designed</span></td></tr>
+      <tr><td>9</td><td>Goals store (local-first: name/dates/amount/saved/status)</td><td><span class="pill p">app-wide</span></td><td>Riverpod + local goals repository</td><td><span class="tag has">designed (local-first)</span></td></tr>
+      <tr><td>10</td><td>Goals ← Portfolio holdings/returns (read view, no duplicate copy)</td><td><span class="pill p">app-wide</span></td><td>Riverpod (reads #1 bond/ledger cache)</td><td><span class="tag has">derived via #1</span></td></tr>
       <tr><td>—</td><td>Dropdown open · field text · chip tap · accordion · switch · scroll</td><td><span class="pill g">local</span></td><td>setState()</td><td><span class="tag has">excluded from plan</span></td></tr>
     </tbody>
   </table>
@@ -2035,7 +2037,7 @@
     <div class="gcard">
       <h4>Foundation (4)</h4>
       <ol>
-        <li><b><a href="#e1" style="color:var(--accent-soft)">1 State Management</a></b> — local vs app-wide · Riverpod locked ·8-piece inventory</li>
+        <li><b><a href="#e1" style="color:var(--accent-soft)">1 State Management</a></b> — local vs app-wide · Riverpod locked ·10-piece inventory</li>
         <li><b><a href="#e2" style="color:var(--accent-soft)">2 Navigation</a></b> — page map · tabs/More · back rules · deep links</li>
         <li><b><a href="#e3" style="color:var(--accent-soft)">3 Design System</a></b> — tokens · type/spacing · <b>4 locked themes</b> · icon rules</li>
         <li><b><a href="#e4" style="color:var(--accent-soft)">4 Responsiveness</a></b> — size classes · <b>Compact-only MVP decided</b> · scroll-fix history</li>
