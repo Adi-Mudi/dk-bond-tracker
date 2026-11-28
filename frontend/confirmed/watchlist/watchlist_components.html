@@ -42,9 +42,9 @@
   <h1>Watchlist — Component Inventory (7-checkpoint)</h1>
   <p class="lede">Every component on the Watchlist page with the seven checkpoints: completeness · size tiers · reuse · variants-not-copies · independence · states+edges · NEW flags. Screen truth: <a href="watchlist_all_sections.html" style="color:var(--soft)">watchlist_all_sections.html</a> (LOCKED) · gallery: <a href="watchlist_components_board.html" style="color:var(--soft)">components_board</a> (44 specimens — primitives gallery) · pair: <a href="watchlist_features.html" style="color:var(--soft)">watchlist_features</a> (47 features). Companion: goals_components.html pattern.</p>
   <div class="stats">
-    <div class="stat"><b>27</b>live components</div>
-    <div class="stat"><b>12</b>shared (E-series)</div>
-    <div class="stat"><b>13</b>watchlist-specific (W)</div>
+    <div class="stat"><b>36</b>live components</div>
+    <div class="stat"><b>21</b>shared (E-series + kit)</div>
+    <div class="stat"><b>15</b>watchlist-specific (W)</div>
     <div class="stat"><b>44</b>gallery specimens (primitives)</div>
     <div class="stat"><b>6</b>board defects → stitch</div>
   </div>
@@ -52,11 +52,11 @@
 
 <section>
   <h2>Count truth (checkpoint1) <span class="count">reconciled</span></h2>
-  <p class="note">Gallery board header says "40 types" but the HTML contains <b>44 specimen cards (01–44)</b> — the board is a PRIMITIVES gallery (generic demo copy), not the page inventory. Canonical inventory = THIS file: <b>27 live components (12 shared +13 page-specific +2 variants)</b>. The "40 types /84 instances" figures in app_components.html = historical watchlist baseline (superseded here). Specimen count ≠ component count: specimens split variants (buttons10–13 = ONE E8 with variant prop; chips17–25+39 = variant props; nested rows30/31 = one W2 with prop).</p>
+  <p class="note">Gallery board header says "40 types" but the HTML contains <b>44 specimen cards (01–44)</b> — the board is a PRIMITIVES gallery (generic demo copy), not the page inventory. Canonical inventory = THIS file: <b>36 live components (21 shared +15 page-specific)</b>. The "40 types /84 instances" figures in app_components.html = historical watchlist baseline (superseded here · pointer committed in app_components stats, 717cf5fe). Specimen count ≠ component count: specimens split variants (buttons10–13 = ONE E8 with variant prop; chips17–25+39 = variant props; nested rows30/31 = one W2 with prop).</p>
 </section>
 
 <section>
-  <h2>Shared components (contract in Universal Elements E1–E22) <span class="count">12</span></h2>
+  <h2>Shared components (E1–E22 · kit #nn · reused ≥2 pages) <span class="count">21</span></h2>
   <p class="note" style="color:var(--green)">Invariant: shared looks/behaves IDENTICALLY on every page. Size: atom = smallest unit · molecule = small combination · organism = full region. Permission views: N/A (local-first MVP). Independence: props in · callbacks out · no store coupling (nesting rule).</p>
   <table>
     <thead><tr><th>ID</th><th>Component</th><th>Size</th><th>Watchlist use</th><th>States</th><th>Edge cases</th></tr></thead>
@@ -64,21 +64,30 @@
       <tr><td class="id">E1</td><td><b>Top App Bar</b> (+ detail back-variant)</td><td>organism</td><td>brand · sync · bell+badge · avatar · detail: back+title+⋮</td><td>default · scrolled · focused · loading(sync)</td><td>long title truncate · badge>9→"9+"</td></tr>
       <tr><td class="id">E2</td><td><b>Bottom Nav</b></td><td>organism</td><td>5 tabs, Watchlist active (List frame only)</td><td>default · active · focused</td><td>label truncate</td></tr>
       <tr><td class="id">E8</td><td><b>Button</b> <span class="pill nw">variant prop</span></td><td>atom</td><td>Fetch · Save · Select · Confirm Move · Dismiss · Add first bond · Remove confirm · Browse NSDL · Details · Read Advisory · Update goals</td><td>enabled · pressed · focused · disabled · loading-lock</td><td>label wrap · disabled shows why</td></tr>
-      <tr><td class="id">E9</td><td><b>Text Input</b> <span class="pill nw">type variants</span></td><td>atom</td><td>ISIN lookup · broker ref · numeric/currency · date · goal select (type prop)</td><td>idle · focused · filled · error · disabled · read-only</td><td>long value scroll · missing → empty</td></tr>
+      <tr><td class="id">E9</td><td><b>Text Input</b> <span class="pill nw">type variants</span></td><td>atom</td><td>ISIN lookup · broker autocomplete · numeric/currency · date · goal select (type prop)</td><td>idle · focused · filled · error · disabled · read-only</td><td>long value scroll · missing → empty</td></tr>
       <tr><td class="id">E10</td><td><b>Overflow menu ⋮</b></td><td>molecule</td><td>detail header (View history · Edit target · Share · Remove)</td><td>closed · open · focused</td><td>popup scrolls if long</td></tr>
       <tr><td class="id">E11</td><td><b>Banner</b></td><td>molecule</td><td>dup-ISIN error · fetch error+Retry · alert banners</td><td>info · warning · error · loading(retry)</td><td>long headline wraps</td></tr>
       <tr><td class="id">E12</td><td><b>Empty State</b></td><td>organism</td><td>"Add first bond" first-open empty</td><td>empty only</td><td>CTA wrap</td></tr>
       <tr><td class="id">E13</td><td><b>Status Pill</b> <span class="pill nw">4-tier variant</span></td><td>atom</td><td>Danger · Maturing · On-going · Matured (colour+TEXT)</td><td>4 tiers</td><td>tier text wraps</td></tr>
       <tr><td class="id">E14</td><td><b>Progress Rail</b></td><td>atom</td><td>company invested fill (unlabelled)</td><td>value · skeleton ·0%</td><td>clamp0–100</td></tr>
-      <tr><td class="id">E16</td><td><b>Checkbox</b> <span class="pill nw">NEW vs board</span></td><td>atom</td><td>Secured NCD (Col01 line345)</td><td>unchecked · checked · pressed · focused · disabled</td><td>label wrap</td></tr>
+      <tr><td class="id">E16</td><td><b>Checkbox</b></td><td>atom</td><td>Secured NCD (Col01 line345)</td><td>unchecked · checked · pressed · focused · disabled</td><td>label wrap</td></tr>
       <tr><td class="id">E15</td><td><b>IconButton</b></td><td>atom</td><td>sync · bell · overflow triggers</td><td>default · pressed · focused · disabled</td><td>SR action label · ≥48dp hit</td></tr>
-      <tr><td class="id">E17</td><td><b>Radio</b> <span class="pill nw">NEW vs board</span></td><td>atom</td><td>Multi-broker compare pick</td><td>unselected · selected · pressed · focused</td><td>label wrap</td></tr>
+      <tr><td class="id">E17</td><td><b>Radio</b></td><td>atom</td><td>Multi-broker compare pick</td><td>unselected · selected · pressed · focused</td><td>label wrap</td></tr>
+      <tr><td class="id">FAB</td><td><b>FAB + (create)</b> <span class="pill sh">reused kit</span></td><td>atom</td><td>open Add Bond sheet (A5 · kit #15)</td><td>default · pressed · focused · disabled</td><td>icon-only → SR label · ≥48dp hit</td></tr>
+      <tr><td class="id">E4</td><td><b>Stat cell / strip</b></td><td>molecule</td><td>WATCHING active count · ALERTS sub-line (A3)</td><td>value · skeleton · loading</td><td>zero → "0" · long ₹ wraps</td></tr>
+      <tr><td class="id">KIT33</td><td><b>Segmented control (tabs)</b></td><td>molecule</td><td>ADD FORM / LEDGER sticky tabs (A2) · first-open default = same widget</td><td>default · active · pressed · focused</td><td>long labels truncate</td></tr>
+      <tr><td class="id">KIT27</td><td><b>Rating Watch alert card</b></td><td>molecule</td><td>CRISIL / rating alert on card (B1)</td><td>info · warning · error</td><td>long headline wraps</td></tr>
+      <tr><td class="id">KIT36</td><td><b>Guarded remove dialog</b></td><td>organism</td><td>Remove confirm before delete (F3)</td><td>open · confirming · error · closed</td><td>backdrop tap = cancel · long ISIN wraps</td></tr>
+      <tr><td class="id">KIT19</td><td><b>Severity chip</b></td><td>atom</td><td>alert severity marker (B-series)</td><td>severity tiers</td><td>tier text wraps</td></tr>
+      <tr><td class="id">E20</td><td><b>Badge</b></td><td>atom</td><td>bell notification count (E1 shell)</td><td>default · zero(hidden) · >9→"9+"</td><td>long label truncate</td></tr>
+      <tr><td class="id">KIT31</td><td><b>Callout note</b></td><td>molecule</td><td>source / hint callout (C14 Source Note)</td><td>default · dismissible</td><td>long text wraps</td></tr>
+      <tr><td class="id">KIT9</td><td><b>Computed read-out</b></td><td>atom</td><td>value-per-unit / derived yield readout</td><td>value · skeleton · empty(—)</td><td>missing → "—"</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>Watchlist-specific components <span class="count">13</span> <span class="pill nw">NEW — build first</span></h2>
+  <h2>Watchlist-specific components <span class="count">15</span> <span class="pill nw">NEW — build first</span></h2>
   <p class="note" style="color:var(--soft)">All NEW (not in E1–E22) — each blocks its traceability features (A1–H7 in watchlist_features). Props/callbacks only; copy = props.</p>
   <table>
     <thead><tr><th>ID</th><th>Component</th><th>Size</th><th>Anatomy</th><th>States</th><th>Edge cases</th></tr></thead>
@@ -96,6 +105,8 @@
       <tr><td class="id">W11</td><td><b>Load More</b> <span class="pill nw">NEW</span> <span class="pill nw">H4</span></td><td>atom</td><td>bottom button after100 rows</td><td>hidden · visible · loading(more) · error(retry)</td><td>last page → button hides</td></tr>
       <tr><td class="id">W12</td><td><b>Detail Header</b> <span class="pill nw">E1 variant</span></td><td>organism</td><td>back · title · ⋮ (E1 back-variant — not a copy)</td><td>via E1</td><td>via E1</td></tr>
       <tr><td class="id">W13</td><td><b>Suggestion chips</b> <span class="pill nw">NEW</span></td><td>atom</td><td>GoldenPi · Grip · IndiaBonds · Zerodha</td><td>shown · pressed</td><td>long names wrap</td></tr>
+      <tr><td class="id">W14</td><td><b>Scroll-to-top (TOP)</b> <span class="pill nw">NEW</span> <span class="pill nw">H3</span></td><td>atom</td><td>appears after 1-screen scroll · tap → smooth return to top</td><td>hidden · visible · pressed</td><td>SR label "Scroll to top" · re-hides at top</td></tr>
+      <tr><td class="id">W15</td><td><b>Locked ISIN chip</b> <span class="pill nw">NEW</span></td><td>atom</td><td>locked identity chip on form (C5)</td><td>locked · pressed</td><td>long ISIN truncate · no edit while locked</td></tr>
     </tbody>
   </table>
   <p class="note">Gestures: tap-only page · no swipe-delete (buried typed-ISIN+hold) · system edge=back wins · W4 hold-2s is the only long-press (confirm gate). Variants rule: one component + variant/state props — never N copies (E8/W2/W5 are the models).</p>
@@ -122,14 +133,14 @@
   <table>
     <thead><tr><th>Item</th><th>Status</th></tr></thead>
     <tbody>
-      <tr><td>"40 types" registry figure</td><td>superseded by this inventory (27 live) — app_components baseline note pending</td></tr>
+      <tr><td>"40 types" registry figure</td><td>superseded by this inventory (36 live) — app_components baseline pointer committed (717cf5fe)</td></tr>
       <tr><td>Payment-era specimen copy</td><td>page truth = all_sections; board to be re-skinned via stitch</td></tr>
     </tbody>
   </table>
 </section>
 
 <footer>
-  <span>WATCHLIST · COMPONENT INVENTORY ·7-checkpoint ·27 live (12 shared +13 NEW +2 variants) · board defects tracked</span>
+  <span>WATCHLIST · COMPONENT INVENTORY ·7-checkpoint ·36 live (21 shared +15 NEW) · board defects tracked</span>
   <span>against LOCKED all_sections ·2026-11-29</span>
 </footer>
 
