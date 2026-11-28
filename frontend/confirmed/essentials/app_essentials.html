@@ -559,6 +559,7 @@
 <!-- ============ ESSENTIAL 2 DEEP DIVE ============ -->
 <section>
   <h2 id="e2"><span class="num">2</span> Navigation — how users move between pages</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · R1 HISTORY — CLOSED (FAIL 3 REAL, 2 MINOR, all fixed) · report: .IDE_Plans/audit_reports/essential2_audit_report.html</p>
   <p class="muted">Four parts: the <b style="color:var(--ink)">page map</b> (what connects to what), the <b style="color:var(--ink)">menu pattern</b> (tabs vs drawer), the <b style="color:var(--ink)">behaviour</b> (how pages open + what Back does), and <b style="color:var(--ink)">guards &amp; deep links</b> (special entry rules).</p>
 
   <h3>Visual · The page map — every page and its connections</h3>
@@ -575,6 +576,7 @@
       <div class="pm-tab">
         <div class="t">Portfolio</div>
         <div class="kids">
+          <div class="pm-kid sheet">FAB + → Add Bond sheet</div>
           <div class="pm-kid page">Holdings list → Bond detail</div>
           <div class="pm-kid sheet">matrix cell → Payment sheet</div>
           <div class="pm-kid page">Payout details</div>
@@ -593,8 +595,11 @@
       <div class="pm-tab">
         <div class="t">Goals</div>
         <div class="kids">
-          <div class="pm-kid sheet">FAB + → Goal form</div>
+          <div class="pm-kid page">FAB + → Goal form (full-screen)</div>
           <div class="pm-kid page">goal cards → detail</div>
+          <div class="pm-kid page">GOALS ⇄ FORM tab → list / form</div>
+          <div class="pm-kid sheet">⋮ → Edit / Archive sheet</div>
+          <div class="pm-kid page">linked bond → Bond detail</div>
         </div>
       </div>
       <div class="pm-tab">
@@ -606,6 +611,7 @@
         </div>
       </div>
     </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center">top bar edges (every page): bell → Alerts · search icon → Search</div>
     <div class="legend">
       <span><i style="background:rgba(74,222,128,.2);border-color:rgba(74,222,128,.5)"></i>full-screen page</span>
       <span><i style="background:rgba(192,132,252,.2);border-color:rgba(192,132,252,.5)"></i>bottom sheet (task on top of context)</span>
@@ -665,11 +671,11 @@
   <div class="grid3">
     <div class="card">
       <h4 style="color:var(--accent-soft)">Full-screen</h4>
-      <ul><li>Real pages: Bond detail, Settings, Search <span>Back = return to previous page</span></li></ul>
+      <ul><li>Real pages: Bond detail, Settings, Search, Goal form <span>Back = return to previous page</span></li><li>Back on tab root → Dashboard <span>Dashboard root → exit (minimize)</span></li></ul>
     </div>
     <div class="card">
       <h4 style="color:var(--purple)">Bottom sheet</h4>
-      <ul><li>Quick tasks: Payment Edit, Add Bond, action sheet <span>Back = close sheet, KEEP typed entries</span></li></ul>
+      <ul><li>Quick tasks: Payment Edit, Add Bond, action sheet <span>Back = close sheet, KEEP typed entries</span></li><li>Visible exits: X · Cancel · scrim <span>same as Back — never trapped (M8)</span></li></ul>
     </div>
     <div class="card">
       <h4 style="color:var(--red)">Dialog</h4>
@@ -702,10 +708,10 @@
   <table>
     <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Page map</td><td><span class="pill g">designed</span></td><td>5-column boards + per-page navigation_flow.md</td></tr>
+      <tr><td>Page map</td><td><span class="pill g">designed</span></td><td>locked base designs + per-page navigation_flow.md</td></tr>
       <tr><td>Tab pattern (5 tabs + More)</td><td><span class="pill g">designed</span></td><td>bottom nav in every frame</td></tr>
       <tr><td>Back rules per surface</td><td><span class="pill g">documented</span></td><td>sheet keeps entries · Goals detour returns intact</td></tr>
-      <tr><td>go_router with per-tab stacks</td><td><span class="pill a">build</span></td><td>Flutter — one navigator per tab</td></tr>
+      <tr><td>go_router with per-tab stacks</td><td><span class="pill a">build</span></td><td>Flutter — page list · URL parsing · redirect guards · one navigator per tab</td></tr>
       <tr><td>More menu contents</td><td><span class="pill a">build</span></td><td>Settings/About/Alerts/Search/Export</td></tr>
       <tr><td>Deep-link routes</td><td><span class="pill a">build</span></td><td>notification → page wiring</td></tr>
       <tr><td>Guards (auth, when cloud arrives)</td><td><span class="pill p">slot ready</span></td><td>task-guards already designed</td></tr>
