@@ -1025,6 +1025,7 @@
 <!-- ============ ESSENTIAL 6 DEEP DIVE ============ -->
 <section>
   <h2 id="e6"><span class="num">6</span> Forms — how the app collects user input</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R1 PASS (0 REAL,2 MINOR) → minors fixed → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential6_audit_report.html</p>
   <p class="muted">Two guards, never one: the <b style="color:var(--green)">form validates for comfort</b>, the <b style="color:var(--purple)">back end validates for trust</b>. Forms = first guard, back end = last guard.</p>
 
   <h3>Visual · The two-guards rule</h3>
@@ -1051,6 +1052,7 @@
       <tr><td>Remove: typed ISIN</td><td>exact match + hold 2s</td><td>on confirm</td></tr>
     </tbody>
   </table>
+  <p class="muted" style="font-size:11px;margin-top:6px">Pattern sample — every form's spec carries its own exhaustive field table (B5 / checklist #3). All four trigger modes covered: while typing · on leaving · on submit · on confirm. Date/text/dropdown fields (Add Bond14 · Goals4) follow the same pattern in their form specs.</p>
 
   <h3>Error messages — state the rule, not the category</h3>
   <div class="grid2">
@@ -1065,6 +1067,7 @@
       <div class="msg-good">red border + icon + text — three signals, not one</div>
     </div>
   </div>
+  <p class="muted" style="font-size:11px;margin-top:6px">Placement: the error sits <b style="color:var(--ink)">below its field</b> · long forms also show a summary on submit — then scroll to the first error.</p>
 
   <h3>Visual · Submit &amp; failure behaviour</h3>
   <div class="diagram">
@@ -1073,7 +1076,7 @@
       <div class="arrow">→</div>
       <div class="flowbox">Button DISABLED + spinner<br><span style="color:var(--muted);font-size:10px">one tap = one action</span></div>
       <div class="arrow">→</div>
-      <div class="flowbox green">Success</div>
+      <div class="flowbox green">Success<span style="display:block;font-size:9px;font-weight:400">specific — "Payment saved"</span></div>
       <span style="color:var(--dim);font-size:12px">or</span>
       <div class="flowbox" style="border-color:var(--red);color:var(--red)">Specific back-end error</div>
     </div>
@@ -1102,7 +1105,7 @@
       <tr><td>Error message style (rule + icon + text)</td><td><span class="pill g">pattern set</span></td><td>dup-ISIN banner is the reference</td></tr>
       <tr><td>Submit lock + loading on payment/move/save</td><td><span class="pill a">build</span></td><td>Flutter — shared SubmitButton widget</td></tr>
       <tr><td>Preserve-on-fail + scroll-to-error</td><td><span class="pill a">build</span></td><td>form framework defaults</td></tr>
-      <tr><td>Draft autosave on exit</td><td><span class="pill a">build</span></td><td>generalizes your Goals-detour rule</td></tr>
+      <tr><td>Draft autosave on exit</td><td><span class="pill a">build</span></td><td>universal mid-form autosave rule</td></tr>
     </tbody>
   </table>
 </section>
