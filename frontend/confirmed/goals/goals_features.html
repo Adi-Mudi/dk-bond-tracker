@@ -41,67 +41,76 @@
   <h1>Goals Page — Feature List</h1>
   <p class="lede">Every feature of the Goals page as designed (base design + locked board + manifest). Source of truth = the locked design; this list is the handoff input for component inventory and GitHub issues.</p>
   <div class="stats">
-    <div class="stat"><b>26</b>features</div>
-    <div class="stat"><b>3</b>states of the page</div>
+    <div class="stat"><b>36</b>features</div>
+    <div class="stat"><b>3</b>frames (list / form / detail)</div>
     <div class="stat"><b>0</b>remove paths (locked)</div>
     <div class="stat"><b>₹</b>INR only</div>
   </div>
 </header>
 
 <section>
-  <h2>Entry &amp; navigation <span class="count">6</span></h2>
+  <h2>Entry &amp; navigation <span class="count">8</span></h2>
   <table>
     <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
     <tbody>
-      <tr><td class="id">G01</td><td>Bottom-nav destination</td><td>Goals tab in bottom nav (Dashboard · Portfolio · Watchlist · <b>Goals</b> · More); own back stack per tab (locked: per-tab stacks)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G02</td><td>GOALS / FORM segmented tabs</td><td>Top tabs switch list ↔ create form; counts e.g. GOALS (3) / FORM (0); sticky on list+form states</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G03</td><td>FAB + (create)</td><td>Floating + opens the clean create form as a <b>full-screen page</b> (E2 audit: not a bottom sheet; also reachable via FORM tab)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G04</td><td>App bar</td><td>Title + sync / bell / theme / avatar (fixed icon order — shared element E1)</td><td><span class="pill core">shared</span></td></tr>
-      <tr><td class="id">G05</td><td>Empty-first state</td><td>GOALS0: zeroed stats, placeholder "No goals yet", CTA "Create first goal"; form hidden until FAB/tap</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G06</td><td>Goal detail navigation</td><td>Card → Details opens goal detail (single page, states merged: list / form / detail)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G01</td><td>Bottom-nav destination</td><td>User taps the Goals tab → the Goals list opens with its own back stack (locked per-tab stacks).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G02</td><td>GOALS / FORM segmented tabs</td><td>On the LIST frame the user taps GOALS (n) / FORM (n) to switch list ↔ form; tabs are sticky on the list frame only (form = full-screen, no tabs).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G03</td><td>FAB + (create)</td><td>User taps FAB + → the clean create form opens as a <b>full-screen page</b> (E2 audit: not a bottom sheet; also reachable via FORM tab).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G04</td><td>App bar</td><td>User sees the shared app bar (title + sync / bell / theme / avatar in fixed order) → taps navigate to those shell actions (shared element E1).</td><td><span class="pill core">shared</span></td></tr>
+      <tr><td class="id">G05</td><td>Empty-first state</td><td>User opens Goals with zero goals → zeroed stats + "No goals yet" + CTA "Create first goal" show; form hidden until FAB/tap.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G06</td><td>Goal detail navigation</td><td>User taps a card's Details → the detail frame opens; Back returns to the list with position intact.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G29</td><td>Back navigation (form &amp; detail)</td><td>User taps back (arrow or system edge) on form or detail → returns to the previous frame; system edge-swipe always wins.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G33</td><td>Manual sync / refresh</td><td>User taps the sync icon → list and detail re-fetch from local store + portfolio; skeleton shows while loading.</td><td><span class="pill core">core</span></td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>Goal list &amp; cards <span class="count">6</span></h2>
+  <h2>Goal list &amp; cards <span class="count">9</span></h2>
   <table>
     <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
     <tbody>
-      <tr><td class="id">G07</td><td>Goal card</td><td>Name · dates · Saved ₹ · progress rail · status pill · Details button (Check-in button REMOVED per developer)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G08</td><td>Months signal (one only)</td><td>Positive <b>X/Y months ✓</b> (green) when on plan · negative <b>N months missed</b> (red) when any miss — negative wins and stays until resolved. NEVER target amounts on cards (psychology rule)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G09</td><td>Status pill (4-tier)</td><td>Behind · Due Soon · On Track · Completed — colour + text always paired (shared E13)</td><td><span class="pill core">shared</span></td></tr>
-      <tr><td class="id">G10</td><td>Progress rail</td><td>Saved-vs-target bar, no numbers/targets on it (shared E14)</td><td><span class="pill core">shared</span></td></tr>
-      <tr><td class="id">G11</td><td>Pace line</td><td>₹X/mo pace per goal (plan pace indicator on card)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G12</td><td>Skeleton loading</td><td>List skeleton before data — never a whole-page spinner (locked loading rule)</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G07</td><td>Goal card</td><td>User scans a card → sees name · dates · Saved ₹ · progress rail · status pill · pace line and a Details button (Check-in button REMOVED per developer).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G08</td><td>Months signal (one only)</td><td>User reads the card signal → green <b>X/Y months ✓</b> when on plan OR red <b>N months missed</b> when any miss — negative wins and stays until resolved. NEVER target amounts on cards (psychology rule).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G09</td><td>Status pill (4-tier)</td><td>User reads the pill inside G07 → Behind · Due Soon · On Track · Completed with colour + text always paired (sub-element of G07; shared E13).</td><td><span class="pill core">shared</span></td></tr>
+      <tr><td class="id">G10</td><td>Progress rail</td><td>User glances at the rail inside G07 → saved-vs-target fill with no numbers/targets on it (sub-element of G07; shared E14).</td><td><span class="pill core">shared</span></td></tr>
+      <tr><td class="id">G11</td><td>Pace line</td><td>User reads ₹X/mo pace on the card → sees the plan pace indicator for that goal.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G12</td><td>Skeleton loading</td><td>User opens the list while data loads → skeleton rows show — never a whole-page spinner (locked loading rule).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G34</td><td>List ordering (status sort)</td><td>User views the list → goals ordered soonest end-date first, Completed last and dimmed — no manual sort control.</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G35</td><td>Scroll-to-top</td><td>User is more than one screen down → scroll-to-top control appears; tap returns to the top of the list.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G36</td><td>Archived / Completed visibility</td><td>User views the list → archived and completed goals remain visible (dimmed, last) so nothing disappears silently.</td><td><span class="pill core">core</span></td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>Create form (clean) <span class="count">4</span></h2>
+  <h2>Create form (clean) <span class="count">5</span></h2>
   <table>
     <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
     <tbody>
-      <tr><td class="id">G13</td><td>Four inputs only</td><td>Goal name · Start date · End date · Amount (₹ monthly, user-entered). Nothing else — no Saved, no Note, no invested field</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G14</td><td>Auto total months</td><td>Dates → total months computed live (e.g. Jan2027→Oct2028 =22)</td><td><span class="pill auto">auto</span></td></tr>
-      <tr><td class="id">G15</td><td>Auto target amount</td><td>Amount × months → target readout (₹ icon, never $), e.g. ₹11,00,000; read-only</td><td><span class="pill auto">auto</span></td></tr>
-      <tr><td class="id">G16</td><td>Save goal</td><td>Submit with lock (no double-tap); labels without asterisks; validation errors keep entries</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G13</td><td>Four inputs only</td><td>User fills exactly4 inputs — Goal name · Start date · End date · Amount (₹ monthly). Nothing else — no Saved, no Note, no invested field. Helper line: "Both calculated automatically — nothing else to fill".</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G14</td><td>Auto total months</td><td>User picks dates → total months computes live (e.g. Jan2027→Oct2028 =22).</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G15</td><td>Auto target amount</td><td>User enters the monthly amount → target = Amount × months shows read-only (₹ icon, never $), e.g. ₹11,00,000.</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G16</td><td>Save goal</td><td>User taps Save goal → submit locks (no double-tap), validation errors keep entries, goal writes to the local store.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G27</td><td>Edit goal</td><td>User taps ⋮ → Edit goal → the form opens prefilled with existing values; Save updates the goal (same4 inputs).</td><td><span class="pill core">core</span></td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>Goal detail <span class="count">6</span></h2>
+  <h2>Goal detail <span class="count">9</span></h2>
   <table>
-    <thead><tr><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
     <tbody>
-      <tr><td class="id">G17</td><td>Overflow menu</td><td>⋮ → <b>Edit goal</b> · <b>Archive goal</b> ONLY — no Remove anywhere (locked)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G18</td><td>Saved so far + rail</td><td>Top summary: Saved ₹ + progress rail (no target shouting)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G19</td><td>Month-wise derivation table</td><td>title "Month-wise Derivation (Jan 2027 → Oct 2028)" (no subtitle) ·5 columns: Month · Target · Invested · Returns · Running Total (dim) · month rows · gap row · plain Oct final row · <b>static accent totals row (tfoot):22 months ·22 completed | ₹20,00,000 | ₹7,70,000 | ₹80,000 | ₹20,00,000</b> — the only coloured row</td><td><span class="pill new">LOCKED</span></td></tr>
-      <tr><td class="id">G20</td><td>Auto invested column</td><td>Invested per month = <b>auto from portfolio purchase dates</b> (Watchlist → Move to Portfolio) — never typed (Q3 rule)</td><td><span class="pill auto">auto</span></td></tr>
-      <tr><td class="id">G21</td><td>Auto returns column</td><td>Returns per month = <b>bond monthly interest</b> from linked bonds — never typed</td><td><span class="pill auto">auto</span></td></tr>
-      <tr><td class="id">G22</td><td>Linked bonds (with links)</td><td>Auto list — each row: bond name · ISIN · rate · <b>total interest received</b> (Tata Capital ₹1,42,500 · L&amp;T Finance ₹1,24,000 — NOT monthly) · chevron → opens bond detail</td><td><span class="pill new">LOCKED</span></td></tr>
+      <tr><td class="id">G17</td><td>Overflow menu</td><td>User taps ⋮ → menu opens with <b>Edit goal</b> and <b>Archive goal</b> ONLY — no Remove anywhere (locked).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G18</td><td>Saved so far + rail</td><td>User reads the top summary → Saved ₹ + progress rail (no target shouting).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G19</td><td>Month-wise derivation rows</td><td>User scrolls the table → month rows show Month · Target · Invested · Returns · Running Total (dim), gap row, plain final row; Invested/Returns live-update from portfolio.</td><td><span class="pill new">LOCKED</span></td></tr>
+      <tr><td class="id">G30</td><td>Static accent totals row</td><td>User reaches the table foot → one accent-coloured tfoot row: "22 months ·22 completed | ₹20,00,000 | ₹7,70,000 | ₹80,000 | ₹20,00,000" — the ONLY coloured row (split from G19).</td><td><span class="pill new">LOCKED</span></td></tr>
+      <tr><td class="id">G20</td><td>Auto invested column</td><td>User views INVESTED cells → each month fills from <b>portfolio purchase dates</b> (Watchlist → Move to Portfolio) — never typed (Q3 rule).</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G21</td><td>Auto returns column</td><td>User views RETURNS cells → each month fills from <b>bond monthly interest</b> of linked bonds — never typed; returns show even in zero-investment months.</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G22</td><td>Linked bonds (with links)</td><td>User reads the linked list → each row: bond name · ISIN · rate · <b>total interest received</b> (Tata Capital ₹1,42,500 · L&amp;T Finance ₹1,24,000 — NOT monthly) · chevron opens bond detail.</td><td><span class="pill new">LOCKED</span></td></tr>
+      <tr><td class="id">G32</td><td>Empty linked-bonds state</td><td>User opens a detail with no linked holdings → linked section shows its empty state (never a bare blank block).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G28</td><td>Detail missed-signal banner</td><td>User opens a goal with misses → top banner shows "N months missed" + which months (e.g. "Nov &amp; Dec2026 missed before start") until resolved.</td><td><span class="pill new">LOCKED</span></td></tr>
     </tbody>
   </table>
 </section>
@@ -111,12 +120,23 @@
   <table>
     <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
     <tbody>
-      <tr><td class="id">G23</td><td>Archive only lifecycle</td><td>Goals end via Achieved or Archived — <b>no Remove path anywhere</b> (locked developer rule)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G24</td><td>Auto tracking source</td><td>Portfolio cashflow (synced) drives invested/returns; goals stay local-first (goals store + portfolio derivation)</td><td><span class="pill auto">auto</span></td></tr>
-      <tr><td class="id">G25</td><td>Target-OR-Monthly exclusivity</td><td>User enters one side; other derives (form: Amount entered → target auto)</td><td><span class="pill core">core</span></td></tr>
-      <tr><td class="id">G26</td><td>Psychology rules</td><td>No target amounts on list/detail displays (target total only inside derivation math); months signal = one signal, negative sticky</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G23</td><td>Archive only lifecycle</td><td>System/user ends goals via Achieved (auto) or Archived (user) — <b>no Remove path anywhere</b> (locked developer rule; consumed through G17 menu).</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G24</td><td>Auto tracking source <span class="pill core">rule</span></td><td>RULE (not standalone): invested/returns always originate from Portfolio cashflow — enforced by G20+G21; merged here for ID stability.</td><td><span class="pill auto">auto</span></td></tr>
+      <tr><td class="id">G25</td><td>Monthly → target exclusivity <span class="pill core">rule</span></td><td>RULE: the form takes ONLY the monthly amount; target derives (Amount × months). The old target-OR-monthly dual entry is removed with the locked form.</td><td><span class="pill core">core</span></td></tr>
+      <tr><td class="id">G26</td><td>Psychology rules <span class="pill core">rule</span></td><td>RULE (not standalone): no target amounts on list/detail displays · months signal = one signal, negative sticky — governs G07/G08/G18/G19.</td><td><span class="pill core">core</span></td></tr>
     </tbody>
   </table>
+</section>
+
+<section>
+  <h2>Error &amp; failure states <span class="count">1</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G31</td><td>Error / offline / save-failure + retry</td><td>User hits a fetch, offline, or save failure → persistent specific error with Retry (never blank, never vanishing toast); entries preserved on failed save. Related hidden states already listed: G05 empty · G12 skeleton · G16 validation.</td><td><span class="pill core">core</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Hidden-state coverage: empty (G05, G32) · loading skeleton (G12) · validation (G16) · error/retry (G31) · refresh (G33) · ordering (G34) · scroll (G35) — checkpoint4 satisfied.</p>
 </section>
 
 <section>
@@ -126,7 +146,7 @@
     <tbody>
       <tr><td>Invested per month (derivation table)</td><td><b>PORTFOLIO page details</b></td><td>Watchlist → Move to Portfolio creates a holding; its <b>purchase date</b> assigns the invested amount to that month — auto, never typed</td></tr>
       <tr><td>Returns per month (derivation table)</td><td><b>PORTFOLIO page details</b></td><td>Monthly bond interest / coupon yield on the goal-linked holdings — auto from bond data</td></tr>
-      <tr><td>Linked Bonds (yield/mo rows)</td><td><b>PORTFOLIO page details</b></td><td>Goal-linked holdings with per-bond rate (e.g.9.60% p.a. → ₹1,820/mo); rows link back to the bond detail</td></tr>
+      <tr><td>Linked Bonds rows (totals)</td><td><b>PORTFOLIO page details</b></td><td>Goal-linked holdings with per-bond rate (e.g.9.60% p.a.) and <b>total interest received</b> (₹1,42,500 / ₹1,24,000 — NOT per-month); rows link back to the bond detail</td></tr>
       <tr><td>Saved so far · Goal name · dates · Amount</td><td>Local goals store</td><td>User-entered at creation (form G13) or migrated</td></tr>
       <tr><td>Status pill · months signal · totals</td><td>Derived</td><td>Computed from the above (schedule vs invested vs missed)</td></tr>
     </tbody>
@@ -135,13 +155,31 @@
 </section>
 
 <section>
+  <h2>Dependencies &amp; build order <span class="count">checkpoint6</span></h2>
+  <table>
+    <thead><tr><th>Feature(s)</th><th>Depends on</th><th>Build order</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G13–G16, G27</td><td>Local goals store · E9 inputs · E8 button</td><td>1 — form is the entry point (no store → nothing else works)</td></tr>
+      <tr><td class="id">G07, G08, G18, G34–G36</td><td>goals store (post-save) · E13/E14</td><td>2 — list renders once store exists</td></tr>
+      <tr><td class="id">G06, G17, G19, G28–G30, G32</td><td>list (card tap) · detail frame</td><td>3 — detail after list</td></tr>
+      <tr><td class="id">G20, G21, G22, G24, G33</td><td><b>PORTFOLIO holdings + purchase dates + bond interest</b> · Watchlist → Move-to-Portfolio flow · Bond detail route</td><td>4 — cross-page: portfolio flow must exist first</td></tr>
+      <tr><td class="id">G01–G04, G29</td><td>Universal Elements E1/E2/E8 · shell nav</td><td>0 — shared shell precedes the page</td></tr>
+      <tr><td class="id">G31</td><td>E5 error kinds · E11 banner · E8 retry</td><td>2 — alongside list (failure matrix applies)</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Intra-page order: G13 → G14–G16 → G07/G06 → detail (G17–G22, G28–G30, G32) → Edit/Archive (G27/G23).</p>
+</section>
+
+<section>
   <h2>✓ Keep/drop RESOLVED — all three DROPPED <span class="count">closed</span></h2>
   <div class="flag" style="border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.06);color:var(--green)"><b>Developer ruling (2026-11-28):</b> the locked3-frame base design is the single truth — (a) Upcoming Pipeline grid · (b) pace-adjustment banner · (c) failure counter are <b>DROPPED</b>. They existed only in the old Monthly Tracking frame and are removed from all goals docs. Manual Record Check-in + Save draft were already removed the same day. Nothing from the old design is kept.</div>
+  <div class="note" style="margin-top:8px;color:var(--green)">✓ Synced with the E1–E17 audit campaign (2026-11-28, AGY PASS0/0): FAB form = full-screen (E2) · contracts E1–E22 with Owner/Status (E15/E17) · E13/E14/E9 rules apply.</div>
+  <div class="note" style="margin-top:6px;color:var(--green)">✓ Feature-inventory checkpoint check (AGY,2026-11-28): R1 FAIL (4 REAL,2 MINOR) → fixed — screen gaps added (G27–G30, G32) · hidden states added (G31, G33–G36) · overlaps marked as rules (G24–G26) · G19/G30 split · dependency map added · sentences = "user does X → outcome Y".</div>
 </section>
 
 <footer>
-  <span>GOALS · FEATURE LIST · documentation handoff input (features → components → traceability → GitHub)</span>
-  <span>source: base design screen6e072293… + goals manifest + locked board ·2026-11-28 · audit-synced E1–E17</span>
+  <span>GOALS · FEATURE LIST · documentation handoff input (features → components → traceability → GitHub) ·36 features</span>
+  <span>source: base design screen6e072293… + goals manifest + locked board ·2026-11-28 · audit-synced E1–E17 · inventory-check fixed</span>
 </footer>
 
 </div>
