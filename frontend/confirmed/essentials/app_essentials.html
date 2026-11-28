@@ -1547,6 +1547,7 @@
 <!-- ============ ESSENTIAL 12 DEEP DIVE ============ -->
 <section>
   <h2 id="e12"><span class="num">12</span> Crash &amp; Error Reporting — the app's black-box recorder</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R1 FAIL (1 REAL,2 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential12_audit_report.html</p>
   <p class="muted">When the app breaks on a user's device, you won't know unless the app tells you. Captures failures automatically, in the background, without disturbing the user — decided once, app-wide.</p>
 
   <h3>Visual · Part 1 — what gets captured</h3>
@@ -1562,7 +1563,7 @@
     <div class="arrow-row" style="margin-top:0">
       <div class="flowbox">App startup</div>
       <div class="arrow">→</div>
-      <div class="flowbox hl">ONE global error handler<br><span style="color:var(--muted);font-size:10px">FlutterError.onError + PlatformDispatcher</span></div>
+      <div class="flowbox hl">ONE global error handler<br><span style="color:var(--muted);font-size:10px">FlutterError.onError + PlatformDispatcher + ErrorWidget.builder</span></div>
       <div class="arrow">→</div>
       <div class="flowbox green">User sees: calm friendly error screen<br><span style="color:var(--muted);font-size:10px">never blank · never raw error</span></div>
       <div class="arrow">+</div>
@@ -1611,8 +1612,10 @@
   <table>
     <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Friendly error/offline screen copy</td><td><span class="pill g">designed</span></td><td>error board + offline copy = the user-facing half</td></tr>
+      <tr><td>Friendly error/offline screen copy</td><td><span class="pill g">designed</span></td><td>error board + offline copy = network half</td></tr>
+      <tr><td>Generic crash-recovery screen ("Something went wrong — restart/continue")</td><td><span class="pill a">design needed</span></td><td>B7 — distinct from offline copy; design with global handler</td></tr>
       <tr><td>Never-blank / never-raw rule</td><td><span class="pill g">decided</span></td><td>Essential 5 policy, same wording</td></tr>
+      <tr><td>Report context (version / device / OS / nav steps)</td><td><span class="pill g">decided</span></td><td>Part 4 rules written — wire with global handler</td></tr>
       <tr><td>Global handler at startup</td><td><span class="pill a">build</span></td><td>Flutter — one registration, not per-page</td></tr>
       <tr><td>Reporting tool + redaction config</td><td><span class="pill p">slot ready</span></td><td>Crashlytics/Sentry-class when real users exist; redact list from E11</td></tr>
       <tr><td>Severity routing + root-cause grouping</td><td><span class="pill a">build</span></td><td>decide severities when tooling lands</td></tr>
