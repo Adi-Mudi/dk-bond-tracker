@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Goals — Component Designs (7-question checklist per component)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B;--red:#FF8A80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.55;padding:40px 20px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:960px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .stat{background:var(--surface);border:1px solid var(--hairline);border-radius:8px;padding:7px 13px;font-size:11px;color:var(--muted)}
+  .stat b{color:var(--ink);font-size:14px;display:block}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  h2 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:10px;padding:2px 8px;letter-spacing:0}
+  h3{font-size:13px;color:var(--ink);margin:14px 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  h3 .tag{font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
+  .q{list-style:none;font-size:12px}
+  .q li{padding:3px 0;border-bottom:1px dashed rgba(42,58,76,.4);color:var(--muted)}
+  .q li:last-child{border-bottom:none}
+  .q b{color:var(--soft);font-weight:600}
+  .q .g{color:var(--amber)}
+  .rule{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--amber);margin-top:8px}
+  .rule b{color:var(--ink)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+  .pill{display:inline-block;font-size:9px;padding:2px7px;border-radius:999px;border:1px solid;letter-spacing:.05em}
+  .sh{color:var(--green);border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+  .nw{color:var(--soft);border-color:rgba(147,180,255,.5);background:rgba(36,86,230,.15)}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Goals · Component-level design (Level-3 checklist)</div>
+  <h1>Goals — Component Designs (7 questions each)</h1>
+  <p class="lede">Every component on the Goals page — including sub-components nested inside larger ones — designed against the full checklist: <b>1 DATA · 2 ACTIONS · 3 STATES · 4 FEEDBACK · 5 RULES · 6 CONNECTION · 7 SCREENS</b>, plus the gesture rules and nesting rule below. Companions: <a href="goals_components.html" style="color:var(--soft)">inventory (21)</a> · <a href="goals_features.html" style="color:var(--soft)">features (36)</a> · <a href="goals_seven_questions.html" style="color:var(--soft)">page7-questions</a>.</p>
+  <div class="stats">
+    <div class="stat"><b>21</b>components designed</div>
+    <div class="stat"><b>10</b>shared</div>
+    <div class="stat"><b>11</b>goals-specific</div>
+    <div class="stat"><b>7</b>questions each</div>
+  </div>
+</header>
+
+<section>
+  <h2>Rules that apply to every component <span class="count">global</span></h2>
+  <div class="rule"><b>GESTURE RULES (per component, must be stated):</b> Goals page is <b>tap-only</b> — no destructive swipe anywhere (single accidental swipe must never act) · no long-press needed on this page (delete is gone; the only long-press in the app = typed-ISIN confirm, page-level) · any edge swipe = <b>system back wins</b> · horizontal scroll allowed ONLY inside the derivation table (component states it) · every gesture conflict listed in that component's ACTIONS row.</div>
+  <div class="rule"><b>NESTING RULE:</b> components nest — each level runs its own checklist. <b>The page never talks to the database — only to its own components.</b> Data flows: store/endpoint → page/repository → props down → components; events flow: component callback → page → repository. Nesting map: Goal Card(G2) ⊃ Months Signal(G3) + Status Pill(E13) + Progress Rail(E14) + Pace(E2-row) + Details(E8) · Linked Card(G9) ⊃ Linked Row(G10) ×n · Form(G5) ⊃ Text Inputs(E9)×4 + Readouts(G4) + Save(E8) · Detail ⊃ Saved Card(G7) + Derivation(G8 incl. totals G30) + Banner(E11 via G28) + Menu(E10).</div>
+</section>
+
+<section>
+  <h2>Shared components <span class="count">10</span></h2>
+
+  <h3>E1 · Top App Bar <span class="tag">organism · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> title (page prop) · sync/bell/theme/avatar icons · notification badge count (page prop). Source: passed in — component fetches nothing.</li>
+    <li><b>2 ACTIONS:</b> tap sync → triggers page refresh (callback) · tap bell/theme/avatar → shell callbacks. No swipes; edge swipe here = system back (no conflict — icons are taps).</li>
+    <li><b>3 STATES:</b> working (idle) · loading (sync icon spins) · empty (badge hidden at0) · error (refresh failure surfaces as page G31 banner, not in bar) + scrolled/focused.</li>
+    <li><b>4 FEEDBACK:</b> sync tap → immediate spin ≤1s then stops (+ page skeleton runs) · badge appears/disappears instantly · no toasts from the bar itself.</li>
+    <li><b>5 RULES:</b> icon order fixed (sync · bell · theme · avatar) · badge count >9 → "9+" · every icon-button carries a Semantics action label.</li>
+    <li><b>6 CONNECTION:</b> receives via props + emits callbacks — no endpoint calls inside (nesting rule).</li>
+    <li><b>7 SCREENS:</b> full-width fixed top on every frame at412dp; title truncates with ellipsis; no tablet/desktop behavior (Compact-only).</li>
+  </ul>
+
+  <h3>FAB + (create) <span class="tag">atom · reused kit</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> none — icon-only.</li>
+    <li><b>2 ACTIONS:</b> tap → emits onCreate → page opens full-screen form (G03). No swipe/long-press; no conflict with edge zones (sits above bottom nav, inward).</li>
+    <li><b>3 STATES:</b> working (rest) · loading n/a · empty n/a (always available) · error n/a (failures live in form).</li>
+    <li><b>4 FEEDBACK:</b> press scale−6%/dim62% (E8 press spec) → form transition slides in400ms.</li>
+    <li><b>5 RULES:</b> one FAB per frame (list only) · SR label "Add goal".</li>
+    <li><b>6 CONNECTION:</b> callback only (onCreate).</li>
+    <li><b>7 SCREENS:</b> fixed bottom-right above nav at412dp; resizes not applicable (Compact-only).</li>
+  </ul>
+
+  <h3>E8 · Button <span class="tag">atom · variant props</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> label + variant(primary|secondary|ghost|destructive|link) + enabled/loading flags — all props.</li>
+    <li><b>2 ACTIONS:</b> tap → onPressed callback. No swipe/long-press/drag. Conflict: none (tap only); double-tap prevented by loading-lock.</li>
+    <li><b>3 STATES:</b> working(enabled/pressed) · loading(button spinner, disabled) · empty n/a · error n/a (parent shows errors).</li>
+    <li><b>4 FEEDBACK:</b> press −6% + dim62% (150ms) → release · loading = spinner in-button · result toast/confirm owned by PAGE (component only shows busy).</li>
+    <li><b>5 RULES:</b> verb+result label ≤4 words · disabled shows why nearby · never two primary buttons in one dialog · one tap = one action.</li>
+    <li><b>6 CONNECTION:</b> onPressed callback + label props — no data fetching.</li>
+    <li><b>7 SCREENS:</b> full-width inside forms at412dp · labels wrap, never clip.</li>
+  </ul>
+
+  <h3>E9 · Text Input <span class="tag">atom · type variants</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> value · label · helper · error text — all props (page owns state).</li>
+    <li><b>2 ACTIONS:</b> tap→focus · type · (date variant: tap calendar icon). No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working(filled/idle) · loading(date fetch variant n/a) · empty(valid pristine) · error(invalid → red border + icon + rule text).</li>
+    <li><b>4 FEEDBACK:</b> validation fires per timing (typing/blur/submit per E6) → error appears instantly below field, entries preserved · success silent.</li>
+    <li><b>5 RULES:</b> label states requirement, no asterisk · placeholder = realistic example · ₹ suffix on amounts (never $) · never placeholder-only.</li>
+    <li><b>6 CONNECTION:</b> value/onChanged props only — page writes store.</li>
+    <li><b>7 SCREENS:</b> full-width, helper/error below (wraps) ·412dp single column.</li>
+  </ul>
+
+  <h3>E10 · Overflow menu ⋮ <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> items array prop — goals instantiation = [Edit goal, Archive goal] only.</li>
+    <li><b>2 ACTIONS:</b> tap ⋮ → open (immediate, no animation) · tap item → onSelect callback · tap-away or system back → close. Edge swipe = system back (wins, just closes menu).</li>
+    <li><b>3 STATES:</b> working(closed/open) · loading n/a · empty n/a (never empty) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> menu appears instantly · item tap → menu closes then page shows confirm/toast per action (Archive: confirmation dialog first — see G23).</li>
+    <li><b>5 RULES:</b> NO Remove item ever (locked) · destructive/lifecycle items route through confirmation before firing.</li>
+    <li><b>6 CONNECTION:</b> props + onSelect callback.</li>
+    <li><b>7 SCREENS:</b> anchored below trigger; long items scroll inside popup;412dp fine.</li>
+  </ul>
+
+  <h3>E11 · Banner <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> variant(info|warning|error) + headline + body (+ optional Retry) — props from page (G28 missed-signal, G31 error).</li>
+    <li><b>2 ACTIONS:</b> optional tap Retry (error variant). No swipe. Conflict: none.</li>
+    <li><b>3 STATES:</b> working(info/warning shown) · loading(retry in-flight spinner in button) · empty(hidden — renders nothing) · error(error variant with Retry).</li>
+    <li><b>4 FEEDBACK:</b> Retry → spinner → dismiss or update · warning persists until underlying issue resolves (missed banner sticky).</li>
+    <li><b>5 RULES:</b> icon+text+colour (never colour alone) · missed-banner months named exactly (e.g. "Nov &amp; Dec2026 missed before start").</li>
+    <li><b>6 CONNECTION:</b> receives content via props — page/repository talks to store.</li>
+    <li><b>7 SCREENS:</b> full-width block; body wraps at412dp.</li>
+  </ul>
+
+  <h3>E12 · Empty State <span class="tag">organism · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> icon · headline · body · CTA label — props (goals: "No goals yet" / "Create first goal"; linked: empty-linked).</li>
+    <li><b>2 ACTIONS:</b> tap CTA → onCreate callback (page opens form). No other gestures.</li>
+    <li><b>3 STATES:</b> working n/a (it IS the empty state) · loading n/a (data arrived, zero rows) · empty(shown) · error n/a (errors use E11).</li>
+    <li><b>4 FEEDBACK:</b> press feedback on CTA → form opens.</li>
+    <li><b>5 RULES:</b> never bare "No data" — always what belongs + how to add · hidden when rows exist.</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> centered vertical stack, padding scales; text wraps.</li>
+  </ul>
+
+  <h3>E13 · Status Pill <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> tier (Behind|Due Soon|On Track|Completed) — derived value passed by page.</li>
+    <li><b>2 ACTIONS:</b> NONE — inert (no tap, no swipe). Explicitly not interactive; no conflicts.</li>
+    <li><b>3 STATES:</b> working(4 tiers) · loading(placeholder tier) · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a — no action exists.</li>
+    <li><b>5 RULES:</b> colour ALWAYS paired with text · hierarchy Behind &gt; Due Soon &gt; On Track &gt; Completed(dim).</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> inline chip; text wraps at narrow widths.</li>
+  </ul>
+
+  <h3>E14 · Progress Rail <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> percent0–100 (derived, unlabelled) — prop. NO numbers or targets displayed.</li>
+    <li><b>2 ACTIONS:</b> NONE — inert. No conflicts.</li>
+    <li><b>3 STATES:</b> working(fill) · loading(skeleton rail) · empty(0%) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a (updates silently with data).</li>
+    <li><b>5 RULES:</b> never shows % text or target (psychology) · clamps0–100.</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> full-width bar; height fixed16dp.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Goals-specific components <span class="count">11</span></h2>
+
+  <h3>G1 · GOALS / FORM Tabs <span class="tag">molecule · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> counts GOALS (n) / FORM (n) — derived from store, passed by page.</li>
+    <li><b>2 ACTIONS:</b> tap tab → switch list ↔ form (list frame only). No swipe. Conflict: none (sticky under bar, above scroll).</li>
+    <li><b>3 STATES:</b> working(either active) · loading(count skeletons) · empty(n/0 shown as "(0)") · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> instant tab switch · active segment slides150ms · counts update live.</li>
+    <li><b>5 RULES:</b> tabs ONLY on list frame (form = full-screen, no tabs) · SR labels announce selected state.</li>
+    <li><b>6 CONNECTION:</b> counts prop + onSelect callback.</li>
+    <li><b>7 SCREENS:</b> sticky below app bar, full-width segmented control; labels wrap if localized.</li>
+  </ul>
+
+  <h3>G2 · Goal Card <span class="tag">organism · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> name · dates · saved ₹ · months-left · signal(G3) · pill(E13) · rail(E14) · pace — all props from page (store via page).</li>
+    <li><b>2 ACTIONS:</b> tap Details → detail (callback) · whole card tap = same as Details (single action). No swipe (delete banned), no long-press. Conflict: none — rail/pill/signal are inert children.</li>
+    <li><b>3 STATES:</b> working(on-plan/missed) · loading(skeleton card) · empty(n/a — E12 instead) · error(page G31 strip above list, card not rendered).</li>
+    <li><b>4 FEEDBACK:</b> press feedback on Details (E8) → frame transition · missed variant already red (pre-action state, not feedback).</li>
+    <li><b>5 RULES:</b> zero target amounts on card · exactly one months signal (negative wins) · name truncates2 lines then ellipsis · Check-in button REMOVED.</li>
+    <li><b>6 CONNECTION:</b> props in · onDetails callback out — card never fetches.</li>
+    <li><b>7 SCREENS:</b> full-width single column at412dp · content wraps, no horizontal scroll.</li>
+  </ul>
+  <p class="note">Sub-components get their own checklist — see G3 (signal), E13 (pill), E14 (rail); pace row and Details button follow E8.</p>
+
+  <h3>G3 · Months Signal <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> exactly one of: "X/Y months ✓" (green) or "N months missed" (red) — derived, passed by parent card.</li>
+    <li><b>2 ACTIONS:</b> NONE — inert text. No conflicts.</li>
+    <li><b>3 STATES:</b> working(positive|negative) · loading(dash placeholder) · empty n/a (zero months still renders "0/0") · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a — value updates silently with derived data.</li>
+    <li><b>5 RULES:</b> exactly ONE signal ever · negative sticky until resolved · colour paired with text.</li>
+    <li><b>6 CONNECTION:</b> prop only (derived by page/repository math).</li>
+    <li><b>7 SCREENS:</b> inline text chip; wraps at412dp if needed.</li>
+  </ul>
+
+  <h3>G4 · Auto Readout Card <span class="tag">molecule · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> total months (from dates) · target ₹ (Amount×months) · helper line — computed from G5 input props.</li>
+    <li><b>2 ACTIONS:</b> NONE (read-only display). No conflicts.</li>
+    <li><b>3 STATES:</b> working(final values) · loading(computing while dates/amount change) · empty(pristine form — hidden or dashes) · error(invalid dates → inline form error, not here).</li>
+    <li><b>4 FEEDBACK:</b> value change → brief green↑/red↓ number flash + arrow (locked #2,150ms) so the user sees derivation land.</li>
+    <li><b>5 RULES:</b> target = Amount × months ONLY (old saved+growth formula retired) · ₹ icon never $ · helper "Both calculated automatically — nothing else to fill".</li>
+    <li><b>6 CONNECTION:</b> computed from input props inside component — no store/endpoint.</li>
+    <li><b>7 SCREENS:</b> two-up grid collapses to stacked at412dp; amounts never clip (₹ wraps with value).</li>
+  </ul>
+
+  <h3>G5 · Create / Edit Form <span class="tag">organism · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b>4 inputs (name · start · end · amount) + readouts(G4) — values held in form state (component-local), persisted via page on save; Edit mode = prefilled props (G27).</li>
+    <li><b>2 ACTIONS:</b> type fields · pick dates (calendar) · tap Save goal. No swipe (sheet-dismiss n/a — full-screen page · system back = leave with draft preserved per E6). Conflict: none.</li>
+    <li><b>3 STATES:</b> working(filling) · loading(submitting: save spinner+lock) · empty(pristine) · error(validation inline + save-failure persistent G31-style with entries preserved).</li>
+    <li><b>4 FEEDBACK:</b> validation appears instantly on blur/submit (icon+text, entries kept) · save tap → button locks + spinner → success toast <b>"Goal saved"</b> (E14 specific) → back to list · save-failure → persistent error + Retry, values intact.</li>
+    <li><b>5 RULES:</b> exactly4 inputs, all required · end &gt; start · amount &gt;0 ₹ · no asterisks · submit lock (one tap = one action) · no Saved/Note/invested fields.</li>
+    <li><b>6 CONNECTION:</b> form does NOT talk to the database — emits onSave(values) → page → repository (list_goals/add/update). Nesting rule.</li>
+    <li><b>7 SCREENS:</b> full-screen frame; inputs full-width stacked at412dp; readouts below inputs; save button pinned bottom (thumb zone).</li>
+  </ul>
+  <p class="note">Sub-components: E9 inputs ×4 (own checklists) · G4 readouts · E8 Save button — each already specified above.</p>
+
+  <h3>G6 · Detail / Form Top Bar <span class="tag">organism · E1 variant</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> back arrow · title (page prop) · ⋮ trigger (detail) — E1 back-variant props.</li>
+    <li><b>2 ACTIONS:</b> tap back → pop frame (callback) · tap ⋮ → open E10. Edge swipe = system back (wins; same result as back).</li>
+    <li><b>3 STATES:</b> working(default) · loading(title skeleton) · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> back → frame slides out right400ms · ⋮ opens menu instantly.</li>
+    <li><b>5 RULES:</b> form title = "New Goal" / "Edit Goal" · detail title = goal name (truncates) · no other actions in bar.</li>
+    <li><b>6 CONNECTION:</b> props + callbacks only.</li>
+    <li><b>7 SCREENS:</b> fixed top of its frame at412dp; title truncates.</li>
+  </ul>
+
+  <h3>G7 · Saved-so-Far Card <span class="tag">molecule · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> saved ₹ amount + rail% — props from page (store/derived).</li>
+    <li><b>2 ACTIONS:</b> NONE — inert summary. No conflicts.</li>
+    <li><b>3 STATES:</b> working(value) · loading(skeleton) · empty(zero state "₹0") · error(strip above, card skeleton).</li>
+    <li><b>4 FEEDBACK:</b> n/a — updates on data arrival (silent).</li>
+    <li><b>5 RULES:</b> NO target or % text (psychology) — amount + unlabelled rail only.</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> full-width card; amount scales, never wraps below20px.</li>
+  </ul>
+
+  <h3>G8 · Derivation Table (incl. G30 totals) <span class="tag">organism · new · LOCKED</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> month rows (Month · Target · Invested · Returns · Running Total-dim) + static accent tfoot (G30) — derived via page from portfolio dates/bond interest (never typed).</li>
+    <li><b>2 ACTIONS:</b> vertical scroll (rows) · horizontal scroll (columns at412dp) · no row taps, no swipe actions. Conflict: horizontal drag inside table must NOT trigger anything else (page has no horizontal gestures — safe).</li>
+    <li><b>3 STATES:</b> working(rows live-update + totals always visible) · loading(skeleton rows) · empty(zero-month error state via form validation — table not rendered) · error(page strip; table hidden).</li>
+    <li><b>4 FEEDBACK:</b> row values update live on data arrival · totals row static accent (no flash — always-on signal) · nothing else animates (E8 purpose-only).</li>
+    <li><b>5 RULES:</b> INVESTED/RETURNS auto from portfolio (never typed) · returns show even at zero invested · tfoot = ONLY coloured row · &gt;24 months → V+H scroll with sticky header, tfoot reachable.</li>
+    <li><b>6 CONNECTION:</b> receives rows as props — page/repository runs goal_derived (component never queries).</li>
+    <li><b>7 SCREENS:</b> full-width; horizontal scroll-wrapper at412dp (5 columns never fit) · column widths stable, numbers tabular.</li>
+  </ul>
+
+  <h3>G9 · Linked Bonds Card <span class="tag">molecule · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> header + row list — holdings linked to goal, passed by page (portfolio via page).</li>
+    <li><b>2 ACTIONS:</b> delegates row taps to G10 children. Card itself inert. Conflict: none (child taps don't overlap).</li>
+    <li><b>3 STATES:</b> working(list) · loading(skeleton rows) · empty(G32 → E12 empty variant) · error(page strip).</li>
+    <li><b>4 FEEDBACK:</b> via children (row press → nav).</li>
+    <li><b>5 RULES:</b> empty → E12 state, never blank block · header wording locked "Linked Bonds (auto-allocating yield)".</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> full-width; rows scroll if many;412dp.</li>
+  </ul>
+
+  <h3>G10 · Linked Bond Row <span class="tag">molecule · new · LOCKED</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> bond name · ISIN · rate(% p.a.) · <b>total interest received</b> (₹1,42,500-class, never monthly) — props.</li>
+    <li><b>2 ACTIONS:</b> tap row/chevron → bond detail (callback). No swipe, no long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working · loading(row skeleton) · empty(n/a — parent shows G32) · error(missing ISIN → "—" placeholder, row still tappable if id exists).</li>
+    <li><b>4 FEEDBACK:</b> press feedback (−6%) → bond detail frame slides in.</li>
+    <li><b>5 RULES:</b> total interest, NEVER ₹/mo · colour+text on rate · ISIN secondary text.</li>
+    <li><b>6 CONNECTION:</b> props + onOpen callback — navigation decided by page.</li>
+    <li><b>7 SCREENS:</b> row full-width; name wraps (2 lines max), amount right-aligned;412dp.</li>
+  </ul>
+
+  <h3>G11 · Scroll-to-Top <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> visibility flag — prop from list scroll position.</li>
+    <li><b>2 ACTIONS:</b> tap → smooth scroll to top (callback). No swipe. Conflict: floats above content — does not block card taps (offset margin).</li>
+    <li><b>3 STATES:</b> working(visible) · loading(hidden) · empty(hidden — short list) · error(n/a).</li>
+    <li><b>4 FEEDBACK:</b> press feedback → list scrolls300ms; button hides once at top.</li>
+    <li><b>5 RULES:</b> appears only after1 screen down · hidden when0 scrolled.</li>
+    <li><b>6 CONNECTION:</b> visibility prop + onTap callback (list owns scroll controller).</li>
+    <li><b>7 SCREENS:</b> floating bottom-right above FAB-zone offset;412dp fixed size48dp hit area.</li>
+  </ul>
+</section>
+
+<footer>
+  <span>GOALS · COMPONENT DESIGNS ·7-question checklist ×21 · gesture + nesting rules · paired with goals_components inventory</span>
+  <span>against LOCKED base ·2026-11-28</span>
+</footer>
+
+</div>
+</body>
+</html>
