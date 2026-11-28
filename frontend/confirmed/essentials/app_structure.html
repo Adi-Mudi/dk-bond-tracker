@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frontend Target Structure — agreed layout before code (Flutter)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B;--red:#FF8A80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.55;padding:40px 20px}
+  .wrap{max-width:1060px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:920px}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px}
+  pre{background:var(--canvas);border:1px solid var(--hairline);border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.6;overflow-x:auto;color:var(--ink)}
+  pre .c{color:var(--dim)}
+  pre .k{color:var(--soft)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);padding:6px 8px;border-bottom:1px solid var(--hairline)}
+  td{padding:7px 8px;border-bottom:1px dashed rgba(42,58,76,.5);vertical-align:top;color:var(--muted)}
+  td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+  .pill{display:inline-block;font-size:9px;padding:2px7px;border-radius:999px;border:1px solid;letter-spacing:.05em}
+  .ok{color:var(--green);border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+  .warn{color:var(--amber);border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.1)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+  .flag{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--amber);margin-top:10px}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Frontend · Target structure contract (before any code)</div>
+  <h1>Frontend Target Structure — Flutter (agreed layout)</h1>
+  <p class="lede">Written agreement required by the developer standard ("agree on this layout before writing any code"). <b>[frontend] = the planned Flutter app under <span style="color:var(--soft)">frontend/app/</span></b> — not the existing native <code>android/</code> host, not the <code>frontend/confirmed/</code> design docs (Q13 reference). Scaffold Flutter HERE only after this contract is accepted.</p>
+</header>
+
+<section>
+  <h2>1 · The mapped tree (standard → Flutter names)</h2>
+  <pre>frontend/app/                        <span class="c">← [frontend] root (Flutter project)</span>
+├── lib/                             <span class="c">← src/</span>
+│   ├── features/
+│   │   └── &lt;feature-name&gt;/          <span class="c">← goals · watchlist · dashboard · portfolio · settings · alerts · search · csv_export · about</span>
+│   │       ├── ui/                  <span class="c">← [ui-layer] pages + widgets</span>
+│   │       ├── data/                <span class="c">← [data-layer] repositories · models · providers</span>
+│   │       └── &lt;feature-name&gt;.dart <span class="c">← [index] public entry point</span>
+│   ├── shared/
+│   │   ├── widgets/                 <span class="c">← [components] E1–E22 kit (AppIcon, Button, Banner…)</span>
+│   │   ├── utils/                   <span class="c">← [utilities]</span>
+│   │   └── theme/                   <span class="c">← [design-tokens] app_theme.dart (E3 SSOT ·4 locked themes)</span>
+│   ├── assets/                      <span class="c">← [assets] (also top-level assets/ if preferred by Flutter)</span>
+│   └── config/                      <span class="c">← [config]</span>
+├── assets/                          <span class="c">images · fonts · json</span>
+├── test/                            <span class="c">← tests/ (Flutter unit/widget) — NOT root tests/ (Python) </span>
+├── integration_test/                <span class="c">optional device tests</span>
+├── pubspec.yaml                     <span class="c">← [dependency-file] (+ pubspec.lock)</span>
+├── analysis_options.yaml            <span class="c">← [build-config] lint</span>
+└── android/                         <span class="c">← Flutter platform runner (inside frontend/app — NOT the legacy host)</span>
+    ├── build.gradle
+    └── app/build.gradle</pre>
+  <p class="note">Rule mapping: standard names are roles; the Flutter names above are the agreed replacements. One definition per component lives in shared/ — features never redefine shared kit (E15/E16 law).</p>
+</section>
+
+<section>
+  <h2>2 · What each existing root directory is (collision map)</h2>
+  <table>
+    <thead><tr><th>Path</th><th>Role</th><th>Relation to this contract</th></tr></thead>
+    <tbody>
+      <tr><td>frontend/app/</td><td>Flutter app (to be scaffolded)</td><td><span class="pill ok">THIS contract</span> — new code only here</td></tr>
+      <tr><td>frontend/confirmed/</td><td>Design + approval docs (Q13 reference)</td><td><span class="pill ok">exempt</span> — per-page doc folders, not code features</td></tr>
+      <tr><td>android/</td><td>Stage-2 Chaquopy/WebView native host (com.dkbondtracker.app, release.jks, ExportProvider)</td><td><span class="pill warn">legacy host</span> — carry-over only (see §3); never overload with Flutter features/</td></tr>
+      <tr><td>src/ · tests/ · backend/</td><td>Python backend + backend tests</td><td><span class="pill ok">out of scope</span> — backend, not frontend</td></tr>
+      <tr><td>docs/ · .IDE_Plans/</td><td>truth streams · plans/reports</td><td><span class="pill ok">out of scope</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>3 · Carry-over from legacy android/ (when Flutter ships)</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Value / source</th></tr></thead>
+    <tbody>
+      <tr><td>applicationId</td><td>com.dkbondtracker.app (android/app/build.gradle) — keep for in-place update</td></tr>
+      <tr><td>Signing</td><td>release.jks + SIGNING.md/README carry-over</td></tr>
+      <tr><td>ExportProvider</td><td>android/app/src/main/java/.../ExportProvider.java (CSV export authority)</td></tr>
+      <tr><td>versionCode</><td>next release ≥12 (android/README upgrade path)</td></tr>
+      <tr><td>Python bridge</td><td>Chaquopy symlink app/src/main/python/src — Flutter phase decides keep/replace (backend via HTTP or FFI)</td></tr>
+      <tr><td>Tests</td><td>android/tests/test_tc_and_host.py stays host-side; Flutter gets frontend/app/test/ (standard tests/ role)</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>AGY R1 (2026-11-28): FOLDER-STRUCT FAIL —1 REAL,2 MINOR.</b> REAL: no written target-layout agreement + [frontend] root collision → this document IS the agreement. MINOR1: runner/signing/test mappings → §2–§3. MINOR2: legacy android/ status → §2 "legacy host" row + README note. Re-audit: R2.</div>
+</section>
+
+<footer>
+  <span>FRONTEND · TARGET STRUCTURE CONTRACT · Flutter · before code ·2026-11-28</span>
+  <span>standard: features/shared/assets/config + tests + dep + build · mapped1:1 above</span>
+</footer>
+
+</div>
+</body>
+</html>
