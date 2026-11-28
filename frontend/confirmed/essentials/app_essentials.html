@@ -863,6 +863,7 @@
 <!-- ============ ESSENTIAL 4 DEEP DIVE ============ -->
 <section>
   <h2 id="e4"><span class="num">4</span> Responsiveness — how the layout adapts to screen size</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · R1 HISTORY — CLOSED (FAIL 3 REAL, 2 MINOR, all fixed) · report: .IDE_Plans/audit_reports/essential4_audit_report.html</p>
   <p class="muted">Same app on phone, small tablet, wide tablet/desktop. Four steps: <b style="color:var(--ink)">plan breakpoints → plan layout per size → let code detect automatically → test every size</b>. Decided once, applied everywhere.</p>
 
   <h3>Step 1 · Plan your breakpoints — the three size classes</h3>
@@ -872,7 +873,7 @@
       <div class="ruler-seg m"><b>Medium</b><span>600–840 dp · Small tablet</span></div>
       <div class="ruler-seg e"><b>Expanded</b><span>&gt; 840 dp · Wide tablet / desktop</span></div>
     </div>
-    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">First decision: <b style="color:var(--ink)">which sizes does the app support?</b> — declared BEFORE any page is designed · your boards are locked at 412dp = Compact (phone)</div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">First decision: <b style="color:var(--ink)">which sizes does the app support?</b> — declared BEFORE any page is designed · your boards are locked at 412dp = Compact (phone) · 412 is a reference viewport, never a hardcoded code width</div>
   </div>
 
   <h3>Step 2 · Plan the layout for each size — write the rules before code</h3>
@@ -883,6 +884,7 @@
         <li><b>Menu:</b> bottom tab bar</li>
         <li><b>Columns:</b> 1</li>
         <li><b>Stacks:</b> stat cards vertical</li>
+        <li><b>Wide tables:</b> h-scroll</li>
         <li><b>Your status:</b> all locked boards = this size</li>
       </ul>
       <div class="mock">
@@ -898,6 +900,7 @@
         <li><b>Menu:</b> side navigation rail</li>
         <li><b>Columns:</b> 2</li>
         <li><b>Side-by-side:</b> form + preview</li>
+        <li><b>Stat cards:</b> row</li>
         <li><b>Your status:</b> not designed yet</li>
       </ul>
       <div class="mock">
@@ -911,6 +914,7 @@
         <li><b>Menu:</b> side navigation rail</li>
         <li><b>Columns:</b> 3</li>
         <li><b>Wide tables:</b> full ledger visible</li>
+        <li><b>Stat cards:</b> row</li>
         <li><b>Your status:</b> not designed yet</li>
       </ul>
       <div class="mock">
@@ -936,19 +940,19 @@
 
   <h3>Step 4 · Test every screen at every declared size</h3>
   <div class="testgrid">
-    <div class="tcell"><b>1 · Browser drag</b>narrow ↔ wide<br>watch Compact → Medium → Expanded<br><span class="ok">✓ your review boards make this easy</span></div>
-    <div class="tcell"><b>2 · Emulators</b>phone frame + tablet frame<br>Flutter device catalogue<br><span class="ok">✓ automated</span></div>
+    <div class="tcell"><b>1 · Browser drag</b>narrow ↔ wide<br>watch Compact → Medium → Expanded<br><span style="font-size:10px;color:var(--muted)">tablet widths activate when un-deferred · MVP = Compact fluidity</span><br><span class="ok">✓ your review boards make this easy</span></div>
+    <div class="tcell"><b>2 · Emulators</b>phone frame (every MVP run) + tablet frame (when un-deferred)<br>Flutter device catalogue<br><span class="ok">✓ automated</span></div>
     <div class="tcell"><b>3 · Real device</b>at least one physical phone<br>final acceptance<br><span class="ok">✓ every release</span></div>
   </div>
   <p class="muted" style="font-size:11px;margin-top:8px">Acceptance rule: <b style="color:var(--ink)">every page and every component works at every size you declared support for.</b></p>
 
-  <h3>Status — the one decision waiting on you</h3>
+  <h3>Status</h3>
   <table>
     <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Compact (phone) designs</td><td><span class="pill g">done</span></td><td>all boards locked at 412dp</td></tr>
+      <tr><td>Compact (phone) designs</td><td><span class="pill g">done</span></td><td>all boards locked at 412dp (reference viewport)</td></tr>
       <tr><td>Support declaration (phone-only vs +tablet)</td><td><span class="pill g">DECIDED</span></td><td>Compact-only for MVP (locked decisions table) — Medium/Expanded deferred</td></tr>
-      <tr><td>Breakpoint layout table (Step 2)</td><td><span class="pill a">build</span></td><td>write once support is declared</td></tr>
+      <tr><td>Breakpoint layout table (Step 2)</td><td><span class="pill g">written</span></td><td>Compact row live · Medium/Expanded deferred with MVP</td></tr>
       <tr><td>LayoutBuilder auto-switching</td><td><span class="pill a">build</span></td><td>Flutter — one-time instruction to the agent</td></tr>
       <tr><td>Size test matrix</td><td><span class="pill a">build</span></td><td>browser + emulators + one real phone</td></tr>
     </tbody>
