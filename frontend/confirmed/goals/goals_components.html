@@ -42,50 +42,54 @@
   <h1>Goals Page — Component Inventory</h1>
   <p class="lede">Every component rendered on the Goals page (base design screen <span style="color:var(--soft)">6e072293…</span>). Shared components keep their contracts in <a href="app_essentials.html#elements">app_essentials § Universal Elements</a>; goals-specific components are defined here. Pair list: <a href="goals_features.html">goals_features.html</a> (36 features).</p>
   <div class="stats">
-    <div class="stat"><b>19</b>live components</div>
-    <div class="stat"><b>9</b>shared</div>
-    <div class="stat"><b>10</b>goals-specific</div>
+    <div class="stat"><b>21</b>live components</div>
+    <div class="stat"><b>10</b>shared</div>
+    <div class="stat"><b>11</b>goals-specific</div>
     <div class="stat"><b>5</b>removed (history)</div>
   </div>
 </header>
 
 <section>
-  <h2>Shared components (contract lives in Universal Elements) <span class="count">9</span></h2>
+  <h2>Shared components (contract lives in Universal Elements) <span class="count">10</span></h2>
+  <p class="note" style="color:var(--green)">Invariant: a shared component looks and behaves <b>identically on every page</b> — if it looks different somewhere, something is broken. Size labels: <b>atom</b> (smallest unit) · <b>molecule</b> (small combination) · <b>organism</b> (full region with nav/controls). Permission views: N/A — local-first roleless MVP.</p>
   <table>
-    <thead><tr><th>ID</th><th>Component</th><th>Anatomy</th><th>States</th><th>Gestures</th></tr></thead>
+    <thead><tr><th>ID</th><th>Component</th><th>Size</th><th>Anatomy</th><th>States</th><th>Edge cases</th></tr></thead>
     <tbody>
-      <tr><td class="id">E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync / bell / theme / avatar (fixed order)</td><td>default · focused</td><td>tap icons</td></tr>
-      <tr><td class="id">E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · <b>Goals</b> · More</td><td>default · active tab · focused</td><td>tap tabs</td></tr>
-      <tr><td class="id">E8</td><td><b>Buttons</b></td><td>primary (Save goal) · secondary (Details) · ghost; verb labels ≤4 words; press −6%/150ms</td><td>enabled · pressed · focused · disabled · loading-lock</td><td>tap · press feedback</td></tr>
-      <tr><td class="id">E9</td><td><b>Text Input</b></td><td>label above (no asterisk) · input · helper/error below (icon+text)</td><td>idle · focused · filled · error · disabled · read-only</td><td>type · focus</td></tr>
-      <tr><td class="id">E10</td><td><b>Overflow menu ⋮</b></td><td>trigger + popup: <b>Edit goal · Archive goal ONLY</b> (no Remove — locked)</td><td>closed · open · focused</td><td>tap · tap-away closes · system back wins</td></tr>
-      <tr><td class="id">E12</td><td><b>Empty State</b></td><td>icon · "No goals yet" · body · "Create first goal" CTA</td><td>empty only (guarded)</td><td>tap CTA</td></tr>
-      <tr><td class="id">E13</td><td><b>Status Pill</b></td><td>Behind · Due Soon · On Track · Completed — colour + TEXT paired</td><td>4 tiers</td><td>none (inert)</td></tr>
-      <tr><td class="id">E14</td><td><b>Progress Rail</b></td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic</td><td>none (inert)</td></tr>
-      <tr><td class="id">E11</td><td><b>Banner</b></td><td>icon + headline + body — missed-signal banner (G28) + error/retry banner (G31)</td><td>info · warning · error(retry)</td><td>tap retry (G31)</td></tr>
+      <tr><td class="id">E1</td><td><b>Top App Bar</b></td><td>organism</td><td>back (detail/form) · title · sync / bell(+badge) / theme / avatar (fixed order) — back-variant covers Goals detail AND form top bars (G6 = this variant, not a copy)</td><td>default · scrolled · focused · loading(sync spin)</td><td>long title truncates · badge count &gt;9 → "9+"</td></tr>
+      <tr><td class="id">E2</td><td><b>Bottom Nav</b></td><td>organism</td><td>Dashboard · Portfolio · Watchlist · <b>Goals</b> · More</td><td>default · active tab · focused</td><td>long labels truncate</td></tr>
+      <tr><td class="id">FAB</td><td><b>FAB + (create)</b> <span class="pill sh">reused kit</span></td><td>atom</td><td>circular + icon · page-specific action (Goals → open form full-screen) · kit: app_components #15</td><td>default · pressed · focused</td><td>icon-only → SR label via IconButton rule</td></tr>
+      <tr><td class="id">E8</td><td><b>Buttons</b></td><td>atom</td><td><b>variant=primary|secondary|ghost|destructive|link-style</b> · size=sm|md|lg · verb labels ≤4 words; press −6%/150ms — ONE component, variant prop (never copies)</td><td>enabled · pressed · focused · disabled · loading-lock</td><td>long labels wrap · disabled shows why</td></tr>
+      <tr><td class="id">E9</td><td><b>Text Input</b></td><td>atom</td><td>label above (no asterisk) · input (+ date-picker / ₹-suffix sub-variants via type prop) · helper/error below (icon+text)</td><td>idle · focused · filled · error · disabled · read-only · loading(fetch)</td><td>long value scrolls · missing value → empty</td></tr>
+      <tr><td class="id">E10</td><td><b>Overflow menu ⋮</b></td><td>molecule</td><td>trigger + popup: <b>Edit goal · Archive goal ONLY</b> (no Remove — locked)</td><td>closed · open · focused</td><td>many items → popup scrolls</td></tr>
+      <tr><td class="id">E11</td><td><b>Banner</b></td><td>molecule</td><td>icon + headline + body — missed-signal (G28) + error/retry (G31)</td><td>info · warning · error · loading(retry in-flight)</td><td>long headline wraps · retry → spinner in button</td></tr>
+      <tr><td class="id">E12</td><td><b>Empty State</b></td><td>organism</td><td>icon · headline · body · CTA (Goals: "No goals yet" + "Create first goal")</td><td>empty only (guarded)</td><td>long CTA wraps · zero-goals AND zero-linked variants</td></tr>
+      <tr><td class="id">E13</td><td><b>Status Pill</b></td><td>atom</td><td>Behind · Due Soon · On Track · Completed — colour + TEXT always paired</td><td>4 tiers · focused(inert)</td><td>long tier text wraps, never truncates meaning</td></tr>
+      <tr><td class="id">E14</td><td><b>Progress Rail</b></td><td>atom</td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic · loading(skeleton)</td><td>0% empty · &gt;100% clamped · missing saved →0%</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>Goals-specific components <span class="count">10</span></h2>
+  <h2>Goals-specific components <span class="count">11</span> <span class="pill nw">NEW — build first</span></h2>
+  <p class="note" style="color:var(--soft)">All rows below are <b>NEW</b> (not in the design system yet) — each must be built before its traceability features (G01–G36) can ship. <b>Independence contract:</b> data arrives via props · events leave via callbacks · no direct store access (repository injected) · Goals-specific copy = prop values, never baked in — droppable onto any page. Permission views: N/A (local-first MVP).</p>
   <table>
-    <thead><tr><th>ID</th><th>Component</th><th>Anatomy</th><th>States / rules</th><th>Data source</th></tr></thead>
+    <thead><tr><th>ID</th><th>Component</th><th>Size</th><th>Anatomy</th><th>States</th><th>Edge cases</th></tr></thead>
     <tbody>
-      <tr><td class="id">G1</td><td><b>GOALS/FORM tabs</b></td><td>segmented control: GOALS (n) · FORM (n)</td><td>either active · sticky top</td><td>local counts</td></tr>
-      <tr><td class="id">G2</td><td><b>Goal Card</b></td><td>name · dates · Saved ₹ · <b>months signal</b> · pace line · <b>Details button only</b> (Check-in removed)</td><td>on-plan · missed (red) · skeleton · pressed</td><td>local goals store</td></tr>
-      <tr><td class="id">G3</td><td><b>Months Signal</b></td><td>green <b>X/Y months ✓</b> OR red <b>N months missed</b> — exactly one; negative sticky until resolved</td><td>positive · negative (precedence)</td><td>derived (schedule vs invested)</td></tr>
-      <tr><td class="id">G4</td><td><b>Auto Readout Card</b> <span class="pill nw">NEW</span></td><td>Total months (dates) · Target amount ₹ (Amount × months) — ₹ icon, never $</td><td>computing · final · read-only</td><td>derived from form inputs</td></tr>
-      <tr><td class="id">G5</td><td><b>Create Form</b></td><td>exactly4 inputs: name · start · end · amount(₹ monthly) + readouts + Save goal</td><td>pristine · filling · validation-error · submitting</td><td>user entry (local store on save)</td></tr>
-      <tr><td class="id">G6</td><td><b>Detail Top App Bar</b></td><td>back · title · ⋮ (opens E10)</td><td>default</td><td>tap back / ⋮ · system edge = back</td></tr>
-      <tr><td class="id">G7</td><td><b>Saved-so-Far card</b></td><td>Saved ₹ amount + progress rail (no target shouting)</td><td>value · zero</td><td>local store (derived %)</td></tr>
-      <tr><td class="id">G8</td><td><b>Derivation Table</b> <span class="pill nw">LOCKED</span></td><td>title "Month-wise Derivation (Jan 2027 → Oct 2028)" (no subtitle) ·5 cols (Month · Target · Invested · Returns · <b>Running Total dimmed</b>) · month rows · gap row · plain Oct final row (✓ only) · <b>static accent totals row tfoot</b>: "22 months ·22 completed | ₹20,00,000 | ₹7,70,000 | ₹80,000 | ₹20,00,000" — tinted bg +2px accent border + accent bold text, the ONLY coloured row</td><td>totals always visible · rows live-update</td><td>Target=plan · Invested/Returns=AUTO from portfolio</td></tr>
-      <tr><td class="id">G9</td><td><b>Linked Bonds card</b></td><td>header "Linked Bonds (auto-allocating yield)" + row list</td><td>list · empty-none</td><td><b>PORTFOLIO holdings</b> linked to goal</td></tr>
-      <tr><td class="id">G10</td><td><b>Linked Bond Row</b> <span class="pill nw">LOCKED</span></td><td>bond name · ISIN · rate · <b>total interest received</b> (₹1,42,500 / ₹1,24,000 — not per-month) · <b>chevron → opens bond detail</b></td><td>default · pressed</td><td>PORTFOLIO (interest totals) · tap → bond detail page</td></tr>
+      <tr><td class="id">G1</td><td><b>GOALS/FORM tabs</b> <span class="pill nw">NEW</span></td><td>molecule</td><td>segmented control: GOALS (n) · FORM (n) — counts via props</td><td>either active · focused · loading(counts)</td><td>count0 → "(0)"</td></tr>
+      <tr><td class="id">G2</td><td><b>Goal Card</b> <span class="pill nw">NEW</span></td><td>organism</td><td>name · dates · Saved ₹ · <b>months signal</b> · pace line · <b>Details button only</b> (Check-in removed)</td><td>on-plan · missed (red) · skeleton · pressed · focused · loading · error(strip)</td><td>long name wraps2 lines · missing saved → ₹0 · rail0%</td></tr>
+      <tr><td class="id">G3</td><td><b>Months Signal</b> <span class="pill nw">NEW</span></td><td>atom</td><td>green <b>X/Y months ✓</b> OR red <b>N months missed</b> — exactly one; negative sticky until resolved</td><td>positive · negative (precedence) · loading</td><td>long miss list → "N months missed" only</td></tr>
+      <tr><td class="id">G4</td><td><b>Auto Readout Card</b> <span class="pill nw">NEW</span></td><td>molecule</td><td>Total months (dates) · Target amount ₹ (Amount × months) — ₹ icon, never $ · helper: "Both calculated automatically — nothing else to fill" · Edit-prefilled mode (G27)</td><td>computing · final · read-only · error(invalid dates)</td><td>0 months / reversed dates → error · &gt;24 months → scroll</td></tr>
+      <tr><td class="id">G5</td><td><b>Create Form</b> <span class="pill nw">NEW</span></td><td>organism</td><td>exactly4 inputs (name · start · end · amount ₹) + readouts + Save goal · date-picker &amp; ₹-suffix input variants · prefilled mode for Edit (G27)</td><td>pristine · filling · validation-error · submitting · loading · error(save)</td><td>long name overflow · date reversed → validation keeps entries</td></tr>
+      <tr><td class="id">G6</td><td><b>Detail/Form Top Bar</b> <span class="pill sh">E1 variant</span></td><td>organism</td><td><b>NOT a separate component</b> — E1 back-variant (back · title · ⋮ trigger) used by detail + form frames</td><td>via E1 (default · focused · loading)</td><td>via E1 (long title truncate)</td></tr>
+      <tr><td class="id">G7</td><td><b>Saved-so-Far card</b> <span class="pill nw">NEW</span></td><td>molecule</td><td>Saved ₹ amount + progress rail (no target shouting)</td><td>value · zero · loading · error(strip)</td><td>₹0 zero state · missing store → skeleton</td></tr>
+      <tr><td class="id">G8</td><td><b>Derivation Table</b> <span class="pill nw">LOCKED</span></td><td>organism</td><td>title "Month-wise Derivation (Jan 2027 → Oct 2028)" ·5 cols (Month · Target · Invested · Returns · Running Total dim) · month rows · gap row · final row · <b>static accent tfoot (G30)</b></td><td>totals always visible · rows live-update · loading(skeleton rows) · error(strip)</td><td>0-month table · &gt;24 months → vertical scroll · long issuer wraps</td></tr>
+      <tr><td class="id">G9</td><td><b>Linked Bonds card</b> <span class="pill nw">NEW</span></td><td>molecule</td><td>header "Linked Bonds (auto-allocating yield)" + row list</td><td>list · empty-none (→ G32/E12) · loading · error</td><td>0 linked → empty state · long list scrolls</td></tr>
+      <tr><td class="id">G10</td><td><b>Linked Bond Row</b> <span class="pill nw">LOCKED</span></td><td>molecule</td><td>bond name · ISIN · rate · <b>total interest received</b> (₹1,42,500 / ₹1,24,000) · <b>chevron → bond detail (event via callback)</b></td><td>default · pressed · focused · loading</td><td>long bond name wraps · missing ISIN → "—"</td></tr>
+      <tr><td class="id">G11</td><td><b>Scroll-to-top</b> <span class="pill nw">NEW</span></td><td>atom</td><td>floating control — appears only when list &gt;1 screen; tap → smooth scroll to top</td><td>hidden · visible · pressed · focused</td><td>short list → never renders</td></tr>
     </tbody>
   </table>
-  <p class="note">Gestures summary: everything is tap-only; no swipe-destructive actions exist on this page (no Remove); long-press unused; system edge-swipe = back (wins over in-page gestures).</p>
-  <p class="note" style="color:var(--green)">Scope note (E15/E17): G1 Tabs ↔ ⬡ E3 · G2 Goal Card ↔ ⬡ E5 — these are <b>page-scoped Goals contracts</b> (owner: goals-audit · status: approved), registered in Universal Elements for anatomy only, NOT shared-library members (≥2-page reuse rule). Contracts table now carries Owner + Status columns (E1–E22).</p>
+  <p class="note">Gestures: everything tap-only; no swipe-destructive (no Remove); long-press unused; system edge-swipe = back (wins). Variants rule: one component + variant/size/type props — never N copies (E8 = the model).</p>
+  <p class="note" style="color:var(--green)">Scope note (E15/E17): G1 ↔ ⬡ E3 · G2 ↔ ⬡ E5 — page-scoped Goals contracts (owner: goals-audit · approved), anatomy-only in Universal Elements, NOT shared-library members. E1–E22 contracts carry Owner + Status columns.</p>
 </section>
 
 <section>
@@ -103,7 +107,7 @@
 </section>
 
 <footer>
-  <span>GOALS · COMPONENT INVENTORY ·19 live (9 shared +10 page) +5 removed · handoff step2 · audit-synced E1–E17</span>
+  <span>GOALS · COMPONENT INVENTORY ·21 live (10 shared +11 page) +5 removed · handoff step2 · audit-synced E1–E17 · inventory-check fixed</span>
   <span>source: base design + Universal Elements + AGY audits ·2026-11-28</span>
 </footer>
 
