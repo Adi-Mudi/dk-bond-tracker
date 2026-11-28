@@ -51,8 +51,8 @@
 
 <section>
   <h2>Rules that apply to every component <span class="count">global</span></h2>
-  <div class="rule"><b>GESTURE RULES (per component, must be stated):</b> Watchlist page is <b>tap-only</b> — no swipe-delete anywhere (single accidental swipe must never act; delete is buried behind typed-ISIN + hold-2s) · <b>W4 Hold-2s Confirm is the ONLY long-press</b> on this page (confirm gate) · any edge swipe = <b>system back wins</b> · horizontal scroll allowed ONLY inside the Multi-Broker Compare card if declared (default: vertical stack — no horizontal table) · every gesture conflict listed in that component's ACTIONS row.</div>
-  <div class="rule"><b>NESTING RULE:</b> components nest — each level runs its own checklist. <b>The page never talks to the database — only to its own components.</b> Data flows: store/endpoint → page/repository → props down → components; events flow: component callback → page → repository. Nesting map: List frame ⊃ Top Bar(E1 ⊃ E20 badge) + Stat strip(E4) + Segmented tabs(KIT33) + Alert cards(KIT27 ⊃ KIT19 severity) + <b>Company Card(W1)</b> ⊃ Status Pill(E13) + Progress Rail(E14) + Nested Rows(W2 ×n) + Callouts(KIT31) + Multi-Broker(W3 ⊃ E17 radio + W8 chip) + Load More(W11) + FAB + Bottom Nav(E2) + TOP(W14) · Form frame ⊃ Form bar(E1 back-variant) + Text Inputs(E9) + Auto/You-Enter chips(W6) + COMING SOON(W7) + Locked ISIN(W15) + Value read-out(KIT9) + Secured checkbox(E16) + Suggestion chips(W13) + Fetch states(W5) + Save(E8) · Detail frame ⊃ Detail Header(W12 = E1 back-variant) + Overflow(E10) + Remove flow(KIT36 dialog ⊃ W4 hold-gate) + Banner(E11) · Move panel ⊃ Move Context Card(W9) + Inputs(E9) + Goal select(E9) + Confirm/Cancel(E8).</div>
+  <div class="rule"><b>GESTURE RULES (per component, must be stated):</b> Watchlist page is <b>tap-only</b> — no swipe-delete anywhere (single accidental swipe must never act; delete is buried behind typed-ISIN + hold-2s) · <b>W4 Hold-2s Confirm is the ONLY long-press</b> on this page (confirm gate) · any edge swipe = <b>system back wins</b> · NO horizontal scroll anywhere on this page (Multi-Broker Compare is a vertical stack of 3 rows — never a horizontal table) · every gesture conflict listed in that component's ACTIONS row.</div>
+  <div class="rule"><b>NESTING RULE:</b> components nest — each level runs its own checklist. <b>The page never talks to the database — only to its own components.</b> Data flows: store/endpoint → page/repository → props down → components; events flow: component callback → page → repository. Nesting map: List screen (shell static on EVERY frame — brand bar + tabs + nav + FAB never hide; the Add Bond form is a PANE inside content, not a full-screen frame, per navigation_flow:3) ⊃ Top Bar(E1 ⊃ E20 badge) + Stat strip(E4) + Segmented tabs(KIT33) + Alert cards(KIT27 ⊃ KIT19 severity) + <b>Company Card(W1)</b> ⊃ Status Pill(E13) + Nested Rows(W2 ×n) + Callouts(KIT31) + Multi-Broker(W3 ⊃ E17 radio + W8 chip) + Load More(W11) + Empty State(E12, first-open G2) + FAB + Bottom Nav(E2) + TOP(W14) · Form pane ⊃ Text Inputs(E9) + Auto/You-Enter chips(W6) + COMING SOON(W7) + Locked ISIN(W15) + Value read-out(KIT9) + Secured checkbox(E16) + Suggestion chips(W13) + Fetch states(W5) + Banner(E11, dup-ISIN + fetch errors) + Save(E8) · Bond Detail route ⊃ Detail Header(W12 = E1 back-variant) + Overflow(E10) + Remove flow(KIT36 dialog ⊃ W4 hold-gate) + Callout(KIT31, Guarded note) · Move panel ⊃ Move Context Card(W9) + Inputs(E9) + Goal select(E9) + Callout(KIT31, Broker Record note) + Confirm/Cancel(E8). Reconciliation: board Col 01–05 each render the full static shell (goals-style full-screen-form-hides-nav does NOT apply here — form is a pane, tabs/nav stay).</div>
 </section>
 
 <section>
@@ -71,11 +71,11 @@
 
   <h3>E2 · Bottom Nav <span class="tag">organism · shared</span></h3>
   <ul class="q">
-    <li><b>1 DATA:</b> five tabs (Dashboard · Portfolio · Watchlist · Goals · More) + active index — shell props; Watchlist active. <b>Renders on List frame only</b> — full-screen Form and Detail frames show NO bottom nav (locked board).</li>
+    <li><b>1 DATA:</b> five tabs (Dashboard · Portfolio · Watchlist · Goals · More) + active index — shell props; Watchlist active. <b>Shell static on EVERY frame</b> (features A: "App shell (every frame)") — nav stays visible while the Add Bond FORM PANE is open (form = pane, not full-screen; navigation_flow:3). Bond Detail route is cross-page (W12 supplies its header).</li>
     <li><b>2 ACTIONS:</b> tap tab → switch root (own back stack per tab). No swipe (edge swipe = system back, wins). Conflict: none — taps only, sits outside scroll areas.</li>
     <li><b>3 STATES:</b> working (active tab highlighted) · loading n/a (shell) · empty n/a · error n/a.</li>
     <li><b>4 FEEDBACK:</b> instant tab switch (active-indicator 150ms) · leaving Watchlist preserves list position (per-tab stack).</li>
-    <li><b>5 RULES:</b> five tabs fixed on List frame · hidden on Form/Detail frames · labels truncate with icon priority (full "Dashboard" label — no "Dash" truncation) · SR announces selected tab.</li>
+    <li><b>5 RULES:</b> five tabs fixed, visible on every frame incl. form-pane open (reconciliation: board Col 01–05 all render the full shell — goals-style nav-hides-on-form does NOT apply) · labels truncate with icon priority (full "Dashboard" label — no "Dash" truncation) · SR announces selected tab.</li>
     <li><b>6 CONNECTION:</b> router/active-index props + onTab callback — no data fetching.</li>
     <li><b>7 SCREENS:</b> fixed bottom full-width at 412dp on List · NOT rendered on Form/Detail · Compact-only.</li>
   </ul>
@@ -105,12 +105,12 @@
   <h3>E10 · Overflow menu ⋮ <span class="tag">molecule · shared</span></h3>
   <ul class="q">
     <li><b>1 DATA:</b> items array prop — watchlist detail instantiation = [View history, Edit target parameters, Share prospectus, Remove] (first three destinations OPEN — see features §5).</li>
-    <li><b>2 ACTIONS:</b> tap ⋮ → open (immediate) · tap item → onSelect callback · tap-away or system back → close. Edge swipe = system back (wins, just closes menu).</li>
+    <li><b>2 ACTIONS:</b> tap ⋮ → open as <b>modal bottom sheet</b> (immediate; all_sections:1060-1086, F2) · tap item → onSelect callback · tap-away or system back → close. Edge swipe = system back (wins, just closes sheet).</li>
     <li><b>3 STATES:</b> working (closed/open) · loading n/a · empty n/a (never empty) · error n/a.</li>
     <li><b>4 FEEDBACK:</b> menu appears instantly · item tap → closes → Remove: guarded modal opens (KIT36) · other items: navigate when destinations decided.</li>
     <li><b>5 RULES:</b> Remove = red + always routes through KIT36 typed-ISIN dialog (never one-tap) · sheet items in fixed order.</li>
     <li><b>6 CONNECTION:</b> props + onSelect callback.</li>
-    <li><b>7 SCREENS:</b> anchored below trigger; long items scroll inside popup; 412dp fine.</li>
+    <li><b>7 SCREENS:</b> modal bottom sheet anchored to screen bottom; long items scroll inside sheet; 412dp fine.</li>
   </ul>
 
   <h3>E11 · Banner <span class="tag">molecule · shared</span></h3>
@@ -218,7 +218,7 @@
     <li><b>2 ACTIONS:</b> tap segment → switch pane (list frame only). No swipe. Conflict: none — sticky under bar, above scroll.</li>
     <li><b>3 STATES:</b> working (either active) · loading (count skeletons) · empty ("(0)" shown) · error n/a.</li>
     <li><b>4 FEEDBACK:</b> instant pane switch · active segment slides 150ms · counts update live.</li>
-    <li><b>5 RULES:</b> tabs ONLY on List frame (Form/Detail = full-screen) · first-open default = same widget (not a second) · SR labels announce selected state.</li>
+    <li><b>5 RULES:</b> sticky tabs part of the static shell — visible on every frame; switch FORM/LEDGER panes (never hidden — form is a pane) · first-open default = same widget (not a second) · SR labels announce selected state.</li>
     <li><b>6 CONNECTION:</b> counts prop + onSelect callback.</li>
     <li><b>7 SCREENS:</b> sticky below app bar, full-width segmented; labels truncate gracefully.</li>
   </ul>
@@ -242,7 +242,7 @@
     <li><b>4 FEEDBACK:</b> hold ring fills 2s → complete → delete fires → toast <b>"Candidate deleted: {company}"</b> (watch.py:1095, no Undo — non-recoverable so guard is mandatory) · early release → ring resets, nothing happens · Cancel → instant close.</li>
     <li><b>5 RULES:</b> Remove enabled ONLY when typed ISIN matches exactly (case-insensitive) · backdrop tap = cancel (never confirm) · held positions never reach this dialog (F4) · no swipe path to delete.</li>
     <li><b>6 CONNECTION:</b> emits onConfirm(isin) → page → repository (delete endpoint) — dialog never talks to DB.</li>
-    <li><b>7 SCREENS:</b> centred modal, max-width 90% at 412dp; gate input full-width; buttons stacked (Cancel above Remove).</li>
+    <li><b>7 SCREENS:</b> centred modal, max-width 90% at 412dp; gate input full-width; buttons stacked <b>Remove from Watchlist (red) ABOVE Cancel</b> (all_sections:1112-1118).</li>
   </ul>
   <p class="note">Sub-components: W4 Hold-2s Confirm (own checklist below) · E9 gate input · E8 Cancel/Remove buttons — each specified above/below.</p>
 
@@ -296,8 +296,8 @@
 
   <h3>W1 · Company Card <span class="tag">organism · new</span></h3>
   <ul class="q">
-    <li><b>1 DATA:</b> company name · 4-tier pill (E13) · total invested · counts (N bonds / X completed / Y ongoing) · rail (E14) + nested rows container — all props from page (store via page).</li>
-    <li><b>2 ACTIONS:</b> tap header → expand/collapse rows · tap rows → delegated to W2 children. No swipe (delete banned), no long-press. Conflict: none — pill/rail/counts are inert children.</li>
+    <li><b>1 DATA:</b> company name · 4-tier pill (E13) · total invested · counts (N bonds / X completed / Y ongoing) + nested rows container — all props from page (store via page). NO progress rail on this card (locked board renders none — E14 not used here).</li>
+    <li><b>2 ACTIONS:</b> tap header → expand/collapse rows · tap rows → delegated to W2 children. No swipe (delete banned), no long-press. Conflict: none — pill/counts are inert children.</li>
     <li><b>3 STATES:</b> working (expanded/collapsed) · loading (W10 skeleton card) · empty (n/a — E12 instead) · error (page H2 strip above, card not rendered) · zeroed first-open stats (G1).</li>
     <li><b>4 FEEDBACK:</b> expand/collapse 200ms height animation · press feedback on header · row taps navigate via children.</li>
     <li><b>5 RULES:</b> merged [HELD]+[WATCH] in ONE card (D1) · name truncates 2 lines then ellipsis · 4-tier sort across cards (H5: Danger &gt; Maturing &gt; On-going &gt; Matured) · no on-card delete ever.</li>
@@ -308,13 +308,13 @@
 
   <h3>W2 · Nested Row (HELD/WATCH) <span class="tag">molecule · new · variant prop</span></h3>
   <ul class="q">
-    <li><b>1 DATA:</b> kind=held|watch · ISIN · meta · yield % · actions (Details) — props. HELD variant: units · completed/ongoing · settled ₹ (or maturing countdown). WATCH variant: broker · meta · yield %.</li>
-    <li><b>2 ACTIONS:</b> tap row/Details → bond detail (callback, D5). No swipe, no long-press. Conflict: none.</li>
+    <li><b>1 DATA:</b> kind=held|watch · ISIN · meta · yield % — props. HELD variant: units · completed/ongoing · settled ₹ (or maturing countdown) · <b>NO action buttons</b>. WATCH variant: broker · meta · yield % + <b>two action buttons: Move to Portfolio + Details</b> (all_sections:633-641).</li>
+    <li><b>2 ACTIONS:</b> <b>WATCH:</b> tap Move to Portfolio → opens Move panel (onMove callback, E1–E4) · tap Details → bond detail (onOpen callback, D5). <b>HELD:</b> no buttons — tap row → bond detail (onOpen). No swipe, no long-press. Conflict: none — buttons are plain taps.</li>
     <li><b>3 STATES:</b> working (held|watch) · loading (row skeleton) · empty (n/a — parent shows E12) · error (missing values → "—", row still tappable if id exists) · maturing-countdown variant.</li>
     <li><b>4 FEEDBACK:</b> press −6% → detail frame slides in.</li>
     <li><b>5 RULES:</b> one component + kind prop — never two copies · missing values → "—" (never blank) · ISIN secondary text · no swipe actions on row.</li>
-    <li><b>6 CONNECTION:</b> props + onOpen callback — navigation decided by page.</li>
-    <li><b>7 SCREENS:</b> row full-width; meta wraps (2 lines max), yield right-aligned; 412dp.</li>
+    <li><b>6 CONNECTION:</b> props + onOpen callback (detail) + onMove callback (Move panel) — navigation/panel decided by page.</li>
+    <li><b>7 SCREENS:</b> row full-width; meta wraps (2 lines max), yield right-aligned; WATCH action buttons stack in a 2-up grid at 412dp; HELD renders no button row.</li>
   </ul>
 
   <h3>W3 · Multi-Broker Compare + Radio <span class="tag">molecule · new</span></h3>
@@ -400,7 +400,7 @@
     <li><b>2 ACTIONS:</b> NONE — non-interactive. No conflicts.</li>
     <li><b>3 STATES:</b> loading ONLY (shown while first load/refresh runs) · never shown after data (rule).</li>
     <li><b>4 FEEDBACK:</b> replaces itself with real cards on arrival (no fade — instant swap).</li>
-    <li><b>5 RULES:</b> skeleton, NEVER a spinner for the ledger (layout known — E16 loading rule) · shape must match W1 (header + rows).</li>
+    <li><b>5 RULES:</b> skeleton, NEVER a spinner for the ledger (layout known — Essential 15 loading-pattern rule, app_essentials) · shape must match W1 (header + rows).</li>
     <li><b>6 CONNECTION:</b> none (driven by page loading flag).</li>
     <li><b>7 SCREENS:</b> full-width cards matching W1 dimensions at 412dp.</li>
   </ul>
@@ -452,11 +452,11 @@
   <h3>W15 · Locked ISIN chip <span class="tag">atom · new</span></h3>
   <ul class="q">
     <li><b>1 DATA:</b> ISIN string + locked flag — props (form identity field after fetch, C5).</li>
-    <li><b>2 ACTIONS:</b> tap → copy-to-clipboard (if enabled) · NO edit while locked. No swipe/long-press. Conflict: none.</li>
-    <li><b>3 STATES:</b> working (locked) · loading (Checking → placeholder) · empty (pre-fetch — plain E9 input instead) · error (fetch failed → unlock for retype).</li>
-    <li><b>4 FEEDBACK:</b> copy tap → brief "Copied" toast · locked look (dimmed, no caret) signals immutability.</li>
-    <li><b>5 RULES:</b> never editable after Found · unlock only on fetch failure · long ISIN truncates with full value on copy.</li>
-    <li><b>6 CONNECTION:</b> props + onCopy callback.</li>
+    <li><b>2 ACTIONS:</b> NONE — immutable display (lock icon + "Immutable" label, all_sections:225-232); NO edit, NO copy gesture. No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (locked) · loading (Checking → placeholder) · empty (pre-fetch — Quick ISIN Lookup stays a separate plain E9 input, all_sections:178; locked chip renders only after Found) · error (fetch failed → unlock for retype).</li>
+    <li><b>4 FEEDBACK:</b> n/a — no action exists; locked look (lock icon + dimmed, no caret + "Immutable" tag) signals immutability.</li>
+    <li><b>5 RULES:</b> never editable after Found · unlock only on fetch failure · long ISIN truncates middle · separate from the Quick ISIN Lookup input (two controls, not one).</li>
+    <li><b>6 CONNECTION:</b> props only (ISIN value + locked flag) — no callbacks (inert).</li>
     <li><b>7 SCREENS:</b> full-width chip/input at 412dp; ISIN truncates middle if needed.</li>
   </ul>
 </section>
