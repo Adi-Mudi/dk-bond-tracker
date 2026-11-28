@@ -41,9 +41,10 @@
 <header>
   <div class="kicker">DK Bond Tracker · Universal · Full-application component registry</div>
   <h1>App Components — Universal (all pages)</h1>
+  <p style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS (Shared Component Library): <b style="color:#6FD898">R1 FAIL (4 REAL,2 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential16_componentlib_audit_report.html</p>
   <p class="lede">Every component in the application: the shared kit (used across pages) + page-specific components. Each row lists <b style="color:var(--ink)">which pages use it</b> — the reverse link of the features doc. <a class="conn" href="app_features.html">→ App Features (universal)</a> <a class="conn" href="../watchlist/watchlist_components_board.html">→ visual gallery (40)</a> <a class="conn" href="component_audit.html">→ audit (40 ✓)</a></p>
   <div class="stats">
-    <div class="stat"><b>40</b>shared kit types</div>
+    <div class="stat"><b>40</b>shared kit types <span style="font-size:9px;color:var(--dim)">(#22/#23 W-only — promote on2nd page)</span></div>
     <div class="stat"><b>84</b>kit instances (watchlist baseline)</div>
     <div class="stat"><b>8</b>page-specific types</div>
     <div class="stat"><b>✓</b>audit passed</div>
@@ -54,7 +55,8 @@
 
 <section>
   <h2>Element library → moved to Universal Elements <span class="count">MOVED</span></h2>
-  <p style="font-size:11.5px;color:var(--muted)">Element contracts (E1–E14), the locked global rules, and the four Stitch design-system ids now live in <a href="app_essentials.html#elements" style="color:var(--soft)">app_essentials.html § Universal Elements</a> — the single source of truth for shared building blocks (developer decision 2026-11-27: same elements, many pages → one home). This file keeps the <b style="color:var(--ink)">inventory</b>: every component type, which pages use it, and audit status. Stitch enforcement copy → <a href="stitch_design_md_draft.md" style="color:var(--soft)">stitch_design_md_draft.md</a> (paste into Stitch web → project DESIGN.md).</p>
+  <p style="font-size:11.5px;color:var(--muted)">Element contracts (<b>E1–E22</b>), the locked global rules, and the four Stitch design-system ids now live in <a href="app_essentials.html#elements" style="color:var(--soft)">app_essentials.html § Universal Elements</a> — the single source of truth for shared building blocks (developer decision 2026-11-27: same elements, many pages → one home). This file keeps the <b style="color:var(--ink)">inventory</b>: every component type, which pages use it, and audit status. Stitch enforcement copy → <a href="stitch_design_md_draft.md" style="color:var(--soft)">stitch_design_md_draft.md</a> (paste into Stitch web → project DESIGN.md).</p>
+  <p style="font-size:11px;color:var(--dim);margin-top:6px"><b>What goes in (library rules):</b> shared kit = ≥2 pages evidence (promote only after a copy into a second place — never abstract a single use) · earns its place = same requirements in &gt;1 place OR hides caller complexity · <b>start small at build time</b>: tokens + E15 atoms + the4–5 workhorse components first — this40-type list is the <i>designed inventory</i>, not a built library · one repo directory, zero duplicate definitions · data via props/slots only (never fetch inside) · docs inline with the component (props/slots/events/keyboard/a11y) · design-system own package at medium/large scale (no circular deps).</p>
 </section>
 
 <section>
@@ -84,8 +86,8 @@
       <tr><td class="id">19</td><td>severity chip</td><td>chip</td><td class="pages"><span class="pg">A</span><span class="pg">W</span></td></tr>
       <tr><td class="id">20</td><td>locked chip</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
       <tr><td class="id">21</td><td>tag chip</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
-      <tr><td class="id">22</td><td>COMING SOON chip</td><td>chip</td><td class="pages"><span class="pg">W</span></td></tr>
-      <tr><td class="id">23</td><td>Best Yield chip</td><td>chip</td><td class="pages"><span class="pg">W</span></td></tr>
+      <tr><td class="id">22</td><td>COMING SOON chip <span style="font-size:9px;color:var(--amber)">(W-only — promote on2nd page)</span></td><td>chip</td><td class="pages"><span class="pg">W</span></td></tr>
+      <tr><td class="id">23</td><td>Best Yield chip <span style="font-size:9px;color:var(--amber)">(W-only — promote on2nd page)</span></td><td>chip</td><td class="pages"><span class="pg">W</span></td></tr>
       <tr><td class="id">24</td><td>notification badge</td><td>chip</td><td class="pages"><span class="pg hot">SH</span></td></tr>
       <tr><td class="id">25</td><td>suggestion chips</td><td>chip</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
       <tr><td class="id">26</td><td>card (company / holding)</td><td>container</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">D</span><span class="pg">G</span></td></tr>
@@ -100,7 +102,7 @@
       <tr><td class="id">35</td><td>bottom sheet</td><td>overlay</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
       <tr><td class="id">36</td><td>dialog</td><td>overlay</td><td class="pages"><span class="pg">W</span><span class="pg">P</span><span class="pg">S</span><span class="pg">B</span></td></tr>
       <tr><td class="id">37</td><td>overflow menu</td><td>overlay</td><td class="pages"><span class="pg">W</span><span class="pg">P</span></td></tr>
-      <tr><td class="id">38</td><td>route / detour logic</td><td>logic</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
+      <tr><td class="id">38</td><td>route / detour logic <span style="font-size:9px;color:var(--amber)">(routing pattern — not a UI component; Navigation owns)</span></td><td>logic</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
       <tr><td class="id">39</td><td>fetch state indicator</td><td>indicator</td><td class="pages"><span class="pg">W</span><span class="pg">R</span></td></tr>
       <tr><td class="id">40</td><td>helper text</td><td>indicator</td><td class="pages"><span class="pg hot">ALL</span></td></tr>
     </tbody>
@@ -115,8 +117,8 @@
       <tr><td class="id">P1</td><td>Payout matrix + cycle cell</td><td>Portfolio</td><td>tap cell → Payment Edit; totals derive per cell</td></tr>
       <tr><td class="id">P2</td><td>Returns chart / history viz</td><td>Dashboard</td><td>returns over time (chart type TBD at build)</td></tr>
       <tr><td class="id">P3</td><td>Cashflow calendar cell</td><td>Dashboard</td><td>scheduled/actual day cells</td></tr>
-      <tr><td class="id">P4</td><td>Goal progress bar</td><td>Goals</td><td>target vs current fill</td></tr>
-      <tr><td class="id">P5</td><td>Settings toggle switch</td><td>Settings</td><td>preferences on/off (notif, display)</td></tr>
+      <tr><td class="id">P4</td><td>Goal progress bar</td><td>Goals</td><td>→ Universal E14 Progress rail (no numbers/targets) — page wrapper only</td></tr>
+      <tr><td class="id">P5</td><td>Settings toggle switch</td><td>Settings</td><td>→ promoted: Universal E18 Toggle (SHARED)</td></tr>
       <tr><td class="id">P6</td><td>Search input + grouped result rows</td><td>Search</td><td>live query + entity groups</td></tr>
       <tr><td class="id">P7</td><td>CSV receipt / saved card</td><td>CSV Export</td><td>post-save confirmation</td></tr>
       <tr><td class="id">P8</td><td>Update dialog</td><td>About</td><td>available-update prompt</td></tr>
@@ -130,6 +132,8 @@
     <li>Each feature row in <a class="conn" href="app_features.html">app_features.html</a> carries <b>▸ uses:</b> its components (feature → components)</li>
     <li>Each component row above carries <b>Used by</b> pages (component → features/pages)</li>
     <li>Shared kit = build ONCE, every page consumes · page-specific = built with its page</li>
+    <li><b>Change review:</b> component change → proposed → API + a11y checklist → merge note with version impact · <b>token change = behaviour change</b> (review like code) · library <b>versioned</b>; deprecation = migration path → period → removal · <b>adoption watch:</b> fork-instead-of-use = signal, investigate before forks multiply</li>
+    <li><b>Testing gates (build-phase):</b> every change reviews all states + messy content (long labels,2× translations, missing images, empty arrays) · multi-layer: visual regression + a11y + unit + integration · CI runs visual+a11y suite and blocks a failing release</li>
     <li>Before building any component: check this registry + the <a class="conn" href="component_audit.html">component audit (40 ✓)</a> for its7-question answers</li>
     <li>Watchlist remains the detailed baseline: <a class="conn" href="../watchlist/watchlist_components_board.html">gallery</a> · <a class="conn" href="../watchlist/watchlist_features.html">mapping</a></li>
   </ul>
