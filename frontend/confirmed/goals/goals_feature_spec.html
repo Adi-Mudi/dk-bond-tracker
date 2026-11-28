@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Goals Page — Feature Specification (DK Bond Tracker)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B;--red:#FF8A80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.6;padding:40px 20px}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:940px}
+  .lede a{color:var(--soft)}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .stat{background:var(--surface);border:1px solid var(--hairline);border-radius:8px;padding:7px 13px;font-size:11px;color:var(--muted)}
+  .stat b{color:var(--ink);font-size:14px;display:block}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  h2 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:10px;padding:2px 8px;letter-spacing:0}
+  h3{font-size:12px;color:var(--ink);margin:10px 0 6px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);padding:6px 8px;border-bottom:1px solid var(--hairline)}
+  td{padding:6px 8px;border-bottom:1px dashed rgba(42,58,76,.5);vertical-align:top;color:var(--muted)}
+  td b,td strong{color:var(--ink)}
+  td.id{color:var(--soft);font-weight:700;width:44px;white-space:nowrap}
+  ul{list-style:none}
+  li{font-size:12.5px;padding:4px 0;border-bottom:1px dashed rgba(42,58,76,.4);color:var(--muted)}
+  li b{color:var(--ink)}
+  li:last-child{border-bottom:none}
+  .story{background:var(--raised);border:1px solid var(--hairline);border-radius:8px;padding:10px 12px;font-size:12.5px;margin:6px 0;color:var(--ink)}
+  .story span{display:block;font-size:10.5px;color:var(--dim);margin-top:4px}
+  .ac{background:var(--raised);border-left:3px solid var(--green);border-radius:08px8px0;padding:8px12px;font-size:12px;margin:6px 0;color:var(--muted)}
+  .ac b{color:var(--green)}
+  .pill{display:inline-block;font-size:9px;padding:2px7px;border-radius:999px;border:1px solid rgba(147,180,255,.5);color:var(--soft);background:rgba(36,86,230,.15);margin-right:4px}
+  .warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:10px12px;font-size:12px;color:var(--amber);margin-top:8px}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Feature Specification · Page: Goals</div>
+  <h1>Feature Spec — Goals Page</h1>
+  <p class="lede">Single source of truth for building the Goals page, written against the <b style="color:var(--ink)">LOCKED</b> single-page base design (2026-11-28). Structure follows industry feature-spec practice (summary → stories → requirements → acceptance → NFRs → edge cases → metrics → traceability). Companion docs: <a href="goals_features.html">features</a> · <a href="goals_components.html">components</a> · <a href="goals_traceability.html">traceability</a>.</p>
+  <div class="stats">
+    <div class="stat"><b>LOCKED</b>design status</div>
+    <div class="stat"><b>26</b>features</div>
+    <div class="stat"><b>18</b>components</div>
+    <div class="stat"><b>Android</b>target (Flutter)</div>
+    <div class="stat"><b>₹ INR</b>only</div>
+  </div>
+</header>
+
+<section>
+  <h2>1 · Summary <span class="count">overview</span></h2>
+  <ul>
+    <li><b>Feature:</b> Goals page — create savings goals, track them automatically against the portfolio, and review month-wise progress.</li>
+    <li><b>Owner:</b> PM (design) · Developer (build) · Status: design LOCKED (base screen <span style="color:var(--soft)">6e072293…</span>), implementation not started</li>
+    <li><b>Why:</b> bond investors need a clean way to set a savings target and see — without manual entry — how much they invested, what the bonds returned, and whether they are on plan.</li>
+    <li><b>Success metrics:</b> time-to-first-goal &lt;2 min ·100% of invested/returns shown without typing · months-signal visible on every card · zero manual bookkeeping.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2 · Problem &amp; goals <span class="count">why</span></h2>
+  <ul>
+    <li><b>Problem:</b> tracking a savings goal today means spreadsheets; investment and interest data already exist in the portfolio but are not surfaced per goal; big target numbers demotivate (psychology finding).</li>
+    <li><b>Goal:</b> one page where the user enters FOUR things once, and everything else — months, target, invested, returns, totals — is calculated.</li>
+    <li><b>Non-goals (out of scope):</b> iOS · tablet/desktop reflow (post-MVP) · manual check-in / Save draft (removed — data is auto) · Remove/delete of goals (Archive only) · dynamic theming (4 locked static themes) · backend redesign (contract phase).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>3 · Users &amp; user stories <span class="count">5</span></h2>
+  <div class="story"><b>As a</b> salaried saver, <b>I want</b> to set a goal with monthly amount and dates <b>so that</b> the app tells me the total months and target automatically.<span>→ G13–G15 · clean form with auto readouts</span></div>
+  <div class="story"><b>As a</b> bond investor, <b>I want</b> my goal to show month-wise invested and returns from my portfolio <b>so that</b> I see real progress without entering anything.<span>→ G19–G21 · derivation table, auto columns</span></div>
+  <div class="story"><b>As a</b> user who missed a month, <b>I want</b> a clear red "N months missed" signal that stays until resolved <b>so that</b> I know exactly what to fix.<span>→ G08 · months signal, negative precedence</span></div>
+  <div class="story"><b>As a</b> reviewer, <b>I want</b> a single colored totals row (months · target · invested · returns) <b>so that</b> I can verify the plan at a glance.<span>→ G19 · static accent totals row</span></div>
+  <div class="story"><b>As a</b> user, <b>I want</b> to tap a linked bond and see its detail <b>so that</b> I can check how much total interest it has delivered.<span>→ G22 · linked bond rows with interest totals</span></div>
+</section>
+
+<section>
+  <h2>4 · Functional requirements <span class="count">FR1–12</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Requirement (testable)</th><th>Ref</th></tr></thead>
+    <tbody>
+      <tr><td class="id">FR1</td><td>The page shows an empty state ("No goals yet") with CTA when zero goals exist.</td><td>G05</td></tr>
+      <tr><td class="id">FR2</td><td>Each goal card shows: name, dates, Saved ₹, status pill, <b>exactly one</b> months signal (green X/Y ✓ OR red N months missed — negative wins), pace, Details button. <b>Never a target amount.</b></td><td>G07–G11</td></tr>
+      <tr><td class="id">FR3</td><td>Create form accepts EXACTLY four inputs: name, start date, end date, amount (₹ monthly).</td><td>G13</td></tr>
+      <tr><td class="id">FR4</td><td>The form computes and displays total months (from dates) and target amount (Amount × months) automatically — both read-only.</td><td>G14–G15</td></tr>
+      <tr><td class="id">FR5</td><td>Goal detail shows Saved so far, then the month-wise derivation table (Month · Target · Invested · Returns · Running Total-dim), then Linked Bonds.</td><td>G18–G19, G22</td></tr>
+      <tr><td class="id">FR6</td><td>Invested per month is derived from portfolio purchase dates (Watchlist → Move to Portfolio) — never typed.</td><td>G20</td></tr>
+      <tr><td class="id">FR7</td><td>Returns per month are derived from bond interest — never typed; returns appear even in months with no investment.</td><td>G21</td></tr>
+      <tr><td class="id">FR8</td><td>The table ends with a static totals row (accent-coloured): total months · completed · target · invested · returns.</td><td>G19</td></tr>
+      <tr><td class="id">FR9</td><td>Each linked-bond row shows total interest received (not monthly) and opens that bond's detail on tap.</td><td>G22</td></tr>
+      <tr><td class="id">FR10</td><td>Overflow menu offers Edit goal and Archive goal only — <b>no Remove path exists</b>.</td><td>G17, G23</td></tr>
+      <tr><td class="id">FR11</td><td>Goal lifecycle ends via Achieved (auto) or Archived (user); linked bonds/portfolio are never affected.</td><td>G23</td></tr>
+      <tr><td class="id">FR12</td><td>All money uses ₹ INR formatting with Indian digit grouping (₹20,00,000).</td><td>bar M-rule</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5 · Acceptance criteria <span class="count">Given/When/Then</span></h2>
+  <div class="ac"><b>AC1 · Auto-calc:</b> Given the form has dates Jan2027→Oct2028 and amount ₹50,000, When the user views the readouts, Then total months shows "22" and target shows "₹11,00,000" with no further input.</div>
+  <div class="ac"><b>AC2 · No target on cards:</b> Given any goal list, When scanning cards, Then no target amount or percent-of-target text appears anywhere — only Saved ₹ and the months signal.</div>
+  <div class="ac"><b>AC3 · Missed signal:</b> Given a goal with missed months, Then a red "N months missed" shows and takes precedence over any green signal until resolved.</div>
+  <div class="ac"><b>AC4 · Auto columns:</b> Given a holding was moved to portfolio with purchase date in month M, Then month M's INVESTED cell fills automatically; returns fill from bond interest even when invested is zero.</div>
+  <div class="ac"><b>AC5 · Totals row:</b> Given the table renders, Then one static accent totals row exists with months · target · invested · returns — and it is the ONLY coloured row (data rows plain).</div>
+  <div class="ac"><b>AC6 · Interest totals:</b> Given linked bonds, Then each row shows total interest received (e.g. ₹1,42,500) — never a per-month figure — and tapping opens the bond detail.</div>
+  <div class="ac"><b>AC7 · No Remove:</b> Given any goal state, Then no Remove/delete affordance exists; only Edit and Archive.</div>
+  <div class="ac"><b>AC8 · TalkBack:</b> Given TalkBack on, Then every control announces a label; contrast ≥4.5:1 on all text (Mandatory Bar M1/M2/M5).</div>
+</section>
+
+<section>
+  <h2>6 · Non-functional requirements <span class="count">NFR</span></h2>
+  <ul>
+    <li><b>Accessibility:</b> WCAG2.2 AA target ·48dp touch targets · TalkBack labels · text scales to200% · colour never alone (Mandatory Bar M1–M18).</li>
+    <li><b>Performance:</b> skeleton for list load · local-first reads (goals store) · derivation computed &lt;100ms for24 rows.</li>
+    <li><b>Reliability:</b> failure matrix applies (offline/timeout/save-error keep entries, never blank) — Essential5/15.</li>
+    <li><b>Privacy:</b> no personal identifiers in bonds.db; goals data stays local (Secure Storage rules).</li>
+    <li><b>Platform:</b> Android-only, Compact (412dp) primary; Material idiom; Flutter implementation from locked design.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7 · UI / UX requirements &amp; design links <span class="count">locked</span></h2>
+  <ul>
+    <li><b>Locked design:</b> <a href="goals_single_page_base.html">goals_single_page_base.html</a> (screen6e072293… · list / clean form / detail states) · screenshot + stitch source in same folder.</li>
+    <li><b>Themes:</b>4 locked (Nordic PRIMARY · Harbor · Warm · Fjord) — rollout only AFTER base confirm (Q12).</li>
+    <li><b>Design rules baked in:</b> psychology (no target shouting · months signal) · clean4-input form · derivation table with accent totals row · linked-bond links · Edit/Archive-only · ₹ only.</li>
+    <li><b>Empty-state-first</b> and all-sections presentation per AGENTS review format.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>8 · Data model &amp; connections <span class="count">contract-phase</span></h2>
+  <ul>
+    <li><b>Goals store (local):</b> name, start/end, amount, saved, status (active/achieved/archived) — CRUD via local repository (Essential5 boundary).</li>
+    <li><b>Portfolio origin (single source):</b> invested ← purchase dates of goal-linked holdings; returns ← bond interest; linked bonds ← portfolio holdings. Goals page never recalculates holdings itself.</li>
+    <li><b>Bond master:</b> ISIN → rating/coupon metadata for linked rows (repository ↔ database contract = separate phase).</li>
+    <li><b>API:</b> none on this page (local-first); future sync = contract phase (Dio, timeouts, failure matrix ready in Essential5).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>9 · Edge cases &amp; error handling <span class="count">7</span></h2>
+  <ul>
+    <li>Zero goals → empty state + CTA (never blank).</li>
+    <li>Missed months → red signal persists; pace banner design pending (open item).</li>
+    <li>Returns without investment in a month → returns still shown (motivation rule).</li>
+    <li>Dates reversed / equal → validation error, entries preserved.</li>
+    <li>Save failure → error stays visible, form data kept, retry.</li>
+    <li>Goal achieved → auto state change; archive available anytime; no delete.</li>
+    <li>Portfolio holding removed later → linked-bond row disappears; totals recompute (never negative history).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>10 · Dependencies, open questions &amp; risks <span class="count">open</span></h2>
+  <ul>
+    <li><b>Dependencies:</b> Watchlist → Move to Portfolio flow · bond interest data (portfolio) · local goals store · Flutter build (post-design).</li>
+  </ul>
+  <div class="warn"><b>OPEN:</b> (1) keep/drop — Upcoming Pipeline grid · pace-adjustment banner · failure counter (absent from locked base). (2) Essentials E-table sync (REAL3 — doc rule pending). (3) Theme rollout waits for base confirm (Q12). (4) GitHub #337/#339 drafts need developer approval.</div>
+</section>
+
+<section>
+  <h2>11 · Traceability <span class="count">links</span></h2>
+  <table>
+    <thead><tr><th>Layer</th><th>Document</th></tr></thead>
+    <tbody>
+      <tr><td class="id">FR→G</td><td><a href="goals_features.html">goals_features.html</a> —26 features (G01–G26)</td></tr>
+      <tr><td class="id">G→C</td><td><a href="goals_components.html">goals_components.html</a> —18 components +5 removed history</td></tr>
+      <tr><td class="id">map</td><td><a href="goals_traceability.html">goals_traceability.html</a> — feature ↔ component ↔ source</td></tr>
+      <tr><td class="id">rules</td><td><a href="app_essentials.html">app_essentials</a> — Universal Elements · Mandatory Bar · locked decisions</td></tr>
+      <tr><td class="id">audit</td><td><a href="goals_component_audit.html">goals_component_audit.html</a> — AGY history (R1 FAIL → R3 PASS20/0/0)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Sources · community feature-spec practice <span class="count">research</span></h2>
+  <ul>
+    <li>Structure synthesized from: BuildBetter feature-spec template (stories + acceptance criteria) · Productboard product-spec (edge cases, NFRs, open questions) · Altexsoft/Parallel PRD guides (functional vs non-functional, scope exclusions) · Atlassian PRD (objectives, success metrics, out-of-scope) · IEEE830/Gherkin conventions (Given-When-Then) · Docsie (UI mockups + success metrics sections) · Dotwork product specification (open questions + dependencies).</li>
+    <li>Acceptance-criteria-first emphasis per Spec Coding: "the most important section of any technical spec."</li>
+  </ul>
+</section>
+
+<footer>
+  <span>GOALS · FEATURE SPECIFICATION v1.0 · LOCKED design basis · Android/Flutter target</span>
+  <span>generated2026-11-28 · structure = community standard · content = locked goals design</span>
+</footer>
+
+</div>
+</body>
+</html>
