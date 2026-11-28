@@ -1,5 +1,7 @@
 # DK Bond Tracker — Android app (Stage 2 skeleton)
 
+> **STATUS (2026-11-28): legacy Stage-2 host** — this tree is the Chaquopy/WebView wrapper only. The future Flutter app lives at **`frontend/app/`** per the target-structure contract (`frontend/confirmed/essentials/app_structure.html`). Do **not** add Flutter `features/` modules here; carry-over items (applicationId, release.jks, ExportProvider, versionCode ≥12) are listed in that contract §3.
+
 Gradle + Chaquopy project that packages the REAL desktop core (`src/`) as an
 Android debug APK. The desktop Flask app runs on-device through Chaquopy
 (embedded CPython) and is rendered in a WebView, so there is exactly one copy of
