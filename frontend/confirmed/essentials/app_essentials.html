@@ -1212,6 +1212,7 @@
 <!-- ============ ESSENTIAL 8 DEEP DIVE ============ -->
 <section>
   <h2 id="e8"><span class="num">8</span> Animations &amp; Transitions — how things move in the app</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R1 FAIL (1 REAL,1 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential8_audit_report.html</p>
   <p class="muted">Motion decided once, inherited everywhere. Purpose only (guide · feedback · smooth) — no decoration. Careless animation kills frame rate; the rules below prevent that.</p>
 
   <h3>Visual · Page transitions &amp; overlays — the three standards</h3>
@@ -1249,7 +1250,7 @@
     <div class="press-demo">
       <div class="pbtn">Save Payment (rest)</div>
       <div class="pbtn down">Save Payment (pressed)</div>
-      <div style="font-size:11px;color:var(--muted)">scale down ~10% on press + dim to ~62% brightness → return on release · 150ms</div>
+      <div style="font-size:11px;color:var(--muted)">scale down ~10% on press + dim to ~62% opacity → return on release · 150ms</div>
     </div>
     <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">Chips &amp; toggles slide/fade to their new state (TDS switch, remarks chips, payout-type select) — zero animation = flat, dead-feeling app</div>
   </div>
@@ -1273,9 +1274,9 @@
   <div class="numflash">
     <div class="nfc"><div class="v up">9.75% ↑</div><div class="hint">flash green + arrow</div></div>
     <div class="nfc"><div class="v dn">₹41,175 ↓</div><div class="hint">flash red + arrow</div></div>
-    <div class="nfc"><div class="v">₹ 5,41,175</div><div class="hint">or change instantly — your choice, decided once</div></div>
+    <div class="nfc"><div class="v">₹ 5,41,175</div><div class="hint">no change → no flash (locked #2: directional changes flash + arrow)</div></div>
   </div>
-  <p class="muted" style="font-size:11px;margin-top:8px">If colour carries the signal, always pair with arrow ↑↓ or +/− so colourblind users receive it too (same rule as severity chips). Applies when totals re-derive after Save Payment.</p>
+  <p class="muted" style="font-size:11px;margin-top:8px">If colour carries the signal, always pair with arrow ↑↓ or +/− so colourblind users receive it too (same rule as severity chips). Decision locked #2: directional changes flash green↑/red↓ with arrow — the instant-change option is retired. Applies when totals re-derive after Save Payment.</p>
 
   <h3>Rules · reduced motion + performance</h3>
   <div class="grid2">
