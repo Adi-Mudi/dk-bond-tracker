@@ -1,14 +1,14 @@
-# Goals — Design Notes (LOCKED 2026-11-25)
+# Goals — Design Notes (LOCKED base2026-11-28 — supersedes2026-11-25 notes)
 
 ## Flow (navigation_flow)
-Empty first open (GOALS 0) -> FAB + or Create button opens the FORM (same-file, hidden until then) -> save -> list with progress cards -> Details: check-ins strip (auto + manual fallback), linked bonds (goal_derived), overflow Edit/Archive menu (no Remove — deleted from design 2026-11-27). Back from form returns to list; Goal linking also available from Move to Portfolio (watchlist flow).
+Empty first open (GOALS 0) -> FAB + (full-screen page) or FORM tab opens the clean4-input form -> save -> list with progress cards -> Details: Saved so far, month-wise derivation table (auto invested/returns + accent totals row), linked bonds with total interest + chevron to bond detail, overflow Edit/Archive menu (no Remove). Back from form returns to list; Goal linking also available from Move to Portfolio (watchlist flow).
 
-## Rulings applied (developer 2026-11-25)
-1. Monthly plan: invest target auto-computed (monthly x months) — no manual target math.
-2. Tracking is FULLY AUTOMATIC from portfolio activity; months with no investment show RED MISSED errors + failure counter (example: 2 months missed).
-3. Order: current month first then next; goals by soonest end-date, completed dim last.
-4. Empty-state-first; all-sections board format; 4-tier/status colors per DESIGN.md.
+## Rulings applied (developer2026-11-28 — locked base)
+1. Create form: EXACTLY4 inputs (name · start · end · amount ₹ monthly) — total months + target auto-computed.
+2. Tracking is FULLY AUTOMATIC from portfolio activity (purchase dates → invested; bond interest → returns). Manual Record Check-in + Save draft REMOVED. Old failure counter / pace-adjustment banner / Upcoming Pipeline grid DROPPED (locked base is the single truth).
+3. Derivation table ends with one static accent totals row; linked-bond rows show total interest received (not monthly) and open bond detail.
+4. Empty-state-first; months signal = one signal (negative sticky); no target amounts on cards/detail.
 
 ## Research references
-- Backend: src/goals.py (add_goal/list_goals/set_checkin, months_until/between), src/queries/summary.py goal_derived, src/views/goals.py routes.
-- M3 progress/empty-state patterns; handoff research (storyflow/desisle) for states layer.
+- Backend: src/goals.py (add_goal/list_goals), src/queries/summary.py goal_derived, src/views/goals.py routes.
+- Locked base: frontend/confirmed/goals/goals_single_page_base.html (screen6e072293…).
