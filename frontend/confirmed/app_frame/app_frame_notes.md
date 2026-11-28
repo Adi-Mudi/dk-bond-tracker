@@ -3,7 +3,7 @@
 ## Grounding (read before design, per developer)
 1. `APP_SKELETON.md` §1 — Android frame: top app bar 56px (app name left, notifications right), one bottom nav (5 destinations), FAB 56px right:16/bottom:104, **excluded**: drawer / duplicate tab bars / second FAB style. Flutter mapping: `Scaffold + NavigationBar + FloatingActionButton(endFloat)`.
 2. `DESIGN.md` §5 — grid 4/8, mobile padding 16px, touch ≥48px, contrast ≥4.5:1, status never color-only, mobile = summary-first cards.
-3. Old-app captures (`evidence/current/`) — destination set: Dashboard, Portfolio, Watchlist, Goals, More (+ Alerts/Settings secondary).
+3. Old-app captures (removed2026-11-28 — old framework cleared) — destination set was: Dashboard, Portfolio, Watchlist, Goals, More (+ Alerts/Settings secondary).
 4. Chrome audit of the two locked pages — found the mismatch this frame resolves (dashboard: title-in-bar, no sync; portfolio: no avatar).
 
 ## Contract (canonical — supersedes per-page chrome drift)
