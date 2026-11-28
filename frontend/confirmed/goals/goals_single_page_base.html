@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Goals — Single Page (Base Design · Nordic)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg-board: #0D141C;
+    --board-card: #15202E;
+    --board-border: #223247;
+    --board-ink: #E2E8F0;
+    --board-muted: #8397B0;
+
+    /* Nordic Mist Light Tokens */
+    --nordic-bg: #F8FAFC;
+    --nordic-surface: #EFF2F5;
+    --nordic-card-lowest: #FFFFFF;
+    --nordic-border: #CFD7E2;
+    --nordic-border-subtle: #E2E8F0;
+    --nordic-ink: #18212C;
+    --nordic-ink-muted: #525F70;
+    --nordic-ink-subtle: #5C6B7A;
+    --nordic-accent: #28595B;
+    --nordic-accent-light: #E6F0F0;
+    --nordic-success: #2B6144;
+    --nordic-success-bg: #EAF4EE;
+    --nordic-warn: #8A5300;
+    --nordic-warn-bg: #FEF7EE;
+    --nordic-error: #9C3B44;
+    --nordic-error-bg: #FDF2F3;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-board);
+    color: var(--board-ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Review Board Container */
+  .board-container {
+    width: 100%;
+    max-width: 1440px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* Header Bar */
+  .board-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-bottom: 1px solid var(--board-border);
+    padding-bottom: 20px;
+  }
+
+  .meta-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .badge-tag-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .badge-dev {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(40, 89, 91, 0.25);
+    border: 1px solid #3d8083;
+    color: #72D2D6;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .badge-dev-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px #4ade80;
+  }
+
+  .board-meta-tokens {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--board-muted);
+  }
+
+  .token-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .color-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .board-title-h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .board-subtitle {
+    font-size: 14px;
+    color: var(--board-muted);
+    display: flex;
+    gap: 20px;
+  }
+
+  /* 3 Frames Row */
+  .frames-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 412px);
+    justify-content: center;
+    gap: 36px;
+  }
+
+  .frame-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .frame-label-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+  }
+
+  .frame-step-num {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #72D2D6;
+  }
+
+  .frame-step-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--board-muted);
+    text-transform: uppercase;
+  }
+
+  /* Mobile Phone Mockup (412dp x 870dp container) */
+  .phone-device {
+    width: 412px;
+    height: 870px;
+    background-color: var(--nordic-bg);
+    color: var(--nordic-ink);
+    border-radius: 36px;
+    border: 4px solid #1E2B3C;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Phone Status Bar */
+  .status-bar {
+    height: 38px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px 0 24px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--nordic-ink);
+    background: transparent;
+    z-index: 20;
+    user-select: none;
+  }
+
+  .status-bar-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Standard App Bar */
+  .app-bar {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--nordic-border);
+    background: var(--nordic-bg);
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .app-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .app-bar-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nordic-ink);
+    padding: 6px;
+    border-radius: 8px;
+  }
+
+  .app-bar-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--nordic-ink);
+  }
+
+  .app-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--nordic-ink-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4px;
+  }
+
+  .notif-badge-pill {
+    position: absolute;
+    top: 2px;
+    right: 0px;
+    background: #E53E3E;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--nordic-bg);
+  }
+
+  .avatar-chip {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--nordic-accent);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -0.02em;
+  }
+
+  /* Segmented Sticky Tabs */
+  .segmented-tabs-bar {
+    padding: 10px 16px;
+    background: var(--nordic-bg);
+    border-bottom: 1px solid var(--nordic-border);
+    flex-shrink: 0;
+  }
+
+  .segmented-control {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--nordic-surface);
+    border: 1px solid var(--nordic-border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 4px;
+  }
+
+  .segment-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--nordic-ink-muted);
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .segment-btn.active {
+    background: var(--nordic-card-lowest);
+    color: var(--nordic-accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Scrollable Content Viewport */
+  .scroll-viewport {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--nordic-border) transparent;
+  }
+
+  .scroll-viewport::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scroll-viewport::-webkit-scrollbar-thumb {
+    background: var(--nordic-border);
+    border-radius: 4px;
+  }
+
+  /* Goal Cards */
+  .goal-card {
+    background: var(--nordic-card-lowest);
+    border: 1px solid var(--nordic-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(24, 33, 44, 0.04);
+  }
+
+  .goal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .goal-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .goal-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--nordic-ink);
+    letter-spacing: -0.01em;
+  }
+
+  .goal-card-dates {
+    font-size: 12px;
+    color: var(--nordic-ink-muted);
+  }
+
+  /* Status Pill (WCAG AA Compliant Text + Dot) */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .status-pill.behind {
+    background: #FFF5F5;
+    color: var(--nordic-error);
+    border-color: #FED7D7;
+  }
+
+  .status-pill.ontrack {
+    background: var(--nordic-success-bg);
+    color: var(--nordic-success);
+    border-color: #C6F6D5;
+  }
+
+  .status-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .status-pill.behind .status-pill-dot { background: var(--nordic-error); }
+  .status-pill.ontrack .status-pill-dot { background: var(--nordic-success); }
+
+  /* Saved Amount & Progress Signal Row */
+  .goal-card-amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .amount-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .amount-sublabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--nordic-ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .amount-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--nordic-ink);
+  }
+
+  /* Months Signal (Rule B: Exactly ONE signal, negative precedence) */
+  .months-signal-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .months-signal-badge.missed {
+    background: var(--nordic-error-bg);
+    color: var(--nordic-error);
+    border: 1px solid rgba(156, 59, 68, 0.2);
+  }
+
+  .months-signal-badge.success {
+    background: var(--nordic-success-bg);
+    color: var(--nordic-success);
+    border: 1px solid rgba(43, 97, 68, 0.2);
+  }
+
+  /* Clean Unlabelled Progress Rail (No target numbers) */
+  .progress-rail {
+    height: 6px;
+    width: 100%;
+    background: var(--nordic-surface);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--nordic-accent);
+  }
+
+  .progress-bar-fill.behind {
+    background: #D9822B;
+  }
+
+  .goal-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--nordic-surface);
+  }
+
+  .pace-hint {
+    font-size: 11px;
+    color: var(--nordic-ink-muted);
+    font-weight: 500;
+  }
+
+  .btn-secondary {
+    background: var(--nordic-surface);
+    color: var(--nordic-ink);
+    border: 1px solid var(--nordic-border);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Floating Action Button (FAB) */
+  .fab-button {
+    position: absolute;
+    bottom: 74px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--nordic-accent);
+    color: #FFFFFF;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(40, 89, 91, 0.45);
+    cursor: pointer;
+    z-index: 15;
+    transition: transform 0.15s ease;
+  }
+
+  .fab-button:active {
+    transform: scale(0.94);
+  }
+
+  /* Bottom Navigation Bar (5 Canonical destinations) */
+  .bottom-nav {
+    height: 60px;
+    background: var(--nordic-card-lowest);
+    border-top: 1px solid var(--nordic-border);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    padding: 0 4px;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-decoration: none;
+    color: var(--nordic-ink-subtle);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .nav-item.active {
+    color: var(--nordic-accent);
+  }
+
+  .nav-item svg {
+    stroke-width: 2px;
+  }
+
+  /* Frame 02: Clean Create Form */
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+
+  .form-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--nordic-ink);
+    letter-spacing: -0.01em;
+  }
+
+  .field-input-box {
+    background: var(--nordic-card-lowest);
+    border: 1px solid var(--nordic-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--nordic-ink);
+    outline: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .field-input-box:focus-within {
+    border-color: var(--nordic-accent);
+    box-shadow: 0 0 0 2px rgba(40, 89, 91, 0.12);
+  }
+
+  /* Two Auto Readout Cards */
+  .readout-card {
+    background: var(--nordic-surface);
+    border: 1px solid var(--nordic-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .readout-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--nordic-accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .readout-card-detail {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nordic-ink);
+  }
+
+  .auto-helper-note {
+    font-size: 11.5px;
+    color: var(--nordic-ink-muted);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-left: 2px;
+  }
+
+  .btn-primary-action {
+    background: var(--nordic-accent);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(40, 89, 91, 0.25);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* Frame 03: Milestone Detail */
+  .missed-signal-banner {
+    background: var(--nordic-error-bg);
+    border: 1px solid rgba(156, 59, 68, 0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .missed-signal-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--nordic-error);
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .saved-so-far-card {
+    background: var(--nordic-card-lowest);
+    border: 1px solid var(--nordic-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(24, 33, 44, 0.04);
+  }
+
+  .saved-so-far-card .amount-sublabel {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--nordic-ink-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .saved-so-far-card .amount-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--nordic-ink);
+  }
+
+  /* Derivation Table Spec */
+  .derivation-table-card {
+    background: var(--nordic-card-lowest);
+    border: 1px solid var(--nordic-border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 1px 3px rgba(24, 33, 44, 0.04);
+  }
+
+  .derivation-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .derivation-table-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--nordic-ink);
+    letter-spacing: -0.01em;
+  }
+
+  .derivation-subheading {
+    font-size: 10.5px;
+    color: var(--nordic-ink-muted);
+    line-height: 1.4;
+  }
+
+  .table-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .five-col-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .five-col-table th {
+    text-align: right;
+    padding: 6px 4px;
+    color: var(--nordic-ink-subtle);
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--nordic-border);
+  }
+
+  .five-col-table th:first-child {
+    text-align: left;
+    padding-left: 2px;
+  }
+
+  .five-col-table th.col-dim {
+    color: var(--nordic-ink-muted);
+    opacity: 1.0;
+  }
+
+  .five-col-table td {
+    padding: 7px 4px;
+    text-align: right;
+    color: var(--nordic-ink);
+    border-bottom: 1px solid rgba(207, 215, 226, 0.4);
+    white-space: nowrap;
+  }
+
+  .five-col-table td:first-child {
+    text-align: left;
+    padding-left: 2px;
+    font-weight: 500;
+  }
+
+  .five-col-table td.cell-running-total {
+    color: #525F70;
+    opacity: 1.0;
+    font-weight: 500;
+  }
+
+  .five-col-table tr.gap-row td {
+    text-align: center;
+    color: var(--nordic-ink-subtle);
+    font-size: 10px;
+    padding: 5px 0;
+    background: rgba(239, 242, 245, 0.5);
+    letter-spacing: 0.1em;
+  }
+
+  .five-col-table tr.final-row {
+    background: var(--nordic-success-bg);
+    font-weight: 700;
+  }
+
+  .five-col-table tr.final-row td {
+    border-bottom: 1px solid rgba(43, 97, 68, 0.3);
+    color: var(--nordic-success);
+  }
+
+  .five-col-table tr.final-row td.cell-running-total {
+    color: #28595B;
+    opacity: 1.0;
+    font-weight: 700;
+  }
+
+  .return-growth {
+    color: var(--nordic-success);
+    font-weight: 600;
+  }
+
+  .table-totals-banner {
+    padding: 9px 10px;
+    background: var(--nordic-surface);
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--nordic-ink);
+    line-height: 1.45;
+  }
+
+  /* Linked Bonds Section */
+  .linked-bonds-card {
+    background: var(--nordic-card-lowest);
+    border: 1px solid var(--nordic-border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 1px 3px rgba(24, 33, 44, 0.04);
+  }
+
+  .section-label-chip {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--nordic-ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bond-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--nordic-surface);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .bond-name {
+    font-weight: 600;
+    color: var(--nordic-ink);
+  }
+
+  .bond-isin {
+    font-size: 10px;
+    color: var(--nordic-ink-subtle);
+  }
+
+  .bond-yield {
+    font-weight: 700;
+    color: var(--nordic-success);
+  }
+
+  /* Overflow Menu Simulation (Goal Detail) */
+  .overflow-popover-sim {
+    position: absolute;
+    top: 86px;
+    right: 18px;
+    background: #FFFFFF;
+    border: 1px solid var(--nordic-border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 140px;
+    z-index: 30;
+  }
+
+  .menu-action-item {
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--nordic-ink);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .menu-action-item:hover {
+    background: var(--nordic-surface);
+  }
+
+  .menu-action-item.archive {
+    color: var(--nordic-ink-muted);
+  }
+
+  .menu-badge-locked {
+    font-size: 9px;
+    background: #EDF2F7;
+    color: #4A5568;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: auto;
+  }
+
+  /* Footer verification banner */
+  .board-footer {
+    border-top: 1px solid var(--board-border);
+    padding-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--board-muted);
+  }
+
+  .footer-invariants-list {
+    display: flex;
+    gap: 16px;
+  }
+
+  .inv-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .inv-tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #28595B;
+  }
+</style>
+</head>
+<body>
+<div class="board-container">
+<!-- Review Board Top Banner -->
+<header class="board-header">
+<div class="meta-top-row">
+<div class="badge-tag-wrap">
+<div class="badge-dev">
+<span class="badge-dev-dot"></span>
+          BASE · AWAITING DEVELOPER CONFIRMATION
+        </div>
+<span style="font-size: 12px; color: var(--board-muted);">DK BOND TRACKER · FINTECH MILESTONES ARCHITECTURE</span>
+</div>
+<div class="board-meta-tokens">
+<div class="token-chip"><span class="color-swatch" style="background: #F8FAFC;"></span>bg #F8FAFC</div>
+<div class="token-chip"><span class="color-swatch" style="background: #EFF2F5;"></span>cards #EFF2F5</div>
+<div class="token-chip"><span class="color-swatch" style="background: #CFD7E2;"></span>border #CFD7E2</div>
+<div class="token-chip"><span class="color-swatch" style="background: #18212C;"></span>ink #18212C</div>
+<div class="token-chip"><span class="color-swatch" style="background: #28595B;"></span>accent #28595B</div>
+<div class="token-chip"><span class="color-swatch" style="background: #2B6144;"></span>success #2B6144</div>
+<div class="token-chip"><span class="color-swatch" style="background: #8A5300;"></span>warn #8A5300</div>
+<div class="token-chip"><span class="color-swatch" style="background: #9C3B44;"></span>error #9C3B44</div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end;">
+<div>
+<h1 class="board-title-h1">Goals — Single Page (Base Design · Nordic)</h1>
+<div class="board-subtitle" style="margin-top: 4px;">
+<span>3-Frame Canonical User Flow: Goals Roster → Clean 4-Field Create Form → Detail with 5-Column Derivation Ledger</span>
+<span>Currency: ₹ INR Only</span>
+<span>Zero Destructive Delete</span>
+</div>
+</div>
+<div style="font-size: 12px; color: #72D2D6; font-family: 'JetBrains Mono', monospace;">
+        VIEWPORT: 412dp × 870dp · CANONICAL COMPACT MVP
+      </div>
+</div>
+</header>
+<!-- 3 Phone Frames Side by Side -->
+<main class="frames-grid">
+<!-- FRAME 01 — GOALS LIST -->
+<section class="frame-column">
+<div class="frame-label-header">
+<span class="frame-step-num">01 · PRIMARY ROSTER</span>
+<span class="frame-step-title">Goals List (3 Active)</span>
+</div>
+<div class="phone-device" id="frame-goals-list">
+<!-- Status Bar -->
+<div class="status-bar">
+<span class="mono">09:41</span>
+<div class="status-bar-icons">
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25A10.95 10.95 0 0 1 1 12C1 5.92 5.92 1 12 1s11 4.92 11 11c0 2.33-.73 4.49-1.97 6.27l-.62-.62A9.97 9.97 0 0 0 21 12c0-4.97-4.03-9-9-9z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><path d="M2 17h20v2H2v-2zm1.15-4.05L4 11.45l7 3.5 7-3.5.85 1.5-7.85 3.92-7.85-3.92zM12 2l9 4.5v1.92l-9-4.5-9 4.5V6.5L12 2z"></path></svg>
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><rect fill="none" height="12" rx="2" stroke="currentColor" stroke-width="2" width="18" x="2" y="6"></rect><path d="M20 10h2v4h-2z"></path></svg>
+</div>
+</div>
+<!-- App Bar -->
+<header class="app-bar">
+<div class="app-bar-left">
+<span class="app-bar-title">Goals</span>
+</div>
+<div class="app-bar-actions">
+<button aria-label="Sync Ledger" class="icon-btn" title="Sync Ledger">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+</button>
+<button aria-label="Notifications" class="icon-btn" title="Notifications">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+<span class="notif-badge-pill">2</span>
+</button>
+<button aria-label="Change Theme" class="icon-btn" title="Theme">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 0 0 20v-20z"></path></svg>
+</button>
+<div class="avatar-chip" title="Dinesh Kumar">DK</div>
+</div>
+</header>
+<!-- Segmented Tabs (GOALS (3) / FORM (0)) -->
+<div class="segmented-tabs-bar">
+<div class="segmented-control">
+<button class="segment-btn active">GOALS (3)</button>
+<button class="segment-btn">FORM (0)</button>
+</div>
+</div>
+<!-- Scrollable Goals Roster (Strict Psychology Rule A: ZERO Target amounts on cards, ONLY Details button) -->
+<div class="scroll-viewport">
+<!-- Card 1: Commercial Property Downpayment -->
+<div class="goal-card">
+<div class="goal-card-header">
+<div class="goal-card-info">
+<div class="goal-card-title">Commercial Property Downpayment</div>
+<div class="goal-card-dates">Target: Jun 2029 · 30 Mos Left</div>
+</div>
+<div class="status-pill behind">
+<span class="status-pill-dot"></span>
+                Behind
+              </div>
+</div>
+<div class="goal-card-amount-row">
+<div class="amount-wrap">
+<span class="amount-sublabel">Saved Amount</span>
+<span class="amount-value mono">₹ 3,50,000</span>
+</div>
+<!-- Rule B: Negative precedence -->
+<div class="months-signal-badge missed">
+                4 months missed
+              </div>
+</div>
+<!-- Clean progress rail without any numbers or percentages -->
+<div class="progress-rail">
+<div class="progress-bar-fill behind" style="width: 25%;"></div>
+</div>
+<div class="goal-card-actions">
+<span class="pace-hint mono">₹ 20,000/mo pace</span>
+<button class="btn-secondary">Details</button>
+</div>
+</div>
+<!-- Card 2: Child Higher Education Fund -->
+<div class="goal-card" style="border: 2px solid #28595B; box-shadow: 0 4px 12px rgba(40, 89, 91, 0.12);">
+<div class="goal-card-header">
+<div class="goal-card-info">
+<div class="goal-card-title" style="color: var(--nordic-accent);">Child Higher Education Fund</div>
+<div class="goal-card-dates">Target: Oct 2028 · Completed Oct 2028</div>
+</div>
+<div class="status-pill ontrack">
+<span class="status-pill-dot"></span>
+                On track
+              </div>
+</div>
+<div class="goal-card-amount-row">
+<div class="amount-wrap">
+<span class="amount-sublabel">Saved Amount</span>
+<span class="amount-value mono">₹ 11,50,000</span>
+</div>
+<!-- Rule B: Negative precedence (2 missed overrides positive track) -->
+<div class="months-signal-badge missed">
+                2 months missed
+              </div>
+</div>
+<!-- Clean unlabelled progress rail -->
+<div class="progress-rail">
+<div class="progress-bar-fill" style="width: 58%;"></div>
+</div>
+<div class="goal-card-actions">
+<span class="pace-hint mono">₹ 35,000/mo pace</span>
+<button class="btn-secondary" style="border-color: var(--nordic-accent); color: var(--nordic-accent);">Details</button>
+</div>
+</div>
+<!-- Card 3: Annual Family Vacation 2027 -->
+<div class="goal-card">
+<div class="goal-card-header">
+<div class="goal-card-info">
+<div class="goal-card-title">Annual Family Vacation 2027</div>
+<div class="goal-card-dates">Target: Dec 2027 · 12 Mos Left</div>
+</div>
+<div class="status-pill ontrack">
+<span class="status-pill-dot"></span>
+                On track
+              </div>
+</div>
+<div class="goal-card-amount-row">
+<div class="amount-wrap">
+<span class="amount-sublabel">Saved Amount</span>
+<span class="amount-value mono">₹ 3,75,000</span>
+</div>
+<!-- Rule B: Positive single signal when clean -->
+<div class="months-signal-badge success mono">
+                15/20 months ✓
+              </div>
+</div>
+<!-- Clean unlabelled progress rail -->
+<div class="progress-rail">
+<div class="progress-bar-fill" style="width: 75%; background: var(--nordic-success);"></div>
+</div>
+<div class="goal-card-actions">
+<span class="pace-hint mono">₹ 10,000/mo pace</span>
+<button class="btn-secondary">Details</button>
+</div>
+</div>
+</div>
+<!-- Floating Action Button + (Bottom Right) -->
+<button aria-label="Add New Goal" class="fab-button" title="Add New Goal">
+<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" viewbox="0 0 24 24" width="24"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="bottom-nav">
+<a class="nav-item" href="#">
+<svg fill="none" height="18" stroke="currentColor" viewbox="0 0 24 24" width="18"><rect height="7" rx="1" width="7" x="3" y="3"></rect><rect height="7" rx="1" width="7" x="14" y="3"></rect><rect height="7" rx="1" width="7" x="14" y="14"></rect><rect height="7" rx="1" width="7" x="3" y="14"></rect></svg>
+<span>Dashboard</span>
+</a>
+<a class="nav-item" href="#">
+<svg fill="none" height="18" stroke="currentColor" viewbox="0 0 24 24" width="18"><path d="M20 7h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"></path></svg>
+<span>Portfolio</span>
+</a>
+<a class="nav-item" href="#">
+<svg fill="none" height="18" stroke="currentColor" viewbox="0 0 24 24" width="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<span>Watchlist</span>
+</a>
+<a class="nav-item active" href="#">
+<svg fill="currentColor" height="18" viewbox="0 0 24 24" width="18"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg>
+<span>Goals</span>
+</a>
+<a class="nav-item" href="#">
+<svg fill="none" height="18" stroke="currentColor" viewbox="0 0 24 24" width="18"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+<span>More</span>
+</a>
+</nav>
+</div>
+</section>
+<!-- FRAME 02 — CREATE FORM -->
+<section class="frame-column">
+<div class="frame-label-header">
+<span class="frame-step-num">02 · CLEAN CREATION</span>
+<span class="frame-step-title">New Goal (Exactly 4 Inputs)</span>
+</div>
+<div class="phone-device" id="frame-create-form">
+<!-- Status Bar -->
+<div class="status-bar">
+<span class="mono">09:41</span>
+<div class="status-bar-icons">
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25A10.95 10.95 0 0 1 1 12C1 5.92 5.92 1 12 1s11 4.92 11 11c0 2.33-.73 4.49-1.97 6.27l-.62-.62A9.97 9.97 0 0 0 21 12c0-4.97-4.03-9-9-9z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><path d="M2 17h20v2H2v-2zm1.15-4.05L4 11.45l7 3.5 7-3.5.85 1.5-7.85 3.92-7.85-3.92zM12 2l9 4.5v1.92l-9-4.5-9 4.5V6.5L12 2z"></path></svg>
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><rect fill="none" height="12" rx="2" stroke="currentColor" stroke-width="2" width="18" x="2" y="6"></rect><path d="M20 10h2v4h-2z"></path></svg>
+</div>
+</div>
+<!-- App Bar with Back Arrow and Title New Goal -->
+<header class="app-bar">
+<div class="app-bar-left">
+<button aria-label="Go Back" class="app-bar-btn">
+<svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="20"><line x1="19" x2="5" y1="12" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+</button>
+<span class="app-bar-title">New Goal</span>
+</div>
+<div class="app-bar-actions">
+<div class="avatar-chip" title="Dinesh Kumar">DK</div>
+</div>
+</header>
+<!-- Clean Form Viewport (Strictly 4 inputs + 2 auto cards + helper + save button) -->
+<div class="scroll-viewport">
+<div class="form-container">
+<!-- INPUT 1: Goal Name -->
+<div class="form-field-group">
+<label class="field-label">Goal name</label>
+<div class="field-input-box">
+<span>Emergency Buffer Fund</span>
+</div>
+</div>
+<!-- INPUT 2: Start Date -->
+<div class="form-field-group">
+<label class="field-label">Start date</label>
+<div class="field-input-box">
+<span class="mono">Jan 2027</span>
+<svg fill="none" height="16" stroke="currentColor" stroke-width="2" style="color: var(--nordic-ink-muted);" viewbox="0 0 24 24" width="16"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+</div>
+</div>
+<!-- INPUT 3: End Date -->
+<div class="form-field-group">
+<label class="field-label">End date</label>
+<div class="field-input-box">
+<span class="mono">Oct 2028</span>
+<svg fill="none" height="16" stroke="currentColor" stroke-width="2" style="color: var(--nordic-ink-muted);" viewbox="0 0 24 24" width="16"><rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+</div>
+</div>
+<!-- INPUT 4: Amount ₹ monthly -->
+<div class="form-field-group">
+<label class="field-label">Amount ₹ monthly</label>
+<div class="field-input-box">
+<span class="mono" style="font-weight: 700; color: var(--nordic-accent); font-size: 15px;">50,000</span>
+<span style="font-size: 12px; color: var(--nordic-ink-muted);">/ month</span>
+</div>
+</div>
+<!-- AUTO READOUT CARD 1 -->
+<div class="readout-card">
+<div class="readout-card-title">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="14"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+<span>Total months</span>
+</div>
+<div class="readout-card-detail mono">
+                22 (Jan 2027 → Oct 2028)
+              </div>
+</div>
+<!-- AUTO READOUT CARD 2 (INR ₹ icon strictly, zero $ anywhere) -->
+<div class="readout-card">
+<div class="readout-card-title">
+<span style="font-size: 14px; font-weight: 800; line-height: 1; font-family: 'Inter', sans-serif;">₹</span>
+<span>Target amount</span>
+</div>
+<div class="readout-card-detail mono">
+                ₹ 11,00,000 <span style="font-size: 11px; font-weight: 500; color: var(--nordic-ink-muted);">(auto = Amount × months)</span>
+</div>
+</div>
+<!-- Helper text -->
+<div class="auto-helper-note">
+<svg fill="none" height="13" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="13"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg>
+<span>Both calculated automatically — nothing else to fill</span>
+</div>
+<!-- Submit Button -->
+<button class="btn-primary-action">
+<span>Save goal</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- FRAME 03 — MILESTONE DETAIL -->
+<section class="frame-column">
+<div class="frame-label-header">
+<span class="frame-step-num">03 · MILESTONE DETAIL</span>
+<span class="frame-step-title">Child Higher Education Fund</span>
+</div>
+<div class="phone-device" id="frame-goal-detail">
+<!-- Status Bar -->
+<div class="status-bar">
+<span class="mono">09:41</span>
+<div class="status-bar-icons">
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25A10.95 10.95 0 0 1 1 12C1 5.92 5.92 1 12 1s11 4.92 11 11c0 2.33-.73 4.49-1.97 6.27l-.62-.62A9.97 9.97 0 0 0 21 12c0-4.97-4.03-9-9-9z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><path d="M2 17h20v2H2v-2zm1.15-4.05L4 11.45l7 3.5 7-3.5.85 1.5-7.85 3.92-7.85-3.92zM12 2l9 4.5v1.92l-9-4.5-9 4.5V6.5L12 2z"></path></svg>
+<svg fill="currentColor" height="14" viewbox="0 0 24 24" width="14"><rect fill="none" height="12" rx="2" stroke="currentColor" stroke-width="2" width="18" x="2" y="6"></rect><path d="M20 10h2v4h-2z"></path></svg>
+</div>
+</div>
+<!-- (a) App Bar: Back arrow, Title, Overflow Menu Icon -->
+<header class="app-bar">
+<div class="app-bar-left">
+<button aria-label="Back to Goals" class="app-bar-btn">
+<svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="20"><line x1="19" x2="5" y1="12" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+</button>
+<span class="app-bar-title" style="font-size: 15px;">Child Higher Education Fund</span>
+</div>
+<div class="app-bar-actions">
+<button aria-label="Goal Options" class="icon-btn" style="color: var(--nordic-accent);">
+<svg fill="none" height="20" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="20"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+</button>
+</div>
+</header>
+<!-- Overflow Menu Popover: ONLY Edit goal and Archive goal (Safe) -->
+<div class="overflow-popover-sim">
+<div class="menu-action-item">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+<span>Edit goal</span>
+</div>
+<div class="menu-action-item archive">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><rect height="18" rx="2" width="18" x="3" y="3"></rect><line x1="3" x2="21" y1="9" y2="9"></line><line x1="9" x2="9" y1="21" y2="9"></line></svg>
+<span>Archive goal</span>
+<span class="menu-badge-locked">Safe</span>
+</div>
+</div>
+<!-- Detail Viewport Content in Exact Order:
+             (b) Red signal: 2 months missed
+             (c) SAVED SO FAR card
+             (d) MONTH-WISE DERIVATION TABLE with totals row
+             (e) LINKED BONDS card
+             (NO Monthly Target card, NO Monthly Invested card, NO Check-in section) -->
+<div class="scroll-viewport">
+<!-- (b) Red Signal Banner -->
+<div class="missed-signal-banner"><div class="missed-signal-left">
+<svg fill="none" height="15" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="15"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+<span>2 months missed</span>
+</div>
+<span class="mono" style="font-size: 11px; font-weight: 600; color: var(--nordic-error);">Nov &amp; Dec 2026 missed before start</span></div>
+<!-- (c) SAVED SO FAR Card -->
+<div class="saved-so-far-card">
+<div class="amount-wrap">
+<span class="amount-sublabel">SAVED SO FAR</span>
+<span class="amount-value mono">₹ 11,50,000</span>
+</div>
+<!-- Clean unlabelled progress rail -->
+<div class="progress-rail">
+<div class="progress-bar-fill" style="width: 58%;"></div>
+</div>
+</div>
+<!-- (d) 5-COLUMN MONTH-WISE DERIVATION TABLE -->
+<div class="derivation-table-card">
+<div class="derivation-card-header"><div class="derivation-table-title">Month-wise Derivation (Jan 2027 → Oct 2028)</div></div>
+<div class="table-scroll-wrapper">
+<table class="five-col-table mono">
+<thead>
+<tr>
+<th>MONTH</th>
+<th>TARGET</th>
+<th>INVESTED</th>
+<th>RETURNS</th>
+<th class="col-dim">RUNNING TOTAL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Jan 2027</td>
+<td>₹35,000</td>
+<td>₹35,000</td>
+<td class="return-growth">+₹3,600</td>
+<td class="cell-running-total">₹11,88,600</td>
+</tr>
+<tr>
+<td>Feb 2027</td>
+<td>₹35,000</td>
+<td>₹35,000</td>
+<td class="return-growth">+₹3,600</td>
+<td class="cell-running-total">₹12,27,200</td>
+</tr>
+<tr>
+<td>Mar 2027</td>
+<td>₹35,000</td>
+<td>₹35,000</td>
+<td class="return-growth">+₹3,600</td>
+<td class="cell-running-total">₹12,65,800</td>
+</tr>
+<tr class="gap-row">
+<td colspan="5">· · · 17 more months · · ·</td>
+</tr>
+<tr>
+<td>Sep 2028</td>
+<td>₹35,000</td>
+<td>₹35,000</td>
+<td class="return-growth">+₹3,600</td>
+<td class="cell-running-total">₹19,60,600</td>
+</tr>
+<tr>
+<td>Oct 2028 ✓</td>
+<td>₹35,000</td>
+<td>₹35,000</td>
+<td class="return-growth">+₹4,400</td>
+<td class="cell-running-total">₹20,00,000</td>
+</tr></tbody>
+<tfoot style="border-top: 2px solid #28595B; background: rgba(40, 89, 91, 0.12); font-weight: 700;"><tr style="border-bottom: none;"><td style="padding: 8px 4px 6px 2px; font-size: 11px; text-align: left; color: #28595B; font-weight: 700;">22 months · 22 completed</td><td style="padding: 8px 4px 6px; text-align: right; color: #28595B; font-weight: 700;">₹20,00,000</td><td style="padding: 8px 4px 6px; text-align: right; color: #28595B; font-weight: 700;">₹7,70,000</td><td style="padding: 8px 4px 6px; text-align: right; color: #28595B; font-weight: 700;">₹80,000</td><td style="padding: 8px 4px 6px; text-align: right; color: #28595B; font-weight: 700;">₹20,00,000</td></tr></tfoot></table>
+</div>
+<!-- ONE totals row spanning across -->
+</div>
+<!-- (e) LINKED BONDS Card -->
+<div class="linked-bonds-card"><div class="section-label-chip">
+<svg fill="none" height="12" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="12"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+<span>Linked Bonds (auto-allocating yield)</span>
+</div>
+<!-- Bond 1 (Interactive Link Row) -->
+<a class="bond-item-row" href="#" onmouseout="this.style.backgroundColor='var(--nordic-surface)'; this.querySelector('.bond-name').style.textDecoration='none';" onmouseover="this.style.backgroundColor='#E2E8F0'; this.querySelector('.bond-name').style.textDecoration='underline';" style="text-decoration: none; cursor: pointer; transition: background-color 0.15s ease, transform 0.1s ease; border: 1px solid transparent;">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<div class="bond-name" style="display: inline-flex; align-items: center; gap: 4px;">Tata Capital Fin Services</div>
+<div class="bond-isin mono">INE306N07LG1 · 9.60% p.a.</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px;">
+<div class="bond-yield mono">₹ 1,42,500 received</div>
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="color: var(--nordic-ink-subtle); flex-shrink: 0;" viewbox="0 0 24 24" width="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</a>
+<!-- Bond 2 (Interactive Link Row) -->
+<a class="bond-item-row" href="#" onmouseout="this.style.backgroundColor='var(--nordic-surface)'; this.querySelector('.bond-name').style.textDecoration='none';" onmouseover="this.style.backgroundColor='#E2E8F0'; this.querySelector('.bond-name').style.textDecoration='underline';" style="text-decoration: none; cursor: pointer; transition: background-color 0.15s ease, transform 0.1s ease; border: 1px solid transparent;">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<div class="bond-name" style="display: inline-flex; align-items: center; gap: 4px;">L&amp;T Finance Holdings</div>
+<div class="bond-isin mono">INE498L07185 · 9.25% p.a.</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px;">
+<div class="bond-yield mono">₹ 1,24,000 received</div>
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="color: var(--nordic-ink-subtle); flex-shrink: 0;" viewbox="0 0 24 24" width="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</a></div>
+</div>
+</div>
+</section>
+</main>
+<!-- Review Board Bottom Governance Footer -->
+<footer class="board-footer">
+<div class="footer-invariants-list">
+<div class="inv-tag"><span class="inv-tag-dot"></span>Strict Nordic Mist Palette (#F8FAFC, #EFF2F5, #CFD7E2, #18212C, #28595B)</div>
+<div class="inv-tag"><span class="inv-tag-dot"></span>Psychology Rule A: Zero Target on Reading Surfaces</div>
+<div class="inv-tag"><span class="inv-tag-dot"></span>Psychology Rule B: Negative Month Signal Precedence</div>
+<div class="inv-tag"><span class="inv-tag-dot"></span>Zero Destructive Deletion Allowed</div>
+</div>
+<div class="mono" style="font-size: 11px;">DK BOND TRACKER v4.0 · CANONICAL REVIEW BOARD</div>
+</footer>
+</div>
+</body></html>
