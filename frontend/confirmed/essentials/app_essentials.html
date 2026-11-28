@@ -757,8 +757,9 @@
       <h4 style="color:var(--accent-soft)">The set &amp; sizes</h4>
       <ul>
         <li><b>Material Symbols (line)</b> — the one icon set, everywhere</li>
-        <li>Sizes: <b>13px</b> in-bar controls · <b>11px</b> inline/labels · <b>16px</b> sheet/section icons</li>
-        <li>Style: outline (line) only — no mixed filled/outline</li>
+        <li>Sizes: <b>13px</b> in-bar controls · <b>11px</b> inline/labels · <b>16px</b> sheet/section icons <span>(board-px)</span> · Flutter scale: <b>16dp</b> inline · <b>24dp</b> standard UI · <b>32dp</b> prominent — icon matches adjacent text weight (24sp heading ↔ 24dp icon, not 16dp)</li>
+        <li>Style variants (meaning-locked): outline = default/inactive · fill = selected/active (open tab, toggle on) · slash = unavailable — never interchangeable; boards show outline as the neutral default</li>
+        <li>Format: vector (SVG / native asset) — scales across densities · one named <b>AppIcon</b> component (size · colour · accessibility label props) — every icon routes through it</li>
         <li>Colour: <code>currentColor</code> — icons inherit ink/muted of the active theme (never hardcoded)</li>
       </ul>
     </div>
@@ -772,7 +773,8 @@
       </ul>
     </div>
   </div>
-  <p class="muted" style="font-size:11px;margin-top:8px">Icon specimen lives in the showcase board. <b>Usage table:</b> sync→top bar · bell→top bar · palette/theme→top bar3rd · eye→privacy mask (top bar or settings) · chevron→disclosure (dropdown/accordion) · calendar→date fields · check→selected chips/rows · add/FAB→create flows · inventory→NSDL browse · close→sheets · history/edit/share/delete→overflow sheet · compare→ledger · bookmarks→empty state · warning→alerts/severity. Every icon-button carries a Semantics label (A11y B4 — build).</p>
+  <p class="muted" style="font-size:11px;margin-top:8px">Icon specimen lives in the showcase board. <b>Usage table:</b> sync→top bar · bell→top bar · palette/theme→top bar (3rd) · eye→privacy mask (top bar or settings) · chevron→disclosure (dropdown/accordion) · calendar→date fields · check→selected chips/rows · add/FAB→create flows · inventory→NSDL browse · close→sheets · history/edit/share/delete→overflow sheet · compare→ledger · bookmarks→empty state · warning→alerts/severity. Every icon-button carries a Semantics label describing its ACTION, not appearance (A11y B4 — build) · decorative icons get an empty label (screen readers skip) · icon hit areas stay ≥48×48dp (Essential 7).</p>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">ICONOGRAPHY AUDIT STATUS (E10 — lives here per nav hole): <b style="color:var(--green)">R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · R1 HISTORY — CLOSED (FAIL 3 REAL, 2 MINOR, all fixed) · report: .IDE_Plans/audit_reports/essential10_audit_report.html</p>
 
   <h3>Visual · Typography scale — named styles, not raw numbers</h3>
   <div class="type-scale">
