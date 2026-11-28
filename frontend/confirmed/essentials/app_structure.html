@@ -92,7 +92,25 @@
       <tr><td>Tests</td><td>android/tests/test_tc_and_host.py stays host-side; Flutter gets frontend/app/test/ (standard tests/ role)</td></tr>
     </tbody>
   </table>
+  <h3>4 · Structure rules (Essential 0.5–0.22 — E0 audit additions)</h3>
+  <table>
+    <thead><tr><th>Rule (0.x)</th><th>Contract statement</th></tr></thead>
+    <tbody>
+      <tr><td>0.5 Layer direction</td><td><b>ui/ → data/ → pure helpers (shared/utils)</b> — UI may import data; data may import pure helpers; helpers contain NO network/storage code; no layer imports from a layer above it.</td></tr>
+      <tr><td>0.6 Feature isolation</td><td>A feature never imports another feature's internals — <b>features/&lt;a&gt; ↛ features/&lt;b&gt;</b>. Removing one feature folder must break nothing elsewhere. Cross-feature sharing goes through <b>shared/</b> only. Enforcement: CI import-boundary check blocks the merge (scripts/check_flutter_imports.sh + .github/workflows/flutter.yml).</td></tr>
+      <tr><td>0.9–0.11 Naming</td><td>One convention project-wide: <b>snake_case</b> files named after responsibility (role, not how) — enforced by flutter_lints <code>file_names</code> + CI flutter analyze; a whole folder in another style is forbidden (no directory-level exceptions).</td></tr>
+      <tr><td>0.12 Aliases</td><td>Stable import root = <b>package:app/…</b> (pubspec name) — one alias, used everywhere; moved files change nothing for importers inside the package.</td></tr>
+      <tr><td>0.16 Folder purposes</td><td><b>lib/features/</b> = one folder per page/feature (ui+data+index) · <b>lib/shared/</b> = cross-feature only (widgets = kit, utils = pure helpers, theme = tokens) · <b>lib/config/</b> = app configuration constants · <b>assets/</b> = static media/fonts · <b>test/</b> = Flutter tests · root = pubspec + analysis_options + platform runner. Anything matching no purpose waits for a decision record.</td></tr>
+      <tr><td>0.19 New top-level folder</td><td>Adding a top-level folder under frontend/app/ (or lib/) = structural decision: written record (purpose, owner, why no fit) committed BEFORE creation — same gate as DOC.13.</td></tr>
+      <tr><td>0.21 Migration</td><td>Renames/moves: files moved + ALL imports updated + decision logged in the same change — nothing silently deleted from version history.</td></tr>
+      <tr><td>0.22 Shared growth watch</td><td>lib/shared/ growth triggers review (see app-essential-elements audit cadence + E16 adoption watch) — unbounded growth = feature leakage; growth triggers a decision, never default acceptance.</td></tr>
+      <tr><td>0.8 / 0.20 Reserved dirs</td><td>ui/ , data/ , assets/ are <b>reserved-until-populated</b>: created with their FIRST real file (DOC.14 — no empty placeholders; scaffold intentionally ships only &lt;name&gt;.dart index files).</td></tr>
+      <tr><td>0.17 Enforcement</td><td>Import-direction + boundary rules live here and are machine-checked by <b>CI (.github/workflows/flutter.yml: flutter analyze + flutter test + import-boundary script)</b> — illegal imports block merge. Local pre-commit Flutter check = future addendum (global hook is workshop-managed).</td></tr>
+    </tbody>
+  </table>
+
   <div class="flag" style="border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.06);color:#4ADE80"><b>AGY verdict: R1 FAIL —1 REAL,2 MINOR → fixes → R2 PASS — 0 REAL, 0 MINOR (2026-11-28).</b> R1 detail: REAL = no written target-layout agreement + [frontend] collision → this document IS the agreement. MINOR1 = runner/signing/test mappings → §2–§3. MINOR2 = legacy android/ status → §2 + README note. Original R1 flag: REAL: no written target-layout agreement + [frontend] root collision → this document IS the agreement. MINOR1: runner/signing/test mappings → §2–§3. MINOR2: legacy android/ status → §2 "legacy host" row + README note. Re-audit: R2.</div>
+  <div class="flag" style="border-color:rgba(255,138,128,.5);background:rgba(255,138,128,.07);color:#FF8A80"><b>E0 (Essential 0.1–0.22) audit: R1 FAIL —3 REAL,3 MINOR (2026-11-28) → §4 rules added.</b> REAL: (0.18) CODEOWNERS missing frontend/app → added · (0.5/0.6) layer-direction + feature-isolation unwritten → §4 rows · (0.17) no import enforcement → CI workflow + boundary script. MINOR: (0.8/0.20) empty placeholder dirs → removed, reserved-until-populated noted · (0.9–0.11) naming rules undocumented → §4 row · (0.16/0.19/0.21/0.22) purposes/gates/migration/growth → §4 rows. Re-audit: E0-R2.</div>
 </section>
 
 <footer>

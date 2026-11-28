@@ -1,0 +1,31 @@
+name: flutter
+
+on:
+  push:
+    paths:
+      - 'frontend/app/**'
+      - 'scripts/check_flutter_imports.sh'
+      - '.github/workflows/flutter.yml'
+  pull_request:
+    paths:
+      - 'frontend/app/**'
+      - 'scripts/check_flutter_imports.sh'
+      - '.github/workflows/flutter.yml'
+
+jobs:
+  analyze-test-boundaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Pub get
+        run: cd frontend/app && flutter pub get
+      - name: Analyze
+        run: cd frontend/app && flutter analyze
+      - name: Feature-isolation boundary check (0.6)
+        run: bash scripts/check_flutter_imports.sh
+      - name: Test
+        run: cd frontend/app && flutter test
