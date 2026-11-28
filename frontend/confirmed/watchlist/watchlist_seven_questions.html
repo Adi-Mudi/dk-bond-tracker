@@ -67,10 +67,10 @@
         <div class="flex items-center gap-3">
           <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#052e16] text-[#4ade80] border border-[#166534] text-[11px] font-medium font-sans">
             <span class="material-symbols-outlined text-[13px]">lock</span>
-            LOCKED AUDIT
+            LOCKED · CP3 AUDITED
           </span>
           <span class="px-2.5 py-1 rounded bg-surface border border-hairline text-[11px] text-slate font-mono">
-            REF: 7Q-WATCHLIST-V4
+            REF: 7Q-WATCHLIST-V5
           </span>
         </div>
       </div>
@@ -142,11 +142,23 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q1 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Fields:</strong> company, ISIN, yield %, payout cycle, broker, invested amounts, unit counts, status pills, WATCHING/LEDGER counts</span>
+                <span><strong class="text-ink font-semibold">Add Bond form (C5–C14):</strong> ISIN (readonly after fetch) · rating AAA–BBB- · agency · coupon % · face value · issuer · listing · maturity · payout cycle · Interest Credit Day = <b>readonly AUTO</b> (C8 resolved) · Default History COMING SOON + HIGHER RISK (C9) · Secured NCD checkbox · Target Invested · Planned Qty · Value per unit = Target ÷ Qty (C12, "—" when missing) · Broker + 4 suggestion chips · Source Note · auto/you-enter chips (W6)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q1 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Source:</strong> local <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">bonds.db</code> via repository (SSOT) · ISIN facts from NSDL/BSE fetch · counts derived from cache</span>
+                <span><strong class="text-ink font-semibold">Ledger (D1–D7):</strong> company header (name · 4-tier pill · total invested · N bonds / X completed / Y ongoing) · [HELD] rows (ISIN · meta · yield · maturing countdown) · [WATCH] rows · Multi-Broker Compare (3 yields · Best Yield · Select) · buy-step line</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q1 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Alerts + first-open (B1, A2/G1):</strong> Rating Watch card (severity chip · agency · rating) · "Maturing in N days" · "0 • all clear" · tab counts ADD FORM n / LEDGER n · "0 nothing yet"</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q1 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Move + Remove (E1–E4, F3):</strong> Purchased Qty · Invested Amount · Execution/Ref Date · Demat/Broker Ref · LINK TO GOAL select · typed-ISIN remove gate</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q1 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Source map:</strong> ledger/candidates ← local <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">bonds.db</code> repository (SSOT) · ISIN facts ← NSDL/BSE fetch (cache + cooldown) · [HELD] origin ← Portfolio holdings · Goals select ← <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">financial_goals</code> via watch_goals (watch.py:529 — detour paused Q14) · Alerts ← daily_sweep (alerts.py:7) · hardcoded UI copy (labels, "0 nothing yet")</span>
               </li>
             </ul>
           </div>
@@ -174,19 +186,23 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q2 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">FAB+</strong> → Add Bond form · ISIN Fetch · Save to Watchlist</span>
+                <span><strong class="text-ink font-semibold">Shell (A1/H7):</strong> FAB+ → Add Bond form (form hidden-on-open, G1) · sync icon → manual refresh (429 cooldown) · bell → alerts · avatar → shell menu · segmented ADD FORM|LEDGER tabs switch panes with live counts</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q2 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Row:</strong> Move to Portfolio (qty/amount/date/broker ref) · Details → detail screen</span>
+                <span><strong class="text-ink font-semibold">Form:</strong> ISIN Fetch → W5 four states · broker suggestion chip tap fills field (C13) · Save → submit lock + inline spinner · Back / edge-swipe → cancel with entry preservation (H6)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q2 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Detail:</strong> ⋮ overflow → Remove (type ISIN + hold 2s) · alerts: Read Advisory / Dismiss</span>
+                <span><strong class="text-ink font-semibold">Ledger:</strong> row tap → Detail · Multi-Broker radio + Select (D6) · Browse NSDL Depository List (D8, route OPEN) · Move: Link to Goal → Goals detour (paused Q14) / Update goals → return · Confirm Move · Cancel (E2–E4) · Load More (H4) · Retry (H2) · TOP scroll-to-top (H3)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q2 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Navigation:</strong> Tabs + bottom nav navigation</span>
+                <span><strong class="text-ink font-semibold">Detail:</strong> ⋮ overflow F2 → View history · Edit target · Share prospectus (destinations OPEN) · Remove (red) → typed ISIN + hold-2s (W4) → Cancel · arrow_back / Cancel (H6) · alerts: Read Advisory (target OPEN) / Dismiss · Empty CTA "Create first bond" (G2)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q2 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Gestures (page contract):</strong> tap-only · NO swipe-delete (delete buried behind typed-ISIN + hold) · system edge=back WINS over in-app gestures · W4 hold-2s is the ONLY long-press (confirm gate)</span>
               </li>
             </ul>
           </div>
@@ -214,11 +230,19 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q3 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Working ✓</strong> · <strong class="text-ink font-semibold">Loading</strong> = SKELETON for ledger rows, SPINNER for ISIN Fetch ("Checking")</span>
+                <span><strong class="text-ink font-semibold">Working ✓:</strong> live ledger · Rating Watch + "Maturing in N days" are WORKING business states (not errors) · zeroed first-open stats "0 nothing yet / 0 • all clear" (G1) · COMING SOON disabled (C9) · Value per unit "—" when missing (C12)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q3 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Empty ✓</strong> "No bonds yet — Add first bond" · <strong class="text-ink font-semibold">Error ✓</strong> offline copy + duplicate-ISIN banner</span>
+                <span><strong class="text-ink font-semibold">Loading:</strong> SKELETON for ledger rows (W10/H1) · SPINNER "Checking" for ISIN fetch only (one-off, no known layout) · Save/Move button = inline spinner + submit lock · sync icon spins until refresh done/error (H7) · Load More = loading(more) (W11)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q3 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Empty ✓:</strong> "No bonds yet — Add first bond" (G2)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q3 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Error ✓:</strong> persistent error strip + Retry for ledger load / save / move / remove (H2) · entry preserved on failed save/move (H2/H6) · duplicate-ISIN banner · fetch Not Found (C3) · Offline copy · rating-gate refusal ERR-watch-rating-gate "only AAA to BBB- … cannot be added" (watch.py:152-155, 553, 833) · Load More error → retry (W11)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q3 font-bold leading-none mt-1">•</span>
@@ -250,15 +274,15 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q4 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Load more:</strong> show-all + scroll-to-top at MVP scale (Load More when &gt;100 rows)</span>
+                <span><strong class="text-ink font-semibold">Load more:</strong> show-all at MVP scale; when &gt;100 rows → Load More button (H4/W11, predictable pagination) · <b>NEVER infinite scroll</b> (footer + NSDL must stay reachable)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q4 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Sticky:</strong> top bar always + ADD FORM|LEDGER tabs ✓ designed</span>
+                <span><strong class="text-ink font-semibold">Sticky:</strong> top app bar always · ADD FORM|LEDGER tabs sticky above scroll viewport · fixed bottom nav (E2, List frame only) · fixed Detail top bar (W12) · stat strip scrolls (not sticky)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q4 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Scroll-to-top:</strong> TOP button after one screen of content</span>
+                <span><strong class="text-ink font-semibold">Scroll-to-top:</strong> floating TOP button appears after &gt;1 screen (H3/W14) · short list (&lt;1 screen) = TOP never renders · tap → smooth return to top</span>
               </li>
             </ul>
           </div>
@@ -286,11 +310,19 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q5 font-bold leading-none mt-1">•</span>
-                <span>ISIN 12 chars · duplicate active ISIN blocked (same company) · credit day 1–31</span>
+                <span><strong class="text-ink font-semibold">Permissions:</strong> N/A — local-first roleless MVP (stated, not omitted)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q5 font-bold leading-none mt-1">•</span>
-                <span>Remove: exact ISIN + hold 2s · never on-card delete · held positions never deleted here</span>
+                <span><strong class="text-ink font-semibold">Validation:</strong> ISIN 12 chars · duplicate active ISIN blocked (same company) · rating gate AAA–BBB- only (watch.py:658-664) · <b>Move</b> credit_day must be integer 1–31 (watch.py:960 — Move-form field; <b>Add form</b> Interest Credit Day = readonly AUTO per C8, never user-entered) · ₹ &gt; 0 · submit lock</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q5 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Ordering / visibility:</strong> 4-tier sort Danger &gt; Maturing &gt; On-going &gt; Matured (H5/manifest) · merged [HELD]+[WATCH] company card (D1) · multi-broker same-ISIN once-per-broker (D6) · Default History single defaulted ISIN = HIGHER RISK (C9) · Value per unit = Target ÷ Qty (C12) · INR Indian grouping (1,00,000) · form hidden on open (G1)</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q5 font-bold leading-none mt-1">•</span>
+                <span><strong class="text-ink font-semibold">Remove:</strong> exact typed ISIN + hold 2s · never on-card delete · held positions never deleted here (F4) · entry preserved on cancel (H6)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q5 font-bold leading-none mt-1">•</span>
@@ -322,15 +354,19 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q6 font-bold leading-none mt-1">•</span>
-                <span>ISIN lookup → NSDL/BSE (4 states: Found/Checking/Offline/Not Found)</span>
+                <span><strong class="text-ink font-semibold">Flask routes</strong> (src/views/watch.py): GET/POST <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch</code> (:822 list + create) · GET <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch/lookup</code> (:880) · POST <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch/lookup/applied</code> (:903) · GET <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch/months</code> (:893) · POST <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch/refresh</code> (:915, 429 cooldown) · POST <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch/&lt;id&gt;/move</code> (:953) · POST <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">/watch/&lt;id&gt;/delete</code> (:1069)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q6 font-bold leading-none mt-1">•</span>
-                <span>Save/Move → local repository write · Alerts ← <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-alt border border-hairline text-ink">alerts.py</code></span>
+                <span><strong class="text-ink font-semibold">Backend states:</strong> FETCH_STATES = idle · checking · found · notfound · offline · downgrade (watch.py:109-116) → UI W5 ×4 + idle/downgrade handled in shell</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q6 font-bold leading-none mt-1">•</span>
-                <span>Dio wiring = contract phase (one instance, interceptor gate)</span>
+                <span><strong class="text-ink font-semibold">Alerts:</strong> daily_sweep(conn, today) (src/alerts.py:7) → Rating Watch cards · <strong class="text-ink font-semibold">Goals:</strong> watch_goals(db_file) (watch.py:529) returns financial_goals rows — detour paused per Q14</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-q6 font-bold leading-none mt-1">•</span>
+                <span>ISIN facts: NSDL/BSE fetch with bond-cache cooldown · local writes via repository (bonds.db SSOT) · Dio wiring = contract phase (one instance, interceptor gate)</span>
               </li>
             </ul>
           </div>
@@ -358,11 +394,11 @@
             <ul class="space-y-2 text-sm md:text-[15px] leading-relaxed text-slate">
               <li class="flex items-start gap-2.5">
                 <span class="text-q7 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Phone 412dp:</strong> LOCKED ✓ (all 5 columns designed)</span>
+                <span><strong class="text-ink font-semibold">Phone 412dp (Compact):</strong> LOCKED ✓ — single column stacks · company card full-width · Multi-Broker table scrolls horizontally inside wrapper · long text wraps/truncates (company name, labels) · bottom nav fixed · FAB bottom-right above nav</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q7 font-bold leading-none mt-1">•</span>
-                <span><strong class="text-ink font-semibold">Tablet/desktop:</strong> MVP = Compact only (support declaration pending)</span>
+                <span><strong class="text-ink font-semibold">Tablet/desktop:</strong> NOT in MVP — <b>Compact-only locked</b> (watchlist_features #1); Medium/Expanded reflow deferred post-MVP (open question, not a pending declaration)</span>
               </li>
               <li class="flex items-start gap-2.5">
                 <span class="text-q7 font-bold leading-none mt-1">•</span>
@@ -375,14 +411,30 @@
 
     </div>
 
+    <!-- Open questions (flagged, not guessed) -->
+    <section class="bg-surface rounded-xl border border-amber-500/30 p-5 md:p-6">
+      <div class="flex items-center gap-2 border-b border-hairline-subtle pb-2.5 mb-3">
+        <span class="text-amber-400 font-mono font-bold text-sm">OPEN QUESTIONS</span>
+        <span class="text-slate font-normal text-sm">— flagged, never guessed (watchlist_features §5)</span>
+        <span class="ml-auto text-[11px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">4 open</span>
+      </div>
+      <ol class="space-y-1.5 text-sm text-slate list-decimal list-inside">
+        <li><strong class="text-ink font-semibold">F2 destinations:</strong> where do View history · Edit target · Share prospectus navigate? (Remove → guarded flow is defined.)</li>
+        <li><strong class="text-ink font-semibold">D8 Browse NSDL:</strong> target screen/route for the depository list.</li>
+        <li><strong class="text-ink font-semibold">B2 Read Advisory:</strong> opens in-app viewer or external link?</li>
+        <li><strong class="text-ink font-semibold">Tablet support:</strong> post-MVP reflow (Compact-only MVP locked #1).</li>
+      </ol>
+      <p class="text-xs text-dim mt-2.5"><strong class="text-emerald-400">Resolved:</strong> C8 Interest Credit Day = readonly AUTO (locked board + manifest truth; old numeric-input spec retired).</p>
+    </section>
+
     <!-- Verification Sign-off Footer -->
     <footer class="pt-6 border-t border-hairline flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        <span>SEVEN QUESTIONS VERIFIED • COMPLETE SYSTEM SIGN-OFF</span>
+        <span>SEVEN QUESTIONS · CP3 R1 · against 47 features (A1–H7) + 36 components (21 shared +15 W)</span>
       </div>
       <div>
-        <span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v4.0</span>
+        <span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v5.0</span>
       </div>
     </footer>
 
