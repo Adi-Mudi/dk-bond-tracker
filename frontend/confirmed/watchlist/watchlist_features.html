@@ -60,7 +60,7 @@
 </header>
 
 <section>
-  <h2>1 · Overall feature list <span class="count">40</span></h2>
+  <h2>1 · Overall feature list <span class="count">47</span></h2>
   <div class="cmap">
   <table>
     <thead><tr><th>ID</th><th>Feature</th><th>Area</th></tr></thead>
@@ -112,6 +112,14 @@
       <tr><td>G1</td><td>First-open defaults (LEDGER, zeros)</td><td>first_run</td></tr>
       <tr><td>G2</td><td>Empty state + Add first bond CTA</td><td>first_run</td></tr>
       <tr><td>G3</td><td>FAB page semantics</td><td>first_run</td></tr>
+      <tr class="grprow"><td colspan="3">H · States, scroll &amp; shell behaviour (added by checkpoint audit)</td></tr>
+      <tr><td>H1</td><td>Ledger skeleton loading</td><td>states</td></tr>
+      <tr><td>H2</td><td>Error/offline + Retry (save/move/load)</td><td>states</td></tr>
+      <tr><td>H3</td><td>Scroll-to-top (TOP button)</td><td>scroll</td></tr>
+      <tr><td>H4</td><td>Load More (&gt;100 rows)</td><td>scroll</td></tr>
+      <tr><td>H5</td><td>List ordering (4-tier sort)</td><td>ledger</td></tr>
+      <tr><td>H6</td><td>Back/Cancel with entry preservation</td><td>nav</td></tr>
+      <tr><td>H7</td><td>Manual sync / refresh</td><td>shell</td></tr>
     </tbody>
   </table>
   </div>
@@ -126,11 +134,12 @@
       <ul>
         <li><b>text-field</b> ×3 <span>ISIN lookup · broker ref · ISIN confirm</span></li>
         <li><b>numeric / currency input</b> ×8 <span>Coupon, Yield, Face Value, day, Target, Qty, purchase qty, amount</span></li>
-        <li><b>date picker</b> ×2 <span>Maturity · execution date</span></li>
-        <li><b>select / dropdown</b> ×4 <span>payout cycle, issuer, listing, goal</span></li>
+        <li><b>date picker</b> ×1 <span>execution date (Move form) — Maturity is readonly text per Col01</span></li>
+        <li><b>select / dropdown</b> ×2 <span>payout cycle, goal (issuer/listing = readonly per locked Col01)</span></li>
         <li><b>autocomplete input</b> ×1 <span>broker typeahead</span></li>
-        <li><b>multiline note</b> ×1 <span>source note</span></li>
-        <li><b>read-only field</b> ×4 <span>company, rating, agency, secured</span></li>
+        <li><b>single-line note</b> ×1 <span>source note (Col01 renders single-line)</span></li>
+        <li><b>read-only field</b> ×7 <span>company, rating, agency, secured, issuer, listing, maturity</span></li>
+        <li><b>checkbox</b> ×1 <span>Secured NCD (Col01 line345)</span></li>
         <li><b>disabled field</b> ×1 <span>default history</span></li>
         <li><b>computed read-out</b> ×1 <span>value per unit</span></li>
       </ul>
@@ -143,7 +152,7 @@
         <li><b>text / link</b> ×3 <span>Read Advisory · Details · Update goals →</span></li>
         <li><b>outline</b> ×1 <span>Browse NSDL list</span></li>
         <li><b>icon-button</b> ×3 <span>sync · notifications · overflow ⋮</span></li>
-        <li><b>FAB</b> ×2 <span>shell + page semantics (one widget, two rules)</span></li>
+        <li><b>FAB</b> ×1 <span>one widget, two rules (A5 shell + G3 page semantics — not two components)</span></li>
         <li><b>hold-2s confirm</b> ×1 <span>guarded delete</span></li>
       </ul>
     </div>
@@ -164,7 +173,7 @@
     <div class="box">
       <h3>Navigation, overlays &amp; indicators</h3>
       <ul>
-        <li><b>segmented control</b> ×2 <span>sticky tabs + first-open default</span></li>
+        <li><b>segmented control</b> ×1 <span>sticky tabs; first-open default = same widget (not a second)</span></li>
         <li><b>bottom nav</b> ×1 <span>5 items</span></li>
         <li><b>bottom sheet</b> ×1 <span>delete action sheet</span></li>
         <li><b>dialog</b> ×1 <span>type-ISIN guard</span></li>
@@ -178,80 +187,121 @@
 </section>
 
 <section>
-  <h2>3 · Per-feature components (inline) <span class="count">40</span></h2>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Each feature with the components it is built from, right under it.</div>
+  <h2>3 · Per-feature detail (user does X → outcome Y) <span class="count">47</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Each feature as a testable sentence, with the components it is built from. Merge/split notes mark checkpoint2/3 rulings.</div>
 
   <h2 style="margin-top:14px">A · App shell (every frame) <span class="count">5</span></h2>
   <ol class="grp">
-    <li>Top app bar — brand + sync + notifications (badge) + avatar <span class="comps">app-bar row · brand label · sync icon-button · notification icon-button + badge dot (Stack) · avatar circle</span></li>
-    <li>Sticky segmented tabs — ADD FORM | LEDGER with live counts <span class="comps">segmented control (2 segments) · count labels · sticky wrapper</span></li>
-    <li>Stat strip — WATCHING (active count) + ALERTS (sub-line, e.g. "1 Rating Watch") <span class="comps">stat card ×2 · big count · sub-label · status dot</span></li>
-    <li>Bottom navigation — Dashboard · Portfolio · <b>Watchlist (active)</b> · Goals · More <span class="comps">nav bar · 5 items (icon + label) · active highlight state</span></li>
-    <li>FAB + (56px) — page-specific action semantics <span class="comps">FAB (56px) · plus icon · page-specific route action</span></li>
+    <li>User sees the top bar → brand + sync + notifications(badge) + avatar, all tappable (4 separate controls — not one bundle)</li>
+    <li>User taps ADD FORM / LEDGER tabs → the form pane or ledger pane switches with live counts (same segmented widget as G1 first-open default)</li>
+    <li>User reads the stat strip → WATCHING active count + ALERTS sub-line update live</li>
+    <li>User taps a bottom-nav tab → switches root (Watchlist active here; per-tab stacks preserved)</li>
+    <li>User taps FAB+ → Add Bond form opens <span class="comps">ONE FAB widget, two rules: A5 shell semantics + G3 page semantics — merged (not2 components)</span></li>
   </ol>
 
   <h2 style="margin-top:14px">B · Notifications <span class="count">2</span></h2>
   <ol class="grp">
-    <li>CRISIL Rating Watch alert card — Critical severity + advisory text <span class="comps">alert card · severity chip (Critical, red) · warning icon · title · body text</span></li>
-    <li>Alert actions — Read Advisory + Dismiss <span class="comps">text-button (Read Advisory) · ghost-button (Dismiss)</span></li>
+    <li>User sees a Rating Watch card → Critical severity chip + advisory text render (B2 actions are this card's action row — not a standalone feature)</li>
+    <li>User taps Read Advisory / Dismiss → advisory opens / alert dismisses (action row of B1)</li>
   </ol>
 
   <h2 style="margin-top:14px">C · Column 01 — Add Bond form <span class="count">14</span></h2>
   <ol class="grp">
-    <li>Form hidden on open — appears only after tapping FAB + <span class="comps">visibility controller · FAB trigger · sheet presentation (no new widget)</span></li>
-    <li>Quick ISIN Lookup with Fetch button <span class="comps">text-field (ISIN) · primary button (Fetch) · lookup icon</span></li>
-    <li>Fetch states ×4 — Found (NSDL/BSE) · Checking · Offline · Not Found <span class="comps">state indicator (4 states) · icons + state labels</span></li>
-    <li>Duplicate-ISIN error banner — blocks same company + active ISIN, shows existing broker, suggests alternatives <span class="comps">error banner (red) · warning icon · message text · guidance line · broker tag chip</span></li>
-    <li>Section A Identity — Company, ISIN locked chip (immutable), Rating, Rating Agency <span class="auto">auto</span> <span class="comps">read-only fields ×3 · locked ISIN chip (lock icon) · "auto" chips ×4</span></li>
-    <li>Section B Economics — Coupon <span class="auto">auto</span>, Expected Yield <span class="user">you enter</span>, Face Value <span class="auto">auto</span>, Payout Cycle <span class="auto">auto</span> <span class="comps">numeric inputs ×3 · cycle select · auto/"you enter" chips</span></li>
-    <li>Section C Terms — Issuer Type, Listing Status, Maturity Date <span class="auto">auto</span> <span class="comps">selects ×2 · date field (Maturity) · "auto" chips</span></li>
-    <li>Interest Credit Day input — day of month interest is credited + helper text <span class="comps">numeric input (day 1–31) · helper text</span></li>
-    <li>Default History — disabled <span class="auto">auto</span> field + COMING SOON chip (background automation planned) <span class="comps">disabled field · COMING SOON chip · helper note</span></li>
-    <li>Secured NCD field + helper — "asset-backed senior claim" <span class="comps">display field (auto value) · helper text</span></li>
-    <li>Section D Targets — Target Invested, Planned Quantity <span class="user">you enter</span> (empty by design) <span class="comps">currency input · quantity input · empty placeholders</span></li>
-    <li>Value per unit (auto math) — Target Invested ÷ Quantity, em-dash until both filled <span class="comps">computed read-out · em-dash placeholder · formula helper text</span></li>
-    <li>Broker typeahead — GoldenPi · Grip Invest · IndiaBonds · Zerodha + free-text entry <span class="comps">autocomplete input · suggestion chips ×4 · free text</span></li>
-    <li>Source Note (optional) — where the lead came from · Save to Watchlist button · auto/"you enter" chips on every field <span class="comps">multiline note input · primary button (Save) · auto/"you enter" field chips</span></li>
+    <li>User taps FAB+ → form appears hidden-until-open (same hidden-form semantics as G1 first-open — merged)</li>
+    <li>User types an ISIN and taps Fetch → NSDL/BSE lookup runs</li>
+    <li>User watches Fetch → one of4 states shows: Found · Checking · Offline · Not Found</li>
+    <li>User submits a duplicate → error banner blocks it, names the existing broker, suggests alternatives</li>
+    <li>User reads Section A Identity → Company/ISIN/Rating/Agency appear auto (ISIN locked chip immutable)</li>
+    <li>User reads Section B Economics → Coupon/Face/Payout auto, Expected Yield you-enter, auto/you-enter chips show provenance</li>
+    <li>User reads Section C Terms → Issuer/Listing/Maturity show as readonly auto text (locked Col01 truth — old select/date specs retired)</li>
+    <li>User sees Interest Credit Day → readonly auto field + helper (locked Col01+manifest AUTO — old numeric-input spec retired)</li>
+    <li>User sees Default History → disabled auto field + COMING SOON chip + <b>single defaulted ISIN = HIGHER RISK</b> rule</li>
+    <li>User reads Secured NCD → checkbox + "asset-backed senior claim" helper (locked Col01 checkbox — old display-field spec retired)</li>
+    <li>User fills Section D Targets → Target Invested + Planned Quantity empty by design</li>
+    <li>User fills both targets → value per unit computes live (em-dash until both present)</li>
+    <li>User types a broker → typeahead suggests GoldenPi/Grip/IndiaBonds/Zerodha + free text</li>
+    <li>User completes form (three parts, testable separately: source note optional · Save button · field chips) → bond saves to Watchlist</li>
   </ol>
 
   <h2 style="margin-top:14px">D · Column 02 — Integrated ledger <span class="count">8</span></h2>
   <ol class="grp">
-    <li>Company-first merged view — Held + Watch in one list, no separate tabs <span class="comps">card container · company header block</span></li>
-    <li>4-tier status pill — Danger &gt; Maturing &gt; On-going &gt; Matured <span class="comps">status chip · tier color mapping (4 colors)</span></li>
-    <li>Company header — total invested + "N bonds / X completed / Y ongoing" counts <span class="comps">invested-amount text · counts line</span></li>
-    <li>[HELD] rows — ISIN, units, settled amount, or "Maturing in 4 days" countdown <span class="comps">nested row · ISIN text · units text · amount + status label / countdown</span></li>
-    <li>[WATCH] rows — broker, cycle • date • structure, yield %, Move to Portfolio + Details <span class="comps">nested row · ISIN · meta line · yield text · secondary button (Move) · text-button (Details)</span></li>
-    <li>Multi-broker compare card — same ISIN at 3 brokers, yields, Best Yield tag, Select button <span class="comps">card · broker rows ×3 (name + yield) · Best Yield chip · primary button (Select) · compare icon</span></li>
-    <li>Buy-step line <span class="new">new 2026-11-26</span> — "Buy at your broker first, then return here — Move to Portfolio records that broker." <span class="comps">hint line (10px muted) · arrow/cart icon</span></li>
-    <li>Browse NSDL Depository List button <span class="comps">outline button · inventory icon · label</span></li>
+    <li>User opens LEDGER → company-first merged list (Held+Watch, no tabs) — D2/D3 are its sub-elements, not standalone features</li>
+    <li>User reads each row's pill →4-tier status: Danger &gt; Maturing &gt; On-going &gt; Matured (sub-element of D1)</li>
+    <li>User reads the header → total invested + "N bonds / X completed / Y ongoing" counts (sub-element of D1)</li>
+    <li>User reviews [HELD] rows → ISIN, units, settled amount or "Maturing in N days" countdown</li>
+    <li>User reviews [WATCH] rows → broker/cycle/yield + Move to Portfolio + Details taps</li>
+    <li>User compares brokers → same ISIN at3 brokers, Best Yield tag, Select to pick one</li>
+    <li>User reads the buy-step hint → "Buy at your broker first, then return here" guidance (10px hint inside D6 — sub-element, not standalone)</li>
+    <li>User taps Browse NSDL → depository list opens (destination: OPEN — flagged)</li>
   </ol>
 
   <h2 style="margin-top:14px">E · Column 03 — Move to Portfolio <span class="count">4</span></h2>
   <ol class="grp">
-    <li>Conversion form — Purchased Quantity · Invested Amount · Execution/Ref Date · Demat/Broker Ref (all empty) <span class="comps">section header (verified icon + title + meta) · inputs ×4: quantity, amount, date picker, broker ref</span></li>
-    <li>Link to Goal (optional) — pick existing goal: Emergency Corpus / Kids Education 2030 / Debt-Free Plan <span class="comps">field label · goal select (3 options) · link-button (Update goals →)</span></li>
-    <li>Update goals → detour — leaves, returns with entries intact <span class="comps">navigation route out + return-with-state (no new widget)</span></li>
-    <li>Confirm Move + Broker Record Note — verified against depository sync → becomes On-going <span class="comps">primary button (Confirm) · ghost-button (Cancel) · info note line</span></li>
+    <li>User fills the conversion form → Quantity · Amount · Date · Broker Ref (all empty until typed)</li>
+    <li>User optionally links a goal → picks one of the existing goals</li>
+    <li>User taps Update goals → detour leaves and returns with entries intact</li>
+    <li>User taps Confirm Move (Cancel aborts) → verified against depository sync → row becomes On-going</li>
   </ol>
 
   <h2 style="margin-top:14px">F · Column 04 — Remove flow <span class="count">4</span></h2>
   <ol class="grp">
-    <li>4-step buried delete — Details → ⋮ overflow → bottom sheet → guarded modal <span class="comps">navigation chain: watch row → detail screen → overflow menu (3 surfaces)</span></li>
-    <li>Bottom-sheet actions — View history · Edit target · Share prospectus · Remove (red, buried; never on-card) <span class="comps">modal bottom sheet · action rows ×4 (icon + label) · destructive red style</span></li>
-    <li>Type-ISIN-to-confirm + hold 2s guard — "held positions never deleted here" note <span class="comps">dialog · ISIN text-input · hold-2s confirm button (long-press) · warning text · confirm/cancel</span></li>
-    <li>Guarded-architecture note — delete always buried, watchlist-only <span class="comps">callout note line</span></li>
+    <li>User follows the buried chain Details → ⋮ → sheet → guarded modal → delete requires the full path (F4 = architecture rule enforced by F1/F3, not standalone)</li>
+    <li>User opens the bottom sheet → View history · Edit target · Share prospectus · Remove(red) — <b>destinations for the first3 = OPEN (flagged)</b></li>
+    <li>User types the full ISIN and holds2s → guarded confirm fires; "held positions never deleted here" holds</li>
+    <li>User reads the guard note → delete stays buried + watchlist-only (rule of F1/F3)</li>
   </ol>
 
   <h2 style="margin-top:14px">G · Column 05 — First open <span class="count">3</span></h2>
   <ol class="grp">
-    <li>First-open behavior — LEDGER tab active, form hidden, zeroed notifications ("0 nothing yet / 0 all clear") <span class="comps">tab control (LEDGER default) · zeroed stat cards ×2</span></li>
-    <li>Empty placeholder + "Add first bond" CTA <span class="comps">empty icon (bookmarks) · headline · body text · primary button (Add first bond)</span></li>
-    <li>FAB page semantics — Dashboard/Portfolio/Watchlist + → Add Bond form; Goals + → Goal form (in design) <span class="comps">FAB + per-page route logic</span></li>
+    <li>User opens Watchlist first time → LEDGER tab default, form hidden, zeroed stats ("0 nothing yet / 0 all clear") — hidden-form semantics shared with C1 (merged)</li>
+    <li>User sees the empty state → headline + "Add first bond" CTA</li>
+    <li>User taps FAB on any page → Dashboard/Portfolio/Watchlist + opens Add Bond; Goals + opens Goal form (G3 = page semantics of the ONE FAB — see A5)</li>
+  </ol>
+
+  <h2 style="margin-top:14px">H · States, scroll &amp; shell behaviour <span class="count">7</span></h2>
+  <ol class="grp">
+    <li>User opens the ledger while loading → skeleton rows show the card layout (never a blank page)</li>
+    <li>User hits a save/move/load failure → persistent specific error + Retry appears; typed entries preserved (never cleared)</li>
+    <li>User scrolls past one screen → TOP (scroll-to-top) button appears; tap returns to top</li>
+    <li>User passes100 rows → Load More button appends the next page (predictable pagination, footer reachable)</li>
+    <li>User views the list → rows sort4-tier: Danger → Maturing → On-going → Matured (manifest order)</li>
+    <li>User backs out (sheet X/system back/arrow_back/Cancel) → form entries preserved; cancel exits cleanly</li>
+    <li>User taps sync → manual refresh runs; skeleton/states re-evaluate (drives H1/H2)</li>
+  </ol>
+
+<section>
+  <h2>4 · Dependencies &amp; build order <span class="count">checkpoint6</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Prerequisites before each wave can ship.</div>
+  <table>
+    <thead><tr><th>Wave</th><th>Features</th><th>Depends on</th></tr></thead>
+    <tbody>
+      <tr><td class="id">W0</td><td>A1–A4 shell + G1–G3 first-open</td><td>shell/nav framework · Universal Elements E1/E2/E8</td></tr>
+      <tr><td class="id">W1</td><td>C1–C14 Add Bond form</td><td>W0 · NSDL fetch endpoint (D8) · ISIN validation (E5/E6)</td></tr>
+      <tr><td class="id">W2</td><td>D1–D8 ledger</td><td>W1 (bonds exist to list) · status-derivation rules</td></tr>
+      <tr><td class="id">W3</td><td>E1–E4 Move to Portfolio</td><td>W2 · <b>Portfolio page</b> (holding lands there) · Goals link (E2/E3 — Goals on hold per Q14, unblock first)</td></tr>
+      <tr><td class="id">W4</td><td>F1–F4 remove flow</td><td>W2 · typed-ISIN guard</td></tr>
+      <tr><td class="id">W5</td><td>B1–B2 alerts · H1–H7 states/scroll</td><td>alerts.py backend · W0–W2 surfaces</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11.5px;color:var(--dim);margin-top:8px">Cross-page: Portfolio [HELD]/Move rows · Bond Detail route (D5/F1) · NSDL list (D8) · Goals detour E2/E3 (paused Q14).</p>
+</section>
+
+<section>
+  <h2>5 · Open questions (flagged, not guessed) <span class="count">5</span></h2>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Per checkpoint7 — unresolved items are listed, never silently decided.</div>
+  <ol style="font-size:12.5px;color:var(--muted);padding-left:18px">
+    <li><b>F2 destinations:</b> where do View history · Edit target · Share prospectus navigate? (Remove → guarded flow is defined.)</li>
+    <li><b>D8 Browse NSDL:</b> target screen/route for the depository list.</li>
+    <li><b>B2 Read Advisory:</b> opens in-app viewer or external link?</li>
+    <li><b>Tablet support:</b> pending — Compact-only MVP (locked #1); reflow post-MVP.</li>
+    <li><b>C8 resolved:</b> Interest Credit Day = readonly AUTO (locked board+manifest truth; old numeric-input spec retired) — noted here as a resolved conflict, not open.</li>
   </ol>
 </section>
 
+</section>
+
 <footer>
-  <span>DK BOND SYSTEM v3.4 · STRICT MIDNIGHT LEDGER TOKENS</span>
+  <span>DK BOND SYSTEM v3.4 · WATCHLIST FEATURES47 (A1-G3 + H1-H7) · checkpoint-audited2026-11-28</span>
   <span>Source: watchlist_all_sections.html (LOCKED) · Requirements/RTM: watchlist_rtm.html (ON HOLD) + docs/requirements/watchlist_psrs_20261126.json</span>
 </footer>
 
