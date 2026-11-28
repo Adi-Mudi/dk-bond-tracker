@@ -1459,6 +1459,7 @@
 <!-- ============ ESSENTIAL 11 DEEP DIVE ============ -->
 <section>
   <h2 id="e11"><span class="num">11</span> Secure Storage — keeping sensitive data locked away</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R1 FAIL (2 REAL,2 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential11_audit_report.html</p>
   <p class="muted">Decided once, app-wide: what is sensitive, where it lives, what never gets stored, when it's wiped. The classification is a written rule — not a per-screen judgement call.</p>
 
   <h3>Visual · Part 1 — classify every stored item</h3>
@@ -1474,7 +1475,7 @@
     <div class="cbox harm">
       <h5>⚙ Harmless → ordinary storage</h5>
       <ul>
-        <li>Theme choice <span>Midnight Ledger</span></li>
+        <li>Theme choice <span>active of 4 locked — Nordic Mist ★</span></li>
         <li>Last opened tab</li>
         <li>Display settings <span>hide-amounts toggle, TDS default, credit-day pref</span></li>
       </ul>
@@ -1523,7 +1524,7 @@
     </div>
     <div class="card" style="padding:12px">
       <h4 style="color:var(--accent-soft);font-size:11px">Out of logs</h4>
-      <p style="font-size:11px;margin:0">Sensitive values never in logs, crash reports, or analytics — logs are for debugging, not storing secrets (ties to logging essential)</p>
+      <p style="font-size:11px;margin:0">Sensitive values never in logs, crash reports, or analytics — logs are for debugging, not storing secrets (ties to Essential 12 — shared redaction list)</p>
     </div>
   </div>
 
@@ -1536,7 +1537,9 @@
       <tr><td>Classification doc (which items are sensitive)</td><td><span class="pill a">write when auth/fetch ships</span></td><td>two-box rule above becomes the doc</td></tr>
       <tr><td>Secure vault wiring (Keychain / EncryptedPrefs)</td><td><span class="pill p">slot ready</span></td><td>needed with first auth token or persisted identifier</td></tr>
       <tr><td>App-switcher hide for sensitive screens</td><td><span class="pill a">build</span></td><td>extends the privacy-mask concept</td></tr>
-      <tr><td>Log scrubbing (no values in logs)</td><td><span class="pill a">build</span></td><td>when logging lands</td></tr>
+      <tr><td>Wipe-on-logout / expiry (Part 4)</td><td><span class="pill p">slot ready</span></td><td>rule written — add post-logout vault-empty test when auth exists</td></tr>
+      <tr><td>Sensitive field no-copy / cut / autocomplete (Part 5)</td><td><span class="pill a">build</span></td><td>enforce on PAN-class fields when they exist</td></tr>
+      <tr><td>Log scrubbing (no values in logs)</td><td><span class="pill a">build</span></td><td>when Essential 12 redaction list lands</td></tr>
     </tbody>
   </table>
 </section>
