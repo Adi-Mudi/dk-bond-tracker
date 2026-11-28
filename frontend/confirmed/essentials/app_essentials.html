@@ -962,15 +962,16 @@
 <!-- ============ ESSENTIAL 5 DEEP DIVE ============ -->
 <section>
   <h2 id="e5"><span class="num">5</span> API Calls — how the app talks to the back end</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R1 PASS (0 REAL,4 MINOR) → minors fixed → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential5_audit_report.html</p>
   <p class="muted">One client, one URL, one checkpoint for tokens/logging/retry, timeouts everywhere, one offline policy — and raw network code only ever lives in repository classes. Tool: <b style="color:var(--ink)">Dio</b>.</p>
 
   <h3>Visual · Where network code lives — the only legal path</h3>
   <div class="stack-flow">
     <div class="layer"><b>Widget / Page</b><span>never sees a URL or Dio</span></div>
     <div class="layer"><b>ViewModel / State</b><span>asks repository, holds result</span></div>
-    <div class="layer key"><b>Repository (per domain: bonds, users, payments)</b><span>raw JSON → typed objects or meaningful errors</span></div>
+    <div class="layer key"><b>Repository (per domain: bonds, alerts, goals)</b><span>raw JSON → typed objects or meaningful errors</span></div>
     <div class="gate">⇄ INTERCEPTOR GATE ⇄<small>stamps auth token · logging · retry — automatically on every request</small></div>
-    <div class="layer key"><b>Dio instance #1 — base address written ONCE</b><span>https://api…/v1 · connect + receive timeouts set here</span></div>
+    <div class="layer key"><b>Dio instance #1 — base address written ONCE</b><span>https://api…/v1 · connect5s + receive15s timeouts set here</span></div>
     <div class="layer"><b>Server</b><span>validates again — the last guard</span></div>
   </div>
 
@@ -992,17 +993,17 @@
     <div class="card">
       <h4 style="color:var(--amber)">Timeouts — fail fast</h4>
       <ul>
-        <li>Connect timeout + receive timeout <span>set once on the Dio instance</span></li>
+        <li>Connect timeout <b>5s</b> + receive timeout <b>15s</b> <span>set once on the Dio instance (locked #8)</span></li>
         <li>"A spinner that never resolves is a bug, not a loading state" <span>dead network → quick fail → offline UI takes over</span></li>
-        <li>Links to your 4 fetch states <span>Checking must always reach Offline / Not Found</span></li>
+        <li>Links to your 4 fetch states + the Error state in the six-question checklist <span>Checking must always reach Offline / Not Found</span></li>
       </ul>
     </div>
     <div class="card">
       <h4 style="color:var(--accent-soft)">Error &amp; offline policy — decided once</h4>
       <ul>
-        <li>Clear offline message · retry button · <b>never a blank screen</b></li>
+        <li>Clear offline message · retry button · <b>never a blank screen, never raw error</b></li>
         <li>One shared handler, not per-endpoint code <span>your designed offline copy is the spec</span></li>
-        <li>Expired token → interceptor refreshes silently, pending requests retried <span>future slot — local-first today</span></li>
+        <li>Expired token → interceptor refreshes silently, pending requests retried <span>user sees a brief delay — not a forced logout · future slot, local-first today</span></li>
       </ul>
     </div>
   </div>
@@ -1012,9 +1013,10 @@
     <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td>Offline/error copy + 4 fetch states</td><td><span class="pill g">designed</span></td><td>watchlist col01 + error board</td></tr>
-      <tr><td>Dio instance + base addresses + timeouts</td><td><span class="pill a">build</span></td><td>one-time setup</td></tr>
+      <tr><td>Dio instance + base addresses + timeouts</td><td><span class="pill a">build</span></td><td>one-time setup · connect5s · receive15s</td></tr>
+      <tr><td>Shared error/offline handler</td><td><span class="pill a">build</span></td><td>one policy widget — screens request it, never repaint it</td></tr>
       <tr><td>Interceptor (token/log/retry)</td><td><span class="pill a">build</span></td><td>auth = future slot</td></tr>
-      <tr><td>Repository classes (bonds, users, payments)</td><td><span class="pill a">build</span></td><td>mirrors back-end repository layer</td></tr>
+      <tr><td>Repository classes (bonds, alerts, goals)</td><td><span class="pill a">build</span></td><td>mirrors back-end repository layer</td></tr>
       <tr><td>Silent token refresh</td><td><span class="pill p">slot ready</span></td><td>when cloud/auth arrives</td></tr>
     </tbody>
   </table>
