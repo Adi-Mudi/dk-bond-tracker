@@ -126,11 +126,19 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-blue-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Fields:</strong> EXACTLY4 on the locked form (goal name · start date · end date · amount ₹ monthly); target + total months auto-derive. Derived display fields (Saved so far, linked bonds, returns, missed counts, progress %, urgency tier) come from the store/portfolio — never typed on the form.</div>
+            <div><strong class="text-ink font-medium">Form inputs (EXACTLY 4):</strong> goal name · start date · end date · amount ₹ monthly → target + total months auto-derive (read-only). Nothing else typed (no Saved, Note, invested — locked base).</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-blue-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Source:</strong> local <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">goals</code> store + derived from portfolio cashflow (auto tracking from purchase dates + bond interest — no manual check-in; removed in locked base).</div>
+            <div><strong class="text-ink font-medium">Field → source map:</strong> goal name/dates/amount → local <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">goals</code> store (user at create/edit) · Saved so far → store (migrated/derived) · card dates + months-left → derived from dates (store) · pace ₹/mo → derived (plan ÷ months) · status pill + months signal + urgency tier → derived (schedule vs invested) · tab counts GOALS (n)/FORM (n) → derived (store) · INVESTED column → <b>PORTFOLIO purchase dates</b> (Watchlist → Move to Portfolio) · RETURNS column → <b>PORTFOLIO bond interest</b> · linked-bond name/ISIN/rate/total-interest → PORTFOLIO holdings + bond master · derivation Month/Target/Running Total → derived (schedule math) · missed-banner months → derived (schedule vs invested) · UI copy (labels/buttons) → hardcoded design strings.</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-blue-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Not displayed:</strong> progress % text is NEVER shown (psychology rule AC2) — only the unlabelled progress rail; target amounts appear only inside derivation math + totals row.</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-blue-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Locked-base sections covered:</strong> 5-column Derivation Table (Month · Target · Invested · Returns · Running Total-dim) · static accent totals row · missed-signal detail banner · linked-bond rows (name · ISIN · rate · total interest received).</div>
           </div>
         </div>
       </section>
@@ -151,19 +159,27 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-emerald-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">FAB+</strong> → create form · <strong class="text-ink font-medium">goal card</strong> → Details</div>
+            <div><strong class="text-ink font-medium">Create:</strong> FAB+ or FORM tab → full-screen create form (4 inputs) → Save goal (submit lock, no double-tap) · empty-state CTA "Create first goal"</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-emerald-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Record check-in:</strong> REMOVED in locked base (2026-11-28) — invested auto from portfolio purchase dates · <strong class="text-ink font-medium">monthly tracking:</strong> fully automatic</div>
+            <div><strong class="text-ink font-medium">Navigate:</strong> goal card → Details (detail frame) · GOALS/FORM segmented tabs (list frame) · bottom nav (own back stack) · Back arrow + system edge-swipe return (form/detail → list)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-emerald-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Management (⋮ + inline Goal Actions card):</strong> Edit goal · Archive — NO Remove option (removed from design 2026-11-27; goals end via Achieved or Archived)</div>
+            <div><strong class="text-ink font-medium">Detail management (top-bar ⋮ ONLY):</strong> Edit goal → prefilled form · Archive goal — NO Remove (locked; goals end via Achieved/Archived). No inline Goal Actions card exists (removed with old board).</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-emerald-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Navigation:</strong> Move link (Watchlist→Goals exists) · segmented tabs &amp; bottom nav</div>
+            <div><strong class="text-ink font-medium">Detail data actions:</strong> linked-bond row tap → bond detail page · derivation table scrolls (>24 months)</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-emerald-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Shell app bar:</strong> Sync Ledger (manual refresh, G33) · Notifications · Change Theme · avatar</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-emerald-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">List extras:</strong> scroll-to-top (list &gt;1 screen, G35) · error Retry (G31) · <strong>gestures: tap-only</strong> — no swipe-delete, no long-press, system edge = back</div>
           </div>
         </div>
       </section>
@@ -184,19 +200,27 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-amber-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Working ✓ · Loading:</strong> SKELETON for goal cards</div>
+            <div><strong class="text-ink font-medium">Working ✓:</strong> normal list/detail render · missed-signal banner + "N months missed" are WORKING business states (not errors)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-amber-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Empty ✓:</strong> &ldquo;No goals yet &mdash; Create first goal&rdquo;</div>
+            <div><strong class="text-ink font-medium">Loading (pattern CHOSEN: SKELETON — layout known):</strong> list = goal-card skeletons · detail = Saved-card + derivation-table skeleton rows + linked-bonds skeleton · sync icon spins during G33 refresh · Save goal = inline button spinner + submit lock (spinner allowed — one-off submit, no layout to preview)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-amber-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Error:</strong> missed-month warnings + save failures</div>
+            <div><strong class="text-ink font-medium">Empty ✓:</strong> list → "No goals yet — Create first goal" (G05) · detail linked section → empty state when0 holdings (G32/E12)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-amber-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Rule:</strong> skeleton loading never replaced by spinner when list layout is known</div>
+            <div><strong class="text-ink font-medium">Error ✓ (G31):</strong> fetch/offline/save-failure → persistent specific message + Retry · entries preserved on failed save · never blank, never vanishing toast</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-amber-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Visibility states:</strong> archived/completed goals stay visible (dimmed, last, G36) — never silently hidden</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-amber-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Rule:</strong> never a spinner where a skeleton works (E15); spinner only for one-off submit/refresh</div>
           </div>
         </div>
       </section>
@@ -217,15 +241,23 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-cyan-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Sticky:</strong> GOALS / FORM tabs ✓ (First Open–Tracking) · Detail has its own fixed top bar (Back + ⋮)</div>
+            <div><strong class="text-ink font-medium">Load-more: SHOW-ALL chosen</strong> — goals list renders every goal in one scroll (personal lists are short); no pagination, no infinite scroll. Revisit only if a user passes ~30 goals (then Load-More, not infinite — footer stays reachable).</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-cyan-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Scroll-to-top:</strong> triggers when goal list &gt; 1 screen</div>
+            <div><strong class="text-ink font-medium">Sticky:</strong> top app bar + GOALS/FORM tabs pinned above the scroll viewport; bottom nav always fixed. Detail frame: fixed top bar (Back · title · ⋮) above the scroll; derivation table header row sticks inside table scroll; static totals row (tfoot) stays at table foot.</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-cyan-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Layout flow:</strong> cards stack in a single column with consistent 12px gaps (space-y-3)</div>
+            <div><strong class="text-ink font-medium">Scroll-to-top:</strong> floating control appears after1 screen down (G35) → smooth scroll to top · short list = never renders</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-cyan-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Detail table:</strong> &gt;24 months → vertical scroll + horizontal column scroll (Running Total visible via scroll) · static totals row remains reachable at foot</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-cyan-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Layout flow:</strong> cards single column, consistent16px gaps (matches locked base)</div>
           </div>
         </div>
       </section>
@@ -246,11 +278,23 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-rose-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Monthly plan formula:</strong> target = saved + monthly &times; months + portfolio growth (needs start + end dates) · e.g. &#8377;11,50,000 + 22 mos &times; &#8377;35k + &#8377;80k growth = &#8377;20,00,000</div>
+            <div><strong class="text-ink font-medium">Target formula (locked):</strong> target = Amount (₹ monthly) &times; total months (dates) — e.g. &#8377;35,000 &times;22 = &#8377;7,70,000 plan; the detail totals row shows saved + invested + returns as the derived outcome (&#8377;20,00,000). The old saved+growth formula is RETIRED with the dual-entry form.</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-rose-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Entry exclusivity:</strong> form takes ONLY the monthly amount (goal name required) — target derives (Amount × months); old target-OR-monthly dual entry removed with the locked form</div>
+            <div><strong class="text-ink font-medium">Validation:</strong> all4 inputs required · goal name non-empty · end date &gt; start date (reversed/equal → error, entries preserved) · amount &#8377; &gt;0 · submit lock on Save goal (one tap = one action)</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-rose-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Permissions:</strong> N/A — local-first roleless MVP (same as components note)</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-rose-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Psychology (G26):</strong> zero target amounts on cards/detail/stat surfaces (only derivation math shows totals) · months signal = exactly one, negative sticky until resolved</div>
+          </div>
+          <div class="flex items-start space-x-3 text-slate">
+            <span class="text-rose-400 font-mono mt-0.5">•</span>
+            <div><strong class="text-ink font-medium">Ordering/visibility (G34/G36):</strong> soonest end-date first · Completed last dimmed · archived stay visible (dim) · zero-investment months still show returns (G21) · &#8377; INR Indian grouping everywhere (FR12)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-rose-400 font-mono mt-0.5">•</span>
@@ -283,19 +327,19 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-purple-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Auto tracking:</strong> pulls portfolio cashflow (synced in real-time)</div>
+            <div><strong class="text-ink font-medium">Local endpoints (Flask):</strong> GET <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">/goals</code> (list) · GET/POST <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">/goals/&lt;id&gt;/edit</code> (read/update) — <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">/checkin</code> and <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">/delete</code> RETIRED with locked base. Views: src/views/goals.py108-180.</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-purple-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Check-in:</strong> REMOVED in locked base — invested derived from portfolio purchase dates (auto)</div>
+            <div><strong class="text-ink font-medium">Repository methods:</strong> src/goals.py <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">list_goals</code> · <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">add_goal</code> · <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">update_goal</code> (local store CRUD; sends name/start/end/amount → returns goal row)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-purple-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Goal CRUD:</strong> completely local storage repository</div>
+            <div><strong class="text-ink font-medium">Derivation query:</strong> src/queries/summary.py <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-raised border border-hairline text-ink">goal_derived</code> — sends goal id + date range → returns month rows (invested from portfolio purchase dates, returns from bond interest, linked bonds, totals)</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-purple-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Derived math:</strong> returns derived from underlying bond coupons · Dio wiring = contract phase</div>
+            <div><strong class="text-ink font-medium">Flutter side:</strong> local repository class (Essential5 boundary) — raw store access never in widgets · Dio wiring = contract phase (no remote API yet)</div>
           </div>
         </div>
       </section>
@@ -316,7 +360,7 @@
         <div class="mt-4 space-y-2.5 text-sm">
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-teal-400 font-mono mt-0.5">•</span>
-            <div><strong class="text-ink font-medium">Phone 412dp:</strong> LOCKED ✓ (now 5 columns audit board: Empty, Active, Form, Tracking, Detail)</div>
+            <div><strong class="text-ink font-medium">Phone 412dp:</strong> LOCKED ✓ — single-column stack across the3 frames (list · full-screen form · detail); cards/readouts stack vertically; derivation table scrolls horizontally in its wrapper (5 columns never fit412dp without scroll); labels wrap, long names truncate to2 lines</div>
           </div>
           <div class="flex items-start space-x-3 text-slate">
             <span class="text-teal-400 font-mono mt-0.5">•</span>
@@ -335,7 +379,7 @@
     <footer class="pt-8 border-t border-hairline/60 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
       <div class="flex items-center space-x-2">
         <span class="w-2 h-2 rounded-full bg-due-red"></span>
-        <span>AGY R3 2026-11-27: PAGE PASS — Remove option verified 100% deleted, Q2/Q5 consistent</span>
+        <span>AGY 7Q: R1 FAIL (7 REAL,2 MINOR) → fixes → R2 (2026-11-28) · prior R3 2026-11-27 Remove-verified</span>
       </div>
       <div>
         <span>DK BOND TRACKER • ARCHITECTURE GOVERNANCE v4.0</span>
