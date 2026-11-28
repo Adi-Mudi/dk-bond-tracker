@@ -54,11 +54,11 @@
   <table>
     <thead><tr><th>ID</th><th>Component</th><th>Anatomy</th><th>States</th><th>Gestures</th></tr></thead>
     <tbody>
-      <tr><td class="id">E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync / bell / theme / avatar (fixed order)</td><td>default</td><td>tap icons</td></tr>
-      <tr><td class="id">E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · <b>Goals</b> · More</td><td>default · active tab</td><td>tap tabs</td></tr>
-      <tr><td class="id">E8</td><td><b>Buttons</b></td><td>primary (Save goal) · secondary (Details) · ghost; verb labels ≤4 words; press −6%/150ms</td><td>enabled · pressed · disabled · loading-lock</td><td>tap · press feedback</td></tr>
-      <tr><td class="id">E9</td><td><b>Text Input</b></td><td>label above (no asterisk) · input · helper/error below (icon+text)</td><td>idle · focused · filled · error</td><td>type · focus</td></tr>
-      <tr><td class="id">E10</td><td><b>Overflow menu ⋮</b></td><td>trigger + popup: <b>Edit goal · Archive goal ONLY</b> (no Remove — locked)</td><td>closed · open</td><td>tap · tap-away closes · system back wins</td></tr>
+      <tr><td class="id">E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync / bell / theme / avatar (fixed order)</td><td>default · focused</td><td>tap icons</td></tr>
+      <tr><td class="id">E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · <b>Goals</b> · More</td><td>default · active tab · focused</td><td>tap tabs</td></tr>
+      <tr><td class="id">E8</td><td><b>Buttons</b></td><td>primary (Save goal) · secondary (Details) · ghost; verb labels ≤4 words; press −6%/150ms</td><td>enabled · pressed · focused · disabled · loading-lock</td><td>tap · press feedback</td></tr>
+      <tr><td class="id">E9</td><td><b>Text Input</b></td><td>label above (no asterisk) · input · helper/error below (icon+text)</td><td>idle · focused · filled · error · disabled · read-only</td><td>type · focus</td></tr>
+      <tr><td class="id">E10</td><td><b>Overflow menu ⋮</b></td><td>trigger + popup: <b>Edit goal · Archive goal ONLY</b> (no Remove — locked)</td><td>closed · open · focused</td><td>tap · tap-away closes · system back wins</td></tr>
       <tr><td class="id">E12</td><td><b>Empty State</b></td><td>icon · "No goals yet" · body · "Create first goal" CTA</td><td>empty only (guarded)</td><td>tap CTA</td></tr>
       <tr><td class="id">E13</td><td><b>Status Pill</b></td><td>Behind · Due Soon · On Track · Completed — colour + TEXT paired</td><td>4 tiers</td><td>none (inert)</td></tr>
       <tr><td class="id">E14</td><td><b>Progress Rail</b></td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic</td><td>none (inert)</td></tr>
@@ -84,6 +84,7 @@
     </tbody>
   </table>
   <p class="note">Gestures summary: everything is tap-only; no swipe-destructive actions exist on this page (no Remove); long-press unused; system edge-swipe = back (wins over in-page gestures).</p>
+  <p class="note" style="color:var(--green)">Scope note (E15/E17): G1 Tabs ↔ ⬡ E3 · G2 Goal Card ↔ ⬡ E5 — these are <b>page-scoped Goals contracts</b> (owner: goals-audit · status: approved), registered in Universal Elements for anatomy only, NOT shared-library members (≥2-page reuse rule). Contracts table now carries Owner + Status columns (E1–E22).</p>
 </section>
 
 <section>
@@ -101,7 +102,7 @@
 </section>
 
 <footer>
-  <span>GOALS · COMPONENT INVENTORY ·18 live (8 shared +10 page) +5 removed · handoff step2</span>
+  <span>GOALS · COMPONENT INVENTORY ·18 live (8 shared +10 page) +5 removed · handoff step2 · audit-synced E1–E17</span>
   <span>source: base design + Universal Elements + AGY audits ·2026-11-28</span>
 </footer>
 
