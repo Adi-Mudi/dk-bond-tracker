@@ -1959,7 +1959,7 @@
 <!-- ============ UNIVERSAL ELEMENTS ============ -->
 <section>
   <h2 id="elements"><span class="num">⬡</span> Universal Elements — the shared building blocks (every page)</h2>
-  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS (Base Elements standard): <b style="color:var(--green)">R1 FAIL (4 REAL,2 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · report: .IDE_Plans/audit_reports/essential15_baseelements_audit_report.html</p>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">Base Elements R2 PASS (0/0) · Patterns &amp; Governance R1 FAIL (4 REAL,2 MINOR) → fixes → R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · reports: .IDE_Plans/audit_reports/essential15_baseelements_audit_report.html + essential17_patterns_gov_audit_report.html</p>
   <p class="muted">Same elements, many pages: defined ONCE here, composed by every page, enforced in Stitch via <b style="color:var(--ink)">DESIGN.md</b> (<a href="stitch_design_md_draft.md" style="color:var(--accent-soft)">draft</a>) and the theme design-systems below. <b style="color:var(--ink)">Visual masters (Stitch-generated · Nordic PRIMARY):</b> <a href="elements_gallery.html" style="color:var(--accent-soft)">elements_gallery.html</a> (E1–E14 specimens) · <a href="components_reuse_map.html" style="color:var(--accent-soft)">components_reuse_map.html</a> (shared vs page-scoped). Inventory/usage matrix lives in <a href="app_components.html" style="color:var(--accent-soft)">app_components.html</a>; feature list in <a href="app_features.html" style="color:var(--accent-soft)">app_features.html</a>.</p>
 
   <h3>Locked global rules (hard constraints on every generation)</h3>
@@ -1986,35 +1986,53 @@
 
   <h3>Element contracts E1–E22 (anatomy · states · labels · scope)</h3>
   <table>
-    <thead><tr><th>#</th><th>Element</th><th>Anatomy (defined once)</th><th>States</th><th>Scope</th></tr></thead>
+    <thead><tr><th>#</th><th>Element</th><th>Anatomy (defined once)</th><th>States</th><th>Scope</th><th>Owner</th><th>Status</th></tr></thead>
     <tbody>
-      <tr><td>E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync/bell/theme/avatar (fixed order)</td><td>default · scrolled · focused</td><td>SHARED</td></tr>
-      <tr><td>E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · Goals · More</td><td>default · active tab · focused</td><td>SHARED</td></tr>
-      <tr><td>E3</td><td><b>GOALS/FORM tabs</b></td><td>buttons "GOALS (n)" / "FORM (n)", sticky top of frames 01–04</td><td>default · either active · focused</td><td>Goals page</td></tr>
-      <tr><td>E4</td><td><b>Stat cell / strip</b></td><td>MONTHS (never TARGET) · SAVED · ON TRACK · tabular ₹</td><td>zero · value · skeleton</td><td>SHARED</td></tr>
-      <tr><td>E5</td><td><b>Goal card</b></td><td>name · dates · Saved ₹ · <b>months signal (one only)</b> · status pill · Check-in + Details</td><td>on-plan · missed (red) · skeleton · pressed · focused</td><td>Goals page</td></tr>
-      <tr><td>E6</td><td><b>Rhythm row</b></td><td>month · invested ₹ · <b>returns +₹</b> · pill (Due Soon/MISSED/done)</td><td>done · missed · due-soon · future</td><td>Goals page</td></tr>
-      <tr><td>E7</td><td><b>Check-in form</b></td><td>Amount · Date · Note (optional) · Record check-in + Save draft — inline, local-first</td><td>idle · filled · saving · validation error</td><td>Goals page</td></tr>
-      <tr><td>E8</td><td><b>Buttons</b></td><td>primary / secondary / ghost / destructive / link-style · verb label ≤4 words · press −6% / 150ms · size naming sm/md/lg shared across all elements</td><td>enabled · pressed · focused · disabled · loading-lock</td><td>SHARED</td></tr>
-      <tr><td>E9</td><td><b>Text input</b></td><td>label above (no asterisk) · helper/error below (icon+text, never colour alone) · height = theme input token (no raw px)</td><td>idle · focused · filled · error · disabled · read-only</td><td>SHARED</td></tr>
-      <tr><td>E10</td><td><b>Overflow menu ⋮</b></td><td>page-allowed items only (goals: Edit goal · Archive goal — no Remove ever)</td><td>closed · open · focused</td><td>SHARED</td></tr>
-      <tr><td>E11</td><td><b>Banner</b></td><td>icon + headline + body (info / warning)</td><td>info · warning</td><td>SHARED</td></tr>
-      <tr><td>E12</td><td><b>Empty state</b></td><td>icon · headline · body · CTA</td><td>empty only (guarded)</td><td>SHARED</td></tr>
-      <tr><td>E13</td><td><b>Status pill</b></td><td>Behind / Due Soon / On Track / Completed — colour + TEXT paired</td><td>4 tiers</td><td>SHARED</td></tr>
-      <tr><td>E14</td><td><b>Progress rail</b></td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic</td><td>SHARED</td></tr>
-      <tr><td>E15</td><td><b>IconButton</b></td><td>icon only · mandatory screen-reader ACTION label · invisible ≥48dp hit area · split from Button so a11y is unmissable</td><td>default · pressed · focused · disabled</td><td>SHARED</td></tr>
-      <tr><td>E16</td><td><b>Checkbox</b></td><td>box + label · single or group</td><td>unchecked · checked · indeterminate · pressed · focused · disabled</td><td>SHARED</td></tr>
-      <tr><td>E17</td><td><b>Radio</b></td><td>circle + label · group only</td><td>unselected · selected · pressed · focused · disabled</td><td>SHARED</td></tr>
-      <tr><td>E18</td><td><b>Toggle (switch)</b></td><td>track + thumb + label</td><td>on · off · pressed · focused · disabled</td><td>SHARED</td></tr>
-      <tr><td>E19</td><td><b>Divider</b></td><td>1dp rule · spacing from E3 scale</td><td>static</td><td>SHARED</td></tr>
-      <tr><td>E20</td><td><b>Badge</b></td><td>count/short label chip · colour + text</td><td>default · zero(hidden)</td><td>SHARED</td></tr>
-      <tr><td>E21</td><td><b>Tooltip</b></td><td>anchored hint · hover/focus opens</td><td>hidden · shown</td><td>SHARED</td></tr>
-      <tr><td>E22</td><td><b>Avatar</b></td><td>circle · image or initials</td><td>default</td><td>SHARED</td></tr>
+      <tr><td>E1</td><td><b>Top App Bar</b></td><td>back (detail) · title · sync/bell/theme/avatar (fixed order)</td><td>default · scrolled · focused</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E2</td><td><b>Bottom Nav</b></td><td>Dashboard · Portfolio · Watchlist · Goals · More</td><td>default · active tab · focused</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E3</td><td><b>GOALS/FORM tabs</b></td><td>buttons "GOALS (n)" / "FORM (n)", sticky top of frames 01–04</td><td>default · either active · focused</td><td>Goals page</td><td>goals-audit</td><td>approved</td></tr>
+      <tr><td>E4</td><td><b>Stat cell / strip</b></td><td>MONTHS (never TARGET) · SAVED · ON TRACK · tabular ₹</td><td>zero · value · skeleton</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E5</td><td><b>Goal card</b></td><td>name · dates · Saved ₹ · <b>months signal (one only)</b> · status pill · Check-in + Details</td><td>on-plan · missed (red) · skeleton · pressed · focused</td><td>Goals page</td><td>goals-audit</td><td>approved</td></tr>
+      <tr><td>E6</td><td><b>Rhythm row</b></td><td>month · invested ₹ · <b>returns +₹</b> · pill (Due Soon/MISSED/done)</td><td>done · missed · due-soon · future</td><td>Goals page</td><td>goals-audit</td><td>approved</td></tr>
+      <tr><td>E7</td><td><b>Check-in form</b></td><td>Amount · Date · Note (optional) · Record check-in + Save draft — inline, local-first</td><td>idle · filled · saving · validation error</td><td>Goals page</td><td>goals-audit</td><td>approved</td></tr>
+      <tr><td>E8</td><td><b>Buttons</b></td><td>primary / secondary / ghost / destructive / link-style · verb label ≤4 words · press −6% / 150ms · size naming sm/md/lg shared across all elements</td><td>enabled · pressed · focused · disabled · loading-lock</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E9</td><td><b>Text input</b></td><td>label above (no asterisk) · helper/error below (icon+text, never colour alone) · height = theme input token (no raw px)</td><td>idle · focused · filled · error · disabled · read-only</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E10</td><td><b>Overflow menu ⋮</b></td><td>page-allowed items only (goals: Edit goal · Archive goal — no Remove ever)</td><td>closed · open · focused</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E11</td><td><b>Banner</b></td><td>icon + headline + body (info / warning)</td><td>info · warning</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E12</td><td><b>Empty state</b></td><td>icon · headline · body · CTA</td><td>empty only (guarded)</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E13</td><td><b>Status pill</b></td><td>Behind / Due Soon / On Track / Completed — colour + TEXT paired</td><td>4 tiers</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E14</td><td><b>Progress rail</b></td><td>thin bar, no numbers/targets on it</td><td>0–100% deterministic</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E15</td><td><b>IconButton</b></td><td>icon only · mandatory screen-reader ACTION label · invisible ≥48dp hit area · split from Button so a11y is unmissable</td><td>default · pressed · focused · disabled</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E16</td><td><b>Checkbox</b></td><td>box + label · single or group</td><td>unchecked · checked · indeterminate · pressed · focused · disabled</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E17</td><td><b>Radio</b></td><td>circle + label · group only</td><td>unselected · selected · pressed · focused · disabled</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E18</td><td><b>Toggle (switch)</b></td><td>track + thumb + label</td><td>on · off · pressed · focused · disabled</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E19</td><td><b>Divider</b></td><td>1dp rule · spacing from E3 scale</td><td>static</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E20</td><td><b>Badge</b></td><td>count/short label chip · colour + text</td><td>default · zero(hidden)</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E21</td><td><b>Tooltip</b></td><td>anchored hint · hover/focus opens</td><td>hidden · shown</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
+      <tr><td>E22</td><td><b>Avatar</b></td><td>circle · image or initials</td><td>default</td><td>SHARED</td><td>developer</td><td>approved</td></tr>
     </tbody>
   </table>
   <p class="muted" style="font-size:11px;margin-top:8px"><b>Scope note:</b> E3/E5/E6/E7 are <b>page-scoped Goals composites</b> — registered here for anatomy only, NOT shared-library members (skill include/exclude: ≥2-page reuse required). <b>Disabled = last resort</b> — must meet contrast + show why unavailable. <b>Overflow:</b> every element documents truncate / wrap / scroll for long text, images, translations. <b>Naming:</b> semantic names are contracts — rename only with alias + deprecation period + rationale · <b>NEVER ButtonV2</b>. Each contract ships ≥1 Do/Don't pair (gallery) · owner + status + deprecation path per row · anatomy diagrams label container / label / icon-slot / <b>focus-ring</b>.</p>
   <p class="muted" style="font-size:11px;margin-top:6px"><b>Theming test:</b> theme switch must not edit component files (tokens only) · <b>tokens ≠ contrast</b> — every element visually checked in all4 locked themes before approved · <b>focus ring</b> never removed without an equivalent, ≥3:1, visible in light + dark · <b>≥8dp between adjacent interactive targets</b> (gallery gap-1/gap-1.5 must lift) · project tap target ≥48dp governs (stricter than44dp).</p>
   <p class="muted" style="font-size:11px;margin-top:6px">Flow: change a contract HERE → mirror into DESIGN.md draft → regenerate screens with <code>--design-system &lt;id&gt;</code>. New element = added here FIRST, then generated. <b>Audit before adding:</b> screenshot unique elements → cluster → count → canonicalize (reduce before you add) · new atom needs a documented reason + existing-set-cannot-cover + repeats across &gt;1 screen. Page-level components stay in each page's audit; shared-kit inventory stays in app_components.</p>
+
+  <h3>Patterns — recipe index (Essential 17)</h3>
+  <p class="muted" style="font-size:11px;margin-top:4px"><b>Vocabulary:</b> <i>convention</i> = shared expectation (logo links home) · <i>pattern</i> = reusable recipe for a recurring problem (documented context + consequences) · <i>component</i> = built piece with properties/states · <i>template</i> = page-level arrangement · <i>flow</i> = sequence of screens. Mixing these words = arguing about the wrong thing.</p>
+  <p class="muted" style="font-size:11px;margin-top:4px"><b>Pattern = recipe, not component:</b> names which elements/components to combine and how — stays a written recipe until recurrence justifies a higher-level component (promotion threshold = copy-paste maintenance risk + &gt;1 place same requirements → E16). Each pattern documents: when-to-use · a11y requirements · screen-size adaptation · shared layout/content-order/spacing decisions written ONCE. <b>Scenario tests per pattern:</b> zero / few / many items · scroll vs paginate vs continuous load · success/warning/error/info appearances · every breakpoint. <b>≥1 Do/Don't pair per pattern.</b> <b>Words included:</b> buttons state exact outcome · errors name what/why/next · empty states say what belongs + how to add · labels consistent everywhere.</p>
+  <table style="margin-top:8px">
+    <thead><tr><th>Pattern</th><th>Home (recipe today)</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Data table / list with actions</td><td>E16 Scroll &amp; Lists + E14 Progress + overflow E10</td><td>approved</td></tr>
+      <tr><td>Form validation — inline errors + success</td><td>E6 Forms + E9 input + E14 feedback</td><td>approved</td></tr>
+      <tr><td>Empty states</td><td>E12 element + E9 Microcopy words</td><td>approved</td></tr>
+      <tr><td>Loading states</td><td>E15 Loading Patterns</td><td>approved</td></tr>
+      <tr><td>Error recovery flows</td><td>E5 API error kinds + E12 crash friendly screen</td><td>approved</td></tr>
+      <tr><td>Onboarding sequence</td><td>— none yet (local-first MVP)</td><td>experimental</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Governance — decisions behind the rules (Essential 17)</h3>
+  <p class="muted" style="font-size:11px;margin-top:4px"><b>One named owner per area</b> — tokens · elements · components · patterns each have ONE owner (shared ownership = no ownership; findable in five minutes): developer = approver for all areas · curator = this essentials file · goals-audit owns Goals-page contracts. <b>Written proposal for non-trivial changes</b> — what / why / alternatives considered / migration plan; risk-weighted: token tweak = fast path, breaking change never skips full review. <b>One source, no reconciliation</b> — mirrors (DESIGN.md draft, galleries, Storybook/Figma later) reflect #elements, never define it; source/mirror disagree → fix the mirror, never both ways. <b>Status vocabulary (visible on every row):</b> approved (stable, use this) · experimental (trial, may change) · deprecated (do not use, see migration) · removed. <b>Exceptions</b> — one-off outside the system gets a code comment + named owner + removal date; looks deliberate, never accidental drift. <b>Decision Log with rationale</b> — significant library/pattern/token/exception decisions record WHY (not just what) in #decisions below. <b>Drift signs (address root cause):</b> repeated local overrides of one component · duplicate components for one problem · unclear ownership · slow/absent approval · recurring arguments about the same exceptions. <b>Review usage before adding</b> — existing covers it? every addition compounds review/QA/code cost. <b>Documentation honest</b> — docs update in the SAME change step, never a separate task; stale docs worse than none.</p>
 </section>
 
 <!-- ============ MANDATORY BAR ============ -->
