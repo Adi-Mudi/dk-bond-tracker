@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
-  <img src="https://img.shields.io/badge/version-1.0.4-informational.svg" alt="Version 1.0.4">
+  <img src="https://img.shields.io/badge/version-1.0.12-informational.svg" alt="Version 1.0.12">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/Flask-3.1.3-black.svg" alt="Flask 3.1.3">
   <img src="https://img.shields.io/badge/platform-Android-informational.svg" alt="Android">
@@ -60,7 +60,7 @@ To stop the app, press `Ctrl+C` in the terminal.
 
 ## Android
 
-Download `dk-bond-tracker-android-v1.0.4-dev-debug.apk` from the [latest release](https://github.com/Adi-Mudi/dk-bond-tracker/releases), then install it. The app runs the same Flask core on-device and shows it in a WebView.
+Download `dk-bond-tracker-android-v1.0.12-dev-debug.apk` from the [latest release](https://github.com/Adi-Mudi/dk-bond-tracker/releases), then install it. The app runs the same Flask core on-device and shows it in a WebView.
 
 > **This APK is a debug build.** It carries an ephemeral signature, so it cannot upgrade an existing install in place — Android rejects it with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`. Uninstall any previous copy first. Producing a release-signed APK needs the project keystore, which is deliberately not in the repository; see [`android/SIGNING.md`](android/SIGNING.md).
 

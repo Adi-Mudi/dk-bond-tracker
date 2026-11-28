@@ -1,0 +1,60 @@
+{
+  "doc": "INDEX — documentation map (DOC.1)",
+  "version": "1.0",
+  "date": "2026-11-28",
+  "rule17_note": "Truth docs are born-JSON streams; this index names every documentation surface and folder so any reader finds a document without guessing.",
+  "surfaces": [
+    {
+      "name": "docs/",
+      "purpose": "Committed truth streams (born-JSON): PRD, architecture, pseudocode, atomic functions, development order + requirements/ PSRS suites. Gitignored on dev by store policy — committed copy travels via the db-store lane (AGENTS Q9) and projections via store-projector.",
+      "folders": {
+        "docs/requirements/": "PSRS requirement suites (one JSON per initiative) — DOC.2 grouping by feature/initiative.",
+        "docs/design_audit/": "Design audit HTML artifacts referenced by requirements.",
+        "docs/architecture/": "Architecture decision records (ADR series, DOC.3) — created 2026-11-28."
+      },
+      "index": "docs/INDEX.json (this file)"
+    },
+    {
+      "name": ".IDE_Plans/",
+      "purpose": "Session-local planning: brainstorm, outline, stage plans, audit_reports (AGY verdicts), design_drafts. Fully gitignored; persisted via DB projection.",
+      "folders": {
+        ".IDE_Plans/audit_reports/": "Per-track AGY audit reports (HTML) — verdict history.",
+        ".IDE_Plans/design_drafts/": "Pre-lock design drafts (D19 lifecycle).",
+        ".IDE_Plans/archive/": "Completed plan documents (user-confirmed archive only)."
+      }
+    },
+    {
+      "name": "frontend/confirmed/",
+      "purpose": "Design & approval reference (Q13 bucket B): locked page designs, essentials, themes, handoff docs. INDEX.json maps page folders; feature specs + traceability live beside their page (DOC.5).",
+      "folders": {
+        "frontend/confirmed/INDEX.json": "Page-design index (DOC.1 for design docs).",
+        "frontend/confirmed/essentials/": "Foundation standards: app_essentials (16+ essentials), app_components registry, app_structure contract, app_features.",
+        "frontend/confirmed/goals/": "Goals page: locked base, features (36), components (21), traceability, feature_spec (canonical template home — DOC.2).",
+        "frontend/confirmed/<page>/": "watchlist · dashboard · portfolio · settings · alerts · search · csv_export · about · app_frame — per-page design + handoff docs.",
+        "frontend/confirmed/themes/": "Locked theme boards (Nordic/Harbor/Warm/Fjord)."
+      }
+    },
+    {
+      "name": "root markdown",
+      "purpose": "Loader/entry docs only.",
+      "folders": {
+        "README.md": "Project entry + onboarding (DOC.4 onboarding home).",
+        "RELEASING.md": "Release process.",
+        "AGENTS.md": "Agent rules loader (Q1-Q13).",
+        "docs/architecture/ADR-001-docs-structure.json": "Docs layout contract (DOC.9/10/13/15/16) — the structure decision record."
+      }
+    },
+    {
+      "name": "reserved (created on demand — DOC.14)",
+      "purpose": "Standard top-level set from DOC.9 exists in the contract; folders materialize only when real documents need them.",
+      "folders": {
+        "docs/features/": "reserved — feature specs live per-page under frontend/confirmed/<page>/ today; moves need ADR.",
+        "docs/api/": "reserved — API/endpoint reference, separate from onboarding (DOC.4); created when endpoint docs accumulate.",
+        "docs/onboarding/": "reserved — README covers onboarding today.",
+        "docs/operations/": "reserved — runbooks when written."
+      }
+    }
+  ],
+  "link_rule": "References only forward: foundation (essentials) must not link down to feature specs — go through this INDEX (DOC.11).",
+  "owner_rule": "Every folder above has an owner in .github/CODEOWNERS (DOC.12)."
+}
