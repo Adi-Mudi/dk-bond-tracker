@@ -1,0 +1,24 @@
+{
+  "adr": "ADR-002",
+  "title": "Docs folder tree — planned before the first document",
+  "status": "accepted",
+  "date": "2026-11-28",
+  "context": "The developer standard requires the documentation layout to be planned before the first document is written: one docs root, entry-point index, architecture/decisions/NNN, features/<feature-group>/ with spec + component map, api/, onboarding/, operations/. ADR-001 (now docs/architecture/decisions/001-docs-structure.json) mapped the four existing surfaces; this decision records the concrete folder tree and its migration stance so the tree exists on paper before any new document lands, while respecting DOC.14 (no empty placeholder folders) and DOC.15 (forward migration).",
+  "decision": [
+    "The docs root tree (roles mapped to this project): docs/ → INDEX.json (entry-point index, EXISTS) · architecture/decisions/NNN-decision-title.json (ADR series; 001 migrated here) · features/<feature-group>/ holding the feature-spec + the feature-to-component map beside it · api/ (endpoint reference, reserved) · onboarding/ (reserved — README covers it today) · operations/ (reserved — runbooks when written).",
+    "Reserved folders are RECORDED, not created: features/, api/, onboarding/, operations/ materialize with their first real document (DOC.14) — creation requires this record, which exists now (plan-before-first-document satisfied).",
+    "features/ contents policy: the feature-spec and the feature-to-component map for a group live together under features/<group>/ (DOC.2 + DOC.5). Existing groups (goals) are already written and audited under frontend/confirmed/goals/ (per-page home, AGY DOC.5 ruling) — grandfathered until the developer orders migration; migrating later follows DOC.15 (move + update links in one commit + log). New feature groups adopt features/<group>/ directly when first documented.",
+    "Decision numbering: file names use NNN-title (001-docs-structure.json); the internal id (ADR-001) stays stable and never changes even when superseded (DOC.3).",
+    "Entry point: docs/INDEX.json is THE index — it must name every folder (including reserved ones) and their one-sentence purposes (DOC.1 + DOC.10); this ADR is linked from there.",
+    "Conflict parked for developer decision: /docs/ is gitignored on dev (store policy, see001 § DOC.6). Feature specs that need normal git/CI history should either (a) keep living in frontend/confirmed/<page>/ (current, AGY-compliant) or (b) docs/ gets un-ignored. No document migrates into docs/ until that is decided."
+  ],
+  "consequences": [
+    "Any future documentation writer can open docs/INDEX.json + this file and know exactly where a document belongs before creating it.",
+    "No empty folders are created now — the tree is fully planned yet physically empty except index + decisions (DOC.14 preserved).",
+    "goals docs do not move yet — zero link churn on the freshly-locked, fully-checkpointed goals set; migration remains an explicit future action (DOC.15).",
+    "The gitignore conflict is named rather than papered over — prevents specs silently vanishing from dev history."
+  ],
+  "supersedes": null,
+  "extends": "docs/architecture/decisions/001-docs-structure.json",
+  "related": ["DOC.1-DOC.16 developer standard", "docs/INDEX.json", "frontend/confirmed/goals/ (grandfathered per-page home)"]
+}

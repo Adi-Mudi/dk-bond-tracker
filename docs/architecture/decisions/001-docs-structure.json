@@ -1,0 +1,33 @@
+{
+  "adr": "ADR-001",
+  "title": "Documentation structure — surfaces, layout contract, and governance",
+  "status": "accepted",
+  "date": "2026-11-28",
+  "context": "The developer standard DOC.1-DOC.16 requires the documentation layout to be decided and recorded before documents accumulate. This repository already holds four documentation surfaces: docs/ (born-JSON truth streams, gitignored on dev per store policy), .IDE_Plans/ (session-local plans + audit reports, gitignored, DB-projected), frontend/confirmed/ (Q13 design/approval reference: per-page handoff docs, essentials, themes), and root markdown (README/RELEASING/AGENTS). No written contract mapped the standard's top-level set (architecture, features, api, onboarding, operations) onto these surfaces, no top-level index existed for docs/, no folder purposes were recorded, no CODEOWNERS covered docs folders, and there was no gate for new documentation folders. Historical documents predate this ADR (non-actionable); the missing contract is the defect being decided now.",
+  "decision": [
+    "DOC.9 layout: the standard top-level set maps onto the four surfaces as recorded in docs/INDEX.json — docs/architecture/ (ADRs, exists now), docs/requirements/ (PSRS suites, exists), docs/features/ + docs/api/ + docs/onboarding/ + docs/operations/ are RESERVED and created only when real documents need them (DOC.14: no empty placeholders).",
+    "DOC.10 purposes: every folder's one-sentence purpose is recorded in docs/INDEX.json; a document matching no purpose waits until an ADR creates the right home.",
+    "DOC.13 gate: adding any folder beyond the reserved set requires a new ADR (numbered, four sections) committed BEFORE the folder is created.",
+    "DOC.3 ADR series: decisions live in docs/architecture/ADR-NNN-*.json with fixed sections status/context/decision/consequences; numbers never change even when superseded (supersession = status field + pointer).",
+    "DOC.2 template home: frontend/confirmed/goals/goals_feature_spec.html is the canonical feature-spec template; new specs copy from it and live beside their page folder (per-page grouping). docs/requirements/ remains the PSRS/initiative suite home.",
+    "DOC.5: the feature-to-component map (traceability) lives beside the specs it links — frontend/confirmed/<page>/goals_traceability.html pattern is the rule; never embedded inside a spec, never in a miscellaneous folder.",
+    "DOC.4: API/endpoint reference is reserved as docs/api/, strictly separate from onboarding (README.md is the onboarding home today).",
+    "DOC.6: documentation is version-controlled with the code in this repository — tracked surfaces (root md, frontend/confirmed/, .github/CODEOWNERS, docs/architecture/ + docs/INDEX.json newly tracked) commit in the SAME change as the behaviour they describe; gitignored streams (docs/ JSON, .IDE_Plans/) reach the committed record via the db-store lane (AGENTS Q9 docs-DB snapshots) and store projections.",
+    "DOC.7: one authoritative version per subject — superseded documents are marked SUPERSEDED in-place (banners) or moved to .IDE_Plans/archive/; the addendum pattern (base JSON + numbered addenda) is the append-only variant of the same rule: streams are never edited, only extended, and the base+chain together is the authoritative version.",
+    "DOC.8: no feature is Done while its spec status is Draft — status flips happen in the same change that implements the feature; historical stream files keep their recorded draft status (they are snapshots, not live specs).",
+    "DOC.11: references only forward — foundation docs (essentials, shared registries) never link down to feature specs; readers route through docs/INDEX.json or frontend/confirmed/INDEX.json. Cross-folder links are checked at review.",
+    "DOC.12: .github/CODEOWNERS maps every docs folder to the repository developer; docs folder changes require owner review.",
+    "DOC.15: any documentation folder rename/migration moves documents AND updates internal links in the same commit, with a changelog entry — nothing disappears without a trace.",
+    "DOC.16: shared reference files are growth-watched — app_essentials.html (>2000 lines) is on watch; when a shared reference grows past its boundary, growth triggers an ADR review (split by essential) rather than default acceptance."
+  ],
+  "consequences": [
+    "New writers read docs/INDEX.json first — no guessing folder names (DOC.1).",
+    "No ad-hoc top-level documentation folders: the ADR gate is the only door (DOC.13/14).",
+    "Foundation docs stop linking to feature specs; broken relative links found by the audit were corrected in the same change set.",
+    "The flat legacy docs/ set stays in place (no risky mass move); the contract defines mapping and reserves growth — future structure changes migrate per DOC.15.",
+    "CODEOWNERS gives review routing even in a single-maintainer repo (self-review of docs is recorded, not implied).",
+    "Draft-status inventory (58 JSON streams) is governed by the DOC.8 rule above rather than mass-edited — snapshot streams keep history, live specs flip status with implementation."
+  ],
+  "supersedes": null,
+  "related": ["DOC.1-DOC.16 developer standard", "AGENTS.md Q6/Q13 (edit channels)", "docs/INDEX.json", ".github/CODEOWNERS", "frontend/confirmed/essentials/app_structure.html"]
+}
