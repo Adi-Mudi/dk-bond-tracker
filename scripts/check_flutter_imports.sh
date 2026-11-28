@@ -55,7 +55,7 @@ for f in sorted(pathlib.Path('lib').rglob('*.dart')):
             if is_shared_utils:
                 if len(tparts) > 2 and tparts[0] == 'features':
                     vi(s, '0.5 helper imports feature', i)
-                if len(tparts) > 2 and tparts[1] == 'shared' and len(tparts) > 3 and tparts[2] == 'widgets':
+                if len(tparts) > 1 and tparts[0] == 'shared' and tparts[1] == 'widgets':
                     vi(s, '0.5 helper imports widgets layer', i)
 
 if VIOL:
