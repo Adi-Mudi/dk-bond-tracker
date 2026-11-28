@@ -52,7 +52,7 @@
   <h1>Watchlist — Features &amp; Components</h1>
   <div style="font-size:13px;color:var(--muted)">The watchlist page in one place: overall feature list, overall component inventory, then every feature with its components inline. Requirements/RTM live in a separate document (on hold).</div>
   <div class="stats">
-    <div class="stat"><b>40</b>features</div>
+    <div class="stat"><b>47</b>features</div>
     <div class="stat"><b>5</b>columns / frames</div>
     <div class="stat"><b>18</b>feedback fixes applied</div>
     <div class="stat"><b>LOCKED</b>board 2026-11-25</div>
@@ -127,18 +127,18 @@
 
 <section>
   <h2>2 · Overall component inventory <span class="count">4 categories</span></h2>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every unique UI component across all 40 features, counted once — the deduplicated build list.</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Every unique UI component across all47 features, counted once — the deduplicated build list.</div>
   <div class="inv">
     <div class="box">
       <h3>Inputs &amp; form fields</h3>
       <ul>
         <li><b>text-field</b> ×3 <span>ISIN lookup · broker ref · ISIN confirm</span></li>
-        <li><b>numeric / currency input</b> ×8 <span>Coupon, Yield, Face Value, day, Target, Qty, purchase qty, amount</span></li>
+        <li><b>numeric / currency input</b> ×7 <span>Coupon, Yield, Face Value, Target, Qty, purchase qty, amount (credit-day = readonly AUTO, not numeric)</span></li>
         <li><b>date picker</b> ×1 <span>execution date (Move form) — Maturity is readonly text per Col01</span></li>
         <li><b>select / dropdown</b> ×2 <span>payout cycle, goal (issuer/listing = readonly per locked Col01)</span></li>
         <li><b>autocomplete input</b> ×1 <span>broker typeahead</span></li>
         <li><b>single-line note</b> ×1 <span>source note (Col01 renders single-line)</span></li>
-        <li><b>read-only field</b> ×7 <span>company, rating, agency, secured, issuer, listing, maturity</span></li>
+        <li><b>read-only field</b> ×6 <span>company, rating, agency, issuer, listing, maturity (secured = checkbox below)</span></li>
         <li><b>checkbox</b> ×1 <span>Secured NCD (Col01 line345)</span></li>
         <li><b>disabled field</b> ×1 <span>default history</span></li>
         <li><b>computed read-out</b> ×1 <span>value per unit</span></li>
@@ -268,6 +268,7 @@
     <li>User backs out (sheet X/system back/arrow_back/Cancel) → form entries preserved; cancel exits cleanly</li>
     <li>User taps sync → manual refresh runs; skeleton/states re-evaluate (drives H1/H2)</li>
   </ol>
+</section>
 
 <section>
   <h2>4 · Dependencies &amp; build order <span class="count">checkpoint6</span></h2>
@@ -275,8 +276,8 @@
   <table>
     <thead><tr><th>Wave</th><th>Features</th><th>Depends on</th></tr></thead>
     <tbody>
-      <tr><td class="id">W0</td><td>A1–A4 shell + G1–G3 first-open</td><td>shell/nav framework · Universal Elements E1/E2/E8</td></tr>
-      <tr><td class="id">W1</td><td>C1–C14 Add Bond form</td><td>W0 · NSDL fetch endpoint (D8) · ISIN validation (E5/E6)</td></tr>
+      <tr><td class="id">W0</td><td>A1–A5 shell + G1–G3 first-open</td><td>shell/nav framework · Universal Elements E1/E2/E8</td></tr>
+      <tr><td class="id">W1</td><td>C1–C14 Add Bond form</td><td>W0 · ISIN fetch (C2/C3) · validation rules · NSDL browse (D8) later</td></tr>
       <tr><td class="id">W2</td><td>D1–D8 ledger</td><td>W1 (bonds exist to list) · status-derivation rules</td></tr>
       <tr><td class="id">W3</td><td>E1–E4 Move to Portfolio</td><td>W2 · <b>Portfolio page</b> (holding lands there) · Goals link (E2/E3 — Goals on hold per Q14, unblock first)</td></tr>
       <tr><td class="id">W4</td><td>F1–F4 remove flow</td><td>W2 · typed-ISIN guard</td></tr>
@@ -287,15 +288,15 @@
 </section>
 
 <section>
-  <h2>5 · Open questions (flagged, not guessed) <span class="count">5</span></h2>
+  <h2>5 · Open questions (flagged, not guessed) <span class="count">4</span></h2>
   <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Per checkpoint7 — unresolved items are listed, never silently decided.</div>
   <ol style="font-size:12.5px;color:var(--muted);padding-left:18px">
     <li><b>F2 destinations:</b> where do View history · Edit target · Share prospectus navigate? (Remove → guarded flow is defined.)</li>
     <li><b>D8 Browse NSDL:</b> target screen/route for the depository list.</li>
     <li><b>B2 Read Advisory:</b> opens in-app viewer or external link?</li>
     <li><b>Tablet support:</b> pending — Compact-only MVP (locked #1); reflow post-MVP.</li>
-    <li><b>C8 resolved:</b> Interest Credit Day = readonly AUTO (locked board+manifest truth; old numeric-input spec retired) — noted here as a resolved conflict, not open.</li>
   </ol>
+  <p style="font-size:11.5px;color:var(--dim);margin-top:6px"><b>Resolved (not open):</b> C8 Interest Credit Day = readonly AUTO (locked board+manifest truth; old numeric-input spec retired).</p>
 </section>
 
 </section>
