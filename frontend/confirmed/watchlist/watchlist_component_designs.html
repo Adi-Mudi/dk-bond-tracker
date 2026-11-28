@@ -77,7 +77,7 @@
     <li><b>4 FEEDBACK:</b> instant tab switch (active-indicator 150ms) · leaving Watchlist preserves list position (per-tab stack).</li>
     <li><b>5 RULES:</b> five tabs fixed, visible on every frame incl. form-pane open (reconciliation: board Col 01–05 all render the full shell — goals-style nav-hides-on-form does NOT apply) · labels truncate with icon priority (full "Dashboard" label — no "Dash" truncation) · SR announces selected tab.</li>
     <li><b>6 CONNECTION:</b> router/active-index props + onTab callback — no data fetching.</li>
-    <li><b>7 SCREENS:</b> fixed bottom full-width at 412dp on List · NOT rendered on Form/Detail · Compact-only.</li>
+    <li><b>7 SCREENS:</b> fixed bottom full-width at 412dp — visible on EVERY frame incl. form-pane open (shell static, same as DATA/RULES) · Compact-only.</li>
   </ul>
 
   <h3>E8 · Button <span class="tag">atom · variant props</span></h3>
@@ -129,7 +129,7 @@
     <li><b>1 DATA:</b> icon · headline · body · CTA label — props (watchlist: "No bonds yet" / <b>"Add first bond"</b> — G2).</li>
     <li><b>2 ACTIONS:</b> tap CTA → callback → opens Add Bond form (FAB+ semantics). No other gestures.</li>
     <li><b>3 STATES:</b> working n/a (it IS the empty state) · loading n/a (data arrived, zero rows) · empty (shown) · error n/a (errors use E11).</li>
-    <li><b>4 FEEDBACK:</b> press feedback on CTA → form frame slides in.</li>
+    <li><b>4 FEEDBACK:</b> press feedback on CTA → ADD FORM pane opens (form hidden-until-open, G1).</li>
     <li><b>5 RULES:</b> never bare "No data" — always what belongs + how to add · hidden when rows exist · copy is "Add first bond" (never Goals' "Create first goal").</li>
     <li><b>6 CONNECTION:</b> props only.</li>
     <li><b>7 SCREENS:</b> centered vertical stack, padding scales; text wraps.</li>
@@ -195,7 +195,7 @@
     <li><b>1 DATA:</b> none — icon-only.</li>
     <li><b>2 ACTIONS:</b> tap → emits onCreate → page opens Add Bond form (A5, form hidden-on-open G1). No swipe/long-press; no conflict with edge zones (sits above bottom nav, inward).</li>
     <li><b>3 STATES:</b> working (rest) · loading n/a · empty n/a (always available on List) · error n/a (failures live in form).</li>
-    <li><b>4 FEEDBACK:</b> press scale −6%/dim 62% → form transition slides in.</li>
+    <li><b>4 FEEDBACK:</b> press scale −6%/dim 62% → ADD FORM pane opens (form hidden-until-open — pane switch, not a frame push).</li>
     <li><b>5 RULES:</b> one FAB per List frame · SR label "Add bond" · ≥48dp hit.</li>
     <li><b>6 CONNECTION:</b> callback only (onCreate).</li>
     <li><b>7 SCREENS:</b> fixed bottom-right above nav at 412dp; Compact-only.</li>
@@ -304,14 +304,14 @@
     <li><b>6 CONNECTION:</b> props in · onRowTap callback out — card never fetches.</li>
     <li><b>7 SCREENS:</b> full-width single column at 412dp · content wraps, no horizontal scroll.</li>
   </ul>
-  <p class="note">Sub-components get their own checklist — see W2 (rows), E13 (pill), E14 (rail); counts row = inert read-only text owned by W1.</p>
+  <p class="note">Sub-components get their own checklist — see W2 (rows), E13 (pill); counts row = inert read-only text owned by W1 (no rail — E14 not used).</p>
 
   <h3>W2 · Nested Row (HELD/WATCH) <span class="tag">molecule · new · variant prop</span></h3>
   <ul class="q">
     <li><b>1 DATA:</b> kind=held|watch · ISIN · meta · yield % — props. HELD variant: units · completed/ongoing · settled ₹ (or maturing countdown) · <b>NO action buttons</b>. WATCH variant: broker · meta · yield % + <b>two action buttons: Move to Portfolio + Details</b> (all_sections:633-641).</li>
     <li><b>2 ACTIONS:</b> <b>WATCH:</b> tap Move to Portfolio → opens Move panel (onMove callback, E1–E4) · tap Details → bond detail (onOpen callback, D5). <b>HELD:</b> no buttons — tap row → bond detail (onOpen). No swipe, no long-press. Conflict: none — buttons are plain taps.</li>
     <li><b>3 STATES:</b> working (held|watch) · loading (row skeleton) · empty (n/a — parent shows E12) · error (missing values → "—", row still tappable if id exists) · maturing-countdown variant.</li>
-    <li><b>4 FEEDBACK:</b> press −6% → detail frame slides in.</li>
+    <li><b>4 FEEDBACK:</b> press −6% on Details → bond detail route slides in · tap Move to Portfolio → Move panel opens inline (entries start empty; H6 preserves them on cancel).</li>
     <li><b>5 RULES:</b> one component + kind prop — never two copies · missing values → "—" (never blank) · ISIN secondary text · no swipe actions on row.</li>
     <li><b>6 CONNECTION:</b> props + onOpen callback (detail) + onMove callback (Move panel) — navigation/panel decided by page.</li>
     <li><b>7 SCREENS:</b> row full-width; meta wraps (2 lines max), yield right-aligned; WATCH action buttons stack in a 2-up grid at 412dp; HELD renders no button row.</li>
