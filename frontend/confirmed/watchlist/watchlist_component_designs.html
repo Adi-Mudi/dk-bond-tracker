@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Watchlist — Component Designs (7-question checklist per component)</title>
+<style>
+  :root{--canvas:#0D1520;--surface:#16212E;--raised:#1C2C40;--hairline:#2A3A4C;--ink:#E8EEF5;--muted:#8592A1;--dim:#55606E;--accent:#2456E6;--soft:#93B4FF;--green:#4ADE80;--amber:#F59E0B;--red:#FF8A80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--canvas);color:var(--ink);font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;line-height:1.55;padding:40px 20px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:18px}
+  .kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+  h1{font-size:24px;font-weight:700;margin:6px 0 8px}
+  .lede{font-size:13px;color:var(--muted);max-width:960px}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .stat{background:var(--surface);border:1px solid var(--hairline);border-radius:8px;padding:7px 13px;font-size:11px;color:var(--muted)}
+  .stat b{color:var(--ink);font-size:14px;display:block}
+  section{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  h2 .count{background:var(--accent);color:#fff;border-radius:999px;font-size:10px;padding:2px 8px;letter-spacing:0}
+  h3{font-size:13px;color:var(--ink);margin:14px 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  h3 .tag{font-size:9px;font-weight:400;letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
+  .q{list-style:none;font-size:12px}
+  .q li{padding:3px 0;border-bottom:1px dashed rgba(42,58,76,.4);color:var(--muted)}
+  .q li:last-child{border-bottom:none}
+  .q b{color:var(--soft);font-weight:600}
+  .rule{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--amber);margin-top:8px}
+  .rule b{color:var(--ink)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+  .pill{display:inline-block;font-size:9px;padding:2px7px;border-radius:999px;border:1px solid;letter-spacing:.05em}
+  .sh{color:var(--green);border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+  .nw{color:var(--soft);border-color:rgba(147,180,255,.5);background:rgba(36,86,230,.15)}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">DK Bond Tracker · Watchlist · Component-level design (Level-3 checklist)</div>
+  <h1>Watchlist — Component Designs (7 questions each)</h1>
+  <p class="lede">Every component on the Watchlist page — including sub-components nested inside larger ones — designed against the full checklist: <b>1 DATA · 2 ACTIONS · 3 STATES · 4 FEEDBACK · 5 RULES · 6 CONNECTION · 7 SCREENS</b>, plus the gesture rules and nesting rule below. Companions: <a href="watchlist_components.html" style="color:var(--soft)">inventory (36)</a> · <a href="watchlist_features.html" style="color:var(--soft)">features (47)</a> · <a href="watchlist_seven_questions.html" style="color:var(--soft)">page 7-questions</a>.</p>
+  <div class="stats">
+    <div class="stat"><b>36</b>components designed</div>
+    <div class="stat"><b>21</b>shared</div>
+    <div class="stat"><b>15</b>watchlist-specific</div>
+    <div class="stat"><b>7</b>questions each</div>
+  </div>
+</header>
+
+<section>
+  <h2>Rules that apply to every component <span class="count">global</span></h2>
+  <div class="rule"><b>GESTURE RULES (per component, must be stated):</b> Watchlist page is <b>tap-only</b> — no swipe-delete anywhere (single accidental swipe must never act; delete is buried behind typed-ISIN + hold-2s) · <b>W4 Hold-2s Confirm is the ONLY long-press</b> on this page (confirm gate) · any edge swipe = <b>system back wins</b> · horizontal scroll allowed ONLY inside the Multi-Broker Compare card if declared (default: vertical stack — no horizontal table) · every gesture conflict listed in that component's ACTIONS row.</div>
+  <div class="rule"><b>NESTING RULE:</b> components nest — each level runs its own checklist. <b>The page never talks to the database — only to its own components.</b> Data flows: store/endpoint → page/repository → props down → components; events flow: component callback → page → repository. Nesting map: List frame ⊃ Top Bar(E1 ⊃ E20 badge) + Stat strip(E4) + Segmented tabs(KIT33) + Alert cards(KIT27 ⊃ KIT19 severity) + <b>Company Card(W1)</b> ⊃ Status Pill(E13) + Progress Rail(E14) + Nested Rows(W2 ×n) + Callouts(KIT31) + Multi-Broker(W3 ⊃ E17 radio + W8 chip) + Load More(W11) + FAB + Bottom Nav(E2) + TOP(W14) · Form frame ⊃ Form bar(E1 back-variant) + Text Inputs(E9) + Auto/You-Enter chips(W6) + COMING SOON(W7) + Locked ISIN(W15) + Value read-out(KIT9) + Secured checkbox(E16) + Suggestion chips(W13) + Fetch states(W5) + Save(E8) · Detail frame ⊃ Detail Header(W12 = E1 back-variant) + Overflow(E10) + Remove flow(KIT36 dialog ⊃ W4 hold-gate) + Banner(E11) · Move panel ⊃ Move Context Card(W9) + Inputs(E9) + Goal select(E9) + Confirm/Cancel(E8).</div>
+</section>
+
+<section>
+  <h2>Shared components <span class="count">21</span></h2>
+
+  <h3>E1 · Top App Bar <span class="tag">organism · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> title (page prop) · sync/bell/avatar icons · notification badge count (E20) — all passed in; detail variant adds back + title + ⋮. Component fetches nothing.</li>
+    <li><b>2 ACTIONS:</b> tap sync → manual refresh callback (H7) · tap bell → alerts · tap avatar → shell menu · detail: tap back → pop (H6) · tap ⋮ → open E10. No swipes; edge swipe here = system back (wins — same result as back).</li>
+    <li><b>3 STATES:</b> working (idle) · loading (sync icon spins until refresh completes/errors, H7) · empty (badge hidden at 0) · error (refresh failure surfaces as page H2 strip, not in bar) + scrolled/focused.</li>
+    <li><b>4 FEEDBACK:</b> sync tap → icon spins until done/error (no fixed cap) + ledger skeleton/refresh runs · back → frame slides out · ⋮ opens instantly · no toasts from the bar.</li>
+    <li><b>5 RULES:</b> icon order fixed (sync · bell · avatar) · badge >9 → "9+" · every icon-button carries a Semantics action label · ≥48dp hit.</li>
+    <li><b>6 CONNECTION:</b> receives via props + emits callbacks — no endpoint calls inside (nesting rule).</li>
+    <li><b>7 SCREENS:</b> full-width fixed top on every frame at 412dp; title truncates with ellipsis; Compact-only.</li>
+  </ul>
+
+  <h3>E2 · Bottom Nav <span class="tag">organism · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> five tabs (Dashboard · Portfolio · Watchlist · Goals · More) + active index — shell props; Watchlist active. <b>Renders on List frame only</b> — full-screen Form and Detail frames show NO bottom nav (locked board).</li>
+    <li><b>2 ACTIONS:</b> tap tab → switch root (own back stack per tab). No swipe (edge swipe = system back, wins). Conflict: none — taps only, sits outside scroll areas.</li>
+    <li><b>3 STATES:</b> working (active tab highlighted) · loading n/a (shell) · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> instant tab switch (active-indicator 150ms) · leaving Watchlist preserves list position (per-tab stack).</li>
+    <li><b>5 RULES:</b> five tabs fixed on List frame · hidden on Form/Detail frames · labels truncate with icon priority (full "Dashboard" label — no "Dash" truncation) · SR announces selected tab.</li>
+    <li><b>6 CONNECTION:</b> router/active-index props + onTab callback — no data fetching.</li>
+    <li><b>7 SCREENS:</b> fixed bottom full-width at 412dp on List · NOT rendered on Form/Detail · Compact-only.</li>
+  </ul>
+
+  <h3>E8 · Button <span class="tag">atom · variant props</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> label + variant(primary|secondary|ghost|destructive|link) + enabled/loading flags — all props. Watchlist instances: Fetch · Save · Select · Confirm Move · Dismiss · Add first bond · Remove confirm · Browse NSDL · Details · Read Advisory · Update goals.</li>
+    <li><b>2 ACTIONS:</b> tap → onPressed callback. No swipe/long-press/drag. Conflict: none (tap only); double-tap prevented by loading-lock.</li>
+    <li><b>3 STATES:</b> working (enabled/pressed) · loading (button spinner + disabled — Save/Move submit lock) · empty n/a · error n/a (parent shows errors) · <b>disabled</b> (nearby why-explanation, e.g. Remove disabled until ISIN typed).</li>
+    <li><b>4 FEEDBACK:</b> press −6% + dim62% (150ms) · loading = in-button spinner · result toasts owned by PAGE (Candidate added / Moved to Portfolio / Candidate deleted).</li>
+    <li><b>5 RULES:</b> verb+result label ≤4 words · disabled shows why nearby · never two primary buttons in one dialog · one tap = one action.</li>
+    <li><b>6 CONNECTION:</b> onPressed callback + label props — no data fetching.</li>
+    <li><b>7 SCREENS:</b> full-width inside forms/panels at 412dp · labels wrap, never clip.</li>
+  </ul>
+
+  <h3>E9 · Text Input <span class="tag">atom · type variants</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> value · label · helper · error text — all props (page owns state). Watchlist types: ISIN lookup · <b>broker autocomplete</b> · numeric/currency · date · goal select · read-only (fetched facts).</li>
+    <li><b>2 ACTIONS:</b> tap → focus · type · (autocomplete variant: tap suggestion chip W13 fills) · (date variant: calendar). No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (filled/idle) · loading (date-fetch variant) · empty (valid pristine) · error (invalid → red border + icon + rule text) · <b>focused</b> · <b>disabled</b> · <b>read-only</b> (fetched ISIN facts + Interest Credit Day AUTO).</li>
+    <li><b>4 FEEDBACK:</b> validation fires on blur/submit → error appears instantly below field, entries preserved · success silent.</li>
+    <li><b>5 RULES:</b> label states requirement, no asterisk · placeholder = realistic example · ₹ suffix on amounts (never $) · never placeholder-only · read-only fields visually distinct (dimmed, not editable).</li>
+    <li><b>6 CONNECTION:</b> value/onChanged props only — page writes store.</li>
+    <li><b>7 SCREENS:</b> full-width, helper/error below (wraps) · 412dp single column.</li>
+  </ul>
+
+  <h3>E10 · Overflow menu ⋮ <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> items array prop — watchlist detail instantiation = [View history, Edit target parameters, Share prospectus, Remove] (first three destinations OPEN — see features §5).</li>
+    <li><b>2 ACTIONS:</b> tap ⋮ → open (immediate) · tap item → onSelect callback · tap-away or system back → close. Edge swipe = system back (wins, just closes menu).</li>
+    <li><b>3 STATES:</b> working (closed/open) · loading n/a · empty n/a (never empty) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> menu appears instantly · item tap → closes → Remove: guarded modal opens (KIT36) · other items: navigate when destinations decided.</li>
+    <li><b>5 RULES:</b> Remove = red + always routes through KIT36 typed-ISIN dialog (never one-tap) · sheet items in fixed order.</li>
+    <li><b>6 CONNECTION:</b> props + onSelect callback.</li>
+    <li><b>7 SCREENS:</b> anchored below trigger; long items scroll inside popup; 412dp fine.</li>
+  </ul>
+
+  <h3>E11 · Banner <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> variant(info|warning|error) + headline + body (+ optional Retry) — props from page (dup-ISIN error, fetch error + Retry, H2 persistent strip).</li>
+    <li><b>2 ACTIONS:</b> optional tap Retry (error variant). No swipe. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (info/warning shown) · loading (retry in-flight spinner in button) · empty (hidden — renders nothing) · error (error variant with Retry).</li>
+    <li><b>4 FEEDBACK:</b> Retry → spinner → dismiss or update · error strip persists until underlying issue resolves · entries preserved behind strip (H2).</li>
+    <li><b>5 RULES:</b> icon + text + colour (never colour alone) · dup-ISIN names the duplicate · rating-gate refusal quotes the AAA–BBB- rule verbatim.</li>
+    <li><b>6 CONNECTION:</b> receives content via props — page/repository talks to store.</li>
+    <li><b>7 SCREENS:</b> full-width block; body wraps at 412dp.</li>
+  </ul>
+
+  <h3>E12 · Empty State <span class="tag">organism · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> icon · headline · body · CTA label — props (watchlist: "No bonds yet" / <b>"Add first bond"</b> — G2).</li>
+    <li><b>2 ACTIONS:</b> tap CTA → callback → opens Add Bond form (FAB+ semantics). No other gestures.</li>
+    <li><b>3 STATES:</b> working n/a (it IS the empty state) · loading n/a (data arrived, zero rows) · empty (shown) · error n/a (errors use E11).</li>
+    <li><b>4 FEEDBACK:</b> press feedback on CTA → form frame slides in.</li>
+    <li><b>5 RULES:</b> never bare "No data" — always what belongs + how to add · hidden when rows exist · copy is "Add first bond" (never Goals' "Create first goal").</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> centered vertical stack, padding scales; text wraps.</li>
+  </ul>
+
+  <h3>E13 · Status Pill <span class="tag">atom · shared · 4-tier</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> tier (Danger | Maturing | On-going | Matured) — derived value passed by page (list order H5 = same hierarchy).</li>
+    <li><b>2 ACTIONS:</b> NONE — inert (no tap, no swipe). Explicitly not interactive; no conflicts.</li>
+    <li><b>3 STATES:</b> working (4 tiers) · loading (placeholder tier) · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a — no action exists.</li>
+    <li><b>5 RULES:</b> colour ALWAYS paired with text · hierarchy Danger &gt; Maturing &gt; On-going &gt; Matured (dim).</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> inline chip; text wraps at narrow widths.</li>
+  </ul>
+
+  <h3>E14 · Progress Rail <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> percent 0–100 (company invested fill, unlabelled) — prop. NO numbers or targets displayed.</li>
+    <li><b>2 ACTIONS:</b> NONE — inert. No conflicts.</li>
+    <li><b>3 STATES:</b> working (fill) · loading (skeleton rail) · empty (0%) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a (updates silently with data).</li>
+    <li><b>5 RULES:</b> never shows % text or target · clamps 0–100 · height 6–8px.</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> full-width thin bar inside company header; height 6–8px.</li>
+  </ul>
+
+  <h3>E15 · IconButton <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> icon + semantics label — props (sync · bell · overflow triggers on this page).</li>
+    <li><b>2 ACTIONS:</b> tap → callback. No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (default) · loading (sync spin variant via E1) · empty n/a · error n/a · disabled.</li>
+    <li><b>4 FEEDBACK:</b> press −6% → callback fires once.</li>
+    <li><b>5 RULES:</b> ≥48dp hit target · mandatory SR action label · never icon-only without label.</li>
+    <li><b>6 CONNECTION:</b> callback only.</li>
+    <li><b>7 SCREENS:</b> fixed 48dp squares; grid positions stable at 412dp.</li>
+  </ul>
+
+  <h3>E16 · Checkbox <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> checked + label ("Secured NCD") — props (page owns state).</li>
+    <li><b>2 ACTIONS:</b> tap → toggle callback. No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (unchecked/checked) · loading n/a · empty (unchecked) · error n/a · pressed · focused · disabled.</li>
+    <li><b>4 FEEDBACK:</b> instant tick + label colour shift (150ms).</li>
+    <li><b>5 RULES:</b> label wraps, never truncates the option · whole row tappable (not just the box).</li>
+    <li><b>6 CONNECTION:</b> value + onChanged props.</li>
+    <li><b>7 SCREENS:</b> inline in form; label wraps at 412dp.</li>
+  </ul>
+
+  <h3>E17 · Radio <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> selected flag + group value — props (Multi-Broker compare pick, W3).</li>
+    <li><b>2 ACTIONS:</b> tap → select callback (single-select group). No swipe/long-press. Conflict: none — radios are mutually exclusive taps.</li>
+    <li><b>3 STATES:</b> working (unselected/selected) · loading n/a · empty (none selected) · error n/a · pressed · focused.</li>
+    <li><b>4 FEEDBACK:</b> instant fill of selected dot (150ms) · row highlight follows.</li>
+    <li><b>5 RULES:</b> one selection per group · label wraps · never two filled dots.</li>
+    <li><b>6 CONNECTION:</b> group value + onSelect props.</li>
+    <li><b>7 SCREENS:</b> inline in broker rows; full row tappable at 412dp.</li>
+  </ul>
+
+  <h3>FAB + (create) <span class="tag">atom · reused kit #15</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> none — icon-only.</li>
+    <li><b>2 ACTIONS:</b> tap → emits onCreate → page opens Add Bond form (A5, form hidden-on-open G1). No swipe/long-press; no conflict with edge zones (sits above bottom nav, inward).</li>
+    <li><b>3 STATES:</b> working (rest) · loading n/a · empty n/a (always available on List) · error n/a (failures live in form).</li>
+    <li><b>4 FEEDBACK:</b> press scale −6%/dim 62% → form transition slides in.</li>
+    <li><b>5 RULES:</b> one FAB per List frame · SR label "Add bond" · ≥48dp hit.</li>
+    <li><b>6 CONNECTION:</b> callback only (onCreate).</li>
+    <li><b>7 SCREENS:</b> fixed bottom-right above nav at 412dp; Compact-only.</li>
+  </ul>
+
+  <h3>E4 · Stat cell / strip <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> WATCHING active count + ALERTS sub-line (A3) — derived, passed by page. Tabular ₹ / counts, zero shows "0".</li>
+    <li><b>2 ACTIONS:</b> NONE — inert readout (count is display-only). No conflicts.</li>
+    <li><b>3 STATES:</b> working (live values) · loading (skeleton cells) · empty (zeroed first-open "0 nothing yet" / "0 • all clear", G1) · error (page strip above; cells keep last-known values).</li>
+    <li><b>4 FEEDBACK:</b> values update live on refresh (silent, tabular numbers do not reflow).</li>
+    <li><b>5 RULES:</b> never a target/labelled % — counts only · zero state always renders "0", never blank.</li>
+    <li><b>6 CONNECTION:</b> props only (page derives from store).</li>
+    <li><b>7 SCREENS:</b> full-width strip below bar; cells wrap at 412dp; NOT sticky.</li>
+  </ul>
+
+  <h3>KIT33 · Segmented control (tabs) <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> segments ADD FORM (n) / LEDGER (n) + active index + live counts (A2) — props.</li>
+    <li><b>2 ACTIONS:</b> tap segment → switch pane (list frame only). No swipe. Conflict: none — sticky under bar, above scroll.</li>
+    <li><b>3 STATES:</b> working (either active) · loading (count skeletons) · empty ("(0)" shown) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> instant pane switch · active segment slides 150ms · counts update live.</li>
+    <li><b>5 RULES:</b> tabs ONLY on List frame (Form/Detail = full-screen) · first-open default = same widget (not a second) · SR labels announce selected state.</li>
+    <li><b>6 CONNECTION:</b> counts prop + onSelect callback.</li>
+    <li><b>7 SCREENS:</b> sticky below app bar, full-width segmented; labels truncate gracefully.</li>
+  </ul>
+
+  <h3>KIT27 · Rating Watch alert card <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> severity chip (KIT19) + agency + rating + company/ISIN line + optional action — props from alerts (daily_sweep).</li>
+    <li><b>2 ACTIONS:</b> tap card → detail (callback) · optional Read Advisory (B2, target OPEN) / Dismiss buttons (E8). No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (card shown) · loading (skeleton card) · empty ("0 • all clear" — no cards) · error (page strip; cards keep last-known).</li>
+    <li><b>4 FEEDBACK:</b> Dismiss → card removes with row-collapse 200ms · Read Advisory → navigates when target decided.</li>
+    <li><b>5 RULES:</b> icon + text + colour (never colour alone) · severity always paired with text label.</li>
+    <li><b>6 CONNECTION:</b> props in (page pulls alerts) — card never fetches.</li>
+    <li><b>7 SCREENS:</b> full-width card; body wraps at 412dp.</li>
+  </ul>
+
+  <h3>KIT36 · Guarded remove dialog <span class="tag">organism · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> target ISIN + company name (context) — props from selected row (F3).</li>
+    <li><b>2 ACTIONS:</b> type exact ISIN into gate input (E9) · press-and-hold Remove button 2s (W4 child) · tap Cancel or backdrop → dismiss. Conflict: system edge=back closes dialog (wins — same as Cancel).</li>
+    <li><b>3 STATES:</b> working (open, gate locked) · loading (hold in progress — ring fills) · empty (gate empty → Remove disabled) · error (wrong ISIN → shake + inline error, entries kept).</li>
+    <li><b>4 FEEDBACK:</b> hold ring fills 2s → complete → delete fires → toast <b>"Candidate deleted: {company}"</b> (watch.py:1095, no Undo — non-recoverable so guard is mandatory) · early release → ring resets, nothing happens · Cancel → instant close.</li>
+    <li><b>5 RULES:</b> Remove enabled ONLY when typed ISIN matches exactly (case-insensitive) · backdrop tap = cancel (never confirm) · held positions never reach this dialog (F4) · no swipe path to delete.</li>
+    <li><b>6 CONNECTION:</b> emits onConfirm(isin) → page → repository (delete endpoint) — dialog never talks to DB.</li>
+    <li><b>7 SCREENS:</b> centred modal, max-width 90% at 412dp; gate input full-width; buttons stacked (Cancel above Remove).</li>
+  </ul>
+  <p class="note">Sub-components: W4 Hold-2s Confirm (own checklist below) · E9 gate input · E8 Cancel/Remove buttons — each specified above/below.</p>
+
+  <h3>KIT19 · Severity chip <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> severity tier (info|warning|critical) — prop from alert payload.</li>
+    <li><b>2 ACTIONS:</b> NONE — inert marker. No conflicts.</li>
+    <li><b>3 STATES:</b> working (tier shown) · loading n/a · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a.</li>
+    <li><b>5 RULES:</b> colour ALWAYS paired with text label · never colour alone.</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> inline chip; text wraps.</li>
+  </ul>
+
+  <h3>E20 · Badge <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> count (number) — prop (bell notifications, A1 shell).</li>
+    <li><b>2 ACTIONS:</b> NONE — inert (bell tap is E15's action). No conflicts.</li>
+    <li><b>3 STATES:</b> working (count shown) · loading n/a · empty (0 → hidden) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> appears/disappears instantly on count change.</li>
+    <li><b>5 RULES:</b> count >9 → "9+" · zero hides · colour + text (SR announces count).</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> anchored top-right of bell icon; fixed size.</li>
+  </ul>
+
+  <h3>KIT31 · Callout note <span class="tag">molecule · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> text + optional dismiss flag — props (buy-step D7 · Broker Record note E4 · Guarded Architecture note F4).</li>
+    <li><b>2 ACTIONS:</b> optional tap dismiss (×) if flagged. No swipe. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (shown) · loading n/a · empty (hidden when no note) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> dismiss → collapse 200ms · re-shown when context re-enters (notes are per-context, not global).</li>
+    <li><b>5 RULES:</b> never blocks the primary action · copy names the next step ("Buy at your broker first, then return here").</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> full-width block; text wraps at 412dp.</li>
+  </ul>
+
+  <h3>KIT9 · Computed read-out <span class="tag">atom · shared</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> derived value — Value per unit = Target ÷ Qty (C12) or other computed read-outs — computed from sibling input props, never typed.</li>
+    <li><b>2 ACTIONS:</b> NONE (read-only display). No conflicts.</li>
+    <li><b>3 STATES:</b> working (final value) · loading (computing while inputs change) · empty (pristine form — hidden or "—") · error (invalid inputs → inline form error, not here).</li>
+    <li><b>4 FEEDBACK:</b> value change → brief flash on update (150ms) so the derivation lands visibly.</li>
+    <li><b>5 RULES:</b> missing inputs → "—" (never 0, never blank) · ₹ Indian grouping · never editable.</li>
+    <li><b>6 CONNECTION:</b> computed from props inside component — no store/endpoint.</li>
+    <li><b>7 SCREENS:</b> full-width row; value right-aligned; wraps at 412dp.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Watchlist-specific components <span class="count">15</span></h2>
+
+  <h3>W1 · Company Card <span class="tag">organism · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> company name · 4-tier pill (E13) · total invested · counts (N bonds / X completed / Y ongoing) · rail (E14) + nested rows container — all props from page (store via page).</li>
+    <li><b>2 ACTIONS:</b> tap header → expand/collapse rows · tap rows → delegated to W2 children. No swipe (delete banned), no long-press. Conflict: none — pill/rail/counts are inert children.</li>
+    <li><b>3 STATES:</b> working (expanded/collapsed) · loading (W10 skeleton card) · empty (n/a — E12 instead) · error (page H2 strip above, card not rendered) · zeroed first-open stats (G1).</li>
+    <li><b>4 FEEDBACK:</b> expand/collapse 200ms height animation · press feedback on header · row taps navigate via children.</li>
+    <li><b>5 RULES:</b> merged [HELD]+[WATCH] in ONE card (D1) · name truncates 2 lines then ellipsis · 4-tier sort across cards (H5: Danger &gt; Maturing &gt; On-going &gt; Matured) · no on-card delete ever.</li>
+    <li><b>6 CONNECTION:</b> props in · onRowTap callback out — card never fetches.</li>
+    <li><b>7 SCREENS:</b> full-width single column at 412dp · content wraps, no horizontal scroll.</li>
+  </ul>
+  <p class="note">Sub-components get their own checklist — see W2 (rows), E13 (pill), E14 (rail); counts row = inert read-only text owned by W1.</p>
+
+  <h3>W2 · Nested Row (HELD/WATCH) <span class="tag">molecule · new · variant prop</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> kind=held|watch · ISIN · meta · yield % · actions (Details) — props. HELD variant: units · completed/ongoing · settled ₹ (or maturing countdown). WATCH variant: broker · meta · yield %.</li>
+    <li><b>2 ACTIONS:</b> tap row/Details → bond detail (callback, D5). No swipe, no long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (held|watch) · loading (row skeleton) · empty (n/a — parent shows E12) · error (missing values → "—", row still tappable if id exists) · maturing-countdown variant.</li>
+    <li><b>4 FEEDBACK:</b> press −6% → detail frame slides in.</li>
+    <li><b>5 RULES:</b> one component + kind prop — never two copies · missing values → "—" (never blank) · ISIN secondary text · no swipe actions on row.</li>
+    <li><b>6 CONNECTION:</b> props + onOpen callback — navigation decided by page.</li>
+    <li><b>7 SCREENS:</b> row full-width; meta wraps (2 lines max), yield right-aligned; 412dp.</li>
+  </ul>
+
+  <h3>W3 · Multi-Broker Compare + Radio <span class="tag">molecule · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> 3 broker rows (name · yield % · radio E17) + Best Yield chip (W8) + Select button (E8) — props (same-ISIN compare, D6).</li>
+    <li><b>2 ACTIONS:</b> tap radio → select broker (E17) · tap Select → confirm callback. No swipe/long-press. Conflict: none — vertical stack of 3 rows, no horizontal table.</li>
+    <li><b>3 STATES:</b> working (loaded, selection pending) · loading (row skeletons) · empty (n/a — card hidden when &lt;2 brokers) · error (page strip) · selected-row highlight.</li>
+    <li><b>4 FEEDBACK:</b> radio fill 150ms · Select → button lock + page result · Best Yield chip appears instantly on data arrival.</li>
+    <li><b>5 RULES:</b> same ISIN once-per-broker (D6) · 2 brokers only → radio hidden (best-yield chip still marks winner) · ties → no W8 chip · vertical stack only (no horizontal scroll table).</li>
+    <li><b>6 CONNECTION:</b> props in · onSelect callback out — compare data passed by page.</li>
+    <li><b>7 SCREENS:</b> full-width card; 3 rows stack vertically at 412dp (never horizontal table).</li>
+  </ul>
+
+  <h3>W4 · Hold-2s Confirm <span class="tag">atom · new · ONLY long-press</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> gate value (typed ISIN) + target ISIN — props (inside KIT36).</li>
+    <li><b>2 ACTIONS:</b> press-and-hold 2s on trigger · release early → cancel · typed-ISIN must match. Conflict: system edge=back closes the parent dialog (wins) · no swipe counterpart.</li>
+    <li><b>3 STATES:</b> working (idle) · loading (holding — progress ring fills) · empty (gate empty → disabled) · error (wrong ISIN → shake + inline error).</li>
+    <li><b>4 FEEDBACK:</b> ring animates over 2s → complete fires onConfirm · early release resets ring (nothing happens) · wrong ISIN shakes 300ms.</li>
+    <li><b>5 RULES:</b> exactly 2s hold · typed ISIN must match (case-insensitive) · NEVER triggered by swipe · confirmation gate mandatory (non-recoverable delete).</li>
+    <li><b>6 CONNECTION:</b> gate value + onConfirm callback — page/repository performs delete.</li>
+    <li><b>7 SCREENS:</b> full-width trigger button inside dialog; ring centred; 412dp.</li>
+  </ul>
+
+  <h3>W5 · Fetch States ×4 <span class="tag">molecule · new · state prop</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> state (Found | Checking | Offline | Not Found) + facts payload when Found — props (maps backend FETCH_STATES idle/checking/found/notfound/offline/downgrade).</li>
+    <li><b>2 ACTIONS:</b> Found → fields populate (read-only) · Not Found → inline guidance · Offline → Retry (E8) → refetch. No swipe. Conflict: none.</li>
+    <li><b>3 STATES:</b> ALL FOUR designed (this component IS the state machine) · loading = Checking (spinner — one-off fetch, no known layout).</li>
+    <li><b>4 FEEDBACK:</b> Checking → spinner + disabled Save · Found → fields fill + brief green flash · Not Found → red inline · Offline → strip + Retry; entries preserved.</li>
+    <li><b>5 RULES:</b> never block typed entry while Checking (user can keep typing) · Save disabled until Found · network flake → Offline (retryable), NOT Not Found.</li>
+    <li><b>6 CONNECTION:</b> state + facts props; Retry emits onFetch callback (page calls lookup endpoint).</li>
+    <li><b>7 SCREENS:</b> full-width status block above fields; text wraps at 412dp.</li>
+  </ul>
+
+  <h3>W6 · Auto / You-Enter Chips <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> provenance per field (auto | you-enter) — props (field identity + source flag).</li>
+    <li><b>2 ACTIONS:</b> NONE — inert provenance markers. No conflicts.</li>
+    <li><b>3 STATES:</b> working (either variant) · loading n/a · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a.</li>
+    <li><b>5 RULES:</b> exactly one chip per marked field · colour + text ("Auto" / "You enter") · never colour alone.</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> inline right of label; wraps if narrow.</li>
+  </ul>
+
+  <h3>W7 · COMING SOON chip <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> none beyond visibility — static marker for Default History (C9).</li>
+    <li><b>2 ACTIONS:</b> NONE — inert (field itself is disabled). No conflicts.</li>
+    <li><b>3 STATES:</b> working (shown) · loading n/a · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> n/a.</li>
+    <li><b>5 RULES:</b> only on Default History · paired with HIGHER RISK sub-note · never interactive.</li>
+    <li><b>6 CONNECTION:</b> prop only.</li>
+    <li><b>7 SCREENS:</b> inline chip; text wraps.</li>
+  </ul>
+
+  <h3>W8 · Best Yield chip <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> none beyond visibility — winner marker (ties → hidden) inside W3.</li>
+    <li><b>2 ACTIONS:</b> NONE — inert. No conflicts (radio carries selection).</li>
+    <li><b>3 STATES:</b> working (shown on winner) · loading n/a · empty (hidden — no clear winner) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> appears instantly when compare data arrives.</li>
+    <li><b>5 RULES:</b> exactly ONE chip per compare card · ties → zero chips · colour + text.</li>
+    <li><b>6 CONNECTION:</b> prop only (page derives winner).</li>
+    <li><b>7 SCREENS:</b> inline on winning row; wraps.</li>
+  </ul>
+
+  <h3>W9 · Move Top Context Card <span class="tag">molecule · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> verified icon + company/ISIN meta — props (Move panel header, E1).</li>
+    <li><b>2 ACTIONS:</b> NONE — inert context (panel inputs below carry the actions). No conflicts.</li>
+    <li><b>3 STATES:</b> working (default) · loading (meta skeleton) · empty n/a · error (page strip) · verified variant.</li>
+    <li><b>4 FEEDBACK:</b> n/a (context only).</li>
+    <li><b>5 RULES:</b> always shows WHICH bond is moving (prevents mis-move) · long meta wraps.</li>
+    <li><b>6 CONNECTION:</b> props only.</li>
+    <li><b>7 SCREENS:</b> full-width card atop panel; meta wraps at 412dp.</li>
+  </ul>
+
+  <h3>W10 · Ledger Skeleton <span class="tag">organism · new · H1</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> none — grey placeholder shapes mirroring company-card layout (W1 anatomy).</li>
+    <li><b>2 ACTIONS:</b> NONE — non-interactive. No conflicts.</li>
+    <li><b>3 STATES:</b> loading ONLY (shown while first load/refresh runs) · never shown after data (rule).</li>
+    <li><b>4 FEEDBACK:</b> replaces itself with real cards on arrival (no fade — instant swap).</li>
+    <li><b>5 RULES:</b> skeleton, NEVER a spinner for the ledger (layout known — E16 loading rule) · shape must match W1 (header + rows).</li>
+    <li><b>6 CONNECTION:</b> none (driven by page loading flag).</li>
+    <li><b>7 SCREENS:</b> full-width cards matching W1 dimensions at 412dp.</li>
+  </ul>
+
+  <h3>W11 · Load More <span class="tag">atom · new · H4</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> page state (hidden | visible | loading | error) — props (rows &gt;100 threshold).</li>
+    <li><b>2 ACTIONS:</b> tap → onLoadMore callback (pagination — NEVER infinite scroll) · error variant → tap Retry. No swipe. Conflict: none — sits at list end, outside sticky zones.</li>
+    <li><b>3 STATES:</b> working (visible button) · loading (spinner + disabled "Loading…") · empty (hidden — ≤100 rows or last page) · error (Retry inline).</li>
+    <li><b>4 FEEDBACK:</b> tap → spinner → next page appends below · last page → button hides.</li>
+    <li><b>5 RULES:</b> threshold &gt;100 rows · predictable pagination (never infinite) · footer must stay reachable.</li>
+    <li><b>6 CONNECTION:</b> onLoadMore callback — page fetches next slice.</li>
+    <li><b>7 SCREENS:</b> full-width centred button at list end; 412dp.</li>
+  </ul>
+
+  <h3>W12 · Detail Header <span class="tag">organism · E1 back-variant</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> back · title (ISIN • "Bond Detail") · ⋮ trigger — E1 back-variant props (NOT a copy of E1 — variant).</li>
+    <li><b>2 ACTIONS:</b> tap back / arrow_back → pop with entry preservation (H6) · tap ⋮ → open E10. Edge swipe = system back (wins; same result).</li>
+    <li><b>3 STATES:</b> working (default) · loading (title skeleton) · empty n/a · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> back → frame slides out right · ⋮ opens instantly.</li>
+    <li><b>5 RULES:</b> fixed top of Detail frame · titles truncate · no other actions in bar.</li>
+    <li><b>6 CONNECTION:</b> props + callbacks only.</li>
+    <li><b>7 SCREENS:</b> fixed top at 412dp; ISIN + title truncate.</li>
+  </ul>
+
+  <h3>W13 · Suggestion chips <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> broker names (GoldenPi · Grip · IndiaBonds · Zerodha) — static list prop.</li>
+    <li><b>2 ACTIONS:</b> tap chip → fills broker field (E9 autocomplete assist, C13). No swipe/long-press. Conflict: none — chips are taps above the input.</li>
+    <li><b>3 STATES:</b> working (shown) · loading n/a · empty (hidden — no suggestions) · error n/a · pressed.</li>
+    <li><b>4 FEEDBACK:</b> tap → field fills instantly + chip press flash · user can still edit the filled value.</li>
+    <li><b>5 RULES:</b> suggestions NEVER overwrite non-empty user text without confirm · long names wrap.</li>
+    <li><b>6 CONNECTION:</b> static props + onSelect callback.</li>
+    <li><b>7 SCREENS:</b> horizontal wrap row under broker field; chips wrap at 412dp.</li>
+  </ul>
+
+  <h3>W14 · Scroll-to-top (TOP) <span class="tag">atom · new · H3</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> visibility flag — prop from list scroll position.</li>
+    <li><b>2 ACTIONS:</b> tap → smooth scroll to top (callback). No swipe. Conflict: floats above content — does not block card/FAB taps (offset margin).</li>
+    <li><b>3 STATES:</b> working (visible) · loading (hidden) · empty (hidden — list &lt;1 screen, never renders) · error n/a.</li>
+    <li><b>4 FEEDBACK:</b> press feedback → list scrolls 300ms; button hides once at top.</li>
+    <li><b>5 RULES:</b> appears only after &gt;1 screen down · hidden when 0 scrolled · SR label "Scroll to top".</li>
+    <li><b>6 CONNECTION:</b> visibility prop + onTap callback (list owns scroll controller).</li>
+    <li><b>7 SCREENS:</b> floating bottom-right above FAB-zone offset; 48dp hit area at 412dp.</li>
+  </ul>
+
+  <h3>W15 · Locked ISIN chip <span class="tag">atom · new</span></h3>
+  <ul class="q">
+    <li><b>1 DATA:</b> ISIN string + locked flag — props (form identity field after fetch, C5).</li>
+    <li><b>2 ACTIONS:</b> tap → copy-to-clipboard (if enabled) · NO edit while locked. No swipe/long-press. Conflict: none.</li>
+    <li><b>3 STATES:</b> working (locked) · loading (Checking → placeholder) · empty (pre-fetch — plain E9 input instead) · error (fetch failed → unlock for retype).</li>
+    <li><b>4 FEEDBACK:</b> copy tap → brief "Copied" toast · locked look (dimmed, no caret) signals immutability.</li>
+    <li><b>5 RULES:</b> never editable after Found · unlock only on fetch failure · long ISIN truncates with full value on copy.</li>
+    <li><b>6 CONNECTION:</b> props + onCopy callback.</li>
+    <li><b>7 SCREENS:</b> full-width chip/input at 412dp; ISIN truncates middle if needed.</li>
+  </ul>
+</section>
+
+<footer>
+  <span>WATCHLIST · COMPONENT DESIGNS · 7-question checklist ×36 · gesture + nesting rules · paired with watchlist_components inventory</span>
+  <span>against LOCKED all_sections · 2026-11-29</span>
+</footer>
+
+</div>
+</body>
+</html>
