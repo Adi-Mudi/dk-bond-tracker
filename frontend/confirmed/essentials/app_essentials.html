@@ -722,6 +722,7 @@
 <!-- ============ ESSENTIAL 3 DEEP DIVE ============ -->
 <section>
   <h2 id="e3"><span class="num">3</span> Design System — visual language defined once</h2>
+  <p class="muted" style="font-size:11px;border:1px solid rgba(74,222,128,.35);background:rgba(74,222,128,.06);border-radius:8px;padding:6px 10px;margin-top:6px">AUDIT STATUS: <b style="color:var(--green)">R2 PASS — 0 REAL, 0 MINOR</b> (2026-11-28, AGY) · R1 HISTORY — CLOSED (FAIL 3 REAL, 2 MINOR, all fixed) · report: .IDE_Plans/audit_reports/essential3_audit_report.html</p>
   <p class="muted">One source of truth for how the app looks: colours, text styles, spacing, components — defined once, referenced everywhere. This is the structural fix for the original complaint: duplicate components, mismatched colors, broken layouts.</p>
 
   <h3>Visual · Colour tokens (Midnight Ledger — your dark set)</h3>
@@ -729,13 +730,13 @@
     <div class="sw"><div class="color" style="background:#0D1520;color:#8592A1">canvas</div><div class="meta"><b>background</b><span>#0D1520 · app base</span></div></div>
     <div class="sw"><div class="color" style="background:#16212E;color:#8592A1">surface</div><div class="meta"><b>surface</b><span>#16212E · cards/sheets</span></div></div>
     <div class="sw"><div class="color" style="background:#2456E6;color:#fff">primary</div><div class="meta"><b>primary</b><span>#2456E6 · actions</span></div></div>
-    <div class="sw"><div class="color" style="background:#93B4FF;color:#0D1520">on-primary</div><div class="meta"><b>on-primary</b><span>#93B4FF · text on blue</span></div></div>
+    <div class="sw"><div class="color" style="background:#93B4FF;color:#0D1520">on-primary</div><div class="meta"><b>on-primary</b><span>#93B4FF · icons on blue · ⚠2.88:1 lift</span></div></div>
     <div class="sw"><div class="color" style="background:#1C2C40;color:#8592A1">raised</div><div class="meta"><b>surface-raised</b><span>#1C2C40 · nested</span></div></div>
     <div class="sw"><div class="color" style="background:#2A3A4C;color:#E8EEF5">hairline</div><div class="meta"><b>border</b><span>#2A3A4C · outlines</span></div></div>
     <div class="sw"><div class="color" style="background:#F87171;color:#fff">error</div><div class="meta"><b>error</b><span>#F87171 · destructive</span></div></div>
     <div class="sw"><div class="color" style="background:#4ADE80;color:#0D1520">success</div><div class="meta"><b>success</b><span>#4ADE80 · positive</span></div></div>
   </div>
-  <p class="muted" style="font-size:11px;margin-top:8px">Rule: widgets reference <b style="color:var(--ink)">tokens</b>, never raw hex. Change the token → whole app updates. (Light values defined alongside — see mode section.)</p>
+  <p class="muted" style="font-size:11px;margin-top:8px">Rule: widgets reference <b style="color:var(--ink)">tokens</b>, never raw hex. Change the token → whole app updates. (Light values = the light family — see mode section.) <b>Secondary:</b> single-accent by design — no second brand colour; error/success/warning carry semantics. Extended tokens: ink <code>#E8EEF5</code> · muted <code>#8592A1</code> · warning <code>#F59E0B</code> · dim <code>#55606E</code> ⚠ fails 4.5:1, lift before ship · on-primary <code>#93B4FF</code> ⚠2.88:1 on primary — lift before ship (full table in the design-system skill).</p>
 
   <h3>Locked theme set — 4 static palettes (developer-locked 2026-11-27)</h3>
   <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Universal: these are the approved palettes for <b style="color:var(--ink)">app_theme.dart</b> alternate themes. Midnight Ledger = legacy default until migration; only the four below are locked. Static tokens only — no dynamic engines. Live boards: <b style="color:var(--accent-soft)">frontend/confirmed/themes/theme_showcase.html</b> (visual) · <b style="color:var(--accent-soft)">theme_proposals.html</b> (full hex + risks).</div>
@@ -743,7 +744,7 @@
     <thead><tr><th>Theme</th><th>Mode</th><th>Background</th><th>Primary</th><th>Ink</th><th>Character</th></tr></thead>
     <tbody>
       <tr><td><b>✓ Nordic Mist</b></td><td>light · cool stone</td><td><code>#EFF2F5</code></td><td><code>#28595B</code></td><td><code>#18212C</code></td><td>modern airy clarity</td></tr>
-      <tr><td><b>✓ Harbor Navy</b></td><td>dark · maritime</td><td><code>#101824</code></td><td><code>#8AAEDB</code></td><td><code>#DFE6F0</code></td><td>classic finance softened</td></tr>
+      <tr><td><b>✓ Harbor Navy</b></td><td>dark · maritime</td><td><code>#101824</code></td><td><code>#8AAEDB</code></td><td><code>#E7EEF8</code></td><td>classic finance softened</td></tr>
       <tr><td><b>✓ Warm Ledger</b></td><td>light · warm ivory</td><td><code>#F4F0E8</code></td><td><code>#264362</code></td><td><code>#1F2421</code></td><td>paper-ledger daylight</td></tr>
       <tr><td><b>✓ Deep Fjord</b></td><td>dark · spruce-teal</td><td><code>#0F1A1C</code></td><td><code>#75B5B8</code></td><td><code>#DCE7E7</code></td><td>deep-water night calm</td></tr>
     </tbody>
@@ -781,7 +782,7 @@
     <div class="type-row"><span class="spec">Caption / label · 12sp reg</span><span class="demo t-cap">Gross ₹45,750 − TDS ₹4,575 (10%)</span></div>
     <div class="type-row"><span class="spec">Button label · 14sp medium</span><span class="demo t-btn">Confirm &amp; Save</span></div>
   </div>
-  <p class="muted" style="font-size:11px;margin-top:8px">Code uses <b style="color:var(--ink)">AppText.body</b> — never <span style="font-family:monospace">fontSize: 14</span> floating in a widget.</p>
+  <p class="muted" style="font-size:11px;margin-top:8px">One font family: <b style="color:var(--ink)">Inter</b> (Stitch token — body + headline; JetBrains Mono only for ISIN / micro accents). Code uses <b style="color:var(--ink)">AppText.title / AppText.heading / AppText.body / AppText.caption / AppText.button</b> — never <span style="font-family:monospace">fontSize: 14</span> floating in a widget. Design helpers at8–11px fold into <b>AppText.micro</b> (10sp) or lift to12sp — no anonymous sizes.</p>
 
   <h3>Visual · Spacing scale — only these five numbers</h3>
   <div class="diagram">
@@ -792,7 +793,7 @@
       <div class="sp"><div class="bar" style="width:48px;height:48px"></div><div class="lbl">24 dp</div></div>
       <div class="sp"><div class="bar" style="width:64px;height:64px"></div><div class="lbl">32 dp</div></div>
     </div>
-    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:12px">Gaps pick from this scale only · one radius for cards · one radius for buttons · never a one-off 13dp</div>
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-top:12px">Gaps pick from this scale only · card radius 12 · button radius 8 (locked base) · never a one-off 13dp · icon sizes (11/13/16) are component tokens, not gaps</div>
   </div>
 
   <h3>Visual · Component styles — defined once, previewed once</h3>
@@ -810,13 +811,14 @@
   <div class="mode2">
     <div class="mode dark">
       <div class="mt">Dark (design-first)</div>
-      <div class="card2"><span class="dot" style="background:#2456E6"></span>Midnight Ledger · your locked set</div>
+      <div class="card2"><span class="dot" style="background:#101824"></span>Dark family: Harbor Navy · Deep Fjord — full dark values</div>
     </div>
     <div class="mode light">
       <div class="mt">Light (paired tokens)</div>
-      <div class="card2"><span class="dot" style="background:#2456E6"></span>Same tokens, light values — Flutter swaps when the phone switches mode</div>
+      <div class="card2"><span class="dot" style="background:#EFF2F5"></span>Light family: Nordic Mist ★ · Warm Ledger — full light values</div>
     </div>
   </div>
+  <p class="muted" style="font-size:11px;margin-top:8px">Mode pairing: Flutter <b style="color:var(--ink)">ThemeMode.system</b> swaps light ↔ dark families when the phone switches mode; the app-bar palette button overrides per user choice. Every token gets a value in BOTH families — semantic colours (error/success/warning) stay constant across themes; surface-raised / on-primary derive from each theme's surface / primary. Full per-theme matrix lives in <b style="color:var(--ink)">app_theme.dart</b> (status: build). Midnight Ledger = legacy dark, no light pair — migrates into the dark family.</p>
 
   <h3>Visual · One-source-of-truth rule</h3>
   <div class="ssot">
@@ -837,9 +839,9 @@
   <table>
     <thead><tr><th>Part</th><th>Status</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Dark token set (Midnight Ledger)</td><td><span class="pill g">exists</span></td><td>locked in every design board</td></tr>
+      <tr><td>Dark token set (Midnight Ledger)</td><td><span class="pill g">exists</span></td><td>legacy dark — new boards use the4 locked themes</td></tr>
       <tr><td>Type + spacing scales</td><td><span class="pill g">in designs</span></td><td>need naming as TextStyle/scale constants</td></tr>
-      <tr><td>Light-mode token values</td><td><span class="pill a">build</span></td><td>paired values for every token</td></tr>
+      <tr><td>Light-mode token values</td><td><span class="pill a">build</span></td><td> LIGHT family = Nordic/Warm · DARK family = Harbor/Fjord · full matrix in app_theme.dart</td></tr>
       <tr><td>app_theme.dart + component themes</td><td><span class="pill a">build</span></td><td>Flutter — the single source file</td></tr>
       <tr><td>Design tool</td><td><span class="pill b">Stitch</span></td><td>Google Stitch (our Stitch CLI) — design exploration + export toward Flutter/Figma; authority stays app_theme.dart</td></tr>
     </tbody>
